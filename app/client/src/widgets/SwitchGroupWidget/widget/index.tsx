@@ -348,19 +348,19 @@ class SwitchGroupWidget extends BaseWidget<
       labelWidth,
       options,
       parentColumnSpace,
-      parentRowSpace,
       selectedValues,
       topRow,
       widgetId,
     } = this.props;
 
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
       <SwitchGroupComponent
         alignment={alignment}
         compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
         disabled={isDisabled}
+        height={componentHeight}
         inline={isInline}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
@@ -372,7 +372,6 @@ class SwitchGroupWidget extends BaseWidget<
         onChange={this.handleSwitchStateChange}
         options={options}
         required={isRequired}
-        rowSpace={parentRowSpace}
         selected={selectedValues}
         valid={isValid}
         widgetId={widgetId}

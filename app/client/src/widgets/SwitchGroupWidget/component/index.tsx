@@ -44,7 +44,8 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
 
     overflow-x: hidden;
 
-    label {
+    label.switchgroup-label {
+      line-height: 16px;
       ${
         labelPosition === LabelPositionTypes.Top
           ? `margin-bottom: 5px; margin-right: 0px`
@@ -58,34 +59,25 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
 
 export interface InputContainerProps {
   alignment: Alignment;
-  inline?: boolean;
+  compactMode: boolean;
+  inline: boolean;
   optionCount: number;
+  scrollable: boolean;
   valid?: boolean;
 }
 
 export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
-  display: ${({ inline }) => (inline ? "inline-flex" : "flex")};
-  ${({ alignment, inline }) => `
+  display: ${({ alignment, inline }) =>
+    inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"};
+  ${({ inline }) => `
     flex-direction: ${inline ? "row" : "column"};
-    align-items: ${
-      inline
-        ? "center"
-        : alignment === Alignment.LEFT
-        ? "flex-start"
-        : "flex-end"
-    };
+    align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
+    ${!inline && "align-self: flex-start"};
   `}
-  justify-content: ${({ alignment, inline, optionCount }) =>
-    optionCount > 1
-      ? `space-between`
-      : inline
-      ? alignment === Alignment.LEFT
-        ? `flex-start`
-        : `flex-end`
-      : `center`};
+  justify-content: ${({ inline, optionCount }) =>
+    optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`};
 
-  width: 100%;
   height: 100%;
   border: 1px solid transparent;
 
@@ -97,22 +89,31 @@ export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   .${Classes.CONTROL} {
     display: flex;
     align-items: center;
-    margin-bottom: 0;
-    min-height: 30px;
+
+    ${({ alignment, inline, optionCount, scrollable }) =>
+      (scrollable || (!inline && optionCount > 1)) &&
+      (alignment === Alignment.LEFT
+        ? `margin-bottom: 16px`
+        : `min-height: 30px`)};
+
+    ${({ inline, optionCount, scrollable }) =>
+      (inline || optionCount === 1) && !scrollable && `margin-bottom: 0`};
   }
   ${BlueprintControlTransform}
 `;
 
 export interface StyledSwitchProps {
-  rowSpace: number;
+  alignIndicator: Alignment;
+  inline: boolean;
 }
 
 const StyledSwitch = styled(Switch)<ThemeProp & StyledSwitchProps>`
-  height: ${({ rowSpace }) => rowSpace}px;
-
+  line-height: 16px;
   &.bp3-control.bp3-switch {
-    ${({ alignIndicator }) =>
-      alignIndicator === Alignment.RIGHT && `margin-right: 0`};
+    ${({ alignIndicator, inline }) =>
+      alignIndicator === Alignment.RIGHT &&
+      (inline ? `display: inline-block` : `display: block`)};
+
     .bp3-control-indicator {
       margin-top: 0;
     }
@@ -125,6 +126,7 @@ const StyledSwitch = styled(Switch)<ThemeProp & StyledSwitchProps>`
 
 export interface LabelContainerProps {
   inline: boolean;
+  optionCount: number;
   compactMode: boolean;
   alignment?: Alignment;
   position?: LabelPosition;
@@ -133,18 +135,18 @@ export interface LabelContainerProps {
 
 export const LabelContainer = styled.div<LabelContainerProps>`
   display: flex;
-  ${({ alignment, compactMode, inline, position, width }) => `
+  ${({ alignment, compactMode, inline, optionCount, position, width }) => `
     ${
       position !== LabelPositionTypes.Top &&
       (position === LabelPositionTypes.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        ? `&&& {margin-right: 5px;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
     ${position === LabelPositionTypes.Left &&
       `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
         `justify-content:  flex-end`};`}
 
-    ${!inline && `align-self: flex-start;`}
+    ${!inline && optionCount > 1 && `align-self: flex-start;`}
   `}
 `;
 
@@ -182,6 +184,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     alignment,
     compactMode,
     disabled,
+    height,
     inline,
     labelAlignment,
     labelPosition,
@@ -192,7 +195,6 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     labelWidth,
     onChange,
     options,
-    rowSpace,
     selected,
     valid,
     widgetId,
@@ -200,10 +202,33 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
   } = props;
 
   const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
+  const [scrollable, setScrollable] = useState(false);
+
+  const containerRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
     setHasLabelEllipsis(checkHasLabelEllipsis());
-  }, [width, labelText, labelPosition, labelWidth]);
+  }, [width, height, labelText, labelPosition, labelWidth]);
+
+  useEffect(() => {
+    const containerElement = containerRef.current;
+    if (
+      containerElement &&
+      containerElement.scrollHeight > containerElement.clientHeight
+    ) {
+      setScrollable(true);
+    } else {
+      setScrollable(false);
+    }
+  }, [
+    height,
+    width,
+    inline,
+    JSON.stringify(options),
+    labelText,
+    labelPosition,
+    labelWidth,
+  ]);
 
   const checkHasLabelEllipsis = useCallback(() => {
     const labelElement = document.querySelector(
@@ -217,16 +242,20 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     return false;
   }, []);
 
+  const optionCount = (options || []).length;
+
   return (
     <SwitchGroupContainer
       compactMode={compactMode}
       labelPosition={labelPosition}
+      ref={containerRef}
     >
       {labelText && (
         <LabelContainer
           alignment={labelAlignment}
           compactMode={compactMode}
           inline={inline}
+          optionCount={optionCount}
           position={labelPosition}
           width={labelWidth}
         >
@@ -261,8 +290,10 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
       )}
       <InputContainer
         alignment={alignment}
+        compactMode={compactMode}
         inline={inline}
-        optionCount={(options || []).length}
+        optionCount={optionCount}
+        scrollable={scrollable}
         valid={valid}
       >
         {Array.isArray(options) &&
@@ -276,7 +307,6 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
               key={option.value}
               label={option.label}
               onChange={onChange(option.value)}
-              rowSpace={rowSpace}
             />
           ))}
       </InputContainer>
@@ -291,7 +321,6 @@ export interface SwitchGroupComponentProps {
   options: OptionProps[];
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
   required: boolean;
-  rowSpace: number;
   selected: string[];
   valid?: boolean;
   compactMode: boolean;
@@ -303,6 +332,7 @@ export interface SwitchGroupComponentProps {
   labelStyle?: string;
   labelWidth: number;
   widgetId: string;
+  height: number;
   width: number;
 }
 

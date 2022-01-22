@@ -12,8 +12,8 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "SwitchGroup",
-    rows: 1.5 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4.5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+    columns: 4 * GRID_DENSITY_MIGRATION_V1,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
