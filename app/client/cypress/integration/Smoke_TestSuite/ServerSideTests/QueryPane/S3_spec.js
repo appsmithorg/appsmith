@@ -470,7 +470,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.ClickGotIt();
 
     //Upload: 1
-    let fixturePath = "GlobeChristmas.jpeg";
+    let fixturePath = "AAAGlobeChristmas.jpeg";
     cy.wait(3000);
     cy.clickButton("Select Files"); //1 files selected
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
@@ -490,8 +490,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     //Verifying Searching File from UI
     cy.xpath(queryLocators.searchFilefield)
-      .type("GlobeChri")
-      .wait(4000); //for search to finish
+      .type("AAAGlobeChri")
+      .wait(7000); //for search to finish
     expect(
       cy.xpath(
         "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
@@ -529,7 +529,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ); //verify Deletion of file is success from UI also
 
     //Upload: 2 - Bug verification 9201
-    fixturePath = "FlowerVase.jpeg";
+    fixturePath = "AAAFlowerVase.jpeg";
     cy.wait(3000);
     cy.clickButton("Select Files"); //1 files selected
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
@@ -551,8 +551,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.xpath(queryLocators.searchFilefield)
       .clear()
       .wait(500)
-      .type("Flow")
-      .wait(3000); //for search to finish
+      .type("AAAFlowerVase")
+      .wait(7000); //for search to finish
     expect(
       cy.xpath(
         "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
