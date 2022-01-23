@@ -112,14 +112,14 @@ public class DeleteSheetMethod implements Method {
             );
 
             return webClient.method(HttpMethod.DELETE)
-                    .uri(uriBuilder.build(true).toUri());
+                    .uri(uriBuilder.build(false).toUri());
         } else {
             UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                     methodConfig.getSpreadsheetId() /* spreadsheet Id */
                             + ":batchUpdate");
 
             return webClient.method(HttpMethod.POST)
-                    .uri(uriBuilder.build(true).toUri())
+                    .uri(uriBuilder.build(false).toUri())
                     .body(BodyInserters.fromValue(
                             Map.of(
                                     "requests", List.of(

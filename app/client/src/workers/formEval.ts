@@ -1,4 +1,5 @@
 import {
+  DynamicValues,
   FormEvalOutput,
   FormEvaluationState,
 } from "../reducers/evaluationReducers/formEvaluationReducer";
@@ -6,12 +7,14 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfig } from "components/formControls/BaseControl";
+import { isEmpty, merge } from "lodash";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
   SHOW = "show", // When set, the component will be hidden until condition is true
   ENABLE = "enable", // When set, the component will be enabled until condition is true
   DISABLE = "disable", // When set, the component will be disabled until condition is true
+  FETCH_DYNAMIC_VALUES = "fetchDynamicValues", // When set, the component will fetch the values dynamically
 }
 
 // Object to hold the initial eval object
@@ -19,9 +22,8 @@ let finalEvalObj: FormEvalOutput;
 
 // Recursive function to generate the evaluation state for form config
 const generateInitialEvalState = (formConfig: FormConfig) => {
-  const visible = false;
-  const enabled = true;
-  let conditionTypes = {};
+  const conditionals: Record<string, any> = {};
+  const conditionTypes: Record<string, any> = {};
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if ("conditionals" in formConfig && !!formConfig.conditionals) {
@@ -41,31 +43,53 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
       allConditionTypes.includes(ConditionType.HIDE) ||
       allConditionTypes.includes(ConditionType.SHOW)
     ) {
-      conditionTypes = {
-        ...conditionTypes,
-        visible,
-      };
+      conditionTypes.visible = false;
+      merge(conditionals, formConfig.conditionals);
     }
 
     if (
       allConditionTypes.includes(ConditionType.ENABLE) ||
       allConditionTypes.includes(ConditionType.DISABLE)
     ) {
-      conditionTypes = {
-        ...conditionTypes,
-        enabled,
+      conditionTypes.enabled = true;
+      merge(conditionals, formConfig.conditionals);
+    }
+
+    if (allConditionTypes.includes(ConditionType.FETCH_DYNAMIC_VALUES)) {
+      const dynamicValues: DynamicValues = {
+        allowedToFetch: false,
+        isLoading: false,
+        hasStarted: false,
+        hasFetchFailed: false,
+        data: [],
+        config: {
+          url: formConfig.conditionals.fetchDynamicValues.url,
+          method: formConfig.conditionals.fetchDynamicValues.method,
+          params: formConfig.conditionals.fetchDynamicValues.params,
+        },
       };
+      conditionTypes.fetchDynamicValues = dynamicValues;
+      conditionals.fetchDynamicValues =
+        formConfig.conditionals.fetchDynamicValues.condition;
     }
     // Conditionals are stored in the eval state itself for quick access
     finalEvalObj[key] = {
       ...conditionTypes,
-      conditionals: formConfig.conditionals,
+      conditionals,
     };
   }
 
   if ("children" in formConfig && !!formConfig.children)
     formConfig.children.forEach((config: FormConfig) =>
       generateInitialEvalState(config),
+    );
+
+  if ("schema" in formConfig && !!formConfig.schema)
+    formConfig.schema.forEach((config: FormConfig, index: number) =>
+      generateInitialEvalState({
+        ...config,
+        configProperty: `${formConfig.configProperty}.column_${index + 1}`,
+      }),
     );
 };
 
@@ -89,6 +113,15 @@ function evaluate(
               currentEvalState[key].enabled = !output;
             } else if (conditionType === ConditionType.ENABLE) {
               currentEvalState[key].enabled = output;
+            } else if (
+              conditionType === ConditionType.FETCH_DYNAMIC_VALUES &&
+              currentEvalState[key].hasOwnProperty("fetchDynamicValues") &&
+              !!currentEvalState[key].fetchDynamicValues
+            ) {
+              (currentEvalState[key]
+                .fetchDynamicValues as DynamicValues).allowedToFetch = output;
+              (currentEvalState[key]
+                .fetchDynamicValues as DynamicValues).isLoading = output;
             }
           });
         }
@@ -144,6 +177,11 @@ export function setFormEvaluationSaga(
       payload.settingConfig.forEach((config: FormConfig) => {
         generateInitialEvalState(config);
       });
+    }
+
+    // if the evaluations are empty, then the form is not valid, don't mutate the state
+    if (isEmpty(finalEvalObj)) {
+      return currentEvalState;
     }
 
     // This is the initial evaluation state, evaluations can now be run on top of this

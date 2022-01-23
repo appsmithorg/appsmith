@@ -148,7 +148,7 @@ public class CreateMethod implements Method {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL, "");
 
         return webClient.method(HttpMethod.POST)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.fromValue(spreadsheet));
     }
 }

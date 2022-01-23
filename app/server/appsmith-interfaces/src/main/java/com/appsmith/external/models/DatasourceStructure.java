@@ -27,6 +27,7 @@ public class DatasourceStructure {
         VIEW,
         ALIAS,
         COLLECTION,
+        BUCKET,
     }
 
     @Data
@@ -111,6 +112,7 @@ public class DatasourceStructure {
         String title;
         String body;
         Object configuration;
+        ActionConfiguration actionConfiguration;
 
         // To create templates for plugins which store the configurations
         // in List<Property> format
@@ -120,12 +122,29 @@ public class DatasourceStructure {
             this.configuration = configuration;
         }
 
-        // To create templates for plugins with UQI framework whic store the configurations
+        // To create templates for plugins with UQI framework which store the configurations
         // as a map
         public Template(String title, String body, Map<String, ?> configuration) {
             this.title = title;
             this.body = body;
             this.configuration = configuration;
+        }
+
+        /**
+         * Create templates by passing UQI framework config and ActionConfiguration Object.
+         *
+         * For integrations that use UQI interface, a config map is used to indicate the required template. However,
+         * some properties like `actionConfiguration.path` cannot be configured via the config map since the config
+         * map only models the formData attribute. Such properties are configured via ActionConfiguration object.
+         *
+         * This seemed like a good choice over only using the ActionConfiguration object and skipping out on the
+         * UQI/formData configuration map - as it would allow the Client application to re-use the UQI related
+         * template code and augment the remaining fields with ActionConfiguration object.
+         */
+        public Template(String title, Map<String, ?> configuration, ActionConfiguration actionConfiguration) {
+            this.title = title;
+            this.configuration = configuration;
+            this.actionConfiguration = actionConfiguration;
         }
 
         // Creating templates without configuration

@@ -27,12 +27,12 @@ describe("Checkbox Group Widget Functionality", function() {
      */
     cy.radioInput(0, this.data.radio1);
     cy.get(formWidgetsPage.labelCheckboxGroup)
-      .eq(0)
+      .eq(1)
       .should("have.text", "test1");
     cy.radioInput(1, "1");
     cy.radioInput(2, this.data.radio2);
     cy.get(formWidgetsPage.labelCheckboxGroup)
-      .eq(1)
+      .eq(2)
       .should("have.text", this.data.radio2);
     cy.radioInput(3, "2");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
@@ -80,10 +80,29 @@ describe("Checkbox Group Widget Functionality", function() {
 
   it("4. Checkbox Group Functionality To Button Text", function() {
     cy.get(publish.checkboxGroupWidget + " " + "label")
-      .eq(1)
+      .eq(2)
       .should("have.text", "test2");
     cy.get(publish.backToEditor).click();
   });
+
+  it("handleSelectAllChange: unchecked", function() {
+    const selectAllSelector = formWidgetsPage.selectAllCheckboxControl;
+    const uncheckedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:not(:checked)`;
+    // Deselect all
+    cy.get(selectAllSelector).click();
+    // Should get 2 unchecked option inputs
+    cy.get(uncheckedOptionInputs).should("have.length", 2);
+  });
+
+  it("handleSelectAllChange: checked", function() {
+    const selectAllSelector = formWidgetsPage.selectAllCheckboxControl;
+    const checkedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:checked`;
+    // Select all
+    cy.get(selectAllSelector).click();
+    // Should get 2 checked option inputs
+    cy.get(checkedOptionInputs).should("have.length", 2);
+  });
+
   it("Checkbox Group Functionality To alignment options", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     // check default value

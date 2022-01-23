@@ -5,7 +5,7 @@ describe("Inspect Entity", function() {
     cy.addDsl(dsl);
   });
   it("Check whether depedencies and references are shown correctly", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", "{{Button1.text}}");
 
     cy.get(".t--debugger").click();
