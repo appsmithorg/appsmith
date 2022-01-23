@@ -713,8 +713,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
+  const LaunchAppInMobile = () => {
+    window.location.href = viewApplicationURL;
+  };
+
   return (
-    <Container isMobile={props.isMobile}>
+    <Container isMobile={props.isMobile} onClick={LaunchAppInMobile}>
       <NameWrapper
         className="t--application-card"
         hasReadPermission={hasReadPermission}
