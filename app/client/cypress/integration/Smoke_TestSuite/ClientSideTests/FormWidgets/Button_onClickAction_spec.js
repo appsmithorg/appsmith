@@ -3,7 +3,6 @@ const dsl = require("../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Button Widget Functionality", function() {
   before(() => {
@@ -18,16 +17,11 @@ describe("Button Widget Functionality", function() {
     //creating the Modal and verify Modal name
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
-    cy.get(publishPage.buttonWidget)
-      .contains("Submit")
-      .click();
+    cy.get(publishPage.buttonWidget).click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
       this.data.ModalName,
     );
-    cy.get(publishPage.iconWidget).click();
-    cy.get(explorer.widgetSwitchId).click();
-    cy.get(explorer.explorerSwitchId).click();
   });
 
   it("2. Button-CallAnApi Validation", function() {
