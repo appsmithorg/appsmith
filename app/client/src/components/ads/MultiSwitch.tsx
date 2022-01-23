@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { CommonComponentProps } from "./common";
 import Text, { Case, TextType } from "./Text";
 
-export type TabProp<T> = {
+export type MultiSwitchTabProp<T> = {
   key: string;
   title: T;
   panelComponent: JSX.Element;
@@ -40,7 +40,7 @@ const Tab = styled.div<{ selected: boolean }>`
 `;
 
 type MultiSwitchProps<T> = CommonComponentProps & {
-  tabs: Array<TabProp<T>>;
+  tabs: Array<MultiSwitchTabProp<T>>;
   selected: { title: T; value: string };
   onSelect: (title: T) => void;
 };

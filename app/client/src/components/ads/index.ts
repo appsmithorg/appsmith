@@ -106,3 +106,50 @@ export * from "./SearchInput";
 
 export { default as ShowcaseCarousel } from "./ShowcaseCarousel";
 export * from "./ShowcaseCarousel";
+
+export { default as SearchSnippets } from "./SnippetButton";
+
+export { default as Spinner } from "./Spinner";
+export * from "./Spinner";
+
+export { default as OnboardingStatusbar } from "./Statusbar";
+export * from "./Statusbar";
+
+export { default as StepComponent } from "./StepComponent";
+export * from "./StepComponent";
+
+export { default as Switch } from "./Switch";
+
+export { default as Switcher } from "./Switcher";
+export * from "./Switcher";
+
+export { default as TabItemBackgroundFill } from "./TabItemBackgroundFill";
+
+export { default as Table } from "./Table";
+export * from "./Table";
+
+export { default as TableDropdown } from "./TableDropdown";
+export * from "./TableDropdown";
+
+export * from "./Tabs";
+
+export { default as TagInputComponent } from "./TagInputComponent";
+
+export { default as Text } from "./Text";
+export * from "./Text";
+
+export { default as TextInput } from "./TextInput";
+export * from "./TextInput";
+
+export * from "./Toast";
+
+export { default as Toggle } from "./Toggle";
+export * from "./Toggle";
+
+export { default as Tooltip } from "./Tooltip";
+export * from "./Tooltip";
+
+export { default as TreeDropdown } from "./TreeDropdown";
+export * from "./TreeDropdown";
+
+export { default as UserProfileImagePicker } from "./UserProfileImagePicker";

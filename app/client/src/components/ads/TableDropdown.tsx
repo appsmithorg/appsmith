@@ -15,7 +15,7 @@ type DropdownOption = {
   desc: string;
 };
 
-export type DropdownProps = CommonComponentProps & {
+export type TableDropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   onSelect: (selectedValue: DropdownOption) => void;
   selectedIndex: number;
@@ -82,7 +82,7 @@ const Content = styled.div<{ isLoading?: boolean }>`
   }
 `;
 
-function TableDropdown(props: DropdownProps) {
+function TableDropdown(props: TableDropdownProps) {
   const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(

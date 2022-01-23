@@ -34,16 +34,16 @@ const SwitchBlock = styled.div<{ active?: boolean }>`
 
 /** Styles End **/
 
-export type Switch = {
+export type SwitchType = {
   id: string;
   text: string;
   action: () => void;
 };
 
 export type SwitcherProps = CommonComponentProps & {
-  switches: Array<Switch>;
+  switches: Array<SwitchType>;
   activeSwitchClass?: string;
-  activeObj?: Switch;
+  activeObj?: SwitchType;
 };
 
 function Switcher(props: SwitcherProps) {
@@ -57,7 +57,7 @@ function Switcher(props: SwitcherProps) {
   }, [activeObj]);
 
   const switchClickHandler = (
-    switchObj: Switch,
+    switchObj: SwitchType,
     preventSwitchAction = false,
   ) => {
     if (switchObj.id !== activeSlot) {

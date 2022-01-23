@@ -17,7 +17,7 @@ export enum SearchVariant {
   SEAMLESS = "SEAMLESS",
 }
 
-export type TextInputProps = CommonComponentProps & {
+export type SearchTextInputProps = CommonComponentProps & {
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
@@ -56,7 +56,7 @@ const CloseIcon = styled.div`
 `;
 
 const SearchInput = forwardRef(
-  (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
+  (props: SearchTextInputProps, ref: Ref<HTMLInputElement>) => {
     const [searchValue, setSearchValue] = useState(props.defaultValue);
     useEffect(() => {
       setSearchValue(props.defaultValue);
