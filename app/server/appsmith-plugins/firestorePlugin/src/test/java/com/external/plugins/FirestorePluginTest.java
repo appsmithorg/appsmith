@@ -152,7 +152,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -187,7 +187,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -217,7 +217,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -248,7 +248,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -312,7 +312,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -347,7 +347,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -381,7 +381,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -407,7 +407,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -447,7 +447,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -509,7 +509,7 @@ public class FirestorePluginTest {
         final ActionConfiguration actionConfiguration = constructActionConfiguration(null, null);
         // Fetch data for page 1
         Mono<ActionExecutionResult> page1Mono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration)
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration)
                 .cache();
 
         // Fetch data for page 2 by clicking on the next button
@@ -608,7 +608,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -668,7 +668,7 @@ public class FirestorePluginTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -800,7 +800,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -844,7 +844,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         /*
          * - Delete key.
@@ -873,7 +873,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
 
         resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
         /*
          * - Verify that the key does not exist in the list of keys returned by reading the document.
@@ -901,7 +901,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
@@ -929,7 +929,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
@@ -956,7 +956,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
@@ -983,7 +983,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
 
@@ -1051,4 +1051,39 @@ public class FirestorePluginTest {
                 ((Map) ((List) actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
                         "value"));
     }
+
+    /*@Test
+    public void testJsonSmartSubstitution() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("test/json_smart_substitution_test");
+        actionConfiguration.setBody("{\n" +
+                "    \"firstName\": \"test\",\n" +
+                "    \"lastName\":\"lastTest\"\n" +
+                "}");
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "CREATE_DOCUMENT");
+        actionConfiguration.setFormData(configMap);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    *//*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     *//*
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "CREATE_DOCUMENT", null, null, null));
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+                })
+                .verifyComplete();
+    }*/
 }

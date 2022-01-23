@@ -123,8 +123,8 @@ public class FirestorePlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration) {
 
             final Map<String, Object> formData = actionConfiguration.getFormData();
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
-            Boolean smartBsonSubstitution = TRUE;
+            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, false);
+            Boolean smartBsonSubstitution = false;
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
