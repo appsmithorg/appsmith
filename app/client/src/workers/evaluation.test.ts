@@ -242,6 +242,7 @@ const BASE_WIDGET: DataTreeWidget = {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   propertyOverrideDependency: {},
   overridingPropertyPaths: {},
+  privateWidgets: {},
 };
 
 const BASE_ACTION: DataTreeAction = {
@@ -265,6 +266,7 @@ const BASE_ACTION: DataTreeAction = {
     data: EvaluationSubstitutionType.TEMPLATE,
   },
   dependencyMap: {},
+  datasourceUrl: "",
 };
 
 const metaMock = jest.spyOn(WidgetFactory, "getWidgetMetaPropertiesMap");
