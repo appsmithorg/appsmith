@@ -49,6 +49,7 @@ import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
+import AlloyPage from "components/alloy/Page";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -117,6 +118,7 @@ class AppRouter extends React.Component<any, any> {
                 <SentryRoute component={OrganizationLoader} path={ORG_URL} />
                 <SentryRoute component={Users} exact path={USERS_URL} />
                 <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
+                <SentryRoute component={AlloyPage} path="/design-system" />
                 <SentryRoute
                   component={ApplicationListLoader}
                   exact

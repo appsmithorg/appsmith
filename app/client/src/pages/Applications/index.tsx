@@ -98,6 +98,8 @@ import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import ButtonV2 from "components/alloy/Button";
+import AddIcon from "remixicon-react/AddFillIcon";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -241,7 +243,6 @@ const OrgShareUsers = styled.div`
     margin-left: 8px;
   }
 
-  & button,
   & a {
     padding: 4px 12px;
   }
@@ -761,6 +762,9 @@ function ApplicationsSection(props: any) {
                           text={"New"}
                         />
                       )}
+                    {applications.length !== 0 && (
+                      <ButtonV2 variant="outline">New</ButtonV2>
+                    )}
                     {(currentUser || isFetchingApplications) && (
                       <Menu
                         className="t--org-name"
