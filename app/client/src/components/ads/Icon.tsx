@@ -135,6 +135,7 @@ import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import DownloadIcon from "remixicon-react/DownloadLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -310,6 +311,7 @@ export const IconCollection = [
   "dropdown",
   "refresh",
   "key",
+  "download2",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -724,6 +726,9 @@ const Icon = forwardRef(
         break;
       case "refresh":
         returnIcon = <RefreshLineIcon />;
+        break;
+      case "download2":
+        returnIcon = <DownloadIcon />;
         break;
       default:
         returnIcon = null;

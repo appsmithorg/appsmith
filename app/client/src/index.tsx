@@ -20,7 +20,6 @@ import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
-import { ChakraProvider } from "@chakra-ui/react";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
@@ -31,13 +30,11 @@ appInitializer();
 function App() {
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
-      <ChakraProvider resetCSS={false}>
-        <Provider store={store}>
-          <LayersContext.Provider value={Layers}>
-            <ThemedAppWithProps />
-          </LayersContext.Provider>
-        </Provider>
-      </ChakraProvider>
+      <Provider store={store}>
+        <LayersContext.Provider value={Layers}>
+          <ThemedAppWithProps />
+        </LayersContext.Provider>
+      </Provider>
     </Sentry.ErrorBoundary>
   );
 }

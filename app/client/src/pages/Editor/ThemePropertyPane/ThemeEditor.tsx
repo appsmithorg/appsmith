@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { get, startCase } from "lodash";
 
 import ThemeCard from "./ThemeCard";
@@ -20,23 +20,21 @@ import { AppTheme } from "entities/AppTheming";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import Button, { Category, Size } from "components/ads/Button";
-import {
-  Dropdown,
-  DropdownButton,
-  DropdownItem,
-  DropdownList,
-} from "components/ads/DropdownV2";
+import Dropdown from "components/ads/Dropdown";
 import MoreIcon from "remixicon-react/MoreFillIcon";
-import { useDisclosure } from "@chakra-ui/react";
 import DownloadIcon from "remixicon-react/DownloadLineIcon";
 import SaveThemeModal from "./SaveThemeModal";
+import { Popover, Position } from "@blueprintjs/core";
+import { Popover2 } from "@blueprintjs/popover2";
+import Menu from "components/ads/Menu";
+import MenuItem from "components/ads/MenuItem";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const themingStack = useSelector(getAppThemingStack);
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const [isMenuOpen, setMenuOpen] = useState(false);
 
   const updateSelectedTheme = useCallback(
     (theme: AppTheme) => {
@@ -63,19 +61,18 @@ function ThemeEditor() {
         <header className="px-3 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-normal capitalize">Theme Properties</h3>
-            <Dropdown>
-              <DropdownButton>
-                <MoreIcon className="w-5 h-5 text-gray-600" />
-              </DropdownButton>
-              <DropdownList>
-                <DropdownItem
-                  icon={<DownloadIcon className="w-4 h-4" />}
-                  onClick={onOpen}
-                >
-                  Save theme
-                </DropdownItem>
-              </DropdownList>
-            </Dropdown>
+            <div>
+              <Menu position={Position.BOTTOM} target={<MoreIcon />}>
+                <MenuItem
+                  icon="download2"
+                  onSelect={() => {
+                    console.log("hello");
+                  }}
+                  text="Save theme"
+                />
+                <div />
+              </Menu>
+            </div>
           </div>
           <ThemeCard changeable theme={selectedTheme} />
         </header>
@@ -181,7 +178,7 @@ function ThemeEditor() {
           </SettingSection>
         </main>
       </div>
-      <SaveThemeModal isOpen={isOpen} onClose={onClose} />
+      {/* <SaveThemeModal isOpen={isOpen} onClose={onClose} /> */}
     </>
   );
 }
