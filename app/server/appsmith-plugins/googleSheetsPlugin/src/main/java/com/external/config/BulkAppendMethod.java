@@ -211,6 +211,7 @@ public class BulkAppendMethod implements Method {
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
+        uriBuilder.queryParam("insertDataOption", "INSERT_ROWS");
 
         final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
         List<List<Object>> collect = body1.stream()
@@ -222,7 +223,7 @@ public class BulkAppendMethod implements Method {
         valueRange.setRange(range);
         valueRange.setValues(collect);
         return webClient.method(HttpMethod.POST)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.fromValue(valueRange));
     }
 

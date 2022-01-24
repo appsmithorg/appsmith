@@ -45,13 +45,13 @@ public interface GitServiceCE {
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
-    Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches);
+    Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches, String currentBranch);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
     Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName);
 
-    Mono<GitPullDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
+    Mono<MergeStatusDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
     Mono<MergeStatusDTO> isBranchMergeable(String applicationId, GitMergeDTO gitMergeDTO);
 

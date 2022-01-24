@@ -40,6 +40,9 @@ import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-gr
 import { ReactComponent as ProgressBarIcon } from "assets/icons/widget/progressbar-icon.svg";
 import { ReactComponent as SwitchGroupIcon } from "assets/icons/widget/switch-group.svg";
 import { ReactComponent as CameraIcon } from "assets/icons/widget/camera.svg";
+import { ReactComponent as MapChartIcon } from "assets/icons/widget/map-chart.svg";
+import { ReactComponent as PhoneInput } from "assets/icons/widget/phoneInput.svg";
+import { ReactComponent as CurrencyInput } from "assets/icons/widget/currencyInput.svg";
 
 /* eslint-disable react/display-name */
 
@@ -110,6 +113,11 @@ export const WidgetIcons: {
     </StyledIconWrapper>
   ),
   INPUT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <InputIcon />
+    </StyledIconWrapper>
+  ),
+  INPUT_WIDGET_V2: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <InputIcon />
     </StyledIconWrapper>
@@ -242,6 +250,21 @@ export const WidgetIcons: {
   CAMERA_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <CameraIcon />
+    </StyledIconWrapper>
+  ),
+  MAP_CHART_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MapChartIcon />
+    </StyledIconWrapper>
+  ),
+  PHONE_INPUT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <PhoneInput />
+    </StyledIconWrapper>
+  ),
+  CURRENCY_INPUT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CurrencyInput />
     </StyledIconWrapper>
   ),
 };

@@ -54,6 +54,7 @@ import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.sv
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
 // import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
+import { ReactComponent as DoubleArrowRightIcon } from "assets/icons/ads/double-arrow-right.svg";
 import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
 import { ReactComponent as CapDotIcon } from "assets/icons/control/cap_dot.svg";
 import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dotted.svg";
@@ -108,6 +109,7 @@ import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
+import KeyIcon from "remixicon-react/Key2LineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import LeftArrowIcon from "remixicon-react/ArrowLeftLineIcon";
@@ -193,6 +195,7 @@ export const IconCollection = [
   "add-more-fill",
   "arrow-forward",
   "arrow-left",
+  "double-arrow-right",
   "swap-horizontal",
   "billing",
   "book",
@@ -306,6 +309,7 @@ export const IconCollection = [
   "widget",
   "dropdown",
   "refresh",
+  "key",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -380,6 +384,9 @@ const Icon = forwardRef(
         break;
       case "arrow-forward":
         returnIcon = <ArrowForwardIcon />;
+        break;
+      case "double-arrow-right":
+        returnIcon = <DoubleArrowRightIcon />;
         break;
       case "arrow-left":
         returnIcon = <ArrowLeft />;
@@ -534,6 +541,9 @@ const Icon = forwardRef(
         break;
       case "invite-user":
         returnIcon = <InviteUserIcon />;
+        break;
+      case "key":
+        returnIcon = <KeyIcon />;
         break;
       case "left-arrow-2":
         returnIcon = <LeftArrowIcon2 />;

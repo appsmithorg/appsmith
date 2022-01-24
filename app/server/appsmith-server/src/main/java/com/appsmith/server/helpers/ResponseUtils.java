@@ -19,9 +19,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -31,35 +31,61 @@ import java.util.List;
 public class ResponseUtils {
 
     public PageDTO updatePageDTOWithDefaultResources(PageDTO page) {
-        DefaultResources defaults = page.getDefaultResources();
-        if (defaults == null
-                || StringUtils.isEmpty(defaults.getApplicationId())
-                || StringUtils.isEmpty(defaults.getPageId())) {
+        DefaultResources defaultResourceIds = page.getDefaultResources();
+        if (defaultResourceIds == null
+                || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
+                || StringUtils.isEmpty(defaultResourceIds.getPageId())) {
 
-            log.debug("Unable to find default ids for page: {}", page.getId());
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", page.getId());
+            if (defaultResourceIds == null) {
+                return page;
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
+                defaultResourceIds.setApplicationId(page.getApplicationId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getPageId())) {
+                defaultResourceIds.setPageId(page.getId());
+            }
         }
-        page.setApplicationId(defaults.getApplicationId());
-        page.setId(defaults.getPageId());
+        page.setApplicationId(defaultResourceIds.getApplicationId());
+        page.setId(defaultResourceIds.getPageId());
 
         page.getLayouts()
                 .stream().filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
                 .forEach(layout -> layout.getLayoutOnLoadActions()
                         .forEach(dslActionDTOS -> dslActionDTOS
-                                .forEach(actionDTO -> actionDTO.setId(actionDTO.getDefaultActionId())))
+                                .forEach(actionDTO -> {
+                                    if (!StringUtils.isEmpty(actionDTO.getDefaultActionId())) {
+                                        actionDTO.setId(actionDTO.getDefaultActionId());
+                                    }
+                                }))
                 );
-
         return page;
     }
 
     public NewPage updateNewPageWithDefaultResources(NewPage newPage) {
-        DefaultResources defaultResources = newPage.getDefaultResources();
-        if (defaultResources == null) {
-            log.debug("Unable to find default ids for page: {}", newPage.getId());
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", newPage.getId());
+        DefaultResources defaultResourceIds = newPage.getDefaultResources();
+        if (defaultResourceIds == null
+                || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
+                || StringUtils.isEmpty(defaultResourceIds.getPageId())
+        ) {
+            log.error(
+                    "Unable to find default ids for page: {}",
+                    newPage.getId(),
+                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", newPage.getId())
+            );
+
+            if (defaultResourceIds == null) {
+                return newPage;
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
+                defaultResourceIds.setApplicationId(newPage.getApplicationId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getPageId())) {
+                defaultResourceIds.setPageId(newPage.getId());
+            }
         }
-        newPage.setId(defaultResources.getPageId());
-        newPage.setApplicationId(defaultResources.getApplicationId());
+        newPage.setId(defaultResourceIds.getPageId());
+        newPage.setApplicationId(defaultResourceIds.getApplicationId());
         if (newPage.getUnpublishedPage() != null) {
             newPage.setUnpublishedPage(this.updatePageDTOWithDefaultResources(newPage.getUnpublishedPage()));
         }
@@ -71,29 +97,46 @@ public class ResponseUtils {
 
     public ApplicationPagesDTO updateApplicationPagesDTOWithDefaultResources(ApplicationPagesDTO applicationPages) {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
-        pageNameIdList.forEach(page -> {
+        for (PageNameIdDTO page : pageNameIdList) {
             if (StringUtils.isEmpty(page.getDefaultPageId())) {
-                log.debug("Unable to find default pageId for applicationPage: {}", page.getId());
-                throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId());
+                log.error(
+                        "Unable to find default pageId for applicationPage: {}",
+                        page.getId(),
+                        new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId())
+                );
+                continue;
             }
             page.setId(page.getDefaultPageId());
-        });
+        }
         return applicationPages;
     }
 
     public ActionDTO updateActionDTOWithDefaultResources(ActionDTO action) {
-        DefaultResources defaults = action.getDefaultResources();
-        if (defaults == null
-                || StringUtils.isEmpty(defaults.getApplicationId())
-                || StringUtils.isEmpty(defaults.getPageId())
-                || StringUtils.isEmpty(defaults.getActionId())) {
-            log.debug("Unable to find default ids for action: {}", action.getId());
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getId());
+        DefaultResources defaultResourceIds = action.getDefaultResources();
+        if (defaultResourceIds == null
+                || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
+                || StringUtils.isEmpty(defaultResourceIds.getPageId())
+                || StringUtils.isEmpty(defaultResourceIds.getActionId())) {
+
+            if (defaultResourceIds == null) {
+                return action;
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
+                defaultResourceIds.setApplicationId(action.getApplicationId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getPageId())) {
+                defaultResourceIds.setPageId(action.getPageId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getActionId())) {
+                defaultResourceIds.setActionId(action.getId());
+            }
         }
-        action.setApplicationId(defaults.getApplicationId());
-        action.setPageId(defaults.getPageId());
-        action.setId(defaults.getActionId());
-        action.setCollectionId(defaults.getCollectionId());
+        action.setApplicationId(defaultResourceIds.getApplicationId());
+        action.setPageId(defaultResourceIds.getPageId());
+        action.setId(defaultResourceIds.getActionId());
+        if (!StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
+            action.setCollectionId(defaultResourceIds.getCollectionId());
+        }
         return action;
     }
 
@@ -104,7 +147,12 @@ public class ResponseUtils {
         }
         if (!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
             layout.getLayoutOnLoadActions().forEach(layoutOnLoadAction ->
-                    layoutOnLoadAction.forEach(onLoadAction -> onLoadAction.setId(onLoadAction.getDefaultActionId())));
+                    layoutOnLoadAction.forEach(onLoadAction -> {
+                        if (!StringUtils.isEmpty(onLoadAction.getDefaultActionId())) {
+                            onLoadAction.setId(onLoadAction.getDefaultActionId());
+                        }
+                    })
+            );
         }
         return layout;
     }
@@ -112,31 +160,60 @@ public class ResponseUtils {
     public Layout updateLayoutWithDefaultResources(Layout layout) {
         if (!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
             layout.getLayoutOnLoadActions().forEach(layoutOnLoadAction ->
-                    layoutOnLoadAction.forEach(onLoadAction -> onLoadAction.setId(onLoadAction.getDefaultActionId())));
+                    layoutOnLoadAction.forEach(onLoadAction -> {
+                        if (!StringUtils.isEmpty(onLoadAction.getDefaultActionId())) {
+                            onLoadAction.setId(onLoadAction.getDefaultActionId());
+                        }
+                    }));
         }
         return layout;
     }
 
     public ActionViewDTO updateActionViewDTOWithDefaultResources(ActionViewDTO viewDTO) {
-        DefaultResources defaults = viewDTO.getDefaultResources();
-        if (defaults == null
-                || StringUtils.isEmpty(defaults.getActionId())) {
-            log.debug("Unable to find default ids for actionViewDTO: {}", viewDTO.getId());
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionView", viewDTO.getId());
+        DefaultResources defaultResourceIds = viewDTO.getDefaultResources();
+        if (defaultResourceIds == null
+                || StringUtils.isEmpty(defaultResourceIds.getPageId())
+                || StringUtils.isEmpty(defaultResourceIds.getActionId())) {
+
+            if (defaultResourceIds == null) {
+                return viewDTO;
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getPageId())) {
+                defaultResourceIds.setPageId(viewDTO.getPageId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getActionId())) {
+                defaultResourceIds.setActionId(viewDTO.getId());
+            }
         }
-        viewDTO.setId(defaults.getActionId());
-        viewDTO.setPageId(defaults.getPageId());
+        viewDTO.setId(defaultResourceIds.getActionId());
+        viewDTO.setPageId(defaultResourceIds.getPageId());
         return viewDTO;
     }
 
     public NewAction updateNewActionWithDefaultResources(NewAction newAction) {
-        DefaultResources defaultResources = newAction.getDefaultResources();
-        if (defaultResources == null) {
-            log.debug("Unable to find default ids for newAction: {}", newAction.getId());
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", newAction.getId());
+        DefaultResources defaultResourceIds = newAction.getDefaultResources();
+        if (defaultResourceIds == null
+                || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
+                || StringUtils.isEmpty(defaultResourceIds.getActionId())) {
+            log.error(
+                    "Unable to find default ids for newAction: {}",
+                    newAction.getId(),
+                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "newAction", newAction.getId())
+            );
+
+            if (defaultResourceIds == null) {
+                return newAction;
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
+                defaultResourceIds.setApplicationId(newAction.getApplicationId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getActionId())) {
+                defaultResourceIds.setActionId(newAction.getId());
+            }
         }
-        newAction.setId(defaultResources.getActionId());
-        newAction.setApplicationId(defaultResources.getApplicationId());
+
+        newAction.setId(defaultResourceIds.getActionId());
+        newAction.setApplicationId(defaultResourceIds.getApplicationId());
         if (newAction.getUnpublishedAction() != null) {
             newAction.setUnpublishedAction(this.updateActionDTOWithDefaultResources(newAction.getUnpublishedAction()));
         }
@@ -147,13 +224,28 @@ public class ResponseUtils {
     }
 
     public ActionCollection updateActionCollectionWithDefaultResources(ActionCollection actionCollection) {
-        DefaultResources defaultResources = actionCollection.getDefaultResources();
-        if (defaultResources == null) {
-            log.debug("Unable to find default ids for actionCollection: {}", actionCollection.getId());
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", actionCollection.getId());
+        DefaultResources defaultResourceIds = actionCollection.getDefaultResources();
+        if (defaultResourceIds == null
+                || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
+                || StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
+            log.error(
+                    "Unable to find default ids for actionCollection: {}",
+                    actionCollection.getId(),
+                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", actionCollection.getId())
+            );
+
+            if (defaultResourceIds == null) {
+                return actionCollection;
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
+                defaultResourceIds.setApplicationId(actionCollection.getApplicationId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
+                defaultResourceIds.setCollectionId(actionCollection.getId());
+            }
         }
-        actionCollection.setId(defaultResources.getCollectionId());
-        actionCollection.setApplicationId(defaultResources.getApplicationId());
+        actionCollection.setId(defaultResourceIds.getCollectionId());
+        actionCollection.setApplicationId(defaultResourceIds.getApplicationId());
         if (actionCollection.getUnpublishedCollection() != null) {
             actionCollection.setUnpublishedCollection(this.updateCollectionDTOWithDefaultResources(actionCollection.getUnpublishedCollection()));
         }
@@ -164,17 +256,28 @@ public class ResponseUtils {
     }
 
     public ActionCollectionDTO updateCollectionDTOWithDefaultResources(ActionCollectionDTO collection) {
-        DefaultResources defaults = collection.getDefaultResources();
-        if (defaults == null
-                || StringUtils.isEmpty(defaults.getApplicationId())
-                || StringUtils.isEmpty(defaults.getPageId())
-                || StringUtils.isEmpty(defaults.getCollectionId())) {
-            log.debug("Unable to find default ids for actionCollection: {}", collection.getId());
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", collection.getId());
+        DefaultResources defaultResourceIds = collection.getDefaultResources();
+        if (defaultResourceIds == null
+                || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
+                || StringUtils.isEmpty(defaultResourceIds.getPageId())
+                || StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
+
+            if (defaultResourceIds == null) {
+                return collection;
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
+                defaultResourceIds.setApplicationId(collection.getApplicationId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getPageId())) {
+                defaultResourceIds.setPageId(collection.getPageId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
+                defaultResourceIds.setCollectionId(collection.getId());
+            }
         }
-        collection.setApplicationId(defaults.getApplicationId());
-        collection.setPageId(defaults.getPageId());
-        collection.setId(defaults.getCollectionId());
+        collection.setApplicationId(defaultResourceIds.getApplicationId());
+        collection.setPageId(defaultResourceIds.getPageId());
+        collection.setId(defaultResourceIds.getCollectionId());
 
         // Update actions within the collection
         collection.getActions().forEach(this::updateActionDTOWithDefaultResources);
@@ -184,15 +287,28 @@ public class ResponseUtils {
     }
 
     public ActionCollectionViewDTO updateActionCollectionViewDTOWithDefaultResources(ActionCollectionViewDTO viewDTO) {
-        DefaultResources defaults = viewDTO.getDefaultResources();
-        if (defaults == null
-                || StringUtils.isEmpty(defaults.getCollectionId())) {
-            log.debug("Unable to find default ids for actionCollectionViewDTO: {}", viewDTO.getId());
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollectionView", viewDTO.getId());
+        DefaultResources defaultResourceIds = viewDTO.getDefaultResources();
+        if (defaultResourceIds == null
+                || StringUtils.isEmpty(defaultResourceIds.getPageId())
+                || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
+                || StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
+
+            if (defaultResourceIds == null) {
+                return viewDTO;
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
+                defaultResourceIds.setApplicationId(viewDTO.getApplicationId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getPageId())) {
+                defaultResourceIds.setPageId(viewDTO.getPageId());
+            }
+            if (StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
+                defaultResourceIds.setCollectionId(viewDTO.getId());
+            }
         }
-        viewDTO.setId(defaults.getCollectionId());
-        viewDTO.setApplicationId(defaults.getApplicationId());
-        viewDTO.setPageId(defaults.getPageId());
+        viewDTO.setId(defaultResourceIds.getCollectionId());
+        viewDTO.setApplicationId(defaultResourceIds.getApplicationId());
+        viewDTO.setPageId(defaultResourceIds.getPageId());
         viewDTO.getActions().forEach(this::updateActionDTOWithDefaultResources);
         return viewDTO;
     }
