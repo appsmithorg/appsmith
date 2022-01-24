@@ -27,6 +27,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
+import { cloneDeep } from "lodash";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -778,4 +779,48 @@ export const getDataTreeWithoutPrivateWidgets = (
   const privateWidgetNames = Object.keys(privateWidgets);
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
+};
+
+export const overrideWidgetProperties = (
+  entity: DataTreeWidget,
+  propertyPath: string,
+  value: unknown,
+  currentTree: DataTree,
+) => {
+  const clonedValue = cloneDeep(value);
+  if (propertyPath in entity.overridingPropertyPaths) {
+    const overridingPropertyPaths =
+      entity.overridingPropertyPaths[propertyPath];
+
+    overridingPropertyPaths.forEach((overriddenPropertyKey) => {
+      _.set(
+        currentTree,
+        `${entity.widgetName}.${overriddenPropertyKey}`,
+        clonedValue,
+      );
+    });
+  } else if (
+    propertyPath in entity.propertyOverrideDependency &&
+    clonedValue === undefined
+  ) {
+    // when value is undefined and has default value then set value to default value.
+    // this is for resetForm
+    const propertyOverridingKeyMap =
+      entity.propertyOverrideDependency[propertyPath];
+    if (propertyOverridingKeyMap.DEFAULT) {
+      const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
+      const clonedDefaultValue = cloneDeep(defaultValue);
+      if (defaultValue !== undefined) {
+        _.set(
+          currentTree,
+          `${entity.widgetName}.${propertyPath}`,
+          clonedDefaultValue,
+        );
+        return {
+          overwriteParsedValue: true,
+          newValue: clonedDefaultValue,
+        };
+      }
+    }
+  }
 };
