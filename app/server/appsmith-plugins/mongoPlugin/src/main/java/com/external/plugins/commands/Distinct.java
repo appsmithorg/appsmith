@@ -1,18 +1,27 @@
 package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.external.plugins.constants.FieldName;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
+import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.constants.FieldName.KEY;
 
 @Getter
 @Setter
@@ -62,5 +71,68 @@ public class Distinct extends MongoCommand {
         document.put("key", this.key);
 
         return document;
+    }
+
+    @Override
+    public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
+        String collectionName = (String) templateConfiguration.get("collectionName");
+        String key = (String) templateConfiguration.get("key");
+
+        List<DatasourceStructure.Template> templates = new ArrayList<>();
+
+        templates.add(generateQueryTemplate(collectionName));
+
+        templates.add(generateKeyTemplate(collectionName, key));
+
+        return templates;
+    }
+    
+
+    private DatasourceStructure.Template generateKeyTemplate(String collectionName, String key) {
+        Map<String, Object> configMap = new HashMap<>();
+
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
+        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setValueSafelyInFormData(configMap, KEY, key);
+
+        String rawQuery = "{\n" +
+                "  \"distinct\": \"" + collectionName + "." + key + "\",\n" +
+                "}\n";
+
+
+        return new DatasourceStructure.Template(
+            "Distinct",
+            rawQuery,
+            configMap
+        );
+    }
+
+    private DatasourceStructure.Template generateQueryTemplate(String collectionName) {
+        Map<String, Object> configMap = new HashMap<>();
+
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
+        setValueSafelyInFormData(configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+       
+
+        String rawQuery = "{\n" +
+        "  \"distinct\": \"" + collectionName + "\",\n" +
+        "  \"distincts\": [\n" +
+        "    {\n" +
+        "      \"q\": {\n" +
+        "        \"_id\": \"id_of_document_to_distinct\"\n" +
+        "      },\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}\n";
+
+
+        return new DatasourceStructure.Template(
+            "Distinct",
+            rawQuery,
+            configMap
+        );
     }
 }
