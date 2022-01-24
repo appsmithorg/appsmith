@@ -45,7 +45,6 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
     overflow-x: hidden;
 
     label.switchgroup-label {
-      line-height: 16px;
       ${
         labelPosition === LabelPositionTypes.Top
           ? `margin-bottom: 5px; margin-right: 0px`
@@ -67,28 +66,46 @@ export interface InputContainerProps {
 }
 
 export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
-  display: ${({ alignment, inline }) =>
-    inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"};
-  ${({ inline }) => `
-    flex-direction: ${inline ? "row" : "column"};
-    align-items: ${inline ? "center" : "flex-start"};
-    ${inline && "flex-wrap: wrap"};
-    ${!inline && "align-self: flex-start"};
-  `}
-  justify-content: ${({ inline, optionCount }) =>
-    optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`};
-
-  height: 100%;
+  display: block;
   border: 1px solid transparent;
+
+  ${({ inline, optionCount }) =>
+    !inline && optionCount > 1 && `align-self: flex-start`};
+  ${({ compactMode, inline, optionCount, scrollable }) =>
+    inline && compactMode && optionCount > 1 && scrollable && `height: 100%`};
 
   ${({ theme, valid }) =>
     !valid &&
     `
     border: 1px solid ${theme.colors.error};
   `}
+  ${BlueprintControlTransform}
   .${Classes.CONTROL} {
-    display: flex;
-    align-items: center;
+    margin-bottom: 0;
+    border: 1px solid transparent;
+    color: ${Colors.GREY_10};
+
+    ${({ alignment, inline }) =>
+      (inline || alignment === Alignment.RIGHT) && `line-height: 16px`};
+
+    ${({ alignment, inline }) =>
+      alignment === Alignment.RIGHT &&
+      (inline ? `display: inline-block` : `display: block`)};
+
+    .bp3-control-indicator {
+      margin-top: 0;
+      border: 1px solid ${Colors.GREY_3};
+    }
+    input:checked ~ .bp3-control-indicator,
+    &:hover input:checked ~ .bp3-control-indicator {
+      background-color: ${Colors.GREEN};
+    }
+
+    &:hover {
+      & input:not(:checked) ~ .bp3-control-indicator {
+        border: 1px solid ${Colors.GREY_5} !important;
+      }
+    }
 
     ${({ alignment, inline, optionCount, scrollable }) =>
       (scrollable || (!inline && optionCount > 1)) &&
@@ -96,10 +113,9 @@ export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
         ? `margin-bottom: 16px`
         : `min-height: 30px`)};
 
-    ${({ inline, optionCount, scrollable }) =>
-      (inline || optionCount === 1) && !scrollable && `margin-bottom: 0`};
+    ${({ compactMode, inline, optionCount }) =>
+      (inline || optionCount === 1) && compactMode && `margin-bottom: 0`};
   }
-  ${BlueprintControlTransform}
 `;
 
 export interface StyledSwitchProps {
@@ -299,7 +315,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
         {Array.isArray(options) &&
           options.length > 0 &&
           options.map((option: OptionProps) => (
-            <StyledSwitch
+            <Switch
               alignIndicator={alignment}
               checked={selected.includes(option.value)}
               disabled={disabled}
