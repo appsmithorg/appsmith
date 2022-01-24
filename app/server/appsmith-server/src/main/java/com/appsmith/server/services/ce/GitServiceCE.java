@@ -4,14 +4,12 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.GitImportDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import reactor.core.publisher.Mono;
@@ -59,7 +57,7 @@ public interface GitServiceCE {
 
     Mono<String> createConflictedBranch(String defaultApplicationId, String branchName);
 
-    Mono<GitImportDTO> importApplicationFromGit(String organisationId, GitConnectDTO gitConnectDTO);
+    Mono<Application> importApplicationFromGit(String organisationId, GitConnectDTO gitConnectDTO);
 
     Mono<GitAuth> generateSSHKey();
 
