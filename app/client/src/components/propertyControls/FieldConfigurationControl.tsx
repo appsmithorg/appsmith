@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { cloneDeep, debounce, isEmpty, maxBy, sortBy } from "lodash";
+import { cloneDeep, debounce, isEmpty, maxBy, set, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -52,6 +52,8 @@ const AddFieldButton = styled(StyledPropertyPaneButton)`
     margin-bottom: 8px;
   }
 `;
+
+const DEFAULT_FIELD_NAME = "customField";
 
 function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
   const {
@@ -222,7 +224,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const schemaItems = Object.values(schema);
     const lastSchemaItem = maxBy(schemaItems, ({ position }) => position);
     const lastSchemaItemPosition = lastSchemaItem?.position || -1;
-    const nextFieldKey = getNextEntityName("customField", existingKeys);
+    const nextFieldKey = getNextEntityName(DEFAULT_FIELD_NAME, existingKeys);
     const schemaItem = SchemaParser.getSchemaItemFor(nextFieldKey, {
       currSourceData: "",
       widgetName,
@@ -233,7 +235,16 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
 
     schemaItem.position = lastSchemaItemPosition + 1;
 
-    this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
+    if (isEmpty(widgetProperties.schema)) {
+      const newSchema = {
+        schema: SchemaParser.parse(widgetProperties.widgetName, {}),
+      };
+      set(newSchema, `${propertyName}.${nextFieldKey}`, schemaItem);
+
+      this.updateProperty("schema", newSchema.schema);
+    } else {
+      this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
+    }
   };
 
   onInputChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -245,9 +256,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     try {
       const parsedValue = JSON.parse(value as string);
       this.updateProperty(this.props.propertyName, parsedValue);
-    } catch {
-      // TODO: Try to throw some error
-    }
+    } catch {}
   };
 
   updateItems = (items: DroppableItem[]) => {

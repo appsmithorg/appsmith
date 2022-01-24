@@ -85,6 +85,7 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         panelConfig,
+        dependencies: ["schema"],
       },
       {
         helpText:
