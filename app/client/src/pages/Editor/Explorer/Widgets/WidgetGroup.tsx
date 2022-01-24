@@ -31,28 +31,11 @@ const StyledLink = styled(Link)`
 `;
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
-  const params = useParams<ExplorerURLParams>();
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(getWidgetsForCurrentPage);
-  const applicationId = useSelector(getCurrentApplicationId);
 
   const childNode = (
     <EntityPlaceholder step={props.step}>
-      {params.pageId !== pageId ? (
-        <>
-          <StyledLink
-            to={BUILDER_PAGE_URL({
-              applicationId,
-              pageId: pageId,
-            })}
-          >
-            switch to this page
-          </StyledLink>
-          ,&nbsp;then&nbsp;
-        </>
-      ) : (
-        "  "
-      )}
       Click the <strong>+</strong> icon above to add widgets
     </EntityPlaceholder>
   );
