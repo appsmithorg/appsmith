@@ -87,17 +87,19 @@ export const useAppWideAndOtherDatasource = () => {
     }
     return acc;
   }, new Set());
-  return allDatasources.reduce(
-    (acc: any, ds) => {
-      if (appWideDatasourcesIds.has(ds.id)) {
-        acc.appWideDS = acc.appWideDS.concat(ds);
-      } else {
-        acc.otherDS = acc.otherDS.concat(ds);
-      }
-      return acc;
-    },
-    { appWideDS: [], otherDS: [] },
-  );
+  return allDatasources
+    .sort((ds1, ds2) => ds1.name?.localeCompare(ds2.name))
+    .reduce(
+      (acc: any, ds) => {
+        if (appWideDatasourcesIds.has(ds.id)) {
+          acc.appWideDS = acc.appWideDS.concat(ds);
+        } else {
+          acc.otherDS = acc.otherDS.concat(ds);
+        }
+        return acc;
+      },
+      { appWideDS: [], otherDS: [] },
+    );
 };
 
 export const useFilteredDatasources = (searchKeyword?: string) => {
