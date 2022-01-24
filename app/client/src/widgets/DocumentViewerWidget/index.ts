@@ -1,6 +1,5 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -12,8 +11,8 @@ export const CONFIG = {
     widgetName: "DocumentViewer",
     docUrl:
       "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf",
-    rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 40,
+    columns: 24,
     version: 1,
     animateLoading: true,
   },

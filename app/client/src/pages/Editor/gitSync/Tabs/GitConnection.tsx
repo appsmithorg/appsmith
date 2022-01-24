@@ -51,7 +51,9 @@ import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
+  // getIsGitSyncModalOpen,
   getLocalGitConfig,
+  getRemoteUrlDocUrl,
   getTempRemoteUrl,
   getUseGlobalProfile,
 } from "selectors/gitSyncSelectors";
@@ -62,10 +64,10 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitSyncError from "../components/GitSyncError";
 import Link from "../components/Link";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+// import { initSSHKeyPairWithNull } from "actions/applicationActions";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -161,6 +163,9 @@ function GitConnection({ isImport }: Props) {
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
+  // const isModalOpen = useSelector(getIsGitSyncModalOpen);
+
+  const RepoUrlDocumentUrl = useSelector(getRemoteUrlDocUrl);
 
   const {
     deployKeyDocUrl,
@@ -220,9 +225,16 @@ function GitConnection({ isImport }: Props) {
     dispatch(fetchLocalGitConfigInit());
   }, []);
 
+  // init ssh key when close without git connection
+  // useEffect(() => {
+  //   if (!isModalOpen && !isGitConnected) {
+  //     dispatch(initSSHKeyPairWithNull());
+  //   }
+  // }, [isModalOpen, isGitConnected]);
+
   useEffect(() => {
     // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
-    if (!SSHKeyPair) {
+    if (!SSHKeyPair && isGitConnected) {
       fetchSSHKeyPair();
     }
   }, [SSHKeyPair]);
@@ -384,12 +396,12 @@ function GitConnection({ isImport }: Props) {
             <Link
               color={Colors.PRIMARY_ORANGE}
               hasIcon={false}
-              link={DOCS_BASE_URL}
+              link={RepoUrlDocumentUrl || ""}
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
                   source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
                 });
-                window.open(DOCS_BASE_URL, "_blank");
+                window.open(RepoUrlDocumentUrl, "_blank");
               }}
               text={createMessage(LEARN_MORE)}
             />

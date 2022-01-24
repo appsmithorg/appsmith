@@ -120,11 +120,11 @@ export const RichTextEditorInputWrapper = styled.div`
 `;
 
 export interface RichtextEditorComponentProps {
-  defaultValue?: string;
+  value?: string;
+  isMarkdown: boolean;
   placeholder?: string;
   widgetId: string;
   isDisabled: boolean;
-  defaultText?: string;
   isVisible?: boolean;
   compactMode: boolean;
   isToolbarHidden: boolean;
@@ -138,6 +138,7 @@ export interface RichtextEditorComponentProps {
   width: number;
   onValueChange: (valueAsString: string) => void;
 }
+const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
@@ -153,9 +154,9 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     width,
   } = props;
 
-  const [value, setValue] = useState<string>(props.defaultText as string);
   const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
 
+  const [value, setValue] = React.useState<string>(props.value as string);
   const editorRef = useRef<any>(null);
   const isInit = useRef<boolean>(false);
 
@@ -163,17 +164,17 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help";
 
   useEffect(() => {
-    if (!value) return;
-    // Prevent calling onTextChange when initialized
+    if (!value && !props.value) return;
+    // This Prevents calling onTextChange when initialized
     if (!isInit.current) return;
     const timeOutId = setTimeout(() => props.onValueChange(value), 1000);
     return () => clearTimeout(timeOutId);
   }, [value]);
 
   useEffect(() => {
-    if (!props.defaultText) return;
-    setValue(props.defaultText);
-  }, [props.defaultText]);
+    if (!editorRef.current) return;
+    setValue(props.value as string);
+  }, [props.value]);
 
   useEffect(() => {
     setHasLabelEllipsis(checkHasLabelEllipsis());
@@ -192,12 +193,12 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   }, []);
 
   const onEditorChange = (newValue: string) => {
-    if (!isInit.current) {
-      isInit.current = true;
-      return;
+    // Prevents cursur shift in Markdown
+    if (newValue === "" && props.isMarkdown) {
+      setValue(initValue);
+    } else {
+      setValue(newValue);
     }
-    if (newValue === value) return;
-    setValue(newValue);
   };
 
   return (

@@ -1,8 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
-
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -12,8 +10,8 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "SwitchGroup",
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 16,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },

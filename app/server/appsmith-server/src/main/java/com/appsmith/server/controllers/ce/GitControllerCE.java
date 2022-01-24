@@ -148,9 +148,10 @@ public class GitControllerCE {
 
     @GetMapping("/branch/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
-                                                        @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
+                                                        @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches,
+                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
-        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches))
+        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches), branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -163,7 +164,7 @@ public class GitControllerCE {
     }
 
     @PostMapping("/merge/{defaultApplicationId}")
-    public Mono<ResponseDTO<GitPullDTO>> merge(@PathVariable String defaultApplicationId,
+    public Mono<ResponseDTO<MergeStatusDTO>> merge(@PathVariable String defaultApplicationId,
                                                @RequestBody GitMergeDTO gitMergeDTO) {
         log.debug("Going to merge branch {} with branch {} for application {}", gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), defaultApplicationId);
         return service.mergeBranch(defaultApplicationId, gitMergeDTO)

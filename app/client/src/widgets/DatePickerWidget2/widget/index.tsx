@@ -468,7 +468,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
-        labelText={this.props.labelText}
+        labelText={this.props.label}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={(this.props.labelWidth || 0) * this.props.parentColumnSpace}
@@ -505,7 +505,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   formattedDate: string;
   isDisabled: boolean;
   dateFormat: string;
-  labelText: string;
+  label: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
   labelWidth?: number;
