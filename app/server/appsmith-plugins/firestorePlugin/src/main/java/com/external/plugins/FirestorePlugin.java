@@ -122,9 +122,8 @@ public class FirestorePlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            final Map<String, Object> formData = actionConfiguration.getFormData();
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, false);
-            Boolean smartBsonSubstitution = false;
+            Object smartSubstitutionObject = actionConfiguration.getFormData().getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Boolean smartBsonSubstitution = TRUE;
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
@@ -170,6 +169,7 @@ public class FirestorePlugin extends BasePlugin {
             final String path = actionConfiguration.getPath();
             requestData.put("path", path == null ? "" : path);
 
+            final Map<String, Object> formData = actionConfiguration.getFormData();
             String command = getValueSafelyFromFormData(formData, COMMAND, String.class);
 
             if (isBlank(command)) {
