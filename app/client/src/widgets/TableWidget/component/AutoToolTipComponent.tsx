@@ -1,6 +1,6 @@
 import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper } from "./TableStyledWrappers";
+import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
@@ -19,6 +19,7 @@ export const OpenNewTabIconWrapper = styled.div`
 interface Props {
   isHidden?: boolean;
   isCellVisible?: boolean;
+  noPadding?: boolean;
   children: React.ReactNode;
   title: string;
   cellProperties?: CellLayoutProperties;
@@ -89,30 +90,34 @@ function AutoToolTipComponent(props: Props) {
     return <LinkWrapper {...props} />;
   }
   return (
-    <CellWrapper
-      cellProperties={props.cellProperties}
-      isCellVisible={props.isCellVisible}
-      isHidden={props.isHidden}
-      isTextType
-      ref={ref}
-    >
-      {useToolTip && props.children ? (
-        <Tooltip
-          autoFocus={false}
-          content={
-            <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
-              {props.title}
-            </TooltipContentWrapper>
-          }
-          hoverOpenDelay={1000}
-          position="top"
-        >
-          {props.children}
-        </Tooltip>
-      ) : (
-        props.children
-      )}
-    </CellWrapper>
+    <ColumnWrapper>
+      <CellWrapper
+        cellProperties={props.cellProperties}
+        isCellVisible={props.isCellVisible}
+        isHidden={props.isHidden}
+        isPadding={!props.noPadding}
+        isTextType
+        ref={ref}
+      >
+        {useToolTip && props.children ? (
+          <Tooltip
+            autoFocus={false}
+            content={
+              <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
+                {props.title}
+              </TooltipContentWrapper>
+            }
+            hoverOpenDelay={1000}
+            position="top"
+          >
+            {props.children}
+          </Tooltip>
+        ) : (
+          props.children
+        )}
+      </CellWrapper>
+      {useToolTip && props.children && "..."}
+    </ColumnWrapper>
   );
 }
 
