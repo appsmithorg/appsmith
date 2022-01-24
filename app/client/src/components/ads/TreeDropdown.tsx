@@ -258,6 +258,11 @@ function TreeDropdown(props: TreeDropdownProps) {
   const [optionTree, setOptionTree] = useState<TreeDropdownOption[]>(
     setSelfIndex(props.optionTree),
   );
+  const selectedOptionFromProps = getSelectedOption(
+    selectedValue,
+    defaultText,
+    optionTree,
+  );
   const [selectedOption, setSelectedOption] = useState<TreeDropdownOption>(
     getSelectedOption(selectedValue, defaultText, optionTree),
   );
@@ -482,8 +487,8 @@ function TreeDropdown(props: TreeDropdownProps) {
         rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={
           selectedLabelModifier
-            ? selectedLabelModifier(selectedOption, displayValue)
-            : selectedOption.label
+            ? selectedLabelModifier(selectedOptionFromProps, displayValue)
+            : selectedOptionFromProps.label
         }
       />
     </DropdownTarget>
