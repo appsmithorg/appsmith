@@ -1431,7 +1431,7 @@ Cypress.Commands.add("PublishtheApp", () => {
   cy.wait("@publishApp");
   cy.url().should("include", "/pages");
   cy.log("pagename: " + localStorage.getItem("PageName"));
-  cy.wait(3000); //wait time for page to load!
+  cy.wait(1000); //wait time for page to load!
 });
 
 Cypress.Commands.add("getCodeMirror", () => {
