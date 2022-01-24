@@ -378,7 +378,25 @@ function TreeDropdown(props: TreeDropdownProps) {
     switch (e.key) {
       case "Escape":
         if (isOpen) {
-          setIsOpen(false);
+          if (selectedOptionIndex.current.length > 1) {
+            setOptionTree((prev) => {
+              const prevIndex = selectedOptionIndex.current.slice(0, -1);
+              const prevItem = getItem(prev, prevIndex);
+              if (prevItem) {
+                selectedOptionIndex.current = prevIndex;
+                setSelectedOption(prevItem);
+                return (
+                  setItem(prev, prevIndex, {
+                    ...prevItem,
+                    isChildrenOpen: false,
+                  }) ?? prev
+                );
+              }
+              return prev;
+            });
+          } else {
+            setIsOpen(false);
+          }
           e.nativeEvent.stopImmediatePropagation();
         }
         break;

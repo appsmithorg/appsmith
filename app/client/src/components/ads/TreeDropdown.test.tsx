@@ -340,6 +340,44 @@ describe("<TreeDropdown/>", () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it("'{Escape}' when a child menu item is open should close child menu", async () => {
+    const handleOnSelect = jest.fn();
+    render(testComponent(handleOnSelect));
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
+    expect(queryByRole(screen.queryAllByRole("list")[0], "list")).toBeNull();
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{Enter}");
+    expect(handleOnSelect).not.toBeCalled();
+    expect(
+      queryByRole(screen.queryAllByRole("list")[0], "list"),
+    ).toBeInTheDocument();
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{Enter}");
+    expect(
+      queryAllByRole(screen.queryAllByRole("list")[0], "list")[0],
+    ).toBeInTheDocument();
+    expect(
+      queryByRole(
+        queryAllByRole(screen.queryAllByRole("list")[0], "list")[0],
+        "list",
+      ),
+    ).toBeInTheDocument();
+    userEvent.keyboard("{Escape}");
+    await waitForElementToBeRemoved(
+      queryByRole(
+        queryAllByRole(screen.queryAllByRole("list")[0], "list")[0],
+        "list",
+      ),
+    );
+    userEvent.keyboard("{Escape}");
+    await waitForElementToBeRemoved(
+      queryAllByRole(screen.queryAllByRole("list")[0], "list")[0],
+    );
+  });
 });
 
 describe("<TreeDropdown/> - utilities", () => {
