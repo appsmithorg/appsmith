@@ -20,7 +20,7 @@ export const CONFIG = {
     isDisabled: false,
     isInline: true,
     alignment: Alignment.LEFT,
-    labelText: "",
+    label: "",
     widgetName: "RadioGroup",
     version: 1,
   },

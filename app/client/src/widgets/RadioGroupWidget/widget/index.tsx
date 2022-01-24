@@ -317,10 +317,10 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       isDisabled,
       isInline,
       isLoading,
+      label,
       labelAlignment,
       labelPosition,
       labelStyle,
-      labelText,
       labelTextColor,
       labelTextSize,
       labelWidth,
@@ -344,7 +344,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
-        labelText={labelText}
+        labelText={label}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
         labelWidth={(labelWidth || 0) * parentColumnSpace}
@@ -382,7 +382,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   isDisabled: boolean;
   isInline: boolean;
   alignment: Alignment;
-  labelText: string;
+  label: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
   labelWidth?: number;

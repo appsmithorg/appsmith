@@ -45,6 +45,7 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { migrateInlineAndAlignmentProperties } from "./migrations/RadioGroupWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1033,6 +1034,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 49) {
     currentDSL = addPrivateWidgetsToAllListWidgets(currentDSL);
+    currentDSL.version = 50;
+  }
+
+  if (currentDSL.version === 50) {
+    currentDSL = migrateInlineAndAlignmentProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
