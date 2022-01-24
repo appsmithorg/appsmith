@@ -127,6 +127,9 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   ${({ inline, optionCount }) =>
     !inline && optionCount > 1 && `align-self: flex-start`};
 
+  ${({ compactMode, inline, optionCount, scrollable }) =>
+    inline && compactMode && optionCount > 1 && scrollable && `height: 100%`};
+
   ${BlueprintControlTransform};
   .${Classes.CONTROL} {
     margin-bottom: 0;

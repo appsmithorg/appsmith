@@ -123,23 +123,6 @@ export interface StyledSwitchProps {
   inline: boolean;
 }
 
-const StyledSwitch = styled(Switch)<ThemeProp & StyledSwitchProps>`
-  line-height: 16px;
-  &.bp3-control.bp3-switch {
-    ${({ alignIndicator, inline }) =>
-      alignIndicator === Alignment.RIGHT &&
-      (inline ? `display: inline-block` : `display: block`)};
-
-    .bp3-control-indicator {
-      margin-top: 0;
-    }
-    input:checked ~ .bp3-control-indicator,
-    &:hover input:checked ~ .bp3-control-indicator {
-      background-color: ${Colors.GREEN};
-    }
-  }
-`;
-
 export interface LabelContainerProps {
   inline: boolean;
   optionCount: number;
