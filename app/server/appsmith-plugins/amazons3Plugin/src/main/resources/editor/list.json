@@ -87,6 +87,21 @@
           ]
         },
         {
+          "label": "Sort By",
+          "configProperty": "actionConfiguration.formData.list.sortBy",
+          "controlType": "SORTING"
+        },
+        {
+          "label": "Show Columns",
+          "configProperty": "actionConfiguration.formData.list.projection",
+          "controlType": "PROJECTION"
+        },
+        {
+          "label": "Paginate By",
+          "configProperty": "actionConfiguration.formData.list.pagination",
+          "controlType": "PAGINATION"
+        },
+        {
           "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.formData.list.expiry",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
