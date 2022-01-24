@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { find, findIndex, isEqual } from "lodash";
+import { find, findIndex } from "lodash";
 import {
   PopoverInteractionKind,
   PopoverPosition,
@@ -262,7 +262,6 @@ function TreeDropdown(props: TreeDropdownProps) {
     getSelectedOption(selectedValue, defaultText, optionTree),
   );
   const selectedOptionIndex = useRef([findIndex(optionTree, selectedOption)]);
-  const isKeyPressed = useRef(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -295,36 +294,26 @@ function TreeDropdown(props: TreeDropdownProps) {
   const handleOptionClick = (option: TreeDropdownOption) => {
     if (option.children)
       return (e: any) => {
-        const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
-        if (
-          option?.children &&
-          selectedOpt?.children &&
-          isEqual(option, selectedOpt)
-        ) {
+        const itemIndex = option.selfIndex || [];
+        if (option?.children) {
           setOptionTree((prev) => {
-            if (selectedOpt.isChildrenOpen)
+            if (option.isChildrenOpen)
               return (
                 setItem(
-                  deepOpenChildren(
-                    closeAllChildren(prev),
-                    selectedOptionIndex.current,
-                  ),
-                  selectedOptionIndex.current,
+                  deepOpenChildren(closeAllChildren(prev), itemIndex),
+                  itemIndex,
                   {
-                    ...selectedOpt,
+                    ...option,
                     isChildrenOpen: false,
                   },
                 ) ?? prev
               );
-            return deepOpenChildren(
-              closeAllChildren(prev),
-              selectedOptionIndex.current,
-            );
+            return deepOpenChildren(closeAllChildren(prev), itemIndex);
           });
           buttonRef.current?.focus();
-          setSelectedOption(selectedOpt.children[0]);
-          if (selectedOpt?.children[0]?.selfIndex)
-            selectedOptionIndex.current = selectedOpt.children[0].selfIndex;
+          setSelectedOption(option.children[0]);
+          if (option?.children[0]?.selfIndex)
+            selectedOptionIndex.current = option.children[0].selfIndex;
         }
         e?.stopPropagation && e.stopPropagation();
       };
@@ -357,13 +346,6 @@ function TreeDropdown(props: TreeDropdownProps) {
       handleSelect,
     ]);
 
-    const mouseEnterHandler = useCallback(() => {
-      if (!isKeyPressed.current) {
-        if (option.selfIndex) selectedOptionIndex.current = option.selfIndex;
-      }
-      isKeyPressed.current = false;
-    }, []);
-
     return (
       <MenuItem
         active={isSelected}
@@ -372,7 +354,6 @@ function TreeDropdown(props: TreeDropdownProps) {
         intent={option.intent}
         key={option.value}
         onClick={optionClickHandler}
-        onMouseEnter={mouseEnterHandler}
         popoverProps={popoverProps}
         text={option.label}
       >
@@ -389,7 +370,6 @@ function TreeDropdown(props: TreeDropdownProps) {
   const shouldOpen = useRef(true);
 
   const handleKeydown = (e: React.KeyboardEvent) => {
-    isKeyPressed.current = true;
     switch (e.key) {
       case "Escape":
         if (isOpen) {
