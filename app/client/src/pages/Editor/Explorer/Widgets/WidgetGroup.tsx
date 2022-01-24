@@ -3,15 +3,7 @@ import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import WidgetEntity from "./WidgetEntity";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
 import { getWidgetsForCurrentPage } from "selectors/entitiesSelector";
 
@@ -20,15 +12,6 @@ type ExplorerWidgetGroupProps = {
   searchKeyword?: string;
   addWidgetsFn?: () => void;
 };
-
-const StyledLink = styled(Link)`
-  & {
-    color: ${(props) => props.theme.colors.primary};
-    &:hover {
-      color: ${(props) => props.theme.colors.primary};
-    }
-  }
-`;
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const pageId = useSelector(getCurrentPageId) || "";
