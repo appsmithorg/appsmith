@@ -99,9 +99,11 @@ function Form<TValues = any>({
 
   React.useEffect(() => {
     const debouncedUpdateFormData = debounce(updateFormData, 300);
-    const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
+    if (schema[ROOT_SCHEMA_KEY]) {
+      const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
 
-    debouncedUpdateFormData(defaultValues as TValues);
+      debouncedUpdateFormData(defaultValues as TValues);
+    }
 
     const subscription = watch((values) => {
       if (!equal(valuesRef.current, values)) {
