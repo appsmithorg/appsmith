@@ -180,6 +180,7 @@ function* moveJSCollectionSaga(
   action: ReduxAction<{
     id: string;
     destinationPageId: string;
+    name: string;
   }>,
 ) {
   const actionObject: JSCollection = yield select(
@@ -190,6 +191,7 @@ function* moveJSCollectionSaga(
     const response = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
+      name: action.payload.name,
     });
 
     const isValidResponse = yield validateResponse(response);
