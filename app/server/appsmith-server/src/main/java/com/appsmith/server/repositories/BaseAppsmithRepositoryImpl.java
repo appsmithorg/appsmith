@@ -287,6 +287,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
         Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria, notDeleted()), permission);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
     }
 }
