@@ -103,6 +103,7 @@ public class GitExecutorImpl implements GitExecutor {
                         // Only make a commit if there are any updates
                         .setAllowEmpty(false)
                         .setAuthor(finalAuthorName, finalAuthorEmail)
+                        .setCommitter(finalAuthorName, finalAuthorEmail)
                         .call();
                 return "Committed successfully!";
             }

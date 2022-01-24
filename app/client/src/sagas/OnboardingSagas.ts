@@ -1,13 +1,54 @@
+import {
+  batchUpdateWidgetProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
+import {
+  changeDatasource,
+  expandDatasourceEntity,
+} from "actions/datasourceActions";
+import {
+  endOnboarding,
+  setCurrentStep,
+  setCurrentSubstep,
+  setHelperConfig,
+  setOnboardingState as setOnboardingReduxState,
+  showIndicator,
+  showOnboardingHelper,
+} from "actions/onboardingActions";
+import { createActionRequest, runAction } from "actions/pluginActionActions";
 import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi from "api/DatasourcesApi";
-import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
+import OnSubmitGif from "assets/gifs/onsubmit.gif";
+import { AppIconCollection } from "components/ads/AppIcon";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
+import {
+  OnboardingConfig,
+  OnboardingHelperConfig,
+  OnboardingStep,
+} from "constants/OnboardingConstants";
+import { Organization } from "constants/orgConstants";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import {
+  APPLICATIONS_URL,
+  BUILDER_PAGE_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+  matchBuilderPath,
+} from "constants/routes";
+// import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
+import { RenderModes } from "constants/WidgetConstants";
+import { QueryAction } from "entities/Action";
+import { Datasource } from "entities/Datasource";
+import { get } from "lodash";
+import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { AppState } from "reducers";
 import {
   all,
@@ -20,13 +61,43 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import {
   getCanvasWidgets,
   getDatasources,
   getPlugins,
 } from "selectors/entitiesSelector";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getFirstTimeUserOnboardingApplicationId,
+  getIsFirstTimeUserOnboardingEnabled,
+  getOnboardingOrganisations,
+} from "selectors/onboardingSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getAppCardColorPalette } from "selectors/themeSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getNextEntityName,
+  getQueryParams,
+  getRandomPaletteColor,
+} from "utils/AppsmithUtils";
+import {
+  EvaluationError,
+  EVAL_ERROR_PATH,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
+import { generateReactKey } from "utils/generators";
+import {
+  playOnboardingAnimation,
+  playOnboardingStepCompletionAnimation,
+  trimQueryString,
+} from "utils/helpers";
+import history from "utils/history";
 import {
   getOnboardingState,
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
@@ -35,85 +106,12 @@ import {
   setOnboardingState,
   setOnboardingWelcomeState,
 } from "utils/storage";
+import WidgetFactory from "utils/WidgetFactory";
+import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { validateResponse } from "./ErrorSagas";
 import { getSelectedWidget, getWidgetByName, getWidgets } from "./selectors";
-import {
-  endOnboarding,
-  setCurrentStep,
-  setCurrentSubstep,
-  setHelperConfig,
-  setOnboardingState as setOnboardingReduxState,
-  showIndicator,
-  showOnboardingHelper,
-} from "actions/onboardingActions";
-import {
-  changeDatasource,
-  expandDatasourceEntity,
-} from "actions/datasourceActions";
-import {
-  playOnboardingAnimation,
-  playOnboardingStepCompletionAnimation,
-  trimQueryString,
-} from "utils/helpers";
-import {
-  OnboardingConfig,
-  OnboardingHelperConfig,
-  OnboardingStep,
-} from "constants/OnboardingConstants";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
-import { get } from "lodash";
-import { AppIconCollection } from "components/ads/AppIcon";
 
-import { getAppCardColorPalette } from "selectors/themeSelectors";
-import {
-  getRandomPaletteColor,
-  getNextEntityName,
-  getQueryParams,
-} from "utils/AppsmithUtils";
-import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getIsEditorInitialized,
-} from "selectors/editorSelectors";
-import { createActionRequest, runAction } from "actions/pluginActionActions";
-import {
-  APPLICATIONS_URL,
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  matchBuilderPath,
-} from "constants/routes";
-import { QueryAction } from "entities/Action";
-import history from "utils/history";
-import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
-// import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
-import { RenderModes } from "constants/WidgetConstants";
-import { generateReactKey } from "utils/generators";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import {
-  batchUpdateWidgetProperty,
-  updateWidgetPropertyRequest,
-} from "actions/controlActions";
-import OnSubmitGif from "assets/gifs/onsubmit.gif";
-import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
-
-import {
-  EVAL_ERROR_PATH,
-  EvaluationError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import {
-  getFirstTimeUserOnboardingApplicationId,
-  getIsFirstTimeUserOnboardingEnabled,
-  getOnboardingOrganisations,
-} from "selectors/onboardingSelectors";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
-import { Organization } from "constants/orgConstants";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -724,9 +722,9 @@ function* addWidget(widgetConfig: any) {
 }
 
 const getStandupTableDimensions = () => {
-  const columns = 16 * GRID_DENSITY_MIGRATION_V1;
-  const rows = 15 * GRID_DENSITY_MIGRATION_V1;
-  const topRow = 2 * GRID_DENSITY_MIGRATION_V1;
+  const columns = 64;
+  const rows = 60;
+  const topRow = 8;
   const bottomRow = rows + topRow;
   return {
     parentRowSpace: 40,
@@ -741,13 +739,13 @@ const getStandupTableDimensions = () => {
 };
 
 const getStandupInputDimensions = () => {
-  const columns = 6 * GRID_DENSITY_MIGRATION_V1;
-  const rows = 1 * GRID_DENSITY_MIGRATION_V1;
-  const leftColumn = 5 * GRID_DENSITY_MIGRATION_V1;
+  const columns = 24;
+  const rows = 4;
+  const leftColumn = 20;
   const rightColumn = leftColumn + columns;
   return {
-    topRow: 1 * GRID_DENSITY_MIGRATION_V1,
-    bottomRow: 2 * GRID_DENSITY_MIGRATION_V1,
+    topRow: 4,
+    bottomRow: 8,
     leftColumn,
     rightColumn,
     rows,
