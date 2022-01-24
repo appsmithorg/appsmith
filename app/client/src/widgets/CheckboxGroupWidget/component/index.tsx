@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Alignment, Checkbox, Label, Position } from "@blueprintjs/core";
+import { Alignment, Label, Position } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
@@ -60,11 +60,16 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
     align-items: center;
     margin-bottom: 0;
     min-height: 30px;
+
+    .bp3-control-indicator {
+      margin-top: 0;
+    }
   }
 `;
 
 export interface LabelContainerProps {
   inline: boolean;
+  optionCount: number;
   compactMode: boolean;
   alignment?: Alignment;
   position?: LabelPosition;
@@ -73,18 +78,21 @@ export interface LabelContainerProps {
 
 export const LabelContainer = styled.div<LabelContainerProps>`
   display: flex;
-  ${({ alignment, compactMode, inline, position, width }) => `
+  align-items: center;
+  min-height: 30px;
+
+  ${({ alignment, compactMode, inline, optionCount, position, width }) => `
     ${
       position !== LabelPositionTypes.Top &&
       (position === LabelPositionTypes.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        ? `&&& {margin-right: 5px;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
     ${position === LabelPositionTypes.Left &&
       `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
         `justify-content:  flex-end`};`}
 
-    ${!inline && `align-self: flex-start;`}
+    ${!inline && optionCount > 1 && `align-self: flex-start;`}
   `}
 `;
 
@@ -139,7 +147,7 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
 
     overflow-x: hidden;
 
-    label {
+    label.checkboxgroup-label {
       ${
         labelPosition === LabelPositionTypes.Top
           ? `margin-bottom: 5px; margin-right: 0px`
@@ -262,6 +270,11 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     ? SelectAllStates.INDETERMINATE
     : SelectAllStates.UNCHECKED;
 
+  let optionCount = (options || []).length;
+  if (isSelectAll) {
+    optionCount += 1;
+  }
+
   return (
     <CheckboxGroupContainer
       compactMode={compactMode}
@@ -272,6 +285,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
           alignment={labelAlignment}
           compactMode={compactMode}
           inline={isInline}
+          optionCount={optionCount}
           position={labelPosition}
           width={labelWidth}
         >
