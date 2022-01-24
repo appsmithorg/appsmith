@@ -69,7 +69,7 @@ export const getLintingErrors = (
     forin: false, // Doesn't require filtering for..in loops with obj.hasOwnProperty()
     noempty: false, // Empty blocks are allowed
     strict: false, // We won't force strict mode
-    unused: false, // Unused variables are allowed
+    unused: "strict", // Unused variables are not allowed
     asi: true, // Tolerate Automatic Semicolon Insertion (no semicolons)
     boss: true, // Tolerate assignments where comparisons would be expected
     evil: false, // Use of eval not allowed
