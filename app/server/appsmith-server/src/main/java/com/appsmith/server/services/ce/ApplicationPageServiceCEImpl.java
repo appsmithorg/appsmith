@@ -588,13 +588,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             // Set id as null, otherwise create (which is using under the hood save)
                                             // will try to overwrite same resource instead of creating a new resource
                                             actionCollection.setId(null);
+                                            // Set published version to null as the published version of the page does
+                                            // not exists when we clone the page.
+                                            actionCollection.setPublishedCollection(null);
                                             return actionCollectionService.create(actionCollection)
                                                     .flatMap(savedActionCollection -> {
                                                         if (StringUtils.isEmpty(savedActionCollection.getDefaultResources().getCollectionId())) {
                                                             savedActionCollection.getDefaultResources().setCollectionId(savedActionCollection.getId());
                                                             return actionCollectionService.update(savedActionCollection.getId(), savedActionCollection);
                                                         }
-                                                        else return Mono.just(savedActionCollection);
+                                                        return Mono.just(savedActionCollection);
                                                     })
                                                     .flatMap(newlyCreatedActionCollection ->
                                                             Flux.fromIterable(updatedDefaultToBranchedActionId.values())
@@ -778,9 +781,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
                     /**
-                     *  Only delete unpublished action and not the entire action.
+                     *  Only delete unpublished action and not the entire action. Also filter actions embedded in
+                     *  actionCollection which will be deleted while deleting the collection, this will avoid the race
+                     *  condition for delete action
                      */
                     Mono<List<ActionDTO>> archivedActionsMono = newActionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                            .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
                                 return newActionService.deleteUnpublishedAction(action.getId());

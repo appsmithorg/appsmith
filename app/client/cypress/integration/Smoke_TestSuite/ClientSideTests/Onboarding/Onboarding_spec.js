@@ -75,7 +75,7 @@ describe("Onboarding", function() {
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000);
         cy.contains(".t--onboarding-helper-title", "Capture Hero Updates");
-        cy.dragAndDropToCanvas("inputwidget", { x: 360, y: 40 });
+        cy.dragAndDropToCanvas("inputwidgetv2", { x: 360, y: 40 });
         cy.get(".t--property-control-onsubmit .t--open-dropdown-Select-Action")
           .click({ force: true })
           .selectOnClickOption("Execute a query")

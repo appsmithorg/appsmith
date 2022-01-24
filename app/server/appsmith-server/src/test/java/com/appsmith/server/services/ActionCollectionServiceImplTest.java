@@ -16,8 +16,8 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
@@ -326,6 +326,7 @@ public class ActionCollectionServiceImplTest {
                     Assert.assertEquals("testAction", actionDTO.getName());
                     Assert.assertEquals("testActionId", actionDTO.getId());
                     Assert.assertEquals("testCollection.testAction", actionDTO.getFullyQualifiedName());
+                    Assert.assertEquals("testActionCollectionId", actionDTO.getDefaultResources().getCollectionId());
                     Assert.assertTrue(actionDTO.getClientSideExecution());
                 })
                 .verifyComplete();
