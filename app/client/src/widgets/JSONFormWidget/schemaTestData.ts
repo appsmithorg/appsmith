@@ -84,6 +84,7 @@ const initialDataset = {
             // eslint-disable-next-line prettier/prettier
             '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATE,
+          timePrecision: "minute",
           sourceData: "10/12/2021",
           isCustomField: false,
           name: "dob",
@@ -218,6 +219,7 @@ const initialDataset = {
                   dataType: DataType.STRING,
                   defaultValue: undefined,
                   fieldType: FieldType.DATE,
+                  timePrecision: "minute",
                   convertToISO: false,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -456,6 +458,7 @@ const withRemovedKeyFromInitialDataset = {
             // eslint-disable-next-line prettier/prettier
             '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATE,
+          timePrecision: "minute",
           sourceData: "10/12/2021",
           isCustomField: false,
           name: "dob",
@@ -553,6 +556,7 @@ const withRemovedKeyFromInitialDataset = {
                   dataType: DataType.STRING,
                   defaultValue: undefined,
                   fieldType: FieldType.DATE,
+                  timePrecision: "minute",
                   sourceData: "10/12/2021",
                   isCustomField: false,
                   name: "graduationDate",
@@ -789,6 +793,7 @@ const withRemovedAddedKeyToInitialDataset = {
             // eslint-disable-next-line prettier/prettier
             '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATE,
+          timePrecision: "minute",
           sourceData: "10/12/2021",
           isCustomField: false,
           name: "dob",
@@ -885,6 +890,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   dataType: DataType.STRING,
                   defaultValue: undefined,
                   fieldType: FieldType.DATE,
+                  timePrecision: "minute",
                   sourceData: "10/12/2021",
                   convertToISO: false,
                   isCustomField: false,
