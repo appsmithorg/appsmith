@@ -34,11 +34,11 @@ describe("Table Widget download Functionality", function() {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(5000);
       //cy.validateDownload('Table1.csv');
-      cy.verifyDownload("Table1.csv");
+      cy.validateDownload("Table1.csv");
       cy.downloadData("Download as Excel");
       cy.wait(5000);
       //cy.validateDownload('Table1.xlsx');
-      cy.verifyDownload("Table1.xlsx");
+      cy.validateDownload("Table1.xlsx");
       cy.get(publish.searchInput)
         .first()
         .within(() => {
