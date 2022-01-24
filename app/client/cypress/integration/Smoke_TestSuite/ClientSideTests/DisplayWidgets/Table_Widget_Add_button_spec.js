@@ -7,9 +7,6 @@ describe("Table Widget property pane feature validation", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  beforeEach(() => {
-    cy.wait(7000);
-  });
 
   it("1. Table widget with Add button test and validation", function() {
     cy.openPropertyPane("tablewidget");

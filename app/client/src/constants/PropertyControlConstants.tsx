@@ -71,6 +71,8 @@ type ValidationConfigParams = {
   default?: unknown; // default for any type
   unique?: boolean | string[]; // unique in an array (string if a particular path is unique)
   required?: boolean; // required type
+  // required is now used to check if value is an empty string.
+  requiredKey?: boolean; //required key
   regex?: RegExp; // validator regex for text type
   allowedKeys?: Array<{
     // Allowed keys in an object type

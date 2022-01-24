@@ -46,7 +46,7 @@ class MultiSelectWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
+                          requiredKey: true,
                         },
                       },
                       {
@@ -54,7 +54,7 @@ class MultiSelectWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
+                          requiredKey: true,
                         },
                       },
                     ],
@@ -87,7 +87,7 @@ class MultiSelectWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
+                          requiredKey: true,
                         },
                       },
                       {
@@ -95,7 +95,7 @@ class MultiSelectWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
+                          requiredKey: true,
                         },
                       },
                     ],

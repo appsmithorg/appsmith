@@ -38,7 +38,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
+                          requiredKey: true,
                         },
                       },
                       {
@@ -46,6 +46,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
+                          requiredKey: true,
                         },
                       },
                     ],
@@ -73,7 +74,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                     type: ValidationTypes.TEXT,
                     params: {
                       default: "",
-                      required: true,
+                      requiredKey: true,
                     },
                   },
                   {
@@ -81,6 +82,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                     type: ValidationTypes.TEXT,
                     params: {
                       default: "",
+                      requiredKey: true,
                     },
                   },
                 ],
