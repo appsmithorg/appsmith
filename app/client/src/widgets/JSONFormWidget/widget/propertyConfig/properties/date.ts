@@ -158,6 +158,9 @@ const PROPERTIES = {
           default: TimePrecision.MINUTE,
         },
       },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+      dependencies: ["schema"],
     },
     {
       propertyName: "closeOnSelection",
