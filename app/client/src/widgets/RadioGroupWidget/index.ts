@@ -9,8 +9,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 2 * GRID_DENSITY_MIGRATION_V1,
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+    columns: 2.25 * GRID_DENSITY_MIGRATION_V1,
     animateLoading: true,
     options: [
       { label: "Yes", value: "Y" },
