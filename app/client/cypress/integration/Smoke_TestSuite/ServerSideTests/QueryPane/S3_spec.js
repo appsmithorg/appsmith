@@ -529,7 +529,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ); //verify Deletion of file is success from UI also
 
     //Upload: 2 - Bug verification 9201
-    fixturePath = "FlowerVase.jpeg";
+    fixturePath = "AAAFlowerVase.jpeg";
     cy.wait(3000);
     cy.clickButton("Select Files"); //1 files selected
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
