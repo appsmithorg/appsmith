@@ -166,11 +166,6 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   }
 `;
 
-export interface StyledRadioProps {
-  alignIndicator: Alignment;
-  inline: boolean;
-}
-
 class RadioGroupComponent extends React.Component<
   RadioGroupComponentProps,
   RadioGroupComponentState
