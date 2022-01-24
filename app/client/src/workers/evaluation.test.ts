@@ -225,6 +225,7 @@ const BASE_WIDGET: DataTreeWidget = {
   triggerPaths: {},
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  privateWidgets: {},
 };
 
 const BASE_ACTION: DataTreeAction = {
@@ -247,6 +248,7 @@ const BASE_ACTION: DataTreeAction = {
     data: EvaluationSubstitutionType.TEMPLATE,
   },
   dependencyMap: {},
+  datasourceUrl: "",
 };
 
 describe("DataTreeEvaluator", () => {
