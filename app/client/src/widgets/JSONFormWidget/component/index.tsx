@@ -13,6 +13,7 @@ import { FormContextProvider } from "../FormContext";
 import { isEmpty, pick } from "lodash";
 import { RenderMode, TEXT_SIZES } from "constants/WidgetConstants";
 import { JSONFormWidgetState } from "../widget";
+import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 
 type StyledContainerProps = {
   backgroundColor?: string;
@@ -42,6 +43,8 @@ export type JSONFormComponentProps<TValues> = {
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;
+  submitButtonStyles: ButtonStyleProps;
+  resetButtonStyles: ButtonStyleProps;
 };
 
 const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`

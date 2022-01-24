@@ -1,5 +1,7 @@
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -19,6 +21,14 @@ export const CONFIG = {
     title: "Form",
     version: 1,
     widgetName: "JSONForm",
+    submitButtonStyles: {
+      buttonColor: Colors.GREEN,
+      buttonVariant: ButtonVariantTypes.PRIMARY,
+    },
+    resetButtonStyles: {
+      buttonColor: Colors.GREEN,
+      buttonVariant: ButtonVariantTypes.SECONDARY,
+    },
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

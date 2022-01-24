@@ -15,6 +15,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { FieldState, Schema } from "../constants";
 import { generateFieldState } from "./helper";
+import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   canvasWidgets: Record<string, WidgetProps>;
@@ -23,6 +24,8 @@ export interface JSONFormWidgetProps extends WidgetProps {
   fixedFooter: boolean;
   isVisible: boolean;
   onSubmit?: string;
+  submitButtonStyles: ButtonStyleProps;
+  resetButtonStyles: ButtonStyleProps;
   schema: Schema;
   scrollContent: boolean;
   scrollContents: boolean;

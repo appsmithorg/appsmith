@@ -5,9 +5,10 @@ import { cloneDeep, debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
-import { BaseButton as Button } from "widgets/ButtonWidget/component";
-import { ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
+import {
+  BaseButton as Button,
+  ButtonStyleProps,
+} from "widgets/ButtonWidget/component";
 import { FIELD_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { TEXT_SIZES } from "constants/WidgetConstants";
@@ -17,11 +18,13 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   disabledWhenInvalid?: boolean;
   fixedFooter: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  resetButtonStyles: ButtonStyleProps;
   schema: Schema;
   scrollContents: boolean;
   showReset: boolean;
   sourceData?: TValues;
   stretchBodyVertically: boolean;
+  submitButtonStyles: ButtonStyleProps;
   title: string;
   updateFormData: (values: TValues) => void;
 }>;
@@ -84,10 +87,12 @@ function Form<TValues = any>({
   disabledWhenInvalid,
   fixedFooter,
   onSubmit,
+  resetButtonStyles,
   schema,
   scrollContents,
   showReset,
   stretchBodyVertically,
+  submitButtonStyles,
   title,
   updateFormData,
 }: FormProps<TValues>) {
@@ -133,16 +138,14 @@ function Form<TValues = any>({
         <StyledFormFooter>
           {showReset && (
             <Button
-              buttonColor={Colors.GREEN}
-              buttonVariant={ButtonVariantTypes.SECONDARY}
+              {...resetButtonStyles}
               onClick={onReset}
               text="Reset"
               type="reset"
             />
           )}
           <Button
-            buttonColor={Colors.GREEN}
-            buttonVariant={ButtonVariantTypes.PRIMARY}
+            {...submitButtonStyles}
             disabled={disabledWhenInvalid && isFormInValid}
             onClick={onSubmit}
             text="Submit"

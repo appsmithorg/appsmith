@@ -197,7 +197,7 @@ const StyledButton = styled((props) => (
       : ""}
 `;
 
-type ButtonStyleProps = {
+export type ButtonStyleProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   boxShadow?: ButtonBoxShadow;

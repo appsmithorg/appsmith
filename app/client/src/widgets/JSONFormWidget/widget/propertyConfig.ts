@@ -4,6 +4,13 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { Alignment } from "@blueprintjs/core";
+import {
+  ButtonVariantTypes,
+  ButtonBorderRadiusTypes,
+  ButtonPlacementTypes,
+} from "components/constants";
+import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -41,6 +48,175 @@ export const sourceDataValidationFn = (
     };
   }
 };
+
+const generateButtonStyleControlsFor = (prefix: string) => [
+  {
+    propertyName: `${prefix}.buttonColor`,
+    helpText: "Changes the color of the button",
+    label: "Button Color",
+    controlType: "COLOR_PICKER",
+    isBindProperty: false,
+    isTriggerProperty: false,
+  },
+  {
+    propertyName: `${prefix}.buttonVariant`,
+    label: "Button Variant",
+    controlType: "DROP_DOWN",
+    helpText: "Sets the variant of the icon button",
+    options: [
+      {
+        label: "Primary",
+        value: ButtonVariantTypes.PRIMARY,
+      },
+      {
+        label: "Secondary",
+        value: ButtonVariantTypes.SECONDARY,
+      },
+      {
+        label: "Tertiary",
+        value: ButtonVariantTypes.TERTIARY,
+      },
+    ],
+    isJSConvertible: true,
+    isBindProperty: true,
+    isTriggerProperty: false,
+    validation: {
+      type: ValidationTypes.TEXT,
+      params: {
+        allowedValues: [
+          ButtonVariantTypes.PRIMARY,
+          ButtonVariantTypes.SECONDARY,
+          ButtonVariantTypes.TERTIARY,
+        ],
+        default: ButtonVariantTypes.PRIMARY,
+      },
+    },
+  },
+  {
+    propertyName: `${prefix}.borderRadius`,
+    label: "Border Radius",
+    helpText: "Rounds the corners of the icon button's outer border edge",
+    controlType: "BORDER_RADIUS_OPTIONS",
+    options: [ButtonBorderRadiusTypes.SHARP, ButtonBorderRadiusTypes.ROUNDED],
+    isBindProperty: false,
+    isTriggerProperty: false,
+    validation: {
+      type: ValidationTypes.TEXT,
+      params: {
+        allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+      },
+    },
+  },
+  {
+    propertyName: `${prefix}.boxShadow`,
+    label: "Box Shadow",
+    helpText: "Enables you to cast a drop shadow from the frame of the widget",
+    controlType: "BOX_SHADOW_OPTIONS",
+    isBindProperty: false,
+    isTriggerProperty: false,
+    validation: {
+      type: ValidationTypes.TEXT,
+      params: {
+        allowedValues: [
+          "NONE",
+          "VARIANT1",
+          "VARIANT2",
+          "VARIANT3",
+          "VARIANT4",
+          "VARIANT5",
+        ],
+      },
+    },
+  },
+  {
+    propertyName: `${prefix}.boxShadowColor`,
+    helpText: "Sets the shadow color of the widget",
+    label: "Shadow Color",
+    controlType: "COLOR_PICKER",
+    isBindProperty: false,
+    isTriggerProperty: false,
+    validation: {
+      type: ValidationTypes.TEXT,
+      params: {
+        regex: /^(?![<|{{]).+/,
+      },
+    },
+  },
+  {
+    propertyName: `${prefix}.iconName`,
+    label: "Icon",
+    helpText: "Sets the icon to be used for the button",
+    controlType: "ICON_SELECT",
+    isBindProperty: false,
+    isTriggerProperty: false,
+    updateHook: (
+      props: ButtonWidgetProps,
+      propertyPath: string,
+      propertyValue: string,
+    ) => {
+      const propertiesToUpdate = [{ propertyPath, propertyValue }];
+      if (!props.iconAlign) {
+        propertiesToUpdate.push({
+          propertyPath: "iconAlign",
+          propertyValue: Alignment.LEFT,
+        });
+      }
+      return propertiesToUpdate;
+    },
+    validation: {
+      type: ValidationTypes.TEXT,
+    },
+  },
+  {
+    propertyName: `${prefix}.placement`,
+    label: "Placement",
+    controlType: "DROP_DOWN",
+    helpText: "Sets the space between items",
+    options: [
+      {
+        label: "Start",
+        value: ButtonPlacementTypes.START,
+      },
+      {
+        label: "Between",
+        value: ButtonPlacementTypes.BETWEEN,
+      },
+      {
+        label: "Center",
+        value: ButtonPlacementTypes.CENTER,
+      },
+    ],
+    defaultValue: ButtonPlacementTypes.CENTER,
+    isJSConvertible: true,
+    isBindProperty: true,
+    isTriggerProperty: false,
+    validation: {
+      type: ValidationTypes.TEXT,
+      params: {
+        allowedValues: [
+          ButtonPlacementTypes.START,
+          ButtonPlacementTypes.BETWEEN,
+          ButtonPlacementTypes.CENTER,
+        ],
+        default: ButtonPlacementTypes.CENTER,
+      },
+    },
+  },
+  {
+    propertyName: `${prefix}.iconAlign`,
+    label: "Icon Alignment",
+    helpText: "Sets the icon alignment of the button",
+    controlType: "ICON_ALIGN",
+    isBindProperty: false,
+    isTriggerProperty: false,
+    validation: {
+      type: ValidationTypes.TEXT,
+      params: {
+        allowedValues: ["center", "left", "right"],
+      },
+    },
+  },
+];
 
 export default [
   {
@@ -138,10 +314,20 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+      {
+        helpText: "Show/Hide reset form button",
+        propertyName: "showReset",
+        label: "Show Reset",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
     ],
   },
   {
-    sectionName: "Styles",
+    sectionName: "Form Styles",
     children: [
       {
         helpText: "Use a html color name, HEX, RGB or RGBA value",
@@ -217,6 +403,16 @@ export default [
     ],
   },
   {
+    sectionName: "Submit Button Styles",
+    children: generateButtonStyleControlsFor("submitButtonStyles"),
+  },
+  {
+    sectionName: "Reset Button Styles",
+    children: generateButtonStyleControlsFor("resetButtonStyles"),
+    dependencies: ["showReset"],
+    hidden: (props: JSONFormWidgetProps) => !props.showReset,
+  },
+  {
     sectionName: "Actions",
     children: [
       {
@@ -227,16 +423,6 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-      },
-      {
-        helpText: "Triggers an action when the reset button is clicked",
-        propertyName: "showReset",
-        label: "Show Reset",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
       },
     ],
   },
