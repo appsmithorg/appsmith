@@ -115,7 +115,7 @@
                 "label": "Endpoint",
                 "widgetName": "EndpointInput",
                 "defaultText": "users",
-                "type": "INPUT_WIDGET",
+                "type": "INPUT_WIDGET_V2",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "parentRowSpace": 38,

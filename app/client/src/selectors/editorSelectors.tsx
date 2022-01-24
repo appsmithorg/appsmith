@@ -402,6 +402,7 @@ const createLoadingWidget = (
     validationPaths: {},
     logBlackList: {},
     isLoading: true,
+    privateWidgets: {},
   };
 };
 
