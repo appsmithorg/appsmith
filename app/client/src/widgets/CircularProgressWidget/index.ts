@@ -1,8 +1,6 @@
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Colors } from "constants/Colors";
-
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -15,8 +13,8 @@ export const CONFIG = {
     progress: 65,
     showResult: true,
 
-    rows: 4.25 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 17,
+    columns: 16,
     widgetName: "CircularProgress",
     shouldScroll: false,
     shouldTruncate: false,
