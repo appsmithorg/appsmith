@@ -7,6 +7,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
+    animateLoading: true,
     backgroundColor: "#fff",
     columns: 25,
     disabledWhenInvalid: true,
