@@ -31,16 +31,16 @@ const StyledToggleHeader = styled.div<StyledToggleHeaderProps>`
   display: flex;
   padding-bottom: ${({ isOpen }) => (isOpen ? COLLAPSE_PADDING : 0)}px;
   width: 100%;
+
+  & > span[icon="chevron-right"] {
+    transform: rotate(${({ isOpen }) => (isOpen ? "90deg" : "0")});
+    transition: transform 200ms cubic-bezier(0.4, 1, 0.75, 0.9);
+  }
 `;
 
 const StyledToggleHeaderText = styled.span`
   width: 100%;
   margin-left: 10px;
-`;
-
-const StyledIcon = styled(Icon)<{ isOpen: boolean }>`
-  transform: rotate(${({ isOpen }) => (isOpen ? "90deg" : "0")});
-  transition: transform 200ms cubic-bezier(0.4, 1, 0.75, 0.9);
 `;
 
 const StyledWrapper = styled.div<StyledWrapperProps>`
@@ -87,10 +87,9 @@ function Accordion({
           role="button"
           tabIndex={0}
         >
-          <StyledIcon
+          <Icon
             icon={"chevron-right"}
             iconSize={16}
-            isOpen={isOpen}
             style={{ color: "#2E3D49" }}
           />
           <StyledToggleHeaderText>{title}</StyledToggleHeaderText>

@@ -370,7 +370,7 @@ function InputField({
             showError={isFocused}
             spellCheck={schemaItem.isSpellCheck}
             stepSize={1}
-            value={value}
+            value={value || ""}
             widgetId=""
           />
         );

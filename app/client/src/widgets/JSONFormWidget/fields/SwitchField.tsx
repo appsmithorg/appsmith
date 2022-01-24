@@ -78,7 +78,7 @@ function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
             inputRef={(e) => (inputRef.current = e)}
             isDisabled={schemaItem.isDisabled}
             isLoading={false}
-            isSwitchedOn={value}
+            isSwitchedOn={value ?? false}
             label=""
             onChange={onSwitchChange}
             widgetId=""
