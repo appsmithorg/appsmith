@@ -5,7 +5,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 
 describe("correctly migrate dsl", () => {
   it("AddsPrivateWidgetsToAllListWidgets", () => {
-    const currentVersion = 49;
+    const currentVersion = 50;
     const nextVersion = currentVersion + 1;
     const currentDSL: ContainerWidgetProps<WidgetProps> = {
       backgroundColor: "none",
@@ -1156,7 +1156,6 @@ describe("correctly migrate dsl", () => {
       snapRows: 125,
       topRow: 0,
       type: "CANVAS_WIDGET",
-      version: nextVersion,
       widgetId: "0",
       widgetName: "MainContainer",
       renderMode: RenderModes.CANVAS,
