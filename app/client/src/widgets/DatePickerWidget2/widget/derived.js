@@ -7,9 +7,23 @@ export default {
       props.selectedDate !== ""
         ? moment(new Date(props.selectedDate))
         : props.selectedDate;
-    return !!selectedDate
-      ? selectedDate.isBetween(minDate, maxDate)
-      : !props.isRequired;
+    let dateValid = true;
+    if (!!props.minDate && !!props.maxDate) {
+      dateValid = !!selectedDate
+        ? selectedDate.isBetween(minDate, maxDate)
+        : !props.isRequired;
+    } else if (!!props.minDate) {
+      dateValid = !!selectedDate
+        ? selectedDate.isAfter(minDate)
+        : !props.isRequired;
+    } else if (!!props.maxDate) {
+      dateValid = !!selectedDate
+        ? selectedDate.isBefore(maxDate)
+        : !props.isRequired;
+    } else {
+      dateValid = props.isRequired ? !!selectedDate : true;
+    }
+    return dateValid;
   },
   //
 };

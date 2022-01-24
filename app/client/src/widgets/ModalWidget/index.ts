@@ -1,13 +1,12 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
+import { ButtonVariantTypes } from "components/constants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
-  GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
-import { GridDefaults } from "constants/WidgetConstants";
-import { ButtonVariantTypes } from "components/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -16,8 +15,8 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
-    rows: 6 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 24,
+    columns: 24,
     width: 456,
     height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
     canEscapeKeyClose: true,
@@ -47,10 +46,10 @@ export const CONFIG = {
               view: [
                 {
                   type: "ICON_WIDGET",
-                  position: { left: 14 * GRID_DENSITY_MIGRATION_V1, top: 1 },
+                  position: { left: 56, top: 1 },
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 8,
                   },
                   props: {
                     iconName: "cross",
@@ -63,8 +62,8 @@ export const CONFIG = {
                   type: "TEXT_WIDGET",
                   position: { left: 1, top: 1 },
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 10 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 40,
                   },
                   props: {
                     text: "Modal Title",
@@ -75,12 +74,12 @@ export const CONFIG = {
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 9 * GRID_DENSITY_MIGRATION_V1,
-                    top: 4 * GRID_DENSITY_MIGRATION_V1,
+                    left: 36,
+                    top: 16,
                   },
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 12,
                   },
                   props: {
                     text: "Close",
@@ -92,12 +91,12 @@ export const CONFIG = {
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 12 * GRID_DENSITY_MIGRATION_V1,
-                    top: 4 * GRID_DENSITY_MIGRATION_V1,
+                    left: 48,
+                    top: 16,
                   },
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 12,
                   },
                   props: {
                     text: "Confirm",
