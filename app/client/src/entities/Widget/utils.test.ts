@@ -128,6 +128,10 @@ describe("getAllPathsFromPropertyConfig", () => {
         animateLoading: EvaluationSubstitutionType.TEMPLATE,
         primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleDownload: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleFilters: EvaluationSubstitutionType.TEMPLATE,
+        isVisiblePagination: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleSearch: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
@@ -210,6 +214,18 @@ describe("getAllPathsFromPropertyConfig", () => {
           params: {
             default: true,
           },
+        },
+        isVisibleDownload: {
+          type: "BOOLEAN",
+        },
+        isVisibleFilters: {
+          type: "BOOLEAN",
+        },
+        isVisiblePagination: {
+          type: "BOOLEAN",
+        },
+        isVisibleSearch: {
+          type: "BOOLEAN",
         },
         primaryColumnId: {
           type: "TEXT",
