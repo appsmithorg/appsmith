@@ -297,7 +297,7 @@
                                     "bottomRow": 47,
                                     "parentRowSpace": 10,
                                     "autoFocus": false,
-                                    "type": "INPUT_WIDGET",
+                                    "type": "INPUT_WIDGET_V2",
                                     "hideCard": false,
                                     "animateLoading": true,
                                     "parentColumnSpace": 12.5625,

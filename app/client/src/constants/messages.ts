@@ -287,12 +287,12 @@ export const REST_API_AUTHORIZATION_FAILED = () =>
 export const REST_API_AUTHORIZATION_APPSMITH_ERROR = () =>
   "Something went wrong.";
 
-export const SAAS_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
-export const SAAS_AUTHORIZATION_FAILED =
+export const OAUTH_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
+export const OAUTH_AUTHORIZATION_FAILED =
   "Authorization failed. Please check your details or try again.";
 // Todo: improve this for appsmith_error error message
-export const SAAS_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
-export const SAAS_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
+export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
+export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -880,7 +880,16 @@ export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
-
+//Reflow Beta Screen
+export const REFLOW_BETA_CHECKBOX_LABEL = () =>
+  "Turn on new drag & drop experience";
+export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
+export const REFLOW_INFO_CARD_CONTENT_1 = () =>
+  "When dropping a new widget, other widgets now automatically move out of the way.";
+export const REFLOW_INFO_CARD_CONTENT_2 = () =>
+  "Widgets next to the canvas edge will shrink to make space for the new widget.";
+export const REFLOW_LEARN_MORE = () => "LEARN MORE";
+//
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
