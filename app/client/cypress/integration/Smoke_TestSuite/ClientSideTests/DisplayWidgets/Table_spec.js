@@ -3,6 +3,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Table Widget Functionality", function() {
   before(() => {
@@ -359,6 +360,7 @@ describe("Table Widget Functionality", function() {
     });
   });
 */
+
   afterEach(() => {
     // put your clean up code if any
   });

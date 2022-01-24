@@ -14,6 +14,8 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyProperties;
+import static com.appsmith.server.constants.FieldName.ACTION_LIST;
+import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
+import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
+import static com.appsmith.server.constants.FieldName.EXPORTED_APPLICATION;
+import static com.appsmith.server.constants.FieldName.PAGE_LIST;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,7 +54,7 @@ public class GitFileUtils {
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-        = Set.of("exportedApplication", "datasourceList", "pageList", "actionList", "decryptedFields");
+        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, DECRYPTED_FIELDS);
 
     /**
      * This method will save the complete application in the local repo directory.
@@ -153,26 +160,18 @@ public class GitFileUtils {
                                                              String repoName,
                                                              String branchName) throws GitAPIException, IOException {
 
-        ApplicationJson applicationJson = new ApplicationJson();
 
         return fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
                 .map(applicationReference -> {
 
-                    // Extract application data from the json
-                    applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
-
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
+
+                    if (!isVersionCompatible(metadata)) {
+                        migrateToLatestVersion(applicationReference);
+                    }
+                    ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
                     BeanCopyUtils.copyNestedNonNullProperties(metadata, applicationJson);
-
-                    // Extract actions
-                    applicationJson.setActionList(getApplicationResource(applicationReference.getActions(), NewAction.class));
-
-                    // Extract pages
-                    applicationJson.setPageList(getApplicationResource(applicationReference.getPages(), NewPage.class));
-
-                    // Extract datasources
-                    applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
 
                     return applicationJson;
                 });
@@ -207,7 +206,8 @@ public class GitFileUtils {
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
                                         String viewModeUrl,
                                         String editModeUrl) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl);
+        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl)
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
     /**
@@ -219,7 +219,10 @@ public class GitFileUtils {
         return fileUtils.detachRemote(baseRepoSuffix);
     }
 
-    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException { return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix); }
+    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
+        return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix)
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
+    }
 
     private void removeUnwantedFieldsFromPage(NewPage page) {
         page.setDefaultResources(null);
@@ -267,10 +270,11 @@ public class GitFileUtils {
         ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
         if (unpublishedCollection != null) {
             unpublishedCollection.setDefaultResources(null);
-            unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(null);
+            unpublishedCollection.setDefaultToBranchedActionIdsMap(null);
         }
         if (publishedCollection != null) {
             publishedCollection.setDefaultResources(null);
+            publishedCollection.setDefaultToBranchedActionIdsMap(null);
         }
     }
 
@@ -284,5 +288,34 @@ public class GitFileUtils {
         if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
             layout.getLayoutOnLoadActions().forEach(layoutAction -> layoutAction.forEach(actionDTO -> actionDTO.setDefaultActionId(null)));
         }
+    }
+
+    private ApplicationJson getApplicationJsonFromGitReference(ApplicationGitReference applicationReference) {
+        ApplicationJson applicationJson = new ApplicationJson();
+        // Extract application data from the json
+        applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
+
+        // Extract actions
+        applicationJson.setActionList(getApplicationResource(applicationReference.getActions(), NewAction.class));
+
+        // Extract pages
+        applicationJson.setPageList(getApplicationResource(applicationReference.getPages(), NewPage.class));
+
+        // Extract datasources
+        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
+
+        return applicationJson;
+    }
+
+    private ApplicationGitReference migrateToLatestVersion(ApplicationGitReference applicationReference) {
+        // Implement the incremental version upgrade for JSON files here
+        return applicationReference;
+    }
+
+    private boolean isVersionCompatible(ApplicationJson metadata) {
+        Integer importedFileFormatVersion = metadata == null ? null : metadata.getFileFormatVersion();
+        Integer currentFileFormatVersion = new ApplicationJson().getFileFormatVersion();
+
+        return (importedFileFormatVersion == null || importedFileFormatVersion.equals(currentFileFormatVersion));
     }
 }

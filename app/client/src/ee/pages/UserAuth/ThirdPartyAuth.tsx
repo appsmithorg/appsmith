@@ -3,12 +3,14 @@ import {
   SocialLoginTypes as CE_SocialLoginTypes,
 } from "ce/pages/UserAuth/ThirdPartyAuth";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { SocialLoginsFactory } from "pages/UserAuth/SocialLoginsFactory";
+import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 export const SocialLoginTypes = CE_SocialLoginTypes;
 
-if (enableGoogleOAuth) SocialLoginsFactory.register(SocialLoginTypes.GOOGLE);
-if (enableGithubOAuth) SocialLoginsFactory.register(SocialLoginTypes.GITHUB);
+if (enableGoogleOAuth)
+  ThirdPartyLoginRegistry.register(SocialLoginTypes.GOOGLE);
+if (enableGithubOAuth)
+  ThirdPartyLoginRegistry.register(SocialLoginTypes.GITHUB);
 
 export default ThirdPartyAuth;

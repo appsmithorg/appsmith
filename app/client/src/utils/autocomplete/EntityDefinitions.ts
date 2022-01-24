@@ -58,8 +58,9 @@ export const entityDefinitions: Record<string, unknown> = {
         "!doc": "The response meta of the action",
         "!type": "?",
       },
-      run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
-      clear: "fn() -> void",
+      run:
+        "fn(onSuccess: fn() -> void, onError: fn() -> void) -> +Promise[:t=[!0.<i>.:t]]",
+      clear: "fn() -> +Promise[:t=[!0.<i>.:t]]",
     };
   },
   AUDIO_WIDGET: {
@@ -202,6 +203,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -282,6 +284,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
@@ -423,11 +426,101 @@ export const entityDefinitions: Record<string, unknown> = {
     dataURL: "string",
     rawBinary: "string",
   },
+  PROGRESSBAR_WIDGET: {
+    "!doc": "Progress bar is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/progressbar",
+    isVisible: isVisible,
+    progress: "number",
+  },
   SWITCH_GROUP_WIDGET: {
     "!doc":
       "Switch group widget allows users to create many switch components which can easily by used in a form",
     "!url": "https://docs.appsmith.com/widget-reference/switch-group",
     selectedValues: "[string]",
+  },
+  CAMERA_WIDGET: {
+    "!doc":
+      "Camera widget allows users to take a picture or record videos through their system camera using browser permissions.",
+    "!url": "https://docs.appsmith.com/widget-reference/camera",
+    imageBlobURL: "string",
+    imageDataURL: "string",
+    imageRawBinary: "string",
+    videoBlobURL: "string",
+    videoDataURL: "string",
+    videoRawBinary: "string",
+  },
+  MAP_CHART_WIDGET: {
+    "!doc":
+      "Map Chart widget shows the graphical representation of your data on the map.",
+    "!url": "https://docs.appsmith.com/widget-reference/map-chart",
+    isVisible: isVisible,
+    selectedDataPoint: "mapChartDataPoint",
+  },
+  INPUT_WIDGET_V2: {
+    "!doc":
+      "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+  },
+  CURRENCY_INPUT_WIDGET: {
+    "!doc":
+      "An input text field is used to capture a currency value. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The formatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    value: {
+      "!type": "number",
+      "!doc": "The value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Currency",
+    },
+    currencyCode: {
+      "!type": "string",
+      "!doc": "Selected Currency code",
+    },
+  },
+  PHONE_INPUT_WIDGET: {
+    "!doc":
+      "An input text field is used to capture a phone number. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number",
+    },
+    dialCode: {
+      "!type": "string",
+      "!doc": "Selected dialing code for Phone Number",
+    },
+  },
+  CIRCULAR_PROGRESS_WIDGET: {
+    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    progress: "number",
   },
 };
 
@@ -463,41 +556,51 @@ export const GLOBAL_DEFS = {
     name: "text",
     type: "file",
   },
+  mapChartDataPoint: {
+    id: "string",
+    label: "string",
+    originalId: "string",
+    shortLabel: "string",
+    value: "number",
+  },
 };
 
 export const GLOBAL_FUNCTIONS = {
   "!name": "DATA_TREE.APPSMITH.FUNCTIONS",
   navigateTo: {
     "!doc": "Action to navigate the user to another page or url",
-    "!type": "fn(pageNameOrUrl: string, params: {}, target?: string) -> void",
+    "!type":
+      "fn(pageNameOrUrl: string, params: {}, target?: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   showAlert: {
     "!doc": "Show a temporary notification style message to the user",
-    "!type": "fn(message: string, style: string) -> void",
+    "!type": "fn(message: string, style: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   showModal: {
     "!doc": "Open a modal",
-    "!type": "fn(modalName: string) -> void",
+    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   closeModal: {
     "!doc": "Close a modal",
-    "!type": "fn(modalName: string) -> void",
+    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   storeValue: {
     "!doc": "Store key value data locally",
-    "!type": "fn(key: string, value: any) -> void",
+    "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
   },
   download: {
     "!doc": "Download anything as a file",
-    "!type": "fn(data: any, fileName: string, fileType?: string) -> void",
+    "!type":
+      "fn(data: any, fileName: string, fileType?: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   copyToClipboard: {
     "!doc": "Copy text to clipboard",
-    "!type": "fn(data: string, options: object) -> void",
+    "!type": "fn(data: string, options: object) -> +Promise[:t=[!0.<i>.:t]]",
   },
   resetWidget: {
     "!doc": "Reset widget values",
-    "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
+    "!type":
+      "fn(widgetName: string, resetChildren: boolean) -> +Promise[:t=[!0.<i>.:t]]",
   },
   setInterval: {
     "!doc": "Execute triggers at a given interval",

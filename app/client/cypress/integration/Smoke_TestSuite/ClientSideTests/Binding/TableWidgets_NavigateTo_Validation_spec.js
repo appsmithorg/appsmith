@@ -2,10 +2,8 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 describe("Table Widget and Navigate to functionality validation", function() {
@@ -23,6 +21,7 @@ describe("Table Widget and Navigate to functionality validation", function() {
       .contains("Navigate to")
       .click();
     cy.enterNavigatePageName(pageid);
+    cy.assertPageSave();
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {

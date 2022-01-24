@@ -33,7 +33,7 @@ import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
-import { SocialLoginsFactory } from "pages/UserAuth/SocialLoginsFactory";
+import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import Button, { Size } from "components/ads/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
@@ -94,7 +94,7 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-  const socialLoginList = SocialLoginsFactory.methods;
+  const socialLoginList = ThirdPartyLoginRegistry.get();
   const location = useLocation();
   const initiateOnboarding = useIntiateOnboarding();
 

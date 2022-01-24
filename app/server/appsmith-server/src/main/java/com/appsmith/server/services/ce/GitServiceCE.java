@@ -6,6 +6,7 @@ import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -44,16 +45,20 @@ public interface GitServiceCE {
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
-    Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches);
+    Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches, String currentBranch);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
     Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName);
 
-    Mono<GitPullDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
+    Mono<MergeStatusDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
     Mono<MergeStatusDTO> isBranchMergeable(String applicationId, GitMergeDTO gitMergeDTO);
 
     Mono<String> createConflictedBranch(String defaultApplicationId, String branchName);
+
+    Mono<Application> importApplicationFromGit();
+
+    Mono<GitAuth> generateSSHKey();
 
 }

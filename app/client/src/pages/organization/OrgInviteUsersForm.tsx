@@ -273,7 +273,7 @@ function OrgInviteUsersForm(props: any) {
         <>
           <Divider />
           <OrgInviteTitle>
-            <Text type={TextType.H5}>Invite Users to {currentOrg?.name} </Text>
+            <Text type={TextType.H5}>Invite users to {currentOrg?.name} </Text>
           </OrgInviteTitle>
         </>
       )}

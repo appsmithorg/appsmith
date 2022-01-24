@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Policy;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -18,6 +19,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -180,6 +182,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> createDefault(Application application) {
         application.setSlug(TextUtils.makeSlug(application.getName()));
         application.setLastEditedAt(Instant.now());
+        if(!StringUtils.hasLength(application.getColor())) {
+            application.setColor(getRandomAppCardColor());
+        }
         return super.create(application);
     }
 
@@ -389,26 +394,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      */
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId) {
-        JSch jsch = new JSch();
-        KeyPair kpair;
-        try {
-            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
-        } catch (JSchException e) {
-            log.error("failed to generate RSA key pair", e);
-            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
-        }
-
-        StringOutputStream privateKeyOutput = new StringOutputStream();
-        StringOutputStream publicKeyOutput = new StringOutputStream();
-
-        kpair.writePrivateKey(privateKeyOutput);
-        kpair.writePublicKey(publicKeyOutput, "appsmith");
-
-        GitAuth gitAuth = new GitAuth();
-        gitAuth.setPublicKey(publicKeyOutput.toString());
-        gitAuth.setPrivateKey(privateKeyOutput.toString());
-        gitAuth.setGeneratedAt(Instant.now());
-        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
@@ -553,6 +539,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
         return repository.getGitConnectedApplicationCount(organizationId);
+    }
+
+    public String getRandomAppCardColor() {
+        int randomColorIndex = (int) (System.currentTimeMillis() % ApplicationConstants.APP_CARD_COLORS.length);
+        return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
     }
 
 }

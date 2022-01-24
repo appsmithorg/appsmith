@@ -290,12 +290,12 @@ export const REST_API_AUTHORIZATION_FAILED = () =>
 export const REST_API_AUTHORIZATION_APPSMITH_ERROR = () =>
   "Something went wrong.";
 
-export const SAAS_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
-export const SAAS_AUTHORIZATION_FAILED =
+export const OAUTH_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
+export const OAUTH_AUTHORIZATION_FAILED =
   "Authorization failed. Please check your details or try again.";
 // Todo: improve this for appsmith_error error message
-export const SAAS_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
-export const SAAS_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
+export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
+export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -613,23 +613,29 @@ export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit before proceeding to merge";
 
-export const REVOKE_EXISTING_REPOSITORIES = () =>
-  "Revoke existing Repositories";
-export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
-  "You can remove existing repositories to add more. Revoking access might break your application. Be careful!";
+export const DISCONNECT_EXISTING_REPOSITORIES = () =>
+  "Disconnect existing Repositories";
+export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+  "To make space for newer repositories you can remove existing repositories.";
 export const CONTACT_SALES = () => "Contact Sales";
+export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (orgName: string) =>
+  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${orgName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
   "This action is non reversible. Proceed with caution";
-export const REVOKE_ACCESS = () => "REVOKE ACCESS";
-export const REVOKE = () => "REVOKE";
-export const GIT_CONNECTION_REVOKE_ACCESS = () =>
-  "Git Connection > Revoke Access";
-export const REVOKE_ACCESS_TO_PROMO_CODE = () => "Revoke Access to";
+export const CONTACT_SUPPORT_TO_UPGRADE = () =>
+  "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
+export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
+  "Disconnect might cause the application to break.";
+export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT = () => "DISCONNECT";
+export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
+export const DISCONNECT_FROM_GIT = (name: string) =>
+  `Disconnect ${name} from Git`;
 export const TYPE_PROMO_CODE = (name: string) =>
-  `Type “${name}” in the input box to revoke access.`;
+  `Type “${name}” in the input box to disconnect.`;
 export const APPLICATION_NAME = () => "Application Name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
@@ -666,7 +672,13 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 
-export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+export const TRIGGER_ACTION_VALIDATION_ERROR = (
+  functionName: string,
+  argumentName: string,
+  expectedType: string,
+  received: string,
+) =>
+  `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
 export const MORE_OPTIONS = () => "More Options";
@@ -871,7 +883,16 @@ export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
-
+//Reflow Beta Screen
+export const REFLOW_BETA_CHECKBOX_LABEL = () =>
+  "Turn on new drag & drop experience";
+export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
+export const REFLOW_INFO_CARD_CONTENT_1 = () =>
+  "When dropping a new widget, other widgets now automatically move out of the way.";
+export const REFLOW_INFO_CARD_CONTENT_2 = () =>
+  "Widgets next to the canvas edge will shrink to make space for the new widget.";
+export const REFLOW_LEARN_MORE = () => "LEARN MORE";
+//
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
@@ -886,5 +907,10 @@ export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
+
+// Add datasource
+export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
+export const GENERATE_APPLICATION_DESCRIPTION = () =>
+  "Quickly generate a page to perform CRUD operations on your database tables";
 
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";

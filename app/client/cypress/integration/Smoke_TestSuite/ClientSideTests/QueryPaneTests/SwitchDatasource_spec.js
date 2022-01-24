@@ -52,34 +52,29 @@ describe("Switch datasource", function() {
     );
 
     cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource(false);
+    cy.testSaveDatasource();
   });
 
   it("3. By switching datasources execute a query with both the datasources", function() {
-    cy.NavigateToQueryEditor();
-
-    cy.contains(".t--datasource-name", postgresDatasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-
-    cy.get(queryLocators.templateMenu).click();
+    cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
+    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
-      .type("select * from users limit 10");
-
+      .type("select * from public.users limit 10");
+    cy.wait(3000);
     cy.runQuery();
 
     cy.get(".t--switch-datasource").click();
-    cy.contains(".t--datasource-option", mongoDatasourceName).click();
+    cy.contains(".t--datasource-option", mongoDatasourceName)
+      .click()
+      .wait(1000);
 
-    cy.get(".CodeMirror")
-      .first()
-      .then((editor) => {
-        editor[0].CodeMirror.setValue('{"find": "planets"}');
-      });
-
-    cy.runQuery();
+    cy.wait("@saveAction").should(
+      "have.nested.property",
+      "response.body.data.isValid",
+      true,
+    );
   });
 
   it("4. Delete the query and datasources", function() {
