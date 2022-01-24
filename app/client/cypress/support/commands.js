@@ -1859,7 +1859,7 @@ Cypress.Commands.add("DeleteModal", () => {
 Cypress.Commands.add("Createpage", (Pagename) => {
   cy.get(pages.AddPage)
     .first()
-    .click();
+    .click({ force: true });
   cy.wait("@createPage").should(
     "have.nested.property",
     "response.body.responseMeta.status",
