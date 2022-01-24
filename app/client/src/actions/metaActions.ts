@@ -47,7 +47,7 @@ export const resetChildrenMetaProperty = (
   };
 };
 
-export const updateMetaProperty = (evaluatedDataTree: DataTree) => {
+export const updateMetaState = (evaluatedDataTree: DataTree) => {
   const updatedWidgetMetaState: MetaState = {};
   Object.values(evaluatedDataTree).forEach((entity) => {
     if (isWidget(entity) && entity.widgetId && !isEmpty(entity.meta)) {
