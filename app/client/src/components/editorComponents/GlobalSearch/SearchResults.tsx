@@ -32,7 +32,6 @@ import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
-import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -214,17 +213,11 @@ function ActionItem(props: {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon =
-    pluginType === PluginType.API ? (
-      <EntityIcon>
-        <ApisIcon />
-      </EntityIcon>
-    ) : (
-      getActionConfig(pluginType)?.getIcon(
-        item.config,
-        pluginGroups[item.config.datasource.pluginId],
-      )
-    );
+  const icon = getActionConfig(pluginType)?.getIcon(
+    item.config,
+    pluginGroups[item.config.datasource.pluginId],
+    pluginType === PluginType.API,
+  );
 
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);

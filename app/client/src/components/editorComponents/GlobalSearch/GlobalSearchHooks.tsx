@@ -13,6 +13,7 @@ import {
   getActions,
   getAllPageWidgets,
   getJSCollections,
+  getPlugins,
 } from "selectors/entitiesSelector";
 import { useSelector } from "store";
 import { EventLocation } from "utils/AnalyticsUtil";
@@ -24,11 +25,25 @@ import {
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
-import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
+import { PluginType } from "entities/Action";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
+  /**
+   *  Work around to get the rest api cloud image.
+   *  We don't have it store as an svg
+   */
+  const plugins = useSelector(getPlugins);
+  const restApiPlugin = plugins.find(
+    (plugin) => plugin.type === PluginType.API,
+  );
+  const newApiActionIdx = actionOperations.findIndex(
+    (op) => op.title === "New Blank API",
+  );
+  if (newApiActionIdx > -1) {
+    actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
+  }
   const applicationId = useSelector(getCurrentApplicationId);
   return useMemo(() => {
     let fileOperations: any =
@@ -41,17 +56,23 @@ export const useFilteredFileOperations = (query = "") => {
     const otherFilteredDS = otherDS.filter((ds: Datasource) =>
       ds.name.toLowerCase().includes(query.toLowerCase()),
     );
-    if (filteredAppWideDS.length > 0) {
+    if (filteredAppWideDS.length > 0 || otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
         {
           title: "CREATE A QUERY",
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },
+      ];
+    }
+    if (filteredAppWideDS.length > 0) {
+      fileOperations = [
+        ...fileOperations,
         ...filteredAppWideDS.map((ds: any) => ({
           title: `New ${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
           pluginId: ds.pluginId,
+          kind: SEARCH_ITEM_TYPES.actionOperation,
           action: (pageId: string, from: EventLocation) =>
             createNewQueryAction(pageId, from, ds.id),
         })),
@@ -63,6 +84,7 @@ export const useFilteredFileOperations = (query = "") => {
         ...otherFilteredDS.map((ds: any) => ({
           title: `New ${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
+          kind: SEARCH_ITEM_TYPES.actionOperation,
           pluginId: ds.pluginId,
           action: (pageId: string, from: EventLocation) =>
             createNewQueryAction(pageId, from, ds.id),
@@ -72,12 +94,9 @@ export const useFilteredFileOperations = (query = "") => {
     fileOperations = [
       ...fileOperations,
       {
-        title: "Connect to a New Datasource",
-        icon: (
-          <IconWrapper color={Colors.DOVE_GRAY2} height={18} width={18}>
-            <AddDatasourceIcon />
-          </IconWrapper>
-        ),
+        title: "New Datasource",
+        icon: <AddDatasourceIcon color={Colors.DOVE_GRAY2} size={20} />,
+        kind: SEARCH_ITEM_TYPES.actionOperation,
         redirect: (pageId: string) => {
           history.push(
             INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),

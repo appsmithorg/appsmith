@@ -1,10 +1,5 @@
 import React, { ReactNode, useMemo } from "react";
-import {
-  dbQueryIcon,
-  ApiMethodIcon,
-  EntityIcon,
-  DefaultApiIcon,
-} from "../ExplorerIcons";
+import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import {
@@ -52,7 +47,7 @@ export type ActionGroupConfig = {
     selectedTab: string,
     mode?: string,
   ) => string;
-  getIcon: (action: any, plugin: Plugin) => ReactNode;
+  getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
   isGroupActive: (
     params: ExplorerURLParams,
     pageId: string,
@@ -97,18 +92,18 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         return API_EDITOR_ID_URL(applicationId, pageId, id);
       }
     },
-    getIcon: (action: any, plugin: Plugin) => {
-      if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
+    getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
+      if (plugin && plugin.type === PluginType.API && !remoteIcon) {
+        const method = action?.actionConfiguration?.httpMethod;
+        if (method) return <ApiMethodIcon type={method} />;
+      }
+      if (plugin && plugin.iconLocation)
         return (
           <EntityIcon>
             <img alt="entityIcon" src={plugin.iconLocation} />
           </EntityIcon>
         );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
-
-      const method = action?.actionConfiguration?.httpMethod;
-      if (!method) return <DefaultApiIcon />;
-      return <ApiMethodIcon type={method} />;
     },
     generateCreatePageURL: INTEGRATION_EDITOR_URL,
     isGroupActive: (

@@ -9,7 +9,6 @@ import { Datasource } from "entities/Datasource";
 import { isString, keyBy } from "lodash";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
-  DefaultApiIcon,
   getPluginIcon,
   JsFileIconV2,
   jsFunctionIcon,
@@ -68,6 +67,7 @@ import {
 } from "constants/messages";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -417,7 +417,7 @@ function getIntegrationOptionsWithChildren(
   applicationId: string,
   plugins: any,
   options: TreeDropdownOption[],
-  actions: any[],
+  actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
   datasources: Datasource[],
   createIntegrationOption: TreeDropdownOption,
@@ -459,15 +459,11 @@ function getIntegrationOptionsWithChildren(
         id: api.config.id,
         value: api.config.name,
         type: option.value,
-        icon:
-          api.config.pluginType === PluginType.API ? (
-            <DefaultApiIcon />
-          ) : (
-            getActionConfig(api.config.pluginType)?.getIcon(
-              api.config,
-              plugins[(api as any).config.datasource.pluginId],
-            )
-          ),
+        icon: getActionConfig(api.config.pluginType)?.getIcon(
+          api.config,
+          plugins[(api as any).config.datasource.pluginId],
+          api.config.pluginType === PluginType.API,
+        ),
       } as TreeDropdownOption);
     });
     queries.forEach((query) => {

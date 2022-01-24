@@ -17,11 +17,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import WidgetFactory from "utils/WidgetFactory";
-import {
-  CurlIconV2,
-  DefaultApiIcon,
-  JsFileIconV2,
-} from "pages/Editor/Explorer/ExplorerIcons";
+import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
@@ -200,16 +196,15 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     item.kind === SEARCH_ITEM_TYPES.page ||
     item.kind === SEARCH_ITEM_TYPES.sectionTitle ||
     item.kind === SEARCH_ITEM_TYPES.placeholder ||
-    item.kind === SEARCH_ITEM_TYPES.category
+    item.kind === SEARCH_ITEM_TYPES.category ||
+    item.kind === SEARCH_ITEM_TYPES.actionOperation
   )
     type = item.kind;
   else if (item.config?.pluginType === PluginType.JS)
     type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
   else if (item.body?.snippet) type = SEARCH_ITEM_TYPES.snippet;
-  else if (item.datasourceConfiguration) type = SEARCH_ITEM_TYPES.datasource;
-  else type = SEARCH_ITEM_TYPES.actionOperation;
-
+  else type = SEARCH_ITEM_TYPES.datasource;
   return type;
 };
 
@@ -328,23 +323,39 @@ export const getEntityId = (entity: any) => {
   }
 };
 
-export const actionOperations = [
+export type ActionOperation = {
+  title: string;
+  desc: string;
+  icon?: any;
+  kind: SEARCH_ITEM_TYPES;
+  action?: (pageId: string, location: EventLocation) => any;
+  redirect?: (
+    pageId: string,
+    from: EventLocation,
+    applicationId: string,
+  ) => any;
+  pluginId?: string;
+};
+
+export const actionOperations: ActionOperation[] = [
   {
     title: "New Blank API",
     desc: "Create a new API",
-    icon: <DefaultApiIcon />,
+    kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (pageId: string, location: EventLocation) =>
       createNewApiAction(pageId, location),
   },
   {
     title: "New JS Object",
     desc: "Create a new JS Object",
+    kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2,
     action: (pageId: string) => createNewJSCollection(pageId),
   },
   {
     title: "New cURL Import",
     desc: "Import a cURL Request",
+    kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
     redirect: (pageId: string, from: EventLocation, applicationId: string) => {
       const queryParams = getQueryParams();

@@ -11,11 +11,7 @@ import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import {
-  DefaultApiIcon,
-  EntityIcon,
-  JsFileIconV2,
-} from "pages/Editor/Explorer/ExplorerIcons";
+import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -183,9 +179,7 @@ export const generateQuickCommands = (
       render: (element: HTMLElement, self: any, data: any) => {
         const pluginType = data.data.pluginType as PluginType;
         let icon = null;
-        if (pluginType === PluginType.API) {
-          icon = <DefaultApiIcon />;
-        } else if (pluginType === PluginType.JS) {
+        if (pluginType === PluginType.JS) {
           icon = JsFileIconV2;
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
