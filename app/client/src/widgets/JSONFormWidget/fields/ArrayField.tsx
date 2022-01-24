@@ -7,6 +7,8 @@ import { cloneDeep, get, pick, set } from "lodash";
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
+import FormContext from "../FormContext";
+import NestedFormWrapper from "../component/NestedFormWrapper";
 import useDeepEffect from "utils/hooks/useDeepEffect";
 import {
   ARRAY_ITEM_KEY,
@@ -17,8 +19,7 @@ import {
 import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
-import FormContext from "../FormContext";
-import NestedFormWrapper from "../component/NestedFormWrapper";
+import { schemaItemDefaultValue } from "../helper";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
@@ -95,8 +96,10 @@ function ArrayField({
   const defaultValue = (() => {
     return !Array.isArray(schemaItem.defaultValue)
       ? []
-      : (schemaItem.defaultValue as any[]);
+      : (schemaItemDefaultValue(schemaItem) as any[]);
   })();
+
+  console.log("ARRAYFIELD", { defaultValue });
 
   const options = {
     hideLabel: true,

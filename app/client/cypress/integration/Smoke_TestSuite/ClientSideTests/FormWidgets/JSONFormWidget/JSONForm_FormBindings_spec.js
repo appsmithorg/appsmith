@@ -200,6 +200,8 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.fieldState)}}");
     cy.closePropertyPane();
 
+    cy.wait(3000);
+
     cy.get(".t--draggable-textwidget")
       .find(".bp3-ui-text")
       .then(($el) => {
@@ -320,7 +322,7 @@ describe("JSON Form Widget Form Bindings", () => {
             isDisabled: false,
             isVisible: true,
             isRequired: true,
-            isValid: false,
+            isValid: true,
           },
           year: {
             isDisabled: false,
@@ -343,7 +345,7 @@ describe("JSON Form Widget Form Bindings", () => {
       dob: "10/12/1992",
       address: { street: "", city: "" },
       hobbies: ["travelling"],
-      education: [{ graduatingCollege: "", year: "20/10/2014" }],
+      education: [{ graduatingCollege: "MIT", year: "20/10/2014" }],
       firstName: "John",
     };
 
