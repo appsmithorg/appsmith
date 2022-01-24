@@ -51,6 +51,7 @@ import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
 import { generateTableColumnId } from "./TableHelpers";
+import TooltipComponent from "components/ads/Tooltip";
 
 export const renderCell = (
   value: any,
@@ -580,8 +581,9 @@ export function TableHeaderCell(props: {
   column: any;
   editMode?: boolean;
   isSortable?: boolean;
+  width: number;
 }) {
-  const { column, editMode, isSortable } = props;
+  const { column, editMode, isSortable, width } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -604,7 +606,13 @@ export function TableHeaderCell(props: {
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
         horizontalAlignment={column.columnProperties.horizontalAlignment}
       >
-        {props.columnName}
+        <AutoToolTipComponent
+          noPadding
+          tableWidth={width}
+          title={props.columnName}
+        >
+          {props.columnName}
+        </AutoToolTipComponent>
       </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
         <div>
