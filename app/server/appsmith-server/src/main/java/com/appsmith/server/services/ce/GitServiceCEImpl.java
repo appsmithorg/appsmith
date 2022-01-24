@@ -2026,9 +2026,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
                                     if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
                                         return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
-                                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
-                                                        " --import",
-                                                        " Datasource already exists with the same name")));
+                                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                        "import",
+                                                        "Datasource already exists with the same name"))
+                                                );
                                     }
                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                     return importExportApplicationService
@@ -2094,6 +2095,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
         for( Datasource datasource : importedDatasources) {
             // Collect the datasource(existing in organization) which has same as of imported datasource
+            // As names are unique we will need filter first element to check if the plugin id is matched
              Datasource filteredDatasource = existingDatasources
                      .stream()
                      .filter(datasource1 -> datasource1.getName().equals(datasource.getName()))

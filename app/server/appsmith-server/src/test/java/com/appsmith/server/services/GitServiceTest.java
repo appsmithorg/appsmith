@@ -40,7 +40,6 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -104,6 +103,9 @@ public class GitServiceTest {
     GitService gitService;
 
     @Autowired
+    OrganizationService organizationService;
+
+    @Autowired
     OrganizationRepository organizationRepository;
 
     @Autowired
@@ -129,9 +131,6 @@ public class GitServiceTest {
 
     @Autowired
     PluginRepository pluginRepository;
-
-    @Autowired
-    ImportExportApplicationService importExportApplicationService;
 
     @Autowired
     DatasourceService datasourceService;
@@ -176,11 +175,6 @@ public class GitServiceTest {
         }
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testOrg.getId();
-        MockedStatic<GitUtils> gitUtilsMockedStatic = Mockito.mockStatic(GitUtils.class);
-        gitUtilsMockedStatic.when(() -> GitUtils.isRepoPrivate(Mockito.anyString()))
-                .thenReturn(Boolean.FALSE);
-        gitUtilsMockedStatic.when(() -> GitUtils.convertSshUrlToBrowserSupportedUrl(Mockito.anyString()))
-                .thenReturn("https://test.com");
 
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
 
@@ -292,7 +286,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_EmptyOriginHeader_ThrowInvalidParameterException() {
 
-        GitConnectDTO gitConnectDTO = getConnectRequest("sshUrl", testUserProfile);
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono = gitService.connectApplicationToGit("testID", gitConnectDTO, null);
 
         StepVerifier
@@ -312,7 +306,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", testUserProfile);
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono = gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier
@@ -341,7 +335,7 @@ public class GitServiceTest {
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", testUserProfile);
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono = gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier
@@ -365,7 +359,7 @@ public class GitServiceTest {
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", testUserProfile);
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono = gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier
@@ -2206,6 +2200,12 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() throws GitAPIException, IOException {
+        Organization organization = new Organization();
+        organization.setName("gitImportOrg");
+        final String testOrgId = organizationService.create(organization)
+                .map(Organization::getId)
+                .block();
+
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
@@ -2216,16 +2216,18 @@ public class GitServiceTest {
         datasourceList.get(0).setPluginId("mongo-plugin");
         applicationJson.setDatasourceList(datasourceList);
 
+        String pluginId = pluginRepository.findByPackageName("mongo-plugin").block().getId();
         Datasource datasource = new Datasource();
-        datasource.setName("testGitImportRepo");
-        datasource.setPluginId("mongo-plugin");
-        datasource.setOrganizationId(orgId);
+        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setPluginId(pluginId);
+        datasource.setOrganizationId(testOrgId);
         datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitFileUtils.detachRemote(Mockito.any(Path.class))).thenReturn(Mono.just(true));
 
         Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 
@@ -2246,10 +2248,72 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() throws GitAPIException, IOException {
-        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo1.git", testUserProfile);
+    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() throws GitAPIException, IOException {
+        Organization organization = new Organization();
+        organization.setName("gitImportOrgCancelledMidway");
+        final String testOrgId = organizationService.create(organization)
+                .map(Organization::getId)
+                .block();
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
+        ApplicationJson applicationJson =  createAppJson(filePath).block();
+        applicationJson.getExportedApplication().setName("testGitImportRepoCancelledMidway");
+        applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
+
+        String pluginId = pluginRepository.findByPackageName("mongo-plugin").block().getId();
+        Datasource datasource = new Datasource();
+        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setPluginId(pluginId);
+        datasource.setOrganizationId(testOrgId);
+        datasourceService.create(datasource).block();
+
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+        Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitFileUtils.detachRemote(Mockito.any(Path.class))).thenReturn(Mono.just(true));
+
+        gitService.importApplicationFromGit(testOrgId, gitConnectDTO)
+                .timeout(Duration.ofMillis(10))
+                .subscribe();
+
+        // Wait for git clone to complete
+        Mono<Application> gitConnectedAppFromDbMono = Mono.just(testOrgId)
+                .flatMap(application -> {
+                    try {
+                        // Before fetching the git connected application, sleep for 5 seconds to ensure that the clone
+                        // completes
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationService.findByOrganizationId(testOrgId, READ_APPLICATIONS)
+                            .filter(application1 -> "testGitImportRepoCancelledMidway".equals(application1.getName()))
+                            .next();
+                });
+
+        StepVerifier
+                .create(gitConnectedAppFromDbMono)
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo("testGitImportRepoCancelledMidway");
+                    assertThat(application.getGitApplicationMetadata()).isNotNull();
+                    assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("git@github.com:test/testGitImportRepo.git");
+                    assertThat(application.getGitApplicationMetadata().getIsRepoPrivate()).isEqualTo(true);
+                    assertThat(application.getGitApplicationMetadata().getGitAuth().getPublicKey()).isEqualTo(gitAuth.getPublicKey());
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() throws GitAPIException, IOException {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo1.git", testUserProfile);
+        gitService.generateSSHKey().block();
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo1");
         applicationJson.getDatasourceList().get(0).setName("db-auth-1");
@@ -2265,6 +2329,8 @@ public class GitServiceTest {
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitFileUtils.detachRemote(Mockito.any(Path.class)))
+                .thenReturn(Mono.just(true));
 
         Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 
