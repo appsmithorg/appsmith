@@ -40,23 +40,9 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
-import static com.appsmith.external.constants.Authentication.AUDIENCE;
-import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
-import static com.appsmith.external.constants.Authentication.CLIENT_ID;
-import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
-import static com.appsmith.external.constants.Authentication.CODE;
-import static com.appsmith.external.constants.Authentication.GRANT_TYPE;
-import static com.appsmith.external.constants.Authentication.REDIRECT_URI;
-import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
-import static com.appsmith.external.constants.Authentication.RESOURCE;
-import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
-import static com.appsmith.external.constants.Authentication.SCOPE;
-import static com.appsmith.external.constants.Authentication.STATE;
-import static com.appsmith.external.constants.Authentication.SUCCESS;
+import static com.appsmith.external.constants.Authentication.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -298,16 +284,15 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                                newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.READ_PAGES)
-                                        .map(page -> List.of(page.getId(), page.getApplicationId())),
                                 configService.getInstanceId(),
                                 pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {
                             IntegrationDTO integrationDTO = new IntegrationDTO();
-                            integrationDTO.setPageId(tuple.getT1().get(0));
-                            integrationDTO.setApplicationId(tuple.getT1().get(1));
-                            integrationDTO.setInstallationKey(tuple.getT2());
-                            final Plugin plugin = tuple.getT3();
+                            integrationDTO.setPageId(pageId);
+                            integrationDTO.setApplicationId(datasourceId);
+                            integrationDTO.setInstallationKey(tuple.getT1());
+                            integrationDTO.setBranch(branchName);
+                            final Plugin plugin = tuple.getT2();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());
                             // TODO add authenticationDTO
