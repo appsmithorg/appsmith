@@ -81,6 +81,9 @@ export const generateDataTreeWidget = (
       triggerPaths,
       validationPaths,
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      privateWidgets: {
+        ...widget.privateWidgets,
+      },
     },
     widget,
   );

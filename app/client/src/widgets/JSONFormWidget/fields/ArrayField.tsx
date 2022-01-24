@@ -99,8 +99,6 @@ function ArrayField({
       : (schemaItemDefaultValue(schemaItem) as any[]);
   })();
 
-  console.log("ARRAYFIELD", { defaultValue });
-
   const options = {
     hideLabel: true,
     hideAccordion: true,

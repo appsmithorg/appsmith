@@ -16,17 +16,19 @@ import {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dateFormatOptions } from "../widget/propertyConfig/properties/date";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
     closeOnSelection: boolean;
+    convertToISO: boolean;
     dateFormat: string;
     maxDate: string;
     minDate: string;
     onDateChange?: string;
     onDateSelected?: string;
     shortcuts: boolean;
-    convertToISO: boolean;
+    timePrecision: TimePrecision;
   };
 
 const COMPONENT_DEFAULT_VALUES = {
@@ -40,6 +42,7 @@ const COMPONENT_DEFAULT_VALUES = {
   maxDate: "2121-12-31T18:29:00.000Z",
   minDate: "1920-12-31T18:30:00.000Z",
   shortcuts: false,
+  timePrecision: TimePrecision.MINUTE,
 };
 
 const componentDefaultValues = ({
@@ -183,6 +186,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
             onDateSelected={onDateSelected}
             selectedDate={valueInISOFormat}
             shortcuts={schemaItem.shortcuts}
+            timePrecision={schemaItem.timePrecision}
             widgetId=""
           />
         );

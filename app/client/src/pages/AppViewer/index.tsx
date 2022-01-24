@@ -18,7 +18,11 @@ import {
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
+import {
+  BatchPropertyUpdatePayload,
+  batchUpdateWidgetProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -39,16 +43,19 @@ import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppViewerBody = styled.section<{ hasPages: boolean }>`
+const AppViewerBody = styled.section<{ hasPages: boolean; isEmbeded: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(
-    100vh -
-      ${(props) =>
-        !props.hasPages ? `${props.theme.smallHeaderHeight} - 1px` : "72px"}
-  );
+  ${(props) =>
+    props.isEmbeded
+      ? // embeded page will not have top header
+        "height: 100vh"
+      : `height: calc(
+        100vh -
+          ${!props.hasPages ? `${props.theme.smallHeaderHeight} - 1px` : "72px"}
+      );`}
 `;
 
 const ContainerWithComments = styled.div`
@@ -86,6 +93,10 @@ export type AppViewerProps = {
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
   lightTheme: Theme;
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => void;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -141,7 +152,8 @@ class AppViewer extends Component<Props> {
   };
 
   public render() {
-    const { isInitialized } = this.props;
+    const { isInitialized, location } = this.props;
+    const isEmbeded = location.search.indexOf("embed=true") !== -1;
     return (
       <ThemeProvider theme={this.props.lightTheme}>
         <GlobalHotKeys>
@@ -150,12 +162,16 @@ class AppViewer extends Component<Props> {
               executeAction: this.props.executeAction,
               updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
               resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+              batchUpdateWidgetProperty: this.props.batchUpdateWidgetProperty,
             }}
           >
             <ContainerWithComments>
               <AppViewerCommentsSidebar />
               <AppViewerBodyContainer>
-                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                <AppViewerBody
+                  hasPages={this.props.pages.length > 1}
+                  isEmbeded={isEmbeded}
+                >
                   {isInitialized && this.state.registered && (
                     <Switch>
                       <SentryRoute
@@ -217,6 +233,10 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: params,
     });
   },
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => dispatch(batchUpdateWidgetProperty(widgetId, updates)),
 });
 
 export default withRouter(

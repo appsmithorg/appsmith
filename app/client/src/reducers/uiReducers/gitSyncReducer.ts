@@ -9,9 +9,7 @@ import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
   isCommitting: false,
-  isPushingToGit: false,
   isCommitSuccessful: false,
-  isPushSuccessful: false,
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
   isImportAppViaGitModalOpen: false,
@@ -28,7 +26,6 @@ const initialState: GitSyncReducerState = {
   isMerging: false,
   tempRemoteUrl: "",
 
-  showRepoLimitError: false,
   showRepoLimitErrorModal: false,
   isDisconnectGitModalOpen: false,
   disconnectingGitApp: {
@@ -88,15 +85,6 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isCommitSuccessful: false,
-  }),
-  [ReduxActionTypes.PUSH_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
-    ...state,
-    isPushingToGit: true,
-    isPushSuccessful: false,
-    connectError: null,
-    commitAndPushError: null,
-    pullError: null,
-    mergeError: null,
   }),
   [ReduxActionTypes.PUSH_TO_GIT_SUCCESS]: (state: GitSyncReducerState) => ({
     ...state,
@@ -223,6 +211,7 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     localGitConfig: action.payload,
     isFetchingLocalGitConfig: false,
+    useGlobalProfile: action.payload?.useGlobalProfile,
   }),
   [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -284,6 +273,7 @@ const gitSyncReducer = createReducer(initialState, {
     isFetchingMergeStatus: true,
     connectError: null,
     commitAndPushError: null,
+    mergeStatus: null,
     pullError: null,
     mergeError: null,
   }),
@@ -335,10 +325,12 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionTypes.MERGE_BRANCH_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     isMerging: true,
+    mergeError: null,
   }),
   [ReduxActionTypes.MERGE_BRANCH_SUCCESS]: (state: GitSyncReducerState) => ({
     ...state,
     isMerging: false,
+    mergeError: null,
   }),
   [ReduxActionErrorTypes.MERGE_BRANCH_ERROR]: (
     state: GitSyncReducerState,
@@ -357,13 +349,6 @@ const gitSyncReducer = createReducer(initialState, {
       tempRemoteUrl: action.payload,
     };
   },
-  [ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR]: (
-    state: GitSyncReducerState,
-    action: ReduxAction<boolean>,
-  ) => ({
-    ...state,
-    showRepoLimitError: action.payload,
-  }),
   [ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL]: (
     state: GitSyncReducerState,
     action: ReduxAction<boolean>,
@@ -415,8 +400,6 @@ export type GitSyncReducerState = {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
   isCommitSuccessful: boolean;
-  isPushSuccessful: boolean;
-  isPushingToGit?: boolean;
 
   fetchingBranches: boolean;
   isFetchingGitConfig: boolean;
@@ -446,13 +429,14 @@ export type GitSyncReducerState = {
   isMerging?: boolean;
   tempRemoteUrl?: string;
 
-  showRepoLimitError?: boolean;
   showRepoLimitErrorModal: boolean;
   isDisconnectGitModalOpen: boolean;
   disconnectingGitApp: {
     id: string;
     name: string;
   };
+
+  useGlobalProfile?: boolean;
 };
 
 export default gitSyncReducer;

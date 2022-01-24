@@ -3,6 +3,7 @@ import moment from "moment";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { HiddenFnParams, getSchemaItem } from "../helper";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 export const dateFormatOptions = [
   {
@@ -122,6 +123,41 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
       dependencies: ["schema"],
+    },
+    {
+      propertyName: "timePrecision",
+      label: "Time precision",
+      controlType: "DROP_DOWN",
+      helpText: "Sets the different time picker or hide.",
+      defaultValue: TimePrecision.MINUTE,
+      options: [
+        {
+          label: "None",
+          value: TimePrecision.NONE,
+        },
+        {
+          label: "Minute",
+          value: TimePrecision.MINUTE,
+        },
+        {
+          label: "Second",
+          value: TimePrecision.SECOND,
+        },
+      ],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: [
+            TimePrecision.NONE,
+            TimePrecision.MINUTE,
+            TimePrecision.SECOND,
+          ],
+          default: TimePrecision.MINUTE,
+        },
+      },
     },
     {
       propertyName: "closeOnSelection",

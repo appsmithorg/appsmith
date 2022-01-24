@@ -93,7 +93,7 @@ export default [
         label: "Disabled Invalid Forms",
         controlType: "SWITCH",
         isJSConvertible: true,
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },

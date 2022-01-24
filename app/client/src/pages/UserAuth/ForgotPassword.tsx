@@ -34,7 +34,7 @@ import {
   ForgotPasswordFormValues,
   forgotPasswordSubmitHandler,
 } from "./helpers";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -82,7 +82,7 @@ export const ForgotPassword = withTheme(
           {submitSucceeded && (
             <FormMessage
               intent="lightSuccess"
-              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)} 
+              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)}
                 ${props.emailValue}`}
             />
           )}

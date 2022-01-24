@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
+  getDisconnectDocUrl,
   getDisconnectingGitApplication,
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
@@ -22,17 +23,18 @@ import { Theme } from "constants/DefaultTheme";
 import {
   APPLICATION_NAME,
   createMessage,
-  GIT_CONNECTION_REVOKE_ACCESS,
+  DISCONNECT,
+  DISCONNECT_FROM_GIT,
+  GIT_DISCONNECTION_SUBMENU,
   LEARN_MORE,
   NONE_REVERSIBLE_MESSAGE,
-  REVOKE,
-  REVOKE_ACCESS_TO_PROMO_CODE,
   TYPE_PROMO_CODE,
 } from "constants/messages";
 import Link from "./components/Link";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Subtitle, Title } from "./components/StyledComponents";
 
 const Container = styled.div`
   height: 600px;
@@ -67,14 +69,14 @@ const CloseBtnContainer = styled.div`
 `;
 
 const ButtonContainer = styled.div`
-  margin-top: ${(props) => `${props.theme.spaces[15]}px`};
+  margin-top: ${(props) => `${props.theme.spaces[11]}px`};
 `;
 
 function DisconnectGitModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsDisconnectGitModalOpen);
   const disconnectingApp = useSelector(getDisconnectingGitApplication);
-
+  const gitDisconnectDocumentUrl = useSelector(getDisconnectDocUrl);
   const [appName, setAppName] = useState("");
 
   const handleClose = useCallback(() => {
@@ -99,22 +101,11 @@ function DisconnectGitModal() {
       <Container>
         <MenuContainer>
           <Text color={Colors.GREY_4} type={TextType.P3}>
-            {createMessage(GIT_CONNECTION_REVOKE_ACCESS)}
+            {createMessage(GIT_DISCONNECTION_SUBMENU)}
           </Text>
         </MenuContainer>
         <BodyContainer>
-          <Text color={Colors.GREY_10} type={TextType.H4} weight="bold">
-            {`${createMessage(REVOKE_ACCESS_TO_PROMO_CODE)} 
-              ${disconnectingApp.name}`}
-          </Text>
-          <Text
-            color={Colors.OXFORD_BLUE}
-            style={{ marginTop: theme.spaces[3] }}
-            type={TextType.P3}
-          >
-            {createMessage(TYPE_PROMO_CODE, disconnectingApp.name)}
-          </Text>
-          <InfoWrapper isError style={{ margin: `${theme.spaces[11]}px 0px` }}>
+          <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px` }}>
             <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
             <div style={{ display: "block" }}>
               <Text
@@ -126,17 +117,43 @@ function DisconnectGitModal() {
               </Text>
               <Link
                 color={Colors.CRIMSON}
-                link={DOCS_BASE_URL}
+                link={gitDisconnectDocumentUrl}
+                onClick={() => {
+                  AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                    source: "GIT_DISCONNECTION_MODAL",
+                  });
+                  window.open(gitDisconnectDocumentUrl, "_blank");
+                }}
                 text={createMessage(LEARN_MORE)}
               />
             </div>
           </InfoWrapper>
-          <Text style={{ marginBottom: theme.spaces[3] }} type={TextType.P1}>
+          <Title>
+            {createMessage(DISCONNECT_FROM_GIT, disconnectingApp.name)}
+          </Title>
+          <Subtitle color={Colors.OXFORD_BLUE}>
+            {createMessage(TYPE_PROMO_CODE, disconnectingApp.name)}
+          </Subtitle>
+          <Text
+            style={{
+              margin: `${theme.spaces[12] + 2}px 0px ${theme.spaces[3]}px`,
+            }}
+            type={TextType.P1}
+          >
             {createMessage(APPLICATION_NAME)}
           </Text>
           <TextInput
             className="t--git-app-name-input"
             fill
+            onBlur={(event) => {
+              AnalyticsUtil.logEvent(
+                "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
+                {
+                  value: event.target.value,
+                  expecting: disconnectingApp.name,
+                },
+              );
+            }}
             onChange={(value) => setAppName(value)}
             trimValue={false}
             value={appName}
@@ -151,7 +168,7 @@ function DisconnectGitModal() {
               onClick={onDisconnectGit}
               size={Size.large}
               tag="button"
-              text={createMessage(REVOKE)}
+              text={createMessage(DISCONNECT)}
             />
           </ButtonContainer>
         </BodyContainer>

@@ -31,7 +31,7 @@ const selectStyles = {
     width: state.selectProps.width || 100,
     minHeight: "36px",
     border: state.isFocused
-      ? `${Colors.CRUSTA} solid 1px`
+      ? `var(--appsmith-input-focus-border-color) solid 1px`
       : `${Colors.ALTO2} solid 1px`,
     boxShadow: state.isFocused ? 0 : 0,
     padding: "1px 3px 1px",
@@ -64,7 +64,7 @@ const selectStyles = {
 
 export function BaseDropdown(props: DropdownProps) {
   const layer = React.useContext(LayersContext);
-  const { customSelectStyles, input } = props;
+  const { customSelectStyles, input, placeholder } = props;
   const menuPortalStyle = {
     menuPortal: (styles: any) => ({ ...styles, zIndex: layer.max }),
   };
@@ -81,6 +81,7 @@ export function BaseDropdown(props: DropdownProps) {
       {...props}
       classNamePrefix="appsmith-select"
       menuPlacement="auto"
+      placeholder={placeholder}
     />
   );
 }

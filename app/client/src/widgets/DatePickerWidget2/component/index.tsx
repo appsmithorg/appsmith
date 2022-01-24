@@ -10,9 +10,8 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import { DatePickerType } from "../constants";
+import { DatePickerType, TimePrecision } from "../constants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { TimePrecision } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -156,6 +155,9 @@ class DatePickerComponent extends React.Component<
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}
               closeOnSelection={this.props.closeOnSelection}
+              dayPickerProps={{
+                firstDayOfWeek: this.props.firstDayOfWeek || 0,
+              }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
               inputProps={{
@@ -172,7 +174,11 @@ class DatePickerComponent extends React.Component<
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
-              timePrecision={TimePrecision.MINUTE}
+              timePrecision={
+                this.props.timePrecision === TimePrecision.NONE
+                  ? undefined
+                  : this.props.timePrecision
+              }
               value={value}
             />
           </ErrorTooltip>
@@ -261,6 +267,8 @@ export interface DatePickerComponentProps extends ComponentProps {
   withoutPortal?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  firstDayOfWeek?: number;
+  timePrecision: TimePrecision;
   inputRef?: IRef<HTMLInputElement>;
 }
 

@@ -75,7 +75,7 @@ import { getQueryParams } from "../../../utils/AppsmithUtils";
 import SnippetsFilter from "./SnippetsFilter";
 import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
@@ -190,7 +190,7 @@ function GlobalSearch() {
   const setCategory = useCallback(
     (category: SearchCategory) => {
       if (isSnippet(category)) {
-        AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+        AnalyticsUtil.logEvent("SNIPPET_LOOKUP", { source: "OMNIBAR_MENU" });
       }
       dispatch(setGlobalSearchFilterContext({ category: category }));
     },

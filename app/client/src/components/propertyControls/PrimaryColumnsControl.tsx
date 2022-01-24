@@ -134,7 +134,7 @@ function ColumnControlComponent(props: RenderComponentProps<DroppableItem>) {
   );
 
   const onFocus = () => {
-    setEditing(true);
+    setEditing(false);
     debouncedFocus(index, true);
   };
   const onBlur = () => {
