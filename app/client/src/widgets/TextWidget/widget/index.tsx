@@ -322,6 +322,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}
+        borderWidth={this.props.borderWidth}
         bottomRow={this.props.bottomRow}
         boxShadow={this.props.boxShadow}
         disableLink={this.props.disableLink || false}

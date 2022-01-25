@@ -236,7 +236,9 @@ class TextComponent extends React.Component<TextComponentProps, State> {
           <TextContainer>
             <StyledText
               backgroundColor={backgroundColor}
+              borderColor={this.props.borderColor}
               borderRadius={this.props.borderRadius}
+              borderWidth={this.props.borderWidth}
               boxShadow={this.props.boxShadow}
               className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
               ellipsize={ellipsize}

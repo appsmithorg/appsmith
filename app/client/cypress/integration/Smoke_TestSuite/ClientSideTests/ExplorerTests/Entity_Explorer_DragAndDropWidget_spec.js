@@ -32,13 +32,10 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     /**
      * @param{Text} Random Colour
      */
-    cy.get(widgetsPage.backgroundcolorPickerNew)
-      .first()
-      .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.selectColor("backgroundcolor");
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", "rgb(3, 179, 101)");
+      .and("eq", "rgb(85, 61, 233)");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
