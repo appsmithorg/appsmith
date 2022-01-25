@@ -1,4 +1,4 @@
-name: Test, build and push Docker Image
+name: Reuse Actions
 
 on:
   # This line enables manual triggering of this workflow.
