@@ -42,8 +42,7 @@ const MethodCard = styled.div`
   width: 648px;
   align-items: center;
   justify-content: space-between;
-  margin: 16px 0;
-  padding: 8px 10px;
+  margin: 32px 0;
 `;
 
 const Image = styled.img`
@@ -185,11 +184,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   </EditButton>
                 ) : (
                   <AddButton
-                    category={
-                      !!method.needsUpgrade
-                        ? Category.primary
-                        : Category.tertiary
-                    }
+                    category={Category.tertiary}
                     className={`add-button t--settings-sub-category-${
                       method.needsUpgrade ? "upgrade" : method.category
                     }`}
