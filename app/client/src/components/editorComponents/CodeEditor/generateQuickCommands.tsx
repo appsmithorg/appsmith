@@ -7,11 +7,12 @@ import {
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType, SlashCommand, SlashCommandPayload } from "entities/Action";
-import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
+import { Colors } from "constants/Colors";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -88,9 +89,11 @@ const iconsByType = {
     </EntityIcon>
   ),
   [Shortcuts.PLUS]: (
-    <EntityIcon noBorder>
-      <NewPlus className="shortcut" />
-    </EntityIcon>
+    <AddDatasourceIcon
+      className="add-datasource-icon"
+      color={Colors.DOVE_GRAY2}
+      size={18}
+    />
   ),
   [Shortcuts.FUNCTION]: (
     <EntityIcon noBorder>
@@ -130,7 +133,7 @@ export const generateQuickCommands = (
   propertyPath: any,
 ) => {
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create New");
+  const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
@@ -208,12 +211,12 @@ export const generateQuickCommands = (
         }),
       render: (element: HTMLElement, self: any, data: any) => {
         const icon = (
-          <div>
+          <EntityIcon>
             <img src={pluginIdToImageLocation[data.data.pluginId]} />
-          </div>
+          </EntityIcon>
         );
         ReactDOM.render(
-          <Command icon={icon} name={data.displayText} />,
+          <Command icon={icon} name={`New ${data.displayText} query`} />,
           element,
         );
       },

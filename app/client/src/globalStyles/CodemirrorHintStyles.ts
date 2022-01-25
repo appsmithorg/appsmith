@@ -65,6 +65,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       .shortcut {
         color: #ffffff;
       }
+      .add-datasource-icon {
+        background: white;
+      }
     }
     .command-container {
       display: flex;
@@ -82,10 +85,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
           height: 14px;
           width: 14px;
         }
-      }
-      svg {
-        height: 12px;
-        width: 12px;
       }
     }
     .shortcut {
