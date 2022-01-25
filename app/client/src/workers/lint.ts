@@ -4,7 +4,7 @@ import {
   extraLibraries,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { JSHINT as jshint, LintError } from "jshint";
+import { JSHINT as jshint } from "jshint";
 import { isEmpty, keys, last } from "lodash";
 import {
   EvaluationScripts,
