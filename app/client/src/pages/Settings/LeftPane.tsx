@@ -16,8 +16,11 @@ const Wrapper = styled.div`
 const HeaderContainer = styled.div``;
 
 const StyledHeader = styled.div`
-  font-size: 20px;
-  text-transform: capitalize;
+  font-size: 14px;
+  height: 20px;
+  line-height: 17px;
+  letter-spacing: -0.24px;
+  text-transform: uppercase;
   margin: 40px 16px 16px;
   color: ${Colors.MASALA};
 `;
