@@ -12,7 +12,7 @@ import {
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
-import { Category, Size } from "components/ads/Button";
+import { Category, Size } from "components/ads";
 import { debounce } from "lodash";
 
 function updateOptionLabel<T>(

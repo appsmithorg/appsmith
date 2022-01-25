@@ -22,15 +22,19 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { executeJSFunction } from "actions/jsPaneActions";
-import Text, { TextType } from "components/ads/Text";
-import { Classes } from "components/ads/common";
+import {
+  Callout,
+  Classes,
+  Icon,
+  Text,
+  TextType,
+  Variant,
+} from "components/ads";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { sortBy } from "lodash";
 import { ReactComponent as JSFunction } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as RunFunction } from "assets/icons/menu/run.svg";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import Callout from "components/ads/Callout";
-import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
@@ -39,7 +43,6 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
-import Icon from "components/ads/Icon";
 import FlagBadge from "components/utils/FlagBadge";
 
 const ResponseContainer = styled.div`

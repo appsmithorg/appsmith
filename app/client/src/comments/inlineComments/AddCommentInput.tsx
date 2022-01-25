@@ -6,9 +6,15 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import EmojiPicker from "components/ads/EmojiPicker";
-import MentionsInput, { Trigger } from "components/ads/MentionsInput";
-import Button, { Category } from "components/ads/Button";
+import {
+  EmojiPicker,
+  MentionsInput,
+  Trigger,
+  Button,
+  Category,
+  Toaster,
+  Variant,
+} from "components/ads";
 
 import { BaseEmoji } from "emoji-mart";
 import styled from "styled-components";
@@ -47,8 +53,6 @@ import useOrg from "utils/hooks/useOrg";
 import { getCanCreateApplications } from "utils/helpers";
 
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 
 const { appsmithSupportEmail } = getAppsmithConfigs();
 

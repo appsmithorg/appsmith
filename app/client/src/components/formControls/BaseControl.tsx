@@ -5,7 +5,7 @@ import {
   ConditonalObject,
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "components/ads";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,

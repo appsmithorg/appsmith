@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "components/ads";
 import styled, { css } from "styled-components";
 import { FieldArray } from "redux-form";
 import FormLabel from "components/editorComponents/FormLabel";

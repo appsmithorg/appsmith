@@ -21,8 +21,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { Virtuoso } from "react-virtuoso";
 import { setShouldShowResolvedComments } from "actions/commentActions";
 import { useSelectCommentThreadUsingQuery } from "../inlineComments/Comments";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "components/ads";
 import { COMMENT_HAS_BEEN_DELETED, createMessage } from "constants/messages";
 
 const Container = styled.div`

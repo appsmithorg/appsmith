@@ -3,8 +3,14 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
+import {
+  Classes,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  Tooltip,
+} from "components/ads";
 import InspectElement from "assets/images/InspectElement.svg";
 import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
 import {
@@ -19,8 +25,6 @@ import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey, thinScrollbar } from "constants/DefaultTheme";
-import Tooltip from "components/ads/Tooltip";
-import Text, { TextType } from "components/ads/Text";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 

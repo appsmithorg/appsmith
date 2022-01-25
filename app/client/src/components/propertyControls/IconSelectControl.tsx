@@ -5,7 +5,7 @@ import { IconName, IconNames } from "@blueprintjs/icons";
 import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent } from "components/ads";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 

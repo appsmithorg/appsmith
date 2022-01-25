@@ -9,11 +9,10 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import { DroppableComponent, Category, Size } from "components/ads";
 import { getNextEntityName, noop } from "utils/AppsmithUtils";
 import _, { debounce, orderBy } from "lodash";
 import * as Sentry from "@sentry/react";
-import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 

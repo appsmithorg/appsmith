@@ -3,7 +3,7 @@ import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "components/ads";
 
 export type PluginId = string;
 export type PluginPackageName = string;

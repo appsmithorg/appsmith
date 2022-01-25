@@ -1,10 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Icon, Size } from "components/ads";
 
 import styled from "styled-components";
 import { createMessage, NEXT, BACK, SKIP } from "constants/messages";
 import { useTransition, animated } from "react-spring";
-import Icon from "./Icon";
 
 const Container = styled.div`
   box-shadow: 1px 0px 10px 5px rgba(0, 0, 0, 0.15);

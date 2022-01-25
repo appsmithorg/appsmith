@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import Icon, { IconSize, IconName } from "components/ads/Icon";
+import { Icon, IconSize, IconName, Tooltip } from "components/ads";
 import styled from "styled-components";
 import {
   PIN_COMMENT,
@@ -16,7 +16,6 @@ import { noop } from "lodash";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 import { Popover2 } from "@blueprintjs/popover2";
-import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 
 // render over popover portals

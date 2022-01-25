@@ -1,4 +1,4 @@
-import Icon from "components/ads/Icon";
+import { Icon } from "components/ads";
 import { Theme } from "constants/DefaultTheme";
 import React from "react";
 import styled, { withTheme } from "styled-components";

@@ -6,10 +6,12 @@ import styled, { Skin } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import Button from "components/ads/Button";
-import TextInput from "components/ads/TextInput";
-import Dropdown from "components/ads/Dropdown";
-import MultiSelectDropdown from "components/ads/MultiselectDropdown";
+import {
+  Button,
+  Dropdown,
+  MultiSelectDropdown,
+  TextInput,
+} from "components/ads";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;

@@ -16,8 +16,7 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { Size, Category } from "components/ads/Button";
+import { DroppableComponent, Size, Category } from "components/ads";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";

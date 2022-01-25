@@ -1,6 +1,6 @@
 import { createActionRequest } from "actions/pluginActionActions";
 import { createModalAction } from "actions/widgetActions";
-import { TreeDropdownOption } from "components/ads/TreeDropdown";
+import { TreeDropdownOption } from "components/ads";
 import TreeStructure from "components/utils/TreeStructure";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";

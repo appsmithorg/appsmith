@@ -9,7 +9,7 @@ import {
   removeUnpublishedCommentThreads,
   updateUnpublishedThreadDraftComment,
 } from "actions/commentActions";
-import Icon from "components/ads/Icon";
+import { Icon } from "components/ads";
 import { EditorState, RawDraftContentState } from "draft-js";
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 

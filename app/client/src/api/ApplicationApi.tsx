@@ -2,7 +2,7 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
-import { AppIconName } from "components/ads/AppIcon";
+import { AppIconName } from "components/ads";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export type EvaluationVersion = number;

@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import StepComponent from "components/ads/StepComponent";
+import { StepComponent } from "components/ads";
 class StepControl extends BaseControl<StepControlProps> {
   getStepTypeControls = () => {
     const { stepType } = this.props;

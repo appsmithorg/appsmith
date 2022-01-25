@@ -1,13 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import Button from "components/ads/Button";
+import { Button, Classes, Variant, Icon, IconSize } from "components/ads";
 import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
-import { Classes, Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";

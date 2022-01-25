@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
-import { CommonComponentProps } from "components/ads/common";
+import { CommonComponentProps } from "components/ads";
 import { Colors } from "../../constants/Colors";
 
 /** Styles **/

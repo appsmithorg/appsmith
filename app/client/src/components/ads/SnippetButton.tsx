@@ -1,12 +1,16 @@
-import Button from "components/ads/Button";
+import {
+  Button,
+  Category,
+  Icon as AdsIcon,
+  IconSize,
+  Size,
+  Tooltip as TooltipComponent,
+} from "components/ads";
 import styled from "constants/DefaultTheme";
 import { createMessage, SNIPPET_TOOLTIP } from "constants/messages";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Category, Size } from "./Button";
-import TooltipComponent from "./Tooltip";
-import AdsIcon, { IconSize } from "components/ads/Icon";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 

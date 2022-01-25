@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import _ from "lodash";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "components/ads";
 import { StyledMultiSelectDropDown } from "./StyledControls";
 
 class MultiSelectControl extends BaseControl<MultiSelectControlProps> {

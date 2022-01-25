@@ -7,7 +7,7 @@ import { IconName } from "@blueprintjs/icons";
 
 import { Theme } from "constants/DefaultTheme";
 
-import { ThemeProp } from "components/ads/common";
+import { ThemeProp } from "components/ads";
 
 import _ from "lodash";
 import {

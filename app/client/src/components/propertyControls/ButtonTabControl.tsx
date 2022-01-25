@@ -1,8 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import ButtonTabComponent, {
-  ButtonTabOption,
-} from "components/ads/ButtonTabComponent";
+import { ButtonTabComponent, ButtonTabOption } from "components/ads";
 import produce from "immer";
 
 class ButtonTabControl extends BaseControl<ButtonTabControlProps> {

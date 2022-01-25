@@ -5,7 +5,15 @@ import { Classes as BPClasses, Position } from "@blueprintjs/core";
 import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import Text, { FontWeight, TextType } from "components/ads/Text";
+import {
+  Classes,
+  FontWeight,
+  Icon,
+  IconName,
+  IconSize,
+  Text,
+  TextType,
+} from "components/ads";
 import { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -24,8 +32,6 @@ import {
   DEBUGGER_SEARCH_GOOGLE,
   DEBUGGER_SEARCH_SNIPPET,
 } from "constants/messages";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ReactComponent as ProfileImagePlaceholder } from "assets/images/profile-placeholder.svg";
 import Uppy from "@uppy/core";
-import Dialog from "components/ads/DialogComponent";
+import { DialogComponent as Dialog } from "components/ads";
 
 import { Dashboard, useUppy } from "@uppy/react";
 import { getTypographyByKey } from "constants/DefaultTheme";

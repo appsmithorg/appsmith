@@ -18,7 +18,7 @@ import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { bootIntercom } from "utils/helpers";
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent } from "components/ads";
 import { Position } from "@blueprintjs/core";
 import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";

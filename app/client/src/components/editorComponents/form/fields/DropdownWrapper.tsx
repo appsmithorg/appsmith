@@ -1,4 +1,4 @@
-import Dropdown from "components/ads/Dropdown";
+import { Dropdown } from "components/ads";
 import React, { useEffect, useState } from "react";
 
 type DropdownWrapperProps = {

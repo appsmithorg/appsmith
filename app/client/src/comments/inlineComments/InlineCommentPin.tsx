@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "components/ads";
 import { get } from "lodash";
 import {
   commentThreadsSelector,

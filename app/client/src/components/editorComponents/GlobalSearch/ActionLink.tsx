@@ -1,5 +1,5 @@
 import React from "react";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "components/ads";
 import { Theme } from "constants/DefaultTheme";
 import { useContext } from "react";
 import styled, { withTheme } from "styled-components";

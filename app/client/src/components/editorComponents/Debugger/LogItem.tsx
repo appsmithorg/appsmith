@@ -2,17 +2,22 @@ import { Collapse, Position } from "@blueprintjs/core";
 import { get } from "lodash";
 import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
-import { Classes } from "components/ads/common";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import {
+  Classes,
+  Icon,
+  IconName,
+  IconSize,
+  Text,
+  TextType,
+  Tooltip as TooltipComponent,
+} from "components/ads";
 import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon } from "./helpers";
-import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
 import ContextualMenu from "./ContextualMenu";
 

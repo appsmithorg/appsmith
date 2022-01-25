@@ -5,7 +5,7 @@ import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
-import { Size } from "components/ads/Button";
+import { IconSize, Size, Spinner } from "components/ads";
 import {
   StyledDialog,
   StyledRadioComponent,
@@ -17,8 +17,6 @@ import {
 import Divider from "components/editorComponents/Divider";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
-import Spinner from "components/ads/Spinner";
-import { IconSize } from "components/ads/Icon";
 import { matchViewerForkPath } from "constants/routes";
 
 type ForkApplicationModalProps = {

@@ -9,11 +9,9 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator, Toaster, Tooltip, Variant } from "components/ads";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import Tooltip from "components/ads/Tooltip";
-import { Toaster } from "components/ads/Toast";
 import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
@@ -26,7 +24,6 @@ import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Indices, Layers } from "constants/Layers";
-import { Variant } from "components/ads/common";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {

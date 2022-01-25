@@ -1,4 +1,4 @@
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, Tooltip as TooltipComponent } from "components/ads";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
@@ -18,7 +18,6 @@ import {
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
 import { matchBuilderPath } from "constants/routes";
-import TooltipComponent from "components/ads/Tooltip";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 
 function Debugger() {

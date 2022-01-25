@@ -13,14 +13,17 @@ import { Comment, Reaction } from "entities/Comments/CommentsInterfaces";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import CommentContextMenu from "./CommentContextMenu";
 import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
-import { MentionComponent } from "components/ads/MentionsInput";
-import Icon, { IconSize } from "components/ads/Icon";
-import EmojiReactions, {
+import {
+  EmojiReactions,
+  Icon,
+  IconSize,
+  MentionComponent,
   Reaction as ComponentReaction,
   Reactions,
   ReactionOperation,
-} from "components/ads/EmojiReactions";
-import { Toaster } from "components/ads/Toast";
+  Toaster,
+  Variant,
+} from "components/ads";
 import AddCommentInput from "comments/inlineComments/AddCommentInput";
 
 import createMentionPlugin from "@draft-js-plugins/mention";
@@ -49,7 +52,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
-import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
 import { getCurrentApplicationId } from "selectors/editorSelectors";

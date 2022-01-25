@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { withTheme } from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Icon,
+  IconSize,
+  RadioComponent as RadioGroup,
+  Radio,
+  Checkbox,
+} from "components/ads";
 import { Popover2 } from "@blueprintjs/popover2";
-import RadioGroup, { Radio } from "components/ads/Radio";
 import { Theme } from "constants/DefaultTheme";
-import Checkbox from "components/ads/Checkbox";
 
 import {
   shouldShowResolved as shouldShowResolvedSelector,

@@ -1,8 +1,7 @@
 import React from "react";
 import styled, { withTheme } from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, Tooltip } from "components/ads";
 import { Theme } from "constants/DefaultTheme";
-import Tooltip from "components/ads/Tooltip";
 import {
   createMessage,
   RESOLVE_THREAD,

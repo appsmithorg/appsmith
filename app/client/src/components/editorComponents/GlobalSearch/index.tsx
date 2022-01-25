@@ -80,8 +80,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "components/ads";
 
 const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;

@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-
-import Text, { TextType } from "components/ads/Text";
-import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
 import ProfileForm, { PROFILE_FORM, fieldNames } from "./ProfileForm";
 import CommentsCarouselModal from "./CommentsCarouselModal";
-import ProgressiveImage, {
+import {
+  ProgressiveImage,
   ProgressiveImageContainer,
-} from "components/ads/ProgressiveImage";
+  ShowcaseCarousel,
+  Steps,
+  Text,
+  TextType,
+} from "components/ads";
 
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";

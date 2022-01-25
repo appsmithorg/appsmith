@@ -1,11 +1,9 @@
 import React from "react";
 import { Collapsible } from ".";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, Text, TextType, Classes } from "components/ads";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
-import Text, { TextType } from "components/ads/Text";
-import { Classes } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {

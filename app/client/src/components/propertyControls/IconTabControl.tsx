@@ -1,8 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import IconTabsComponent, {
-  IconTabOption,
-} from "components/ads/IconTabsComponent";
+import { IconTabsComponent, IconTabOption } from "components/ads";
 
 class IconTabControl extends BaseControl<IconTabControlProps> {
   selectOption = (value: string) => {

@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import Switch from "components/ads/Switch";
+import { Switch } from "components/ads";
 
 class SwitchControl extends BaseControl<ControlProps> {
   render() {

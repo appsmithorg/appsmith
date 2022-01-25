@@ -1,8 +1,10 @@
 import styled from "styled-components";
-import Button from "components/ads/Button";
-import RadioComponent from "components/ads/Radio";
+import {
+  Button,
+  RadioComponent,
+  DialogComponent as Dialog,
+} from "components/ads";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
 
 const TriggerButton = styled(Button)`

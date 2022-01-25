@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent, Text, TextType } from "components/ads";
 import { useSelector } from "react-redux";
-import Text, { TextType } from "../Text";
 import { Position } from "@blueprintjs/core";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { TourType } from "entities/Tour";

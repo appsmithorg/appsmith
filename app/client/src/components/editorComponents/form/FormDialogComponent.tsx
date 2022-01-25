@@ -1,9 +1,8 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import { isPermitted } from "pages/Applications/permissionHelpers";
-import Dialog from "components/ads/DialogComponent";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
-import { IconName } from "components/ads/Icon";
+import { DialogComponent as Dialog, IconName } from "components/ads";
 
 type FormDialogComponentProps = {
   isOpen?: boolean;

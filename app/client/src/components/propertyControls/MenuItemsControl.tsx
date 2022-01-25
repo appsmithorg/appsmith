@@ -9,10 +9,9 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import { Category, DroppableComponent, Size } from "components/ads";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _, { debounce, orderBy } from "lodash";
-import { Category, Size } from "components/ads/Button";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;

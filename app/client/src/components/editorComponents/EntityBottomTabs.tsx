@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTab } from "actions/debuggerActions";
-import { TabComponent, TabProp } from "components/ads/Tabs";
+import { TabComponent, TabProp } from "components/ads";
 import { getCurrentDebuggerTab } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";

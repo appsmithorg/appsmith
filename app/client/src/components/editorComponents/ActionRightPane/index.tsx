@@ -1,9 +1,17 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Classes, Variant } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Button,
+  Category,
+  Classes,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  Variant,
+} from "components/ads";
 import { useState } from "react";
 import history from "utils/history";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -11,7 +19,6 @@ import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import { ReactNode } from "react";
 import { useEffect } from "react";
-import Button, { Category, Size } from "components/ads/Button";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";

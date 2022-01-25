@@ -4,7 +4,7 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "components/ads";
 
 const dropDownFieldConfig: any = {
   label: "",

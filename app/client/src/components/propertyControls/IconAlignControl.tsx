@@ -9,7 +9,7 @@ import {
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
-import { ThemeProp } from "components/ads/common";
+import { ThemeProp } from "components/ads";
 import { replayHighlightClass } from "globalStyles/portals";
 
 const StyledButtonGroup = styled(ButtonGroup)`

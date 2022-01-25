@@ -25,7 +25,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
-import Switcher from "components/ads/Switcher";
+import { Switcher } from "components/ads";
 import { trimQueryString } from "utils/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import AppComments from "comments/AppComments/AppComments";
@@ -38,7 +38,7 @@ import {
   getExplorerPinned,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent } from "components/ads";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";

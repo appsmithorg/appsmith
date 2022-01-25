@@ -22,19 +22,31 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { omit } from "lodash";
-import Text, { TextType } from "components/ads/Text";
-import Button, { Category, Size, IconPositions } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
-import Menu from "components/ads/Menu";
-import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
-import AppIcon, { AppIconName } from "components/ads/AppIcon";
-import EditableText, {
+import {
+  AppIcon,
+  AppIconName,
+  Button,
+  Category,
+  Classes as CsClasses,
+  ColorSelector,
+  EditableText,
   EditInteractionKind,
+  Icon,
+  IconPositions,
+  IconSelector,
+  IconSize,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  MenuItemProps,
   SavingState,
-} from "components/ads/EditableText";
-import ColorSelector from "components/ads/ColorSelector";
-import MenuDivider from "components/ads/MenuDivider";
-import IconSelector from "components/ads/IconSelector";
+  Size,
+  Text,
+  TextType,
+  Toaster,
+  Tooltip as TooltipComponent,
+  Variant,
+} from "components/ads";
 import { useSelector } from "react-redux";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import {
@@ -42,16 +54,12 @@ import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
-import { Classes as CsClasses } from "components/ads/common";
-import TooltipComponent from "components/ads/Tooltip";
 import {
   isEllipsisActive,
   truncateString,
   howMuchTimeBeforeText,
 } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "constants/messages";

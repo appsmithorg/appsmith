@@ -2,8 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-import Spinner from "components/ads/Spinner";
-import { IconSize } from "components/ads/Icon";
+import { IconSize, Spinner, Button, Category } from "components/ads";
 
 import {
   notificationsSelector,
@@ -21,7 +20,6 @@ import {
   NO_NOTIFICATIONS_TO_SHOW,
 } from "constants/messages";
 
-import Button, { Category } from "components/ads/Button";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { Virtuoso } from "react-virtuoso";

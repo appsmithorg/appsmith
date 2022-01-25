@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { Dropdown, DropdownOption } from "components/ads";
 import { ControlType } from "constants/PropertyControlConstants";
 import _ from "lodash";
 import { FieldArray, getFormValues } from "redux-form";

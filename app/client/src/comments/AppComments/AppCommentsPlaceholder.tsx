@@ -4,7 +4,7 @@ import {
   NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD,
   createMessage,
 } from "constants/messages";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "components/ads";
 
 const Container = styled.div`
   display: flex;

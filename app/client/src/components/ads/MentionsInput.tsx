@@ -11,7 +11,7 @@ import "draft-js/dist/Draft.css";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { EntryComponentProps } from "@draft-js-plugins/mention/lib/MentionSuggestions/Entry/Entry";
 
-import Icon from "components/ads/Icon";
+import { Icon } from "components/ads";
 
 import { INVITE_A_NEW_USER, createMessage } from "constants/messages";
 import { USER_PHOTO_URL } from "constants/userConstants";

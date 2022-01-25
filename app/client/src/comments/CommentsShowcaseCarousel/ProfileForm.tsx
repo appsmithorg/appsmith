@@ -5,7 +5,7 @@ import { reduxForm } from "redux-form";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 
-import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
+import { UserProfileImagePicker } from "components/ads";
 
 import { createMessage, DISPLAY_NAME, EMAIL_ADDRESS } from "constants/messages";
 import styled from "styled-components";

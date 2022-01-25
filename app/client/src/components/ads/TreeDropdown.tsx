@@ -13,7 +13,7 @@ import {
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "components/ads";
 import { replayHighlightClass } from "globalStyles/portals";
 
 export type TreeDropdownOption = DropdownOption & {

@@ -20,7 +20,7 @@ import {
   unreadCountSelector,
   isNotificationsListVisibleSelector,
 } from "selectors/notificationSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent } from "components/ads";
 import { createMessage, NOTIFICATIONS_TOOLTIP } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";

@@ -4,7 +4,7 @@ import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
-import { ThemeProp } from "components/ads/common";
+import { ThemeProp } from "components/ads";
 import { ButtonBoxShadow, ButtonBoxShadowTypes } from "components/constants";
 import { replayHighlightClass } from "globalStyles/portals";
 
