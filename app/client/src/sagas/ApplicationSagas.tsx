@@ -647,7 +647,17 @@ function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
     const formConfig = yield select(getPluginForm, datasource.pluginId);
     const initialValues = yield call(getConfigInitialValues, formConfig);
     const payload = merge(initialValues, datasource);
-    yield DatasourcesApi.updateDatasource(payload, datasource.id);
+    const response = yield DatasourcesApi.updateDatasource(
+      payload,
+      datasource.id,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS,
+        payload: response.data,
+      });
+    }
   }
 }
 

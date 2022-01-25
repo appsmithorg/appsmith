@@ -223,6 +223,20 @@ const datasourceReducer = createReducer(initialState, {
       }),
     };
   },
+  [ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ): DatasourceDataState => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) return action.payload;
+
+        return datasource;
+      }),
+    };
+  },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,

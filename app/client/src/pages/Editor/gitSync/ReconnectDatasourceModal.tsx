@@ -476,6 +476,7 @@ function ReconnectDatasourceModal() {
     (ds: Datasource, disabled?: boolean) => {
       setSelectedDatasource(ds);
       setDisabledDS(disabled ? ds.id : "");
+      dispatch(initialize(DATASOURCE_DB_FORM, ds));
     },
     [],
   );

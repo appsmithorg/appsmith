@@ -95,6 +95,7 @@ import { trimQueryString } from "utils/helpers";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
+import { getOrganizationIdForImport } from "selectors/gitSyncSelectors";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ orgId?: string } | undefined>,
@@ -493,7 +494,12 @@ function* handleDatasourceNameChangeFailureSaga(
 }
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  const organizationId = yield select(getCurrentOrgId);
+  let organizationId = yield select(getCurrentOrgId);
+
+  // test button within the import modal
+  if (!organizationId) {
+    organizationId = yield select(getOrganizationIdForImport);
+  }
   const { initialValues, values } = yield select(
     getFormData,
     DATASOURCE_DB_FORM,
