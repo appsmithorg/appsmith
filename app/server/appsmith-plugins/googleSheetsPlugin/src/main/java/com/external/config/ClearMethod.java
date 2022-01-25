@@ -8,6 +8,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear
  */
@@ -38,12 +41,13 @@ public class ClearMethod implements Method {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + methodConfig.getSpreadsheetRange() /* spreadsheet Range */
-                        + ":clear"
+                        + URLEncoder.encode(methodConfig.getSpreadsheetRange(), StandardCharsets.UTF_8) /* spreadsheet Range */
+                        + ":clear",
+                true
         );
 
         return webClient.method(HttpMethod.POST)
-                .uri(uriBuilder.build(false).toUri())
+                .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.empty());
     }
 
