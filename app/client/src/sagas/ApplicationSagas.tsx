@@ -73,6 +73,13 @@ import {
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { failFastApiCalls } from "./InitSagas";
+import { Datasource } from "entities/Datasource";
+import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
+import { getPluginForm } from "selectors/entitiesSelector";
+import { getConfigInitialValues } from "components/formControls/utils";
+
+import _, { merge } from "lodash";
+import DatasourcesApi from "api/DatasourcesApi";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -634,6 +641,16 @@ function* fetchReleases() {
   }
 }
 
+function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
+  if (!datasource.datasourceConfiguration) {
+    yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
+    const formConfig = yield select(getPluginForm, datasource.pluginId);
+    const initialValues = yield call(getConfigInitialValues, formConfig);
+    const payload = merge(initialValues, datasource);
+    yield DatasourcesApi.updateDatasource(payload, datasource.id);
+  }
+}
+
 function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
   const orgId = action.payload;
 
@@ -656,6 +673,16 @@ function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
     [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
   );
   if (!pluginFormCall) return;
+
+  const datasources: Array<Datasource> = yield select((state: AppState) => {
+    return state.entities.datasources.list;
+  });
+
+  yield all(
+    datasources.map((datasource: Datasource) =>
+      call(initializeDatasourceWithDefaultValues, datasource),
+    ),
+  );
 
   yield put(initDatasourceConnectionDuringImportSuccess());
 }
