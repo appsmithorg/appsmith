@@ -168,7 +168,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
           editInteractionKind={EditInteractionKind.SINGLE}
           errorTooltipClass="t--action-name-edit-error"
           forceDefault={forceUpdate}
-          isEditingDefault={props.page === "API_PANE" ? isNew : isNew}
+          isEditingDefault={isNew}
           isInvalid={isInvalidActionName}
           onTextChanged={handleAPINameChange}
           placeholder="Name of the API in camelCase"
