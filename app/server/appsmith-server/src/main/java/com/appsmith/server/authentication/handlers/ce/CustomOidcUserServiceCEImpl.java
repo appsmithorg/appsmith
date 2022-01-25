@@ -50,6 +50,7 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
         String username = (!StringUtils.isEmpty(oidcUser.getEmail())) ? oidcUser.getEmail() : oidcUser.getName();
 
         return repository.findByEmail(username)
+                .switchIfEmpty(repository.findByCaseInsensitiveEmail(username))
                 .switchIfEmpty(Mono.defer(() -> {
                     User newUser = new User();
                     if (oidcUser.getUserInfo() != null) {

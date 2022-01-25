@@ -741,17 +741,25 @@ export const ONBOARDING_CHECKLIST_FOOTER = () =>
   "Not sure where to start? Take the welcome tour";
 
 //Introduction modal
-export const HOW_APPSMITH_WORKS = () => "Here’s how Appsmith works";
+export const HOW_APPSMITH_WORKS = () =>
+  "Here’s a quick overview of how Appsmith works. ";
 export const ONBOARDING_INTRO_CONNECT_YOUR_DATABASE = () =>
-  "Connect your database or API";
-export const ONBOARDING_INTRO_CONNECT_DATA_WIDGET = () =>
-  "Connect queried data to pre-built widgets and customise with Javascript.";
+  "Connect to your database or APIs";
+export const DRAG_AND_DROP = () =>
+  "Drag and drop pre-built widgets to build UI";
+export const CUSTOMIZE_WIDGET_STYLING = () =>
+  "Customise the styling of every widget. Then bind your data to the widget and use JS to write any logic.";
 export const ONBOARDING_INTRO_PUBLISH = () =>
-  "Instantly publish and share your apps";
-export const BUILD_MY_FIRST_APP = () => "Build my first app";
+  "Publish & Share with permissions";
+export const CHOOSE_ACCESS_CONTROL_ROLES = () =>
+  "Instantly publish & share your apps with users. Choose from pre-defined access control roles.";
+export const BUILD_MY_FIRST_APP = () => "Build on my own";
 export const ONBOARDING_INTRO_FOOTER = () =>
-  "Want more help getting started, let’s";
-export const BUILD_APP_TOGETHER = () => "build an app together.";
+  "Let’s start building your first application";
+export const START_TUTORIAL = () => "START TUTORIAL";
+export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
+export const QUERY_YOUR_DATABASE = () =>
+  "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
 
 //Statusbar
 export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a datasource";
@@ -911,3 +919,70 @@ export const GENERATE_APPLICATION_DESCRIPTION = () =>
   "Quickly generate a page to perform CRUD operations on your database tables";
 
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
+
+// Guided tour
+// -- STEPS ---
+export const STEP_ONE_TITLE = () =>
+  "First step is querying the database. Here we are querying a Postgres database populated with customers data.";
+export const STEP_ONE_SUCCESS_TEXT = () =>
+  "Excellent! You successfully queried the database and you can see the response of the query below. ";
+export const STEP_ONE_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_TWO_TITLE = () =>
+  "Let’s display this response in a table. Select the table widget we’ve added for you.";
+export const STEP_THREE_TITLE = () =>
+  "Display the response of the query in a table.";
+export const STEP_THREE_SUCCESS_TEXT = () =>
+  "Great job! The table is now displaying the response of a query. You can use {{ }} in any input field to bind data to widgets.";
+export const STEP_THREE_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_FOUR_TITLE = () =>
+  "Let’s build a form to update a customer record ";
+export const STEP_FOUR_HINT_BUTTON_TEXT = () => "PROCEED";
+export const STEP_FOUR_SUCCESS_TEXT = () =>
+  "Awesome! You connected the input widget to table’s selected row. The input will always show the data from the selected row.";
+export const STEP_FOUR_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_FIVE_TITLE = () =>
+  "Connect all input fields in the Customer Update Form with the table";
+export const STEP_FIVE_HINT_TEXT = () =>
+  `Now let's connect rest of widgets in the container to Table's selected row`;
+export const STEP_FIVE_SUCCESS_TEXT = () =>
+  "Great work! All inputs are now connected to the  table’s selected row";
+export const STEP_FIVE_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_SIX_TITLE = () =>
+  "Add an update button to trigger an update query";
+export const STEP_SIX_SUCCESS_TEXT = () =>
+  "Perfect! Your update button is ready to trigger an update query.";
+export const STEP_SIX_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_SEVEN_TITLE = () =>
+  "Trigger updateCustomerInfo query by binding to the button widget";
+export const STEP_EIGHT_TITLE = () =>
+  "After successfully triggering the update query, fetch the updated customer data. ";
+export const STEP_EIGHT_SUCCESS_TEXT = () =>
+  "Exceptional work! You’ve now built a way to see customer data and update it.";
+export const STEP_NINE_TITLE = () => "Final step: Test & deploy your app";
+export const CONTINUE = () => "CONTINUE";
+export const PROCEED_TO_NEXT_STEP = () => "PROCEED TO NEXT STEP";
+export const PROCEED = () => "PROCEED";
+export const COMPLETE = () => "COMPLETE";
+// -- Modal --
+export const DEVIATION = () => "You are deviating from the tutorial";
+export const END_CONFIRMATION = () => "Are you sure you want to end?";
+export const CANCEL_DIALOG = () => "CANCEL";
+// -- End Tutorial --
+export const END_TUTORIAL = () => "END TUTORIAL";
+// -- Intro content --
+export const TITLE = () =>
+  "In this tutorial we’ll build a tool to display customer information";
+export const DESCRIPTION = () =>
+  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building this.";
+export const BUTTON_TEXT = () => "Start Building";
+// -- Rating --
+export const RATING_TITLE = () =>
+  "Congratulations! You just built your first app in Appsmith.";
+export const RATING_DESCRIPTION = () =>
+  "You can now invite others to this application.";
+export const RATING_TEXT = () => "Rate your experience";
+// -- End Message --
+export const END_TITLE = () => "What’s next? Start building your own apps.";
+export const END_DESCRIPTION = () =>
+  "Inspect properties of queries, components, etc.";
+export const END_BUTTON_TEXT = () => "START BUILDING AN APP";
