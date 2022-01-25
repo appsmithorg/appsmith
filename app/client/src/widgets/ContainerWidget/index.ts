@@ -1,7 +1,6 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ButtonBoxShadowTypes } from "components/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,8 +9,8 @@ export const CONFIG = {
   isCanvas: true,
   defaults: {
     backgroundColor: "#FFFFFF",
-    rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 40,
+    columns: 24,
     widgetName: "Container",
     containerStyle: "card",
     borderColor: "transparent",

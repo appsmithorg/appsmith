@@ -124,7 +124,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "4.0.1",
     "react-select": "^3.0.8",
-    "react-spring": "^8.0.27",
+    "react-spring": "^9.4.0",
     "react-syntax-highlighter": "^15.4.4",
     "react-table": "^7.0.0",
     "react-tabs": "^3.0.0",
