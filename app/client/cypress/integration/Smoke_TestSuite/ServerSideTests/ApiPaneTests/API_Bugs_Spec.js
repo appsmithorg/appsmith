@@ -142,7 +142,6 @@ describe("Rest Bugs tests", function() {
         expect($text).to.eq("Execution failed with status 404 NOT_FOUND");
       });
   });
-  
   afterEach(() => {
     // put your clean up code if any
   });
