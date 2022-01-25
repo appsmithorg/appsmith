@@ -615,6 +615,7 @@ function extractValidationConfigFromPlugin(
   validationConfigs: ActionValidationConfigMap,
 ): ActionValidationConfigMap {
   let newValidationConfigs: any = { ...validationConfigs };
+  if (!editorConfigs || !editorConfigs.length) return {};
   for (let i = 0; i < editorConfigs.length; i++) {
     if (editorConfigs[i].validationConfig) {
       const configProperty = editorConfigs[i].configProperty;
