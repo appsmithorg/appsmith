@@ -1,0 +1,58 @@
+name: Re-run only failed jobs
+
+on: [pull_request]
+
+jobs:
+  fail:
+    runs-on: ubuntu-latest
+    name: Red
+    steps:
+      - id: timestamp
+        run: echo "::set-output name=timestamp::$(timestamp +%s)"
+
+      - name: Restore the previous run result
+        uses: actions/cache@v2
+        with:
+          path: |
+            run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-
+      - name: Get the previous run result
+        id: run_result
+        run: cat run_result 2>/dev/null || echo 'default'
+
+      - uses: actions/checkout@v2
+        if: steps.run_result.outputs.run_result != 'success'
+
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "Fly, you fools!" && exit 1
+
+      - run: echo "::set-output name=run_result::success" > run_result
+
+  pass:
+    runs-on: ubuntu-latest
+    name: Green
+    steps:
+      - id: timestamp
+        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+
+      - name: Restore the previous run result
+        uses: actions/cache@v2
+        with:
+          path: |
+            run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-
+      - name: Get the previous run result
+        id: run_result
+        run: cat run_result 2>/dev/null || echo 'default'
+
+      - uses: actions/checkout@v2
+        if: steps.run_result.outputs.run_result != 'success'
+
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
+
+      - run: echo "::set-output name=run_result::success" > run_result
