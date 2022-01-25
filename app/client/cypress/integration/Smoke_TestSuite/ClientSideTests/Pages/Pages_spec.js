@@ -47,6 +47,7 @@ describe("Pages", function() {
   it("Creates a page with long name and checks if it shows tooltip on hover", () => {
     cy.Createpage(veryLongPageName);
     cy.PublishtheApp();
+    cy.get("body").click(0, 0);
     cy.get(`.t--page-switch-tab:contains(${veryLongPageName})`).trigger(
       "mouseover",
     );
