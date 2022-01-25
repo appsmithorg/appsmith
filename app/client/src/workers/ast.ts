@@ -299,3 +299,47 @@ const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
     return `[${propertyNode.value}]`;
   }
 };
+
+//
+function each(xs: any, f: any) {
+  for (let i = 0, len = xs.length; i < len; i++) {
+    f(xs[i]);
+  }
+}
+
+export const getImportedBindings = (ast: any) => {
+  each(ast.body, function(node: Node) {
+    const type = node.type;
+    if (
+      type === "ImportSpecifier" ||
+      type === "ImportDefaultSpecifier" ||
+      type === "ImportNamespaceSpecifier"
+    ) {
+      // each(node.specifiers, function(specifier) {
+      //   list.push(
+      //     new Import(
+      //       specifier.binding.name,
+      //       specifier.import.name,
+      //       node.source.value,
+      //     ),
+      //   );
+      // });
+    }
+  });
+};
+
+export const modifyJSImportToAppsmithImport = (jsCode: string) => {
+  const modifiedJSCode = getImportedBindings(
+    parse(jsCode, { sourceType: "module" }),
+  );
+  return modifiedJSCode;
+};
+
+modifyJSImportToAppsmithImport(`
+import { fun1, fun2 } from '@app_module/folderName/jsObject1'
+import { fun1 as orgFun1, fun2 as orgFun2 } from '@org_module/folderName/jsObject1';
+import Query1 from '@org_module/folderName/Query1';
+// hello
+const { fun1: appVfun1, fun2: appVfun2 } = appsmith.import('@app/folderName/jsObject1');
+const Quey1  = appsmith.import('@org/folderName/jsObject1');
+`);
