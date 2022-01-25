@@ -43,13 +43,13 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            run_result
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-
       - name: Get the previous run result
         id: run_result
-        run: cat run_result 2>/dev/null || echo 'default'
+        run: cat ~/run_result 2>/dev/null || echo 'default'
 
       - uses: actions/checkout@v2
         if: steps.run_result.outputs.run_result != 'success'
@@ -144,4 +144,4 @@ jobs:
           name: client-build
           path: app/client/build/
 
-      - run: echo "::set-output name=run_result::success" > run_result
+      - run: echo "::set-output name=run_result::success" > ~/run_result
