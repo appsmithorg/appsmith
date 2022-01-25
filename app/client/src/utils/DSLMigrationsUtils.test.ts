@@ -1,11 +1,13 @@
-import { addPrivateWidgetsToAllListWidgets } from "./DSLMigrations";
+import { transformDSL } from "./DSLMigrations";
 import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
+import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 
 describe("correctly migrate dsl", () => {
-  it("AddsPrivateWidgetsToAllListWidgets", () => {
+  it("transformDSL", () => {
     const currentVersion = 49; // before adding privateWidgets to all List widgets
+    const nextVersion = LATEST_PAGE_VERSION; // It runs Two Migrations, Always Update as migration increases
     const currentDSL: ContainerWidgetProps<WidgetProps> = {
       backgroundColor: "none",
       bottomRow: 740,
@@ -585,7 +587,7 @@ describe("correctly migrate dsl", () => {
       backgroundColor: "none",
       bottomRow: 740,
       canExtend: true,
-      version: currentVersion,
+      version: nextVersion,
       children: [
         {
           widgetName: "Input1",
@@ -1161,7 +1163,7 @@ describe("correctly migrate dsl", () => {
       isLoading: false,
     };
 
-    const actualNextDsl = addPrivateWidgetsToAllListWidgets(currentDSL);
+    const actualNextDsl = transformDSL(currentDSL);
 
     expect(actualNextDsl).toEqual(expectedNextDSL);
   });
