@@ -13,4 +13,6 @@ public class GitImportDTO {
     Application application;
 
     List<Datasource> emptyDatasourceList;
+
+    Boolean isPartialImport;
 }
