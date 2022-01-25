@@ -4,8 +4,7 @@ import {
   extraLibraries,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { JSHINT as jshint } from "jshint";
-import { Severity } from "entities/AppsmithConsole";
+import { JSHINT as jshint, LintError } from "jshint";
 import { isEmpty, keys, last } from "lodash";
 import {
   EvaluationScripts,
@@ -13,6 +12,7 @@ import {
   ScriptTemplate,
 } from "workers/evaluate";
 import { ECMA_VERSION } from "workers/constants";
+import { getLintSeverity } from "components/editorComponents/CodeEditor/lintHelpers";
 
 export const getPositionInEvaluationScript = (
   type: EvaluationScriptType,
@@ -90,8 +90,7 @@ export const getLintingErrors = (
     return {
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,
-      // We are forcing warnings to errors and removing unwanted JSHint checks
-      severity: Severity.ERROR,
+      severity: getLintSeverity(lintError.code),
       errorMessage: lintError.reason,
       errorSegment: lintError.evidence,
       originalBinding,

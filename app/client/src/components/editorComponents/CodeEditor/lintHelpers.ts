@@ -4,6 +4,7 @@ import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { Severity } from "entities/AppsmithConsole";
 
 export const getIndexOfRegex = (
   str: string,
@@ -124,4 +125,26 @@ export const getLintAnnotations = (
     }
   });
   return annotations;
+};
+
+// For these error types, we want to show a warning
+// All messages can be found here => https://github.com/jshint/jshint/blob/2.9.5/src/messages.js
+const WARNING_LINT_ERRORS = [
+  {
+    code: "W098",
+    message: "'{a}' is defined but never used.",
+  },
+];
+
+export const getLintSeverity = (
+  code: string,
+): Severity.WARNING | Severity.ERROR => {
+  let severity = Severity.ERROR;
+
+  WARNING_LINT_ERRORS.forEach((warningError) => {
+    if (warningError.code === code) {
+      severity = Severity.WARNING;
+    }
+  });
+  return severity;
 };
