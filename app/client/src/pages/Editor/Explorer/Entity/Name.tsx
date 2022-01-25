@@ -164,8 +164,10 @@ export const EntityName = React.memo(
             .map((action) => action.config.name);
           const existingJSCollectionNames = state.entities.jsActions
             .filter((jsAction) => {
-              jsAction.config.id !== props.entityId &&
-                jsAction.config.pageId === currentPageId;
+              return (
+                jsAction.config.id !== props.entityId &&
+                jsAction.config.pageId === currentPageId
+              );
             })
             .map((jsAction) => jsAction.config.name);
           const existingWidgetNames = Object.values(
