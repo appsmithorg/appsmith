@@ -2,7 +2,6 @@ import React from "react";
 import { ReactNode } from "react";
 import { Dispatch } from "redux";
 import styled from "styled-components";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
 import {
@@ -82,8 +81,8 @@ export const onboardingContainerBlueprint = {
                 top: 1,
               },
               size: {
-                rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 12 * GRID_DENSITY_MIGRATION_V1,
+                rows: 4,
+                cols: 48,
               },
               props: {
                 textAlign: "LEFT",
@@ -101,8 +100,8 @@ export const onboardingContainerBlueprint = {
                 top: 6,
               },
               size: {
-                rows: 3 * GRID_DENSITY_MIGRATION_V1,
-                cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                rows: 12,
+                cols: 16,
               },
               props: {
                 imageShape: "RECTANGLE",
@@ -117,8 +116,8 @@ export const onboardingContainerBlueprint = {
                 left: 19,
               },
               size: {
-                rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                rows: 4,
+                cols: 8,
               },
               props: {
                 text: "Name",
@@ -136,8 +135,8 @@ export const onboardingContainerBlueprint = {
                 left: 30,
               },
               size: {
-                rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 8 * GRID_DENSITY_MIGRATION_V1,
+                rows: 4,
+                cols: 32,
               },
               props: {
                 inputType: "TEXT",
@@ -150,8 +149,8 @@ export const onboardingContainerBlueprint = {
                 left: 19,
               },
               size: {
-                rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                rows: 4,
+                cols: 8,
               },
               props: {
                 text: "Email",
@@ -169,8 +168,8 @@ export const onboardingContainerBlueprint = {
                 left: 30,
               },
               size: {
-                rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 8 * GRID_DENSITY_MIGRATION_V1,
+                rows: 4,
+                cols: 32,
               },
               props: {
                 inputType: "TEXT",
@@ -183,8 +182,8 @@ export const onboardingContainerBlueprint = {
                 left: 19,
               },
               size: {
-                rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 2.5 * GRID_DENSITY_MIGRATION_V1,
+                rows: 4,
+                cols: 10,
               },
               props: {
                 text: "Country",
@@ -202,8 +201,8 @@ export const onboardingContainerBlueprint = {
                 left: 30,
               },
               size: {
-                rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 8 * GRID_DENSITY_MIGRATION_V1,
+                rows: 4,
+                cols: 32,
               },
               props: {
                 inputType: "TEXT",
