@@ -1,37 +1,23 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import {
-  prettyDOM,
-  queryAllByRole,
   render,
   screen,
   waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
-import { ThemeProvider } from "constants/DefaultTheme";
-import Dropdown from "./Dropdown";
 import IconSelectControl from "./IconSelectControl";
-import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
 import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
-const props = {
-  options: [
-    { label: "Primary", value: "PRIMARY" },
-    { label: "Secondary", value: "SECONDARY" },
-    { label: "Tertiary", value: "TERTIARY" },
-  ],
-  selected: {
-    label: "Primary",
-    value: "PRIMARY",
-  },
-  showLabelOnly: true,
-};
-
 describe("<IconSelectControl /> - Keyboard navigation", () => {
-  const getTestComponent = (handleOnSelect: any = undefined) => (
-    // <ThemeProvider theme={lightTheme}>
+  const getTestComponent = (
+    onPropertyChange: (
+      propertyName: string,
+      propertyValue: string,
+    ) => void = noop,
+  ) => (
     <IconSelectControl
       additionalDynamicData={{
         dummy: {
@@ -44,6 +30,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       isBindProperty={false}
       isTriggerProperty={false}
       label="Icon"
+      onPropertyChange={onPropertyChange}
       openNextPanel={noop}
       parentPropertyName="iconName"
       parentPropertyValue="add"
@@ -51,7 +38,6 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       theme={EditorTheme.LIGHT}
       widgetProperties={undefined}
     />
-    // </ThemeProvider>
   );
 
   it("Pressing tab should focus the component", () => {
@@ -208,6 +194,51 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{ArrowLeft}");
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-column-left",
+    );
+  });
+
+  it("Pressing '{Enter}' or ' ' should select the icon", async () => {
+    const handleOnSelect = jest.fn();
+    render(getTestComponent(handleOnSelect));
+    userEvent.tab();
+    expect(screen.queryByRole("button")?.textContent).toEqual(
+      "(none)caret-down",
+    );
+    userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(screen.queryByRole("textbox")).toHaveFocus();
+    });
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-(none)",
+    );
+    // used to shift the focus from search
+    userEvent.keyboard("{ArrowDown}");
+
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowRight}");
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-add-row-top",
+    );
+    userEvent.keyboard(" ");
+    expect(handleOnSelect).toHaveBeenCalledTimes(1);
+    expect(handleOnSelect).toHaveBeenLastCalledWith("iconName", "add-row-top");
+    await waitForElementToBeRemoved(screen.getByRole("list"));
+
+    userEvent.keyboard("{Enter}");
+    expect(screen.queryByRole("list")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole("textbox")).toHaveFocus();
+    });
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-add-row-top",
+    );
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard(" ");
+    expect(handleOnSelect).toHaveBeenCalledTimes(2);
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      "iconName",
+      "add-to-artifact",
     );
   });
 });
