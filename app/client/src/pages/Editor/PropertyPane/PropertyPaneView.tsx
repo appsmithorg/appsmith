@@ -110,7 +110,10 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <div className="p-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view">
+      <div
+        className="p-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
+        data-guided-tour-id="property-pane"
+      >
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
@@ -119,6 +122,7 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
+
         <PropertyControlsGenerator
           id={widgetProperties.widgetId}
           panel={panel}

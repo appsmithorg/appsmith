@@ -1,23 +1,27 @@
 import { Icon, Overlay } from "@blueprintjs/core";
-import Button, { Category } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
 import {
-  ONBOARDING_INTRO_CONNECT_DATA_WIDGET,
-  ONBOARDING_INTRO_CONNECT_YOUR_DATABASE,
   HOW_APPSMITH_WORKS,
-  ONBOARDING_INTRO_PUBLISH,
   BUILD_MY_FIRST_APP,
-  ONBOARDING_INTRO_FOOTER,
-  BUILD_APP_TOGETHER,
   createMessage,
+  WELCOME_TO_APPSMITH,
+  ONBOARDING_INTRO_CONNECT_YOUR_DATABASE,
+  QUERY_YOUR_DATABASE,
+  DRAG_AND_DROP,
+  CUSTOMIZE_WIDGET_STYLING,
+  ONBOARDING_INTRO_PUBLISH,
+  CHOOSE_ACCESS_CONTROL_ROLES,
+  ONBOARDING_INTRO_FOOTER,
+  START_TUTORIAL,
 } from "constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const Wrapper = styled.div`
   display: flex;
@@ -27,62 +31,86 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 const CenteredContainer = styled.div`
-  width: 783px;
-  height: 420px;
+  width: 926px;
   background: #fff;
-  padding: 16px 24px;
   position: relative;
 `;
 
+const ModalHeaderWrapper = styled.div`
+  margin: 40px 52px 0px;
+`;
 const ModalHeader = styled.h5`
+  font-size: 28px;
+  font-weight: 600;
+`;
+
+const ModalSubHeader = styled.h5`
   font-size: 20px;
-  margin: 16px 0 6px;
-  text-align: center;
+  margin-top: 20px;
 `;
 
 const ModalBody = styled.div`
-  text-align: center;
-`;
-
-const ModalImgWrapper = styled.div`
-  display: flex;
-  justify-content: center;
+  margin: 20px 52px 16px;
 `;
 
 const ModalContentWrapper = styled.div``;
-
-const StyledImgWrapper = styled.div`
-  text-align: center;
+const ModalContentRow = styled.div<{ border?: boolean }>`
+  flex-direction: row;
+  display: flex;
+  justify-content: space-between;
+  height: 113px;
+  padding: 20px 0px;
+  ${(props) => (props.border ? "border-bottom: 1px solid #E8E8E8;" : "")}
+`;
+const ModalContentTextWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 3;
 `;
 
-const StyledImg = styled.img<{ width: number }>`
-  width: ${(props) => props.width}px;
+const StyledImgWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: center;
+`;
+
+const StyledImg = styled.img`
   vertical-align: middle;
 `;
 
 const StyledCount = styled.h5`
-  font-size: 20px;
-  margin: 0 0 5px;
-  font-weight: 500;
+  font-size: 36px;
+  font-weight: 600;
+  color: #716e6e;
 `;
 
-const ModalContent = styled.p``;
+const ModalContent = styled.p`
+  margin-left: 36px;
+`;
+const ModalContentHeader = styled.h5`
+  font-size: 18px;
+  font-weight: 500;
+`;
+const ModalContentDescription = styled.h5`
+  font-size: 16px;
+`;
 
 const ModalFooter = styled.div`
-  text-align: center;
+  border-top: 1px solid #e8e8e8;
+  padding: 0px 56px;
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ModalFooterText = styled.span`
+  font-size: 20px;
+  letter-spacing: -0.24px;
 `;
 
 const StyledButton = styled(Button)`
-  width: 145px;
-  height: 38px;
   display: inline-block;
-`;
-
-const ModalFooterNote = styled.p`
-  & span {
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.welcomeTourStickySidebarBackground};
-  }
 `;
 
 const StyledClose = styled(Icon)`
@@ -96,10 +124,9 @@ type IntroductionModalProps = {
   close: () => void;
 };
 
-const getConnectDataImg = () => `${ASSETS_CDN_URL}/ConnectData.svg`;
-const getArrowImg = () => `${ASSETS_CDN_URL}/Arrow.svg`;
-const getQueryDataImg = () => `${ASSETS_CDN_URL}/QueryData.svg`;
-const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps.svg`;
+const getConnectDataImg = () => `${ASSETS_CDN_URL}/ConnectData-v2.svg`;
+const getDragAndDropImg = () => `${ASSETS_CDN_URL}/DragAndDrop.svg`;
+const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps-v2.svg`;
 
 export default function IntroductionModal({ close }: IntroductionModalProps) {
   const dispatch = useDispatch();
@@ -123,61 +150,85 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             iconSize={16}
             onClick={onBuildApp}
           />
-          <ModalHeader className="t--how-appsmith-works-modal-header">
-            {createMessage(HOW_APPSMITH_WORKS)}
-          </ModalHeader>
+          <ModalHeaderWrapper className="t--how-appsmith-works-modal-header">
+            <ModalHeader>{createMessage(WELCOME_TO_APPSMITH)}</ModalHeader>
+            <ModalSubHeader>{createMessage(HOW_APPSMITH_WORKS)}</ModalSubHeader>
+          </ModalHeaderWrapper>
+
           <ModalBody>
-            <ModalImgWrapper>
-              <StyledImgWrapper className="flex">
-                <StyledImg src={getConnectDataImg()} width={135} />
-                <StyledImg src={getArrowImg()} width={42} />
-              </StyledImgWrapper>
-              <StyledImgWrapper className="flex flex-grow px-5">
-                <StyledImg src={getQueryDataImg()} width={330} />
-              </StyledImgWrapper>
-              <StyledImgWrapper className="flex pr-12">
-                <StyledImg src={getArrowImg()} width={42} />
-                <StyledImg src={getPublishAppsImg()} width={92} />
-              </StyledImgWrapper>
-            </ModalImgWrapper>
-            <ModalContentWrapper className="flex">
-              <div>
-                <StyledCount>1.</StyledCount>
-                <ModalContent>
-                  {createMessage(ONBOARDING_INTRO_CONNECT_YOUR_DATABASE)}
-                </ModalContent>
-              </div>
-              <div className="px-5">
-                <StyledCount>2.</StyledCount>
-                <ModalContent className="px-4">
-                  {createMessage(ONBOARDING_INTRO_CONNECT_DATA_WIDGET)}
-                </ModalContent>
-              </div>
-              <div>
-                <StyledCount>3.</StyledCount>
-                <ModalContent>
-                  {createMessage(ONBOARDING_INTRO_PUBLISH)}
-                </ModalContent>
-              </div>
+            <ModalContentWrapper>
+              <ModalContentRow border>
+                <ModalContentTextWrapper>
+                  <StyledCount>1</StyledCount>
+                  <ModalContent>
+                    <ModalContentHeader>
+                      {createMessage(ONBOARDING_INTRO_CONNECT_YOUR_DATABASE)}
+                    </ModalContentHeader>
+                    <ModalContentDescription>
+                      {createMessage(QUERY_YOUR_DATABASE)}
+                    </ModalContentDescription>
+                  </ModalContent>
+                </ModalContentTextWrapper>
+                <StyledImgWrapper>
+                  <StyledImg src={getConnectDataImg()} />
+                </StyledImgWrapper>
+              </ModalContentRow>
+              <ModalContentRow border>
+                <ModalContentTextWrapper>
+                  <StyledCount>2</StyledCount>
+                  <ModalContent>
+                    <ModalContentHeader>
+                      {createMessage(DRAG_AND_DROP)}
+                    </ModalContentHeader>
+                    <ModalContentDescription>
+                      {createMessage(CUSTOMIZE_WIDGET_STYLING)}
+                    </ModalContentDescription>
+                  </ModalContent>
+                </ModalContentTextWrapper>
+                <StyledImgWrapper>
+                  <StyledImg src={getDragAndDropImg()} />
+                </StyledImgWrapper>
+              </ModalContentRow>
+              <ModalContentRow className="border-b-0">
+                <ModalContentTextWrapper>
+                  <StyledCount>3</StyledCount>
+                  <ModalContent>
+                    <ModalContentHeader>
+                      {createMessage(ONBOARDING_INTRO_PUBLISH)}
+                    </ModalContentHeader>
+                    <ModalContentDescription>
+                      {createMessage(CHOOSE_ACCESS_CONTROL_ROLES)}
+                    </ModalContentDescription>
+                  </ModalContent>
+                </ModalContentTextWrapper>
+                <StyledImgWrapper>
+                  <StyledImg src={getPublishAppsImg()} />
+                </StyledImgWrapper>
+              </ModalContentRow>
             </ModalContentWrapper>
           </ModalBody>
           <ModalFooter>
-            <StyledButton
-              category={Category.primary}
-              className="t--introduction-modal-build-button my-6"
-              onClick={onBuildApp}
-              tag="button"
-              text={createMessage(BUILD_MY_FIRST_APP)}
-            />
-            <ModalFooterNote className="pb-4">
-              {createMessage(ONBOARDING_INTRO_FOOTER)}&nbsp;
-              <span
-                className="t--introduction-modal-welcome-tour-button"
+            <ModalFooterText>
+              {createMessage(ONBOARDING_INTRO_FOOTER)}
+            </ModalFooterText>
+            <div>
+              <StyledButton
+                category={Category.tertiary}
+                className="t--introduction-modal-build-button my-6"
                 onClick={() => triggerWelcomeTour(dispatch)}
-              >
-                {createMessage(BUILD_APP_TOGETHER)}
-              </span>
-            </ModalFooterNote>
+                size={Size.large}
+                tag="button"
+                text={createMessage(START_TUTORIAL)}
+              />
+              <StyledButton
+                category={Category.primary}
+                className="t--introduction-modal-build-button my-6 ml-5"
+                onClick={onBuildApp}
+                size={Size.large}
+                tag="button"
+                text={createMessage(BUILD_MY_FIRST_APP)}
+              />
+            </div>
           </ModalFooter>
         </CenteredContainer>
       </Wrapper>
