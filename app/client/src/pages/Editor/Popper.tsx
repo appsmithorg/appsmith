@@ -12,6 +12,7 @@ import { generateReactKey } from "utils/generators";
 import { draggableElement } from "./utils";
 
 export type PopperProps = {
+  boundaryParent?: Element | PopperJS.Boundary;
   zIndex: number;
   isOpen: boolean;
   themeMode?: ThemeMode;
@@ -72,6 +73,7 @@ export default (props: PopperProps) => {
   const popperId = popperIdRef.current;
 
   const {
+    boundaryParent = "viewport",
     isDraggable = false,
     disablePopperEvents = false,
     position,
@@ -90,6 +92,7 @@ export default (props: PopperProps) => {
 
   useEffect(() => {
     const parentElement = props.targetNode && props.targetNode.parentElement;
+
     if (
       parentElement &&
       parentElement.parentElement &&
@@ -130,7 +133,11 @@ export default (props: PopperProps) => {
             },
             preventOverflow: {
               enabled: true,
-              boundariesElement: "viewport",
+              /* 
+                Prevent the FilterPane from overflowing the canvas when the 
+                table widget is on the very top.
+              */
+              boundariesElement: boundaryParent,
             },
             ...props.modifiers,
           },

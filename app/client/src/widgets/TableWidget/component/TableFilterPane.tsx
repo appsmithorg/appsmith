@@ -75,8 +75,20 @@ class TableFilterPane extends Component<Props> {
         "t--table-filter-toggle-btn " +
         generateClassName(this.props.tableFilterPane.widgetId);
       const el = document.getElementsByClassName(className)[0];
+
+      /*
+        Prevent the FilterPane from overflowing the canvas when the 
+        table widget is on the very top.
+        1.  document.getElementById("canvas-0") - edit mode parent
+        2. document.querySelector('[type="CANVAS_WIDGET"]') - preview mode parent
+      */
+      const boundaryParent =
+        document.getElementById("canvas-0") ||
+        document.querySelector('[type="CANVAS_WIDGET"]');
+
       return (
         <Popper
+          boundaryParent={boundaryParent || "viewport"}
           disablePopperEvents={get(this.props, "metaProps.isMoved", false)}
           isDraggable
           isOpen
