@@ -1,5 +1,6 @@
 package com.appsmith.git.service;
 
+import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -103,6 +104,7 @@ public class GitExecutorImpl implements GitExecutor {
                         // Only make a commit if there are any updates
                         .setAllowEmpty(false)
                         .setAuthor(finalAuthorName, finalAuthorEmail)
+                        .setCommitter(finalAuthorName, finalAuthorEmail)
                         .call();
                 return "Committed successfully!";
             }
@@ -572,6 +574,7 @@ public class GitExecutorImpl implements GitExecutor {
                     }
                     errorMessage.append(" while merging branch: ").append(destinationBranch).append(" <= ").append(sourceBranch);
                     mergeStatus.setMessage(errorMessage.toString());
+                    mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
                 }
                 mergeStatus.setStatus(mergeResult.getMergeStatus().name());
                 return mergeStatus;
