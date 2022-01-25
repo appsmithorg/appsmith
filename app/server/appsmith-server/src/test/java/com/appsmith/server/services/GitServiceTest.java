@@ -34,7 +34,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
-import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -56,7 +55,6 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -86,7 +84,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -173,11 +170,6 @@ public class GitServiceTest {
         }
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testOrg.getId();
-        MockedStatic<GitUtils> gitUtilsMockedStatic = Mockito.mockStatic(GitUtils.class);
-        gitUtilsMockedStatic.when(() -> GitUtils.isRepoPrivate(Mockito.anyString()))
-                .thenReturn(Boolean.FALSE);
-        gitUtilsMockedStatic.when(() -> GitUtils.convertSshUrlToHttpsCurlSupportedUrl(Mockito.anyString()))
-                .thenReturn("https://test.com");
 
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
 
@@ -950,7 +942,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(listMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().contains("Unable to find default application. Please configure the application with git"))
+                        throwable.getMessage().equals(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(GIT_CONFIG_ERROR)))
                 .verify();
     }
 
@@ -973,7 +965,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(listMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().contains("Git configuration is invalid. Details: Unable to find default application. Please configure the application with git"))
+                        throwable.getMessage().equals(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(GIT_CONFIG_ERROR)))
                 .verify();
     }
 
