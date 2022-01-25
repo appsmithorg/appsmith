@@ -294,7 +294,11 @@ export async function evaluateAsync(
   })();
 }
 
-export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
+export function isFunctionAsync(
+  userFunction: unknown,
+  dataTree: DataTree,
+  resolvedFunctions: Record<string, any>,
+) {
   return (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
@@ -307,6 +311,17 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
     });
+    if (!isEmpty(resolvedFunctions)) {
+      Object.keys(resolvedFunctions).forEach((datum: any) => {
+        const resolvedObject = resolvedFunctions[datum];
+        Object.keys(resolvedObject).forEach((key: any) => {
+          const dataTreeKey = GLOBAL_DATA[datum];
+          if (dataTreeKey) {
+            dataTreeKey[key] = resolvedObject[key];
+          }
+        });
+      });
+    }
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
@@ -315,6 +330,7 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
+
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();

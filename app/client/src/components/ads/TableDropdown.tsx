@@ -3,7 +3,7 @@ import {
   Popover,
   PopoverInteractionKind,
 } from "@blueprintjs/core/lib/esm/components/popover/popover";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Classes, CommonComponentProps } from "./common";
 import Icon, { IconSize } from "./Icon";
@@ -88,6 +88,13 @@ function TableDropdown(props: DropdownProps) {
   const [selectedOption, setSelectedOption] = useState(
     props.options[props.selectedIndex] || {},
   );
+
+  useEffect(() => {
+    if (props.selectedIndex !== selectedIndex) {
+      setSelectedIndex(props.selectedIndex);
+      setSelectedOption(props.options[props.selectedIndex]);
+    }
+  }, [props.selectedIndex]);
 
   const optionSelector = (index: number) => {
     setSelectedIndex(index);

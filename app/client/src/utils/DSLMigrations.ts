@@ -25,6 +25,7 @@ import {
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
+  migrateTableWidgetNumericColumnName,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -1023,7 +1024,8 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 47) {
-    //We're skipping this to fix a bad table migration.
+    // We're skipping this to fix a bad table migration.
+    // skipped migration is added as version 51
     currentDSL.version = 48;
   }
 
@@ -1038,6 +1040,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 50) {
+    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
+    currentDSL.version = 51;
+  }
+
+  if (currentDSL.version === 51) {
     currentDSL = migrateInlineAndAlignmentProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
