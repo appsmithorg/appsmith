@@ -20,7 +20,7 @@ const settings = [
 
 function renderComponent() {
   function GroupComponent() {
-    return <Group name="test" settings={settings} />;
+    return <Group category="test" name="test" settings={settings} />;
   }
   const Parent = reduxForm<any, any>({
     validate: () => {
