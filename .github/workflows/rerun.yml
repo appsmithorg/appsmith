@@ -1,6 +1,8 @@
 name: Re-run only failed jobs
 
-on: [pull_request]
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
 
 jobs:
   fail:
