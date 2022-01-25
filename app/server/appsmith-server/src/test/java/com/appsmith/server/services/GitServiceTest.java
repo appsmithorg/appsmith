@@ -2218,11 +2218,7 @@ public class GitServiceTest {
         Datasource datasource = new Datasource();
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
-<<<<<<< HEAD
         datasource.setOrganizationId(testOrgId);
-=======
-        datasource.setOrganizationId(orgId);
->>>>>>> parent of 710d5d533 (revert datasource related changes)
         datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2343,21 +2339,6 @@ public class GitServiceTest {
                         && throwable.getMessage().contains("Datasource already exists with the same name"))
                 .verify();
     }
-
-    /*@Test
-    @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_withUnConfiguredDataSources_Success() {
-        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportDatasource.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
-
-        ApplicationJson applicationJson =  createAppJson(filePath).block();
-        applicationJson.getExportedApplication().setName("testGitImportDatasource");
-        applicationJson.getDatasourceList().get(0).setName("testGitImportDatasource");
-
-        //Create an empty DS
-
-        //Create an action which refers to the DS
-    }*/
 
     // TODO TCs for merge is pending
 }

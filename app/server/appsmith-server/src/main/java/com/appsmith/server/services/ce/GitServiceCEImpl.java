@@ -2106,7 +2106,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .collect(Collectors.toList());
 
                     datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
+
                     return Mono.just(datasourceList);
+                })
+                .map(datasources -> {
+                    for (Datasource datasource:datasources) {
+                        datasource.setIsEmpty(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                    }
+                    return datasources;
                 });
     }
 
