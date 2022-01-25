@@ -1,4 +1,9 @@
-import { flattenObject, getSubstringBetweenTwoWords } from "./helpers";
+import {
+  flattenObject,
+  getLocale,
+  getSubstringBetweenTwoWords,
+  mergeWidgetConfig,
+} from "./helpers";
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {
@@ -102,5 +107,83 @@ describe("#getSubstringBetweenTwoWords", () => {
     input.forEach((inp, index) => {
       expect(getSubstringBetweenTwoWords(...inp)).toBe(output[index]);
     });
+  });
+});
+
+describe("#mergeWidgetConfig", () => {
+  it("should merge the widget configs", () => {
+    const base = [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "someWidgetConfig",
+          },
+        ],
+      },
+      {
+        sectionName: "icon",
+        children: [
+          {
+            propertyName: "someWidgetIconConfig",
+          },
+        ],
+      },
+    ];
+    const extended = [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "someOtherWidgetConfig",
+          },
+        ],
+      },
+      {
+        sectionName: "style",
+        children: [
+          {
+            propertyName: "someWidgetStyleConfig",
+          },
+        ],
+      },
+    ];
+    const expected = [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "someOtherWidgetConfig",
+          },
+          {
+            propertyName: "someWidgetConfig",
+          },
+        ],
+      },
+      {
+        sectionName: "style",
+        children: [
+          {
+            propertyName: "someWidgetStyleConfig",
+          },
+        ],
+      },
+      {
+        sectionName: "icon",
+        children: [
+          {
+            propertyName: "someWidgetIconConfig",
+          },
+        ],
+      },
+    ];
+
+    expect(mergeWidgetConfig(extended, base)).toEqual(expected);
+  });
+});
+
+describe("#getLocale", () => {
+  it("should test that getLocale is returning navigator.languages[0]", () => {
+    expect(getLocale()).toBe(navigator.languages[0]);
   });
 });

@@ -12,7 +12,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   });
 
   it("Input widget test with default value from table widget", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     cy.get(widgetsPage.inputOnTextChange)
       .first()
