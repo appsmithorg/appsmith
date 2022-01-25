@@ -44,6 +44,7 @@ import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxG
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
+import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 /**
  * adds logBlackList key for all list widget children
@@ -78,6 +79,32 @@ const addLogBlackListToAllListWidgetChildren = (
     }
 
     return children;
+  });
+
+  return currentDSL;
+};
+
+/**
+ * adds 'privateWidgets' key for all list widgets
+ *
+ * @param currentDSL
+ * @returns
+ */
+const addPrivateWidgetsToAllListWidgets = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "LIST_WIDGET") {
+      const privateWidgets: PrivateWidgets = {};
+      Object.keys(child.template).forEach((entityName) => {
+        privateWidgets[entityName] = true;
+      });
+
+      if (!child.privateWidgets) {
+        set(child, `privateWidgets`, privateWidgets);
+      }
+    }
+    return child;
   });
 
   return currentDSL;
@@ -1001,6 +1028,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 48) {
     currentDSL = migrateRecaptchaType(currentDSL);
+    currentDSL.version = 49;
+  }
+
+  if (currentDSL.version === 49) {
+    currentDSL = addPrivateWidgetsToAllListWidgets(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
