@@ -194,6 +194,19 @@ class IconSelectControl extends BaseControl<
     );
   }
 
+  private setActiveIcon(iconIndex: number) {
+    this.setState(
+      {
+        activeIcon: this.filteredItems[iconIndex],
+      },
+      () => {
+        if (this.virtuosoRef.current) {
+          this.virtuosoRef.current.scrollToIndex(iconIndex);
+        }
+      },
+    );
+  }
+
   private handleKeydown = (e: KeyboardEvent) => {
     if (this.state.isOpen) {
       switch (e.key) {
@@ -209,18 +222,8 @@ class IconSelectControl extends BaseControl<
             else break;
           }
           const nextIndex = this.initialItemIndex + 4;
-          if (nextIndex < this.filteredItems.length) {
-            this.setState(
-              {
-                activeIcon: this.filteredItems[nextIndex],
-              },
-              () => {
-                if (this.virtuosoRef.current) {
-                  this.virtuosoRef.current.scrollToIndex(nextIndex);
-                }
-              },
-            );
-          }
+          if (nextIndex < this.filteredItems.length)
+            this.setActiveIcon(nextIndex);
           e.preventDefault();
           break;
         }
@@ -233,18 +236,7 @@ class IconSelectControl extends BaseControl<
             break;
           }
           const nextIndex = this.initialItemIndex - 4;
-          if (nextIndex >= 0) {
-            this.setState(
-              {
-                activeIcon: this.filteredItems[nextIndex],
-              },
-              () => {
-                if (this.virtuosoRef.current) {
-                  this.virtuosoRef.current.scrollToIndex(nextIndex);
-                }
-              },
-            );
-          }
+          if (nextIndex >= 0) this.setActiveIcon(nextIndex);
           e.preventDefault();
           break;
         }
@@ -254,18 +246,8 @@ class IconSelectControl extends BaseControl<
             break;
           }
           const nextIndex = this.initialItemIndex + 1;
-          if (nextIndex < this.filteredItems.length) {
-            this.setState(
-              {
-                activeIcon: this.filteredItems[nextIndex],
-              },
-              () => {
-                if (this.virtuosoRef.current) {
-                  this.virtuosoRef.current.scrollToIndex(nextIndex);
-                }
-              },
-            );
-          }
+          if (nextIndex < this.filteredItems.length)
+            this.setActiveIcon(nextIndex);
           e.preventDefault();
           break;
         }
@@ -275,18 +257,7 @@ class IconSelectControl extends BaseControl<
             break;
           }
           const nextIndex = this.initialItemIndex - 1;
-          if (nextIndex >= 0) {
-            this.setState(
-              {
-                activeIcon: this.filteredItems[nextIndex],
-              },
-              () => {
-                if (this.virtuosoRef.current) {
-                  this.virtuosoRef.current.scrollToIndex(nextIndex);
-                }
-              },
-            );
-          }
+          if (nextIndex >= 0) this.setActiveIcon(nextIndex);
           e.preventDefault();
           break;
         }
