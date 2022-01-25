@@ -71,7 +71,7 @@
                                 "parentRowSpace": 38,
                                 "isVisible": true,
                                 "label": "",
-                                "type": "INPUT_WIDGET",
+                                "type": "INPUT_WIDGET_V2",
                                 "version": 1,
                                 "parentId": "e3tq9qwta6",
                                 "isLoading": false,

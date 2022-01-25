@@ -28,7 +28,7 @@ const renderNestedComponent = () => {
 
   const children: any = buildChildren([
     {
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       dragDisabled: true,
       leftColumn: 0,
       topRow: 1,
@@ -908,10 +908,10 @@ describe("Drag in a nested container", () => {
     const component = renderNestedComponent();
 
     const inputWidget: any = component.container.querySelector(
-      ".t--widget-inputwidget",
+      ".t--widget-inputwidgetv2",
     );
     const draggableInputWidget: any = component.container.querySelector(
-      ".t--draggable-inputwidget",
+      ".t--draggable-inputwidgetv2",
     );
     const draggableContainerWidget: any = component.container.querySelector(
       ".t--draggable-containerwidget",
@@ -975,7 +975,7 @@ describe("Drag in a nested container", () => {
     }
 
     const movedInputWidget: any = component.container.querySelector(
-      ".t--widget-inputwidget",
+      ".t--widget-inputwidgetv2",
     );
     const finalInputWidgetPositions = {
       left: movedInputWidget.style.left,
