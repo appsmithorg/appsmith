@@ -15,6 +15,19 @@ on:
 
 jobs:
   buildClient:
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
     steps:
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
