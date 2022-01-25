@@ -16,6 +16,7 @@ import {
   ADD_WIDGET_TOOLTIP,
   createMessage,
 } from "@appsmith/constants/messages";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
@@ -38,6 +39,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const selectedWidgets = useSelector(getSelectedWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
+  const guidedTour = useSelector(inGuidedTour);
 
   const childNode = (
     <EntityPlaceholder step={props.step + 1}>
@@ -75,7 +77,8 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       isDefaultExpanded={
         !!props.searchKeyword ||
         (params.pageId === props.pageId &&
-          !!(selectedWidgets && selectedWidgets.length))
+          !!(selectedWidgets && selectedWidgets.length)) ||
+        guidedTour
       }
       key={props.pageId + "_widgets"}
       name="Widgets"

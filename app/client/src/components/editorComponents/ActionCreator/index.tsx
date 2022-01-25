@@ -2,8 +2,6 @@ import { createActionRequest } from "actions/pluginActionActions";
 import { createModalAction } from "actions/widgetActions";
 import { TreeDropdownOption } from "components/ads/TreeDropdown";
 import TreeStructure from "components/utils/TreeStructure";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
@@ -21,7 +19,6 @@ import {
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
 import { getWidgetOptionsTree } from "sagas/selectors";
 import {
   getCurrentApplicationId,
@@ -575,9 +572,6 @@ function useIntegrationsOptionTree() {
   });
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const actions = useSelector(getActionsForCurrentPage);
-  // For onboarding
-  const currentStep = useSelector(getCurrentStep);
-  const currentSubStep = useSelector(getCurrentSubStep);
   const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
   return getIntegrationOptionsWithChildren(
@@ -595,23 +589,14 @@ function useIntegrationsOptionTree() {
       icon: "plus",
       className: "t--create-datasources-query-btn",
       onSelect: () => {
-        // For onboarding
-        if (currentStep === OnboardingStep.ADD_INPUT_WIDGET) {
-          if (currentSubStep === 2) {
-            dispatch({
-              type: ReduxActionTypes.ONBOARDING_ADD_ONSUBMIT_BINDING,
-            });
-          }
-        } else {
-          history.push(
-            INTEGRATION_EDITOR_URL(
-              applicationId,
-              pageId,
-              INTEGRATION_TABS.NEW,
-              INTEGRATION_EDITOR_MODES.AUTO,
-            ),
-          );
-        }
+        history.push(
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.NEW,
+            INTEGRATION_EDITOR_MODES.AUTO,
+          ),
+        );
       },
     },
     dispatch,

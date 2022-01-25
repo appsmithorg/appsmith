@@ -60,9 +60,11 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { showCompletionDialog } from "./OnboardingSagas";
 
-import { deleteRecentAppEntities } from "utils/storage";
+import {
+  deleteRecentAppEntities,
+  setPostWelcomeTourState,
+} from "utils/storage";
 import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
@@ -71,10 +73,13 @@ import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 
 import {
+  getCurrentStep,
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
 } from "selectors/onboardingSelectors";
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -108,19 +113,15 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
-
+      const guidedTour = yield select(inGuidedTour);
+      const currentStep = yield select(getCurrentStep);
       let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationId,
         pageId: currentPageId,
       });
-
-      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
-      if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl = getApplicationViewerPageURL({
-          applicationId,
-          pageId: currentPageId,
-          params: { onboardingComplete: "true" },
-        });
+      if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
+        appicationViewPageUrl += "?&guidedTourComplete=true";
+        yield call(setPostWelcomeTourState, true);
       }
 
       yield put({
@@ -597,6 +598,10 @@ export function* importApplicationSaga(
           pageId: defaultPage[0].id,
         });
         history.push(pageURL);
+        const guidedTour = yield select(inGuidedTour);
+
+        if (guidedTour) return;
+
         Toaster.show({
           text: "Application imported successfully",
           variant: Variant.success,

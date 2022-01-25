@@ -20,8 +20,6 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
@@ -32,7 +30,6 @@ import AdsIcon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
@@ -74,7 +71,11 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import Guide from "pages/Editor/GuidedTour/Guide";
+import Boxed from "pages/Editor/GuidedTour/Boxed";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import Spinner from "components/ads/Spinner";
 import {
   ConditionalOutput,
@@ -462,6 +463,7 @@ export function EditorJSONtoForm(props: Props) {
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -876,7 +878,8 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      <CloseEditor />
+      {!guidedTourEnabled && <CloseEditor />}
+      {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>
@@ -905,20 +908,16 @@ export function EditorJSONtoForm(props: Props) {
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
             />
-            <OnboardingIndicator
-              step={OnboardingStep.EXAMPLE_DATABASE}
-              width={75}
-            >
-              <Button
-                className="t--run-query"
-                isLoading={isRunning}
-                onClick={onRunClick}
-                size={Size.medium}
-                tag="button"
-                text="Run"
-                type="button"
-              />
-            </OnboardingIndicator>
+            <Button
+              className="t--run-query"
+              data-guided-tour-iid="run-query"
+              isLoading={isRunning}
+              onClick={onRunClick}
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
+            />
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
@@ -1008,15 +1007,15 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <TabbedViewContainer ref={panelRef}>
-              <Resizable
-                panelRef={panelRef}
-                setContainerDimensions={(height: number) =>
-                  setTableBodyHeightHeight(height)
-                }
-              />
-              {output && !!output.length && (
-                <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+            <Boxed step={GUIDED_TOUR_STEPS.RUN_QUERY}>
+              <TabbedViewContainer ref={panelRef}>
+                <Resizable
+                  panelRef={panelRef}
+                  setContainerDimensions={(height: number) =>
+                    setTableBodyHeightHeight(height)
+                  }
+                />
+                {output && !!output.length && (
                   <ResultsCount>
                     <Text type={TextType.P3}>
                       Result:
@@ -1025,13 +1024,15 @@ export function EditorJSONtoForm(props: Props) {
                       }`}</Text>
                     </Text>
                   </ResultsCount>
-                </Boxed>
-              )}
+                )}
 
-              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
-            </TabbedViewContainer>
+                <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
+              </TabbedViewContainer>
+            </Boxed>
           </SecondaryWrapper>
-          <SidebarWrapper show={hasDependencies || !!output}>
+          <SidebarWrapper
+            show={(hasDependencies || !!output) && !guidedTourEnabled}
+          >
             <ActionRightPane
               actionName={actionName}
               entityDependencies={entityDependencies}

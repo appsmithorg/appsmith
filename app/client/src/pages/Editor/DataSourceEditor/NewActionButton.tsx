@@ -10,7 +10,6 @@ import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { inOnboarding } from "sagas/OnboardingSagas";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "entities/Datasource";
 
@@ -43,8 +42,6 @@ function NewActionButton(props: NewActionButtonProps) {
   const { datasource, pluginType } = props;
   const [isSelected, setIsSelected] = useState(false);
 
-  // Onboarding
-  const isInOnboarding = useSelector(inOnboarding);
   const dispatch = useDispatch();
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
@@ -77,7 +74,7 @@ function NewActionButton(props: NewActionButtonProps) {
           ...DEFAULT_API_ACTION_CONFIG,
           headers: DEFAULT_API_ACTION_CONFIG.headers,
         };
-        let payload = {
+        const payload = {
           name: newActionName,
           pageId: currentPageId,
           pluginId: datasource?.pluginId,
@@ -93,19 +90,7 @@ function NewActionButton(props: NewActionButtonProps) {
           },
         } as Partial<Action>;
 
-        if (datasource)
-          if (isInOnboarding) {
-            // If in onboarding and tooltip is being shown
-            payload = Object.assign({}, payload, {
-              name: "fetch_standup_updates",
-              actionConfiguration: {
-                body:
-                  "Select avatar, name, notes from standup_updates order by id desc",
-              },
-            });
-          }
-
-        dispatch(createActionRequest(payload));
+        if (datasource) dispatch(createActionRequest(payload));
       }
     },
     [dispatch, actions, currentPageId, datasource, pluginType],

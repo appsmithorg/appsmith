@@ -72,8 +72,6 @@ import {
   createMessage,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { checkCurrentStep } from "./OnboardingSagas";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import {
   getIndextoUpdate,
   parseUrlForQueryParams,
@@ -499,7 +497,7 @@ function* handleCreateNewQueryActionSaga(
       .map((a: ActionData) => a.config.name);
     const newQueryName = getNextEntityName("Query", pageApiNames);
     const dataSourceId = validDataSources[0].id;
-    let createActionPayload = {
+    const createActionPayload = {
       name: newQueryName,
       pageId,
       datasource: {
@@ -512,21 +510,6 @@ function* handleCreateNewQueryActionSaga(
       },
       actionConfiguration: {},
     };
-
-    //For onboarding
-    const updateActionPayload = yield select(
-      checkCurrentStep,
-      OnboardingStep.ADD_INPUT_WIDGET,
-    );
-    if (updateActionPayload) {
-      createActionPayload = {
-        ...createActionPayload,
-        name: "add_standup_updates",
-        actionConfiguration: {
-          body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
-        },
-      };
-    }
 
     yield put(createActionRequest(createActionPayload));
   } else {
