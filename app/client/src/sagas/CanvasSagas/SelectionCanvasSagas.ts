@@ -3,14 +3,14 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { isEqual } from "lodash";
-import { SelectedArenaDimensions } from "pages/common/CanvasSelectionArena";
+import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getWidget } from "./selectors";
+import { getWidget } from "../selectors";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];
@@ -46,7 +46,6 @@ function* selectAllWidgetsInAreaSaga(
       snapRowSpace: number;
     };
   } = action.payload;
-
   const { snapColumnSpace, snapRowSpace } = snapSpaces;
   // we use snapToNextRow, snapToNextColumn to determine if the selection rectangle is inverted
   // so to snap not to the next column or row like we usually do,
@@ -64,11 +63,12 @@ function* selectAllWidgetsInAreaSaga(
     selectionArena.top + selectionArena.height,
   );
 
-  if (widgetOccupiedSpaces) {
+  if (widgetOccupiedSpaces && mainContainer) {
     const mainContainerWidgets = widgetOccupiedSpaces[mainContainer.widgetId];
     const widgets = Object.values(mainContainerWidgets || {});
     const widgetsToBeSelected = widgets.filter((eachWidget) => {
       const { bottom, left, right, top } = eachWidget;
+
       return areIntersecting(
         { bottom, left, right, top },
         {
@@ -106,7 +106,7 @@ function* startCanvasSelectionSaga(
   const widgetId = actionPayload.payload.widgetId || MAIN_CONTAINER_WIDGET_ID;
   const mainContainer: WidgetProps = yield select(getWidget, widgetId);
   const lastSelectedWidgetsWithoutParent = lastSelectedWidgets.filter(
-    (each) => each !== mainContainer.parentId,
+    (each) => mainContainer && each !== mainContainer.parentId,
   );
   const widgetOccupiedSpaces:
     | {
