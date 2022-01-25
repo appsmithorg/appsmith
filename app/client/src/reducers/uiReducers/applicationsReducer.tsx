@@ -13,7 +13,6 @@ import {
 import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { GetSSHKeyResponseData } from "actions/gitSyncActions";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
 
 const initialState: ApplicationsReduxState = {
@@ -253,6 +252,9 @@ const applicationsReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({ ...state, importingApplication: true }),
+  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, importingApplication: true }),
   [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (

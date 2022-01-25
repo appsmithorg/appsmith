@@ -39,6 +39,7 @@ import {
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
   setIsGitSyncModalOpen,
+  setIsImportAppViaGitModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -65,7 +66,6 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitSyncError from "../components/GitSyncError";
 import Link from "../components/Link";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -165,6 +165,7 @@ function GitConnection({ isImport }: Props) {
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
   const RepoUrlDocumentUrl = useSelector(getRemoteUrlDocUrl);
+  // dispatch(setIsImportAppViaGitModalOpen({ isOpen: !!isImport }));
 
   const {
     deployKeyDocUrl,

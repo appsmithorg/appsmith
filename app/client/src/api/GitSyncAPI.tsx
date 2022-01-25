@@ -147,7 +147,7 @@ class GitSyncAPI extends Api {
     const url = isImporting
       ? "v1/git/import/keys"
       : ApplicationApi.baseURL + "/ssh-keypair/" + applicationId;
-    return Api.post(url);
+    return isImporting ? Api.get(url) : Api.post(url);
   }
 }
 

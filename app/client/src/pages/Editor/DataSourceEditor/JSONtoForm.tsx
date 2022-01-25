@@ -225,7 +225,7 @@ export class JSONtoForm<
   renderForm = (content: any) => {
     return (
       <div
-        className="t--json-to-form"
+        className="t--json-to-form-wrapper"
         style={{ height: "100%", display: "flex", flexDirection: "column" }}
       >
         <CloseEditor />

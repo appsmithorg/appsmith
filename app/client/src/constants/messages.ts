@@ -453,6 +453,18 @@ export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
   "Fill these with utmost care as the application will not behave normally otherwsie";
+export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
+  "These datasources were imported successfully!";
+export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
+  "Please fill up the missing datasources";
+export const ADD_MISSING_DATASOURCES = () => "Add missing Datasources";
+export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
+  "This action is irreversible.";
+export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
+  `If you continue without connecting your datasources the application may
+  not behave correctly. The datasouces will be availabe inside the
+  application for you to reconnect later.`;
+export const SKIP_TO_APPLICATION = () => "Skip to Application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;

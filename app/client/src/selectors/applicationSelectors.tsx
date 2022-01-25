@@ -156,3 +156,6 @@ export const showAppInviteUsersDialogSelector = (state: AppState) =>
 
 export const getFetchingDatasourceConfigForImport = (state: AppState) =>
   state.ui.applications.fetchingDatasourceConfigForImport;
+
+export const getImportedApplication = (state: AppState) =>
+  state.ui.applications.importedApplication;

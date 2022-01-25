@@ -1,9 +1,6 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionWithCallbacks,
-} from "../constants/ReduxActionConstants";
+import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
 import { FetchApplicationResponse } from "../api/ApplicationApi";
 import {
   UpdateApplicationPayload,

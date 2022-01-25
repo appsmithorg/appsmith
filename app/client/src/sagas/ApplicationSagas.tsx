@@ -70,8 +70,6 @@ import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
-import { handleRepoLimitReachedError } from "./GitSyncSagas";
-import { getIsImportAppViaGitModalOpen } from "selectors/gitSyncSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { failFastApiCalls } from "./InitSagas";
@@ -588,7 +586,7 @@ export function* importApplicationSaga(
         yield put({
           type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
           payload: {
-            importedApplication: appId,
+            importedApplication: response.data,
           },
         });
         const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);

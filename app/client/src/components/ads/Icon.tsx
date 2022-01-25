@@ -79,6 +79,7 @@ import { ControlIcons } from "icons/ControlIcons";
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
 import AddMoreFillIcon from "remixicon-react/AddCircleFillIcon";
+import AlertFillIcon from "remixicon-react/AlertFillIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
@@ -128,6 +129,7 @@ import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
 import Trash from "remixicon-react/DeleteBinLineIcon";
 import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
+import WarningLineIcon from "remixicon-react/ErrorWarningLineIcon";
 import EditUnderlineIcon from "remixicon-react/EditLineIcon";
 import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
@@ -197,6 +199,7 @@ export const IconCollection = [
   "PARAGRAPH_TWO",
   "add-more",
   "add-more-fill",
+  "alert-fill",
   "arrow-forward",
   "arrow-left",
   "double-arrow-right",
@@ -306,6 +309,7 @@ export const IconCollection = [
   "view-less",
   "wand",
   "warning",
+  "warning-line",
   "warning-triangle",
   "workspace",
   "git-branch",
@@ -389,6 +393,9 @@ const Icon = forwardRef(
         break;
       case "add-more-fill":
         returnIcon = <AddMoreFillIcon />;
+        break;
+      case "alert-fill":
+        returnIcon = <AlertFillIcon />;
         break;
       case "arrow-forward":
         returnIcon = <ArrowForwardIcon />;
@@ -714,6 +721,9 @@ const Icon = forwardRef(
         break;
       case "warning":
         returnIcon = <WarningIcon />;
+        break;
+      case "warning-line":
+        returnIcon = <WarningLineIcon />;
         break;
       case "warning-triangle":
         returnIcon = <WarningTriangleIcon />;

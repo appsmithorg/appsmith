@@ -75,6 +75,9 @@ import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 
 import { getLogToSentryFromResponse } from "utils/helpers";
+import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
+import { getCurrentOrg } from "selectors/organizationSelectors";
+import { Org } from "constants/orgConstants";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -625,18 +628,24 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
     );
 
     if (isValidResponse) {
-      yield put(connectToGitSuccess(response?.data));
-      yield put({
-        type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
-        payload: {
-          importedApplication: null,
-        },
-      });
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response?.data);
+      const allOrgs = yield select(getCurrentOrg);
+      const currentOrg = allOrgs.filter(
+        (el: Org) => el.id === organizationIdForImport,
+      );
+      if (currentOrg.length > 0) {
+        yield put({
+          type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
+          payload: {
+            importedApplication: response?.data,
+          },
+        });
+        Toaster.show({
+          text: "Application imported successfully",
+          variant: Variant.success,
+        });
+        // after successful should open add datasources
+        yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
       }
-
-      // after successful should open add datasources
     }
   } catch (error) {
     if (action.onErrorCallback) {
