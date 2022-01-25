@@ -37,7 +37,7 @@ jobs:
 
       # Checkout the code
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
 
       - name: Restore the previous run result
         uses: actions/cache@v2
@@ -56,8 +56,6 @@ jobs:
 
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
-
-      - run: echo "::set-output name=run_result::success" > run_result
 
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
@@ -138,6 +136,8 @@ jobs:
             REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
             yarn build
           ls -l build
+
+      - run: echo "::set-output name=run_result::success" > run_result
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
