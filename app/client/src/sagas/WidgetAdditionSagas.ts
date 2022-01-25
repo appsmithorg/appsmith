@@ -229,6 +229,7 @@ export function* getUpdateDslAfterCreatingChild(
     stateParent,
     addChildPayload,
     widgets,
+    // sending blueprint for onboarding usecase
     addChildPayload.props?.blueprint,
   );
 
