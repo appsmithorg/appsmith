@@ -1,4 +1,4 @@
-name: Reuse Mini Actions
+name: Reuse Actions
 
 on:
   # This line enables manual triggering of this workflow.
@@ -28,7 +28,14 @@ jobs:
       run:
         working-directory: app/client
         shell: bash
+
     steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Checkout the code
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
 
@@ -36,19 +43,20 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            run_result
+            /run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-
       - name: Get the previous run result
         id: run_result
-        run: cat run_result 2>/dev/null || echo 'default'
+        run: cat /run_result 2>/dev/null || echo 'default'
 
       - uses: actions/checkout@v2
         if: steps.run_result.outputs.run_result != 'success'
 
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
+
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
         uses: actions/checkout@v2
@@ -135,4 +143,5 @@ jobs:
         with:
           name: client-build
           path: app/client/build/
-      - run: echo "::set-output name=run_result::success" > run_result
+
+      - run: echo "::set-output name=run_result::success" > /run_result
