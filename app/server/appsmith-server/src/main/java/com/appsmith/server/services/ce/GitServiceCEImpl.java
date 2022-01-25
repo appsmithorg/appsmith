@@ -20,10 +20,12 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitImportDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -1899,7 +1901,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<Application> importApplicationFromGit(String organizationId, GitConnectDTO gitConnectDTO) {
+    public Mono<GitImportDTO> importApplicationFromGit(String organizationId, GitConnectDTO gitConnectDTO) {
         // 1. Check private repo limit for organization
         // 2. Create dummy application, clone repo from remote
         // 3. Re-hydrate application to DB from local repo
@@ -1924,7 +1926,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
         final boolean isRepoPrivate = isRepoPrivateTemp;
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
-        Mono<Application> importedApplicationMono = getSSHKeyForCurrentUser()
+        Mono<GitImportDTO> importedApplicationMono = getSSHKeyForCurrentUser()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))
                 //Check the limit for number of private repo
@@ -2017,13 +2019,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                         Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
                         Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
                         Mono<ApplicationJson> applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch);
+
                         return Mono.zip(applicationJsonMono, datasourceMono, pluginMono)
                                 .flatMap(data -> {
                                     ApplicationJson applicationJson = data.getT1();
                                     List<Datasource> datasourceList = data.getT2();
                                     List<Plugin> pluginList = data.getT3();
 
-                                    // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
+                                    // If there is an existing datasource with the same name but a different type from that in the repo, the import api should fail
                                     if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
                                         return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
                                                 .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
@@ -2031,9 +2034,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                         "Datasource already exists with the same name"))
                                                 );
                                     }
+
                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                     return importExportApplicationService
                                             .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
+                                            .zipWith(datasourceMono)
                                             .onErrorResume(throwable -> deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
                                                     .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage()))));
                                 });
@@ -2044,13 +2049,22 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
                     }
                 })
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    List<Datasource> datasourceMono = objects.getT2();
+                    return Mono.zip(Mono.just(application), findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceMono));
+                })
                 // Add analytics event
-                .flatMap(application -> {
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    GitImportDTO gitImportDTO = new GitImportDTO();
+                    gitImportDTO.setApplication(application);
+                    gitImportDTO.setEmptyDatasourceList(objects.getT2());
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_IMPORT.getEventName(),
                             application,
                             application.getGitApplicationMetadata().getIsRepoPrivate()
-                    ).thenReturn(application);
+                    ).thenReturn(gitImportDTO);
                 });
 
         return Mono.create(sink -> importedApplicationMono
@@ -2080,6 +2094,25 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .thenReturn(gitAuth);
+    }
+
+    private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
+                                                                             List<Datasource> datasourceList) {
+        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
+                .collectList()
+                .flatMap(actionList -> {
+                    List<String> usedDatasource = actionList.stream()
+                            .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
+                            .collect(Collectors.toList());
+
+                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
+                    return Mono.just(datasourceList);
+                });
+    }
+
+    private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String organizationId, String repoName) {
+        return fileUtils.detachRemote(Paths.get(organizationId, applicationId, repoName))
+                .then(applicationPageService.deleteApplication(applicationId));
     }
 
 
@@ -2126,11 +2159,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                 || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
                 || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPrivateKey())
                 || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPublicKey());
-    }
-
-    private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String organizationId, String repoName) {
-        return fileUtils.detachRemote(Paths.get(organizationId, applicationId, repoName))
-                .then(applicationPageService.deleteApplication(applicationId));
     }
 
     private Mono<String> commitAndPushWithDefaultCommit(Path repoSuffix,

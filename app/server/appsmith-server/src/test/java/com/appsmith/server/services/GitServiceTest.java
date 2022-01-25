@@ -27,6 +27,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitImportDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -35,7 +36,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
-import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -56,7 +56,6 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -2088,7 +2087,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_InvalidRemoteUrl_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest(null, testUserProfile);
-        Mono<Application> applicationMono = gitService.importApplicationFromGit("testID", gitConnectDTO);
+        Mono<GitImportDTO> applicationMono = gitService.importApplicationFromGit("testID", gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2101,7 +2100,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_emptyOrganizationId_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono = gitService.importApplicationFromGit(null, gitConnectDTO);
+        Mono<GitImportDTO> applicationMono = gitService.importApplicationFromGit(null, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2119,7 +2118,7 @@ public class GitServiceTest {
                 .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(0));
 
-        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<GitImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2143,11 +2142,12 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<GitImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
-                .assertNext(application -> {
+                .assertNext(gitImportDTO -> {
+                    Application application = gitImportDTO.getApplication();
                     assertThat(application.getName()).isEqualTo("testRepo");
                     assertThat(application.getGitApplicationMetadata()).isNotNull();
                     assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
@@ -2180,11 +2180,12 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<GitImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
-                .assertNext(application -> {
+                .assertNext(gitImportDTO -> {
+                    Application application = gitImportDTO.getApplication();
                     assertThat(application.getName()).isEqualTo("testGitRepo (1)");
                     assertThat(application.getGitApplicationMetadata()).isNotNull();
                     assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
@@ -2211,16 +2212,17 @@ public class GitServiceTest {
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo");
-        List<Datasource> datasourceList = applicationJson.getDatasourceList();
-        datasourceList.get(0).setName("testGitImportRepo");
-        datasourceList.get(0).setPluginId("mongo-plugin");
-        applicationJson.setDatasourceList(datasourceList);
+        applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
 
         String pluginId = pluginRepository.findByPackageName("mongo-plugin").block().getId();
         Datasource datasource = new Datasource();
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
+<<<<<<< HEAD
         datasource.setOrganizationId(testOrgId);
+=======
+        datasource.setOrganizationId(orgId);
+>>>>>>> parent of 710d5d533 (revert datasource related changes)
         datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2229,11 +2231,12 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.detachRemote(Mockito.any(Path.class))).thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<GitImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
-                .assertNext(application -> {
+                .assertNext(gitImportDTO -> {
+                    Application application = gitImportDTO.getApplication();
                     assertThat(application.getName()).isEqualTo("testGitImportRepo");
                     assertThat(application.getGitApplicationMetadata()).isNotNull();
                     assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
@@ -2332,7 +2335,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.detachRemote(Mockito.any(Path.class)))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<GitImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2340,6 +2343,21 @@ public class GitServiceTest {
                         && throwable.getMessage().contains("Datasource already exists with the same name"))
                 .verify();
     }
+
+    /*@Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_withUnConfiguredDataSources_Success() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportDatasource.git", testUserProfile);
+        GitAuth gitAuth = gitService.generateSSHKey().block();
+
+        ApplicationJson applicationJson =  createAppJson(filePath).block();
+        applicationJson.getExportedApplication().setName("testGitImportDatasource");
+        applicationJson.getDatasourceList().get(0).setName("testGitImportDatasource");
+
+        //Create an empty DS
+
+        //Create an action which refers to the DS
+    }*/
 
     // TODO TCs for merge is pending
 }
