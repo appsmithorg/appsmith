@@ -1,9 +1,13 @@
 import * as React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Alignment, Button, Classes, MenuItem } from "@blueprintjs/core";
+import { Alignment, Button, Classes, Menu, MenuItem } from "@blueprintjs/core";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
-import { VirtuosoGrid, VirtuosoGridHandle } from "react-virtuoso";
+import {
+  GridListProps,
+  VirtuosoGrid,
+  VirtuosoGridHandle,
+} from "react-virtuoso";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
@@ -38,7 +42,7 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const StyledMenu = styled.div`
+const StyledMenu = styled.ul<GridListProps>`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: minmax(50px, auto);
@@ -330,6 +334,7 @@ class IconSelectControl extends BaseControl<
           List: StyledMenu,
         }}
         computeItemKey={(index) => filteredItems[index]}
+        initialItemCount={16}
         itemContent={(index) => renderItem(filteredItems[index], index)}
         ref={this.virtuosoRef}
         style={{ height: "165px" }}
@@ -354,6 +359,7 @@ class IconSelectControl extends BaseControl<
           key={icon}
           onClick={handleClick}
           text={icon === NONE ? NONE : undefined}
+          textClassName={icon === NONE ? "bp3-icon-(none)" : ""}
         />
       </TooltipComponent>
     );
