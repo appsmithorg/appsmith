@@ -11,6 +11,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
+import { LabelPosition, LabelPositionTypes } from "components/constants";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -63,16 +64,6 @@ class BaseInputWidget<
             label: "Placeholder",
             controlType: "INPUT_TEXT",
             placeholderText: "Placeholder",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Sets the label text of the widget",
-            propertyName: "label",
-            label: "Label",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Name:",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -186,6 +177,65 @@ class BaseInputWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "label",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Name:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "LABEL_POSITION_OPTIONS",
+            options: [
+              LabelPositionTypes.Auto,
+              LabelPositionTypes.Top,
+              LabelPositionTypes.Left,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: BaseInputWidgetProps) =>
+              props.labelPosition !== LabelPositionTypes.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: BaseInputWidgetProps) =>
+              props.labelPosition !== LabelPositionTypes.Left,
+            dependencies: ["labelPosition"],
           },
         ],
       },
@@ -336,6 +386,8 @@ class BaseInputWidget<
   }
 
   getPageView() {
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return (
       <BaseInputComponent
         allowNumericCharactersOnly={this.props.allowNumericCharactersOnly}
@@ -346,6 +398,7 @@ class BaseInputWidget<
         disabled={this.props.isDisabled}
         errorMessage={this.props.errorMessage}
         fill={this.props.fill}
+        height={componentHeight}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputHTMLType="TEXT"
@@ -354,9 +407,12 @@ class BaseInputWidget<
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={(this.props.labelWidth ?? 0) * this.props.parentColumnSpace}
         maxChars={this.props.maxChars}
         multiline={this.props.multiline}
         onFocusChange={this.props.onFocusChange}
@@ -368,6 +424,7 @@ class BaseInputWidget<
         tooltip={this.props.tooltip}
         value={this.props.value}
         widgetId={this.props.widgetId}
+        width={componentWidth}
       />
     );
   }
@@ -391,6 +448,9 @@ export interface BaseInputWidgetProps extends WidgetProps {
   errorMessage?: string;
   placeholderText?: string;
   label: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;

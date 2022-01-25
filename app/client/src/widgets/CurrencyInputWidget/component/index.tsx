@@ -46,6 +46,7 @@ class CurrencyInputComponent extends React.Component<
         disabled={this.props.disabled}
         errorMessage={this.props.errorMessage}
         fill={this.props.fill}
+        height={this.props.height}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputHTMLType="NUMBER"
@@ -54,9 +55,12 @@ class CurrencyInputComponent extends React.Component<
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.props.labelWidth}
         leftIcon={
           <CurrencyTypeDropdown
             allowCurrencyChange={
@@ -78,6 +82,7 @@ class CurrencyInputComponent extends React.Component<
         tooltip={this.props.tooltip}
         value={this.props.value}
         widgetId={this.props.widgetId}
+        width={this.props.width}
       />
     );
   }

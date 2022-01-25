@@ -22,6 +22,7 @@ import { mergeWidgetConfig } from "utils/helpers";
 import { AsYouType, CountryCode } from "libphonenumber-js";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -222,25 +223,37 @@ class PhoneInputWidget extends BaseInputWidget<
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
 
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return (
       <PhoneInputComponent
         allowDialCodeChange={this.props.allowDialCodeChange}
         autoFocus={this.props.autoFocus}
-        compactMode
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         countryCode={countryCode}
         defaultValue={this.props.defaultText}
         dialCode={this.props.dialCode}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
+        height={componentHeight}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={(this.props.labelWidth ?? 0) * this.props.parentColumnSpace}
         onFocusChange={this.handleFocusChange}
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
@@ -250,6 +263,7 @@ class PhoneInputWidget extends BaseInputWidget<
         tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
+        width={componentWidth}
         {...conditionalProps}
       />
     );

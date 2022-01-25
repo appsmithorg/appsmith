@@ -36,6 +36,11 @@ import { InputTypes } from "../constants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
+import {
+  LabelPosition,
+  LabelPositionTypes,
+  LABEL_MAX_WIDTH_RATE,
+} from "components/constants";
 
 /**
  * All design system component specific logic goes here.
@@ -52,6 +57,7 @@ const InputComponentWrapper = styled((props) => (
       "labelTextColor",
       "allowCurrencyChange",
       "compactMode",
+      "labelPosition",
       "labelStyle",
       "labelTextSize",
       "multiline",
@@ -66,8 +72,29 @@ const InputComponentWrapper = styled((props) => (
   allowCurrencyChange?: boolean;
   disabled?: boolean;
   inputType: InputType;
+  compactMode: boolean;
+  labelPosition: LabelPosition;
 }>`
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
+  flex-direction: ${(props) =>
+    props.labelPosition === LabelPositionTypes.Left
+      ? "row"
+      : props.labelPosition === LabelPositionTypes.Top
+      ? "column"
+      : props.compactMode
+      ? "row"
+      : "column"};
+  ${({ compactMode, labelPosition }) =>
+    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
+      labelPosition === LabelPositionTypes.Top) &&
+    `overflow-y: auto;`}
+
+  ${({ compactMode, labelPosition }) =>
+    labelPosition === LabelPositionTypes.Top
+      ? `gap: 5px`
+      : compactMode || labelPosition === LabelPositionTypes.Left
+      ? `gap: 0px`
+      : `gap: 5px`};
+
   &&&& {
     .currency-type-filter,
     .country-type-filter {
@@ -180,10 +207,24 @@ const InputComponentWrapper = styled((props) => (
       justify-content: flex-start;
     }
     height: 100%;
-    align-items: center;
+    align-items: ${({ compactMode, inputType, labelPosition }) =>
+      labelPosition === LabelPositionTypes.Top
+        ? `flex-start`
+        : compactMode
+        ? `center`
+        : labelPosition === LabelPositionTypes.Left
+        ? inputType === InputTypes.TEXT
+          ? `stretch`
+          : `center`
+        : `flex-start`};
     label {
       ${labelStyle}
-      margin-right: 5px;
+      ${({ compactMode, labelPosition }) =>
+        labelPosition === LabelPositionTypes.Top
+          ? `margin-right: 0px`
+          : compactMode || labelPosition === LabelPositionTypes.Left
+          ? `margin-right: 5px`
+          : `margin-right: 0px`};
       text-align: right;
       align-self: flex-start;
       color: ${(props) => props.labelTextColor || "inherit"};
@@ -288,19 +329,39 @@ const ToolTipIcon = styled(IconWrapper)`
   }
 `;
 
-const TextLableWrapper = styled.div<{
+const TextLabelWrapper = styled.div<{
   compactMode: boolean;
+  alignment?: Alignment;
+  position?: LabelPosition;
+  width?: number;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
   display: flex;
   max-height: 20px;
+
+  ${({ alignment, compactMode, position, width }) => `
+    ${
+      position !== LabelPositionTypes.Top &&
+      (position === LabelPositionTypes.Left || compactMode)
+        ? `&&& {margin-right: 5px;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        : `width: 100%;`
+    }
+    ${position === LabelPositionTypes.Left &&
+      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
+        `justify-content: flex-end`};`}
+  `}
 `;
 
-const TextInputWrapper = styled.div`
+const StyledTooltip = styled(Tooltip)`
+  overflow: hidden;
+`;
+
+const TextInputWrapper = styled.div<{ numeric?: boolean }>`
   width: 100%;
   display: flex;
   flex: 1;
+  overflow-x: hidden;
+  ${({ numeric }) => numeric && `&&& {flex-grow: 0;}`}
+  min-height: 36px;
 `;
 
 type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -315,8 +376,73 @@ class BaseInputComponent extends React.Component<
 > {
   constructor(props: BaseInputComponentProps) {
     super(props);
-    this.state = { showPassword: false };
+    this.state = { showPassword: false, hasLabelEllipsis: false };
   }
+
+  componentDidMount() {
+    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
+      const element: any = document.querySelector(
+        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
+      );
+
+      if (element !== null && element.childNodes) {
+        element.childNodes[0].addEventListener(
+          "mousedown",
+          this.onStepIncrement,
+        );
+        element.childNodes[1].addEventListener(
+          "mousedown",
+          this.onStepDecrement,
+        );
+      }
+    }
+
+    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+  }
+
+  componentDidUpdate(prevProps: BaseInputComponentProps) {
+    if (
+      prevProps.width !== this.props.width ||
+      prevProps.height !== this.props.height ||
+      prevProps.label !== this.props.label ||
+      prevProps.labelPosition !== this.props.labelPosition ||
+      prevProps.labelWidth !== this.props.labelWidth ||
+      prevProps.tooltip !== this.props.tooltip
+    ) {
+      this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    }
+  }
+
+  componentWillUnmount() {
+    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
+      const element: any = document.querySelectorAll(
+        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+      );
+
+      if (element !== null && element.childNodes) {
+        element.childNodes[0].removeEventListener(
+          "click",
+          this.onStepIncrement,
+        );
+        element.childNodes[1].removeEventListener(
+          "click",
+          this.onStepDecrement,
+        );
+      }
+    }
+  }
+
+  checkHasLabelEllipsis = () => {
+    const labelElement = document.querySelector(
+      `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+    );
+
+    if (labelElement) {
+      return labelElement.scrollWidth > labelElement.clientWidth;
+    }
+
+    return false;
+  };
 
   setFocusState = (isFocused: boolean) => {
     this.props.onFocusChange(isFocused);
@@ -483,88 +609,86 @@ class BaseInputComponent extends React.Component<
     this.props.onStep && this.props.onStep(-1);
   };
 
-  componentDidMount() {
-    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
-      const element: any = document.querySelector(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
-      );
-
-      if (element !== null && element.childNodes) {
-        element.childNodes[0].addEventListener(
-          "mousedown",
-          this.onStepIncrement,
-        );
-        element.childNodes[1].addEventListener(
-          "mousedown",
-          this.onStepDecrement,
-        );
-      }
-    }
-  }
-
-  componentWillUnmount() {
-    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
-      const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
-      );
-
-      if (element !== null && element.childNodes) {
-        element.childNodes[0].removeEventListener(
-          "click",
-          this.onStepIncrement,
-        );
-        element.childNodes[1].removeEventListener(
-          "click",
-          this.onStepDecrement,
-        );
-      }
-    }
-  }
-
   render() {
     const {
+      compactMode,
+      disabled,
+      errorMessage,
+      inputHTMLType,
+      inputType,
+      isInvalid,
+      isLoading,
       label,
+      labelAlignment,
+      labelPosition,
       labelStyle,
       labelTextColor,
       labelTextSize,
+      labelWidth,
+      multiline,
+      showError,
       tooltip,
     } = this.props;
     const showLabelHeader = label || tooltip;
 
     return (
       <InputComponentWrapper
-        compactMode={this.props.compactMode}
-        disabled={this.props.disabled}
+        compactMode={compactMode}
+        disabled={disabled}
         fill
-        hasError={this.props.isInvalid}
-        inputType={this.props.inputType}
+        hasError={isInvalid}
+        inputType={inputType}
+        labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
-        multiline={(!!this.props.multiline).toString()}
-        numeric={isNumberInputType(this.props.inputHTMLType)}
+        multiline={(!!multiline).toString()}
+        numeric={
+          inputType === InputTypes.PHONE_NUMBER ||
+          isNumberInputType(inputHTMLType)
+        }
       >
         {showLabelHeader && (
-          <TextLableWrapper
+          <TextLabelWrapper
+            alignment={labelAlignment}
             className="t--input-label-wrapper"
-            compactMode={this.props.compactMode}
+            compactMode={compactMode}
+            position={labelPosition}
+            width={labelWidth}
           >
-            {this.props.label && (
-              <Label
-                className={`
+            {label &&
+              (this.state.hasLabelEllipsis ? (
+                <StyledTooltip
+                  content={label}
+                  hoverOpenDelay={200}
+                  position={Position.TOP}
+                >
+                  <Label
+                    className={`t--input-widget-label ${
+                      isLoading
+                        ? Classes.SKELETON
+                        : Classes.TEXT_OVERFLOW_ELLIPSIS
+                    }`}
+                  >
+                    {label}
+                  </Label>
+                </StyledTooltip>
+              ) : (
+                <Label
+                  className={`
                   t--input-widget-label ${
-                    this.props.isLoading
+                    isLoading
                       ? Classes.SKELETON
                       : Classes.TEXT_OVERFLOW_ELLIPSIS
                   }
                 `}
-              >
-                {this.props.label}
-              </Label>
-            )}
-            {this.props.tooltip && (
+                >
+                  {label}
+                </Label>
+              ))}
+            {tooltip && (
               <Tooltip
-                content={this.props.tooltip}
+                content={tooltip}
                 hoverOpenDelay={200}
                 position={Position.TOP}
               >
@@ -577,20 +701,22 @@ class BaseInputComponent extends React.Component<
                 </ToolTipIcon>
               </Tooltip>
             )}
-          </TextLableWrapper>
+          </TextLabelWrapper>
         )}
-        <TextInputWrapper>
+        <TextInputWrapper
+          numeric={
+            inputType === InputTypes.PHONE_NUMBER ||
+            isNumberInputType(inputHTMLType)
+          }
+        >
           <ErrorTooltip
-            isOpen={this.props.isInvalid && this.props.showError}
+            isOpen={isInvalid && showError}
             message={
-              this.props.errorMessage ||
+              errorMessage ||
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.renderInputComponent(
-              this.props.inputHTMLType,
-              !!this.props.multiline,
-            )}
+            {this.renderInputComponent(inputHTMLType, !!multiline)}
           </ErrorTooltip>
         </TextInputWrapper>
       </InputComponentWrapper>
@@ -600,6 +726,7 @@ class BaseInputComponent extends React.Component<
 
 export interface InputComponentState {
   showPassword?: boolean;
+  hasLabelEllipsis: boolean;
 }
 
 export interface BaseInputComponentProps extends ComponentProps {
@@ -610,6 +737,9 @@ export interface BaseInputComponentProps extends ComponentProps {
   intent?: Intent;
   defaultValue?: string | number;
   label: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
@@ -642,6 +772,8 @@ export interface BaseInputComponentProps extends ComponentProps {
   spellCheck?: boolean;
   maxNum?: number;
   minNum?: number;
+  height: number;
+  width: number;
 }
 
 export default BaseInputComponent;

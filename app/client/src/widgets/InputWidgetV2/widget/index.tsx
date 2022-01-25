@@ -419,6 +419,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
           GRID_DENSITY_MIGRATION_V1;
 
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return (
       <InputComponent
         autoFocus={this.props.autoFocus}
@@ -427,21 +429,25 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           !(
             (this.props.bottomRow - this.props.topRow) /
               GRID_DENSITY_MIGRATION_V1 >
-              1 && this.props.inputType === "TEXT"
+            1
           )
         }
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
+        height={componentHeight}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={(this.props.labelWidth ?? 0) * this.props.parentColumnSpace}
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >
@@ -457,6 +463,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
+        width={componentWidth}
         {...conditionalProps}
       />
     );

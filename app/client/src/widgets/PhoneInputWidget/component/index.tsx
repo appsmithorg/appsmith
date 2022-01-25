@@ -57,6 +57,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         disabled={this.props.disabled}
         errorMessage={this.props.errorMessage}
         fill={this.props.fill}
+        height={this.props.height}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputHTMLType="TEL"
@@ -65,9 +66,12 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.props.labelWidth}
         leftIcon={this.getLeftIcon()}
         multiline={false}
         onFocusChange={this.props.onFocusChange}
@@ -78,6 +82,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         tooltip={this.props.tooltip}
         value={this.props.value}
         widgetId={this.props.widgetId}
+        width={this.props.width}
       />
     );
   }

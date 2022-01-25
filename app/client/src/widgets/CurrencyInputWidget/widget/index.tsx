@@ -32,6 +32,7 @@ import {
   parseLocaleFormattedStringToNumber,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -347,25 +348,37 @@ class CurrencyInputWidget extends BaseInputWidget<
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
 
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return (
       <CurrencyInputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
-        compactMode
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         currencyCode={currencyCode}
         decimals={this.props.decimals}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
+        height={componentHeight}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={(this.props.labelWidth ?? 0) * this.props.parentColumnSpace}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
@@ -377,6 +390,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
+        width={componentWidth}
         {...conditionalProps}
       />
     );
