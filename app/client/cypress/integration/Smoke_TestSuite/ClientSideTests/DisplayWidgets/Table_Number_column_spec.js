@@ -9,6 +9,9 @@ describe("Validate Table Widget Table Data", function() {
 
     cy.openPropertyPane("tablewidget");
 
+    // clear tabledata
+    cy.clearPropertyValue("");
+    // add new table data
     cy.testJsontext("tabledata", dsl.dsl.children[0].tableData);
 
     cy.contains('[role="columnheader"]', "_1").should("exist");
