@@ -253,6 +253,8 @@ export type WidgetResize = {
   rightColumn: number;
   topRow: number;
   bottomRow: number;
+  snapColumnSpace: number;
+  snapRowSpace: number;
 };
 
 export type ModalWidgetResize = {

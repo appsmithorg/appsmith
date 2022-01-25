@@ -40,6 +40,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
+          name: nextEntityName(actionName, destinationPageId, false),
         }),
       ),
     [dispatch, nextEntityName, props.pageId],

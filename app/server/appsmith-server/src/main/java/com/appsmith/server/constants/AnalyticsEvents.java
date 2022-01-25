@@ -18,6 +18,7 @@ public enum AnalyticsEvents {
     UNSUBSCRIBE_MARKETING_EMAILS,
     INSTALLATION_SETUP_COMPLETE("Installation Setup Complete"),
     GIT_CONNECT,
+    GIT_PRIVATE_REPO_LIMIT_EXCEEDED,
     GIT_CREATE_BRANCH,
     GIT_COMMIT,
     GIT_PUSH,

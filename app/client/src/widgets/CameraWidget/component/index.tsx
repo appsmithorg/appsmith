@@ -9,6 +9,7 @@ import {
   FullScreenHandle,
   useFullScreenHandle,
 } from "react-full-screen";
+import log from "loglevel";
 
 import { ThemeProp } from "components/ads/common";
 import {
@@ -891,12 +892,16 @@ function CameraComponent(props: CameraComponentProps) {
   const fullScreenHandle = useFullScreenHandle();
 
   useEffect(() => {
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then(handleDeviceInputs)
-      .catch((err) => {
-        setError(err.message);
-      });
+    try {
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then(handleDeviceInputs)
+        .catch((err) => {
+          setError(err.message);
+        });
+    } catch (e) {
+      log.debug("Error in calling enumerateDevices");
+    }
   }, []);
 
   useEffect(() => {

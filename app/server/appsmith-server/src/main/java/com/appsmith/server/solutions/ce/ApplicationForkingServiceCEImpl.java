@@ -44,7 +44,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        Mono<Application> forkApplicationMono = Mono.zip(sourceApplicationMono, targetOrganizationMono, userMono)
+        return Mono.zip(sourceApplicationMono, targetOrganizationMono, userMono)
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final Organization targetOrganization = tuple.getT2();
@@ -75,17 +75,6 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .flatMap(application ->
                                     sendForkApplicationAnalyticsEvent(srcApplicationId, targetOrganizationId, application));
                 });
-
-        // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
-        // copy all the actions and collections. This process may take time and the client may cancel the request.
-        // This leads to the flow getting stopped mid way producing corrupted DB objects. The following ensures that even
-        // though the client may have cancelled the flow, the forking of the application should proceed uninterrupted
-        // and whenever the user refreshes the page, the sane forked application is available.
-        // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
-        // means that even if the subscriber has cancelled its subscription, the create method still generates its event.
-        return Mono.create(sink -> forkApplicationMono
-                .subscribe(sink::success, sink::error, null, sink.currentContext())
-        );
     }
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId,

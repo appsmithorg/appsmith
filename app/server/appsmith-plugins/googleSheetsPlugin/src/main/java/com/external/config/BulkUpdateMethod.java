@@ -211,7 +211,7 @@ public class BulkUpdateMethod implements Method {
                 .collect(Collectors.toList());
 
         return webClient.method(HttpMethod.PUT)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.fromValue(Map.of(
                         "range", methodConfig.getSpreadsheetRange(),
                         "majorDimension", "ROWS",
