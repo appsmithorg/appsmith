@@ -1,7 +1,7 @@
 import { Icon } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
-import { createMessage } from "constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";

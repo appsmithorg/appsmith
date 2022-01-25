@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/ads/formFields/TextField";
 import Toggle from "components/ads/Toggle";
-import { createMessage } from "constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 
 const ToggleWrapper = styled.div``;
 

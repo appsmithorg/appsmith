@@ -21,7 +21,7 @@ import { ContextMenuPopoverModifiers } from "../helpers";
 import { EntityClassNames } from ".";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import TooltipComponent from "components/ads/Tooltip";
-import { COPY_ELEMENT, createMessage } from "constants/messages";
+import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const StyledValue = styled.pre<{ step: number }>`

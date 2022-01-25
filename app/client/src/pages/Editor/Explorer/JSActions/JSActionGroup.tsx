@@ -6,7 +6,7 @@ import ExplorerJSCollectionEntity from "./JSActionEntity";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { ADD_JS_ACTION, createMessage } from "constants/messages";
+import { ADD_JS_ACTION, createMessage } from "@appsmith/constants/messages";
 
 type ExplorerJSCollectionGroupProps = {
   pageId: string;

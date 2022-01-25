@@ -3,7 +3,12 @@ import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
 import Button, { Category } from "components/ads/Button";
-import { ADD, createMessage, EDIT, UPGRADE } from "constants/messages";
+import {
+  ADD,
+  createMessage,
+  EDIT,
+  UPGRADE,
+} from "@appsmith/constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Callout, CalloutType } from "pages/Settings/Callout";

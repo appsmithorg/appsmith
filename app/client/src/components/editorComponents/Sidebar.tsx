@@ -45,7 +45,10 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import { createMessage, ENTITY_EXPLORER_TITLE } from "constants/messages";
+import {
+  createMessage,
+  ENTITY_EXPLORER_TITLE,
+} from "@appsmith/constants/messages";
 
 type Props = {
   width: number;

@@ -6,7 +6,10 @@ import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, ENTITY_MORE_ACTIONS_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  ENTITY_MORE_ACTIONS_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 

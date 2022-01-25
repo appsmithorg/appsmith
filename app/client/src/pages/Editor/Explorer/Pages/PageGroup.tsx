@@ -19,7 +19,7 @@ import {
   ADD_PAGE_TOOLTIP,
   createMessage,
   PAGE_PROPERTIES_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";

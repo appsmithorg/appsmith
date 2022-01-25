@@ -7,7 +7,10 @@ import {
   ValidationTypes,
   ValidationResponse,
 } from "constants/WidgetValidation";
-import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
+import {
+  createMessage,
+  FIELD_REQUIRED_ERROR,
+} from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   getCountryCode,

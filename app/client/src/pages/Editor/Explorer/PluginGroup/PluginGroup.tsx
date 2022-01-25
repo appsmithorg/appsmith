@@ -14,7 +14,10 @@ import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { ADD_DATASOURCE_TOOLTIP, createMessage } from "constants/messages";
+import {
+  ADD_DATASOURCE_TOOLTIP,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 type ExplorerPluginGroupProps = {
   step: number;

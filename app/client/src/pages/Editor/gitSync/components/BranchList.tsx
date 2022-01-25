@@ -28,7 +28,7 @@ import {
   FIND_OR_CREATE_A_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import { Branch } from "entities/GitSync";
 import Button, { Category, Size } from "components/ads/Button";

@@ -17,7 +17,7 @@ import {
   DURING_ONBOARDING_TOUR,
   createMessage,
   GIT_SETTINGS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";

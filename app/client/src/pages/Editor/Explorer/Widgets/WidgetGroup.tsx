@@ -12,7 +12,10 @@ import styled from "styled-components";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getSelectedWidgets } from "selectors/ui";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
+import {
+  ADD_WIDGET_TOOLTIP,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;

@@ -15,7 +15,7 @@ import {
   RESTART_BANNER_HEADER,
   RESTART_ERROR_BODY,
   RESTART_ERROR_HEADER,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const HeaderContents = styled.div`
   display: flex;

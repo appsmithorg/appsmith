@@ -9,7 +9,7 @@ import {
   ONBOARDING_INTRO_FOOTER,
   BUILD_APP_TOGETHER,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";

@@ -70,7 +70,7 @@ import {
   STOP_WATCH_GEO_LOCATION,
   STORE_VALUE,
   WATCH_GEO_LOCATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */

@@ -16,7 +16,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import {
   createMessage,
   WELCOME_TOUR_STICKY_BUTTON_TEXT,
-} from "../../../constants/messages";
+} from "@appsmith/constants/messages";
 
 const StyledContainer = styled.div`
   position: fixed;

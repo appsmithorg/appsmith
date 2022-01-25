@@ -1,5 +1,5 @@
 import Button, { Category } from "components/ads/Button";
-import { createMessage } from "constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
 

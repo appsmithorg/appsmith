@@ -16,7 +16,7 @@ import {
   PULL_CHANGES,
   GIT_CONFLICTING_INFO,
   LEARN_MORE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import { Space } from "./StyledComponents";
 import { Colors } from "constants/Colors";
