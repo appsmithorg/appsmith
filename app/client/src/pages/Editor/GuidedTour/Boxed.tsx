@@ -21,10 +21,11 @@ function Boxed(props: BoxedProps): JSX.Element | null {
   const currentStep = useSelector(getCurrentStep);
   const forceShowContent = useSelector(forceShowContentSelector);
 
-  let hide = false;
-  hide = guidedTour && props.show && forceShowContent < props.step;
-  hide = hide && currentStep <= props.step;
-
+  const hide =
+    guidedTour &&
+    props.show &&
+    forceShowContent < props.step &&
+    currentStep <= props.step;
   if (hide) {
     if (props.alternative) {
       return props.alternative;
