@@ -134,7 +134,7 @@ export const isNameInputBoundSelector = createSelector(
     if (tableWidget) {
       const widgetValues = Object.values(widgets);
       const countryInput = widgetValues.find((widget) => {
-        if (widget.type === "INPUT_WIDGET") {
+        if (widget.type === "INPUT_WIDGET_V2") {
           return (
             widget.defaultText ===
             `{{${tableWidget.widgetName}.selectedRow.name}}`
@@ -154,7 +154,7 @@ export const isNameInputBoundSelector = createSelector(
 export const nameInputSelector = createSelector(getWidgets, (widgets) => {
   const widgetValues = Object.values(widgets);
   const nameInput = widgetValues.find((widget) => {
-    if (widget.type === "INPUT_WIDGET") {
+    if (widget.type === "INPUT_WIDGET_V2") {
       return widget.widgetName === "NameInput";
     }
   });
@@ -168,7 +168,7 @@ export const countryInputSelector = createSelector(
   (widgets, selectedWidgetId) => {
     const widgetValues = Object.values(widgets);
     const countryInput = widgetValues.find((widget) => {
-      if (widget.type === "INPUT_WIDGET") {
+      if (widget.type === "INPUT_WIDGET_V2") {
         return widget.widgetName === "CountryInput";
       }
     });

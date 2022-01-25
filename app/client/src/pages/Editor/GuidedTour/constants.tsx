@@ -129,7 +129,7 @@ export const onboardingContainerBlueprint = {
               },
             },
             {
-              type: "INPUT_WIDGET",
+              type: "INPUT_WIDGET_V2",
               position: {
                 top: 6,
                 left: 30,
@@ -162,7 +162,7 @@ export const onboardingContainerBlueprint = {
               },
             },
             {
-              type: "INPUT_WIDGET",
+              type: "INPUT_WIDGET_V2",
               position: {
                 top: 10,
                 left: 30,
@@ -195,7 +195,7 @@ export const onboardingContainerBlueprint = {
               },
             },
             {
-              type: "INPUT_WIDGET",
+              type: "INPUT_WIDGET_V2",
               position: {
                 top: 14,
                 left: 30,
