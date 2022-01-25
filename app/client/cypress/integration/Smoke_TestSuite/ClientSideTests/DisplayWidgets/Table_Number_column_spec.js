@@ -11,6 +11,7 @@ describe("Validate Table Widget Table Data", function() {
 
     // clear tabledata
     cy.clearPropertyValue("");
+    cy.wait("@updateLayout");
     // add new table data
     cy.testJsontext("tabledata", dsl.dsl.children[0].tableData);
 
