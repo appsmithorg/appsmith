@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
@@ -8,6 +8,12 @@ import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Callout, CalloutType } from "pages/Settings/Callout";
 import SettingsBreadcrumbs from "pages/Settings/SettingsBreadcrumbs";
+import { getAppsmithConfigs } from "../../../../configs";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { useSelector } from "react-redux";
+import { bootIntercom } from "utils/helpers";
+
+const { intercomAppID } = getAppsmithConfigs();
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -31,14 +37,13 @@ const SettingsSubHeader = styled.div`
   margin-bottom: 0;
 `;
 
-const MethodCard = styled.div<{ isDisabled: boolean }>`
+const MethodCard = styled.div`
   display: flex;
   width: 648px;
   align-items: center;
   justify-content: space-between;
   margin: 16px 0;
   padding: 8px 10px;
-  ${(props) => props.isDisabled && `background-color: #EDEDED;`}
 `;
 
 const Image = styled.img`
@@ -118,6 +123,21 @@ const Label = styled.span<{ enterprise?: boolean }>`
 
 export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   const history = useHistory();
+  const user = useSelector(getCurrentUser);
+
+  useEffect(() => {
+    bootIntercom(user);
+  }, [user?.email]);
+
+  const triggerIntercom = () => {
+    if (intercomAppID && window.Intercom) {
+      window.Intercom(
+        "showNewMessage",
+        "Hello, I would like to upgrade and start using SAML authentication.",
+      );
+    }
+  };
+
   return (
     <Wrapper>
       <SettingsBreadcrumbs category={SettingCategories.AUTHENTICATION} />
@@ -129,7 +149,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         {authMethods &&
           authMethods.map((method) => {
             return (
-              <MethodCard isDisabled={!!method.needsUpgrade} key={method.id}>
+              <MethodCard key={method.id}>
                 <Image alt={method.label} src={method.image} />
                 <MethodDetailsWrapper>
                   <MethodTitle>
@@ -175,13 +195,14 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     }`}
                     data-cy="add-auth-account"
                     onClick={() =>
-                      !method.needsUpgrade &&
-                      history.push(
-                        getAdminSettingsCategoryUrl(
-                          SettingCategories.AUTHENTICATION,
-                          method.category,
-                        ),
-                      )
+                      !method.needsUpgrade
+                        ? history.push(
+                            getAdminSettingsCategoryUrl(
+                              SettingCategories.AUTHENTICATION,
+                              method.category,
+                            ),
+                          )
+                        : triggerIntercom()
                     }
                     text={createMessage(!!method.needsUpgrade ? UPGRADE : ADD)}
                   />
