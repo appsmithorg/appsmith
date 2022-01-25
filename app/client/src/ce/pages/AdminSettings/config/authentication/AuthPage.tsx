@@ -5,15 +5,18 @@ import styled from "styled-components";
 import Button, { Category } from "components/ads/Button";
 import {
   ADD,
+  ADMIN_AUTH_SETTINGS_SUBTITLE,
+  ADMIN_AUTH_SETTINGS_TITLE,
   createMessage,
   EDIT,
   UPGRADE,
+  UPGRADE_TO_EE,
 } from "@appsmith/constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Callout, CalloutType } from "pages/Settings/Callout";
 import SettingsBreadcrumbs from "pages/Settings/SettingsBreadcrumbs";
-import { getAppsmithConfigs } from "../../../../configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { bootIntercom } from "utils/helpers";
@@ -135,10 +138,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
 
   const triggerIntercom = () => {
     if (intercomAppID && window.Intercom) {
-      window.Intercom(
-        "showNewMessage",
-        "Hello, I would like to upgrade and start using SAML authentication.",
-      );
+      window.Intercom("showNewMessage", createMessage(UPGRADE_TO_EE));
     }
   };
 
@@ -146,9 +146,11 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
     <Wrapper>
       <SettingsBreadcrumbs category={SettingCategories.AUTHENTICATION} />
       <SettingsFormWrapper>
-        <SettingsHeader>Select Authentication Method</SettingsHeader>
+        <SettingsHeader>
+          {createMessage(ADMIN_AUTH_SETTINGS_TITLE)}
+        </SettingsHeader>
         <SettingsSubHeader>
-          Select a protocol you want to authenticate users with
+          {createMessage(ADMIN_AUTH_SETTINGS_SUBTITLE)}
         </SettingsSubHeader>
         {authMethods &&
           authMethods.map((method) => {

@@ -15,7 +15,7 @@ import Google from "assets/images/Google.png";
 import SamlSso from "assets/images/saml.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
-import { getAppsmithConfigs } from "../../../../configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 const {
   disableLoginForm,
   enableGithubOAuth,
@@ -141,12 +141,6 @@ export const Form_Auth_Callout: AuthMethodType = {
   image: Lock,
   type: "LINK",
   isConnected: !disableLoginForm,
-  // Keeping this here for reference
-  // calloutBanner: {
-  //   actionLabel: "Learn More",
-  //   title: "User Emails Ids are not verified.",
-  //   type: "Warning",
-  // },
 };
 
 export const Google_Auth_Callout: AuthMethodType = {
