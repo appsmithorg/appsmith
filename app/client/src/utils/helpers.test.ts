@@ -6,7 +6,7 @@ import {
 } from "./helpers";
 
 describe("flattenObject test", () => {
-  it("Check if recursively referenced object is returend correctly", () => {
+  it("Check if recursively referenced object is returned correctly", () => {
     type InputType = {
       s: string;
       n: number;
