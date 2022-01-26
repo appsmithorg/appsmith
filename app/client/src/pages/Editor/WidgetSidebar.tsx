@@ -9,16 +9,8 @@ import produce from "immer";
 import { useLocation } from "react-router";
 
 import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import {
-  getCurrentStep,
-  getCurrentSubStep,
-  inOnboarding,
-} from "sagas/OnboardingSagas";
 import { matchBuilderPath } from "constants/routes";
 import { AppState } from "reducers";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 function WidgetSidebar(props: IPanelProps) {
   const location = useLocation();
@@ -42,21 +34,13 @@ function WidgetSidebar(props: IPanelProps) {
     (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
   );
 
-  // For onboarding
-  const isInOnboarding = useSelector(inOnboarding);
-  const currentStep = useSelector(getCurrentStep);
-  const currentSubStep = useSelector(getCurrentSubStep);
   const onCanvas = matchBuilderPath(window.location.pathname);
 
   useEffect(() => {
-    if (
-      ((currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
-        !onCanvas) ||
-      isForceOpenWidgetPanel === false
-    ) {
+    if (!onCanvas || isForceOpenWidgetPanel === false) {
       props.closePanel();
     }
-  }, [currentStep, onCanvas, isInOnboarding, location, isForceOpenWidgetPanel]);
+  }, [onCanvas, location, isForceOpenWidgetPanel]);
 
   /**
    * filter widgets
@@ -75,53 +59,22 @@ function WidgetSidebar(props: IPanelProps) {
     filterCards("");
   };
 
-  const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
-  const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
-
   return (
     <div className="flex flex-col overflow-hidden">
-      <Boxed step={OnboardingStep.DEPLOY}>
-        <ExplorerSearch
-          autoFocus
-          clear={clearSearchInput}
-          onChange={search}
-          placeholder="Search widgets..."
-          ref={searchInputRef}
-        />
-      </Boxed>
+      <ExplorerSearch
+        autoFocus
+        clear={clearSearchInput}
+        onChange={search}
+        placeholder="Search widgets..."
+        ref={searchInputRef}
+      />
       <div className="flex-grow px-3 overflow-y-scroll">
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400 t--widget-sidebar">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>
         <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
           {filteredCards.map((card) => (
-            <Boxed
-              key={card.key}
-              show={
-                (card.type === "TABLE_WIDGET" && showTableWidget) ||
-                (card.type === "INPUT_WIDGET_V2" && showInputWidget)
-              }
-              step={OnboardingStep.DEPLOY}
-            >
-              <OnboardingIndicator
-                className="onboarding-widget-menu"
-                hasButton={false}
-                show={
-                  (card.type === "TABLE_WIDGET" &&
-                    currentStep === OnboardingStep.RUN_QUERY_SUCCESS) ||
-                  (card.type === "INPUT_WIDGET_V2" &&
-                    currentSubStep === 0 &&
-                    currentStep === OnboardingStep.ADD_INPUT_WIDGET)
-                }
-                step={
-                  OnboardingStep.RUN_QUERY_SUCCESS ||
-                  OnboardingStep.ADD_INPUT_WIDGET
-                }
-                width={100}
-              >
-                <WidgetCard details={card} />
-              </OnboardingIndicator>
-            </Boxed>
+            <WidgetCard details={card} key={card.key} />
           ))}
         </div>
       </div>
