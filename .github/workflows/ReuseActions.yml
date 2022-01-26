@@ -37,8 +37,8 @@ jobs:
           fetch-depth: 0
 
       - name: Figure out the PR number
-        if: steps.run_result.outputs.run_result != 'success'
         run: echo ${{ github.event.pull_request.number }}
+
       # Checkout the code
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
@@ -47,13 +47,13 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            run_result
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-
       - name: Get the previous run result
         id: run_result
-        run: cat run_result 2>/dev/null || echo 'default'
+        run: cat ~/run_result 2>/dev/null || echo 'default'
 
       - uses: actions/checkout@v2
         if: steps.run_result.outputs.run_result != 'success'
@@ -61,7 +61,7 @@ jobs:
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
-      - run: echo "::set-output name=run_result::success" > run_result
+      - run: echo "::set-output name=run_result::success" > ~/run_result
 
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
@@ -147,6 +147,8 @@ jobs:
         with:
           name: client-build
           path: app/client/build/
+
+      - run: echo "::set-output name=run_result::success" > ~/run_result
 
   buildServer:
     defaults:
@@ -263,6 +265,8 @@ jobs:
           name: server-build
           path: app/server/dist/
 
+      - run: echo "::set-output name=run_result::success" > ~/run_result
+
   buildRts:
     defaults:
       run:
@@ -279,7 +283,6 @@ jobs:
     steps:
       # Checkout the code
       - uses: actions/checkout@v2
-        if: steps.run_result.outputs.run_result != 'success'
         with:
           fetch-depth: 0
       # Checkout the code
@@ -347,6 +350,8 @@ jobs:
         with:
           name: rts-build-deps
           path: app/rts/node_modules/
+
+      - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test:
     needs: [buildClient, buildServer, buildRts]
@@ -608,6 +613,8 @@ jobs:
         with:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
+
+      - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test-result:
     needs: ui-test
