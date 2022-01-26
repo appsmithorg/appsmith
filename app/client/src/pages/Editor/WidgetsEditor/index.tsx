@@ -27,8 +27,12 @@ import {
   getIsOnboardingWidgetSelection,
 } from "selectors/entitiesSelector";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  inGuidedTour,
+} from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import Guide from "../GuidedTour/Guide";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -45,6 +49,7 @@ function WidgetsEditor() {
   const isOnboardingWidgetSelection = useSelector(
     getIsOnboardingWidgetSelection,
   );
+  const guidedTourEnabled = useSelector(inGuidedTour);
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -112,18 +117,21 @@ function WidgetsEditor() {
       !isOnboardingWidgetSelection ? (
         <OnboardingTasks />
       ) : (
-        <div
-          className="relative overflow-hidden flex flex-col"
-          data-testid="widgets-editor"
-          draggable
-          onClick={handleWrapperClick}
-          onDragStart={onDragStart}
-        >
-          <PageTabs />
-          <CanvasContainer />
-          <CrudInfoModal />
-          <Debugger />
-        </div>
+        <>
+          {guidedTourEnabled && <Guide />}
+          <div
+            className="relative overflow-hidden flex flex-col"
+            data-testid="widgets-editor"
+            draggable
+            onClick={handleWrapperClick}
+            onDragStart={onDragStart}
+          >
+            <PageTabs />
+            <CanvasContainer />
+            <CrudInfoModal />
+            <Debugger />
+          </div>
+        </>
       )}
     </EditorContextProvider>
   );
