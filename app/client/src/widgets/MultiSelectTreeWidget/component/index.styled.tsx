@@ -629,10 +629,7 @@ export const TreeSelectContainer = styled.div<{
       : compactMode || labelPosition === LabelPositionTypes.Left
       ? `center`
       : `flex-start`};
-  ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
-      labelPosition === LabelPositionTypes.Top) &&
-    `overflow-x: hidden; overflow-y: auto;`}
+  overflow-x: hidden;
 
   label.multitree-select-label {
     ${({ compactMode, labelPosition }) =>
@@ -648,6 +645,11 @@ export const TreeSelectContainer = styled.div<{
     width: 100%;
     position: relative;
     cursor: pointer;
+
+    ${({ compactMode, labelPosition }) =>
+      labelPosition !== LabelPositionTypes.Top &&
+      compactMode &&
+      `height: 100%; overflow: hidden`};
 
     .rc-tree-select-selector {
       height: 36px !important;
@@ -800,7 +802,6 @@ export const TreeSelectContainer = styled.div<{
       }
       .rc-tree-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }

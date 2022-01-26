@@ -255,10 +255,7 @@ export const MultiSelectContainer = styled.div<{
       : compactMode || labelPosition === LabelPositionTypes.Left
       ? `center`
       : `flex-start`};
-  ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
-      labelPosition === LabelPositionTypes.Top) &&
-    `overflow-x: hidden; overflow-y: auto;`}
+  overflow-x: hidden;
 
   label.multiselect-label {
     ${({ compactMode, labelPosition }) =>
@@ -368,7 +365,6 @@ export const MultiSelectContainer = styled.div<{
       }
       .rc-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }
