@@ -88,13 +88,6 @@ const InputComponentWrapper = styled((props) => (
       labelPosition === LabelPositionTypes.Top) &&
     `overflow-y: auto;`}
 
-  ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPositionTypes.Top
-      ? `gap: 5px`
-      : compactMode || labelPosition === LabelPositionTypes.Left
-      ? `gap: 0px`
-      : `gap: 5px`};
-
   &&&& {
     .currency-type-filter,
     .country-type-filter {
@@ -221,10 +214,11 @@ const InputComponentWrapper = styled((props) => (
       ${labelStyle}
       ${({ compactMode, labelPosition }) =>
         labelPosition === LabelPositionTypes.Top
-          ? `margin-right: 0px`
+          ? `margin-bottom: 5px; margin-right: 0px`
           : compactMode || labelPosition === LabelPositionTypes.Left
-          ? `margin-right: 5px`
-          : `margin-right: 0px`};
+          ? `margin-bottom: 0px; margin-right: 5px`
+          : `margin-bottom: 5px; margin-right: 0px`};
+
       text-align: right;
       align-self: flex-start;
       color: ${(props) => props.labelTextColor || "inherit"};
@@ -336,7 +330,7 @@ const TextLabelWrapper = styled.div<{
   width?: number;
 }>`
   display: flex;
-  max-height: 20px;
+  flex-grow: 0 !important;
 
   ${({ alignment, compactMode, position, width }) => `
     ${
