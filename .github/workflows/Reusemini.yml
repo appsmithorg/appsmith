@@ -151,7 +151,7 @@ jobs:
       #    echo "::set-output name=run_result::success" > app/client/build/dummybundle
 
       - name: Restore the previous bundle
-        if: steps.run_result.outputs.run_result == 'success'
+        #if: steps.run_result.outputs.run_result == 'success'
         uses: actions/cache@v2
         with:
           path: |
