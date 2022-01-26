@@ -1089,7 +1089,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         }
 
         if (action.getDefaultResources() == null) {
-            DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(action, null);
+            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(action, null);
         }
 
         NewAction newAction = new NewAction();
