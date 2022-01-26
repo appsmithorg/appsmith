@@ -624,7 +624,7 @@ jobs:
         with:
           path: |
             app/client/cypress/snapshots/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
