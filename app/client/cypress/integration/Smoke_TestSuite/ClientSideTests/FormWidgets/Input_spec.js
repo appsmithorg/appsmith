@@ -162,7 +162,7 @@ describe("Input Widget Functionality", function() {
   it("Input label renders if label prop is not empty", () => {
     cy.openPropertyPane("inputwidgetv2");
     // enter label in property pan
-    cy.get(widgetsPage.inputLabelControl).type("Label1");
+    cy.get(widgetsPage.inputTextControl).type("Label1");
     // test if label shows up with correct text
     cy.get(".t--input-widget-label").contains("Label1");
   });
