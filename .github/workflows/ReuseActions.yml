@@ -151,7 +151,6 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
-        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/upload-artifact@v2
         with:
           name: client-build
@@ -582,7 +581,7 @@ jobs:
           ./cypress/setup-test.sh
 
       - name: Run the cypress test
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -611,6 +610,48 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+
+      - name: Get failed tests
+        id: vars
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
+
+      - name: Run the cypress test with failed tests
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        uses: cypress-io/github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+        with:
+          browser: chrome
+          headless: true
+          record: true
+          install: false
+          parallel: true
+          group: "Electrons on Github Action"
+          spec: echo ${{ steps.vars.outputs.failedspecs }}
+          working-directory: app/client
+          # tag will be either "push" or "pull_request"
+          tag: ${{ github.event_name }}
+          env: "NODE_ENV=development"
+
+      - name: Set fail if there are test failures
+        if: failure()
+        run: |
+          echo "::set-output name=run_result::failedtest" > ~/run_result
+          find app/client/cypress/screenshots/ -type d|grep spec > ~/failed_spec
 
       # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
