@@ -75,6 +75,7 @@ type Props = EditorProps &
   ReduxDispatchProps & {
     input: Partial<WrappedFieldInputProps>;
     pluginId: string;
+    codeEditorVisibleOverflow: boolean; // this variable adds a custom style to the codeEditor when focused.
   };
 
 const DatasourceContainer = styled.div`
@@ -358,6 +359,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
   render() {
     const {
+      codeEditorVisibleOverflow,
       datasource,
       input: { value },
     } = this.props;
@@ -381,6 +383,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       showLightningMenu: false,
       fill: true,
       expected: getExpectedValue({ type: ValidationTypes.SAFE_URL }),
+      codeEditorVisibleOverflow,
     };
 
     return (
@@ -390,7 +393,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
           evaluatedValue={this.handleEvaluatedValue()}
-          height="35px"
         />
         {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
@@ -469,6 +471,7 @@ function EmbeddedDatasourcePathField(
     placeholder?: string;
     theme: EditorTheme;
     actionName: string;
+    codeEditorVisibleOverflow?: boolean;
   },
 ) {
   return (

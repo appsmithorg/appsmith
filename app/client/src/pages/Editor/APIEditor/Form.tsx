@@ -257,6 +257,7 @@ interface APIFormProps {
   hasResponse: boolean;
   suggestedWidgets?: SuggestedWidget[];
   updateDatasource: (datasource: Datasource) => void;
+  currentActionDatasourceId: string;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -535,6 +536,7 @@ function ApiEditorForm(props: Props) {
     actionConfigurationHeaders,
     actionConfigurationParams,
     actionName,
+    currentActionDatasourceId,
     handleSubmit,
     headersCount,
     hintMessages,
@@ -618,6 +620,7 @@ function ApiEditorForm(props: Props) {
             <DatasourceWrapper className="t--dataSourceField">
               <EmbeddedDatasourcePathField
                 actionName={actionName}
+                codeEditorVisibleOverflow
                 name="actionConfiguration.path"
                 placeholder="https://mock-api.appsmith.com/users"
                 pluginId={pluginId}
@@ -752,6 +755,7 @@ function ApiEditorForm(props: Props) {
           <DataSourceList
             actionName={actionName}
             applicationId={props.applicationId}
+            currentActionDatasourceId={currentActionDatasourceId}
             currentPageId={props.currentPageId}
             datasources={props.datasources}
             hasResponse={props.hasResponse}
@@ -800,6 +804,8 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     get(datasourceFromAction, "datasourceConfiguration.queryParameters") || [];
 
   const apiId = selector(state, "id");
+  const currentActionDatasourceId = selector(state, "datasource.id");
+
   const actionName = getApiName(state, apiId) || "";
   const headers = selector(state, "actionConfiguration.headers");
   let headersCount = 0;
@@ -849,6 +855,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     httpMethodFromForm,
     actionConfigurationHeaders,
     actionConfigurationParams,
+    currentActionDatasourceId,
     datasourceHeaders,
     datasourceParams,
     headersCount,

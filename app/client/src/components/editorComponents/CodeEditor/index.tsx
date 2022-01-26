@@ -139,6 +139,7 @@ export type EditorProps = EditorStyleProps &
     errors?: any;
     isInvalid?: boolean;
     isEditorHidden?: boolean;
+    codeEditorVisibleOverflow?: boolean; // flag for determining the input overflow type for the code editor
   };
 
 type Props = ReduxStateProps &
@@ -595,6 +596,7 @@ class CodeEditor extends Component<Props, State> {
       border,
       borderLess,
       className,
+      codeEditorVisibleOverflow,
       dataTreePath,
       disabled,
       dynamicData,
@@ -679,6 +681,7 @@ class CodeEditor extends Component<Props, State> {
             className={`${className} ${replayHighlightClass} ${
               isInvalid ? "t--codemirror-has-error" : ""
             }`}
+            codeEditorVisibleOverflow={codeEditorVisibleOverflow}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
