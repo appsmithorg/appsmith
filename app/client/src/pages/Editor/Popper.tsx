@@ -135,7 +135,7 @@ export default (props: PopperProps) => {
               enabled: true,
               /* 
                 Prevent the FilterPane from overflowing the canvas when the 
-                table widget is on the very top.
+                table widget is on the very top of the canvas.
               */
               boundariesElement: boundaryParent,
             },
