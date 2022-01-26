@@ -85,7 +85,7 @@ import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
-import { getAllActionValidationConfigs } from "selectors/entitiesSelector";
+import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -95,9 +95,7 @@ function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   shouldReplay?: boolean,
 ) {
-  const allActionValidationConfigs = yield select(
-    getAllActionValidationConfigs,
-  );
+  const allActionValidationConfig = yield select(getAllActionValidationConfig);
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
 
@@ -113,7 +111,7 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
       widgets,
       shouldReplay,
-      allActionValidationConfigs,
+      allActionValidationConfig,
     },
   );
 

@@ -73,7 +73,10 @@ import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
-import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import {
+  ActionValidationConfigMap,
+  ValidationConfig,
+} from "constants/PropertyControlConstants";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -95,15 +98,15 @@ export default class DataTreeEvaluator {
     }
   > = new Map();
   logs: any[] = [];
-  allActionValidationConfigs?: { [actionId: string]: any };
+  allActionValidationConfig?: { [actionId: string]: ActionValidationConfigMap };
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
-    allActionValidationConfigs?: {
+    allActionValidationConfig?: {
       [actionId: string]: ActionValidationConfigMap;
     },
   ) {
-    this.allActionValidationConfigs = allActionValidationConfigs;
+    this.allActionValidationConfig = allActionValidationConfig;
     this.widgetConfigMap = widgetConfigMap;
   }
 
@@ -678,12 +681,12 @@ export default class DataTreeEvaluator {
             addErrorToEntityProperty(errors, currentTree, fullPropertyPath);
             return currentTree;
           } else if (isAction(entity)) {
-            if (this.allActionValidationConfigs) {
+            if (this.allActionValidationConfig) {
               const configProperty = propertyPath.replace(
                 "config",
                 "actionConfiguration",
               );
-              const validationConfig = this.allActionValidationConfigs[
+              const validationConfig = this.allActionValidationConfig[
                 entity.actionId
               ][configProperty];
               this.validateActionProperty(
@@ -720,10 +723,10 @@ export default class DataTreeEvaluator {
     }
   }
 
-  setAllActionValidationConfig(allActionValidationConfigs: {
-    [actionId: string]: any;
+  setAllActionValidationConfig(allActionValidationConfig: {
+    [actionId: string]: ActionValidationConfigMap;
   }): void {
-    this.allActionValidationConfigs = allActionValidationConfigs;
+    this.allActionValidationConfig = allActionValidationConfig;
   }
 
   sortDependencies(
@@ -983,16 +986,17 @@ export default class DataTreeEvaluator {
       return parsed;
     }
   }
-
+  // validates the user input saved as action property based on a validationConfig
   validateActionProperty(
     fullPropertyPath: string,
     action: DataTreeAction,
     currentTree: DataTree,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
-    validationConfig: any,
+    validationConfig: ValidationConfig,
   ) {
     if (evalPropertyValue && validationConfig) {
+      // runs VALIDATOR function and returns errors
       const { isValid, messages } = validateActionProperty(
         validationConfig,
         evalPropertyValue,
@@ -1007,6 +1011,8 @@ export default class DataTreeEvaluator {
               severity: Severity.ERROR,
             };
           }) ?? [];
+        // saves error in dataTree at fullPropertyPath
+        // Later errors can consumed by the forms and debugger
         addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
       }
     }

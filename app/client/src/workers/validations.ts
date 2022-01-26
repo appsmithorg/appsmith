@@ -212,7 +212,7 @@ function validateArray(
     messages: _messages,
   };
 }
-
+//TODO: parameter props may not be in use
 export const validate = (
   config: ValidationConfig,
   value: unknown,
@@ -927,47 +927,3 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
   },
 };
-
-export function validateNumber(
-  validationConfig: ValidationConfig,
-  value: any,
-): ValidationResponse {
-  if (validationConfig?.params?.required) {
-    if (_.isUndefined(value) || !_.isNumber(value))
-      return {
-        isValid: false,
-        parsed: false,
-        messages: [`This is a required field`],
-      };
-    if (validationConfig?.params?.min && validationConfig?.params?.min < value)
-      return {
-        isValid: false,
-        parsed: false,
-        messages: [`should be greater than ${value}`],
-      };
-    if (validationConfig?.params?.max && validationConfig?.params?.max > value)
-      return {
-        isValid: false,
-        parsed: false,
-        messages: [`should be less than ${value}`],
-      };
-  }
-  return { isValid: true, parsed: false, messages: [] };
-}
-//invoked by reducer ReduxActionTypes.ACTION_VALIDATION_START
-export function validateAction(
-  action: QueryActionConfig,
-  validationConfigs: any,
-) {
-  const allPaths = Object.keys(validationConfigs);
-  const validationErrors: { [path: string]: any } = {};
-  for (let i = 0; i < allPaths.length; i++) {
-    const propertyValue = _.get(action, allPaths[i]);
-    validationErrors[allPaths[i]] = validate(
-      validationConfigs[allPaths[i]],
-      propertyValue,
-      undefined,
-    );
-  }
-  return undefined;
-}

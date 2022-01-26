@@ -23,7 +23,7 @@ import evaluate, {
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import { setFormEvaluationSaga } from "./formEval";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 
 const CANVAS = "canvas";
 
@@ -88,7 +88,7 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
-          allActionValidationConfigs,
+          allActionValidationConfig,
           shouldReplay = true,
           unevalTree,
           widgets,
@@ -109,7 +109,7 @@ ctx.addEventListener(
             //allActionValidationConfigs maybe empty
             dataTreeEvaluator = new DataTreeEvaluator(
               widgetTypeConfigMap,
-              allActionValidationConfigs,
+              allActionValidationConfig,
             );
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
@@ -121,10 +121,10 @@ ctx.addEventListener(
             // If functions exist, it will crash the web worker
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else if (dataTreeEvaluator.hasCyclicalDependency) {
-            if (dataTreeEvaluator && !_.isEmpty(allActionValidationConfigs)) {
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
               //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
               dataTreeEvaluator.setAllActionValidationConfig(
-                allActionValidationConfigs,
+                allActionValidationConfig,
               );
             }
             if (shouldReplay) {
@@ -132,11 +132,11 @@ ctx.addEventListener(
             }
             dataTreeEvaluator = new DataTreeEvaluator(
               widgetTypeConfigMap,
-              allActionValidationConfigs,
+              allActionValidationConfig,
             );
-            if (dataTreeEvaluator && !_.isEmpty(allActionValidationConfigs)) {
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
               dataTreeEvaluator.setAllActionValidationConfig(
-                allActionValidationConfigs,
+                allActionValidationConfig,
               );
             }
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
@@ -147,9 +147,9 @@ ctx.addEventListener(
             jsUpdates = dataTreeResponse.jsUpdates;
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
-            if (dataTreeEvaluator && !_.isEmpty(allActionValidationConfigs)) {
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
               dataTreeEvaluator.setAllActionValidationConfig(
-                allActionValidationConfigs,
+                allActionValidationConfig,
               );
             }
             dataTree = {};

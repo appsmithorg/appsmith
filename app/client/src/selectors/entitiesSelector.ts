@@ -585,23 +585,23 @@ export const getPageActions = (pageId = "") => {
   };
 };
 
-export const getValidationConfig = (state: AppState, action: any) => {
+export const getActionValidationConfig = (state: AppState, action: any) => {
   const pluginId = action.pluginId;
-  return extractValidationConfigFromPlugin(
+  return getActionValidationConfigFromPlugin(
     state.entities.plugins.editorConfigs[pluginId],
     {},
   );
 };
 
-export const getAllActionValidationConfigs = (state: AppState) => {
+export const getAllActionValidationConfig = (state: AppState) => {
   const allActions = state.entities.actions;
   const allValidationConfigs: {
     [actionId: string]: ActionValidationConfigMap;
   } = {};
   for (let i = 0; i < allActions.length; i++) {
     const pluginId = allActions[i].config.pluginId;
-    let validationConfigs: any = {};
-    validationConfigs = extractValidationConfigFromPlugin(
+    let validationConfigs: ActionValidationConfigMap = {};
+    validationConfigs = getActionValidationConfigFromPlugin(
       state.entities.plugins.editorConfigs[pluginId],
       {},
     );
@@ -610,25 +610,30 @@ export const getAllActionValidationConfigs = (state: AppState) => {
   return allValidationConfigs;
 };
 
-function extractValidationConfigFromPlugin(
-  editorConfigs: any,
-  validationConfigs: ActionValidationConfigMap,
+function getActionValidationConfigFromPlugin(
+  editorConfig: any,
+  validationConfig: ActionValidationConfigMap,
 ): ActionValidationConfigMap {
-  let newValidationConfigs: any = { ...validationConfigs };
-  if (!editorConfigs || !editorConfigs.length) return {};
-  for (let i = 0; i < editorConfigs.length; i++) {
-    if (editorConfigs[i].validationConfig) {
-      const configProperty = editorConfigs[i].configProperty;
-      newValidationConfigs[configProperty] = editorConfigs[i].validationConfig;
+  let newValidationConfig: ActionValidationConfigMap = {
+    ...validationConfig,
+  };
+  if (!editorConfig || !editorConfig.length) return {};
+  for (let i = 0; i < editorConfig.length; i++) {
+    if (editorConfig[i].validationConfig) {
+      const configProperty = editorConfig[i].configProperty;
+      newValidationConfig[configProperty] = editorConfig[i].validationConfig;
     }
 
-    if (editorConfigs[i].children) {
-      const lv = extractValidationConfigFromPlugin(
-        editorConfigs[i].children,
-        validationConfigs,
+    if (editorConfig[i].children) {
+      const childrenValidationConfig = getActionValidationConfigFromPlugin(
+        editorConfig[i].children,
+        validationConfig,
       );
-      newValidationConfigs = { ...newValidationConfigs, ...lv };
+      newValidationConfig = Object.assign(
+        newValidationConfig,
+        childrenValidationConfig,
+      );
     }
   }
-  return newValidationConfigs;
+  return newValidationConfig;
 }
