@@ -65,7 +65,7 @@ public class Datasource extends BaseDomain {
      * which are not configured. This way user can configure those datasource, which may have been introduced as part of git import.
      */
     @Transient
-    Boolean isEmpty;
+    Boolean isConfigured;
 
     /**
      * This method is here so that the JSON version of this class' instances have a `isValid` field, for backwards
