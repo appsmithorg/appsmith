@@ -52,7 +52,6 @@ export default function Group({
   settings,
   subCategory,
 }: GroupProps) {
-  // console.log("[GROUP] : ", settings, name);
   const state = useSelector((state) => state);
   return (
     <GroupWrapper data-testid="admin-settings-group-wrapper">

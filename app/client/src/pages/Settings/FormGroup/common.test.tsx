@@ -1,6 +1,6 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { SettingTypes } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import { FormGroup } from "./Common";
 
 let container: any = null;
