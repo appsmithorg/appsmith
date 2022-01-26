@@ -144,7 +144,7 @@ jobs:
             yarn build
           ls -l build
 
-      - name: Restore the previous run result
+      - name: Restore the previous bundle
         if: steps.run_result.outputs.run_result == 'success'
         uses: actions/cache@v2
         env:
@@ -152,7 +152,7 @@ jobs:
         with:
           path: |
             app/client/build/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ env.cache-name }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ env.cache-name }}-
 
