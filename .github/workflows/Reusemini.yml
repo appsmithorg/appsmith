@@ -55,7 +55,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
 
       - if: steps.run_result.outputs.run_result != 'success'
-        run: echo "Running complete actions" && exit 0
+        run: echo "Running compelete Action!" && exit 0
 
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
@@ -104,45 +104,45 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install
 
-      #- name: Set the build environment based on the branch
-      #  if: steps.run_result.outputs.run_result != 'success'
-      #  id: vars
-      #  run: |
-      #    echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
-      #    if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-      #        echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
-      #    fi
-      #    if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-      #        echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
-      #    fi
-      #    # Since this is an unreleased build, we set the version to incremented version number with
-      #    # a `-SNAPSHOT` suffix.
-      #    latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
-      #    echo "latest_released_version = $latest_released_version"
-      #    next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-      #    echo "next_version = $next_version"
-      #    echo ::set-output name=version::$next_version-SNAPSHOT
+      - name: Set the build environment based on the branch
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+          fi
+          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+          fi
+          # Since this is an unreleased build, we set the version to incremented version number with
+          # a `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
-      - name: Create the bundle
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if [[ $GITHUB_REF == "refs/heads/release" ]]; then
-            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
-          else
-            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-          fi
-          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
-            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
-            REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
-            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
-            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
-            REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
-            REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
-            yarn build
-          ls -l build
+      #- name: Create the bundle
+      #  if: steps.run_result.outputs.run_result != 'success'
+      #  run: |
+      #    if [[ $GITHUB_REF == "refs/heads/release" ]]; then
+      #      REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+      #    else
+      #      REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+      #    fi
+      #    REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+      #      REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+      #      REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
+      #      SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+      #      REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+      #      REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+      #      REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
+      #      REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
+      #      yarn build
+      #    ls -l build
 
       - name: Restore the previous bundle
         if: steps.run_result.outputs.run_result == 'success'
