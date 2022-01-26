@@ -1436,19 +1436,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 repoPath,
                                 gitApplicationMetadata.getGitAuth().getPublicKey(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                false
-                        )
+                                false)
                                 .flatMap(s -> gitExecutor.listBranches(
                                         repoPath,
                                         gitApplicationMetadata.getRemoteUrl(),
                                         gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                         gitApplicationMetadata.getGitAuth().getPublicKey(),
-                                        true)
-                                        .onErrorResume(error -> Mono.error(new AppsmithException(
-                                                AppsmithError.GIT_ACTION_FAILED,
-                                                "branch --list",
-                                                "Error while accessing the file system. Details :" + error.getMessage()))
-                                        ));
+                                        true));
                     } else {
                         // Fetch default branch from DB if the pruneBranches is false else fetch from remote
                         gitBranchDTOMono = gitExecutor.listBranches(
@@ -1456,14 +1450,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getRemoteUrl(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey(),
-                                false)
-                                .onErrorResume(error -> Mono.error(new AppsmithException(
+                                false);
+                    }
+                    return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath))
+                            .onErrorResume(error -> {
+                                if (error instanceof RepositoryNotFoundException) {
+                                    Mono<List<GitBranchDTO>> branchListMono = handleRepoNotFoundException(defaultApplicationId);
+                                    return Mono.zip(branchListMono, Mono.just(application), Mono.just(repoPath));
+                                }
+                                return Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED,
                                         "branch --list",
-                                        "Error while accessing the file system. Details :" + error.getMessage()))
-                                );
-                    }
-                    return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath));
+                                        "Error while accessing the file system. Details :" + error.getMessage()));
+                            }
+                    );
 
                 })
                 .flatMap(tuple -> {
@@ -1930,6 +1930,49 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return pushResult;
                                 })
                 );
+    }
+
+    public Mono<List<GitBranchDTO>> handleRepoNotFoundException(String defaultApplicationId) {
+
+        // clone application to the local filesystem again and update the defaultBranch for the application
+        // list branch and compare with branch applications and checkout if not exists
+
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName());
+                    GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
+                    return gitExecutor.cloneApplication(repoPath, gitApplicationMetadata.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey())
+                            .flatMap(defaultBranch -> gitExecutor.listBranches(
+                                    repoPath,
+                                    gitApplicationMetadata.getRemoteUrl(),
+                                    gitAuth.getPrivateKey(),
+                                    gitAuth.getPublicKey(),
+                                    false))
+                            .flatMap(gitBranchDTOList -> {
+                                List<String> branchList = gitBranchDTOList.stream()
+                                        .filter(gitBranchDTO -> gitBranchDTO.getBranchName().contains("origin"))
+                                        .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
+                                        .collect(Collectors.toList());
+                                // Remove the default branch of Appsmith
+                                branchList.remove(gitApplicationMetadata.getBranchName());
+
+                                return Flux.fromIterable(branchList)
+                                        .flatMap(branchName -> applicationService.findByBranchNameAndDefaultApplicationId(branchName, application.getId(), READ_APPLICATIONS)
+                                                // checkout the branch locally
+                                                .flatMap(application1 -> {
+                                                    // Add the locally checked out branch to the branchList
+                                                    GitBranchDTO gitBranchDTO = new GitBranchDTO();
+                                                    gitBranchDTO.setBranchName(branchName);
+                                                    gitBranchDTO.setDefault(false);
+                                                    gitBranchDTOList.add(gitBranchDTO);
+                                                    return gitExecutor.checkoutRemoteBranch(repoPath, branchName);
+                                                })
+                                                // Return empty mono when the branched application is not in db
+                                                .onErrorResume(throwable -> Mono.empty()))
+                                        .then(Mono.just(gitBranchDTOList));
+                            });
+                });
     }
 
     private Mono<Application> addAnalyticsForGitOperation(String eventName, Application application, Boolean isRepoPrivate) {
