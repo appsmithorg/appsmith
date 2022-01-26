@@ -144,14 +144,6 @@ jobs:
             yarn build
           ls -l build
 
-      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload react build bundle
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/upload-artifact@v2
-        with:
-          name: client-build
-          path: app/client/build/
-
       - name: Restore the previous run result
         if: steps.run_result.outputs.run_result == 'success'
         uses: actions/cache@v2
@@ -161,5 +153,12 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: client-build
+          path: app/client/build/
 
       - run: echo "::set-output name=run_result::success" > ~/run_result
