@@ -2036,11 +2036,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     }
 
                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
+                                    applicationJson.getExportedApplication().setName(application.getName());
                                     return importExportApplicationService
                                             .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
                                             .zipWith(datasourceMono)
-                                            .onErrorResume(throwable -> deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
-                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage()))));
+                                            .onErrorResume(throwable -> {
+                                                return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
+                                                        .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())));
+                                            });
                                 });
 
                     } catch (GitAPIException | IOException e) {
