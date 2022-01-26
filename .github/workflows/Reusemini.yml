@@ -57,9 +57,6 @@ jobs:
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
-      - if: steps.run_result.outputs.run_result == 'success'
-        run: exit_with_success
-
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
         uses: actions/checkout@v2
@@ -74,19 +71,23 @@ jobs:
           fetch-depth: 0
 
       - name: Figure out the PR number
+        if: steps.run_result.outputs.run_result == 'success'
         run: echo ${{ github.event.pull_request.number }}
 
       - name: Use Node.js 14.15.4
+        if: steps.run_result.outputs.run_result == 'success'
         uses: actions/setup-node@v1
         with:
           node-version: "14.15.4"
 
       - name: Get yarn cache directory path
+        if: steps.run_result.outputs.run_result == 'success'
         id: yarn-dep-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
+        if: steps.run_result.outputs.run_result == 'success'
         id: yarn-dep-cache
         uses: actions/cache@v2
         env:
@@ -100,9 +101,11 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
+        if: steps.run_result.outputs.run_result == 'success'
         run: yarn install
 
       - name: Set the build environment based on the branch
+        if: steps.run_result.outputs.run_result == 'success'
         id: vars
         run: |
           echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
@@ -123,6 +126,7 @@ jobs:
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
+        if: steps.run_result.outputs.run_result == 'success'
         run: |
           if [[ $GITHUB_REF == "refs/heads/release" ]]; then
             REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
