@@ -45,8 +45,8 @@ export const draggableElement = (
     if (calculatedLeft <= 0) {
       calculatedLeft = 0;
     }
-    if (calculatedTop <= 30) {
-      calculatedTop = 30;
+    if (calculatedTop <= 70) {
+      calculatedTop = 70;
     }
     if (calculatedLeft >= window.innerWidth - element.clientWidth) {
       calculatedLeft = window.innerWidth - element.clientWidth;
