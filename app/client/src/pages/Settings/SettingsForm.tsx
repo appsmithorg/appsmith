@@ -14,7 +14,6 @@ import {
   getShowReleaseNotes,
 } from "selectors/settingsSelectors";
 import styled from "styled-components";
-// import history from "utils/history";
 import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
@@ -29,13 +28,6 @@ const Wrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
 `;
-
-/*const BackButton = styled.div`
-  display: inline-block;
-  cursor: pointer;
-`;
-
-const BackButtonText = styled.span``;*/
 
 const SettingsFormWrapper = styled.div``;
 
@@ -75,9 +67,7 @@ export function SettingsForm(
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
   );
-  /*const onBack = () => {
-    history.push(APPLICATIONS_URL);
-  };*/
+
   const onSave = () => {
     dispatch(saveSettings(props.settings));
   };
@@ -104,10 +94,6 @@ export function SettingsForm(
 
   return (
     <Wrapper>
-      {/*<BackButton className="t--admin-settings-back-button" onClick={onBack}>
-        <Icon icon="chevron-left" iconSize={16} />
-        <BackButtonText>&nbsp;Back</BackButtonText>
-      </BackButton>*/}
       <SettingsBreadcrumbs category={category} subCategory={subCategory} />
       <SettingsFormWrapper>
         <SettingsHeader>
