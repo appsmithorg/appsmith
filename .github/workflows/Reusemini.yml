@@ -148,6 +148,7 @@ jobs:
         run: |
           mkdir -p app/client/build
           ls -l app/client/build
+          echo "::set-output name=run_result::success" > app/client/build/dummybundle
 
       - name: Restore the previous bundle
         if: steps.run_result.outputs.run_result == 'success'
