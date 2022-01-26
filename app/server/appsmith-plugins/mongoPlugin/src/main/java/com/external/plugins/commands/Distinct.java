@@ -12,7 +12,7 @@ import java.util.Map;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
+import static com.external.plugins.constants.FieldName.QUERY;
 
 @Getter
 @Setter
@@ -25,12 +25,12 @@ public class Distinct extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresentInFormData(formData, DISTINCT_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, DISTINCT_QUERY);
+        if (validConfigurationPresentInFormData(formData, QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, QUERY);
         }
 
-        if (validConfigurationPresentInFormData(formData, FieldName.DISTINCT_KEY)) {
-            this.key = (String) getValueSafelyFromFormData(formData, FieldName.DISTINCT_KEY);
+        if (validConfigurationPresentInFormData(formData, FieldName.KEY)) {
+            this.key = (String) getValueSafelyFromFormData(formData, FieldName.KEY);
         }
     }
 

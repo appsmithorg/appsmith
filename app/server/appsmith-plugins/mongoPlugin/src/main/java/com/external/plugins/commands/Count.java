@@ -11,7 +11,7 @@ import java.util.Map;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.COUNT_QUERY;
+import static com.external.plugins.constants.FieldName.QUERY;
 
 @Getter
 @Setter
@@ -23,8 +23,8 @@ public class Count extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresentInFormData(formData, COUNT_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, COUNT_QUERY);
+        if (validConfigurationPresentInFormData(formData, QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, QUERY);
         }
     }
 

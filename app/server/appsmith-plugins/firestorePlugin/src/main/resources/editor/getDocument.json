@@ -2,7 +2,7 @@
   "identifier": "GET_DOCUMENT",
   "controlType" : "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'GET_DOCUMENT'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'GET_DOCUMENT'}}"
   },
   "children" : [
     {

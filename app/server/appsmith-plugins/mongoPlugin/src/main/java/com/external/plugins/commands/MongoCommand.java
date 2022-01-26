@@ -2,6 +2,7 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +39,7 @@ public abstract class MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, COLLECTION)) {
-            this.collection = (String) formData.get(COLLECTION);
+            this.collection = (String) PluginUtils.getValueSafelyFromFormData(formData, COLLECTION);
         }
     }
 

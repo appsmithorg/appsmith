@@ -69,17 +69,13 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
-import static com.external.plugins.constants.FieldName.COUNT_QUERY;
-import static com.external.plugins.constants.FieldName.DELETE_QUERY;
-import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
-import static com.external.plugins.constants.FieldName.FIND_PROJECTION;
-import static com.external.plugins.constants.FieldName.FIND_QUERY;
-import static com.external.plugins.constants.FieldName.FIND_SORT;
-import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
+import static com.external.plugins.constants.FieldName.DOCUMENTS;
+import static com.external.plugins.constants.FieldName.PIPELINES;
+import static com.external.plugins.constants.FieldName.PROJECTION;
+import static com.external.plugins.constants.FieldName.QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
-import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.constants.FieldName.SORT;
+import static com.external.plugins.constants.FieldName.UPDATE;
 import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
 import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
 import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
@@ -160,16 +156,12 @@ public class MongoPlugin extends BasePlugin {
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(AGGREGATE_PIPELINE,
-            COUNT_QUERY,
-            DELETE_QUERY,
-            DISTINCT_QUERY,
-            FIND_QUERY,
-            FIND_SORT,
-            FIND_PROJECTION,
-            INSERT_DOCUMENT,
-            UPDATE_QUERY,
-            UPDATE_OPERATION
+    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(PIPELINES,
+            QUERY,
+            SORT,
+            PROJECTION,
+            DOCUMENTS,
+            UPDATE
     ));
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();

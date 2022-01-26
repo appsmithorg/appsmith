@@ -41,13 +41,11 @@ import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData
 import static com.external.plugins.AmazonS3Plugin.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
-import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
-import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
-import static com.external.plugins.constants.FieldName.LIST_PREFIX;
-import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
-import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
-import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
+import static com.external.plugins.constants.FieldName.DATATYPE;
+import static com.external.plugins.constants.FieldName.EXPIRY;
+import static com.external.plugins.constants.FieldName.PREFIX;
+import static com.external.plugins.constants.FieldName.SIGNED_URL;
+import static com.external.plugins.constants.FieldName.UNSIGNED_URL;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -252,7 +250,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
+        setValueSafelyInFormData(configMap, SIGNED_URL, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -320,8 +318,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+        setValueSafelyInFormData(configMap, DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -365,7 +363,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -412,7 +410,7 @@ public class AmazonS3PluginTest {
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, true);
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -450,8 +448,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+        setValueSafelyInFormData(configMap, DATATYPE, "YES");
+        setValueSafelyInFormData(configMap, EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -502,8 +500,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+        setValueSafelyInFormData(configMap, DATATYPE, "YES");
+        setValueSafelyInFormData(configMap, EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -560,8 +558,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+        setValueSafelyInFormData(configMap, DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -599,7 +597,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, READ_USING_BASE64_ENCODING, "NO");
+        setValueSafelyInFormData(configMap, DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -643,7 +641,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, READ_USING_BASE64_ENCODING, "YES");
+        setValueSafelyInFormData(configMap, DATATYPE, "YES");
 
         actionConfiguration.setFormData(configMap);
 
@@ -751,7 +749,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_PREFIX, "Hel");
+        setValueSafelyInFormData(configMap, PREFIX, "Hel");
 
         actionConfiguration.setFormData(configMap);
 
@@ -813,9 +811,9 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
-        setValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
+        setValueSafelyInFormData(configMap, SIGNED_URL, "NO");
+        setValueSafelyInFormData(configMap, UNSIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -892,9 +890,9 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, LIST_EXPIRY, "1000");
-        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
+        setValueSafelyInFormData(configMap, SIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, EXPIRY, "1000");
+        setValueSafelyInFormData(configMap, PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -974,8 +972,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
+        setValueSafelyInFormData(configMap, SIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 

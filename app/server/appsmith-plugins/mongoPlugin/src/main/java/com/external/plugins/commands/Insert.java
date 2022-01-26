@@ -27,7 +27,7 @@ import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
+import static com.external.plugins.constants.FieldName.DOCUMENTS;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 
 @Getter
@@ -41,8 +41,8 @@ public class Insert extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresentInFormData(formData, INSERT_DOCUMENT)) {
-            this.documents = (String) getValueSafelyFromFormData(formData, INSERT_DOCUMENT);
+        if (validConfigurationPresentInFormData(formData, DOCUMENTS)) {
+            this.documents = (String) getValueSafelyFromFormData(formData, DOCUMENTS);
         }
     }
 
@@ -102,7 +102,7 @@ public class Insert extends MongoCommand {
 
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
+        setValueSafelyInFormData(configMap, DOCUMENTS, "[{" + sampleInsertDocuments + "}]");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +

@@ -2,7 +2,7 @@
   "identifier": "FIND",
   "controlType" : "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'FIND'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'FIND'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Collection",
-          "configProperty": "actionConfiguration.formData.collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE"
         }
@@ -24,7 +24,7 @@
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.find.query",
+          "configProperty": "actionConfiguration.formData.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -32,7 +32,7 @@
         },
         {
           "label": "Sort",
-          "configProperty": "actionConfiguration.formData.find.sort",
+          "configProperty": "actionConfiguration.formData.sort.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -40,7 +40,7 @@
         },
         {
           "label": "Projection",
-          "configProperty": "actionConfiguration.formData.find.projection",
+          "configProperty": "actionConfiguration.formData.projection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -48,14 +48,14 @@
         },
         {
           "label": "Limit",
-          "configProperty": "actionConfiguration.formData.find.limit",
+          "configProperty": "actionConfiguration.formData.limit.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "10"
         },
         {
           "label": "Skip",
-          "configProperty": "actionConfiguration.formData.find.skip",
+          "configProperty": "actionConfiguration.formData.skip.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "0"

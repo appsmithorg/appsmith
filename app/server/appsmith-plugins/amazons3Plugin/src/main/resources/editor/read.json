@@ -2,7 +2,7 @@
   "identifier": "READ_FILE",
   "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'READ_FILE'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'READ_FILE'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Bucket Name",
-          "configProperty": "actionConfiguration.formData.bucket",
+          "configProperty": "actionConfiguration.formData.bucket.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "isRequired": true,
@@ -32,7 +32,7 @@
         },
         {
           "label": "File Data Type",
-          "configProperty": "actionConfiguration.formData.read.dataType",
+          "configProperty": "actionConfiguration.formData.dataType.data",
           "controlType": "DROP_DOWN",
           "initialValue": "YES",
           "options": [
@@ -48,13 +48,13 @@
         },
         {
           "label": "Expiry Duration of Signed URL (Minutes)",
-          "configProperty": "actionConfiguration.formData.read.expiry",
+          "configProperty": "actionConfiguration.formData.expiry.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5"
         },
         {
           "label": "Base64 Encode File - Yes/No",
-          "configProperty": "actionConfiguration.formData.read.usingBase64Encoding",
+          "configProperty": "actionConfiguration.formData.dataType.data",
           "controlType": "DROP_DOWN",
           "initialValue": "YES",
           "options": [

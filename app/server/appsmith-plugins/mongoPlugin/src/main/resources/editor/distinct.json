@@ -2,7 +2,7 @@
   "identifier": "DISTINCT",
   "controlType" : "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'DISTINCT'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'DISTINCT'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Collection",
-          "configProperty": "actionConfiguration.formData.collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE"
         }
@@ -24,7 +24,7 @@
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.distinct.query",
+          "configProperty": "actionConfiguration.formData.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -32,7 +32,7 @@
         },
         {
           "label": "Key",
-          "configProperty": "actionConfiguration.formData.distinct.key",
+          "configProperty": "actionConfiguration.formData.key.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText" : "name"
