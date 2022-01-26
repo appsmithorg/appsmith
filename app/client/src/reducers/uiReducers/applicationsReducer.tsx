@@ -436,6 +436,12 @@ const applicationsReducer = createReducer(initialState, {
     ...state,
     fetchingDatasourceConfigForImport: false,
   }),
+  [ReduxActionTypes.SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    currentApplication: null,
+  }),
 });
 
 export type creatingApplicationMap = Record<string, boolean>;

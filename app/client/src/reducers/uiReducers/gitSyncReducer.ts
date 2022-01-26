@@ -115,6 +115,8 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isImportAppViaGitModalOpen: action.payload.isOpen,
     organizationIdForImport: action.payload.organizationId,
+    SSHKeyPair: null,
+    deployKeyDocUrl: null,
   }),
   [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: (
     state: GitSyncReducerState,

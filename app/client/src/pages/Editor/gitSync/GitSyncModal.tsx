@@ -92,17 +92,17 @@ function GitSyncModal(props: { isImport?: boolean }) {
   }, [isGitConnected]);
 
   let menuOptions = allMenuOptions;
-  if (!isGitConnected) {
-    menuOptions = props.isImport
-      ? [
-          {
-            key: MENU_ITEM.GIT_CONNECTION,
-            title: createMessage(GIT_IMPORT),
-          },
-        ]
-      : [MENU_ITEMS_MAP.GIT_CONNECTION];
+  if (props.isImport) {
+    menuOptions = [
+      {
+        key: MENU_ITEM.GIT_CONNECTION,
+        title: createMessage(GIT_IMPORT),
+      },
+    ];
   } else {
-    menuOptions = allMenuOptions;
+    menuOptions = isGitConnected
+      ? allMenuOptions
+      : [MENU_ITEMS_MAP.GIT_CONNECTION];
   }
 
   useEffect(() => {
