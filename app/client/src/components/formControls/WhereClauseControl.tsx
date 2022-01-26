@@ -165,12 +165,12 @@ function ConditionComponent(props: any, index: number) {
       />
       {/* Component to render the delete icon */}
       <CenteredIcon
-        name="cross"
+        name="trash"
         onClick={(e) => {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
-        size={IconSize.SMALL}
+        size={IconSize.XL}
       />
     </ConditionBox>
   );
@@ -258,14 +258,12 @@ function ConditionBlock(props: any) {
                       rerenderOnEveryChange={false}
                     />
                     <CenteredIcon
-                      alignSelf={"center"}
-                      marginBottom={"-5px"}
-                      name="cross"
+                      name="trash"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDeletePressed(index);
                       }}
-                      size={IconSize.SMALL}
+                      size={IconSize.XL}
                     />
                   </ConditionBox>
                 );

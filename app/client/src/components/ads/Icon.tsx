@@ -1,5 +1,5 @@
 import React, { forwardRef, Ref } from "react";
-// import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
+import { ReactComponent as DeleteBin } from "assets/icons/ads/delete.svg";
 import { ReactComponent as BookLineIcon } from "assets/icons/ads/book-open-line.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
@@ -226,6 +226,7 @@ export const IconCollection = [
   "database-2-line",
   "datasource",
   "delete",
+  "delete-bin",
   "delete-blank",
   "desktop",
   "discord",
@@ -471,6 +472,9 @@ const Icon = forwardRef(
         break;
       case "delete":
         returnIcon = <Trash />;
+        break;
+      case "delete-bin":
+        returnIcon = <DeleteBin />;
         break;
       case "delete-blank":
         returnIcon = <DeleteBin7 />;
