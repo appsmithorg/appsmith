@@ -16,6 +16,8 @@ import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
 import { useNewActionName } from "./helpers";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 type EntityContextMenuProps = {
   id: string;
@@ -27,6 +29,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
   const params = useParams<ExplorerURLParams>();
   const applicationId = useSelector(getCurrentApplicationId);
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
@@ -52,17 +55,26 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch, nextEntityName, props.pageId],
   );
   const deleteActionFromPage = useCallback(
-    (actionId: string, actionName: string, onSuccess?: () => void) =>
-      dispatch(deleteAction({ id: actionId, name: actionName, onSuccess })),
-    [dispatch],
+    (actionId: string, actionName: string, onSuccess?: () => void) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+
+      dispatch(deleteAction({ id: actionId, name: actionName, onSuccess }));
+    },
+    [dispatch, guidedTourEnabled],
   );
 
   const menuPages = useSelector(getPageListAsOptions);
 
-  const editActionName = useCallback(
-    () => dispatch(initExplorerEntityNameEdit(props.id)),
-    [dispatch, props.id],
-  );
+  const editActionName = useCallback(() => {
+    if (guidedTourEnabled) {
+      dispatch(toggleShowDeviationDialog(true));
+      return;
+    }
+    dispatch(initExplorerEntityNameEdit(props.id));
+  }, [dispatch, props.id, guidedTourEnabled]);
 
   return (
     <TreeDropdown

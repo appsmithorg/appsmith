@@ -23,6 +23,8 @@ import { WidgetType } from "constants/WidgetConstants";
 
 import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -47,6 +49,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
   );
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
+  const guidedTourEnabled = useSelector(inGuidedTour);
 
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf
@@ -59,6 +62,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const { title, updatePropertyTitle } = props;
   const updateNewTitle = useCallback(
     (value: string) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+
       if (
         value &&
         value.trim().length > 0 &&
@@ -67,12 +75,16 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         updatePropertyTitle && updatePropertyTitle(value.trim());
       }
     },
-    [updatePropertyTitle, title],
+    [updatePropertyTitle, title, guidedTourEnabled],
   );
   // End
 
   const updateTitle = useCallback(
     (value?: string) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
       if (
         value &&
         value.trim().length > 0 &&
@@ -88,7 +100,14 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         toggleEditWidgetName(props.widgetId, false);
       }
     },
-    [dispatch, widgets, setName, props.widgetId, props.title],
+    [
+      dispatch,
+      widgets,
+      setName,
+      props.widgetId,
+      props.title,
+      guidedTourEnabled,
+    ],
   );
 
   useEffect(() => {
