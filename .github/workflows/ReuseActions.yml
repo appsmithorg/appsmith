@@ -606,7 +606,7 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          spec: "cypress/integration/Smoke_TestSuite/ClientSideTests/ActionExecution/**/*"
+          spec: "cypress/integration/Smoke_TestSuite/testingreuse/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
