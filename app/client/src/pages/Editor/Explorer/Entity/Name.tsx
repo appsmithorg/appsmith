@@ -242,6 +242,7 @@ export const EntityName = React.memo(
               className={`${
                 props.className ? props.className : ""
               } ContextMenu`}
+              data-guided-tour-iid={name}
               onDoubleClick={props.enterEditMode}
               ref={targetRef}
             >

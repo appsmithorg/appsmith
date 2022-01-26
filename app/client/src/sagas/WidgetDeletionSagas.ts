@@ -32,6 +32,11 @@ import {
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "utils/WidgetFactory";
+import {
+  inGuidedTour,
+  isExploringSelector,
+} from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -89,6 +94,14 @@ function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
   const selectedWidget = yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  const guidedTourEnabled = yield select(inGuidedTour);
+  const isExploring = yield select(isExploringSelector);
+
+  if (guidedTourEnabled && !isExploring) {
+    yield put(toggleShowDeviationDialog(true));
+    return;
+  }
+
   if (selectedWidgets.length > 1) {
     yield put({
       type: WidgetReduxActionTypes.WIDGET_BULK_DELETE,
@@ -175,7 +188,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       );
       if (!selectedWidget) return;
 
-      // if widget is not deletable, don't don anything
+      // if widget is not deletable, don't do anything
       if (selectedWidget.isDeletable === false) return false;
 
       widgetId = selectedWidget.widgetId;

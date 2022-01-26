@@ -6,6 +6,7 @@ import WidgetEntity from "./WidgetEntity";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
 import { getWidgetsForCurrentPage } from "selectors/entitiesSelector";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -16,6 +17,7 @@ type ExplorerWidgetGroupProps = {
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(getWidgetsForCurrentPage);
+  const guidedTour = useSelector(inGuidedTour);
 
   const childNode = (
     <EntityPlaceholder step={props.step}>
@@ -34,7 +36,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       disabled={!widgets && !!props.searchKeyword}
       entityId={pageId + "_widgets"}
       icon={""}
-      isDefaultExpanded={widgets?.children?.length === 0}
+      isDefaultExpanded={widgets?.children?.length === 0 || guidedTour}
       isSticky
       key={pageId + "_widgets"}
       name="WIDGETS"
