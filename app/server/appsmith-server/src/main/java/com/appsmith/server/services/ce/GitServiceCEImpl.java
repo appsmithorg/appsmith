@@ -1537,9 +1537,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .collect(Collectors.toList());
 
                         Mono<List<GitBranchDTO>> monoBranchList = Flux.fromIterable(localBranch)
-                                .flatMap(gitBranch ->
-                                        applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
-                                        .flatMap(applicationPageService::deleteApplicationByResource)
+                                .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+                                        .flatMap(application1 -> applicationPageService.deleteApplicationByResource(application1))
+                                        // Delete the branch that exists in local file system but not in DB
+                                        .onErrorResume(throwable -> {
+                                            log.warn(" No application exists in DB for the local branch of file system", throwable);
+                                            return Mono.empty();
+                                        })
                                         .then(gitExecutor.deleteBranch(repoPath, gitBranch)))
                                 .then(Mono.just(gitBranchListDTOS));
 

@@ -1183,6 +1183,47 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_pruneBranchWithBranchNotExistsInDB_Success() throws IOException {
+        List<GitBranchDTO> branchList = new ArrayList<>();
+        GitBranchDTO gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("defaultBranch");
+        gitBranchDTO.setDefault(false);
+        branchList.add(gitBranchDTO);
+        gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("localBranchOnly");
+        gitBranchDTO.setDefault(false);
+        branchList.add(gitBranchDTO);
+        gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("origin/defaultBranch");
+        gitBranchDTO.setDefault(true);
+        branchList.add(gitBranchDTO);
+
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
+                .thenReturn(Mono.just(branchList));
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(gitFileUtils.initializeGitRepo(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("textPath")));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
+                .thenReturn(Mono.just("status"));
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchWithBranchNotExistsInDB_Success", "defaultBranch");
+
+        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch");
+
+        StepVerifier
+                .create(listMono)
+                .assertNext(listBranch -> {
+                    assertThat(listBranch).isNotEqualTo(branchList);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void pullChanges_upstreamChangesAvailable_pullSuccess() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("UpstreamChangesInRemote", "upstreamChangesInRemote");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
