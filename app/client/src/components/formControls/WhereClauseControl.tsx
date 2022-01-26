@@ -170,7 +170,7 @@ function ConditionComponent(props: any, index: number) {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
-        size={IconSize.LARGE}
+        size={IconSize.XL}
       />
     </ConditionBox>
   );
@@ -258,12 +258,14 @@ function ConditionBlock(props: any) {
                       rerenderOnEveryChange={false}
                     />
                     <CenteredIcon
+                      alignSelf={"center"}
+                      marginBottom={"-5px"}
                       name="trash"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDeletePressed(index);
                       }}
-                      size={IconSize.LARGE}
+                      size={IconSize.XL}
                     />
                   </ConditionBox>
                 );

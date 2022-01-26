@@ -1,5 +1,5 @@
 import React, { forwardRef, Ref } from "react";
-// import { ReactComponent as DeleteBin } from "assets/icons/ads/delete.svg";
+// import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as BookLineIcon } from "assets/icons/ads/book-open-line.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
