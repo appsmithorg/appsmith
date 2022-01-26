@@ -2089,7 +2089,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .map(datasources -> {
                     for (Datasource datasource:datasources) {
-                        datasource.setIsEmpty(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
                     }
                     return datasources;
                 });
