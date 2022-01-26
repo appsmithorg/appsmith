@@ -155,7 +155,7 @@ jobs:
         with:
           path: |
             app/client/build/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-artifact
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
