@@ -80,6 +80,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 
 import _, { merge } from "lodash";
 import DatasourcesApi from "api/DatasourcesApi";
+import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -585,27 +586,34 @@ export function* importApplicationSaga(
       if (currentOrg.length > 0) {
         const {
           id: appId,
+          isMissingDatasources,
           pages,
         }: {
           id: string;
           pages: { default?: boolean; id: string; isDefault?: boolean }[];
-        } = response.data;
+          isMissingDatasources: boolean;
+        } = response?.data;
         yield put({
           type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
           payload: {
-            importedApplication: response.data,
+            importedApplication: response?.data,
           },
         });
-        const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
-        const pageURL = BUILDER_PAGE_URL({
-          applicationId: appId,
-          pageId: defaultPage[0].id,
-        });
-        history.push(pageURL);
-        Toaster.show({
-          text: "Application imported successfully",
-          variant: Variant.success,
-        });
+        // there is configuration-missing datasources
+        if (isMissingDatasources) {
+          yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+        } else {
+          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const pageURL = BUILDER_PAGE_URL({
+            applicationId: appId,
+            pageId: defaultPage[0].id,
+          });
+          history.push(pageURL);
+          Toaster.show({
+            text: "Application imported successfully",
+            variant: Variant.success,
+          });
+        }
       }
     }
   } catch (error) {

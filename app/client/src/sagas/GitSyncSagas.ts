@@ -58,7 +58,11 @@ import {
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
-import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import {
+  addBranchParam,
+  BUILDER_PAGE_URL,
+  GIT_BRANCH_QUERY_KEY,
+} from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
 
 import {
@@ -633,18 +637,36 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
         (el: Org) => el.id === organizationIdForImport,
       );
       if (currentOrg.length > 0) {
+        const {
+          id: appId,
+          isMissingDatasources,
+          pages,
+        }: {
+          id: string;
+          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          isMissingDatasources: boolean;
+        } = response?.data;
         yield put({
           type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
           payload: {
             importedApplication: response?.data,
           },
         });
-        Toaster.show({
-          text: "Application imported successfully",
-          variant: Variant.success,
-        });
-        // after successful should open add datasources
-        yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+        // there is configuration-missing datasources
+        if (isMissingDatasources) {
+          yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+        } else {
+          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const pageURL = BUILDER_PAGE_URL({
+            applicationId: appId,
+            pageId: defaultPage[0].id,
+          });
+          history.push(pageURL);
+          Toaster.show({
+            text: "Application imported successfully",
+            variant: Variant.success,
+          });
+        }
       }
     }
   } catch (error) {

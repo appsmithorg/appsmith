@@ -25,7 +25,6 @@ import {
   setIsImportAppViaGitModalOpen,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 
 const TextWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
@@ -173,7 +172,6 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
-    // dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
   }, []);
 
   const importingApplication = useSelector(
