@@ -390,6 +390,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "yaldram",
+      "name": "Arsalan Yaldram",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13429535?v=4",
+      "profile": "https://github.com/yaldram",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,

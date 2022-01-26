@@ -29,7 +29,7 @@ export const WidgetTypeFactories: Record<string, any> = {
   BUTTON_WIDGET: ButtonFactory,
   TEXT_WIDGET: TextFactory,
   IMAGE_WIDGET: ImageFactory,
-  INPUT_WIDGET: InputFactory,
+  INPUT_WIDGET_V2: InputFactory,
   CONTAINER_WIDGET: ContainerFactory,
   DATE_PICKER_WIDGET: OldDatepickerFactory,
   DATE_PICKER_WIDGET2: DatepickerFactory,
