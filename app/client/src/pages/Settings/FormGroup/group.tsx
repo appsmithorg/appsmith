@@ -5,7 +5,6 @@ import {
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
 import { StyledLabel } from "./Common";
-import Link from "./Link";
 import TextInput from "./TextInput";
 import Toggle from "./Toggle";
 import Text from "./Text";
@@ -14,6 +13,7 @@ import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
 import { createMessage } from "@appsmith/constants/messages";
+import { Callout } from "../Callout";
 
 type GroupProps = {
   name?: string;
@@ -41,6 +41,12 @@ const GroupHeader = styled(StyledLabel)`
 const GroupBody = styled.div`
   & .hide {
     display: none;
+  }
+  & .callout-link {
+    max-width: 640px;
+    > div {
+      margin-top: 0px;
+    }
   }
 `;
 
@@ -91,11 +97,18 @@ export default function Group({
               case SettingTypes.LINK:
                 return (
                   <div
-                    className={setting.isHidden ? "hide" : ""}
+                    className={`${
+                      setting.isHidden ? "hide" : "callout-link"
+                    } t--read-more-link`}
                     data-testid="admin-settings-group-link"
                     key={setting.name}
                   >
-                    <Link setting={setting} />
+                    <Callout
+                      actionLabel="READ MORE"
+                      title={createMessage(() => setting.label || "")}
+                      type="Info"
+                      url={setting.url}
+                    />
                   </div>
                 );
               case SettingTypes.TEXT:

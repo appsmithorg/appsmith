@@ -50,7 +50,15 @@ export function Callout(props: {
   title: string;
   actionLabel?: string;
   action?: () => void;
+  url?: string;
 }) {
+  const linkProps: Record<string, string | (() => any)> = {};
+
+  if (props.url) {
+    linkProps.href = props.url;
+    linkProps.target = "_blank";
+  }
+
   return (
     <Wrapper type={props.type}>
       {props.type === "Warning" && (
@@ -62,7 +70,7 @@ export function Callout(props: {
       )}
       <div>
         <h4>{props.title}</h4>
-        <a>
+        <a {...linkProps}>
           {props.actionLabel}&nbsp;&nbsp;
           <Icon name="right-arrow" size={IconSize.LARGE} />
         </a>
