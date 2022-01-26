@@ -4,14 +4,7 @@ on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
-  # trigger for pushes to release and master
-  push:
-    branches: [release, release-frozen, master]
-    paths:
-      - "app/client/**"
-      - "app/server/**"
-      - "app/rts/**"
-      - "!app/client/cypress/manual_TestSuite/**"
+
 
 jobs:
   buildClient:
