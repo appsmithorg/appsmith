@@ -213,6 +213,8 @@ public class CurlImporterServiceTest {
                 .flatMap(page -> curlImporterService.importAction(command, page.getDefaultResources().getPageId(), "actionName", orgId, "testBranch"))
                 .cache();
 
+        // As importAction updates the ids with the defaultIds before sending the response to client we have to again
+        // fetch branched action
         Mono<NewAction> branchedSavedActionMono = branchedResultMono
                 .flatMap(actionDTO -> newActionService.findByBranchNameAndDefaultActionId("testBranch", actionDTO.getId(), AclPermission.MANAGE_ACTIONS));
 
