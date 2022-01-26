@@ -174,9 +174,19 @@ export const Saml_Auth_Callout: AuthMethodType = {
   type: "OTHER",
 };
 
+export const Oidc_Auth_Callout: AuthMethodType = {
+  id: "APPSMITH_OIDC_AUTH",
+  label: "OIDC",
+  subText: `Enable your organization to sign in with your preferred OIDC compliant provider.`,
+  image: SamlSso,
+  needsUpgrade: true,
+  type: "OTHER",
+};
+
 const AuthMethods = [
-  Google_Auth_Callout,
   Saml_Auth_Callout,
+  Oidc_Auth_Callout,
+  Google_Auth_Callout,
   Github_Auth_Callout,
   Form_Auth_Callout,
 ];

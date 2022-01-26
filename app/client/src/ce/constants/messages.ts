@@ -923,8 +923,8 @@ export const GENERATE_APPLICATION_DESCRIPTION = () =>
 
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
 
-export const UPGRADE_TO_EE = () =>
-  "Hello, I would like to upgrade and start using SAML authentication.";
+export const UPGRADE_TO_EE = (authLabel: string) =>
+  `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
 export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";

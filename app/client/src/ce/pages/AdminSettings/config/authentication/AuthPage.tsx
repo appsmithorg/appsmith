@@ -136,9 +136,12 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
     bootIntercom(user);
   }, [user?.email]);
 
-  const triggerIntercom = () => {
+  const triggerIntercom = (authLabel: string) => {
     if (intercomAppID && window.Intercom) {
-      window.Intercom("showNewMessage", createMessage(UPGRADE_TO_EE));
+      window.Intercom(
+        "showNewMessage",
+        createMessage(UPGRADE_TO_EE, authLabel),
+      );
     }
   };
 
@@ -204,7 +207,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                               method.category,
                             ),
                           )
-                        : triggerIntercom()
+                        : triggerIntercom(method.label)
                     }
                     text={createMessage(!!method.needsUpgrade ? UPGRADE : ADD)}
                   />
