@@ -145,11 +145,8 @@ jobs:
       #    ls -l build
       - name: Create the dummybundle
         if: steps.run_result.outputs.run_result != 'success'
-        with:
-          path: |
-            app/client/
         run: |
-          mkdir build
+          mkdir -p app/client/build
           touch build/a.txt
           ls -l build
 
