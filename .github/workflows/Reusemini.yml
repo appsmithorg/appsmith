@@ -55,7 +55,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
 
       - if: steps.run_result.outputs.run_result != 'success'
-        run: echo "I'm alive!" && exit 0
+        run: echo "Running complete actions" && exit 0
 
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
