@@ -170,7 +170,7 @@ function ConditionComponent(props: any, index: number) {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
-        size={IconSize.XL}
+        size={IconSize.LARGE}
       />
     </ConditionBox>
   );
@@ -263,7 +263,7 @@ function ConditionBlock(props: any) {
                         e.stopPropagation();
                         onDeletePressed(index);
                       }}
-                      size={IconSize.XL}
+                      size={IconSize.LARGE}
                     />
                   </ConditionBox>
                 );
