@@ -140,6 +140,15 @@ jobs:
             yarn build
           ls -l build
 
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/client/build/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
         if: steps.run_result.outputs.run_result != 'success'
@@ -257,6 +266,15 @@ jobs:
             -DprocessAllModules=true
           ./build.sh -DskipTests
           ls -l dist
+
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/server/dist/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
@@ -600,6 +618,15 @@ jobs:
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
+
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/client/cypress/snapshots/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
 
       # Upload the snapshots as artifacts for layout validation
       - uses: actions/upload-artifact@v1
