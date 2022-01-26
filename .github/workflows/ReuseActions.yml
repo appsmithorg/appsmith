@@ -612,7 +612,7 @@ jobs:
           env: "NODE_ENV=development"
 
       - name: Get failed tests
-        id: vars
+        id: vars2
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
 
@@ -641,7 +641,7 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          spec: echo ${{ steps.vars.outputs.failedspecs }}
+          spec: echo ${{ steps.vars2.outputs.failedspecs }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
