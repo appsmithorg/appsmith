@@ -31,7 +31,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.springframework.data.mongodb.core.query.Query;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -51,26 +50,17 @@ import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.external.plugins.constants.FieldName.LIMIT;
-import static com.external.plugins.constants.FieldName.PIPELINES;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.QUERY;
-import static com.external.plugins.constants.FieldName.LIMIT;
-import static com.external.plugins.constants.FieldName.QUERY;
+import static com.external.plugins.constants.FieldName.DOCUMENTS;
 import static com.external.plugins.constants.FieldName.KEY;
-import static com.external.plugins.constants.FieldName.QUERY;
 import static com.external.plugins.constants.FieldName.LIMIT;
+import static com.external.plugins.constants.FieldName.PIPELINES;
 import static com.external.plugins.constants.FieldName.PROJECTION;
 import static com.external.plugins.constants.FieldName.QUERY;
-import static com.external.plugins.constants.FieldName.SORT;
-import static com.external.plugins.constants.FieldName.DOCUMENTS;
-import static com.external.plugins.constants.FieldName.LIMIT;
-import static com.external.plugins.constants.FieldName.QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.LIMIT;
+import static com.external.plugins.constants.FieldName.SORT;
 import static com.external.plugins.constants.FieldName.UPDATE;
-import static com.external.plugins.constants.FieldName.QUERY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -81,8 +71,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 /**
  * Unit tests for MongoPlugin
@@ -493,12 +481,12 @@ public class MongoPluginTest {
                             "  },\n" +
                             "  \"limit\": 10\n" +
                             "}\n");
-                    assertEquals( ((Map<String, Object>) findTemplate.getConfiguration()).get(COMMAND), "FIND");
-
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), QUERY),
-                            "{ \"gender\": \"F\"}");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), SORT),
-                            "{\"_id\": 1}");
+                    assertEquals("FIND",
+                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), COMMAND));
+                    assertEquals("{ \"gender\": \"F\"}",
+                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), QUERY));
+                    assertEquals("{\"_id\": 1}",
+                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), SORT));
 
                     //Assert Find By Id command
                     DatasourceStructure.Template findByIdTemplate = templates.get(1);
@@ -509,9 +497,10 @@ public class MongoPluginTest {
                             "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                             "  }\n" +
                             "}\n");
-                    assertEquals( ((Map<String, Object>) findByIdTemplate.getConfiguration()).get(COMMAND), "FIND");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), QUERY),
-                            "{\"_id\": ObjectId(\"id_to_query_with\")}");
+                    assertEquals("FIND",
+                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), COMMAND));
+                    assertEquals("{\"_id\": ObjectId(\"id_to_query_with\")}",
+                            getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), QUERY));
 
                     // Assert Insert command
                     DatasourceStructure.Template insertTemplate = templates.get(2);
@@ -531,7 +520,8 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(((Map<String, Object>) insertTemplate.getConfiguration()).get(COMMAND), "INSERT");
+                    assertEquals("INSERT",
+                            getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), COMMAND));
                     assertEquals(getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), DOCUMENTS),
                             "[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
                                     "      \"age\": 1,\n" +
@@ -557,7 +547,8 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(((Map<String, Object>) updateTemplate.getConfiguration()).get(COMMAND), "UPDATE");
+                    assertEquals("UPDATE",
+                            getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), COMMAND));
                     assertEquals(getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), QUERY),
                             "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
                     assertEquals(getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE),
@@ -577,7 +568,8 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(((Map<String, Object>) deleteTemplate.getConfiguration()).get(COMMAND), "DELETE");
+                    assertEquals("DELETE",
+                            getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), COMMAND));
                     assertEquals(getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), QUERY),
                             "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
                     assertEquals(getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), LIMIT),

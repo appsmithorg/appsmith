@@ -472,14 +472,14 @@ public class AmazonS3PluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO("command",
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND,
                             "UPLOAD_FILE_FROM_BODY", null, null, null)); // Action
-                    expectedRequestParams.add(new RequestParamDTO("bucket", "bucket_name",
+                    expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
-                    expectedRequestParams.add(new RequestParamDTO("create.dataType", "Base64", null,
+                    expectedRequestParams.add(new RequestParamDTO(DATATYPE, "Base64", null,
                             null, null)); // File data type
-                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+                    assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
                 .verifyComplete();
     }
@@ -524,14 +524,14 @@ public class AmazonS3PluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO("command",
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND,
                             "UPLOAD_FILE_FROM_BODY", null, null, null)); // Action
-                    expectedRequestParams.add(new RequestParamDTO("bucket", "bucket_name",
+                    expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
-                    expectedRequestParams.add(new RequestParamDTO("create.dataType", "Base64", null,
+                    expectedRequestParams.add(new RequestParamDTO(DATATYPE, "Base64", null,
                             null, null)); // File data type
-                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+                    assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
                 .verifyComplete();
     }
@@ -671,14 +671,14 @@ public class AmazonS3PluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO("command", "READ_FILE",
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "READ_FILE",
                             null, null, null)); // Action
-                    expectedRequestParams.add(new RequestParamDTO("bucket", "bucket_name",
+                    expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
-                    expectedRequestParams.add(new RequestParamDTO("read.usingBase64Encoding", "YES", null,
+                    expectedRequestParams.add(new RequestParamDTO(DATATYPE, "YES", null,
                             null, null)); // Base64 encode file
-                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+                    assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
                 .verifyComplete();
     }
@@ -722,13 +722,12 @@ public class AmazonS3PluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO("command", "DELETE_FILE",
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "DELETE_FILE",
                             null, null, null)); // Action
-                    expectedRequestParams.add(new RequestParamDTO("bucket", "bucket_name",
+                    expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
-                    assertEquals(result.getRequest().getRequestParams().toString(),
-                            expectedRequestParams.toString());
+                    assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
                 .verifyComplete();
     }
@@ -1039,20 +1038,19 @@ public class AmazonS3PluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO("command", "LIST", null
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "LIST", null
                             , null, null)); // Action
-                    expectedRequestParams.add(new RequestParamDTO("bucket", "bucket_name",
+                    expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
-                    expectedRequestParams.add(new RequestParamDTO("list.prefix", "", null,
+                    expectedRequestParams.add(new RequestParamDTO(PREFIX, "", null,
                             null, null)); // Prefix
-                    expectedRequestParams.add(new RequestParamDTO("list.signedUrl", "YES", null,
+                    expectedRequestParams.add(new RequestParamDTO(SIGNED_URL, "YES", null,
                             null, null)); // Generate signed URL
-                    expectedRequestParams.add(new RequestParamDTO("list.expiry", "5", null,
+                    expectedRequestParams.add(new RequestParamDTO(EXPIRY, "5", null,
                             null, null)); // Expiry duration
-                    expectedRequestParams.add(new RequestParamDTO("list.unSignedUrl", "NO", null,
+                    expectedRequestParams.add(new RequestParamDTO(UNSIGNED_URL, "NO", null,
                             null, null)); // Generate Un-signed URL
-                    assertEquals(result.getRequest().getRequestParams().toString(),
-                            expectedRequestParams.toString());
+                    assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString() );
                 })
                 .verifyComplete();
     }
@@ -1094,11 +1092,11 @@ public class AmazonS3PluginTest {
                      * - RequestParamDTO object only have attributes configProperty and value at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO("command", "LIST_BUCKETS",
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "LIST_BUCKETS",
                             null, null, null)); // Action
-                    expectedRequestParams.add(new RequestParamDTO("bucket", null,
+                    expectedRequestParams.add(new RequestParamDTO(BUCKET, null,
                             null, null, null)); // Bucket name
-                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+                    assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
             .verifyComplete();
     }
