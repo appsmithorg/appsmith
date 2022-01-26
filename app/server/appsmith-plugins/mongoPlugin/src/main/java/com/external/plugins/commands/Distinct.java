@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -113,7 +114,7 @@ public class Distinct extends MongoCommand {
 
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
-        setValueSafelyInFormData(configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+        setValueSafelyInFormData(configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
        
 
