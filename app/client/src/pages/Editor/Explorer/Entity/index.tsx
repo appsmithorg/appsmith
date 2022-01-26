@@ -341,7 +341,7 @@ export const Entity = forwardRef(
                 position={Position.RIGHT}
               >
                 <AddButton
-                  className={`${EntityClassNames.ADD_BUTTON}`}
+                  className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
                   onClick={props.onCreate}
                 />
               </TooltipComponent>
