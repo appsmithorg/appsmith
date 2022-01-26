@@ -147,7 +147,6 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           mkdir -p app/client/build
-          echo "::set-output name=run_result::success" > build/a.txt
           ls -l build
 
       - name: Restore the previous bundle
