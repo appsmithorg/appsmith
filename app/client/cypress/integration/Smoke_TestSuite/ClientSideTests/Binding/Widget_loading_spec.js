@@ -74,6 +74,6 @@ describe("Binding the multiple widgets and validating default data", function() 
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
-      .should("contain", "9");
+      .should("contain", "7");
   });
 });
