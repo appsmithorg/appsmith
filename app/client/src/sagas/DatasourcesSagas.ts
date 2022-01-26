@@ -754,9 +754,6 @@ function* storeAsDatasourceSaga() {
     }),
   );
   _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
-  history.push(
-    INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
-  );
 
   yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction = yield take(
