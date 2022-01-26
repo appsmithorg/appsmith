@@ -147,12 +147,10 @@ jobs:
       - name: Restore the previous bundle
         if: steps.run_result.outputs.run_result == 'success'
         uses: actions/cache@v2
-        env:
-          cache-name: buildClient
         with:
           path: |
             app/client/build/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ env.cache-name }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ env.cache-name }}-
 
