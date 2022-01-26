@@ -147,7 +147,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           mkdir -p app/client/build
-          ls -l build
+          ls -l app/client/build
 
       - name: Restore the previous bundle
         if: steps.run_result.outputs.run_result == 'success'
