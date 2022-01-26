@@ -2062,7 +2062,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Application application = objects.getT1();
                     GitImportDTO gitImportDTO = new GitImportDTO();
                     gitImportDTO.setApplication(application);
-                    gitImportDTO.setEmptyDatasourceList(objects.getT2());
+                    gitImportDTO.setUnConfiguredDatasourceList(objects.getT2());
                     gitImportDTO.setIsPartialImport(objects.getT2().size() > 0);
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_IMPORT.getEventName(),

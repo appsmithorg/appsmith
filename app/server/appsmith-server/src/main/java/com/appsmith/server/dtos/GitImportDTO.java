@@ -12,7 +12,7 @@ import java.util.List;
 public class GitImportDTO {
     Application application;
 
-    List<Datasource> emptyDatasourceList;
+    List<Datasource> unConfiguredDatasourceList;
 
     Boolean isPartialImport;
 }
