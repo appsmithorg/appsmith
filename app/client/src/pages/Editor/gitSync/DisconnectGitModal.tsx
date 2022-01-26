@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
+  getDisconnectDocUrl,
   getDisconnectingGitApplication,
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
@@ -30,7 +31,6 @@ import {
   TYPE_PROMO_CODE,
 } from "constants/messages";
 import Link from "./components/Link";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -76,7 +76,7 @@ function DisconnectGitModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsDisconnectGitModalOpen);
   const disconnectingApp = useSelector(getDisconnectingGitApplication);
-
+  const gitDisconnectDocumentUrl = useSelector(getDisconnectDocUrl);
   const [appName, setAppName] = useState("");
 
   const handleClose = useCallback(() => {
@@ -117,12 +117,12 @@ function DisconnectGitModal() {
               </Text>
               <Link
                 color={Colors.CRIMSON}
-                link={DOCS_BASE_URL}
+                link={gitDisconnectDocumentUrl}
                 onClick={() => {
                   AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
                     source: "GIT_DISCONNECTION_MODAL",
                   });
-                  window.open(DOCS_BASE_URL, "_blank");
+                  window.open(gitDisconnectDocumentUrl, "_blank");
                 }}
                 text={createMessage(LEARN_MORE)}
               />
