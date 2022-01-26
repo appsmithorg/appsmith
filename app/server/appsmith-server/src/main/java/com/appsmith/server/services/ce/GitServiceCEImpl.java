@@ -1446,8 +1446,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 repoPath,
                                 gitApplicationMetadata.getGitAuth().getPublicKey(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                false
-                        )
+                                false)
                                 .flatMap(s -> gitExecutor.listBranches(
                                         repoPath,
                                         gitApplicationMetadata.getRemoteUrl(),
@@ -1466,14 +1465,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getRemoteUrl(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey(),
-                                false)
-                                .onErrorResume(error -> Mono.error(new AppsmithException(
+                                false);
+                    }
+                    return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath))
+                            .onErrorResume(error -> {
+                                if (error instanceof RepositoryNotFoundException) {
+                                    Mono<List<GitBranchDTO>> branchListMono = handleRepoNotFoundException(defaultApplicationId);
+                                    return Mono.zip(branchListMono, Mono.just(application), Mono.just(repoPath));
+                                }
+                                return Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED,
                                         "branch --list",
-                                        error.getMessage()))
-                                );
-                    }
-                    return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath));
+                                        "Error while accessing the file system. Details :" + error.getMessage()));
+                            }
+                    );
 
                 })
                 .flatMap(tuple -> {
@@ -1991,39 +1996,35 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     String defaultBranch = gitApplicationMetadata.getDefaultBranchName();
 
-                    try {
-                        Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
-                        Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
-                        Mono<ApplicationJson> applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch);
+                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
+                    Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
+                    Mono<ApplicationJson> applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch);
 
-                        return Mono.zip(applicationJsonMono, datasourceMono, pluginMono)
-                                .flatMap(data -> {
-                                    ApplicationJson applicationJson = data.getT1();
-                                    List<Datasource> datasourceList = data.getT2();
-                                    List<Plugin> pluginList = data.getT3();
+                    return Mono.zip(applicationJsonMono, datasourceMono, pluginMono)
+                            .flatMap(data -> {
+                                ApplicationJson applicationJson = data.getT1();
+                                List<Datasource> datasourceList = data.getT2();
+                                List<Plugin> pluginList = data.getT3();
 
-                                    // If there is an existing datasource with the same name but a different type from that in the repo, the import api should fail
-                                    if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
-                                        return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
-                                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
-                                                        "import",
-                                                        "Datasource already exists with the same name"))
-                                                );
-                                    }
+                                // If there is an existing datasource with the same name but a different type from that in the repo, the import api should fail
+                                if (checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
+                                    return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
+                                            .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                    "import",
+                                                    "Datasource already exists with the same name"))
+                                            );
+                                }
 
-                                    applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
-                                    return importExportApplicationService
-                                            .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
-                                            .zipWith(datasourceMono)
-                                            .onErrorResume(throwable -> deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
-                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage()))));
-                                });
-
-                    } catch (GitAPIException | IOException e) {
-                        log.error("Error while constructing application from git repo", e);
-                        return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
-                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
-                    }
+                                applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
+                                applicationJson.getExportedApplication().setName(application.getName());
+                                return importExportApplicationService
+                                        .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
+                                        .zipWith(datasourceMono)
+                                        .onErrorResume(throwable -> {
+                                            return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
+                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())));
+                                        });
+                            });
                 })
                 .flatMap(objects -> {
                     Application application = objects.getT1();
@@ -2170,6 +2171,49 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return pushResult;
                                 })
                 );
+    }
+
+    public Mono<List<GitBranchDTO>> handleRepoNotFoundException(String defaultApplicationId) {
+
+        // clone application to the local filesystem again and update the defaultBranch for the application
+        // list branch and compare with branch applications and checkout if not exists
+
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName());
+                    GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
+                    return gitExecutor.cloneApplication(repoPath, gitApplicationMetadata.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey())
+                            .flatMap(defaultBranch -> gitExecutor.listBranches(
+                                    repoPath,
+                                    gitApplicationMetadata.getRemoteUrl(),
+                                    gitAuth.getPrivateKey(),
+                                    gitAuth.getPublicKey(),
+                                    false))
+                            .flatMap(gitBranchDTOList -> {
+                                List<String> branchList = gitBranchDTOList.stream()
+                                        .filter(gitBranchDTO -> gitBranchDTO.getBranchName().contains("origin"))
+                                        .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
+                                        .collect(Collectors.toList());
+                                // Remove the default branch of Appsmith
+                                branchList.remove(gitApplicationMetadata.getBranchName());
+
+                                return Flux.fromIterable(branchList)
+                                        .flatMap(branchName -> applicationService.findByBranchNameAndDefaultApplicationId(branchName, application.getId(), READ_APPLICATIONS)
+                                                // checkout the branch locally
+                                                .flatMap(application1 -> {
+                                                    // Add the locally checked out branch to the branchList
+                                                    GitBranchDTO gitBranchDTO = new GitBranchDTO();
+                                                    gitBranchDTO.setBranchName(branchName);
+                                                    gitBranchDTO.setDefault(false);
+                                                    gitBranchDTOList.add(gitBranchDTO);
+                                                    return gitExecutor.checkoutRemoteBranch(repoPath, branchName);
+                                                })
+                                                // Return empty mono when the branched application is not in db
+                                                .onErrorResume(throwable -> Mono.empty()))
+                                        .then(Mono.just(gitBranchDTOList));
+                            });
+                });
     }
 
     private Mono<Application> addAnalyticsForGitOperation(String eventName, Application application, Boolean isRepoPrivate) {
