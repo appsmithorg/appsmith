@@ -104,24 +104,24 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install
 
-      - name: Set the build environment based on the branch
-        if: steps.run_result.outputs.run_result != 'success'
-        id: vars
-        run: |
-          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
-          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
-          fi
-          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
-          fi
-          # Since this is an unreleased build, we set the version to incremented version number with
-          # a `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
-          echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-          echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
+      #- name: Set the build environment based on the branch
+      #  if: steps.run_result.outputs.run_result != 'success'
+      #  id: vars
+      #  run: |
+      #    echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+      #    if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+      #        echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+      #    fi
+      #    if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+      #        echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+      #    fi
+      #    # Since this is an unreleased build, we set the version to incremented version number with
+      #    # a `-SNAPSHOT` suffix.
+      #    latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+      #    echo "latest_released_version = $latest_released_version"
+      #    next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+      #    echo "next_version = $next_version"
+      #    echo ::set-output name=version::$next_version-SNAPSHOT
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
