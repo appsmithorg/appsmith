@@ -150,9 +150,9 @@ jobs:
         with:
           path: |
             app/client/build/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-artifact
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ env.cache-name }}-
+            ${{ github.run_id }}-${{ github.job }}
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
