@@ -4949,4 +4949,37 @@ public class DatabaseChangelog {
         }
     }
 
+    /**
+     * This migration introduces indexes on newAction, actionCollection and userData to improve the query performance
+     */
+    @ChangeSet(order = "114", id = "update-index-for-git", author = "")
+    public void updateNewActionActionCollectionAndUserDataIndexes(MongockTemplate mongockTemplate) {
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex("applicationId")
+                        .named("applicationId")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex("unpublishedCollection.pageId")
+                        .named("unpublishedCollection_pageId")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex("defaultResources.applicationId", "gitSyncId")
+                        .named("defaultApplicationId_gitSyncId_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex("defaultResources.applicationId", "gitSyncId")
+                        .named("defaultApplicationId_gitSyncId_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, UserData.class,
+                makeIndex("userId")
+                        .unique()
+                        .named("userId")
+        );
+    }
+
 }
