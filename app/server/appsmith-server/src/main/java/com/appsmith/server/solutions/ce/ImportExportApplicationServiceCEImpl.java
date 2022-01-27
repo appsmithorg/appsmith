@@ -483,23 +483,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList();
-                    return importApplicationInOrganization(orgId, jsonFile)
-                            .zipWith(datasourceMono);
+                    return importApplicationInOrganization(orgId, jsonFile);
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(objects -> {
-                    List<Datasource> datasourceList = objects.getT2();
-                    Application application = objects.getT1();
-                    return findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
-                            .map(datasources -> {
-                                ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                                applicationImportDTO.setApplication(application);
-                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                                applicationImportDTO.setIsPartialImport(datasources.isEmpty());
-                                return applicationImportDTO;
-                            });
-                });
+                .flatMap(application -> datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList()
+                        .flatMap(datasourceList -> findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
+                                .map(datasources -> {
+                                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                                    applicationImportDTO.setApplication(application);
+                                    applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                                    applicationImportDTO.setIsPartialImport(!datasources.isEmpty());
+                                    return applicationImportDTO;
+                                })));
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -1499,7 +1494,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .map(datasources -> {
                     for (Datasource datasource:datasources) {
-                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                        datasource.setIsConfigured(!Optional.ofNullable(datasource.getInvalids()).isEmpty());
                     }
                     return datasources;
                 });
