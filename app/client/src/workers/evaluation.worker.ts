@@ -23,6 +23,7 @@ import evaluate, {
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import { setFormEvaluationSaga } from "./formEval";
+import { isEmpty } from "lodash";
 
 const CANVAS = "canvas";
 
@@ -87,11 +88,13 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
+          allActionValidationConfig,
           shouldReplay = true,
           unevalTree,
           widgets,
           widgetTypeConfigMap,
         } = requestData;
+
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -103,7 +106,11 @@ ctx.addEventListener(
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
             replayMap[CANVAS] = new ReplayCanvas(widgets);
-            dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+            //allActionValidationConfigs maybe empty
+            dataTreeEvaluator = new DataTreeEvaluator(
+              widgetTypeConfigMap,
+              allActionValidationConfig,
+            );
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
             );
@@ -114,10 +121,24 @@ ctx.addEventListener(
             // If functions exist, it will crash the web worker
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else if (dataTreeEvaluator.hasCyclicalDependency) {
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
+              //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
+              dataTreeEvaluator.setAllActionValidationConfig(
+                allActionValidationConfig,
+              );
+            }
             if (shouldReplay) {
               replayMap[CANVAS]?.update(widgets);
             }
-            dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+            dataTreeEvaluator = new DataTreeEvaluator(
+              widgetTypeConfigMap,
+              allActionValidationConfig,
+            );
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
+              dataTreeEvaluator.setAllActionValidationConfig(
+                allActionValidationConfig,
+              );
+            }
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
             );
@@ -126,6 +147,11 @@ ctx.addEventListener(
             jsUpdates = dataTreeResponse.jsUpdates;
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
+              dataTreeEvaluator.setAllActionValidationConfig(
+                allActionValidationConfig,
+              );
+            }
             dataTree = {};
             if (shouldReplay) {
               replayMap[CANVAS]?.update(widgets);

@@ -350,6 +350,19 @@ export function validateWidgetProperty(
   return validate(config, value, props);
 }
 
+export function validateActionProperty(
+  config: ValidationConfig,
+  value: unknown,
+) {
+  if (!config) {
+    return {
+      isValid: true,
+      parsed: value,
+    };
+  }
+  return validate(config, value, undefined);
+}
+
 export function getValidatedTree(tree: DataTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
