@@ -68,6 +68,7 @@ function MultiSelectComponent({
   disabled,
   dropdownStyle,
   dropDownWidth,
+  filterText,
   isFilterable,
   isValid,
   labelStyle,
@@ -85,7 +86,7 @@ function MultiSelectComponent({
   width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const _menu = useRef<HTMLElement | null>(null);
 
@@ -218,7 +219,7 @@ function MultiSelectComponent({
             />
           ) : null}
           {menu}
-        </div>{" "}
+        </div>
       </>
     ),
     [
@@ -259,10 +260,11 @@ function MultiSelectComponent({
       )}
       <Select
         animation="slide-up"
+        choiceTransitionName="rc-select-selection__choice-zoom"
         // TODO: Make Autofocus a variable in the property pane
         // autoFocus
-        choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
+        defaultActiveFirstOption
         disabled={disabled}
         dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
         dropdownRender={dropdownRender}

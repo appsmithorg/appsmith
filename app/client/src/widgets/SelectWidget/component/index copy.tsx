@@ -41,12 +41,12 @@ class SelectComponent extends React.Component<
 > {
   state = {
     // used to show focused item for keyboard up down key interection
-    activeItemIndex: 0,
+    activeItemIndex: -1,
     query: "",
   };
   componentDidMount = () => {
     // set default selectedIndex as focused index
-    this.setState({ activeItemIndex: this.props.selectedIndex ?? 0 });
+    this.setState({ activeItemIndex: this.props.selectedIndex });
     this.setState({ query: this.props.filterText });
   };
 
@@ -66,6 +66,7 @@ class SelectComponent extends React.Component<
     this.setState({ activeItemIndex });
   };
   render() {
+    console.log("isFocused");
     const {
       compactMode,
       disabled,
@@ -91,8 +92,6 @@ class SelectComponent extends React.Component<
     const value = selectedOption
       ? selectedOption
       : this.props.placeholder || "-- Select --";
-    console.log("isFocused", activeItem);
-
     return (
       <DropdownContainer compactMode={compactMode}>
         <DropdownStyles
@@ -140,12 +139,6 @@ class SelectComponent extends React.Component<
               boundary: "window",
               minimal: true,
               usePortal: true,
-              onClose: () => {
-                if (!this.props.selectedIndex) return;
-                return this.handleActiveItemChange(
-                  this.props.options[this.props.selectedIndex as number],
-                );
-              },
               modifiers: {
                 preventOverflow: {
                   enabled: false,
@@ -154,7 +147,6 @@ class SelectComponent extends React.Component<
               popoverClassName: `select-popover-wrapper select-popover-width-${widgetId}`,
             }}
             query={this.state.query}
-            scrollToActiveItem
             value={this.props.value as string}
           >
             <Button

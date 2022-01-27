@@ -301,7 +301,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: SelectWidgetProps): void {
     // removing selectedOptionValue if defaultValueChanges
     if (
-      prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
+      prevProps.defaultOptionValue?.value !==
+        this.props.defaultOptionValue?.value ||
       prevProps.option !== this.props.option
     ) {
       this.changeSelectedOption();
@@ -318,9 +319,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
-    const selectedIndex = _.findIndex(this.props.options, {
+    const index = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
+
+    const selectedIndex = index >= 0 ? index : 0;
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
