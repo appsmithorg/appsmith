@@ -1,9 +1,10 @@
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { CurrencyDropdownOptions } from "widgets/InputWidget/component/CurrencyCodeDropdown";
+import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { FieldType, INPUT_TYPES } from "widgets/JSONFormWidget/constants";
-import { JSONFormWidgetProps } from "../..";
 import { getSchemaItem, HiddenFnParams } from "../helper";
-import { ISDCodeDropdownOptions } from "widgets/InputWidget/component/ISDCodeDropdown";
+import { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
+import { ISDCodeDropdownOptions } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
+import { JSONFormWidgetProps } from "../..";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -93,13 +94,95 @@ function defaultValueValidation(
   };
 }
 
+export function minValueValidation(
+  min: any,
+  props: JSONFormWidgetProps,
+  lodash: any,
+  _: any,
+  propertyPath: string,
+) {
+  const propertyPathChunks = propertyPath.split(".");
+  const parentPath = propertyPathChunks.slice(0, -1).join(".");
+  const schemaItem = lodash.get(props, parentPath);
+  const max = schemaItem.maxNum;
+  const value = min;
+  min = Number(min);
+
+  if (lodash?.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: undefined,
+      messages: [""],
+    };
+  } else if (!Number.isFinite(min)) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be number"],
+    };
+  } else if (max !== undefined && min >= max) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be lesser than max value"],
+    };
+  } else {
+    return {
+      isValid: true,
+      parsed: min,
+      messages: [""],
+    };
+  }
+}
+
+export function maxValueValidation(
+  max: any,
+  props: JSONFormWidgetProps,
+  lodash: any,
+  _: any,
+  propertyPath: string,
+) {
+  const propertyPathChunks = propertyPath.split(".");
+  const parentPath = propertyPathChunks.slice(0, -1).join(".");
+  const schemaItem = lodash.get(props, parentPath);
+  const min = schemaItem.minNum;
+  const value = max;
+  max = Number(max);
+
+  if (lodash?.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: undefined,
+      messages: [""],
+    };
+  } else if (!Number.isFinite(max)) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be number"],
+    };
+  } else if (min !== undefined && max <= min) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be greater than min value"],
+    };
+  } else {
+    return {
+      isValid: true,
+      parsed: Number(max),
+      messages: [""],
+    };
+  }
+}
+
 const PROPERTIES = {
   general: [
     {
       helpText:
         "Sets the default text of the field. The text is updated if the default text changes",
       propertyName: "defaultValue",
-      label: "Default Text",
+      label: "Default Value",
       controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "John Doe",
       isBindProperty: true,
@@ -117,7 +200,7 @@ const PROPERTIES = {
       },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       propertyName: "allowCurrencyChange",
@@ -130,21 +213,6 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.CURRENCY),
       dependencies: ["schema"],
-    },
-    {
-      helpText: "Changes the country code",
-      propertyName: "phoneNumberCountryCode",
-      label: "Default Country Code",
-      enableSearch: true,
-      dropdownHeight: "195px",
-      controlType: "DROP_DOWN",
-      placeholderText: "Search by code or country name",
-      options: ISDCodeDropdownOptions,
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.PHONE_NUMBER),
-      dependencies: ["schema"],
-      isBindProperty: false,
-      isTriggerProperty: false,
     },
     {
       helpText: "Changes the type of currency",
@@ -168,6 +236,10 @@ const PROPERTIES = {
       controlType: "DROP_DOWN",
       options: [
         {
+          label: "0",
+          value: 0,
+        },
+        {
           label: "1",
           value: 1,
         },
@@ -183,6 +255,34 @@ const PROPERTIES = {
       isTriggerProperty: false,
     },
     {
+      propertyName: "allowDialCodeChange",
+      label: "Allow country code change",
+      helpText: "Search by country",
+      controlType: "SWITCH",
+      isJSConvertible: false,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.PHONE_NUMBER),
+      dependencies: ["schema"],
+      validation: { type: ValidationTypes.BOOLEAN },
+    },
+    {
+      helpText: "Changes the country code",
+      propertyName: "dialCode",
+      label: "Default Country Code",
+      enableSearch: true,
+      dropdownHeight: "195px",
+      controlType: "DROP_DOWN",
+      placeholderText: "Search by code or country name",
+      options: ISDCodeDropdownOptions,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.PHONE_NUMBER),
+      dependencies: ["schema"],
+      isBindProperty: false,
+      isTriggerProperty: false,
+    },
+    {
       helpText: "Sets maximum allowed text length",
       propertyName: "maxChars",
       label: "Max Chars",
@@ -193,7 +293,53 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.NUMBER },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
+    },
+    {
+      helpText: "Sets the minimum allowed value",
+      propertyName: "minNum",
+      label: "Min",
+      controlType: "INPUT_TEXT",
+      placeholderText: "1",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: minValueValidation,
+          expected: {
+            type: "number",
+            example: `1`,
+            autocompleteDataType: AutocompleteDataType.NUMBER,
+          },
+        },
+      },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.NUMBER),
+      dependencies: ["schema"],
+    },
+    {
+      helpText: "Sets the maximum allowed value",
+      propertyName: "maxNum",
+      label: "Max",
+      controlType: "INPUT_TEXT",
+      placeholderText: "100",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: maxValueValidation,
+          expected: {
+            type: "number",
+            example: `100`,
+            autocompleteDataType: AutocompleteDataType.NUMBER,
+          },
+        },
+      },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.NUMBER),
+      dependencies: ["schema"],
     },
     {
       helpText:
@@ -208,7 +354,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.REGEX },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       helpText: "Sets the input validity based on a JS expression",
@@ -222,7 +368,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN, params: { default: true } },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       helpText:
@@ -237,7 +383,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.TEXT },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       helpText: "Sets a placeholder text for the input",
@@ -250,7 +396,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.TEXT },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       propertyName: "isSpellCheck",
@@ -263,6 +409,37 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT),
+      dependencies: ["schema"],
+    },
+    {
+      propertyName: "iconName",
+      label: "Icon",
+      helpText: "Sets the icon to be used in input field",
+      controlType: "ICON_SELECT",
+      isBindProperty: false,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotIncludes([
+          FieldType.TEXT,
+          FieldType.EMAIL,
+          FieldType.PASSWORD,
+          FieldType.NUMBER,
+        ]),
+      dependencies: ["schema"],
+    },
+    {
+      propertyName: "iconAlign",
+      label: "Icon alignment",
+      helpText: "Sets the icon alignment of input field",
+      controlType: "ICON_ALIGN",
+      isBindProperty: false,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem<InputFieldProps["schemaItem"]>(...args).then(
+          (schemaItem) => !schemaItem.iconName,
+        ),
       dependencies: ["schema"],
     },
   ],
@@ -278,7 +455,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       propertyName: "onEnterKeyPress",
@@ -291,7 +468,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
   ],
 };

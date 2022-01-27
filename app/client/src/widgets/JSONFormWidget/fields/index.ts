@@ -7,3 +7,5 @@ export { default as ObjectField } from "./ObjectField";
 export { default as RadioGroupField } from "./RadioGroupField";
 export { default as SelectField } from "./SelectField";
 export { default as SwitchField } from "./SwitchField";
+export { default as CurrencyInputField } from "./CurrencyInputField";
+export { default as PhoneInputField } from "./PhoneInputField";

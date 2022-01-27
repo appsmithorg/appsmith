@@ -4,10 +4,12 @@ import { InputType } from "widgets/InputWidget/constants";
 import {
   ArrayField,
   CheckboxField,
+  CurrencyInputField,
   DateField,
   InputField,
   MultiSelectField,
   ObjectField,
+  PhoneInputField,
   RadioGroupField,
   SelectField,
   SwitchField,
@@ -21,6 +23,7 @@ export enum FieldType {
   DATE = "Date",
   EMAIL = "Email",
   MULTI_SELECT = "Multi-Select",
+  MULTILINE = "Multiline",
   NUMBER = "Number",
   OBJECT = "Object",
   PASSWORD = "Password",
@@ -137,14 +140,15 @@ export const RESTRICTED_KEYS = [ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY];
 export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.ARRAY]: ArrayField,
   [FieldType.CHECKBOX]: CheckboxField,
-  [FieldType.CURRENCY]: InputField,
+  [FieldType.CURRENCY]: CurrencyInputField,
   [FieldType.DATE]: DateField,
   [FieldType.EMAIL]: InputField,
   [FieldType.MULTI_SELECT]: MultiSelectField,
+  [FieldType.MULTILINE]: InputField,
   [FieldType.NUMBER]: InputField,
   [FieldType.OBJECT]: ObjectField,
   [FieldType.PASSWORD]: InputField,
-  [FieldType.PHONE_NUMBER]: InputField,
+  [FieldType.PHONE_NUMBER]: PhoneInputField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.SELECT]: SelectField,
   [FieldType.SWITCH]: SwitchField,
@@ -154,10 +158,11 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
 export const INPUT_TYPES = [
   FieldType.CURRENCY,
   FieldType.EMAIL,
+  FieldType.MULTILINE,
   FieldType.NUMBER,
+  FieldType.PASSWORD,
   FieldType.PHONE_NUMBER,
   FieldType.TEXT,
-  FieldType.PASSWORD,
 ] as const;
 
 /**
@@ -172,6 +177,7 @@ export const INPUT_FIELD_TYPE: Record<typeof INPUT_TYPES[number], InputType> = {
   [FieldType.PASSWORD]: "PASSWORD",
   [FieldType.PHONE_NUMBER]: "PHONE_NUMBER",
   [FieldType.TEXT]: "TEXT",
+  [FieldType.MULTILINE]: "TEXT",
 };
 
 export const FIELD_EXPECTING_OPTIONS = [
@@ -198,32 +204,34 @@ export const DATA_TYPE_POTENTIAL_FIELD = {
 // This will just help to transform a field type (when modified in custom field) to appropriate schemaItem
 // using schemaParser.
 export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
-  [FieldType.TEXT]: "",
-  [FieldType.NUMBER]: 0,
-  [FieldType.EMAIL]: "",
-  [FieldType.PASSWORD]: "",
-  [FieldType.CURRENCY]: "",
-  [FieldType.PHONE_NUMBER]: "",
+  [FieldType.ARRAY]: [{ firstField: "" }],
   [FieldType.CHECKBOX]: true,
+  [FieldType.CURRENCY]: "",
   [FieldType.DATE]: "",
-  [FieldType.RADIO_GROUP]: "",
+  [FieldType.EMAIL]: "",
   [FieldType.MULTI_SELECT]: [],
+  [FieldType.MULTILINE]: "",
+  [FieldType.NUMBER]: 0,
+  [FieldType.OBJECT]: {},
+  [FieldType.PASSWORD]: "",
+  [FieldType.PHONE_NUMBER]: "",
+  [FieldType.RADIO_GROUP]: "",
   [FieldType.SELECT]: "",
   [FieldType.SWITCH]: true,
-  [FieldType.ARRAY]: [{ firstField: "" }],
-  [FieldType.OBJECT]: {},
+  [FieldType.TEXT]: "",
 };
 
 export const FIELD_SUPPORTING_FOCUS_EVENTS = [
-  FieldType.TEXT,
-  FieldType.NUMBER,
-  FieldType.EMAIL,
-  FieldType.PASSWORD,
-  FieldType.CURRENCY,
-  FieldType.PHONE_NUMBER,
   FieldType.CHECKBOX,
+  FieldType.CURRENCY,
   FieldType.DATE,
+  FieldType.EMAIL,
   FieldType.MULTI_SELECT,
+  FieldType.MULTILINE,
+  FieldType.NUMBER,
+  FieldType.PASSWORD,
+  FieldType.PHONE_NUMBER,
+  FieldType.TEXT,
 ];
 
 export const getBindingTemplate = (widgetName: string) => {
