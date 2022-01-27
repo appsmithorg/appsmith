@@ -1,4 +1,4 @@
-import { transformDSL } from "./DSLMigrations";
+import { addPrivateWidgetsToAllListWidgets } from "./DSLMigrations";
 import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -1161,7 +1161,7 @@ describe("correctly migrate dsl", () => {
       isLoading: false,
     };
 
-    const actualNextDsl = transformDSL(currentDSL, false);
+    const actualNextDsl = addPrivateWidgetsToAllListWidgets(currentDSL);
 
     expect(actualNextDsl).toEqual(expectedNextDSL);
   });
