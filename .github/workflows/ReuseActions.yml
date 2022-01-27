@@ -661,9 +661,11 @@ jobs:
 
       - name: Set fail if there are test failures
         if: failure()
-        run: |
-          echo "::set-output name=run_result::failedtest" > ~/run_result
-          find /home/runner/work/appsmith/appsmith/app/client/cypress/screenshots/ -type d|grep spec > ~/failed_spec
+        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+
+      - name: list failed tests if there are test failures
+        if: failure()
+        run: find /home/runner/work/appsmith/appsmith/app/client/cypress/screenshots/ -type d|grep spec > ~/failed_spec
 
       # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
