@@ -443,12 +443,13 @@ jobs:
       - if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo "Rerunning failed tests" && exit 0
 
+      - name: cat run_result
+        run: echo ${{ steps.run_result.outputs.run_resultc }}
+
       - name: Get Failed Tests
-        if: steps.run_result.outputs.run_result == 'failedtest'
         id: vars3
         run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
       - name: cat failed_spec
-        if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo ${{ steps.var3.outputs.failed_spec }}
 
       # Setup Java
