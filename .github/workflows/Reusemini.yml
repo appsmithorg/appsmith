@@ -168,7 +168,6 @@ jobs:
 
       - name: print failed_spec
         run: echo ~/failed_spec
-      - name: Restore the previous bundle
 
       - name: Get failed_spec
         id: failed_spec
@@ -177,6 +176,7 @@ jobs:
       - name: Test failed_spec
         run: echo ${{ steps.failed_spec.outputs.failed_spec }}
 
+      - name: Restore the previous bundle
         #if: steps.run_result.outputs.run_result == 'success'
         uses: actions/cache@v2
         with:
