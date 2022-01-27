@@ -625,6 +625,7 @@ export const PASTE_SSH_URL_INFO = () =>
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
+export const IMPORT_BTN_LABEL = () => "IMPORT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const NO_MERGE_CONFLICT = () =>
@@ -667,6 +668,7 @@ export const APPLICATION_NAME = () => "Application Name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
+export const IMPORTING_APP_FROM_GIT = () => "IMPORTING APPLICATION FROM GIT";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";

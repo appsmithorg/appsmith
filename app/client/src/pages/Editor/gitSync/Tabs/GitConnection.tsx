@@ -16,6 +16,8 @@ import {
   CONNECTING_REPO,
   LEARN_MORE,
   IMPORT_FROM_GIT_REPOSITORY,
+  IMPORT_BTN_LABEL,
+  IMPORTING_APP_FROM_GIT,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -29,6 +31,7 @@ import copy from "copy-to-clipboard";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
+  getIsImportingApplication,
 } from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 import {
@@ -51,6 +54,7 @@ import {
   GENERATE_KEY,
 } from "constants/messages";
 import {
+  getGitConnectError,
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
@@ -165,6 +169,8 @@ function GitConnection({ isImport }: Props) {
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
   const RepoUrlDocumentUrl = useSelector(getRemoteUrlDocUrl);
+  const isImportingApplication = useSelector(getIsImportingApplication);
+  const gitConnectError = useSelector(getGitConnectError);
   // dispatch(setIsImportAppViaGitModalOpen({ isOpen: !!isImport }));
 
   const {
@@ -350,18 +356,23 @@ function GitConnection({ isImport }: Props) {
   }, [setUseGlobalConfigInputVal, useGlobalConfigInputVal]);
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
-
-  const scrolling = useCallback(() => {
-    if (scrollWrapperRef.current) {
+  useEffect(() => {
+    let errorVisible = false;
+    if (gitConnectError) {
+      errorVisible = true;
+      if (gitConnectError.code === 5006) {
+        errorVisible = gitConnectError.message.indexOf("git  push failed") < 0;
+      }
+    }
+    if (errorVisible && scrollWrapperRef.current) {
       setTimeout(() => {
         const top = scrollWrapperRef.current?.scrollHeight || 0;
         scrollWrapperRef.current?.scrollTo({
           top: top,
-          behavior: "smooth",
         });
       }, 100);
     }
-  }, [scrollWrapperRef]);
+  }, [scrollWrapperRef, gitConnectError]);
 
   const openDisconnectGitModal = useCallback(() => {
     AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
@@ -481,16 +492,18 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={!!useGlobalConfigInputVal}
           />
           <ButtonContainer topMargin={0}>
-            {isConnectingToGit && (
+            {(isConnectingToGit || isImportingApplication) && (
               <StatusbarWrapper>
                 <Statusbar
                   completed={!submitButtonIsLoading}
-                  message={createMessage(CONNECTING_REPO)}
+                  message={createMessage(
+                    isImport ? IMPORTING_APP_FROM_GIT : CONNECTING_REPO,
+                  )}
                   period={4}
                 />
               </StatusbarWrapper>
             )}
-            {!isConnectingToGit && (
+            {!(isConnectingToGit || isImportingApplication) && (
               <Button
                 category={Category.primary}
                 className="t--connect-submit-btn"
@@ -500,13 +513,15 @@ function GitConnection({ isImport }: Props) {
                 size={Size.large}
                 tag="button"
                 text={
-                  isGitConnected
+                  isImport
+                    ? createMessage(IMPORT_BTN_LABEL)
+                    : isGitConnected
                     ? createMessage(UPDATE_CONFIG)
                     : createMessage(CONNECT_BTN_LABEL)
                 }
               />
             )}
-            {!isConnectingToGit && <GitSyncError onDisplay={scrolling} />}
+            {!(isConnectingToGit || isImportingApplication) && <GitSyncError />}
           </ButtonContainer>
         </>
       ) : null}

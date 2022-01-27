@@ -82,6 +82,7 @@ import { getLogToSentryFromResponse } from "utils/helpers";
 import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
+import { log } from "loglevel";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -686,7 +687,13 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       action.onErrorCallback(error as string);
     }
 
-    yield put({ type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR });
+    yield put({
+      type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
+      payload: {
+        error: response?.responseMeta.error,
+        show: false,
+      },
+    });
 
     const isRepoLimitReachedError: boolean = yield call(
       handleRepoLimitReachedError,
@@ -706,6 +713,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       });
     } else {
       // Unexpected non api error: report to sentry
+      log(error);
       throw error;
     }
   }

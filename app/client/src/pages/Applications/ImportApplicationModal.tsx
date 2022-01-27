@@ -2,7 +2,6 @@ import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
-import { AppState } from "reducers";
 import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import { importApplication } from "actions/applicationActions";
@@ -25,6 +24,7 @@ import {
   setIsImportAppViaGitModalOpen,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
+import { getIsImportingApplication } from "selectors/applicationSelectors";
 // import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 
 const TextWrapper = styled.div`
@@ -176,9 +176,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     // dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
   }, []);
 
-  const importingApplication = useSelector(
-    (state: AppState) => state.ui.applications.importingApplication,
-  );
+  const importingApplication = useSelector(getIsImportingApplication);
 
   const FileUploader = useCallback(
     async (file: File, setProgress: SetProgress) => {

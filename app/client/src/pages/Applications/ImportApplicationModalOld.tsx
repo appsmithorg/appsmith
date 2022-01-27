@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Button, { Size } from "components/ads/Button";
 import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
-import { AppState } from "reducers";
 import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import { importApplication } from "actions/applicationActions";
@@ -11,6 +10,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { IMPORT_APPLICATION_MODAL_TITLE } from "constants/messages";
 import FilePickerV2 from "components/ads/FilePickerV2";
+import { getIsImportingApplication } from "selectors/applicationSelectors";
 
 const ImportButton = styled(Button)<{ disabled?: boolean }>`
   height: 30px;
@@ -46,9 +46,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   } | null>(null);
   const dispatch = useDispatch();
 
-  const importingApplication = useSelector(
-    (state: AppState) => state.ui.applications.importingApplication,
-  );
+  const importingApplication = useSelector(getIsImportingApplication);
 
   const FileUploader = useCallback(
     async (file: File, setProgress: SetProgress) => {

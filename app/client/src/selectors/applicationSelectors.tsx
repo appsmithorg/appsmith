@@ -159,3 +159,6 @@ export const getFetchingDatasourceConfigForImport = (state: AppState) =>
 
 export const getImportedApplication = (state: AppState) =>
   state.ui.applications.importedApplication;
+
+export const getIsImportingApplication = (state: AppState) =>
+  state.ui.applications.importingApplication;
