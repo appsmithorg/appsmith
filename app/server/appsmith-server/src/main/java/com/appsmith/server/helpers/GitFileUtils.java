@@ -160,7 +160,7 @@ public class GitFileUtils {
     public Mono<ApplicationJson> reconstructApplicationFromGitRepo(String organisationId,
                                                              String defaultApplicationId,
                                                              String repoName,
-                                                             String branchName) throws GitAPIException, IOException {
+                                                             String branchName) {
 
 
         return fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
