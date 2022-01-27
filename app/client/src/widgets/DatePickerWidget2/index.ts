@@ -21,7 +21,7 @@ export const CONFIG = {
     maxDate: "2121-12-31T18:29:00.000Z",
     version: 2,
     isRequired: false,
-    closeOnSelection: false,
+    closeOnSelection: true,
     shortcuts: false,
     firstDayOfWeek: 0,
     timePrecision: TimePrecision.MINUTE,

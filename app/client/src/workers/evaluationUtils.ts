@@ -350,6 +350,19 @@ export function validateWidgetProperty(
   return validate(config, value, props);
 }
 
+export function validateActionProperty(
+  config: ValidationConfig,
+  value: unknown,
+) {
+  if (!config) {
+    return {
+      isValid: true,
+      parsed: value,
+    };
+  }
+  return validate(config, value, undefined);
+}
+
 export function getValidatedTree(tree: DataTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
@@ -721,4 +734,28 @@ export const isPrivateEntityPath = (
     return true;
   }
   return false;
+};
+
+export const getAllPrivateWidgetsInDataTree = (
+  dataTree: DataTree,
+): PrivateWidgets => {
+  let privateWidgets: PrivateWidgets = {};
+
+  Object.keys(dataTree).forEach((entityName) => {
+    const entity = dataTree[entityName];
+    if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
+      privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
+    }
+  });
+
+  return privateWidgets;
+};
+
+export const getDataTreeWithoutPrivateWidgets = (
+  dataTree: DataTree,
+): DataTree => {
+  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree);
+  const privateWidgetNames = Object.keys(privateWidgets);
+  const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
+  return treeWithoutPrivateWidgets;
 };
