@@ -21,7 +21,6 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
@@ -1995,42 +1994,42 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     String defaultBranch = gitApplicationMetadata.getDefaultBranchName();
 
-                    try {
-                        Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
-                        Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
-                        Mono<ApplicationJson> applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch);
 
-                        return Mono.zip(applicationJsonMono, datasourceMono, pluginMono)
-                                .flatMap(data -> {
-                                    ApplicationJson applicationJson = data.getT1();
-                                    List<Datasource> datasourceList = data.getT2();
-                                    List<Plugin> pluginList = data.getT3();
+                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
+                    Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
+                    Mono<ApplicationJson> applicationJsonMono = fileUtils
+                            .reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
+                            .onErrorResume(error -> {
+                                log.error("Error while constructing application from git repo", error);
+                                return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
+                                        .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, error.getMessage())));
+                            });
 
-                                    // If there is an existing datasource with the same name but a different type from that in the repo, the import api should fail
-                                    if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
-                                        return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
-                                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
-                                                        "import",
-                                                        "Datasource already exists with the same name"))
-                                                );
-                                    }
+                    return Mono.zip(applicationJsonMono, datasourceMono, pluginMono)
+                            .flatMap(data -> {
+                                ApplicationJson applicationJson = data.getT1();
+                                List<Datasource> datasourceList = data.getT2();
+                                List<Plugin> pluginList = data.getT3();
 
-                                    applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
-                                    applicationJson.getExportedApplication().setName(application.getName());
-                                    return importExportApplicationService
-                                            .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
-                                            .zipWith(datasourceMono)
-                                            .onErrorResume(throwable -> {
-                                                return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
-                                                        .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())));
-                                            });
-                                });
+                                // If there is an existing datasource with the same name but a different type from that in the repo, the import api should fail
+                                if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
+                                    return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
+                                            .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                    "import",
+                                                    "Datasource already exists with the same name"))
+                                            );
+                                }
 
-                    } catch (GitAPIException | IOException e) {
-                        log.error("Error while constructing application from git repo", e);
-                        return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
-                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
-                    }
+                                applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
+                                applicationJson.getExportedApplication().setName(application.getName());
+                                return importExportApplicationService
+                                        .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
+                                        .zipWith(datasourceMono)
+                                        .onErrorResume(throwable -> {
+                                            return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
+                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())));
+                                        });
+                            });
                 })
                 .flatMap(objects -> {
                     Application application = objects.getT1();
