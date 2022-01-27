@@ -26,7 +26,7 @@ init_env_file() {
     bash "$TEMPLATES_PATH/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" > "$ENV_PATH"
   fi
 
-  printenv | grep -Eo '^APPSMITH_[A-Z0-9_]+=.*|^MONGO_[A-Z0-9_]+=.*' > "$TEMPLATES_PATH/pre-define.env"
+  printenv | grep -E '^APPSMITH_|^MONGO_' > "$TEMPLATES_PATH/pre-define.env"
  
   echo 'Load environment configuration'
   set -o allexport
