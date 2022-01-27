@@ -5,7 +5,6 @@ import Icon, { IconSize } from "../../components/ads/Icon";
 export type CalloutType = "Warning" | "Info";
 
 export const Wrapper = styled.div<{ type?: CalloutType }>`
-  //height: 56px;
   display: flex;
   align-items: center;
   width: 100%;

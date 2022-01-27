@@ -109,7 +109,6 @@ const EditButton = styled.span`
 
 const AddButton = styled(Button)`
   height: 30px;
-  //width: 58px;
   padding: 8px 16px;
 `;
 

@@ -928,6 +928,7 @@ export const UPGRADE_TO_EE = (authLabel: string) =>
 export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
+export const DANGER_ZONE = () => "Danger Zone";
 
 // Guided tour
 // -- STEPS ---

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Variant } from "components/ads/common";
 import Button from "components/ads/Button";
 import { Callout } from "./Callout";
+import { createMessage, DANGER_ZONE } from "@appsmith/constants/messages";
 
 export const Container = styled.div`
   width: 100%;
@@ -50,7 +51,7 @@ export function DisconnectService(props: {
 }) {
   return (
     <Container>
-      <HeaderDanger>Danger Zone</HeaderDanger>
+      <HeaderDanger>{createMessage(DANGER_ZONE)}</HeaderDanger>
       <Info>{props.subHeader}</Info>
       <Callout actionLabel="Learn More" title={props.warning} type="Warning" />
       <DisconnectButton
