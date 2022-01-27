@@ -23,7 +23,6 @@
                 "isVisible": true,
                 "files": [],
                 "selectedFiles": [],
-                "defaultSelectedFiles": [],
                 "allowedFileTypes": [],
                 "label": "Select Files",
                 "maxNumFiles": 1,

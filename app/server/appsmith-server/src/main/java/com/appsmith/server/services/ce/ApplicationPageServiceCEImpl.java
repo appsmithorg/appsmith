@@ -45,6 +45,7 @@ import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1010,6 +1011,37 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE, false));
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
+    }
+
+    /**
+     * This method will create a new suffixed application or update the existing application if there is name conflict
+     * @param application resource which needs to be created or updated
+     * @param name name which should be assigned to the application
+     * @param suffix extension to application name
+     * @return updated application with modified name if duplicate key exception is thrown
+     */
+    public Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getOrganizationId(), application);
+
+        return applicationWithPoliciesMono
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    // We can't use create or createApplication method here as we are expecting update operation if the
+                    // _id is available with application object
+                    return applicationService.save(application);
+                })
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null) {
+                        return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 
 

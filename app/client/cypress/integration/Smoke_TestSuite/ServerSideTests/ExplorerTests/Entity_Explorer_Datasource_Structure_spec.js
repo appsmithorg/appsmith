@@ -30,6 +30,10 @@ describe("Entity explorer datasource structure", function() {
     cy.WaitAutoSave();
 
     cy.GlobalSearchEntity(datasourceName);
+
+    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+      .find(explorer.collapse)
+      .click();
     cy.wait("@getDatasourceStructure").should((interception) => {
       expect(interception.response.body.responseMeta.status).to.deep.eq(200);
     });
@@ -112,6 +116,11 @@ describe("Entity explorer datasource structure", function() {
     cy.wait("@getDatasourceStructure").should((interception) => {
       expect(interception.response.body.responseMeta.status).to.deep.eq(200);
     });
+    // Expand datasource
+    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+      .find(explorer.collapse)
+      .first()
+      .click();
     cy.xpath("//div[text()='public." + tableName + "']").should("exist");
 
     // cy.get(explorer.refreshStructure).click({ force: true });
