@@ -1,21 +1,32 @@
 ---
 
+- name: Check if docker is installed
+  package_facts:
+    manager: auto
+
+- name: Check running container
+  shell: docker inspect --format={{ '{{.State.Running}}' }} appsmith
+  register: container_running
+  ignore_errors: True
+
 - name: Check folder installation exist and empty
   stat:
     path: '{{ install_dir }}'
   register: installDir
 
-- name: Throw error when installation directory is existed and not empty
-  vars:
-    msg: |
-      The {{ install_dir }} folder is existed and not empty.
-      Appsmith may already run on this server. Please check out from this address http://{{ansible_host}}
-  debug:
-    msg: "{{ msg.split('\n') }}"
-  when: installDir.stat.exists
+- name: Check docker-compose.yml file exists 
+  stat:
+    path: '{{ install_dir }}/{{ template_file_name }}'
+  register: template_file
 
-- name: Stop playbook if installation directory is existed and not empty
-  assert:
-    that:
-      - installDir.stat.exists == False
-    quiet: true
+- name: Health check running container
+  uri:
+    url: http://localhost/api/v1/users/me
+    method: GET
+    status_code:
+      - 200
+      - 502
+      - 503
+  register: http_request
+  when:
+    - container_running.stdout == 'true'
