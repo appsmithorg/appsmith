@@ -429,7 +429,7 @@ jobs:
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
@@ -678,7 +678,7 @@ jobs:
             app/client/cypress/snapshots/
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the snapshots as artifacts for layout validation
       - uses: actions/upload-artifact@v1
