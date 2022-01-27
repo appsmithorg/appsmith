@@ -5,7 +5,7 @@ import { BreadcrumbCategories } from "@appsmith/pages/AdminSettings/BreadcrumbCa
 export const getBreadcrumbList = (category: string, subCategory?: string) => {
   const breadcrumbList = [
     BreadcrumbCategories.HOMEPAGE,
-    ...(category !== "general" ? [BreadcrumbCategories.DEFAULT_SETTINGS] : []),
+    // ...(category !== "general" ? [BreadcrumbCategories.DEFAULT_SETTINGS] : []),
     ...(subCategory
       ? [BreadcrumbCategories[category], BreadcrumbCategories[subCategory]]
       : [BreadcrumbCategories[category]]),

@@ -101,7 +101,7 @@ export type AuthMethodType = {
   calloutBanner?: banner;
 };
 
-const EditButton = styled.span`
+const EditButton = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -114,7 +114,6 @@ const AddButton = styled(Button)`
 
 const ButtonTitle = styled.span`
   margin-right: 2px;
-  line-height: 1;
   font-size: 11px;
 `;
 

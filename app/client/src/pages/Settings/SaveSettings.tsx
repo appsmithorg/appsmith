@@ -31,10 +31,10 @@ const SettingsButtonWrapper = styled.div`
   height: ${(props) => props.theme.settings.footerHeight}px;
   padding: ${(props) => props.theme.spaces[11]}px 0px 0px
     ${(props) =>
-      props.theme.spaces[6] +
       props.theme.homePage.leftPane.leftPadding +
-      props.theme.homePage.leftPane.rightMargin +
-      props.theme.homePage.leftPane.width}px;
+      props.theme.homePage.leftPane.width +
+      props.theme.homePage.main.marginLeft -
+      props.theme.spaces[11]}px;
   box-shadow: ${(props) => props.theme.settings.footerShadow};
   z-index: 2;
   background-color: ${(props) => props.theme.colors.homepageBackground};
