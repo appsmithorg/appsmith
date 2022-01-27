@@ -438,7 +438,18 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
 
       - if: steps.run_result.outputs.run_result != 'success'
-        run: echo "I'm alive!" && exit 0
+        run: echo "Starting full run" && exit 0
+
+      - if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo "Rerunning failed tests" && exit 0
+
+      - name: Get Failed Tests
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        id: vars3
+        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
+      - name: cat failed_spec
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo ${{ steps.var3.outputs.failed_spec }}
 
       # Setup Java
       - name: Set up JDK 1.11
