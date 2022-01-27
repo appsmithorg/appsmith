@@ -22,6 +22,7 @@ export interface DatasourceDataState {
   mockDatasourceList: any[];
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
+  unconfiguredList: Datasource[];
 }
 
 const initialState: DatasourceDataState = {
@@ -36,6 +37,7 @@ const initialState: DatasourceDataState = {
   mockDatasourceList: [],
   executingDatasourceQuery: false,
   isReconnectingModalOpen: false,
+  unconfiguredList: [],
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -322,6 +324,15 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       isReconnectingModalOpen: action.payload.isOpen,
+    };
+  },
+  [ReduxActionTypes.MISSED_DATASOURCES_INIT]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource[]>,
+  ) => {
+    return {
+      ...state,
+      unconfiguredList: action.payload,
     };
   },
 });

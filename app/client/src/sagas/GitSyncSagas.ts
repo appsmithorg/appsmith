@@ -639,27 +639,36 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       if (currentOrg.length > 0) {
         const {
           id: appId,
-          isMissingDatasources,
+          isPartialImport,
           pages,
         }: {
           id: string;
           pages: { default?: boolean; id: string; isDefault?: boolean }[];
-          isMissingDatasources: boolean;
+          isPartialImport: boolean;
         } = response?.data;
         yield put({
           type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
           payload: {
-            importedApplication: response?.data,
+            importedApplication: response?.data.application,
           },
         });
         // there is configuration-missing datasources
-        if (isMissingDatasources) {
+        if (isPartialImport) {
+          yield put({
+            type: ReduxActionTypes.MISSED_DATASOURCES_INIT,
+            payload: response?.data.unConfiguredDatasourceList || [],
+          });
           yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
         } else {
-          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          let pageId = "";
+          if (pages && pages.length > 0) {
+            const defaultPage = pages.find((eachPage) => !!eachPage.isDefault);
+            pageId = defaultPage ? defaultPage.id : "";
+          }
+
           const pageURL = BUILDER_PAGE_URL({
             applicationId: appId,
-            pageId: defaultPage[0].id,
+            pageId,
           });
           history.push(pageURL);
           Toaster.show({

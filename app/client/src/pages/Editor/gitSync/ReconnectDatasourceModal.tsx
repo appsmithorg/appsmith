@@ -32,6 +32,7 @@ import {
   getPlugin,
   getPluginImages,
   getPluginNames,
+  getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 import { Datasource } from "entities/Datasource";
@@ -283,6 +284,11 @@ interface ReduxStateProps {
   applicationId: string;
 }
 
+enum DSCollapseMenu {
+  MISSED = "MISSED",
+  SUCCESSED = "SUCCESSED",
+}
+
 type DSProps = ReduxStateProps &
   DatasourcePaneFunctions & { datasourceId: string };
 
@@ -443,6 +449,7 @@ function ReconnectDatasourceModal() {
   const organizationId = useSelector(getOrganizationIdForImport);
   const importedApp = useSelector(getImportedApplication);
   const dataSources = useSelector(getDatasources);
+  const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
   const isLoading = useSelector(
@@ -452,8 +459,11 @@ function ReconnectDatasourceModal() {
     selectedDatasource,
     setSelectedDatasource,
   ] = useState<Datasource | null>(null);
-  const [disabledDS, setDisabledDS] = useState("");
+  const [availableDatasources, setAvailableDatasources] = useState<
+    Array<Datasource>
+  >([]);
   const [applicationUrl, setApplicationUrl] = useState("");
+  const [collapsedMenu, setCollapsedMenu] = useState(DSCollapseMenu.SUCCESSED);
   // todo use for loading state
   const isFetchingDatasourceConfigForImport = useSelector(
     getFetchingDatasourceConfigForImport,
@@ -475,7 +485,9 @@ function ReconnectDatasourceModal() {
   const onSelectedDatasource = useCallback(
     (ds: Datasource, disabled?: boolean) => {
       setSelectedDatasource(ds);
-      setDisabledDS(disabled ? ds.id : "");
+      setCollapsedMenu(
+        disabled ? DSCollapseMenu.MISSED : DSCollapseMenu.SUCCESSED,
+      );
       dispatch(initialize(DATASOURCE_DB_FORM, ds));
     },
     [],
@@ -513,14 +525,30 @@ function ReconnectDatasourceModal() {
         id: string;
         pages: { default?: boolean; id: string; isDefault?: boolean }[];
       } = importedApp;
-      const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+      let pageId = "";
+      if (pages && pages.length > 0) {
+        const defaultPage = pages.find((eachPage) => !!eachPage.isDefault);
+        pageId = defaultPage ? defaultPage.id : "";
+      }
+
       const editApplicationURL = BUILDER_PAGE_URL({
         applicationId: appId,
-        pageId: defaultPage && defaultPage.length > 0 ? defaultPage[0].id : "",
+        pageId,
       });
       setApplicationUrl(editApplicationURL);
     }
   }, [importedApp]);
+
+  useEffect(() => {
+    setAvailableDatasources(
+      dataSources.filter((ds: Datasource) => {
+        const index = unconfiguredDatasources.findIndex(
+          (uds: Datasource) => uds.id === ds.id,
+        );
+        return index < 0;
+      }),
+    );
+  }, [dataSources, unconfiguredDatasources]);
 
   return (
     <>
@@ -555,14 +583,14 @@ function ReconnectDatasourceModal() {
             <ContentWrapper>
               <ListContainer>
                 <Collapsible
-                  defaultIsOpen={!!false}
+                  defaultIsOpen={collapsedMenu === DSCollapseMenu.MISSED}
                   headerIcon={{
                     name: "oval-check",
                     color: Colors.GREEN,
                   }}
                   title="Available Datasources"
                 >
-                  {dataSources.map((ds: Datasource) => {
+                  {availableDatasources.map((ds: Datasource) => {
                     return (
                       <ListItemWrapper
                         disabled
@@ -579,14 +607,14 @@ function ReconnectDatasourceModal() {
                   })}
                 </Collapsible>
                 <Collapsible
-                  defaultIsOpen
+                  defaultIsOpen={collapsedMenu === DSCollapseMenu.SUCCESSED}
                   headerIcon={{
                     name: "warning-line",
                     color: Colors.WARNING_SOLID,
                   }}
                   title="Missing Datasources"
                 >
-                  {dataSources.map((ds: Datasource) => {
+                  {unconfiguredDatasources.map((ds: Datasource) => {
                     return (
                       <ListItemWrapper
                         ds={ds}
@@ -602,10 +630,11 @@ function ReconnectDatasourceModal() {
                   })}
                 </Collapsible>
               </ListContainer>
-              {!isFetchingDatasourceConfigForImport && disabledDS === "" && (
-                <DSForm datasourceId={selectedDatasource?.id} />
-              )}
-              {disabledDS !== "" && (
+              {!isFetchingDatasourceConfigForImport &&
+                collapsedMenu === DSCollapseMenu.SUCCESSED && (
+                  <DSForm datasourceId={selectedDatasource?.id} />
+                )}
+              {collapsedMenu === DSCollapseMenu.MISSED && (
                 <Section className="t--message-container">
                   <Message>
                     {createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE1)}
@@ -618,7 +647,11 @@ function ReconnectDatasourceModal() {
                     hasIcon
                     link={DOCS_BASE_URL || ""}
                     onClick={() => {
-                      window.open(DOCS_BASE_URL, "_blank");
+                      const ds = dataSources[0];
+                      if (ds) {
+                        setSelectedDatasource(ds);
+                        setCollapsedMenu(DSCollapseMenu.SUCCESSED);
+                      }
                     }}
                     text={createMessage(ADD_MISSING_DATASOURCES)}
                   />

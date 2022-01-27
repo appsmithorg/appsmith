@@ -253,7 +253,11 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
-  ) => ({ ...state, importingApplication: true }),
+  ) => ({
+    ...state,
+    importingApplication: true,
+    importedApplication: null,
+  }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, importingApplication: true }),

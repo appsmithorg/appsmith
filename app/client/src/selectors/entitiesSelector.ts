@@ -596,3 +596,7 @@ export const getPageActions = (pageId = "") => {
     });
   };
 };
+
+export const getUnconfiguredDatasources = (state: AppState): Datasource[] => {
+  return state.entities.datasources.unconfiguredList;
+};
