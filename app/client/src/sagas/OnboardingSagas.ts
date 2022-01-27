@@ -1,588 +1,77 @@
 import {
-  batchUpdateWidgetProperty,
-  updateWidgetPropertyRequest,
-} from "actions/controlActions";
-import {
-  changeDatasource,
-  expandDatasourceEntity,
-} from "actions/datasourceActions";
-import {
-  endOnboarding,
-  setCurrentStep,
-  setCurrentSubstep,
-  setHelperConfig,
-  setOnboardingState as setOnboardingReduxState,
-  showIndicator,
-  showOnboardingHelper,
-} from "actions/onboardingActions";
-import { createActionRequest, runAction } from "actions/pluginActionActions";
-import { GenericApiResponse } from "api/ApiResponses";
-import DatasourcesApi from "api/DatasourcesApi";
-import { Plugin } from "api/PluginApi";
-import OnSubmitGif from "assets/gifs/onsubmit.gif";
-import { AppIconCollection } from "components/ads/AppIcon";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
-import {
-  OnboardingConfig,
-  OnboardingHelperConfig,
-  OnboardingStep,
-} from "constants/OnboardingConstants";
-import { Organization } from "constants/orgConstants";
-import {
   ReduxAction,
-  ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
-  APPLICATIONS_URL,
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  matchBuilderPath,
-} from "constants/routes";
-// import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
-import { RenderModes } from "constants/WidgetConstants";
-import { QueryAction } from "entities/Action";
-import { Datasource } from "entities/Datasource";
-import { get } from "lodash";
-import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import { AppState } from "reducers";
-import {
   all,
-  call,
-  cancel,
-  delay,
-  fork,
   put,
   select,
-  take,
   takeLatest,
+  delay,
+  call,
+  take,
 } from "redux-saga/effects";
-import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { getDataTree } from "selectors/dataTreeSelectors";
 import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getIsEditorInitialized,
-} from "selectors/editorSelectors";
-import {
-  getCanvasWidgets,
-  getDatasources,
-  getPlugins,
-} from "selectors/entitiesSelector";
-import {
-  getFirstTimeUserOnboardingApplicationId,
-  getIsFirstTimeUserOnboardingEnabled,
-  getOnboardingOrganisations,
-} from "selectors/onboardingSelectors";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { getAppCardColorPalette } from "selectors/themeSelectors";
-import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  getNextEntityName,
-  getQueryParams,
-  getRandomPaletteColor,
-} from "utils/AppsmithUtils";
-import {
-  EvaluationError,
-  EVAL_ERROR_PATH,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
-import { generateReactKey } from "utils/generators";
-import {
-  playOnboardingAnimation,
-  playOnboardingStepCompletionAnimation,
-  trimQueryString,
-} from "utils/helpers";
-import history from "utils/history";
-import {
-  getOnboardingState,
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
-  setOnboardingState,
-  setOnboardingWelcomeState,
 } from "utils/storage";
+
+import { getCurrentUser } from "selectors/usersSelectors";
+import { BUILDER_PAGE_URL, QUERIES_EDITOR_ID_URL } from "constants/routes";
+import history from "utils/history";
+import TourApp from "pages/Editor/GuidedTour/app.json";
+
+import {
+  getFirstTimeUserOnboardingApplicationId,
+  getHadReachedStep,
+  getOnboardingOrganisations,
+  getQueryAction,
+  getTableWidget,
+} from "selectors/onboardingSelectors";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import { Organization } from "constants/orgConstants";
+import {
+  enableGuidedTour,
+  focusWidgetProperty,
+  setCurrentStep,
+  toggleLoader,
+} from "actions/onboardingActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getNextWidgetName } from "./WidgetOperationUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
-import { validateResponse } from "./ErrorSagas";
-import { getSelectedWidget, getWidgetByName, getWidgets } from "./selectors";
+import { generateReactKey } from "utils/generators";
+import { RenderModes } from "constants/WidgetConstants";
+import log from "loglevel";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getWidgets } from "./selectors";
+import {
+  clearActionResponse,
+  setActionProperty,
+} from "actions/pluginActionActions";
+import { QueryAction } from "entities/Action";
+import {
+  importApplication,
+  updateApplicationLayout,
+} from "actions/applicationActions";
+import { setPreviewModeAction } from "actions/editorActions";
+import { FlattenedWidgetProps } from "widgets/constants";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
+import { setExplorerPinnedAction } from "actions/explorerActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { hideIndicator } from "pages/Editor/GuidedTour/utils";
+import { updateWidgetName } from "actions/propertyPaneActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const WidgetTypes = WidgetFactory.widgetTypes;
-
-export const getCurrentStep = (state: AppState) =>
-  state.ui.onBoarding.currentStep;
-export const getCurrentSubStep = (state: AppState) =>
-  state.ui.onBoarding.currentSubstep;
-export const inOnboarding = (state: AppState) =>
-  state.ui.onBoarding.inOnboarding;
-export const isAddWidgetComplete = (state: AppState) =>
-  state.ui.onBoarding.addedWidget;
-export const showCompletionDialog = (state: AppState) => {
-  const isInOnboarding = inOnboarding(state);
-  const currentStep = getCurrentStep(state);
-
-  return isInOnboarding && currentStep === OnboardingStep.DEPLOY;
-};
-export const getInitialTableData = (state: AppState) => {
-  const widgetConfig = state.entities.widgetConfig;
-
-  return widgetConfig.config.TABLE_WIDGET.tableData;
-};
-export const getHelperConfig = (step: OnboardingStep) => {
-  return OnboardingConfig[step].helper as OnboardingHelperConfig;
-};
-export const checkCurrentStep = (
-  state: AppState,
-  step: OnboardingStep,
-  comparison: "EQAULS" | "LESSER" = "EQAULS",
-) => {
-  const isInOnboarding = inOnboarding(state);
-  const currentStep = getCurrentStep(state);
-
-  switch (comparison) {
-    case "LESSER":
-      return isInOnboarding && currentStep < step;
-    default:
-      return isInOnboarding && currentStep === step;
-  }
-};
-
-function* listenForWidgetAdditions() {
-  while (true) {
-    yield take();
-
-    const selectedWidget = yield select(getSelectedWidget);
-    const canvasWidgets = yield select(getCanvasWidgets);
-    const initialTableData = yield select(getInitialTableData);
-
-    // Updating the tableData property to []
-    if (
-      selectedWidget &&
-      selectedWidget.type === "TABLE_WIDGET" &&
-      canvasWidgets[selectedWidget.widgetId]
-    ) {
-      if (
-        selectedWidget.widgetName === "Standup_Table" ||
-        selectedWidget.tableData === initialTableData
-      ) {
-        yield put(
-          batchUpdateWidgetProperty(selectedWidget.widgetId, {
-            modify: {
-              widgetName: "Standup_Table",
-              tableData: [],
-              columnSizeMap: {
-                avatar: 80,
-                name: 120,
-              },
-              columnTypeMap: {
-                avatar: {
-                  type: "image",
-                  format: "",
-                },
-              },
-              migrated: false,
-              ...getStandupTableDimensions(),
-            },
-          }),
-        );
-      }
-
-      AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_TABLE");
-      yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
-      yield put({
-        type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
-      });
-      yield put(
-        setHelperConfig(getHelperConfig(OnboardingStep.SUCCESSFUL_BINDING)),
-      );
-
-      return;
-    }
-  }
-}
-
-function* listenForAddInputWidget() {
-  while (true) {
-    yield take();
-    const canvasWidgets = yield select(getCanvasWidgets);
-    const currentPageId = yield select(getCurrentPageId);
-    const applicationId = yield select(getCurrentApplicationId);
-    const widgets = yield select(getWidgets);
-
-    const inputWidget: any = Object.values(widgets).find(
-      (widget: any) => widget.type === "INPUT_WIDGET_V2",
-    );
-
-    const isOnBuilder = matchBuilderPath(window.location.pathname);
-
-    trimQueryString(
-      BUILDER_PAGE_URL({
-        applicationId,
-        pageId: currentPageId,
-      }),
-    );
-
-    if (
-      inputWidget &&
-      inputWidget.type === "INPUT_WIDGET_V2" &&
-      canvasWidgets[inputWidget.widgetId]
-    ) {
-      if (!isOnBuilder) {
-        yield cancel();
-      }
-
-      AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_INPUT");
-
-      if (inputWidget.widgetName !== "Standup_Input") {
-        yield put(
-          updateWidgetPropertyRequest(
-            inputWidget.widgetId,
-            "widgetName",
-            "Standup_Input",
-          ),
-        );
-        yield put(
-          batchUpdateWidgetProperty(inputWidget.widgetId, {
-            modify: {
-              ...getStandupInputDimensions(),
-              ...getStandupInputProps(),
-            },
-          }),
-        );
-        yield put(setCurrentSubstep(2));
-
-        yield put(showIndicator(OnboardingStep.ADD_INPUT_WIDGET));
-      }
-
-      const helperConfig: OnboardingHelperConfig = yield select(
-        (state) => state.ui.onBoarding.helperStepConfig,
-      );
-      const onSubmitGifUrl = OnSubmitGif;
-
-      if (helperConfig.image?.src !== onSubmitGifUrl) {
-        yield put(
-          setHelperConfig({
-            ...helperConfig,
-            image: {
-              src: onSubmitGifUrl,
-            },
-          }),
-        );
-      }
-
-      yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
-      const dataTree = yield select(getDataTree);
-
-      const updatedInputWidget = dataTree["Standup_Input"];
-
-      if (updatedInputWidget) {
-        const dynamicTriggerPathList =
-          updatedInputWidget.dynamicTriggerPathList;
-        const hasOnSubmitHandler =
-          dynamicTriggerPathList &&
-          dynamicTriggerPathList.length &&
-          dynamicTriggerPathList.some(
-            (trigger: any) => trigger.key === "onSubmit",
-          );
-
-        if (hasOnSubmitHandler) {
-          yield put(
-            updateWidgetPropertyRequest(
-              inputWidget.widgetId,
-              "onSubmit",
-              "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-            ),
-          );
-          AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
-
-          yield put(setCurrentStep(OnboardingStep.DEPLOY));
-          yield put(setHelperConfig(getHelperConfig(OnboardingStep.DEPLOY)));
-
-          return;
-        }
-      }
-    }
-  }
-}
-
-function* listenForSuccessfulBinding() {
-  while (true) {
-    yield take();
-
-    let bindSuccessful = true;
-    const selectedWidget = yield call(getStandupTableWidget);
-    if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
-      const dataTree = yield select(getDataTree);
-
-      if (dataTree[selectedWidget.widgetName]) {
-        const dynamicBindingPathList =
-          dataTree[selectedWidget.widgetName].dynamicBindingPathList;
-        const tableHasData = dataTree[selectedWidget.widgetName].tableData;
-        const hasBinding =
-          dynamicBindingPathList &&
-          !!dynamicBindingPathList.length &&
-          dynamicBindingPathList.some(
-            (item: { key: string }) => item.key === "tableData",
-          );
-        const errors = get(
-          selectedWidget,
-          `${EVAL_ERROR_PATH}.tableData`,
-          [],
-        ).filter(
-          (error: EvaluationError) =>
-            error.errorType !== PropertyEvaluationErrorType.LINT,
-        );
-
-        bindSuccessful =
-          bindSuccessful &&
-          hasBinding &&
-          Array.isArray(tableHasData) &&
-          tableHasData.length &&
-          errors.length === 0;
-
-        if (bindSuccessful) {
-          AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
-          yield put(setCurrentStep(OnboardingStep.ADD_INPUT_WIDGET));
-
-          yield delay(1000);
-
-          yield put(
-            setHelperConfig(getHelperConfig(OnboardingStep.ADD_INPUT_WIDGET)),
-          );
-          return;
-        }
-      }
-    }
-  }
-}
-
-function* createOnboardingDatasource() {
-  AnalyticsUtil.logEvent("ONBOARDING_INTRODUCTION");
-
-  try {
-    const isEditorInitialized = yield select(getIsEditorInitialized);
-    if (!isEditorInitialized)
-      yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-
-    const organizationId = yield select(getCurrentOrgId);
-    const plugins = yield select(getPlugins);
-    const postgresPlugin = plugins.find(
-      (plugin: Plugin) => plugin.name === "PostgreSQL",
-    );
-    const datasources: Datasource[] = yield select(getDatasources);
-    let onboardingDatasource = datasources.find((datasource) => {
-      const name = get(datasource, "name");
-
-      return name === "Super Updates DB";
-    });
-
-    if (!onboardingDatasource) {
-      const datasourceConfig: any = {
-        pluginId: postgresPlugin.id,
-        name: "Super Updates DB",
-        organizationId,
-        datasourceConfiguration: {
-          connection: {
-            mode: "READ_WRITE",
-            ssl: { authType: "DEFAULT" },
-          },
-          endpoints: [
-            {
-              host: "mockdb.internal.appsmith.com",
-              port: 5432,
-            },
-          ],
-          authentication: {
-            databaseName: "fakeapi",
-            username: "fakeapi",
-            password: "LimitedAccess123#",
-          },
-          sshProxyEnabled: false,
-        },
-      };
-
-      const datasourceResponse: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
-        datasourceConfig,
-      );
-      yield validateResponse(datasourceResponse);
-      yield checkAndGetPluginFormConfigsSaga(postgresPlugin.id);
-      yield put({
-        type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
-        payload: datasourceResponse.data,
-      });
-
-      onboardingDatasource = datasourceResponse.data;
-    }
-
-    yield put(expandDatasourceEntity(onboardingDatasource.id));
-
-    yield put({
-      type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS,
-    });
-
-    // Navigate to that datasource page
-    yield put(changeDatasource({ datasource: onboardingDatasource }));
-
-    yield take(ReduxActionTypes.SHOW_ONBOARDING_LOADER);
-    yield put(
-      setHelperConfig(getHelperConfig(OnboardingStep.EXAMPLE_DATABASE)),
-    );
-    yield put(showOnboardingHelper(true));
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,
-      payload: { error },
-    });
-  }
-}
-
-function* listenForCreateAction() {
-  const helperConfig = getHelperConfig(OnboardingStep.EXAMPLE_DATABASE);
-  yield put(showIndicator(OnboardingStep.EXAMPLE_DATABASE));
-
-  yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
-  AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
-  yield put(
-    setHelperConfig({
-      ...helperConfig,
-      image: {
-        src: "https://assets.appsmith.com/Run.gif",
-      },
-    }),
-  );
-  yield put(setCurrentSubstep(2));
-
-  yield take([
-    ReduxActionTypes.UPDATE_ACTION_INIT,
-    ReduxActionTypes.QUERY_PANE_CHANGE,
-    ReduxActionTypes.RUN_ACTION_REQUEST,
-  ]);
-
-  yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
-  AnalyticsUtil.logEvent("ONBOARDING_RUN_QUERY");
-  yield put(setHelperConfig(getHelperConfig(OnboardingStep.RUN_QUERY_SUCCESS)));
-  yield put(showIndicator(OnboardingStep.RUN_QUERY_SUCCESS));
-
-  yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
-}
-
-function* listenForDeploySaga() {
-  while (true) {
-    yield take();
-    yield put(showIndicator(OnboardingStep.DEPLOY));
-
-    yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
-    AnalyticsUtil.logEvent("ONBOARDING_DEPLOY");
-
-    yield call(setOnboardingWelcomeState, false);
-    yield put(setCurrentStep(OnboardingStep.FINISH));
-    yield put(setOnboardingReduxState(false));
-
-    return;
-  }
-}
-
-function* initiateOnboarding() {
-  const currentOnboardingState = yield getOnboardingState();
-
-  if (currentOnboardingState) {
-    yield put(setOnboardingReduxState(true));
-
-    yield put(setCurrentStep(OnboardingStep.WELCOME));
-    yield put(setCurrentStep(OnboardingStep.EXAMPLE_DATABASE));
-  }
-}
-
-function* proceedOnboardingSaga() {
-  const isInOnboarding = yield select(inOnboarding);
-
-  if (isInOnboarding) {
-    yield put({
-      type: ReduxActionTypes.INCREMENT_STEP,
-    });
-
-    yield setupOnboardingStep();
-  }
-}
-
-function* setupOnboardingStep() {
-  const currentStep: OnboardingStep = yield select(getCurrentStep);
-  const currentConfig = OnboardingConfig[currentStep];
-  let actions = currentConfig.setup();
-
-  if (actions.length) {
-    actions = actions.map((action) => put(action));
-    yield all(actions);
-  }
-
-  yield delay(500);
-  playOnboardingStepCompletionAnimation();
-}
-
-function* skipOnboardingSaga() {
-  const set = yield call(setOnboardingState, false);
-  const resetWelcomeState = yield call(setOnboardingWelcomeState, false);
-
-  if (set && resetWelcomeState) {
-    yield put(setOnboardingReduxState(false));
-  }
-}
-
-function* returnHomeSaga() {
-  history.push(APPLICATIONS_URL);
-  yield put(endOnboarding());
-
-  AnalyticsUtil.logEvent("ONBOARDING_GO_HOME");
-}
-
-function* showEndOnboardingHelperSaga() {
-  const params = getQueryParams();
-  const inOnboarding = yield call(getOnboardingState);
-
-  if (params.onboardingComplete && inOnboarding) {
-    yield put(
-      setHelperConfig(
-        getHelperConfig(OnboardingStep.FINISH) as OnboardingHelperConfig,
-      ),
-    );
-    AnalyticsUtil.logEvent("ONBOARDING_COMPLETE");
-    yield put(setCurrentSubstep(5));
-
-    yield delay(1000);
-    yield call(playOnboardingAnimation);
-    yield put(showOnboardingHelper(true));
-  }
-}
-
-// Cheat actions
 function* createApplication() {
-  const colorPalette = yield select(getAppCardColorPalette);
-  const color = getRandomPaletteColor(colorPalette);
-  const icon =
-    AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
-
-  const currentUser = yield select(getCurrentUser);
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
-
+  const currentUser = yield select(getCurrentUser);
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
-  const isFirstTimeUserOnboardingdEnabled = yield select(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
-  if (isFirstTimeUserOnboardingdEnabled) {
-    yield put({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
-      payload: false,
-    });
-    yield put({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      payload: "",
-    });
-  }
   if (!currentOrganizationId) {
     organization = userOrgs[0];
   } else {
@@ -592,111 +81,123 @@ function* createApplication() {
     organization = filteredOrganizations[0];
   }
 
-  // Organization could be undefined for unknown reason
   if (organization) {
-    const applicationList = organization.applications;
-
-    const applicationName = getNextEntityName(
-      "Super Standup ",
-      applicationList.map((el: any) => el.name),
-      true,
-    );
-
-    yield put({
-      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-      payload: {
-        applicationName,
-        orgId: organization.organization.id,
-        icon,
-        color,
-      },
+    const appFileObject = new File([JSON.stringify(TourApp)], "app.json", {
+      type: "application/json",
     });
-
-    yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
-    yield call(initiateOnboarding);
+    yield put(enableGuidedTour(true));
+    yield put(
+      importApplication({
+        orgId: organization.organization.id,
+        applicationFile: appFileObject,
+      }),
+    );
   }
+
+  yield put(setPreviewModeAction(true));
 }
 
-function* createQuery() {
-  const currentPageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
-  const currentSubstep = yield select(getCurrentSubStep);
-  const datasources: Datasource[] = yield select(getDatasources);
-  const onboardingDatasource = datasources.find((datasource) => {
-    const name = get(datasource, "name");
+function* setCurrentStepSaga(action: ReduxAction<number>) {
+  const hadReachedStep = yield select(getHadReachedStep);
+  // Log only once when we reach that step
+  if (action.payload > hadReachedStep) {
+    AnalyticsUtil.logEvent("GUIDED_TOUR_REACHED_STEP", {
+      step: action.payload,
+    });
+  }
 
-    return name === "Super Updates DB";
+  yield put(setCurrentStep(action.payload));
+}
+
+function* setUpTourAppSaga() {
+  yield put(setPreviewModeAction(false));
+  // Delete the container widget
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const containerWidget = Object.values(widgets).find(
+    (widget) => widget.type === "CONTAINER_WIDGET",
+  );
+  yield put({
+    type: WidgetReduxActionTypes.WIDGET_DELETE,
+    payload: {
+      widgetId: containerWidget?.widgetId,
+      parentId: containerWidget?.parentId,
+      disallowUndo: true,
+    },
   });
 
-  // If the user is on substep 2 of the CREATE_QUERY step
-  // just run the query.
-  if (currentSubstep == 2) {
-    yield put({
-      type: "ONBOARDING_RUN_QUERY",
-    });
-
-    AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
-      step: 1,
-    });
-
-    return;
-  }
-
-  if (onboardingDatasource) {
-    const payload = {
-      name: "fetch_standup_updates",
-      pageId: currentPageId,
-      pluginId: onboardingDatasource?.pluginId,
-      datasource: {
-        id: onboardingDatasource?.id,
+  yield delay(500);
+  const tableWidget = yield select(getTableWidget);
+  yield put(
+    batchUpdateMultipleWidgetProperties([
+      {
+        widgetId: tableWidget.widgetId,
+        updates: {
+          modify: {
+            tableData: "",
+          },
+        },
       },
-      actionConfiguration: {
-        body:
-          "Select avatar, name, notes from standup_updates order by id desc",
-        timeoutInMillisecond: 30000,
+    ]),
+  );
+  // Update getCustomers query body
+  const query: ActionData | undefined = yield select(getQueryAction);
+  let body = (query?.config as QueryAction).actionConfiguration.body;
+  body = body?.replace("10", "20");
+  yield put(
+    setActionProperty({
+      actionId: query?.config.id ?? "",
+      propertyName: "actionConfiguration.body",
+      value: body,
+    }),
+  );
+  yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
+  yield put(clearActionResponse(query?.config.id ?? ""));
+  const applicationId = yield select(getCurrentApplicationId);
+  history.push(
+    QUERIES_EDITOR_ID_URL(
+      applicationId,
+      query?.config.pageId,
+      query?.config.id,
+    ),
+  );
+
+  yield put(
+    updateApplicationLayout(applicationId || "", {
+      appLayout: {
+        type: "DESKTOP",
       },
-    } as Partial<QueryAction>;
-
-    yield put(createActionRequest(payload));
-    history.push(
-      INTEGRATION_EDITOR_URL(
-        applicationId,
-        currentPageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
-    );
-
-    yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
-    yield put({
-      type: "ONBOARDING_RUN_QUERY",
-    });
-
-    AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
-      step: 1,
-    });
-  }
+    }),
+  );
+  // Hide the explorer initialy
+  yield put(setExplorerPinnedAction(false));
+  yield put(toggleLoader(false));
 }
 
-function* executeQuery() {
-  const queryId = getQueryIdFromURL();
+function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
+  const widgetConfig = action.payload;
 
-  if (queryId) {
-    yield put(runAction(queryId));
-  }
-}
+  if (!widgetConfig.type) return;
 
-function* addWidget(widgetConfig: any) {
+  const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
+
+  const evalTree = yield select(getDataTree);
+  const widgets = yield select(getWidgets);
+
+  const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
+    prefix: widgetConfig.widgetName,
+  });
+
   try {
-    const widget = yield select(getWidgetByName, widgetConfig.widgetName ?? "");
-    // If widget already exists return
-    if (widget) return;
-
     const newWidget = {
       newWidgetId: generateReactKey(),
       widgetId: "0",
       parentId: "0",
       renderMode: RenderModes.CANVAS,
       isLoading: false,
+      ...defaultConfig,
+      widgetName,
       ...widgetConfig,
     };
 
@@ -705,204 +206,100 @@ function* addWidget(widgetConfig: any) {
       payload: newWidget,
     });
 
-    const pageId = yield select(getCurrentPageId);
-    const applicationId = yield select(getCurrentApplicationId);
-
-    navigateToCanvas({
-      pageId,
-      widgetId: newWidget.newWidgetId,
-      applicationId,
-    });
-
-    yield put({
-      type: ReduxActionTypes.SELECT_WIDGET_INIT,
-      payload: { widgetId: newWidget.newWidgetId },
-    });
-  } catch (error) {}
-}
-
-const getStandupTableDimensions = () => {
-  const columns = 64;
-  const rows = 60;
-  const topRow = 8;
-  const bottomRow = rows + topRow;
-  return {
-    parentRowSpace: 40,
-    parentColumnSpace: 1,
-    topRow,
-    bottomRow,
-    leftColumn: 0,
-    rightColumn: columns,
-    columns: columns,
-    rows: rows,
-  };
-};
-
-const getStandupInputDimensions = () => {
-  const columns = 24;
-  const rows = 4;
-  const leftColumn = 20;
-  const rightColumn = leftColumn + columns;
-  return {
-    topRow: 4,
-    bottomRow: 8,
-    leftColumn,
-    rightColumn,
-    rows,
-    columns,
-  };
-};
-
-const getStandupInputProps = () => ({
-  placeholderText: "Type your update and hit enter!",
-});
-
-function* addTableWidget() {
-  yield call(addWidget, {
-    type: WidgetTypes.TABLE_WIDGET,
-    widgetName: "Standup_Table",
-    ...getStandupTableDimensions(),
-    props: {
-      tableData: [],
-    },
-  });
-
-  AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_CLICK");
-  AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
-    step: 2,
-  });
-}
-
-function* addInputWidget() {
-  yield call(addWidget, {
-    type: WidgetTypes.INPUT_WIDGET_V2,
-    widgetName: "Standup_Input",
-    ...getStandupInputDimensions(),
-    props: getStandupInputProps(),
-  });
-
-  yield call(addOnSubmitHandler);
-}
-
-function* addOnSubmitHandler() {
-  // Creating a query first
-  const currentPageId = yield select(getCurrentPageId);
-  const datasources: Datasource[] = yield select(getDatasources);
-  const onboardingDatasource = datasources.find((datasource) => {
-    const name = get(datasource, "name");
-
-    return name === "Super Updates DB";
-  });
-
-  if (onboardingDatasource) {
-    const payload = {
-      name: "add_standup_updates",
-      pageId: currentPageId,
-      pluginId: onboardingDatasource?.pluginId,
-      datasource: {
-        id: onboardingDatasource?.id,
-      },
-      actionConfiguration: {
-        body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
-      },
-    } as Partial<QueryAction>;
-
-    yield put(createActionRequest(payload));
-
-    yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
-
-    const widgets = yield select(getWidgets);
-    const inputWidget: any = Object.values(widgets).find(
-      (widget: any) => widget.type === "INPUT_WIDGET_V2",
+    // Wait for widget names to be updated
+    // Updating widget names here as widget blueprints don't take widget names
+    yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
+    const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+      getWidgets,
     );
 
-    if (inputWidget) {
-      yield delay(1000);
+    const nameInput = Object.values(widgets).find(
+      (widget) => widget.widgetName === "Input1",
+    );
+    const emailInput = Object.values(widgets).find(
+      (widget) => widget.widgetName === "Input2",
+    );
+    const countryInput = Object.values(widgets).find(
+      (widget) => widget.widgetName === "Input3",
+    );
+    const imageWidget = Object.values(widgets).find(
+      (widget) => widget.widgetName === "Image1",
+    );
 
-      const pageId = yield select(getCurrentPageId);
-      const applicationId = yield select(getCurrentApplicationId);
-
-      navigateToCanvas({
-        pageId,
-        widgetId: inputWidget.widgetId,
-        applicationId,
-      });
-      yield put({
-        type: ReduxActionTypes.SELECT_WIDGET_INIT,
-        payload: { widgetId: inputWidget.widgetId },
-      });
-
-      yield put(
-        updateWidgetPropertyRequest(
-          inputWidget.widgetId,
-          "onSubmit",
-          "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-        ),
-      );
-      AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
-
-      yield put(setCurrentStep(OnboardingStep.DEPLOY));
-      yield put(setHelperConfig(getHelperConfig(OnboardingStep.DEPLOY)));
-
-      AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
-        step: 4,
-      });
+    if (nameInput && emailInput && countryInput && imageWidget) {
+      yield put(updateWidgetName(nameInput.widgetId, "NameInput"));
+      yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
+      yield put(updateWidgetName(emailInput.widgetId, "EmailInput"));
+      yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
+      yield put(updateWidgetName(countryInput.widgetId, "CountryInput"));
+      yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
+      yield put(updateWidgetName(imageWidget.widgetId, "ImageWidget"));
     }
+  } catch (error) {
+    log.error(error);
   }
 }
 
-function* getStandupTableWidget() {
-  const canvasWidgets: Record<string, any> = yield select(getCanvasWidgets);
-  const result =
-    Object.entries(canvasWidgets).find((widgetEntry) => {
-      const [, widget] = widgetEntry;
-      return widget.widgetName === "Standup_Table";
-    }) || [];
-  const standupTable = result[1];
-  return standupTable;
-}
-
-function* addBinding() {
-  const standupTable = yield call(getStandupTableWidget);
-  if (standupTable) {
+// Update button widget text
+function* updateWidgetTextSaga() {
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const buttonWidget = Object.values(widgets).find(
+    (widget) => widget.type === "BUTTON_WIDGET",
+  );
+  if (buttonWidget) {
     yield put(
-      updateWidgetPropertyRequest(
-        standupTable.widgetId,
-        "tableData",
-        "{{fetch_standup_updates.data}}",
-      ),
+      batchUpdateMultipleWidgetProperties([
+        {
+          widgetId: buttonWidget.widgetId,
+          updates: {
+            modify: {
+              text: "Click to Update",
+              rightColumn: buttonWidget.leftColumn + 24,
+              bottomRow: buttonWidget.topRow + 5,
+            },
+          },
+        },
+      ]),
     );
-
-    AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
-      step: 3,
-    });
   }
 }
 
-function* deploy() {
-  const applicationId = yield select(getCurrentApplicationId);
-  yield put({
-    type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-    payload: {
-      applicationId,
-    },
-  });
-
-  AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
-    step: 5,
-  });
+function* focusWidgetPropertySaga(action: ReduxAction<string>) {
+  const input: HTMLElement | null = document.querySelector(
+    `[data-guided-tour-iid=${action.payload}] .CodeEditorTarget textarea`,
+  );
+  input?.focus();
 }
 
-export default function* onboardingSagas() {
-  while (true) {
-    const task = yield fork(onboardingActionSagas);
-
-    yield take(ReduxActionTypes.END_ONBOARDING);
-    yield cancel(task);
-    yield call(skipOnboardingSaga);
+function* endGuidedTourSaga(action: ReduxAction<boolean>) {
+  if (!action.payload) {
+    yield call(hideIndicator);
   }
 }
 
+function* selectWidgetSaga(
+  action: ReduxAction<{ widgetName: string; propertyName?: string }>,
+) {
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const widget = Object.values(widgets).find((widget) => {
+    return widget.widgetName === action.payload.widgetName;
+  });
+
+  if (widget) {
+    yield put(selectWidgetInitAction(widget.widgetId));
+    // Delay to wait for the fields to render
+    yield delay(1000);
+    // If the propertyName exist then we focus the respective input field as well
+    if (action.payload.propertyName)
+      yield put(focusWidgetProperty(action.payload.propertyName));
+  }
+}
+
+// Signposting sagas
 function* setEnableFirstTimeUserOnboarding(action: ReduxAction<boolean>) {
   yield storeEnableFirstTimeUserOnboarding(action.payload);
 }
@@ -974,51 +371,22 @@ function* firstTimeUserOnboardingInitSaga(
   );
 }
 
-function* onboardingActionSagas() {
+export default function* onboardingActionSagas() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
-      createOnboardingDatasource,
-    ),
-    takeLatest(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
-    takeLatest(
-      ReduxActionTypes.LISTEN_FOR_CREATE_ACTION,
-      listenForCreateAction,
-    ),
-    takeLatest(
-      ReduxActionTypes.LISTEN_FOR_ADD_WIDGET,
-      listenForWidgetAdditions,
-    ),
-    takeLatest(
-      ReduxActionTypes.LISTEN_ADD_INPUT_WIDGET,
-      listenForAddInputWidget,
-    ),
-    takeLatest(
-      ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
-      listenForSuccessfulBinding,
-    ),
-    takeLatest(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
-    takeLatest(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
-    takeLatest(ReduxActionTypes.ONBOARDING_RETURN_HOME, returnHomeSaga),
-    takeLatest(
-      ReduxActionTypes.SHOW_END_ONBOARDING_HELPER,
-      showEndOnboardingHelperSaga,
-    ),
-    // Cheat actions
-    takeLatest(ReduxActionTypes.ONBOARDING_CREATE_QUERY, createQuery),
-    takeLatest(ReduxActionTypes.ONBOARDING_RUN_QUERY, executeQuery),
-    takeLatest(ReduxActionTypes.ONBOARDING_ADD_TABLE_WIDGET, addTableWidget),
-    takeLatest(ReduxActionTypes.ONBOARDING_ADD_INPUT_WIDGET, addInputWidget),
-    takeLatest(
-      ReduxActionTypes.ONBOARDING_ADD_ONSUBMIT_BINDING,
-      addOnSubmitHandler,
-    ),
-    takeLatest(ReduxActionTypes.ONBOARDING_ADD_TABLEDATA_BINDING, addBinding),
-    takeLatest(ReduxActionTypes.ONBOARDING_DEPLOY, deploy),
     takeLatest(
       ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
       createApplication,
     ),
+    takeLatest(ReduxActionTypes.SET_UP_TOUR_APP, setUpTourAppSaga),
+    takeLatest(ReduxActionTypes.GUIDED_TOUR_ADD_WIDGET, addOnboardingWidget),
+    takeLatest(ReduxActionTypes.SET_CURRENT_STEP_INIT, setCurrentStepSaga),
+    takeLatest(
+      ReduxActionTypes.UPDATE_BUTTON_WIDGET_TEXT,
+      updateWidgetTextSaga,
+    ),
+    takeLatest(ReduxActionTypes.ENABLE_GUIDED_TOUR, endGuidedTourSaga),
+    takeLatest(ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET, selectWidgetSaga),
+    takeLatest(ReduxActionTypes.FOCUS_WIDGET_PROPERTY, focusWidgetPropertySaga),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,

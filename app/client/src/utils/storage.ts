@@ -7,8 +7,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
-  ONBOARDING_STATE: "OnboardingState",
-  ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
+  POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
   COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
@@ -112,45 +111,22 @@ export const getCopiedWidgets = async () => {
   return [];
 };
 
-export const setOnboardingState = async (onboardingState: boolean) => {
+export const setPostWelcomeTourState = async (flag: boolean) => {
   try {
-    await store.setItem(STORAGE_KEYS.ONBOARDING_STATE, onboardingState);
+    await store.setItem(STORAGE_KEYS.POST_WELCOME_TOUR, flag);
     return true;
   } catch (error) {
-    log.error("An error occurred when setting onboarding state: ", error);
+    log.error("An error occurred when setting post welcome tour state", error);
     return false;
   }
 };
 
-export const getOnboardingState = async () => {
+export const getPostWelcomeTourState = async () => {
   try {
-    const onboardingState = await store.getItem(STORAGE_KEYS.ONBOARDING_STATE);
+    const onboardingState = await store.getItem(STORAGE_KEYS.POST_WELCOME_TOUR);
     return onboardingState;
   } catch (error) {
-    log.error("An error occurred when getting onboarding state: ", error);
-  }
-};
-
-export const setOnboardingWelcomeState = async (onboardingState: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.ONBOARDING_WELCOME_STATE, onboardingState);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting onboarding welcome state: ");
-    log.error(error);
-    return false;
-  }
-};
-
-export const getOnboardingWelcomeState = async () => {
-  try {
-    const onboardingState = await store.getItem(
-      STORAGE_KEYS.ONBOARDING_WELCOME_STATE,
-    );
-    return onboardingState;
-  } catch (error) {
-    log.error("An error occurred when getting onboarding welcome state: ");
-    log.error(error);
+    log.error("An error occurred when getting post welcome tour state", error);
   }
 };
 

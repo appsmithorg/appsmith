@@ -992,12 +992,6 @@ export default class DataTreeEvaluator {
             if (typeof unEvalValue === "function") {
               const params = getParams(unEvalValue);
               const functionString = unEvalValue.toString();
-              actions.push({
-                name: unEvalFunc,
-                body: functionString,
-                arguments: params,
-                isAsync: isFunctionAsync(unEvalValue, unEvalDataTree),
-              });
               _.set(
                 this.resolvedFunctions,
                 `${entityName}.${unEvalFunc}`,
@@ -1008,6 +1002,12 @@ export default class DataTreeEvaluator {
                 `${entityName}.${unEvalFunc}`,
                 functionString,
               );
+              actions.push({
+                name: unEvalFunc,
+                body: functionString,
+                arguments: params,
+                value: unEvalValue,
+              });
             } else {
               variables.push({
                 name: unEvalFunc,
@@ -1020,7 +1020,25 @@ export default class DataTreeEvaluator {
               );
             }
           });
-          const parsedBody = { body: entity.body, actions, variables };
+
+          const modifiedActions = actions.map((action: any) => {
+            return {
+              name: action.name,
+              body: action.body,
+              arguments: action.arguments,
+              isAsync: isFunctionAsync(
+                action.value,
+                unEvalDataTree,
+                this.resolvedFunctions,
+              ),
+            };
+          });
+
+          const parsedBody = {
+            body: entity.body,
+            actions: modifiedActions,
+            variables,
+          };
           _.set(jsUpdates, `${entityName}`, {
             parsedBody,
             id: entity.actionId,
