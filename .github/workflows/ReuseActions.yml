@@ -667,6 +667,16 @@ jobs:
         if: failure()
         run: find /home/runner/work/appsmith/appsmith/app/client/cypress/screenshots/ -type d|grep spec > ~/failed_spec
 
+      - name: Store the previous run result
+        if: failure()
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+
       # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
         if: failure()
