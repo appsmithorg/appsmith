@@ -316,9 +316,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginPackageName: plugin?.packageName ?? "",
     applicationId: "",
   };
-  if (datasource) {
-    newProps.formData = datasource;
-  }
+
   return newProps;
 };
 
@@ -327,11 +325,7 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
     dispatch(updateDatasource(formData, onSuccess));
   },
-  redirectToNewIntegrations: (
-    applicationId: string,
-    pageId: string,
-    params: any,
-  ) => undefined,
+  redirectToNewIntegrations: () => undefined,
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
   switchDatasource: (id: string) => dispatch(switchDatasource(id)),
@@ -452,13 +446,9 @@ function ReconnectDatasourceModal() {
   const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
-  const isLoading = useSelector(
-    (state: AppState) => state.entities.datasources.loading,
-  );
-  const [
-    selectedDatasource,
-    setSelectedDatasource,
-  ] = useState<Datasource | null>(null);
+  const [selectedDatasourceId, setSelectedDatasourceId] = useState<
+    string | null
+  >(null);
   const [availableDatasources, setAvailableDatasources] = useState<
     Array<Datasource>
   >([]);
@@ -484,30 +474,32 @@ function ReconnectDatasourceModal() {
 
   const onSelectedDatasource = useCallback(
     (ds: Datasource, disabled?: boolean) => {
-      setSelectedDatasource(ds);
+      setSelectedDatasourceId(ds.id);
       setCollapsedMenu(
         disabled ? DSCollapseMenu.MISSED : DSCollapseMenu.SUCCESSED,
       );
-      dispatch(initialize(DATASOURCE_DB_FORM, ds));
     },
     [],
   );
 
   useEffect(() => {
-    if (!selectedDatasource && dataSources.length) {
-      setSelectedDatasource(dataSources[0]);
+    if (!isFetchingDatasourceConfigForImport) {
+      if (
+        unconfiguredDatasources &&
+        unconfiguredDatasources[0] &&
+        !selectedDatasourceId
+      ) {
+        setSelectedDatasourceId(unconfiguredDatasources[0].id);
+      }
     }
-  }, [selectedDatasource, dataSources]);
+  }, [isFetchingDatasourceConfigForImport, selectedDatasourceId]);
 
   useEffect(() => {
-    if (!isLoading && selectedDatasource) {
-      setTimeout(() => {
-        dispatch(
-          initialize(DATASOURCE_DB_FORM, _.omit(selectedDatasource, ["name"])),
-        );
-      }, 100);
-    }
-  }, [isLoading, selectedDatasource]);
+    const selectedDatasourceConfig = dataSources.find(
+      (datasource: Datasource) => datasource.id === selectedDatasourceId,
+    );
+    dispatch(initialize(DATASOURCE_DB_FORM, selectedDatasourceConfig));
+  }, [selectedDatasourceId]);
 
   const menuOptions = [
     {
@@ -601,7 +593,7 @@ function ReconnectDatasourceModal() {
                           name: pluginNames[ds.pluginId],
                           image: pluginImages[ds.pluginId],
                         }}
-                        selected={ds.id === selectedDatasource?.id}
+                        selected={ds.id === selectedDatasourceId}
                       />
                     );
                   })}
@@ -624,7 +616,7 @@ function ReconnectDatasourceModal() {
                           name: pluginNames[ds.pluginId],
                           image: pluginImages[ds.pluginId],
                         }}
-                        selected={ds.id === selectedDatasource?.id}
+                        selected={ds.id === selectedDatasourceId}
                       />
                     );
                   })}
@@ -632,7 +624,7 @@ function ReconnectDatasourceModal() {
               </ListContainer>
               {!isFetchingDatasourceConfigForImport &&
                 collapsedMenu === DSCollapseMenu.SUCCESSED && (
-                  <DSForm datasourceId={selectedDatasource?.id} />
+                  <DSForm datasourceId={selectedDatasourceId} />
                 )}
               {collapsedMenu === DSCollapseMenu.MISSED && (
                 <Section className="t--message-container">
@@ -649,7 +641,7 @@ function ReconnectDatasourceModal() {
                     onClick={() => {
                       const ds = dataSources[0];
                       if (ds) {
-                        setSelectedDatasource(ds);
+                        setSelectedDatasourceId(ds.id);
                         setCollapsedMenu(DSCollapseMenu.SUCCESSED);
                       }
                     }}

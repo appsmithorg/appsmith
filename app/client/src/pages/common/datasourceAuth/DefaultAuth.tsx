@@ -8,7 +8,10 @@ import React from "react";
 import styled from "styled-components";
 import EditButton from "components/editorComponents/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { getEntities } from "selectors/entitiesSelector";
+import {
+  getEntities,
+  getIsReconnectingDatasourcesModalOpen,
+} from "selectors/entitiesSelector";
 import {
   testDatasource,
   deleteDatasource,
@@ -47,6 +50,11 @@ export default function DefaultAuth({
 
   const dispatch = useDispatch();
 
+  // to check if saving during import flow
+  const isReconnectModelOpen: boolean = useSelector(
+    getIsReconnectingDatasourcesModalOpen,
+  );
+
   const {
     datasources: { isDeleting, isTesting, loading: isSaving },
   } = useSelector(getEntities);
@@ -78,7 +86,7 @@ export default function DefaultAuth({
     dispatch(
       updateDatasource(
         getSanitizedFormData(),
-        !isGeneratePageInitiator
+        !isGeneratePageInitiator && !isReconnectModelOpen
           ? dispatch(
               redirectToNewIntegrations(
                 applicationId,
