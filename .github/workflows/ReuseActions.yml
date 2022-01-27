@@ -681,7 +681,7 @@ jobs:
           #spec: $(cat ~/failed_spec)
           #spec: ${{ steps.failed_spec.outputs.failed_spec }}
           #spec: echo ${{ steps.failed_spec.outputs.failed_spec }}
-          spec: echo ${{ env.failed_spec_env }}
+          spec: ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
