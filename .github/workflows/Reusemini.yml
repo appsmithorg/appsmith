@@ -100,9 +100,9 @@ jobs:
             ${{ runner.os }}-yarn-dep-
 
       # Install all the dependencies
-      - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install
+      #- name: Install dependencies
+      #  if: steps.run_result.outputs.run_result != 'success'
+      #  run: yarn install
 
       #- name: Set the build environment based on the branch
       #  if: steps.run_result.outputs.run_result != 'success'
