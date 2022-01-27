@@ -42,7 +42,21 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Map;
 
-import static com.appsmith.external.constants.Authentication.*;
+import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
+import static com.appsmith.external.constants.Authentication.AUDIENCE;
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
+import static com.appsmith.external.constants.Authentication.CLIENT_ID;
+import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
+import static com.appsmith.external.constants.Authentication.CODE;
+import static com.appsmith.external.constants.Authentication.GRANT_TYPE;
+import static com.appsmith.external.constants.Authentication.REDIRECT_URI;
+import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
+import static com.appsmith.external.constants.Authentication.RESOURCE;
+import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
+import static com.appsmith.external.constants.Authentication.SCOPE;
+import static com.appsmith.external.constants.Authentication.STATE;
+import static com.appsmith.external.constants.Authentication.SUCCESS;
+
 
 @RequiredArgsConstructor
 @Slf4j
