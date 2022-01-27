@@ -39,7 +39,7 @@ import {
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
   setIsGitSyncModalOpen,
-  setIsImportAppViaGitModalOpen,
+  // setIsImportAppViaGitModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
