@@ -642,6 +642,15 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
 
+      - name: Get failed_spec
+        #id: failed_spec_var
+        #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
+        run: |
+          failed_spec_env=$(cat ~/failed_spec)
+          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
@@ -670,7 +679,8 @@ jobs:
           #spec: steps.failed_spec.outputs.failed_spec Not working
           #spec: $(cat ~/failed_spec)
           #spec: ${{ steps.failed_spec.outputs.failed_spec }}
-          spec: echo ${{ steps.failed_spec.outputs.failed_spec }}
+          #spec: echo ${{ steps.failed_spec.outputs.failed_spec }}
+          spec: echo ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
