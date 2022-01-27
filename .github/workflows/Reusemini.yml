@@ -47,9 +47,23 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-
+
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      - name: Restore the previous run failed_spec
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/failed_spec
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-
+
+      - name: Get the previous failed_spec
+        id: failed_spec
+        run: cat ~/failed_spec 2>/dev/null || echo 'default'
 
       - uses: actions/checkout@v2
         if: steps.run_result.outputs.run_result != 'success'
@@ -149,7 +163,11 @@ jobs:
       #    mkdir -p app/client/build
       #    ls -l app/client/build
       #    echo "::set-output name=run_result::success" > app/client/build/dummybundle
+      - name: list failed tests if there are test failures
+        run: find /home/runner/work/appsmith/appsmith/app/client/cypress/screenshots/ -type d|grep spec > ~/failed_spec
 
+      - name: print failed_spec
+        run: echo ~/failed_spec
       - name: Restore the previous bundle
         #if: steps.run_result.outputs.run_result == 'success'
         uses: actions/cache@v2
