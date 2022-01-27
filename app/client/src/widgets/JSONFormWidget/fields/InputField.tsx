@@ -14,6 +14,10 @@ type InputComponentProps = BaseInputComponentProps & {
 
 export type InputFieldProps = BaseFieldComponentProps<InputComponentProps>;
 
+type IsValidOptions = {
+  fieldType: FieldType;
+};
+
 const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   iconAlign: "left",
   isDisabled: false,
@@ -22,6 +26,8 @@ const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isVisible: true,
   label: "",
 };
+
+const EMAIL_REGEX = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 
 const getInputHTMLType = (fieldType: FieldType) => {
   switch (fieldType) {
@@ -73,10 +79,7 @@ const isValid = (
 
   switch (schemaItem.fieldType) {
     case FieldType.EMAIL:
-      const emailRegex = new RegExp(
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      );
-      if (!emailRegex.test(inputValue)) {
+      if (!EMAIL_REGEX.test(inputValue)) {
         /* email should conform to generic email regex */
         return false;
       } else if (parsedRegex) {
@@ -111,6 +114,14 @@ const isValid = (
       }
   }
 };
+
+function isValidType(value: string, options?: IsValidOptions) {
+  if (options?.fieldType === FieldType.EMAIL && value) {
+    return EMAIL_REGEX.test(value);
+  }
+
+  return false;
+}
 
 function InputField(props: InputFieldProps) {
   const { schemaItem } = props;
@@ -160,5 +171,6 @@ function InputField(props: InputFieldProps) {
 }
 
 InputField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+InputField.isValidType = isValidType;
 
 export default InputField;

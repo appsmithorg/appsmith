@@ -40,6 +40,7 @@ const initialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
+          iconAlign: "left",
           sourceData: "Test name",
           isCustomField: false,
           name: "name",
@@ -59,6 +60,7 @@ const initialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.NUMBER,
+          iconAlign: "left",
           sourceData: 20,
           isCustomField: false,
           name: "age",
@@ -147,6 +149,7 @@ const initialDataset = {
           defaultValue:
             '{{((sourceData, formData, fieldState) => (sourceData["%%"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.TEXT,
+          iconAlign: "left",
           sourceData: "%",
           isCustomField: false,
           name: "__",
@@ -179,6 +182,7 @@ const initialDataset = {
                   dataType: DataType.STRING,
                   defaultValue: undefined,
                   fieldType: FieldType.TEXT,
+                  iconAlign: "left",
                   sourceData: "String field ",
                   isCustomField: false,
                   name: "college",
@@ -197,6 +201,7 @@ const initialDataset = {
                   dataType: DataType.NUMBER,
                   defaultValue: undefined,
                   fieldType: FieldType.NUMBER,
+                  iconAlign: "left",
                   sourceData: 1,
                   isCustomField: false,
                   name: "number",
@@ -301,6 +306,7 @@ const initialDataset = {
               defaultValue:
                 "{{((sourceData, formData, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
+              iconAlign: "left",
               sourceData: "String field ",
               isCustomField: false,
               name: "Line1",
@@ -320,6 +326,7 @@ const initialDataset = {
               defaultValue:
                 "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
+              iconAlign: "left",
               sourceData: "1",
               isCustomField: false,
               name: "city",
@@ -414,6 +421,7 @@ const withRemovedKeyFromInitialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
+          iconAlign: "left",
           sourceData: "Test name",
           isCustomField: false,
           name: "name",
@@ -433,6 +441,7 @@ const withRemovedKeyFromInitialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.NUMBER,
+          iconAlign: "left",
           sourceData: 20,
           isCustomField: false,
           name: "age",
@@ -515,6 +524,7 @@ const withRemovedKeyFromInitialDataset = {
                   dataType: DataType.STRING,
                   defaultValue: undefined,
                   fieldType: FieldType.TEXT,
+                  iconAlign: "left",
                   sourceData: "String field ",
                   isCustomField: false,
                   name: "college",
@@ -533,6 +543,7 @@ const withRemovedKeyFromInitialDataset = {
                   dataType: DataType.NUMBER,
                   defaultValue: undefined,
                   fieldType: FieldType.NUMBER,
+                  iconAlign: "left",
                   sourceData: 1,
                   isCustomField: false,
                   name: "number",
@@ -637,6 +648,7 @@ const withRemovedKeyFromInitialDataset = {
               defaultValue:
                 "{{((sourceData, formData, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
+              iconAlign: "left",
               sourceData: "String field ",
               isCustomField: false,
               name: "Line1",
@@ -656,6 +668,7 @@ const withRemovedKeyFromInitialDataset = {
               defaultValue:
                 "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
+              iconAlign: "left",
               sourceData: "1",
               isCustomField: false,
               name: "city",
@@ -749,6 +762,7 @@ const withRemovedAddedKeyToInitialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
+          iconAlign: "left",
           sourceData: "Test name",
           isCustomField: false,
           name: "name",
@@ -768,6 +782,7 @@ const withRemovedAddedKeyToInitialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.NUMBER,
+          iconAlign: "left",
           sourceData: 20,
           isCustomField: false,
           name: "age",
@@ -850,6 +865,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   dataType: DataType.STRING,
                   defaultValue: undefined,
                   fieldType: FieldType.TEXT,
+                  iconAlign: "left",
                   sourceData: "String field ",
                   isCustomField: false,
                   name: "college",
@@ -868,6 +884,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   dataType: DataType.NUMBER,
                   defaultValue: undefined,
                   fieldType: FieldType.NUMBER,
+                  iconAlign: "left",
                   sourceData: 1,
                   isCustomField: false,
                   name: "number",
@@ -972,6 +989,7 @@ const withRemovedAddedKeyToInitialDataset = {
               defaultValue:
                 "{{((sourceData, formData, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
+              iconAlign: "left",
               sourceData: "String field ",
               isCustomField: false,
               name: "Line1",
@@ -991,6 +1009,7 @@ const withRemovedAddedKeyToInitialDataset = {
               defaultValue:
                 "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
+              iconAlign: "left",
               sourceData: "1",
               isCustomField: false,
               name: "city",
@@ -1023,6 +1042,7 @@ const withRemovedAddedKeyToInitialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.gender))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
+          iconAlign: "left",
           sourceData: "male",
           isCustomField: false,
           name: "gender",
