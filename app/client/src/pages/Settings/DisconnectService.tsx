@@ -4,6 +4,8 @@ import { Variant } from "components/ads/common";
 import Button from "components/ads/Button";
 import { Callout } from "./Callout";
 import { createMessage, DANGER_ZONE } from "@appsmith/constants/messages";
+import { Colors } from "constants/Colors";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 export const Container = styled.div`
   width: 100%;
@@ -16,30 +18,22 @@ export const DisconnectButton = styled(Button)`
   font-size: 13px;
   height: 38px;
   margin-top: 16px;
-  background: #c91818;
-  border: 2px solid #c91818;
+  background: ${Colors.CRIMSON};
+  border: 2px solid ${Colors.CRIMSON};
 `;
 
 export const Header = styled.h2`
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 28px;
-  letter-spacing: -0.23999999463558197px;
+  ${(props) => getTypographyByKey(props, "dangerHeading")}
   text-align: left;
 `;
 
 export const HeaderDanger = styled(Header)`
-  color: #c91818;
+  color: ${Colors.CRIMSON};
 `;
 
 export const Info = styled.h3`
   display: block;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 19px;
-  letter-spacing: -0.23999999463558197px;
+  ${(props) => getTypographyByKey(props, "p3")}
   text-align: left;
   margin: 8px 0;
 `;
