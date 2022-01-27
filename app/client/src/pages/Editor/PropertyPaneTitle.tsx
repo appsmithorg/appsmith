@@ -95,6 +95,27 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     setName(props.title);
   }, [props.title]);
 
+  // Focus title on F2
+
+  const [isEditingDefault, setIsEditingDefault] = useState(
+    !props.isPanelTitle ? isNew : undefined,
+  );
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === "F2") {
+      setIsEditingDefault(true);
+    }
+  }
+
+  function handleOnBlurEverytime() {
+    setIsEditingDefault(false);
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  });
+
   return props.widgetId || props.isPanelTitle ? (
     <div className="flex items-center w-full px-3 space-x-1 z-3">
       {/* BACK BUTTON */}
@@ -114,8 +135,9 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           editInteractionKind={EditInteractionKind.SINGLE}
           fill
           hideEditIcon
-          isEditingDefault={!props.isPanelTitle ? isNew : undefined}
+          isEditingDefault={isEditingDefault}
           onBlur={!props.isPanelTitle ? updateTitle : undefined}
+          onBlurEverytime={handleOnBlurEverytime}
           onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
           placeholder={props.title}
           savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
