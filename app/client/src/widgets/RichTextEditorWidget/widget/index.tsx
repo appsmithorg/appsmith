@@ -298,7 +298,7 @@ class RichTextEditorWidget extends BaseWidget<
       value = converter.makeHtml(value);
     }
 
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
       <Suspense fallback={<Skeleton />}>
@@ -310,9 +310,11 @@ class RichTextEditorWidget extends BaseWidget<
               1
             )
           }
+          height={componentHeight}
           isDisabled={this.props.isDisabled}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
           isToolbarHidden={!!this.props.isToolbarHidden}
+          isValid={this.props.isValid}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           labelAlignment={this.props.labelAlignment}

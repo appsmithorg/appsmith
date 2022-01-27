@@ -18,10 +18,13 @@ import { Colors } from "constants/Colors";
 const StyledRTEditor = styled.div<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
+  isValid?: boolean;
 }>`
   && {
     width: 100%;
     height: 100%;
+    border: 1px solid
+      ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
     .tox .tox-editor-header {
       z-index: 0;
     }
@@ -135,13 +138,16 @@ export interface RichtextEditorComponentProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  height: number;
   width: number;
+  isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
+    height,
     isDisabled,
     labelAlignment,
     labelPosition,
@@ -178,7 +184,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   useEffect(() => {
     setHasLabelEllipsis(checkHasLabelEllipsis());
-  }, [width, labelText, labelPosition, labelWidth]);
+  }, [height, width, labelText, labelPosition, labelWidth]);
 
   const checkHasLabelEllipsis = useCallback(() => {
     const labelElement = document.querySelector(
@@ -205,6 +211,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     <StyledRTEditor
       className={`container-${props.widgetId}`}
       compactMode={compactMode}
+      isValid={props.isValid}
       labelPosition={labelPosition}
     >
       {labelText && (
@@ -268,6 +275,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           onEditorChange={onEditorChange}
           onInit={(evt, editor) => {
             editorRef.current = editor;
+            isInit.current = true;
           }}
           tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
           toolbar={props.isToolbarHidden ? false : toolbarConfig}

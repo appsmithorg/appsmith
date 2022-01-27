@@ -51,6 +51,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.PublishtheApp();
     // Make sure onPageLoad action has run before validating the data
     cy.wait("@postExecute");
+    cy.wait(2000);
     cy.ValidatePublishTableData("1");
     cy.get(commonlocators.tableNextPage).click({ force: true });
     // Make sure net page action is run
