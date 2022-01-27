@@ -100,18 +100,18 @@ jobs:
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
-      - name: Cache npm dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        id: yarn-dep-cache
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-yarn-dependencies
-        with:
-          path: |
-            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-dep-
+      #- name: Cache npm dependencies
+      #  if: steps.run_result.outputs.run_result != 'success'
+      #  id: yarn-dep-cache
+      #  uses: actions/cache@v2
+      #  env:
+      #    cache-name: cache-yarn-dependencies
+      #  with:
+      #    path: |
+      #      ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+      #    key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+      #    restore-keys: |
+      #      ${{ runner.os }}-yarn-dep-
 
       # Install all the dependencies
       #- name: Install dependencies
