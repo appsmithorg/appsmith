@@ -164,7 +164,7 @@ jobs:
       #    ls -l app/client/build
       #    echo "::set-output name=run_result::success" > app/client/build/dummybundle
       - name: list failed tests if there are test failures
-        run: find /home/runner/work/appsmith/appsmith/app/client/cypress/screenshots/ -type d|grep spec > ~/failed_spec
+        run: find /home/runner/work/appsmith/appsmith/app/client/cypress/ -type d|grep spec > ~/failed_spec
 
       - name: print failed_spec
         run: echo ~/failed_spec
