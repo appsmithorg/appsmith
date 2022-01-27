@@ -4,11 +4,7 @@ import { Plugin } from "api/PluginApi";
 import DataSourceContextMenu from "./DataSourceContextMenu";
 import { getPluginIcon } from "../ExplorerIcons";
 import { useParams } from "react-router";
-import {
-  ExplorerURLParams,
-  getDatasourceIdFromURL,
-  getQueryIdFromURL,
-} from "../helpers";
+import { ExplorerURLParams, getDatasourceIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
@@ -21,8 +17,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
-import { getAction } from "selectors/entitiesSelector";
-import { isStoredDatasource, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -68,11 +63,6 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
     }
   }, [applicationId, params.pageId, props.datasource.id]);
 
-  const queryId = getQueryIdFromURL();
-  const queryAction = useSelector((state: AppState) =>
-    getAction(state, queryId || ""),
-  );
-
   const datasourceIdFromURL = getDatasourceIdFromURL();
   const active = datasourceIdFromURL === props.datasource.id;
 
@@ -81,10 +71,6 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
 
   const datasourceStructure = useSelector((state: AppState) => {
     return state.entities.datasources.structure[props.datasource.id];
-  });
-
-  const expandDatasourceId = useSelector((state: AppState) => {
-    return state.ui.datasourcePane.expandDatasourceId;
   });
 
   const getDatasourceStructure = useCallback(
@@ -97,13 +83,6 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
     },
     [datasourceStructure, props.datasource.id, dispatch],
   );
-
-  let isDefaultExpanded = false;
-  if (expandDatasourceId === props.datasource.id) {
-    isDefaultExpanded = true;
-  } else if (queryAction && isStoredDatasource(queryAction.datasource)) {
-    isDefaultExpanded = queryAction.datasource.id === props.datasource.id;
-  }
 
   return (
     <Entity
@@ -119,7 +98,6 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
       }
       entityId={`${props.datasource.id}-${props.pageId}`}
       icon={icon}
-      isDefaultExpanded={isDefaultExpanded}
       key={props.datasource.id}
       name={props.datasource.name}
       onToggle={getDatasourceStructure}

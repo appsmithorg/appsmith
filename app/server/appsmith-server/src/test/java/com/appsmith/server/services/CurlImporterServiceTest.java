@@ -152,22 +152,22 @@ public class CurlImporterServiceTest {
                                 return newPageService.update(pageId, newPage);
                             })
                             .thenReturn(application1);
-                });
+                }).cache();
 
-        Mono<NewPage> pageMono = applicationMono
+        Mono<NewPage> defaultPageMono = applicationMono
                 .flatMap(application -> newPageService.findById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES))
                 .cache();
 
         String command = "curl -X GET http://localhost:8080/api/v1/actions?name=something -H 'Accept: */*' -H 'Accept-Encoding: gzip, deflate' -H 'Authorization: Basic YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw==' -H 'Cache-Control: no-cache' -H 'Connection: keep-alive' -H 'Content-Type: application/json' -H 'Cookie: SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5,SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5; SESSION=' -H 'Host: localhost:8080' -H 'Postman-Token: 16e4b6bc-2c7a-4ab1-a127-bca382dfc0f0,a6655daa-db07-4c5e-aca3-3fd505bd230d' -H 'User-Agent: PostmanRuntime/7.20.1' -H 'cache-control: no-cache' -d '{someJson}'";
 
-        Mono<ActionDTO> resultMono = pageMono
+        Mono<ActionDTO> resultMono = defaultPageMono
                 .flatMap(page -> curlImporterService.importAction(command, page.getId(), "actionName", orgId, "main"))
                 .cache();
 
         Mono<NewAction> savedActionMono = resultMono.flatMap(actionDTO -> newActionService.getById(actionDTO.getId()));
 
         StepVerifier
-                .create(Mono.zip(resultMono, pageMono, savedActionMono))
+                .create(Mono.zip(resultMono, defaultPageMono, savedActionMono))
                 .assertNext(tuple -> {
                     ActionDTO action1 = tuple.getT1();
                     NewPage newPage = tuple.getT2();
@@ -190,6 +190,61 @@ public class CurlImporterServiceTest {
                     assertThat(newAction.getDefaultResources().getApplicationId()).isEqualTo(newPage.getDefaultResources().getApplicationId());
                 })
                 .verifyComplete();
+
+
+        Application branchedApplication = new Application();
+        branchedApplication.setName("branched curl test app");
+        branchedApplication.setOrganizationId(orgId);
+        branchedApplication = applicationPageService.createApplication(branchedApplication).block();
+        String branchedPageId = branchedApplication.getPages().get(0).getId();
+
+        Mono<NewPage> branchedPageMono = defaultPageMono
+                .flatMap(defaultPage ->
+                    newPageService.findById(branchedPageId, AclPermission.MANAGE_PAGES)
+                            .flatMap(newPage -> {
+                                newPage.setDefaultResources(defaultPage.getDefaultResources());
+                                newPage.getDefaultResources().setBranchName("testBranch");
+                                return newPageService.save(newPage);
+                            })
+                )
+                .cache();
+
+        Mono<ActionDTO> branchedResultMono = branchedPageMono
+                .flatMap(page -> curlImporterService.importAction(command, page.getDefaultResources().getPageId(), "actionName", orgId, "testBranch"))
+                .cache();
+
+        // As importAction updates the ids with the defaultIds before sending the response to client we have to again
+        // fetch branched action
+        Mono<NewAction> branchedSavedActionMono = branchedResultMono
+                .flatMap(actionDTO -> newActionService.findByBranchNameAndDefaultActionId("testBranch", actionDTO.getId(), AclPermission.MANAGE_ACTIONS));
+
+        StepVerifier
+                .create(Mono.zip(branchedResultMono, branchedPageMono, branchedSavedActionMono))
+                .assertNext(tuple -> {
+                    ActionDTO action1 = tuple.getT1();
+                    NewPage newPage = tuple.getT2();
+                    NewAction newAction = tuple.getT3();
+
+                    assertThat(action1).isNotNull();
+                    assertThat(action1.getDatasource()).isNotNull();
+                    assertThat(action1.getDatasource().getDatasourceConfiguration()).isNotNull();
+                    assertThat(action1.getDatasource().getDatasourceConfiguration().getUrl()).isEqualTo("http://localhost:8080");
+                    assertThat(action1.getActionConfiguration().getPath()).isEqualTo("/api/v1/actions");
+                    assertThat(action1.getActionConfiguration().getHeaders().size()).isEqualTo(11);
+                    assertThat(action1.getActionConfiguration().getQueryParameters().size()).isEqualTo(1);
+                    assertThat(action1.getActionConfiguration().getHttpMethod()).isEqualTo(HttpMethod.GET);
+                    assertThat(action1.getActionConfiguration().getBody()).isEqualTo("{someJson}");
+
+                    assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
+                    assertThat(action1.getDefaultResources().getPageId()).isEqualTo(newPage.getDefaultResources().getPageId());
+                    assertThat(action1.getDefaultResources().getPageId()).isNotEqualTo(newPage.getId());
+
+                    assertThat(newAction.getDefaultResources().getBranchName()).isNotEmpty();
+                    assertThat(newAction.getDefaultResources().getBranchName()).isEqualTo("testBranch");
+                    assertThat(newAction.getDefaultResources().getApplicationId()).isEqualTo(newPage.getDefaultResources().getApplicationId());
+                })
+                .verifyComplete();
+
     }
 
     @Test

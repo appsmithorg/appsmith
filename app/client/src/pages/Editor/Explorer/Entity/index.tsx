@@ -16,11 +16,15 @@ import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
 import { Classes, Position } from "@blueprintjs/core";
 import { noop } from "lodash";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import Boxed from "pages/Editor/GuidedTour/Boxed";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -175,6 +179,7 @@ export const Entity = forwardRef(
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
     const dispatch = useDispatch();
+    const guidedTourEnabled = useSelector(inGuidedTour);
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
@@ -222,91 +227,99 @@ export const Entity = forwardRef(
       });
     }, [dispatch]);
 
-    const enterEditMode = useCallback(
-      () =>
-        props.updateEntityName &&
+    const enterEditMode = useCallback(() => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+      props.updateEntityName &&
         dispatch({
           type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
           payload: {
             id: props.entityId,
           },
-        }),
-      [dispatch, props.entityId, props.updateEntityName],
-    );
+        });
+    }, [dispatch, props.entityId, props.updateEntityName, guidedTourEnabled]);
 
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
 
     return (
-      <Wrapper
-        active={!!props.active}
-        className={`${EntityClassNames.WRAPPER} ${props.className}`}
-        ref={ref}
+      <Boxed
+        show={props.name === "updateCustomerInfo"}
+        step={GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS}
       >
-        <EntityItem
+        <Wrapper
           active={!!props.active}
-          alwaysShowRightIcon={props.alwaysShowRightIcon}
-          className={`${props.highlight ? "highlighted" : ""} ${
-            props.active ? "active" : ""
-          } t--entity-item`}
-          highlight={!!props.highlight}
-          rightIconClickable={typeof props.onClickRightIcon === "function"}
-          spaced={!!props.children}
-          step={props.step}
+          className={`${EntityClassNames.WRAPPER} ${props.className}`}
+          ref={ref}
         >
-          <CollapseToggle
-            className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
-            disabled={!!props.disabled}
-            isOpen={isOpen}
-            isVisible={!!props.children}
-            onClick={toggleChildren}
-          />
-          <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
-          <EntityName
-            className={`${EntityClassNames.NAME}`}
-            enterEditMode={enterEditMode}
-            entityId={props.entityId}
-            exitEditMode={exitEditMode}
-            isBeta={props.isBeta}
-            isEditing={!!props.updateEntityName && isEditing}
-            name={props.name}
-            nameTransformFn={props.onNameEdit}
-            ref={itemRef}
-            searchKeyword={props.searchKeyword}
-            updateEntityName={updateNameCallback}
-          />
-          <IconWrapper
-            className={EntityClassNames.RIGHT_ICON}
-            onClick={props.onClickRightIcon}
+          <EntityItem
+            active={!!props.active}
+            alwaysShowRightIcon={props.alwaysShowRightIcon}
+            className={`${props.highlight ? "highlighted" : ""} ${
+              props.active ? "active" : ""
+            } t--entity-item`}
+            data-guided-tour-id={`explorer-entity-${props.name}`}
+            highlight={!!props.highlight}
+            rightIconClickable={typeof props.onClickRightIcon === "function"}
+            spaced={!!props.children}
+            step={props.step}
           >
-            {props.rightIcon}
-          </IconWrapper>
-          {props.addButtonHelptext ? (
-            <TooltipComponent
-              boundary="viewport"
-              className={EntityClassNames.TOOLTIP}
-              content={props.addButtonHelptext}
-              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-              position={Position.RIGHT}
+            <CollapseToggle
+              className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
+              disabled={!!props.disabled}
+              isOpen={isOpen}
+              isVisible={!!props.children}
+              onClick={toggleChildren}
+            />
+            <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
+            <EntityName
+              className={`${EntityClassNames.NAME}`}
+              enterEditMode={enterEditMode}
+              entityId={props.entityId}
+              exitEditMode={exitEditMode}
+              isBeta={props.isBeta}
+              isEditing={!!props.updateEntityName && isEditing}
+              name={props.name}
+              nameTransformFn={props.onNameEdit}
+              ref={itemRef}
+              searchKeyword={props.searchKeyword}
+              updateEntityName={updateNameCallback}
+            />
+            <IconWrapper
+              className={EntityClassNames.RIGHT_ICON}
+              onClick={props.onClickRightIcon}
             >
+              {props.rightIcon}
+            </IconWrapper>
+            {props.addButtonHelptext ? (
+              <TooltipComponent
+                boundary="viewport"
+                className={EntityClassNames.TOOLTIP}
+                content={props.addButtonHelptext}
+                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                position={Position.RIGHT}
+              >
+                <AddButton
+                  className={`${EntityClassNames.ADD_BUTTON}`}
+                  onClick={props.onCreate}
+                />
+              </TooltipComponent>
+            ) : (
               <AddButton
                 className={`${EntityClassNames.ADD_BUTTON}`}
                 onClick={props.onCreate}
               />
-            </TooltipComponent>
-          ) : (
-            <AddButton
-              className={`${EntityClassNames.ADD_BUTTON}`}
-              onClick={props.onCreate}
-            />
-          )}
-          {props.contextMenu}
-          <Loader isVisible={isUpdating} />
-        </EntityItem>
-        <Collapse active={props.active} isOpen={isOpen} step={props.step}>
-          {props.children}
-        </Collapse>
-      </Wrapper>
+            )}
+            {props.contextMenu}
+            <Loader isVisible={isUpdating} />
+          </EntityItem>
+          <Collapse active={props.active} isOpen={isOpen} step={props.step}>
+            {props.children}
+          </Collapse>
+        </Wrapper>
+      </Boxed>
     );
   },
 );

@@ -87,7 +87,7 @@ const StyledMenu = styled(Menu)`
       }
     }
 
-    &:hover :not(.t--apiFormDeleteBtn) {
+    &:hover:not(.t--apiFormDeleteBtn) {
       background-color: ${Colors.GREY_3};
       color: ${Colors.GREY_10};
       .${Classes.ICON} > svg:not([fill]) {
