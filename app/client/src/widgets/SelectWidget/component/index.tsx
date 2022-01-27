@@ -91,7 +91,6 @@ class SelectComponent extends React.Component<
     const value = selectedOption
       ? selectedOption
       : this.props.placeholder || "-- Select --";
-    console.log("isFocused", activeItem);
 
     return (
       <DropdownContainer compactMode={compactMode}>
