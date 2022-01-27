@@ -170,11 +170,17 @@ jobs:
         run: echo ~/failed_spec
 
       - name: Get failed_spec
-        id: failed_spec_var
-        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
+        #id: failed_spec_var
+        #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
+        run: |
+          failed_spec_env=$(cat ~/failed_spec)
+          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Test failed_spec
-        run: echo ${{ steps.failed_spec_var.outputs.failed_spec }}
+        #run: echo ${{ steps.failed_spec_var.outputs.failed_spec }}
+        run: echo ${{ env.failed_spec_env }}
 
       - name: Restore the previous bundle
         #if: steps.run_result.outputs.run_result == 'success'
