@@ -57,6 +57,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { isMac } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
+import GIT_ERROR_CODES from "constants/GitErrorCodes";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -161,11 +162,9 @@ function Deploy() {
   // const pullRequired =
   //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
 
-  // TODO improve this check
-  let pullRequired = false;
-  if (!isFetchingGitStatus && gitError && gitError.code === 4044) {
-    pullRequired = gitError.message.indexOf("git  push failed") > -1;
-  }
+  const pullRequired =
+    gitError &&
+    gitError.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
   const showCommitButton =
     // hasChangesToCommit &&
     !isConflicting &&
