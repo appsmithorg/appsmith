@@ -159,14 +159,11 @@ function Deploy() {
 
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
   const isConflicting = !isFetchingGitStatus && pullFailed;
-  // const pullRequired =
-  //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
 
   const pullRequired =
     gitError &&
     gitError.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
   const showCommitButton =
-    // hasChangesToCommit &&
     !isConflicting &&
     !pullRequired &&
     !isFetchingGitStatus &&
