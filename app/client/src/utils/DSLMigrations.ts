@@ -45,7 +45,6 @@ import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxG
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 /**
  * adds logBlackList key for all list widget children
@@ -96,7 +95,7 @@ const addPrivateWidgetsToAllListWidgets = (
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "LIST_WIDGET") {
-      const privateWidgets: PrivateWidgets = {};
+      const privateWidgets: Record<string, true> = {};
       Object.keys(child.template).forEach((entityName) => {
         privateWidgets[entityName] = true;
       });

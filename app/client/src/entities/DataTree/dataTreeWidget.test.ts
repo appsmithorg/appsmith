@@ -251,7 +251,6 @@ describe("generateDataTreeWidget", () => {
       defaultProps: {
         text: "defaultText",
       },
-      privateWidgets: {},
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);

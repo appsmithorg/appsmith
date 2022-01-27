@@ -1,12 +1,11 @@
 import { transformDSL } from "./DSLMigrations";
-import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
 
 describe("correctly migrate dsl", () => {
   it("AddsPrivateWidgetsToAllListWidgets", () => {
     const currentVersion = 49;
-    const nextVersion = LATEST_PAGE_VERSION;
     const currentDSL: ContainerWidgetProps<WidgetProps> = {
       backgroundColor: "none",
       bottomRow: 740,
@@ -586,7 +585,7 @@ describe("correctly migrate dsl", () => {
       backgroundColor: "none",
       bottomRow: 740,
       canExtend: true,
-      version: nextVersion,
+      version: currentVersion,
       children: [
         {
           widgetName: "Input1",
@@ -1156,7 +1155,6 @@ describe("correctly migrate dsl", () => {
       snapRows: 125,
       topRow: 0,
       type: "CANVAS_WIDGET",
-      version: nextVersion,
       widgetId: "0",
       widgetName: "MainContainer",
       renderMode: RenderModes.CANVAS,
