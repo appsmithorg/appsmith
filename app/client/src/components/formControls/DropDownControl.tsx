@@ -44,7 +44,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           component={renderDropdown}
           name={this.props.configProperty}
           props={{ ...this.props, width, isLoading, options }} // Passing options and isLoading in props allows the component to get the updated values
-          type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>
     );
@@ -56,6 +55,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 }
 
 function renderDropdown(props: {
+  isMultiSelect?: boolean;
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
   props: DropDownControlProps;
@@ -83,7 +83,7 @@ function renderDropdown(props: {
       errorMsg={props.props?.errorText}
       helperText={props.props?.info}
       isLoading={props.isLoading}
-      isMultiSelect={props?.props?.isMultiSelect}
+      isMultiSelect={props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth={props.width}
       options={props.options}

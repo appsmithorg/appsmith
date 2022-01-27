@@ -47,8 +47,8 @@ export interface DropdownSearchProps {
 
 export interface RenderDropdownOptionType {
   index?: number;
-  option: DropdownOption | DropdownOption[];
-  optionClickHandler?: (dropdownOption: DropdownOption) => void;
+  option: DropdownOptionType | DropdownOptionType[];
+  optionClickHandler?: (dropdownOption: DropdownOptionType) => void;
   isSelectedNode?: boolean;
   extraProps?: any;
   hasError?: boolean;
@@ -63,10 +63,12 @@ type RenderOption = ({
   optionWidth,
 }: RenderDropdownOptionType) => ReactElement<any, any>;
 
+type DropdownOptionType = string | DropdownOption;
+
 export type DropdownProps = CommonComponentProps &
   DropdownSearchProps & {
-    options: DropdownOption[];
-    selected: DropdownOption | DropdownOption[];
+    options: DropdownOptionType[];
+    selected: DropdownOptionType | DropdownOptionType[];
     onSelect?: DropdownOnSelect;
     isMultiSelect?: boolean;
     width?: string;
@@ -101,13 +103,13 @@ export type DropdownProps = CommonComponentProps &
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
   };
 export interface DefaultDropDownValueNodeProps {
-  selected: DropdownOption | DropdownOption[];
+  selected: DropdownOptionType | DropdownOptionType[];
   showLabelOnly?: boolean;
   isMultiSelect?: boolean;
   isOpen?: boolean;
   hasError?: boolean;
   renderNode?: RenderOption;
-  selectedOptionClickHandler?: (option: DropdownOption) => void;
+  selectedOptionClickHandler?: (option: DropdownOptionType) => void;
   placeholder?: string;
   showDropIcon?: boolean;
   optionWidth: string;
@@ -115,8 +117,8 @@ export interface DefaultDropDownValueNodeProps {
 }
 
 export interface RenderDropdownOptionType {
-  option: DropdownOption | DropdownOption[];
-  optionClickHandler?: (dropdownOption: DropdownOption) => void;
+  option: DropdownOptionType | DropdownOptionType[];
+  optionClickHandler?: (dropdownOption: DropdownOptionType) => void;
 }
 
 const DropdownTriggerWrapper = styled.div<{
@@ -407,6 +409,8 @@ const LabelWrapper = styled.div<{ label?: string }>`
 
 const StyledSubText = styled(Text)<{
   showDropIcon?: boolean;
+  className: string;
+  type: TextType;
 }>`
   margin-left: auto;
   && {
@@ -545,8 +549,8 @@ function DefaultDropDownValueNode({
   const LabelText =
     !Array.isArray(selected) && selected
       ? showLabelOnly
-        ? selected.label
-        : selected.value
+        ? getOptionLabel(selected)
+        : getOptionValue(selected)
       : placeholder
       ? placeholder
       : "Please select a option.";
@@ -555,10 +559,10 @@ function DefaultDropDownValueNode({
     if (isMultiSelect && Array.isArray(selected) && selected.length) {
       return (
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
-          {selected?.map((s: DropdownOption) => {
+          {selected?.map((s: DropdownOptionType) => {
             return (
               <div
-                key={s.value}
+                key={getOptionValue(s)}
                 style={{
                   border: "1.2px solid #E0DEDE",
                   display: "flex",
@@ -568,13 +572,13 @@ function DefaultDropDownValueNode({
                 }}
               >
                 <span style={{ padding: "3px" }}>
-                  <Text type={TextType.P1}>{s.label}</Text>
+                  <Text type={TextType.P1}>{getOptionLabel(s)}</Text>
                 </span>
                 <StyledClose
                   onClick={(event: any) => {
                     event.stopPropagation();
                     if (selectedOptionClickHandler) {
-                      selectedOptionClickHandler(s as DropdownOption);
+                      selectedOptionClickHandler(s as DropdownOptionType);
                     }
                   }}
                 />
@@ -605,9 +609,10 @@ function DefaultDropDownValueNode({
       ) : isMultiSelect && Array.isArray(selected) && selected.length ? (
         <Label />
       ) : (
-        !Array.isArray(selected) && (
+        !Array.isArray(selected) &&
+        typeof selected !== "string" && (
           <>
-            {selected?.icon ? (
+            {selected.icon ? (
               <SelectedIcon
                 fillColor={hasError ? Colors.POMEGRANATE2 : selected?.iconColor}
                 hoverFillColor={
@@ -635,11 +640,11 @@ function DefaultDropDownValueNode({
 }
 
 interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
-  optionClickHandler: (option: DropdownOption) => void;
-  selectedOptionClickHandler: (option: DropdownOption) => void;
+  optionClickHandler: (option: DropdownOptionType) => void;
+  selectedOptionClickHandler: (option: DropdownOptionType) => void;
   renderOption?: RenderOption;
   headerLabel?: string;
-  selected: DropdownOption | DropdownOption[];
+  selected: DropdownOptionType | DropdownOptionType[];
   optionWidth: string;
   isMultiSelect?: boolean;
   isOpen: boolean; // dropdown popover options flashes when closed, this prop helps to make sure it never happens again.
@@ -647,22 +652,29 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
   const { onSearch, optionClickHandler, optionWidth, renderOption } = props;
-  const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
+  const [options, setOptions] = useState<Array<DropdownOptionType>>(
+    props.options,
+  );
   const [searchValue, setSearchValue] = useState<string>("");
-  const onOptionSearch = (searchStr: string) => {
+
+  function onOptionSearch(searchStr: string) {
     const search = searchStr.toLocaleUpperCase();
-    const filteredOptions: Array<DropdownOption> = props.options.filter(
-      (option: DropdownOption) => {
+    const filteredOptions: Array<DropdownOptionType> = props.options.filter(
+      (option: DropdownOptionType) => {
         return (
-          option.label?.toLocaleUpperCase().includes(search) ||
-          option.searchText?.toLocaleUpperCase().includes(search)
+          getOptionLabel(option)
+            .toLocaleUpperCase()
+            .includes(search) ||
+          getOptionSearchText(option)
+            .toLocaleUpperCase()
+            .includes(search)
         );
       },
     );
     setSearchValue(searchStr);
     setOptions(filteredOptions);
     onSearch && onSearch(searchStr);
-  };
+  }
   const theme = useTheme() as Theme;
 
   return (
@@ -685,7 +697,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
         height={props.dropdownHeight || "100%"}
         maxHeight={props.dropdownMaxHeight || "auto"}
       >
-        {options.map((option: DropdownOption, index: number) => {
+        {options.map((option: DropdownOptionType, index: number) => {
           if (renderOption) {
             return renderOption({
               option,
@@ -700,14 +712,32 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             Array.isArray(props.selected) &&
             props.selected.length
           ) {
-            isSelected = !!props.selected.find(
-              (selectedOption) => selectedOption.value === option.value,
-            );
+            //multi select and there is a selected value
+            if (typeof props.selected === "string") {
+              /* eslint-disable */
+              //@ts-ignore
+              isSelected = !!props.selected.find(
+                (selectedOption: DropdownOptionType) => {
+                  selectedOption === option;
+                },
+              );
+            } else {
+              isSelected = !!props.selected.find(
+                (selectedOption) =>
+                  (selectedOption as DropdownOption).value ===
+                  (option as DropdownOption).value,
+              );
+            }
           } else {
-            isSelected =
-              (props.selected as DropdownOption).value === option.value;
+            if (typeof props.selected === "string") {
+              isSelected = props.selected === option;
+            } else {
+              isSelected =
+                (props.selected as DropdownOption).value ===
+                (option as DropdownOption).value;
+            }
           }
-          return !option.isSectionHeader ? (
+          return typeof option !== "string" && !option.isSectionHeader ? (
             <OptionWrapper
               aria-selected={isSelected}
               className="t--dropdown-option"
@@ -721,10 +751,10 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               role="option"
               selected={isSelected}
             >
-              {option.leftElement && (
+              {typeof option !== "string" && option.leftElement && (
                 <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
               )}
-              {option.icon ? (
+              {typeof option !== "string" && option.icon ? (
                 <SelectedIcon
                   fillColor={option?.iconColor}
                   hoverFillColor={option?.iconColor}
@@ -744,7 +774,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               {props.showLabelOnly ? (
                 props.truncateOption ? (
                   <TooltipWrappedText
-                    label={option.label || ""}
+                    label={getOptionLabel(option)}
                     type={TextType.P1}
                   />
                 ) : (
@@ -752,18 +782,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
-                  <Text type={TextType.H5}>{option.value}</Text>
-                  <Text type={TextType.P1}>{option.label}</Text>
+                  <Text type={TextType.H5}>{getOptionValue(option)}</Text>
+                  <Text type={TextType.P1}>{getOptionLabel(option)}</Text>
                 </LabelWrapper>
               ) : props.truncateOption ? (
                 <TooltipWrappedText
-                  label={option.value || ""}
+                  label={getOptionValue(option)}
                   type={TextType.P1}
                 />
               ) : (
-                <Text type={TextType.P1}>{option.value}</Text>
+                <Text type={TextType.P1}>{getOptionLabel(option)}</Text>
               )}
-              {option.subText ? (
+              {typeof option !== "string" && option.subText ? (
                 <StyledSubText type={TextType.P3}>
                   {option.subText}
                 </StyledSubText>
@@ -772,7 +802,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
           ) : (
             <SegmentHeader
               style={{ paddingRight: theme.spaces[5] }}
-              title={option.label || ""}
+              title={getOptionLabel(option)}
             />
           );
         })}
@@ -795,9 +825,9 @@ export default function Dropdown(props: DropdownProps) {
     hasError,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<DropdownOption | DropdownOption[]>(
-    props.selected,
-  );
+  const [selected, setSelected] = useState<
+    DropdownOptionType | DropdownOptionType[]
+  >(props.selected);
 
   const closeIfOpen = () => {
     if (isOpen) {
@@ -811,14 +841,14 @@ export default function Dropdown(props: DropdownProps) {
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
-    (option: DropdownOption) => {
+    (option: DropdownOptionType) => {
       if (props.isMultiSelect) {
         // Multi select -> typeof selected is array of objects
         if (isArray(selected) && selected.length < 1) {
           setSelected([option]);
         } else {
-          const newOptions: DropdownOption[] = [
-            ...(selected as DropdownOption[]),
+          const newOptions: DropdownOptionType[] = [
+            ...(selected as DropdownOptionType[]),
             option,
           ];
           setSelected(newOptions);
@@ -828,22 +858,28 @@ export default function Dropdown(props: DropdownProps) {
         setSelected(option);
       }
       setIsOpen(false);
-      onSelect && onSelect(option.value, option);
-      option.onSelect && option.onSelect(option.value, option);
+      onSelect && onSelect(getOptionValue(option), option);
+      typeof option !== "string" &&
+        option.onSelect &&
+        option.onSelect(option.value, option);
     },
     [onSelect],
   );
 
   //Removes selected option
   const selectedOptionClickHandler = useCallback(
-    (optionToBeRemoved: DropdownOption) => {
+    (optionToBeRemoved: DropdownOptionType) => {
       setIsOpen(false);
-      const selectedOptions = (selected as DropdownOption[]).filter(
-        (option: DropdownOption) => option.value !== optionToBeRemoved.value,
+      const selectedOptions = (selected as DropdownOptionType[]).filter(
+        (option: DropdownOptionType) =>
+          getOptionValue(option) !== getOptionValue(optionToBeRemoved),
       );
       setSelected(selectedOptions);
       removeSelectedOption &&
-        removeSelectedOption(optionToBeRemoved.value, optionToBeRemoved);
+        removeSelectedOption(
+          getOptionValue(optionToBeRemoved),
+          optionToBeRemoved,
+        );
     },
     [removeSelectedOption],
   );
@@ -874,14 +910,15 @@ export default function Dropdown(props: DropdownProps) {
         case " ":
         case "Enter":
           e.preventDefault();
-          if (isOpen && !("length" in selected)) optionClickHandler(selected);
+          if (isOpen && !(Array.isArray(selected) && "length" in selected))
+            optionClickHandler(selected);
           else onClickHandler();
           break;
         case "ArrowUp":
           e.preventDefault();
           if (isOpen) {
             setSelected((prevSelected) => {
-              if (!("length" in prevSelected)) {
+              if (!Array.isArray(prevSelected)) {
                 let index = findIndex(props.options, prevSelected);
                 if (index === 0) index = props.options.length - 1;
                 else index--;
@@ -897,7 +934,7 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             setSelected((prevSelected) => {
-              if (!("length" in prevSelected)) {
+              if (!Array.isArray(prevSelected)) {
                 let index = findIndex(props.options, prevSelected);
                 if (index === props.options.length - 1) index = 0;
                 else index++;
@@ -1026,4 +1063,27 @@ export default function Dropdown(props: DropdownProps) {
       </Popover>
     </DropdownContainer>
   );
+}
+
+function getOptionLabel(option: DropdownOptionType): string {
+  if (typeof option === "string") return option;
+  if (option.label) return option.label;
+  return "";
+}
+
+function getOptionValue(option: DropdownOptionType): string {
+  if (typeof option === "string") return option;
+  if (option.value) return option.value;
+  return "";
+}
+
+function getOptionSearchText(option: DropdownOptionType): string {
+  if (typeof option === "string") return option;
+  if (option.searchText) return option.searchText;
+  return "";
+}
+
+function getOptionSubText(option: DropdownOptionType): string {
+  if (typeof option !== "string" && option.subText) return option.subText;
+  return "";
 }

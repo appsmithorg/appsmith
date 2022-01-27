@@ -54,7 +54,10 @@ class PluginsApi extends Api {
   static fetchFormConfig(
     id: string,
   ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
-    return Api.get(PluginsApi.url + `/${id}/form`);
+    return Api.get(PluginsApi.url + `/${id}/form`).then((response: any) => {
+      addOptions(response.data?.form);
+      return response;
+    });
   }
 
   // Definition to fetch the dynamic data via the URL passed in the config
@@ -66,3 +69,23 @@ class PluginsApi extends Api {
 }
 
 export default PluginsApi;
+
+function addOptions(formConfig: any) {
+  /* eslint-disable */
+  // const allPluginIds = Object.keys(formConfig);
+  // for (let i = 0; i < allPluginIds.length; i++) {
+  //   if (formConfig[allPluginIds[i]].options) {
+  //     formConfig[allPluginIds[i]]["isMultiSelect"] = false;
+  //     const newOptions = formConfig[allPluginIds[i]].options?.map(
+  //       (option: any) => {
+  //         return option.value;
+  //       },
+  //     );
+  //     formConfig[allPluginIds[i]].options = newOptions;
+  //   }
+  //   if (formConfig[allPluginIds[i]].children) {
+  //     addOptions(formConfig[allPluginIds[i]].children);
+  //   }
+  // }
+  // console.log("rrai", formConfig);
+}
