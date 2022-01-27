@@ -7,6 +7,7 @@ import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -182,8 +183,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PostMapping(value = "/import/{orgId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<Application>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
-                                                                    @PathVariable String orgId) {
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
+                                                                             @PathVariable String orgId) {
         log.debug("Going to import application in organization with id: {}", orgId);
         return fileMono
                 .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(orgId, file))

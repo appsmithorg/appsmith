@@ -25,6 +25,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -50,6 +51,7 @@ import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -69,11 +71,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 
 @Slf4j
@@ -445,7 +450,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param filePart Json file which contains the entire application object
      * @return saved application in DB
      */
-    public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
+    public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String orgId, Part filePart) {
 
         /*
             1. Check the validity of file part
@@ -470,29 +475,30 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return new String(data);
                 });
 
-        Mono<Application> importedApplicationMono = stringifiedFile
+        Mono<ApplicationImportDTO> importedApplicationMono = stringifiedFile
                 .flatMap(data -> {
                     Gson gson = new GsonBuilder()
                             .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
                             .create();
 
-
-                    /*
-                    // Use JsonObject to migrate when we remove some field from the collection which is being exported
-                    JsonObject json = gson.fromJson(data, JsonObject.class);
-                    JsonObject update = new JsonObject();
-                    update.addProperty("slug", "update_name");
-                    update.addProperty("name", "update name");
-
-                    ((JsonObject) json.get("exportedApplication")).add("name", update);
-                    json.get("random") == null => true
-
-                    ((JsonArray) json.get("pageList"))
-                    */
-                    Type fileType = new TypeToken<ApplicationJson>() {
-                    }.getType();
+                    Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    return importApplicationInOrganization(orgId, jsonFile);
+                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList();
+                    return importApplicationInOrganization(orgId, jsonFile)
+                            .zipWith(datasourceMono);
+                })
+                // Add un-configured datasource to the list to response
+                .flatMap(objects -> {
+                    List<Datasource> datasourceList = objects.getT2();
+                    Application application = objects.getT1();
+                    return findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
+                            .map(datasources -> {
+                                ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                                applicationImportDTO.setApplication(application);
+                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                                applicationImportDTO.setIsPartialImport(datasources.isEmpty());
+                                return applicationImportDTO;
+                            });
                 });
 
         return Mono.create(sink -> importedApplicationMono
@@ -1476,5 +1482,26 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         } else {
             return themeRepository.save(theme);
         }
+    }
+
+    private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
+                                                                              List<Datasource> datasourceList) {
+        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
+                .collectList()
+                .flatMap(actionList -> {
+                    List<String> usedDatasource = actionList.stream()
+                            .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
+                            .collect(Collectors.toList());
+
+                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
+
+                    return Mono.just(datasourceList);
+                })
+                .map(datasources -> {
+                    for (Datasource datasource:datasources) {
+                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                    }
+                    return datasources;
+                });
     }
 }

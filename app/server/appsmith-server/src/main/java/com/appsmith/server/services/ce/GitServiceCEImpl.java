@@ -25,7 +25,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.GitImportDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -1880,7 +1880,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<GitImportDTO> importApplicationFromGit(String organizationId, GitConnectDTO gitConnectDTO) {
+    public Mono<ApplicationImportDTO> importApplicationFromGit(String organizationId, GitConnectDTO gitConnectDTO) {
         // 1. Check private repo limit for organization
         // 2. Create dummy application, clone repo from remote
         // 3. Re-hydrate application to DB from local repo
@@ -1905,7 +1905,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
         final boolean isRepoPrivate = isRepoPrivateTemp;
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
-        Mono<GitImportDTO> importedApplicationMono = getSSHKeyForCurrentUser()
+        Mono<ApplicationImportDTO> importedApplicationMono = getSSHKeyForCurrentUser()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))
                 //Check the limit for number of private repo
@@ -2039,15 +2039,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                 // Add analytics event
                 .flatMap(objects -> {
                     Application application = objects.getT1();
-                    GitImportDTO gitImportDTO = new GitImportDTO();
-                    gitImportDTO.setApplication(application);
-                    gitImportDTO.setUnConfiguredDatasourceList(objects.getT2());
-                    gitImportDTO.setIsPartialImport(objects.getT2().size() > 0);
+                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                    applicationImportDTO.setApplication(application);
+                    applicationImportDTO.setUnConfiguredDatasourceList(objects.getT2());
+                    applicationImportDTO.setIsPartialImport(objects.getT2().size() > 0);
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_IMPORT.getEventName(),
                             application,
                             application.getGitApplicationMetadata().getIsRepoPrivate()
-                    ).thenReturn(gitImportDTO);
+                    ).thenReturn(applicationImportDTO);
                 });
 
         return Mono.create(sink -> importedApplicationMono
