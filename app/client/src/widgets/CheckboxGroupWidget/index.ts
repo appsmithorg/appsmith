@@ -15,7 +15,7 @@ export const CONFIG = {
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
-    defaultSelectedValues: "BLUE",
+    defaultSelectedValues: ["BLUE"],
     isDisabled: false,
     isInline: true,
     isRequired: false,
