@@ -22,3 +22,12 @@ export const getReflowSelector = (widgetId: string) => {
     return undefined;
   });
 };
+
+export const getReflowThresholds = (
+  state: AppState,
+): { accThreshold: number; speedThreshold: number } => {
+  return {
+    accThreshold: state.ui.widgetReflow.accThreshold,
+    speedThreshold: state.ui.widgetReflow.speedThreshold,
+  };
+};

@@ -8,10 +8,13 @@ import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 import {
   closeOnboardingCardAction,
+  setAccThreshold,
   setEnableReflowAction,
+  setSpeedThreshold,
 } from "actions/reflowActions";
 import {
   getIsShowReflowCard,
+  getReflowThresholds,
   isReflowEnabled,
 } from "selectors/widgetReflowSelectors";
 import { setReflowBetaFlag } from "utils/storage";
@@ -27,6 +30,8 @@ import {
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import TextInput from "components/ads/TextInput";
+import { debounce, isEqual } from "lodash";
 
 const ReflowBetaWrapper = styled.div`
   display: inline-flex;
@@ -104,6 +109,7 @@ export function ReflowBetaCard() {
   const user: User | undefined = useSelector(getCurrentUser);
   const shouldReflow = useSelector(isReflowEnabled);
   const shouldShowReflowCard = useSelector(getIsShowReflowCard);
+  const reflowThresholds = useSelector(getReflowThresholds, isEqual);
 
   const openReflowDocs = () => {
     window.open(
@@ -152,6 +158,33 @@ export function ReflowBetaCard() {
           <StyledCloseIcon onClick={reflowCloseCard} />
         </ReflowBetaInfoCard>
       )}
+      <div>
+        <p>Jump into the container instead of Reflowing if,</p>
+        <br />
+        <p>Acceleration is greater than</p>
+        <TextInput
+          dataType="number"
+          defaultValue={reflowThresholds.accThreshold.toString()}
+          onChange={debounce(
+            (value) => dispatch(setAccThreshold(parseFloat(value))),
+            300,
+          )}
+        />
+        <p>% of Maximum Acceleration</p>
+        <br />
+        <p>OR</p>
+        <br />
+        <p>Speed is greater than</p>
+        <TextInput
+          dataType="number"
+          defaultValue={reflowThresholds.speedThreshold.toString()}
+          onChange={debounce(
+            (value) => dispatch(setSpeedThreshold(parseFloat(value))),
+            300,
+          )}
+        />
+        <p>% of Maximum Speed</p>
+      </div>
     </>
   );
 }

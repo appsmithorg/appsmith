@@ -37,3 +37,17 @@ export const setEnableReflowAction = (payload: boolean) => {
     payload,
   };
 };
+
+export const setAccThreshold = (payload: number) => {
+  return {
+    type: ReflowReduxActionTypes.ACC_THRESHOLD_CHANGE,
+    payload,
+  };
+};
+
+export const setSpeedThreshold = (payload: number) => {
+  return {
+    type: ReflowReduxActionTypes.SPEED_THRESHOLD_CHANGE,
+    payload,
+  };
+};
