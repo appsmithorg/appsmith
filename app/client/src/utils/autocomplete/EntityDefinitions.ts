@@ -34,6 +34,7 @@ export const entityDefinitions: Record<string, unknown> = {
           watchPosition: "fn(options: object) -> void",
           clearWatch: "fn() -> void",
         },
+        import: "fn(path: string) -> object | void",
       };
     }
     return generatedTypeDef;

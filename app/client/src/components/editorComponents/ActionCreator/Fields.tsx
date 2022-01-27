@@ -232,6 +232,7 @@ export const ActionType = {
   getGeolocation: "appsmith.geolocation.getCurrentPosition",
   watchGeolocation: "appsmith.geolocation.watchPosition",
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
+  import: "appsmith.import",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 

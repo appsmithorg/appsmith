@@ -17,6 +17,7 @@ export enum ActionTriggerType {
   GET_CURRENT_LOCATION = "GET_CURRENT_LOCATION",
   WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
+  IMPORT = "IMPORT",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
@@ -35,6 +36,7 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.GET_CURRENT_LOCATION]: "getCurrentLocation",
   [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
   [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
+  [ActionTriggerType.IMPORT]: "import",
 };
 
 export type RunPluginActionDescription = {
@@ -158,6 +160,11 @@ export type StopWatchingCurrentLocationDescription = {
   payload?: Record<string, never>;
 };
 
+export type ImportDescription = {
+  type: ActionTriggerType.IMPORT;
+  payload: { path: string };
+};
+
 export type ActionDescription =
   | RunPluginActionDescription
   | ClearPluginActionDescription
@@ -173,4 +180,5 @@ export type ActionDescription =
   | ClearIntervalDescription
   | GetCurrentLocationDescription
   | WatchCurrentLocationDescription
-  | StopWatchingCurrentLocationDescription;
+  | StopWatchingCurrentLocationDescription
+  | ImportDescription;

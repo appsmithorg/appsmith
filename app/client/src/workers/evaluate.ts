@@ -13,6 +13,7 @@ import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import MOCK_APP_LEVEL_ENTITY from "./MOCK_APP_LEVEL_ENTITY";
 
 export type EvalResult = {
   result: any;
@@ -91,6 +92,10 @@ export function setupEvaluationEnvironment() {
   });
 }
 
+function addAppLevelEntity(GLOBAL_DATA: Record<string, any>) {
+  GLOBAL_DATA.app = MOCK_APP_LEVEL_ENTITY;
+}
+
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export const createGlobalData = (
@@ -100,6 +105,10 @@ export const createGlobalData = (
   evalArguments?: Array<any>,
 ) => {
   const GLOBAL_DATA: Record<string, any> = {};
+
+  //
+  addAppLevelEntity(GLOBAL_DATA);
+
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
   //// Add internal functions to dataTree;

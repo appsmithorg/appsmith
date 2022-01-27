@@ -257,6 +257,30 @@ const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
+  import: {
+    qualifier: (entity) => isAppsmithEntity(entity),
+    path: "appsmith.import",
+    func: () =>
+      function(pathToImport: string) {
+        if (pathToImport) {
+          const path = pathToImport.replaceAll("/", ".");
+          const parentScopedEntity = _.get(self, path);
+
+          if (parentScopedEntity) {
+            return {
+              type: ActionTriggerType.IMPORT,
+              payload: { path },
+              executionType: ExecutionType.PROMISE,
+            };
+          }
+        }
+        return {
+          type: ActionTriggerType.IMPORT,
+          payload: { path: "" },
+          executionType: ExecutionType.TRIGGER,
+        };
+      },
+  },
 };
 
 export const enhanceDataTreeWithFunctions = (
