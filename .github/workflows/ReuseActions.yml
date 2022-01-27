@@ -667,7 +667,7 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          spec: echo ${{ steps.vars2.outputs.failedspecs }}
+          spec: steps.failed_spec.outputs.failed_spec
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
