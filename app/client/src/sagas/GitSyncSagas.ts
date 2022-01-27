@@ -638,12 +638,13 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       );
       if (currentOrg.length > 0) {
         const {
-          id: appId,
+          application: app,
           isPartialImport,
-          pages,
         }: {
-          id: string;
-          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          application: {
+            id: string;
+            pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          };
           isPartialImport: boolean;
         } = response?.data;
         yield put({
@@ -661,13 +662,15 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
           yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
         } else {
           let pageId = "";
-          if (pages && pages.length > 0) {
-            const defaultPage = pages.find((eachPage) => !!eachPage.isDefault);
+          if (app.pages && app.pages.length > 0) {
+            const defaultPage = app.pages.find(
+              (eachPage) => !!eachPage.isDefault,
+            );
             pageId = defaultPage ? defaultPage.id : "";
           }
 
           const pageURL = BUILDER_PAGE_URL({
-            applicationId: appId,
+            applicationId: app.id,
             pageId,
           });
           history.push(pageURL);
