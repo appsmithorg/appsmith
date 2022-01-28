@@ -19,7 +19,8 @@ describe("Always fai", function() {
   });
 
   it("Always fail", function() {
-    cy.contains("Sorry, something went wrong").should('not.exist');
+    
+    cy.contains("Check contentns").should('Check contentns');
 
 
   });
