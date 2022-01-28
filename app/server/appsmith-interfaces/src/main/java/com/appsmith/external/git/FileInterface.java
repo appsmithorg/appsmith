@@ -44,7 +44,7 @@ public interface FileInterface {
     Mono<ApplicationGitReference> reconstructApplicationFromGitRepo(String organisationId,
                                                                     String defaultApplicationId,
                                                                     String repoName,
-                                                                    String branchName) throws GitAPIException, IOException;
+                                                                    String branchName);
 
     /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -

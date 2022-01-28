@@ -946,7 +946,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(listMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().contains("Unable to find default application. Please configure the application with git"))
+                        throwable.getMessage().equals(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(GIT_CONFIG_ERROR)))
                 .verify();
     }
 
@@ -969,7 +969,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(listMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().contains("Git configuration is invalid. Details: Unable to find default application. Please configure the application with git"))
+                        throwable.getMessage().equals(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(GIT_CONFIG_ERROR)))
                 .verify();
     }
 

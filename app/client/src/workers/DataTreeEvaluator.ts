@@ -44,6 +44,7 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
+  validateActionProperty,
   getParams,
   updateJSCollectionInDataTree,
   removeFunctionsAndVariableJSCollection,
@@ -75,6 +76,10 @@ import {
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
 } from "./evaluationUtils";
+import {
+  ActionValidationConfigMap,
+  ValidationConfig,
+} from "constants/PropertyControlConstants";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -89,8 +94,15 @@ export default class DataTreeEvaluator {
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
   logs: any[] = [];
+  allActionValidationConfig?: { [actionId: string]: ActionValidationConfigMap };
   public hasCyclicalDependency = false;
-  constructor(widgetConfigMap: WidgetTypeConfigMap) {
+  constructor(
+    widgetConfigMap: WidgetTypeConfigMap,
+    allActionValidationConfig?: {
+      [actionId: string]: ActionValidationConfigMap;
+    },
+  ) {
+    this.allActionValidationConfig = allActionValidationConfig;
     this.widgetConfigMap = widgetConfigMap;
   }
 
@@ -583,6 +595,7 @@ export default class DataTreeEvaluator {
             currentTree as any,
             fullPropertyPath,
           );
+
           const isABindingPath =
             (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
             isPathADynamicBinding(entity, propertyPath);
@@ -654,6 +667,23 @@ export default class DataTreeEvaluator {
             addErrorToEntityProperty(errors, currentTree, fullPropertyPath);
             return currentTree;
           } else if (isAction(entity)) {
+            if (this.allActionValidationConfig) {
+              const configProperty = propertyPath.replace(
+                "config",
+                "actionConfiguration",
+              );
+              const validationConfig = this.allActionValidationConfig[
+                entity.actionId
+              ][configProperty];
+              this.validateActionProperty(
+                fullPropertyPath,
+                entity,
+                currentTree,
+                evalPropertyValue,
+                unEvalPropertyValue,
+                validationConfig,
+              );
+            }
             const safeEvaluatedValue = removeFunctions(evalPropertyValue);
             _.set(
               currentTree,
@@ -677,6 +707,12 @@ export default class DataTreeEvaluator {
       });
       return tree;
     }
+  }
+
+  setAllActionValidationConfig(allActionValidationConfig: {
+    [actionId: string]: ActionValidationConfigMap;
+  }): void {
+    this.allActionValidationConfig = allActionValidationConfig;
   }
 
   sortDependencies(
@@ -901,7 +937,40 @@ export default class DataTreeEvaluator {
         }) ?? [];
       addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
     }
+
     return parsed;
+  }
+
+  // validates the user input saved as action property based on a validationConfig
+  validateActionProperty(
+    fullPropertyPath: string,
+    action: DataTreeAction,
+    currentTree: DataTree,
+    evalPropertyValue: any,
+    unEvalPropertyValue: string,
+    validationConfig: ValidationConfig,
+  ) {
+    if (evalPropertyValue && validationConfig) {
+      // runs VALIDATOR function and returns errors
+      const { isValid, messages } = validateActionProperty(
+        validationConfig,
+        evalPropertyValue,
+      );
+      if (!isValid) {
+        const evalErrors: EvaluationError[] =
+          messages?.map((message) => {
+            return {
+              raw: unEvalPropertyValue,
+              errorMessage: message || "",
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              severity: Severity.ERROR,
+            };
+          }) ?? [];
+        // saves error in dataTree at fullPropertyPath
+        // Later errors can consumed by the forms and debugger
+        addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
+      }
+    }
   }
 
   saveResolvedFunctionsAndJSUpdates(

@@ -86,6 +86,7 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { updateMetaState } from "../actions/metaActions";
+import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -95,8 +96,10 @@ function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   shouldReplay?: boolean,
 ) {
+  const allActionValidationConfig = yield select(getAllActionValidationConfig);
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
+
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -109,8 +112,10 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
       widgets,
       shouldReplay,
+      allActionValidationConfig,
     },
   );
+
   const {
     dataTree,
     dependencies,
