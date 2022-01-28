@@ -1,5 +1,4 @@
 import Widget from "./widget";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -8,8 +7,8 @@ export const CONFIG = {
   hideCard: true,
   defaults: {
     widgetName: "Icon",
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 1 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 4,
     version: 1,
   },
   properties: {

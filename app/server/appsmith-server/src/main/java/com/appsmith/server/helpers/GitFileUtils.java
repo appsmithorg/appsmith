@@ -14,6 +14,8 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,6 +75,9 @@ public class GitFileUtils {
             3. Save application to git repo
          */
         ApplicationGitReference applicationReference = new ApplicationGitReference();
+
+        Application application = applicationJson.getExportedApplication();
+        removeUnwantedFieldsFromApplication(application);
         // Pass application reference
         applicationReference.setApplication(applicationJson.getExportedApplication());
 
@@ -125,10 +131,8 @@ public class GitFileUtils {
         resourceMap.clear();
 
         // Send datasources
-        applicationJson.getDatasourceList().forEach(
-                datasource -> {
-                    datasource.setUpdatedAt(null);
-                    datasource.setCreatedAt(null);
+        applicationJson.getDatasourceList().forEach(datasource -> {
+                    removeUnwantedFieldsFromDatasource(datasource);
                     resourceMap.put(datasource.getName(), datasource);
                 }
         );
@@ -156,7 +160,7 @@ public class GitFileUtils {
     public Mono<ApplicationJson> reconstructApplicationFromGitRepo(String organisationId,
                                                              String defaultApplicationId,
                                                              String repoName,
-                                                             String branchName) throws GitAPIException, IOException {
+                                                             String branchName) {
 
 
         return fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
@@ -204,7 +208,8 @@ public class GitFileUtils {
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
                                         String viewModeUrl,
                                         String editModeUrl) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl);
+        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl)
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
     /**
@@ -216,7 +221,10 @@ public class GitFileUtils {
         return fileUtils.detachRemote(baseRepoSuffix);
     }
 
-    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException { return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix); }
+    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
+        return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix)
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
+    }
 
     private void removeUnwantedFieldsFromPage(NewPage page) {
         page.setDefaultResources(null);
@@ -234,6 +242,18 @@ public class GitFileUtils {
                     .getLayouts()
                     .forEach(this::removeUnwantedFieldsFromLayout);
         }
+    }
+
+    private void removeUnwantedFieldsFromApplication(Application application) {
+        // Don't commit application name as while importing we are using the repoName as application name
+        application.setName(null);
+    }
+
+    private void removeUnwantedFieldsFromDatasource(Datasource datasource) {
+        datasource.setPolicies(new HashSet<>());
+        datasource.setStructure(null);
+        datasource.setUpdatedAt(null);
+        datasource.setCreatedAt(null);
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {
@@ -268,6 +288,7 @@ public class GitFileUtils {
         }
         if (publishedCollection != null) {
             publishedCollection.setDefaultResources(null);
+            publishedCollection.setDefaultToBranchedActionIdsMap(null);
         }
     }
 
@@ -305,12 +326,10 @@ public class GitFileUtils {
         return applicationReference;
     }
 
-    private Boolean isVersionCompatible(ApplicationJson metadata) {
-        Integer importedJsonVersion = metadata == null ? null : metadata.getVersion();
+    private boolean isVersionCompatible(ApplicationJson metadata) {
+        Integer importedFileFormatVersion = metadata == null ? null : metadata.getFileFormatVersion();
+        Integer currentFileFormatVersion = new ApplicationJson().getFileFormatVersion();
 
-        if (importedJsonVersion == null || importedJsonVersion.equals(new ApplicationJson().getVersion())) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        return (importedFileFormatVersion == null || importedFileFormatVersion.equals(currentFileFormatVersion));
     }
 }

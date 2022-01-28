@@ -16,6 +16,11 @@
           "controlType": "KEY_VAL_INPUT"
         },
         {
+          "label": "Query Params",
+          "configProperty": "datasourceConfiguration.queryParameters",
+          "controlType": "KEY_VAL_INPUT"
+        },
+        {
           "label": "Send Authentication Information Key (Do not edit)",
           "configProperty": "datasourceConfiguration.properties[0].key",
           "controlType": "INPUT_TEXT",
