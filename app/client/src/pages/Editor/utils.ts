@@ -36,21 +36,33 @@ export const draggableElement = (
     document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
   };
+
   const calculateBoundaryConfinedPosition = (
     calculatedLeft: number,
     calculatedTop: number,
   ) => {
     const bottomBarOffset = 34;
 
+    /*
+      Default to 70 for a save offset that can also
+      handle the pagination Bar.
+    */
+    const canvasTopOffset =
+      document.querySelector('[type="CANVAS_WIDGET"]')?.getBoundingClientRect()
+        .top || 70;
+
     if (calculatedLeft <= 0) {
       calculatedLeft = 0;
     }
-    if (calculatedTop <= 70) {
-      calculatedTop = 70;
+
+    if (calculatedTop <= canvasTopOffset) {
+      calculatedTop = canvasTopOffset;
     }
+
     if (calculatedLeft >= window.innerWidth - element.clientWidth) {
       calculatedLeft = window.innerWidth - element.clientWidth;
     }
+
     if (
       calculatedTop >=
       window.innerHeight - (element.clientHeight + bottomBarOffset)
@@ -58,6 +70,7 @@ export const draggableElement = (
       calculatedTop =
         window.innerHeight - element.clientHeight - bottomBarOffset;
     }
+
     return {
       left: calculatedLeft,
       top: calculatedTop,
