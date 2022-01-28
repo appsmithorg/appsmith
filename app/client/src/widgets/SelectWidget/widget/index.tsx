@@ -319,11 +319,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
-    const index = _.findIndex(this.props.options, {
+    const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-
-    const selectedIndex = index >= 0 ? index : 0;
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
