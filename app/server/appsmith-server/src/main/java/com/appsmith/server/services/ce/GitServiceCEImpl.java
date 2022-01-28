@@ -2032,7 +2032,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 // Add un-configured datasource to the list to response
                 .flatMap(application -> datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList()
-                        .flatMap(datasourceList -> findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
+                        .flatMap(datasourceList -> importExportApplicationService.findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
                                 .map(datasources -> {
                                     ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                                     applicationImportDTO.setApplication(application);
@@ -2077,27 +2077,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .thenReturn(gitAuth);
-    }
-
-    private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
-                                                                             List<Datasource> datasourceList) {
-        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
-                .collectList()
-                .flatMap(actionList -> {
-                    List<String> usedDatasource = actionList.stream()
-                            .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
-                            .collect(Collectors.toList());
-
-                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
-
-                    return Mono.just(datasourceList);
-                })
-                .map(datasources -> {
-                    for (Datasource datasource:datasources) {
-                        datasource.setIsConfigured(!Optional.ofNullable(datasource.getInvalids()).isEmpty());
-                    }
-                    return datasources;
-                });
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String organizationId, String repoName) {

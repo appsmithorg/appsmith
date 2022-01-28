@@ -1489,8 +1489,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
     }
 
-    private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
-                                                                              List<Datasource> datasourceList) {
+    public Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId, List<Datasource> datasourceList) {
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()
                 .flatMap(actionList -> {
@@ -1504,7 +1503,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .map(datasources -> {
                     for (Datasource datasource:datasources) {
-                        datasource.setIsConfigured(!Optional.ofNullable(datasource.getInvalids()).isEmpty());
+                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
                     }
                     return datasources;
                 });
