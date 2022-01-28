@@ -269,7 +269,6 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
             isLoading={false}
             label=""
             leftIcon={leftIcon}
-            maxChars={schemaItem.maxChars}
             maxNum={schemaItem.maxNum}
             minNum={schemaItem.minNum}
             multiline={schemaItem.fieldType === FieldType.MULTILINE}
@@ -280,7 +279,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
             showError={isFocused}
             spellCheck={schemaItem.isSpellCheck}
             stepSize={1}
-            value={textValue}
+            value={(value || "").toString()}
             widgetId=""
           />
         );

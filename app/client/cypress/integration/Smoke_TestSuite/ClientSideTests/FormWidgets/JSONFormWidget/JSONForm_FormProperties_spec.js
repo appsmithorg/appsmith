@@ -40,10 +40,10 @@ describe("JSON Form Widget Form Bindings", () => {
   });
 
   it("Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
-    cy.get('button[data-test-variant="PRIMARY"]').should(
-      "not.have.attr",
-      "disabled",
-    );
+    cy.get("button")
+      .contains("Submit")
+      .parent("button")
+      .should("not.have.attr", "disabled");
 
     // make name field required
     cy.openFieldConfiguration("name");
@@ -53,19 +53,18 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get(`${fieldPrefix}-name input`)
       .clear()
       .wait(300);
-
-    cy.get('button[data-test-variant="PRIMARY"]').should(
-      "have.attr",
-      "disabled",
-    );
+    cy.get("button")
+      .contains("Submit")
+      .parent("button")
+      .should("have.attr", "disabled");
 
     cy.get(`${fieldPrefix}-name input`)
       .type("JOHN")
       .wait(300);
 
-    cy.get('button[data-test-variant="PRIMARY"]').should(
-      "not.have.attr",
-      "disabled",
-    );
+    cy.get("button")
+      .contains("Submit")
+      .parent("button")
+      .should("not.have.attr", "disabled");
   });
 });

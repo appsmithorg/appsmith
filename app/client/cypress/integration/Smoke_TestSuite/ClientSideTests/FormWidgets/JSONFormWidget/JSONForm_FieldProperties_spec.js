@@ -15,12 +15,12 @@ describe("Text Field Property Control", () => {
 
   it("has valid default text", () => {
     cy.openFieldConfiguration("name");
-    cy.get(".t--property-control-defaulttext").contains("{{sourceData.name}}");
+    cy.get(".t--property-control-defaultvalue").contains("{{sourceData.name}}");
   });
 
   it("updated field with change in default text", () => {
     const defaultValue = "New default text";
-    cy.testJsontext("defaulttext", "New default text").wait(200);
+    cy.testJsontext("defaultvalue", "New default text").wait(200);
     cy.get(`${fieldPrefix}-name input`).should("have.value", defaultValue);
   });
 

@@ -172,7 +172,7 @@ describe("JSON Form Widget Field Render", () => {
     cy.get(`${fieldPrefix}-migrant .t--switch-widget-inactive`).should(
       "not.exist",
     );
-    cy.get(`${fieldPrefix}-migrant input`).should("have.value", "false");
+    cy.get(`${fieldPrefix}-migrant input`).should("exist");
 
     cy.get(`${fieldPrefix}-address`)
       .find("label")

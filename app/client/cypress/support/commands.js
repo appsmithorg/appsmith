@@ -2618,8 +2618,6 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   )
     .first()
     .click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
 });
 
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {

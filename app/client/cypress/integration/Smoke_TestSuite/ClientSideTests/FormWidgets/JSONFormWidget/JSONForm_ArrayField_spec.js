@@ -114,7 +114,7 @@ describe("JSON Form Widget Array Field", () => {
       .openFieldConfiguration("college");
 
     // Modify default text of eductation -> college field
-    cy.testJsontext("defaulttext", collegeFieldDefaultValue);
+    cy.testJsontext("defaultvalue", collegeFieldDefaultValue);
     cy.closePropertyPane();
     cy.get(`${education}-item`)
       .should("have.length", 1)
