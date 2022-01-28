@@ -169,7 +169,10 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
         "OPTION",
         renderPairs.map((pair: any) => pair.value),
       ),
-      key: generateReactKey(),
+      key: getNextEntityName(
+        "OPTION",
+        renderPairs.map((pair: any) => pair.value),
+      ),
     });
 
     setRenderPairs(updatedRenderPairs);
