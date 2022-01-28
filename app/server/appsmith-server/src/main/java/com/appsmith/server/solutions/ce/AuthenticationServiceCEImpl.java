@@ -6,12 +6,14 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -298,15 +300,27 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                                configService.getInstanceId(),
-                                pluginService.findById(datasource.getPluginId()))
+                            newPageService.findById(pageId, AclPermission.READ_PAGES),
+                            configService.getInstanceId(),
+                            pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {
                             IntegrationDTO integrationDTO = new IntegrationDTO();
-                            integrationDTO.setPageId(pageId);
-                            integrationDTO.setApplicationId(datasourceId);
-                            integrationDTO.setInstallationKey(tuple.getT1());
+                            integrationDTO.setInstallationKey(tuple.getT2());
+                            NewPage page = tuple.getT1();
+
+                            DefaultResources defaultResourceIds = page.getDefaultResources();
+                            String defaultPageId = StringUtils.hasLength(defaultResourceIds.getPageId())
+                                    ? defaultResourceIds.getPageId()
+                                    : page.getId();
+
+                            String defaultApplicationId = StringUtils.hasLength(defaultResourceIds.getApplicationId())
+                                    ? defaultResourceIds.getApplicationId()
+                                    : page.getApplicationId();
+
+                            integrationDTO.setPageId(defaultPageId);
+                            integrationDTO.setApplicationId(defaultApplicationId);
                             integrationDTO.setBranch(branchName);
-                            final Plugin plugin = tuple.getT2();
+                            final Plugin plugin = tuple.getT3();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());
                             // TODO add authenticationDTO
