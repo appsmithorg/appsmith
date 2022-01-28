@@ -7,32 +7,13 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionRequest;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DBAuth;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Property;
-import com.appsmith.external.models.PsParameterDTO;
-import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.models.*;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.utils.QueryUtils;
-import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactoryOptions;
-import io.r2dbc.spi.Option;
-import io.r2dbc.spi.Result;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.RowMetadata;
-import io.r2dbc.spi.Statement;
-import io.r2dbc.spi.ValidationDepth;
+import io.r2dbc.spi.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -50,25 +31,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
+import static com.appsmith.external.helpers.PluginUtils.*;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
-import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
-import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -141,9 +111,8 @@ public class MySqlPlugin extends BasePlugin {
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
-
         private static final int PREPARED_STATEMENT_INDEX = 0;
+        private final Scheduler scheduler = Schedulers.elastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -171,11 +140,11 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                 // In case the prepared statement configuration is missing, default to true
+                // In case the prepared statement configuration is missing, default to true
                 isPreparedStatement = true;
-            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null) {
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
-                if (psValue instanceof  Boolean) {
+                if (psValue instanceof Boolean) {
                     isPreparedStatement = (Boolean) psValue;
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
@@ -186,7 +155,7 @@ public class MySqlPlugin extends BasePlugin {
                 isPreparedStatement = true;
             }
 
-            requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
+            requestData.put("preparedStatement", TRUE.equals(isPreparedStatement));
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
@@ -375,7 +344,7 @@ public class MySqlPlugin extends BasePlugin {
                 IntStream.range(0, parameters.size())
                         .forEachOrdered(i ->
                                 psParams.put(
-                                        getPSParamLabel(i+1),
+                                        getPSParamLabel(i + 1),
                                         new PsParameterDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
 
             } catch (AppsmithPluginException e) {
@@ -636,8 +605,11 @@ public class MySqlPlugin extends BasePlugin {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(authentication.getPassword())) {
+                if (StringUtils.isEmpty(authentication.getPassword()) && StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing password for authentication.");
+                } else if (StringUtils.isEmpty(authentication.getPassword())) {
+                    // it is valid if it has the username but not the password
+                    authentication.setPassword("");
                 }
 
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
@@ -812,7 +784,7 @@ public class MySqlPlugin extends BasePlugin {
                                 + " (" + String.join(", ", columnNames) + ")\n"
                                 + "  VALUES (" + String.join(", ", columnValues) + ");"),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
-                                + setFragments.toString() + "\n"
+                                + setFragments + "\n"
                                 + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
                                 + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
