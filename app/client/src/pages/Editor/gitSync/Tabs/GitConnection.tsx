@@ -38,6 +38,7 @@ import {
   fetchLocalGitConfigInit,
   importAppFromGit,
   remoteUrlInputValue,
+  resetSSHKeys,
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
   setIsGitSyncModalOpen,
@@ -386,6 +387,14 @@ function GitConnection({ isImport }: Props) {
       }),
     );
     dispatch(setIsDisconnectGitModalOpen(true));
+  }, []);
+
+  // reset on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(remoteUrlInputValue({ tempRemoteUrl: "" }));
+      dispatch(resetSSHKeys());
+    };
   }, []);
 
   return (

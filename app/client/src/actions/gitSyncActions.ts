@@ -385,3 +385,7 @@ export const importAppViaGitError = (error: any) => ({
   type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR,
   payload: error,
 });
+
+export const resetSSHKeys = () => ({
+  type: ReduxActionTypes.RESET_SSH_KEY_PAIR,
+});

@@ -392,10 +392,24 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_ORG_ID_FOR_GIT_IMPORT]: (
     state: GitSyncReducerState,
     action: ReduxAction<string>,
-  ) => ({
-    ...state,
-    orgIdForImport: action.payload,
-  }),
+  ) => {
+    const orgIdForImport = action.payload;
+    let SSHKeyPair = state.SSHKeyPair;
+    let tempRemoteUrl = state.tempRemoteUrl;
+
+    // reset on updating org id for import
+    if (orgIdForImport !== state.orgIdForImport) {
+      SSHKeyPair = "";
+      tempRemoteUrl = "";
+    }
+
+    return {
+      ...state,
+      orgIdForImport,
+      SSHKeyPair,
+      tempRemoteUrl,
+    };
+  },
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: (
     state: GitSyncReducerState,
   ) => ({
@@ -418,6 +432,10 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     gitImportError: action.payload,
+  }),
+  [ReduxActionTypes.RESET_SSH_KEY_PAIR]: (state: GitSyncReducerState) => ({
+    ...state,
+    SSHKeyPair: null,
   }),
 });
 
