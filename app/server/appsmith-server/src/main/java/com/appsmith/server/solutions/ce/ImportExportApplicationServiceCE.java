@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
 
@@ -26,7 +27,7 @@ public interface ImportExportApplicationServiceCE {
      * @param filePart Json file which contains the entire application object
      * @return saved application in DB
      */
-    Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart);
+    Mono<ApplicationImportDTO> extractFileAndSaveApplication(String orgId, Part filePart);
 
     /**
      * This function will save the application to organisation from the application resource
