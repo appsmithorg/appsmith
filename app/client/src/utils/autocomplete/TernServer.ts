@@ -186,6 +186,9 @@ class TernServer {
     // debugger;
 
     const start = Pos(line, ch);
+    const cache = this.cachedArgHints;
+    if (cache && cache.doc == cm.getDoc() && cmpPos(start, cache.start) == 0)
+      return this.showArgHints(cm, argPos, start, cache);
 
     this.request(
       cm,
@@ -196,13 +199,14 @@ class TernServer {
       (error, data) => {
         // debugger;
         if (error || !data.type || !/^fn\(/.test(data.type)) return;
-        this.showArgHints(cm, argPos, start, {
+        this.cachedArgHints = {
           start: start,
           type: this.parseFnType(data.type),
           name: data.exprName || data.name || "fn",
           guess: data.guess,
           doc: cm.getDoc(),
-        });
+        };
+        this.showArgHints(cm, argPos, start, this.cachedArgHints);
       },
       start,
     );
@@ -455,6 +459,14 @@ class TernServer {
         }
       },
     );
+    CodeMirror.on(obj, "pick", (selectedItem: Completion) => {
+      // This function would be called after user picks an item from the list.
+      if (selectedItem.type === AutocompleteDataType.FUNCTION) {
+        const cursorPos = cm.getCursor();
+        cursorPos.ch--;
+        cm.setCursor(cursorPos);
+      }
+    });
     resolve(obj);
 
     return obj;
