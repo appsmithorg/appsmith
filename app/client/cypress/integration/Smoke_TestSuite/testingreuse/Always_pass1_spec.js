@@ -19,7 +19,7 @@ describe("Always Pass", function() {
   });
 
   it("Always Pass", function() {
-    cy.contains("Check contentns").should('Check contentns');
+    cy.contains("Sorry, something went wrong").should('not.exist');
 
 
   });
