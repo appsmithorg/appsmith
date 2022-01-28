@@ -1,4 +1,4 @@
-import React, { createContext } from "react";
+import React, { createContext, useMemo } from "react";
 
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
@@ -24,19 +24,17 @@ export function FormContextProvider({
   updateWidgetMetaProperty,
   updateWidgetProperty,
 }: FormContextProps) {
-  return (
-    <FormContext.Provider
-      value={{
-        executeAction,
-        renderMode,
-        setFieldValidityState,
-        updateWidgetMetaProperty,
-        updateWidgetProperty,
-      }}
-    >
-      {children}
-    </FormContext.Provider>
+  const value = useMemo(
+    () => ({
+      executeAction,
+      renderMode,
+      setFieldValidityState,
+      updateWidgetMetaProperty,
+      updateWidgetProperty,
+    }),
+    [],
   );
+  return <FormContext.Provider value={value}>{children}</FormContext.Provider>;
 }
 
 export default FormContext;

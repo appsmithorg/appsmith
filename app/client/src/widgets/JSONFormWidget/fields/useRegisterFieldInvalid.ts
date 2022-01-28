@@ -25,16 +25,14 @@ function useRegisterFieldValidity({
     if (currentIsValidRef.current !== isValid) {
       currentIsValidRef.current = isValid;
 
-      setTimeout(() => {
-        try {
-          isValid
-            ? clearErrors(fieldName)
-            : setError(fieldName, {
-                type: fieldType,
-                message: "Invalid field",
-              });
-        } catch (e) {}
-      }, 0);
+      try {
+        isValid
+          ? clearErrors(fieldName)
+          : setError(fieldName, {
+              type: fieldType,
+              message: "Invalid field",
+            });
+      } catch (e) {}
 
       setFieldValidityState((prevState) => {
         const fieldValidity = cloneDeep(prevState.fieldValidity);
