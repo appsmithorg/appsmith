@@ -21,11 +21,10 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
 import {
   setIsGitSyncModalOpen,
-  setIsImportAppViaGitModalOpen,
+  setOrgIdForGitImport,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
-// import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 
 const TextWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
@@ -161,19 +160,14 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   const dispatch = useDispatch();
   const onGitImport = useCallback(() => {
     onClose && onClose();
-    dispatch(
-      setIsImportAppViaGitModalOpen({
-        isOpen: true,
-        organizationId,
-      }),
-    );
+    dispatch(setOrgIdForGitImport(organizationId));
+
     dispatch(
       setIsGitSyncModalOpen({
         isOpen: true,
         tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
-    // dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
   }, []);
 
   const importingApplication = useSelector(getIsImportingApplication);

@@ -31,7 +31,6 @@ import copy from "copy-to-clipboard";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-  getIsImportingApplication,
 } from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 import {
@@ -42,7 +41,6 @@ import {
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
   setIsGitSyncModalOpen,
-  // setIsImportAppViaGitModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -62,6 +60,7 @@ import {
   getRemoteUrlDocUrl,
   getTempRemoteUrl,
   getUseGlobalProfile,
+  getIsImportingApplicationViaGit,
 } from "selectors/gitSyncSelectors";
 import Statusbar, {
   StatusbarWrapper,
@@ -169,9 +168,10 @@ function GitConnection({ isImport }: Props) {
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
   const RepoUrlDocumentUrl = useSelector(getRemoteUrlDocUrl);
-  const isImportingApplication = useSelector(getIsImportingApplication);
+  const isImportingApplicationViaGit = useSelector(
+    getIsImportingApplicationViaGit,
+  );
   const gitConnectError = useSelector(getGitConnectError);
-  // dispatch(setIsImportAppViaGitModalOpen({ isOpen: !!isImport }));
 
   const {
     deployKeyDocUrl,
@@ -492,10 +492,12 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={!!useGlobalConfigInputVal}
           />
           <ButtonContainer topMargin={0}>
-            {(isConnectingToGit || isImportingApplication) && (
+            {(isConnectingToGit || isImportingApplicationViaGit) && (
               <StatusbarWrapper>
                 <Statusbar
-                  completed={!submitButtonIsLoading}
+                  completed={
+                    !submitButtonIsLoading && !isImportingApplicationViaGit
+                  }
                   message={createMessage(
                     isImport ? IMPORTING_APP_FROM_GIT : CONNECTING_REPO,
                   )}
@@ -503,7 +505,7 @@ function GitConnection({ isImport }: Props) {
                 />
               </StatusbarWrapper>
             )}
-            {!(isConnectingToGit || isImportingApplication) && (
+            {!(isConnectingToGit || isImportingApplicationViaGit) && (
               <Button
                 category={Category.primary}
                 className="t--connect-submit-btn"
@@ -521,7 +523,9 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
-            {!(isConnectingToGit || isImportingApplication) && <GitSyncError />}
+            {!(isConnectingToGit || isImportingApplicationViaGit) && (
+              <GitSyncError />
+            )}
           </ButtonContainer>
         </>
       ) : null}

@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
-import { getOrganizationIdForImport } from "selectors/gitSyncSelectors";
+import {
+  getImportedApplicationViaGIT,
+  getOrganizationIdForImport,
+} from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import TabMenu from "./Menu";
@@ -38,10 +41,7 @@ import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "../DataSourceEditor/JSONtoForm";
 import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";
-import {
-  getFetchingDatasourceConfigForImport,
-  getImportedApplication,
-} from "selectors/applicationSelectors";
+import { getFetchingDatasourceConfigForImport } from "selectors/applicationSelectors";
 import { DatasourcePaneFunctions } from "../DataSourceEditor";
 import { AppState } from "reducers";
 import { DATASOURCE_DB_FORM } from "constants/forms";
@@ -65,7 +65,8 @@ import Collapsible from "../DataSourceEditor/Collapsible";
 import Link from "./components/Link";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { APPLICATIONS_URL, BUILDER_PAGE_URL } from "constants/routes";
+import { setOrgIdForGitImport } from "actions/gitSyncActions";
 
 const Container = styled.div`
   height: 804px;
@@ -441,7 +442,6 @@ function ReconnectDatasourceModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const organizationId = useSelector(getOrganizationIdForImport);
-  const importedApp = useSelector(getImportedApplication);
   const dataSources = useSelector(getDatasources);
   const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
@@ -452,7 +452,6 @@ function ReconnectDatasourceModal() {
   const [availableDatasources, setAvailableDatasources] = useState<
     Array<Datasource>
   >([]);
-  const [applicationUrl, setApplicationUrl] = useState("");
   const [collapsedMenu, setCollapsedMenu] = useState(DSCollapseMenu.SUCCESSED);
   // todo use for loading state
   const isFetchingDatasourceConfigForImport = useSelector(
@@ -470,6 +469,7 @@ function ReconnectDatasourceModal() {
 
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
+    dispatch(setOrgIdForGitImport(""));
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
 
   const onSelectedDatasource = useCallback(
@@ -509,29 +509,6 @@ function ReconnectDatasourceModal() {
   ];
 
   useEffect(() => {
-    if (importedApp) {
-      const {
-        id: appId,
-        pages,
-      }: {
-        id: string;
-        pages: { default?: boolean; id: string; isDefault?: boolean }[];
-      } = importedApp;
-      let pageId = "";
-      if (pages && pages.length > 0) {
-        const defaultPage = pages.find((eachPage) => !!eachPage.isDefault);
-        pageId = defaultPage ? defaultPage.id : "";
-      }
-
-      const editApplicationURL = BUILDER_PAGE_URL({
-        applicationId: appId,
-        pageId,
-      });
-      setApplicationUrl(editApplicationURL);
-    }
-  }, [importedApp]);
-
-  useEffect(() => {
     setAvailableDatasources(
       dataSources.filter((ds: Datasource) => {
         const index = unconfiguredDatasources.findIndex(
@@ -541,6 +518,21 @@ function ReconnectDatasourceModal() {
       }),
     );
   }, [dataSources, unconfiguredDatasources]);
+
+  const importedApplication = useSelector(getImportedApplicationViaGIT);
+  const appURL = useMemo(() => {
+    const defaultPage = importedApplication?.pages?.find(
+      (page: any) => page.isDefault,
+    );
+    if (defaultPage) {
+      return BUILDER_PAGE_URL({
+        applicationId: importedApplication?.id,
+        pageId: defaultPage.id,
+      });
+    }
+
+    return APPLICATIONS_URL;
+  }, [importedApplication]);
 
   return (
     <>
@@ -661,7 +653,7 @@ function ReconnectDatasourceModal() {
               <Button
                 category={Category.tertiary}
                 className="t--application-edit-link"
-                href={applicationUrl}
+                href={appURL}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}
               />

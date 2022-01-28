@@ -29,7 +29,6 @@ const initialState: ApplicationsReduxState = {
   userOrgs: [],
   isSavingOrgInfo: false,
   importingApplication: false,
-  importedApplication: null,
   showAppInviteUsersDialog: false,
   isImportAppModalOpen: false,
   organizationIdForImport: null,
@@ -256,20 +255,13 @@ const applicationsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     importingApplication: true,
-    importedApplication: null,
   }),
-  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: (
-    state: ApplicationsReduxState,
-  ) => ({ ...state, importingApplication: true }),
   [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ importedApplication: any }>,
   ) => {
-    const { importedApplication } = action.payload;
     return {
       ...state,
       importingApplication: false,
-      importedApplication,
     };
   },
   [ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR]: (
@@ -467,7 +459,6 @@ export interface ApplicationsReduxState {
   userOrgs: Organization[];
   isSavingOrgInfo: boolean;
   importingApplication: boolean;
-  importedApplication: any;
   showAppInviteUsersDialog: boolean;
   isImportAppModalOpen: boolean;
   organizationIdForImport: any;

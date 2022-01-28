@@ -33,11 +33,8 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getIsImportAppViaGitModalOpen = (state: AppState) =>
-  state.ui.gitSync.isImportAppViaGitModalOpen;
-
 export const getOrganizationIdForImport = (state: AppState) =>
-  state.ui.gitSync.organizationIdForImport;
+  state.ui.gitSync.orgIdForImport;
 
 export const getGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.globalGitConfig;
@@ -139,9 +136,6 @@ export const getDisconnectingGitApplication = (state: AppState) =>
 export const getUseGlobalProfile = (state: AppState) =>
   state.ui.gitSync.useGlobalProfile;
 
-export const getIsGitImportModalOpen = (state: AppState) =>
-  state.ui.gitSync.isGitImportOpen;
-
 // git connect ssh key deploy url
 export const getSSHKeyDeployDocUrl = (state: AppState) =>
   state.ui.gitSync.deployKeyDocUrl || "";
@@ -171,3 +165,9 @@ export const getUpstreamErrorDocUrl = (state: AppState) =>
   state.ui.gitSync.deployKeyDocUrl || "https://docs.appsmith.com/";
 
 export const getSshKeyPair = (state: AppState) => state.ui.gitSync.SSHKeyPair;
+
+export const getIsImportingApplicationViaGit = (state: AppState) =>
+  state.ui.gitSync.isImportingApplicationViaGit;
+
+export const getImportedApplicationViaGIT = (state: AppState) =>
+  state.ui.gitSync.importedApplicationViaGIT;

@@ -1,4 +1,7 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ApplicationPayload,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import {
   ReduxActionWithCallbacks,
@@ -101,14 +104,6 @@ export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({
 
 export const showCreateBranchPopup = () => ({
   type: ReduxActionTypes.SHOW_CREATE_GIT_BRANCH_POPUP,
-});
-
-export const setIsImportAppViaGitModalOpen = (payload: {
-  isOpen: boolean;
-  organizationId?: string;
-}) => ({
-  type: ReduxActionTypes.SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN,
-  payload,
 });
 
 export const updateGlobalGitConfigInit = (payload: GitConfig) => ({
@@ -373,4 +368,20 @@ export const getSSHKeyPairError = (payload: {
 
 export const initSSHKeyPairWithNull = () => ({
   type: ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL,
+});
+
+export const setOrgIdForGitImport = (orgId?: string) => ({
+  type: ReduxActionTypes.SET_ORG_ID_FOR_GIT_IMPORT,
+  payload: orgId,
+});
+
+export const importAppViaGitSuccess = (application: ApplicationPayload) => ({
+  type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_SUCCESS,
+  payload: application,
+});
+
+// todo define type
+export const importAppViaGitError = (error: any) => ({
+  type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR,
+  payload: error,
 });

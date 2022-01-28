@@ -36,6 +36,8 @@ import {
   getSSHKeyPairError,
   GenerateSSHKeyPairReduxAction,
   GetSSHKeyPairReduxAction,
+  setOrgIdForGitImport,
+  importAppViaGitSuccess,
 } from "actions/gitSyncActions";
 
 import {
@@ -58,11 +60,7 @@ import {
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
-import {
-  addBranchParam,
-  BUILDER_PAGE_URL,
-  GIT_BRANCH_QUERY_KEY,
-} from "constants/routes";
+import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
 
 import {
@@ -72,7 +70,6 @@ import {
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
-  getIsImportAppViaGitModalOpen,
   getOrganizationIdForImport,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -648,6 +645,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
           };
           isPartialImport: boolean;
         } = response?.data;
+        yield put(importAppViaGitSuccess(response?.data?.application));
         yield put({
           type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
           payload: {
@@ -686,14 +684,6 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
     if (action.onErrorCallback) {
       action.onErrorCallback(error as string);
     }
-
-    yield put({
-      type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
-      payload: {
-        error: response?.responseMeta.error,
-        show: false,
-      },
-    });
 
     const isRepoLimitReachedError: boolean = yield call(
       handleRepoLimitReachedError,
@@ -745,11 +735,12 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const isImporting: boolean = yield select(getIsImportAppViaGitModalOpen);
+    const isImporting: string = yield select(getOrganizationIdForImport);
+
     response = yield call(
       GitSyncAPI.generateSSHKeyPair,
       applicationId,
-      isImporting,
+      !!isImporting,
     );
     const isValidResponse: boolean = yield validateResponse(
       response,

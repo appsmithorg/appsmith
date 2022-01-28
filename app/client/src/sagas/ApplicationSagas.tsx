@@ -596,9 +596,6 @@ export function* importApplicationSaga(
         } = response?.data;
         yield put({
           type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
-          payload: {
-            importedApplication: response?.data.application,
-          },
         });
         // there is configuration-missing datasources
         if (isPartialImport) {

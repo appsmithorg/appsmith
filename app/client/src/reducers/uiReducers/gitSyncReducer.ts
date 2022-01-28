@@ -1,11 +1,16 @@
 import { createReducer } from "utils/AppsmithUtils";
 import {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 import { GetSSHKeyResponseData } from "actions/gitSyncActions";
+import {
+  ApplicationPagePayload,
+  ApplicationResponsePayload,
+} from "api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -13,7 +18,6 @@ const initialState: GitSyncReducerState = {
   isCommitSuccessful: false,
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
-  isImportAppViaGitModalOpen: false,
   isFetchingGitStatus: false,
   isFetchingMergeStatus: false,
   globalGitConfig: { authorEmail: "", authorName: "" },
@@ -33,7 +37,6 @@ const initialState: GitSyncReducerState = {
     id: "",
     name: "",
   },
-  isGitImportOpen: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -56,6 +59,7 @@ const gitSyncReducer = createReducer(initialState, {
       mergeError: null,
       // reset conflicts when the modal is opened
       pullFailed: false,
+      gitImportError: null,
     };
   },
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: (state: GitSyncReducerState) => ({
@@ -107,16 +111,6 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isErrorPopupVisible: action.payload.isVisible,
-  }),
-  [ReduxActionTypes.SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN]: (
-    state: GitSyncReducerState,
-    action: ReduxAction<{ isOpen: boolean; organizationId: string }>,
-  ) => ({
-    ...state,
-    isImportAppViaGitModalOpen: action.payload.isOpen,
-    organizationIdForImport: action.payload.organizationId,
-    SSHKeyPair: null,
-    deployKeyDocUrl: null,
   }),
   [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: (
     state: GitSyncReducerState,
@@ -271,6 +265,7 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     connectError: action.payload,
+    isImportingApplicationViaGit: false,
   }),
   [ReduxActionTypes.FETCH_MERGE_STATUS_INIT]: (state: GitSyncReducerState) => ({
     ...state,
@@ -374,14 +369,6 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     disconnectingGitApp: action.payload,
   }),
-  [ReduxActionTypes.SET_IS_GIT_IMPORT_MODAL_OPEN]: (
-    state: GitSyncReducerState,
-    action: ReduxAction<unknown>,
-  ) => ({
-    ...state,
-    isGitImportOpen: action.payload,
-  }),
-
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_SUCCESS]: (
     state: GitSyncReducerState,
     action: ReduxAction<GetSSHKeyResponseData>,
@@ -402,6 +389,36 @@ const gitSyncReducer = createReducer(initialState, {
       deployKeyDocUrl: action.payload.docUrl,
     };
   },
+  [ReduxActionTypes.SET_ORG_ID_FOR_GIT_IMPORT]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    orgIdForImport: action.payload,
+  }),
+  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isImportingApplicationViaGit: true,
+    gitImportError: null,
+  }),
+  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<ApplicationPayload>,
+  ) => ({
+    ...state,
+    isImportingApplicationViaGit: false,
+    gitImportError: null,
+    importedApplicationViaGIT: action.payload,
+  }),
+  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    gitImportError: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -441,8 +458,7 @@ export type GitSyncReducerState = {
   isFetchingMergeStatus: boolean;
 
   activeGitSyncModalTab: GitSyncModalTab;
-  isImportAppViaGitModalOpen: boolean;
-  organizationIdForImport?: string;
+  orgIdForImport?: string;
   isErrorPopupVisible?: boolean;
   globalGitConfig: GitConfig;
 
@@ -469,10 +485,16 @@ export type GitSyncReducerState = {
   };
   useGlobalProfile?: boolean;
 
-  isGitImportOpen?: boolean;
-
   SSHKeyPair?: string;
   deployKeyDocUrl?: string;
+
+  isImportingApplicationViaGit?: boolean;
+
+  gitImportError?: any;
+
+  importedApplicationViaGIT?: ApplicationResponsePayload & {
+    pages: ApplicationPagePayload[];
+  };
 };
 
 export default gitSyncReducer;
