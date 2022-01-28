@@ -682,7 +682,7 @@ jobs:
           #spec: ${{ steps.failed_spec.outputs.failed_spec }}
           #spec: echo ${{ steps.failed_spec.outputs.failed_spec }}
           spec: ${{ env.failed_spec_env }}
-          working-directory: app/client
+          working-directory: app/client/cypress
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
