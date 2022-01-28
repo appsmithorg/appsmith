@@ -993,3 +993,10 @@ export const END_TITLE = () => "What’s next? Start building your own apps.";
 export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "START BUILDING AN APP";
+
+export const CONTEXT_EDIT_NAME = () => "Edit Name";
+export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
+export const CONTEXT_MOVE = () => "Move to page";
+export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DELETE = () => "Delete";
+export const CONTEXT_NO_PAGE = () => "No pages";

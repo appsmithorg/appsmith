@@ -121,11 +121,6 @@ const StyledHighlightedCode = styled(HighlightedCode)`
   padding-bottom: 4px;
 `;
 
-// const CollapseIcon = ControlIcons.COLLAPSE_CONTROL;
-// const collapseIcon = (
-//   <CollapseIcon color={Colors.ALTO} height={10} width={10} />
-// );
-
 export type EntityPropertyProps = {
   propertyName: string;
   entityName: string;

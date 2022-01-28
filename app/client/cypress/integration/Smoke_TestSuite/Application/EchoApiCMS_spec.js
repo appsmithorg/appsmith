@@ -18,7 +18,6 @@ describe("Content Management System App", function() {
   });
 
   it("Create Get echo Api call", function() {
-    cy.wait(30000);
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("get_data");
     // creating get request using echo

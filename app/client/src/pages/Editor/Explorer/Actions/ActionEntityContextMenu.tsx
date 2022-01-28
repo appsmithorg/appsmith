@@ -20,6 +20,15 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import {
+  CONTEXT_COPY,
+  CONTEXT_DELETE,
+  CONTEXT_EDIT_NAME,
+  CONTEXT_MOVE,
+  CONTEXT_NO_PAGE,
+  CONTEXT_SHOW_BINDING,
+  createMessage,
+} from "constants/messages";
 
 type EntityContextMenuProps = {
   id: string;
@@ -102,17 +111,17 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         {
           value: "rename",
           onSelect: editActionName,
-          label: "Edit Name",
+          label: createMessage(CONTEXT_EDIT_NAME),
         },
         {
           value: "showBinding",
           onSelect: () => showBinding(props.id, props.name),
-          label: "Show Bindings",
+          label: createMessage(CONTEXT_SHOW_BINDING),
         },
         {
           value: "copy",
           onSelect: noop,
-          label: "Copy to page",
+          label: createMessage(CONTEXT_COPY),
           children: menuPages.map((page) => {
             return {
               ...page,
@@ -123,7 +132,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         {
           value: "move",
           onSelect: noop,
-          label: "Move to page",
+          label: createMessage(CONTEXT_MOVE),
           children:
             menuPages.length > 1
               ? menuPages
@@ -135,11 +144,17 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
                         moveActionToPage(props.id, props.name, page.id),
                     };
                   })
-              : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
+              : [
+                  {
+                    value: "No Pages",
+                    onSelect: noop,
+                    label: createMessage(CONTEXT_NO_PAGE),
+                  },
+                ],
         },
         {
           value: "delete",
-          label: "Delete",
+          label: createMessage(CONTEXT_DELETE),
           intent: "danger",
           onSelect: () =>
             deleteActionFromPage(props.id, props.name, () => {
