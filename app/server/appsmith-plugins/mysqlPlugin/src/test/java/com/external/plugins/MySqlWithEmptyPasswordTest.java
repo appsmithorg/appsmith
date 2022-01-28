@@ -31,7 +31,6 @@ public class MySqlWithEmptyPasswordTest {
     @ClassRule
     public static MySQLContainer mySQLContainer = (MySQLContainer) new MySQLContainer(
             DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
-//            "mysql:8.0.28")
             .withUsername("root")
             .withPassword("")
             .withDatabaseName("test_db")
@@ -54,13 +53,13 @@ public class MySqlWithEmptyPasswordTest {
         username = mySQLContainer.getUsername();
         password = mySQLContainer.getPassword();
         database = mySQLContainer.getDatabaseName();
-//        dsConfig = createDatasourceConfiguration();
 
         ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
 
         Mono.from(ConnectionFactories.get(ob.build()).create())
                 .map(connection -> connection.createBatch()
+                        // adding a new user called 'mysql' with empty password
                         .add("CREATE USER 'mysql'@'%';\n" +
                                 "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;\n" +
                                 "FLUSH PRIVILEGES;")
