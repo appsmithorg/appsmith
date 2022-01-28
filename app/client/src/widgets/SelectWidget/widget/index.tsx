@@ -337,6 +337,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         }
         disabled={this.props.isDisabled}
         dropDownWidth={dropDownWidth}
+        filterText={this.props.filterText}
         hasError={isInvalid}
         height={componentHeight}
         isFilterable={this.props.isFilterable}

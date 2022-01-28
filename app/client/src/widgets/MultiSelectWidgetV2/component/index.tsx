@@ -278,6 +278,7 @@ function MultiSelectComponent({
           />
         }
         labelInValue
+        listHeight={300}
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
