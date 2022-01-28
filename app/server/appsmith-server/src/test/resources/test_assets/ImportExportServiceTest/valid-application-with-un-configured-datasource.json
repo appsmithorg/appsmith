@@ -58,16 +58,7 @@
       "gitSyncId": "61e528ec3d0a7d7212c5cfb9_61f2712a5090aa7077cb8797",
       "name": "postgresTest",
       "pluginId": "postgres-plugin",
-      "datasourceConfiguration": {
-        "connection": {
-          "mode": "READ_WRITE",
-          "ssl": {
-            "authType": "DEFAULT"
-          }
-        },
-        "endpoints": [],
-        "sshProxyEnabled": false
-      },
+      "datasourceConfiguration": {},
       "invalids": [
         "Missing endpoint.",
         "Missing username for authentication.",
@@ -444,25 +435,7 @@
     }
   ],
   "actionCollectionList": [],
-  "decryptedFields": {
-    "mongoDatasource": {
-      "authType": "com.appsmith.external.models.DBAuth",
-      "dbAuth": {
-        "authenticationType": "dbAuth",
-        "authenticationType": "dbAuth",
-        "authType": "SCRAM_SHA_1",
-        "databaseName": "admin"
-      }
-    },
-    "postgresTest": {
-      "authType": "com.appsmith.external.models.DBAuth",
-      "dbAuth": {
-        "authenticationType": "dbAuth",
-        "authenticationType": "dbAuth",
-        "databaseName": "admin"
-      }
-    }
-  },
+  "decryptedFields": {},
   "editModeTheme": {
     "name": "Classic",
     "new": true,

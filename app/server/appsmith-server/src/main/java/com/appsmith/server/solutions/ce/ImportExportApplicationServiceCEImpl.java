@@ -480,6 +480,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Gson gson = new GsonBuilder()
                             .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
                             .create();
+                    /*
+                    // Use JsonObject to migrate when we remove some field from the collection which is being exported
+                    JsonObject json = gson.fromJson(data, JsonObject.class);
+                    JsonObject update = new JsonObject();
+                    update.addProperty("slug", "update_name");
+                    update.addProperty("name", "update name");
+                    ((JsonObject) json.get("exportedApplication")).add("name", update);
+                    json.get("random") == null => true
+                    ((JsonArray) json.get("pageList"))
+                    */
 
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
