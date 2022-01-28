@@ -145,7 +145,6 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }
-      key={props.widgetId}
       name={props.widgetName}
       searchKeyword={props.searchKeyword}
       step={props.step}

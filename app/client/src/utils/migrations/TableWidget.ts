@@ -509,7 +509,6 @@ export const migrateTableWidgetNumericColumnName = (currentDSL: DSLWidget) => {
           child.primaryColumns[columnId] = {
             ...column,
             id: columnId,
-            label: columnId,
             computedValue: newComputedValue,
           };
         }

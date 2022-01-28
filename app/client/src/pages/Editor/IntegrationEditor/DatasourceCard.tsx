@@ -37,8 +37,6 @@ import TooltipComponent from "components/ads/Tooltip";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
@@ -260,23 +258,21 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            <Boxed step={OnboardingStep.FINISH}>
-              <TooltipComponent
-                boundary={"viewport"}
-                content="Currently not supported for page generation"
-                disabled={!!supportTemplateGeneration}
-                hoverOpenDelay={200}
-                position={Position.BOTTOM}
-              >
-                <GenerateTemplateButton
-                  category={Category.tertiary}
-                  className="t--generate-template"
-                  disabled={!supportTemplateGeneration}
-                  onClick={routeToGeneratePage}
-                  text="GENERATE NEW PAGE"
-                />
-              </TooltipComponent>
-            </Boxed>
+            <TooltipComponent
+              boundary={"viewport"}
+              content="Currently not supported for page generation"
+              disabled={!!supportTemplateGeneration}
+              hoverOpenDelay={200}
+              position={Position.BOTTOM}
+            >
+              <GenerateTemplateButton
+                category={Category.tertiary}
+                className="t--generate-template"
+                disabled={!supportTemplateGeneration}
+                onClick={routeToGeneratePage}
+                text="GENERATE NEW PAGE"
+              />
+            </TooltipComponent>
 
             <NewActionButton
               datasource={datasource}

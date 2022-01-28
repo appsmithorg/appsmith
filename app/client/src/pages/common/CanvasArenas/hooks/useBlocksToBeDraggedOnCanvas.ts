@@ -17,18 +17,18 @@ import {
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
-import { XYCord } from "utils/hooks/useCanvasDragging";
 import { isEmpty, isEqual } from "lodash";
-import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
+import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { useWidgetSelection } from "./useWidgetSelection";
+import { useWidgetSelection } from "../../../../utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import { XYCord } from "./useCanvasDragging";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -324,12 +324,19 @@ export const useBlocksToBeDraggedOnCanvas = ({
         } as XYCord,
         { x: 0, y: 0 },
       );
-      return updateBottomRow(top, rows);
+      const widgetIdsToExclude = drawingBlocks.map((a) => a.widgetId);
+      return updateBottomRow(top, rows, widgetIdsToExclude);
     }
   };
-  const updateBottomRow = (bottom: number, rows: number) => {
+  const updateBottomRow = (
+    bottom: number,
+    rows: number,
+    widgetIdsToExclude: string[],
+  ) => {
     if (bottom > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
-      return updateDropTargetRows && updateDropTargetRows(widgetId, bottom);
+      return (
+        updateDropTargetRows && updateDropTargetRows(widgetIdsToExclude, bottom)
+      );
     }
   };
   const rowRef = useRef(snapRows);
