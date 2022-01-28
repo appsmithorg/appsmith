@@ -695,7 +695,7 @@ jobs:
         if: failure()
         run: |
           cd /home/runner/work/appsmith/appsmith/app/client/cypress/
-          find screenshots -type d|grep spec |sed 's/screenshots/cypress/g' > ~/failed_spec
+          find screenshots -type d|grep spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec
 
       - name: Store the previous run result
         if: failure()
