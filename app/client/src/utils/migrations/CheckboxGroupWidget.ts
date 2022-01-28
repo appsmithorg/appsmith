@@ -24,12 +24,24 @@ export const migrateCheckboxGroupDefaultSelectedValuesProperty = (
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "CHECKBOX_GROUP_WIDGET") {
       if (child.version === 2) {
-        const defaultSelectedValues = child.defaultSelectedValues;
-        if (!Array.isArray(defaultSelectedValues) && defaultSelectedValues) {
-          child.defaultSelectedValues = defaultSelectedValues
-            .split(",")
-            .map((val: string) => val.trim());
+        let values: string[] = [];
+        const value = child.defaultSelectedValues;
+
+        if (typeof value === "string") {
+          try {
+            values = JSON.parse(value);
+            if (!Array.isArray(values)) {
+              throw new Error();
+            }
+          } catch {
+            values = value.length ? value.split(",") : [];
+            if (values.length > 0) {
+              values = values.map((_v: string) => _v.trim());
+            }
+          }
+          child.defaultSelectedValues = values;
         }
+
         child.version = 3;
       }
     } else if (child.children && child.children.length > 0) {
