@@ -161,6 +161,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
         }}
         onFocus={onFocus}
         placeholder="Column Title"
+        trimValue={false}
         value={value}
         width="100%"
       />
