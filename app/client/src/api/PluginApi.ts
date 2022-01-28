@@ -4,6 +4,7 @@ import { GenericApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { DropdownOption } from "components/ads/Dropdown";
+import mockDataS3 from "./mockPluginData.json";
 
 export type PluginId = string;
 export type PluginPackageName = string;
@@ -55,8 +56,11 @@ class PluginsApi extends Api {
     id: string,
   ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
     return Api.get(PluginsApi.url + `/${id}/form`).then((response: any) => {
-      addOptions(response.data?.form);
-      return response;
+      /* eslint-disable */
+      return new Promise((resolve) => {
+        //@ts-ignore
+        return resolve(mockDataS3);
+      });
     });
   }
 
@@ -89,3 +93,5 @@ function addOptions(formConfig: any) {
   // }
   // console.log("rrai", formConfig);
 }
+
+function getMockData(response: any) {}

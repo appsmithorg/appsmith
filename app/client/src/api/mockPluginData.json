@@ -1,0 +1,563 @@
+{
+    "responseMeta": {
+      "status": 200,
+      "success": true
+    },
+    "data": {
+      "form": [
+        {
+          "sectionName": "Details",
+          "id": 1,
+          "children": [
+            {
+              "label": "S3 Service Provider Key",
+              "configProperty": "datasourceConfiguration.properties[1].key",
+              "controlType": "INPUT_TEXT",
+              "initialValue": "s3Provider",
+              "hidden": true
+            },
+            {
+              "label": "S3 Service Provider",
+              "configProperty": "datasourceConfiguration.properties[1].value",
+              "controlType": "DROP_DOWN",
+              "isRequired": true,
+              "initialValue": "amazon-s3",
+              "options": [
+                {
+                  "label": "Amazon S3",
+                  "value": "amazon-s3"
+                },
+                {
+                  "label": "Upcloud",
+                  "value": "upcloud"
+                },
+                {
+                  "label": "Digital Ocean Spaces",
+                  "value": "digital-ocean-spaces"
+                },
+                {
+                  "label": "Wasabi",
+                  "value": "wasabi"
+                },
+                {
+                  "label": "DreamObjects",
+                  "value": "dream-objects"
+                },
+                {
+                  "label": "Other",
+                  "value": "other"
+                }
+              ]
+            },
+            {
+              "label": "Access Key",
+              "configProperty": "datasourceConfiguration.authentication.username",
+              "controlType": "INPUT_TEXT",
+              "initialValue": ""
+            },
+            {
+              "label": "Secret Key",
+              "configProperty": "datasourceConfiguration.authentication.password",
+              "controlType": "INPUT_TEXT",
+              "dataType": "PASSWORD",
+              "initialValue": "",
+              "encrypted": true
+            },
+            {
+              "label": "Endpoint URL",
+              "configProperty": "datasourceConfiguration.endpoints[0].host",
+              "controlType": "INPUT_TEXT",
+              "initialValue": "",
+              "placeholderText": "user-storage.de-fra1.upcloudobjects.com",
+              "hidden": {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "EQUALS",
+                "value": "amazon-s3"
+              }
+            },
+            {
+              "label": "Custom Endpoint URL Key",
+              "configProperty": "datasourceConfiguration.properties[2].key",
+              "controlType": "INPUT_TEXT",
+              "initialValue": "customRegion",
+              "hidden": true
+            },
+            {
+              "label": "Region",
+              "configProperty": "datasourceConfiguration.properties[2].value",
+              "controlType": "INPUT_TEXT",
+              "initialValue": "",
+              "placeholderText": "de-fra1",
+              "hidden": {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "other"
+              }
+            }
+          ]
+        }
+      ],
+      "editor": [
+        {
+          "options": [
+            {
+              "label": "List files in bucket",
+              "value": "LIST"
+            },
+            {
+              "label": "Create a new file",
+              "value": "UPLOAD_FILE_FROM_BODY"
+            },
+            {
+              "label": "Create multiple new files",
+              "value": "UPLOAD_MULTIPLE_FILES_FROM_BODY"
+            },
+            {
+              "label": "Read file",
+              "value": "READ_FILE"
+            },
+            {
+              "label": "Delete file",
+              "value": "DELETE_FILE"
+            },
+            {
+                "label": "Sample Query",
+                "value": "SAMPLE"
+              }
+          ],
+          "label": "Commands",
+          "description": "Choose method you would like to use",
+          "configProperty": "actionConfiguration.formData.command",
+          "controlType": "DROP_DOWN",
+          "initialValue": "LIST"
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "_comment": "This section holds all the templates",
+          "children": [
+            {
+              "identifier": "LIST",
+              "controlType": "SECTION",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command === 'LIST'}}"
+              },
+              "children": [
+                {
+                  "controlType": "SECTION",
+                  "label": "Select Bucket to Query",
+                  "children": [
+                    {
+                      "label": "Bucket Name",
+                      "configProperty": "actionConfiguration.formData.bucket",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "evaluationSubstitutionType": "TEMPLATE",
+                      "isRequired": true,
+                      "initialValue": "",
+                      "validationConfig": {
+                          
+                      }
+                    }
+                  ]
+                },
+                {
+                  "controlType": "SECTION",
+                  "label": "Query",
+                  "description": "Optional",
+                  "children": [
+                    {
+                      "label": "Prefix",
+                      "configProperty": "actionConfiguration.formData.list.prefix",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": ""
+                    },
+                    {
+                      "label": "Where",
+                      "configProperty": "actionConfiguration.formData.list.where",
+                      "nestedLevels": 3,
+                      "controlType": "WHERE_CLAUSE",
+                      "logicalTypes": [
+                        {
+                          "label": "AND",
+                          "value": "AND"
+                        },
+                        {
+                          "label": "OR",
+                          "value": "OR"
+                        }
+                      ],
+                      "comparisonTypes": [
+                        {
+                          "label": "==",
+                          "value": "EQ"
+                        },
+                        {
+                          "label": "!=",
+                          "value": "NOT_EQ"
+                        },
+                        {
+                          "label": "in",
+                          "value": "IN"
+                        },
+                        {
+                          "label": "not in",
+                          "value": "NOT_IN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "controlType": "SECTION",
+                  "label": "Options",
+                  "children": [
+                    {
+                      "label": "Generate Signed URL",
+                      "configProperty": "actionConfiguration.formData.list.signedUrl",
+                      "controlType": "DROP_DOWN",
+                      "initialValue": "NO",
+                      "options": [
+                        {
+                          "label": "Yes",
+                          "value": "YES"
+                        },
+                        {
+                          "label": "No",
+                          "value": "NO"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Expiry Duration of Signed URL (Minutes)",
+                      "configProperty": "actionConfiguration.formData.list.expiry",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": "5",
+                      "conditionals": {
+                        "show": "{{actionConfiguration.formData.list.signedUrl === 'YES'}}"
+                      }
+                    },
+                    {
+                      "label": "Generate Un-signed URL",
+                      "configProperty": "actionConfiguration.formData.list.unSignedUrl",
+                      "controlType": "DROP_DOWN",
+                      "initialValue": "YES",
+                      "options": [
+                        {
+                          "label": "Yes",
+                          "value": "YES"
+                        },
+                        {
+                          "label": "No",
+                          "value": "NO"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "identifier": "UPLOAD_FILE_FROM_BODY",
+              "controlType": "SECTION",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command === 'UPLOAD_FILE_FROM_BODY'}}"
+              },
+              "children": [
+                {
+                  "controlType": "SECTION",
+                  "label": "Select Bucket to Query",
+                  "children": [
+                    {
+                      "label": "Bucket Name",
+                      "configProperty": "actionConfiguration.formData.bucket",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "evaluationSubstitutionType": "TEMPLATE",
+                      "isRequired": true,
+                      "initialValue": ""
+                    }
+                  ]
+                },
+                {
+                  "controlType": "SECTION",
+                  "label": "Query",
+                  "description": "Optional",
+                  "children": [
+                    {
+                      "label": "File Path",
+                      "configProperty": "actionConfiguration.path",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": ""
+                    },
+                    {
+                      "label": "File Data Type",
+                      "configProperty": "actionConfiguration.formData.create.dataType",
+                      "controlType": "DROP_DOWN",
+                      "initialValue": "YES",
+                      "options": [
+                        {
+                          "label": "Base64",
+                          "value": "YES"
+                        },
+                        {
+                          "label": "Text / Binary",
+                          "value": "NO"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Expiry Duration of Signed URL (Minutes)",
+                      "configProperty": "actionConfiguration.formData.create.expiry",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": "5"
+                    },
+                    {
+                      "label": "Content",
+                      "configProperty": "actionConfiguration.body",
+                      "controlType": "QUERY_DYNAMIC_TEXT",
+                      "initialValue": "",
+                      "placeHolderText": "{{ FilePicker1.files[0] }}"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "identifier": "UPLOAD_MULTIPLE_FILES_FROM_BODY",
+              "controlType": "SECTION",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command === 'UPLOAD_MULTIPLE_FILES_FROM_BODY'}}"
+              },
+              "children": [
+                {
+                  "controlType": "SECTION",
+                  "label": "Select Bucket to Query",
+                  "children": [
+                    {
+                      "label": "Bucket Name",
+                      "configProperty": "actionConfiguration.formData.bucket",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "evaluationSubstitutionType": "TEMPLATE",
+                      "isRequired": true,
+                      "initialValue": ""
+                    }
+                  ]
+                },
+                {
+                  "controlType": "SECTION",
+                  "label": "Query",
+                  "description": "Optional",
+                  "children": [
+                    {
+                      "label": "Common File Path",
+                      "configProperty": "actionConfiguration.path",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": ""
+                    },
+                    {
+                      "label": "File Data Type",
+                      "configProperty": "actionConfiguration.formData.create.dataType",
+                      "controlType": "DROP_DOWN",
+                      "initialValue": "YES",
+                      "options": [
+                        {
+                          "label": "Base64",
+                          "value": "YES"
+                        },
+                        {
+                          "label": "Text / Binary",
+                          "value": "NO"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Expiry Duration of Signed URL (Minutes)",
+                      "configProperty": "actionConfiguration.formData.create.expiry",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": "5"
+                    },
+                    {
+                      "label": "Content",
+                      "configProperty": "actionConfiguration.body",
+                      "controlType": "QUERY_DYNAMIC_TEXT",
+                      "initialValue": ""
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "identifier": "READ_FILE",
+              "controlType": "SECTION",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command === 'READ_FILE'}}"
+              },
+              "children": [
+                {
+                  "controlType": "SECTION",
+                  "label": "Select Bucket to Query",
+                  "children": [
+                    {
+                      "label": "Bucket Name",
+                      "configProperty": "actionConfiguration.formData.bucket",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "evaluationSubstitutionType": "TEMPLATE",
+                      "isRequired": true,
+                      "initialValue": ""
+                    }
+                  ]
+                },
+                {
+                  "controlType": "SECTION",
+                  "label": "Query",
+                  "description": "Optional",
+                  "children": [
+                    {
+                      "label": "File Path",
+                      "configProperty": "actionConfiguration.path",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": ""
+                    },
+                    {
+                      "label": "Expiry Duration of Signed URL (Minutes)",
+                      "configProperty": "actionConfiguration.formData.read.expiry",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": "5"
+                    },
+                    {
+                      "label": "Base64 Encode File - Yes/No",
+                      "configProperty": "actionConfiguration.formData.read.usingBase64Encoding",
+                      "controlType": "DROP_DOWN",
+                      "initialValue": "YES",
+                      "options": [
+                        {
+                          "label": "Yes",
+                          "value": "YES"
+                        },
+                        {
+                          "label": "No",
+                          "value": "NO"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "identifier": "DELETE_FILE",
+              "controlType": "SECTION",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command === 'DELETE_FILE'}}"
+              },
+              "children": [
+                {
+                  "controlType": "SECTION",
+                  "label": "Select Bucket to Query",
+                  "children": [
+                    {
+                      "label": "Bucket Name",
+                      "configProperty": "actionConfiguration.formData.bucket",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "evaluationSubstitutionType": "TEMPLATE",
+                      "isRequired": true,
+                      "initialValue": ""
+                    }
+                  ]
+                },
+                {
+                  "controlType": "SECTION",
+                  "label": "Query",
+                  "description": "Optional",
+                  "children": [
+                    {
+                      "label": "File Path",
+                      "configProperty": "actionConfiguration.path",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "initialValue": ""
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+                "identifier": "SAMPLE",
+                "controlType": "SECTION",
+                "conditionals": {
+                  "show": "{{actionConfiguration.formData.command === 'SAMPLE'}}"
+                },
+                "children": [
+                  {
+                    "controlType": "SECTION",
+                    "label": "Sort",
+                    "children": [
+                      {
+                        "label": "Sort",
+                        "configProperty": "actionConfiguration.formData.sort",
+                        "controlType": "SORTING",
+                        "evaluationSubstitutionType": "TEMPLATE",
+                        "isRequired": true,
+                        "validationConfig": {
+                            "type": "TEXT",
+                            "required": true,
+                            "params": {
+                                "allowedValues": []
+                            }
+                        },
+                        "initialValue": ""
+                      }
+                    ]
+                  },
+                  {
+                    "controlType": "SECTION",
+                    "label": "Pagination",
+                    "children": [
+                      {
+                        "label": "Pagination",
+                        "configProperty": "actionConfiguration.formData.pagination",
+                        "controlType": "PAGINATION",
+                        "initialValue": ""
+
+                      }
+                    ]
+                  }
+                ]
+              }
+          ]
+        }
+      ],
+      "setting": [
+        {
+          "sectionName": "",
+          "id": 1,
+          "children": [
+            {
+              "label": "Run query on page load",
+              "configProperty": "executeOnLoad",
+              "controlType": "SWITCH",
+              "info": "Will refresh data each time the page is loaded"
+            },
+            {
+              "label": "Request confirmation before running query",
+              "configProperty": "confirmBeforeExecute",
+              "controlType": "SWITCH",
+              "info": "Ask confirmation from the user each time before refreshing data"
+            },
+            {
+              "label": "Smart JSON Substitution",
+              "info": "Turning on this property fixes the JSON substitution of bindings in the Content field by adding/removing quotes intelligently and reduces developer errors",
+              "configProperty": "actionConfiguration.formData.smartSubstitution",
+              "controlType": "SWITCH",
+              "initialValue": true
+            },
+            {
+              "label": "Query timeout (in milliseconds)",
+              "info": "Maximum time after which the query will return",
+              "configProperty": "actionConfiguration.timeoutInMillisecond",
+              "controlType": "INPUT_TEXT",
+              "dataType": "NUMBER"
+            }
+          ]
+        }
+      ]
+    }
+  }

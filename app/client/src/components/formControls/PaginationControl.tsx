@@ -5,6 +5,7 @@ import FormControl from "pages/Editor/FormControl";
 import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
@@ -75,6 +76,12 @@ export function Pagination(props: {
             label: "Offset",
             customStyles,
             configProperty: `${configProperty}.offset`,
+            valdationConfig: {
+              type: ValidationTypes.TEXT,
+              params: {
+                min: 0,
+              },
+            },
           }}
           formName={formName}
         />
