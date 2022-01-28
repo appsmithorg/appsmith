@@ -240,22 +240,6 @@ ctx.addEventListener(
         dataTreeEvaluator = undefined;
         return true;
       }
-      case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
-        const { propertyPath } = requestData;
-        if (!dataTreeEvaluator) {
-          return true;
-        }
-        dataTreeEvaluator.clearPropertyCache(propertyPath);
-        return true;
-      }
-      case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
-        const { widgetName } = requestData;
-        if (!dataTreeEvaluator) {
-          return true;
-        }
-        dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
-        return true;
-      }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
         const { props, validation, value } = requestData;
         return removeFunctions(
