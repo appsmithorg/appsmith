@@ -640,6 +640,7 @@ export const ReduxActionTypes = {
   /* This action constants is for identifying the status of the updates of the entities */
   ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
   ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
+  FETCH_ALL_ACTIONS_SUCCESS: "FETCH_ALL_ACTIONS_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
