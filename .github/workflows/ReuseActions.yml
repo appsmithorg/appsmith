@@ -682,7 +682,7 @@ jobs:
           #spec: ${{ steps.failed_spec.outputs.failed_spec }}
           #spec: echo ${{ steps.failed_spec.outputs.failed_spec }}
           spec: ${{ env.failed_spec_env }}
-          working-directory: app/client/cypress
+          working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
@@ -694,8 +694,8 @@ jobs:
       - name: list failed tests if there are test failures
         if: failure()
         run: |
-          cd /home/runner/work/appsmith/appsmith/app/client/cypress/screenshots/
-          find Smoke_TestSuite -type d|grep spec > ~/failed_spec
+          cd /home/runner/work/appsmith/appsmith/app/client/cypress/
+          find screenshots -type d|grep spec |sed 's/screenshots/cypress/g' > ~/failed_spec
 
       - name: Store the previous run result
         if: failure()
