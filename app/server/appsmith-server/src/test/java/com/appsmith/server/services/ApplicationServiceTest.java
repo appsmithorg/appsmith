@@ -990,6 +990,9 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication.getOrganizationId().equals(orgId));
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
+                    assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
+                    assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
+
                     List<ApplicationPage> pages = clonedApplication.getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
