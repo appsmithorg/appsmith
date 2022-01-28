@@ -5,7 +5,7 @@ import Entity from "../Entity";
 import WidgetEntity from "./WidgetEntity";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
-import { getWidgetsForCurrentPage } from "selectors/entitiesSelector";
+import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 
 type ExplorerWidgetGroupProps = {
@@ -16,7 +16,7 @@ type ExplorerWidgetGroupProps = {
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const pageId = useSelector(getCurrentPageId) || "";
-  const widgets = useSelector(getWidgetsForCurrentPage);
+  const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
 
   const childNode = (

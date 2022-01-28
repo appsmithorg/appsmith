@@ -31,7 +31,7 @@ import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
-import { getAllPages } from "selectors/entitiesSelector";
+import { selectAllPages } from "selectors/entitiesSelector";
 
 const StyledEntity = styled(Entity)`
   &.pages {
@@ -53,7 +53,7 @@ const StyledEntity = styled(Entity)`
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
-  const pages = useSelector(getAllPages);
+  const pages = useSelector(selectAllPages);
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
