@@ -2024,25 +2024,25 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 applicationJson.getExportedApplication().setName(application.getName());
                                 return importExportApplicationService
                                         .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
-                                        .zipWith(datasourceMono)
                                         .onErrorResume(throwable -> {
                                             return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
                                                     .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())));
                                         });
                             });
                 })
-                .flatMap(objects -> {
-                    Application application = objects.getT1();
-                    List<Datasource> datasourceMono = objects.getT2();
-                    return Mono.zip(Mono.just(application), findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceMono));
-                })
+                // Add un-configured datasource to the list to response
+                .flatMap(application -> datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList()
+                        .flatMap(datasourceList -> findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
+                                .map(datasources -> {
+                                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                                    applicationImportDTO.setApplication(application);
+                                    applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                                    applicationImportDTO.setIsPartialImport(!datasources.isEmpty());
+                                    return applicationImportDTO;
+                                })))
                 // Add analytics event
-                .flatMap(objects -> {
-                    Application application = objects.getT1();
-                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                    applicationImportDTO.setApplication(application);
-                    applicationImportDTO.setUnConfiguredDatasourceList(objects.getT2());
-                    applicationImportDTO.setIsPartialImport(objects.getT2().size() > 0);
+                .flatMap(applicationImportDTO -> {
+                    Application application = applicationImportDTO.getApplication();
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_IMPORT.getEventName(),
                             application,
