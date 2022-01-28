@@ -28,7 +28,7 @@ export const migrateCheckboxGroupDefaultSelectedValuesProperty = (
         if (!Array.isArray(defaultSelectedValues) && defaultSelectedValues) {
           child.defaultSelectedValues = defaultSelectedValues
             .split(",")
-            .map((val: string) => val.trim);
+            .map((val: string) => val.trim());
         }
         child.version = 3;
       }
