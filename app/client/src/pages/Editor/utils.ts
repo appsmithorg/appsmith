@@ -7,6 +7,7 @@ export const draggableElement = (
   id: string,
   element: any,
   onPositionChange: any,
+  parentElement?: Element | null,
   initPostion?: any,
   renderDragBlockPositions?: {
     left?: string;
@@ -47,9 +48,7 @@ export const draggableElement = (
       Default to 70 for a save offset that can also
       handle the pagination Bar.
     */
-    const canvasTopOffset =
-      document.querySelector('[type="CANVAS_WIDGET"]')?.getBoundingClientRect()
-        .top || 70;
+    const canvasTopOffset = parentElement?.getBoundingClientRect().top || 70;
 
     if (calculatedLeft <= 0) {
       calculatedLeft = 0;

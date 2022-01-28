@@ -89,6 +89,7 @@ class TableFilterPane extends Component<Props> {
           isDraggable
           isOpen
           onPositionChange={this.handlePositionUpdate}
+          parentElement={boundaryParent}
           placement="top"
           position={get(this.props, "metaProps.position") as PositionPropsInt}
           renderDragBlock={

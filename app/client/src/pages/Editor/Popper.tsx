@@ -13,6 +13,7 @@ import { draggableElement } from "./utils";
 
 export type PopperProps = {
   boundaryParent?: Element | PopperJS.Boundary;
+  parentElement?: Element | null;
   zIndex: number;
   isOpen: boolean;
   themeMode?: ThemeMode;
@@ -149,6 +150,7 @@ export default (props: PopperProps) => {
           `${popperId}-popper`,
           _popper.popper,
           onPositionChange,
+          parentElement,
           position,
           renderDragBlockPositions,
           () =>
