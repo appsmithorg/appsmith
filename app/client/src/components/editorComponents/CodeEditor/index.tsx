@@ -329,9 +329,10 @@ class CodeEditor extends Component<Props, State> {
   private handleKeydown = (e: KeyboardEvent) => {
     switch (e.key) {
       case "Enter":
-        if (document.activeElement === this.codeEditorTarget.current)
+        if (document.activeElement === this.codeEditorTarget.current) {
           this.editor.focus();
-        e.preventDefault();
+          e.preventDefault();
+        }
         break;
       case "Escape":
         if (this.state.isFocused) this.codeEditorTarget.current?.focus();
@@ -671,6 +672,7 @@ class CodeEditor extends Component<Props, State> {
                   : "/";
               this.updatePropertyValue(newValue, newValue.length);
             }}
+            tabIndex={-1}
             tag="button"
             text="/"
           />

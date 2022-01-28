@@ -39,8 +39,6 @@ describe("<CodeEditor /> - Keyboard navigation", () => {
 
   it("Pressing tab should focus the component", () => {
     render(getTestComponent());
-    // Tabbing twice to avoid the hidden button coming in focus
-    userEvent.tab();
     userEvent.tab();
     expect(screen.getByTestId("code-editor-target")).toHaveFocus();
   });
@@ -48,8 +46,6 @@ describe("<CodeEditor /> - Keyboard navigation", () => {
   it("Pressing {Enter} once in focus should make the input editable", () => {
     const handleOnSelect = jest.fn();
     const { container } = render(getTestComponent(handleOnSelect));
-    // Tabbing twice to avoid the hidden button coming in focus
-    userEvent.tab();
     userEvent.tab();
     expect(screen.getByTestId("code-editor-target")).toHaveFocus();
 
@@ -72,8 +68,6 @@ describe("<CodeEditor /> - Keyboard navigation", () => {
   it("Pressing {Escape} once in edit mode should make the input not editable", () => {
     const handleOnSelect = jest.fn();
     const { container } = render(getTestComponent(handleOnSelect));
-    // Tabbing twice to avoid the hidden button coming in focus
-    userEvent.tab();
     userEvent.tab();
     expect(screen.getByTestId("code-editor-target")).toHaveFocus();
 
