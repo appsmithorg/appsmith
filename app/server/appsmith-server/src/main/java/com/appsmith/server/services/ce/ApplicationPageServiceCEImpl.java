@@ -687,6 +687,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
                     newApplication.setLastEditedAt(Instant.now());
+                    newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
