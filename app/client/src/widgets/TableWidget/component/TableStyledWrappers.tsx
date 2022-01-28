@@ -575,14 +575,6 @@ export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
 `;
 
-export const ColumnTitle = styled.div`
-  font-weight: 500;
-  height: 32px;
-  width: inherit;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
 export const ColumnWrapper = styled.div`
   display: flex;
   align-items: center;
