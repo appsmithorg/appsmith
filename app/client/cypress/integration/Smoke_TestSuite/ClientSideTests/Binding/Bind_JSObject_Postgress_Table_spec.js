@@ -33,7 +33,10 @@ describe("Addwidget from Query and bind with other widgets", function() {
       cy.onlyQueryRun();
       cy.get(queryEditor.suggestedTableWidget).click();
       cy.createJSObject("return Query1.data;");
-      cy.SearchEntityandOpen("Table1");
+      cy.selectEntityByName("WIDGETS");
+      cy.get(".t--entity-name")
+        .contains("Table1")
+        .click({ force: true });
       cy.testJsontext("tabledata", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "0").then((tabData) => {

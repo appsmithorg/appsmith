@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
@@ -54,6 +55,7 @@ import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTheme;
+import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Theme;
@@ -4947,6 +4949,40 @@ public class DatabaseChangelog {
                 );
             }
         }
+    }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection and userData to improve the query performance
+     */
+    @ChangeSet(order = "114", id = "update-index-for-newAction-actionCollection-userData", author = "")
+    public void updateNewActionActionCollectionAndUserDataIndexes(MongockTemplate mongockTemplate) {
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(FieldName.APPLICATION_ID)
+                        .named("applicationId")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID)
+                        .named("unpublishedCollection_pageId")
+        );
+
+        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
+                        .named("defaultApplicationId_gitSyncId_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
+                        .named("defaultApplicationId_gitSyncId_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, UserData.class,
+                makeIndex(fieldName(QUserData.userData.userId))
+                        .unique()
+                        .named("userId")
+        );
     }
 
 }

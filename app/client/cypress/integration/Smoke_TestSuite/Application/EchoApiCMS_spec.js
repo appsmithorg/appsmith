@@ -94,7 +94,7 @@ describe("Content Management System App", function() {
     cy.xpath(appPage.confirmButton).click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
-    cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    //cy.xpath(appPage.datasourcesbutton).click({ force: true });
     cy.xpath(appPage.postApi).click({ force: true });
     cy.ResponseCheck("Test");
     // cy.ResponseCheck("Task completed");
@@ -111,7 +111,7 @@ describe("Content Management System App", function() {
     cy.xpath(appPage.deleteTaskText).should("be.visible");
     cy.xpath(appPage.confirmButton).click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
-    cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    //cy.xpath(appPage.datasourcesbutton).click({ force: true });
     cy.xpath(appPage.deleteApi).click({ force: true });
     cy.ResponseCheck("Dan.Wyman@hotmail.com");
     cy.ResponseCheck("Recusan");
