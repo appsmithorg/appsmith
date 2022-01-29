@@ -56,9 +56,11 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { showCompletionDialog } from "./OnboardingSagas";
 
-import { deleteRecentAppEntities } from "utils/storage";
+import {
+  deleteRecentAppEntities,
+  setPostWelcomeTourState,
+} from "utils/storage";
 import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
@@ -67,8 +69,10 @@ import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 
 import {
+  getCurrentStep,
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
 } from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchDatasources } from "actions/datasourceActions";
@@ -80,7 +84,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 
 import { merge } from "lodash";
 import DatasourcesApi from "api/DatasourcesApi";
-import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -114,19 +118,15 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
-
+      const guidedTour = yield select(inGuidedTour);
+      const currentStep = yield select(getCurrentStep);
       let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationId,
         pageId: currentPageId,
       });
-
-      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
-      if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl = getApplicationViewerPageURL({
-          applicationId,
-          pageId: currentPageId,
-          params: { onboardingComplete: "true" },
-        });
+      if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
+        appicationViewPageUrl += "?&guidedTourComplete=true";
+        yield call(setPostWelcomeTourState, true);
       }
 
       yield put({
@@ -585,44 +585,32 @@ export function* importApplicationSaga(
       );
       if (currentOrg.length > 0) {
         const {
-          application: app,
-          isPartialImport,
+          id: appId,
+          pages,
         }: {
-          application: {
-            id: string;
-            pages: { default?: boolean; id: string; isDefault?: boolean }[];
-          };
-          isPartialImport: boolean;
-        } = response?.data;
+          id: string;
+          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+        } = response.data;
         yield put({
           type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
+          payload: {
+            importedApplication: appId,
+          },
         });
-        // there is configuration-missing datasources
-        if (isPartialImport) {
-          yield put({
-            type: ReduxActionTypes.MISSED_DATASOURCES_INIT,
-            payload: response?.data.unConfiguredDatasourceList || [],
-          });
-          yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
-        } else {
-          let pageId = "";
-          if (app.pages && app.pages.length > 0) {
-            const defaultPage = app.pages.find(
-              (eachPage) => !!eachPage.isDefault,
-            );
-            pageId = defaultPage ? defaultPage.id : "";
-          }
+        const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+        const pageURL = BUILDER_PAGE_URL({
+          applicationId: appId,
+          pageId: defaultPage[0].id,
+        });
+        history.push(pageURL);
+        const guidedTour = yield select(inGuidedTour);
 
-          const pageURL = BUILDER_PAGE_URL({
-            applicationId: app.id,
-            pageId,
-          });
-          history.push(pageURL);
-          Toaster.show({
-            text: "Application imported successfully",
-            variant: Variant.success,
-          });
-        }
+        if (guidedTour) return;
+
+        Toaster.show({
+          text: "Application imported successfully",
+          variant: Variant.success,
+        });
       }
     }
   } catch (error) {

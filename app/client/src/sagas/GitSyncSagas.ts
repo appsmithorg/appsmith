@@ -36,7 +36,6 @@ import {
   getSSHKeyPairError,
   GenerateSSHKeyPairReduxAction,
   GetSSHKeyPairReduxAction,
-  setOrgIdForGitImport,
   importAppViaGitSuccess,
 } from "actions/gitSyncActions";
 
@@ -60,7 +59,11 @@ import {
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
-import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import {
+  addBranchParam,
+  BUILDER_PAGE_URL,
+  GIT_BRANCH_QUERY_KEY,
+} from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
 
 import {
@@ -80,10 +83,14 @@ import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import { log } from "loglevel";
+import GIT_ERROR_CODES from "constants/GitErrorCodes";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
-  if (responseMeta?.error?.code === 4043) {
+  if (
+    responseMeta?.error?.code ===
+    GIT_ERROR_CODES.PRIVATE_REPO_CONNECTIONS_LIMIT_REACHED
+  ) {
     yield put(setShowRepoLimitErrorModal(true));
     return true;
   }

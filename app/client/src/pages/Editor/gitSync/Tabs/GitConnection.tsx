@@ -68,7 +68,7 @@ import Statusbar, {
 } from "pages/Editor/gitSync/components/Statusbar";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
-import GitSyncError from "../components/GitSyncError";
+import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -358,14 +358,7 @@ function GitConnection({ isImport }: Props) {
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
   useEffect(() => {
-    let errorVisible = false;
-    if (gitConnectError) {
-      errorVisible = true;
-      if (gitConnectError.code === 5006) {
-        errorVisible = gitConnectError.message.indexOf("git  push failed") < 0;
-      }
-    }
-    if (errorVisible && scrollWrapperRef.current) {
+    if (gitConnectError && scrollWrapperRef.current) {
       setTimeout(() => {
         const top = scrollWrapperRef.current?.scrollHeight || 0;
         scrollWrapperRef.current?.scrollTo({
@@ -533,7 +526,7 @@ function GitConnection({ isImport }: Props) {
               />
             )}
             {!(isConnectingToGit || isImportingApplicationViaGit) && (
-              <GitSyncError />
+              <GitConnectError />
             )}
           </ButtonContainer>
         </>
