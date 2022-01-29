@@ -40,7 +40,7 @@ import {
   initFormEvaluations,
   startFormEvaluations,
 } from "actions/evaluationActions";
-import { getUIComponent } from "selectors/formSelectors";
+import { getUIComponent } from "./helpers";
 import { diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 
