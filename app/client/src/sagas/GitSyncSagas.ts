@@ -80,7 +80,7 @@ import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
+import { setIsReconnectingDatasourcesModalOpen } from "actions/applicationActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import { log } from "loglevel";

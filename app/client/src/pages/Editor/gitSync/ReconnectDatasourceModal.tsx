@@ -37,7 +37,7 @@ import {
   getPluginNames,
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
-import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
+import { setIsReconnectingDatasourcesModalOpen } from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "../DataSourceEditor/JSONtoForm";
 import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";

@@ -47,13 +47,6 @@ export const resetChildrenMetaProperty = (
   };
 };
 
-export const setIsReconnectingDatasourcesModalOpen = (payload: {
-  isOpen: boolean;
-}) => ({
-  type: ReduxActionTypes.SET_IS_RECONNECTING_DATASOURCES_MODAL_OPEN,
-  payload,
-});
-
 export const updateMetaState = (evaluatedDataTree: DataTree) => {
   const updatedWidgetMetaState: MetaState = {};
   Object.values(evaluatedDataTree).forEach((entity) => {

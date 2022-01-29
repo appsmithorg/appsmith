@@ -252,11 +252,6 @@ export const setDisconnectingGitApplication = (payload: {
   payload,
 });
 
-export const setIsGitImportModalOpen = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_IS_GIT_IMPORT_MODAL_OPEN,
-  payload,
-});
-
 export const importAppFromGit = ({
   onErrorCallback,
   onSuccessCallback,

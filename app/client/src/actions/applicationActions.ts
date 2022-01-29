@@ -126,3 +126,10 @@ export const initDatasourceConnectionDuringImportRequest = (
 export const initDatasourceConnectionDuringImportSuccess = () => ({
   type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS,
 });
+
+export const setIsReconnectingDatasourcesModalOpen = (payload: {
+  isOpen: boolean;
+}) => ({
+  type: ReduxActionTypes.SET_IS_RECONNECTING_DATASOURCES_MODAL_OPEN,
+  payload,
+});

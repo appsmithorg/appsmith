@@ -652,8 +652,6 @@ export const ReduxActionTypes = {
   DELETE_ORG_SUCCESS: "DELETE_ORG_SUCCESS",
   SET_USER_CURRENT_GEO_LOCATION: "SET_USER_CURRENT_GEO_LOCATION",
   SET_DISCONNECTING_GIT_APPLICATION: "SET_DISCONNECTING_GIT_APPLICATION",
-  /* This action constants is for git import work flow */
-  SET_IS_GIT_IMPORT_MODAL_OPEN: "SET_IS_GIT_IMPORT_MODAL_OPEN",
   /* This action constants is for identifying the status of the updates of the entities */
   ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
   ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
