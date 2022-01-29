@@ -37,6 +37,7 @@ import {
   GenerateSSHKeyPairReduxAction,
   GetSSHKeyPairReduxAction,
   importAppViaGitSuccess,
+  setOrgIdForGitImport,
 } from "actions/gitSyncActions";
 
 import {
@@ -653,18 +654,14 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
           isPartialImport: boolean;
         } = response?.data;
         yield put(importAppViaGitSuccess(response?.data?.application));
-        yield put({
-          type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
-          payload: {
-            importedApplication: response?.data.application,
-          },
-        });
         // there is configuration-missing datasources
         if (isPartialImport) {
           yield put({
             type: ReduxActionTypes.MISSED_DATASOURCES_INIT,
             payload: response?.data.unConfiguredDatasourceList || [],
           });
+          yield put(setIsGitSyncModalOpen({ isOpen: false }));
+          yield put(setOrgIdForGitImport(organizationIdForImport));
           yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
         } else {
           let pageId = "";
