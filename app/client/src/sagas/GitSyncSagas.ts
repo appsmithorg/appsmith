@@ -654,13 +654,13 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
           isPartialImport: boolean;
         } = response?.data;
         yield put(importAppViaGitSuccess(response?.data?.application));
+        yield put(setIsGitSyncModalOpen({ isOpen: false }));
         // there is configuration-missing datasources
         if (isPartialImport) {
           yield put({
             type: ReduxActionTypes.MISSED_DATASOURCES_INIT,
             payload: response?.data.unConfiguredDatasourceList || [],
           });
-          yield put(setIsGitSyncModalOpen({ isOpen: false }));
           yield put(setOrgIdForGitImport(organizationIdForImport));
           yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
         } else {
