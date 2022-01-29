@@ -282,8 +282,6 @@ const dependencyMap = {
     "Dropdown1.selectedIndexArr",
     "Dropdown1.selectedOption",
     "Dropdown1.selectedOptionArr",
-    "Dropdown1.selectedOptionValue",
-    "Dropdown1.selectedOptionValueArr",
     "Dropdown1.selectedOptionValues",
     "Dropdown1.value",
   ],
@@ -299,10 +297,7 @@ const dependencyMap = {
   Table1: [
     "Table1.defaultSearchText",
     "Table1.defaultSelectedRow",
-    "Table1.searchText",
     "Table1.selectedRow",
-    "Table1.selectedRowIndex",
-    "Table1.selectedRowIndices",
     "Table1.selectedRows",
     "Table1.tableData",
   ],
@@ -592,6 +587,14 @@ describe("DataTreeEvaluator", () => {
     expect(sortObject(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       ...dependencyMap,
+      Table1: [
+        "Table1.defaultSearchText",
+        "Table1.defaultSelectedRow",
+        "Table1.selectedRow",
+        "Table1.selectedRowIndex",
+        "Table1.selectedRows",
+        "Table1.tableData",
+      ],
       "Table1.tableData": ["Api1.data", "Text1.text"],
       "Text3.text": ["Text1.text"],
     });
