@@ -14,7 +14,7 @@ import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
-import _, { get } from "lodash";
+import _, { get, noop } from "lodash";
 import { Title } from "./components/StyledComponents";
 import {
   ADD_MISSING_DATASOURCES,
@@ -46,19 +46,9 @@ import { DatasourcePaneFunctions } from "../DataSourceEditor";
 import { AppState } from "reducers";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { getFormValues, initialize, submit } from "redux-form";
-import {
-  deleteDatasource,
-  setDatsourceEditorMode,
-  switchDatasource,
-  testDatasource,
-  updateDatasource,
-} from "actions/datasourceActions";
+import { testDatasource, updateDatasource } from "actions/datasourceActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { ReduxAction } from "constants/ReduxActionConstants";
-import {
-  setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
 import { connect } from "react-redux";
 import DatasourceForm from "../DataSourceEditor/DatasourceForm";
 import Collapsible from "../DataSourceEditor/Collapsible";
@@ -274,11 +264,8 @@ interface ReduxStateProps {
   isSaving: boolean;
   isTesting: boolean;
   formConfig: any[];
-  isDeleting: boolean;
-  isNewDatasource: boolean;
   pluginImages: Record<string, string>;
   pluginId: string;
-  viewMode: boolean;
   pluginType: string;
   pluginDatasourceForm: string;
   pluginPackageName: string;
@@ -294,7 +281,6 @@ type DSProps = ReduxStateProps &
   DatasourcePaneFunctions & { datasourceId: string };
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
-  const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
   const datasource = getDatasource(state, props.datasourceId);
   const { formConfigs } = plugins;
@@ -306,11 +292,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formData,
     pluginId,
     isSaving: datasources.loading,
-    isDeleting: datasources.isDeleting,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
-    isNewDatasource: datasourcePane.newDatasource === props.datasourceId,
-    viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
@@ -326,16 +309,12 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
     dispatch(updateDatasource(formData, onSuccess));
   },
-  redirectToNewIntegrations: () => undefined,
+  redirectToNewIntegrations: noop,
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
-  deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
-  switchDatasource: (id: string) => dispatch(switchDatasource(id)),
-  setDatasourceEditorMode: (id: string) =>
-    dispatch(setDatsourceEditorMode({ id, viewMode: false })),
-  openOmnibarReadMore: (text: string) => {
-    dispatch(setGlobalSearchQuery(text));
-    dispatch(toggleShowGlobalSearchModal());
-  },
+  deleteDatasource: noop,
+  switchDatasource: noop,
+  setDatasourceEditorMode: noop,
+  openOmnibarReadMore: noop,
 });
 
 const DSForm = connect(
@@ -343,14 +322,8 @@ const DSForm = connect(
   mapDispatchToProps,
 )((props: DSProps) => {
   const {
-    deleteDatasource,
     formConfig,
     formData,
-    isDeleting,
-    // isNewDatasource,
-    isSaving,
-    isTesting,
-    openOmnibarReadMore,
     pluginId,
     pluginImages,
     pluginType,
@@ -364,19 +337,11 @@ const DSForm = connect(
       formConfig={formConfig}
       formData={formData}
       formName={DATASOURCE_DB_FORM}
-      handleDelete={deleteDatasource}
-      isDeleting={isDeleting}
-      isSaving={isSaving}
-      isTesting={isTesting}
-      onSave={() => undefined}
-      onSubmit={() => undefined}
-      onTest={props.testDatasource}
-      openOmnibarReadMore={openOmnibarReadMore}
       pageId={""}
       pluginImage={pluginImages[pluginId]}
       pluginType={pluginType}
       setDatasourceEditorMode={setDatasourceEditorMode}
-      viewMode={!!false}
+      viewMode={false}
     />
   );
 });
