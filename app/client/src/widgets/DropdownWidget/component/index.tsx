@@ -398,7 +398,7 @@ class DropDownComponent extends React.Component<
     return (
       <MenuItem
         active={isSelected}
-        className={`single-select ${isFocused && "is-focused"}`}
+        className={`single-select ${isFocused && isSelected && "is-focused"}`}
         key={option.value}
         onClick={itemProps.handleClick}
         tabIndex={0}
