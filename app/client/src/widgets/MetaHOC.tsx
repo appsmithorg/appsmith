@@ -17,12 +17,12 @@ type DebouncedExecuteActionPayload = Omit<
 export interface WithMeta {
   updateWidgetMetaProperty: (
     propertyName: string,
-    propertyValue: any,
+    propertyValue: unknown,
     actionExecution?: DebouncedExecuteActionPayload,
   ) => void;
   syncUpdateWidgetMetaProperty: (
     propertyName: string,
-    propertyValue: any,
+    propertyValue: unknown,
   ) => void;
 }
 
@@ -41,7 +41,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       },
     );
 
-    constructor(props: any) {
+    constructor(props: WidgetProps) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       this.state = _.fromPairs(
@@ -53,9 +53,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
 
     componentDidUpdate(prevProps: WidgetProps) {
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
-      const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
-        const defaultProperty = defaultProperties[metaProperty];
         /*
           Generally the meta property value of a widget will directly be
           controlled by itself and the platform will not interfere except:
@@ -66,10 +64,12 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           set the state of the meta property value (controlled by inside the
           widget) to the current value that is outside (controlled by platform)
         */
-        if (
-          !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
-          _.isEqual(this.props[defaultProperty], this.props[metaProperty])
-        ) {
+        const isMetaPropertyChanged = !_.isEqual(
+          prevProps[metaProperty],
+          this.props[metaProperty],
+        );
+
+        if (isMetaPropertyChanged) {
           this.setState({ [metaProperty]: this.props[metaProperty] });
         }
       });
@@ -77,7 +77,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
 
     updateWidgetMetaProperty = (
       propertyName: string,
-      propertyValue: any,
+      propertyValue: unknown,
       actionExecution?: DebouncedExecuteActionPayload,
     ): void => {
       this.updatedProperties.set(propertyName, true);
@@ -112,7 +112,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     // properties from a widget in quick succession
     syncUpdateWidgetMetaProperty = (
       propertyName: string,
-      propertyValue: any,
+      propertyValue: unknown,
     ): void => {
       const { updateWidgetMetaProperty } = this.context;
       const { widgetId } = this.props;
