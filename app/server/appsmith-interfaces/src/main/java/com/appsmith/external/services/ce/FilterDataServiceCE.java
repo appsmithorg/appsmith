@@ -321,7 +321,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         sb.append(" ORDER BY");
         sortBy.stream()
-                .forEach(sortCondition -> {
+                .forEachOrdered(sortCondition -> {
                     String columnName = sortCondition.get(SORT_BY_COLUMN_NAME_KEY);
                     SortType sortType;
                     try {
