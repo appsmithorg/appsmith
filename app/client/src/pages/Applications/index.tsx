@@ -37,7 +37,25 @@ import ApplicationCard from "./ApplicationCard";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import Dialog from "components/ads/DialogComponent";
+import {
+  AppIconCollection,
+  Button,
+  Category,
+  Classes,
+  DialogComponent as Dialog,
+  EditableText,
+  EditInteractionKind,
+  Icon,
+  IconName,
+  IconSize,
+  Menu,
+  MenuItem,
+  notEmptyValidator,
+  SavingState,
+  Size,
+  Text,
+  TextType,
+} from "components/ads";
 // import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -46,16 +64,10 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import Button, { Size, Category } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
-import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
-import { Classes } from "components/ads/common";
-import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
@@ -63,17 +75,11 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserOrgs } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
-import { notEmptyValidator } from "components/ads/TextInput";
 import { deleteOrg, saveOrg } from "actions/orgActions";
 import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";

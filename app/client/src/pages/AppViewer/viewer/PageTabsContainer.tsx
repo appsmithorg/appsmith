@@ -4,7 +4,7 @@ import {
   CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "components/ads";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { Colors } from "constants/Colors";

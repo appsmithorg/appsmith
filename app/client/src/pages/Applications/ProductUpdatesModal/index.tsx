@@ -2,15 +2,19 @@ import React, { useState, useCallback, useContext, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
-import Dialog from "components/ads/DialogComponent";
+import {
+  DialogComponent as Dialog,
+  ScrollIndicator,
+  Button,
+  Category,
+  Size,
+} from "components/ads";
 import UpdatesButton from "./UpdatesButton";
 import { AppState } from "reducers";
 import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import ReleaseComponent, { Release } from "./ReleaseComponent";
-import ScrollIndicator from "components/ads/ScrollIndicator";
-import Button, { Category, Size } from "components/ads/Button";
 
 const StyledDialog = styled(Dialog)`
   .bp3-dialog-body {

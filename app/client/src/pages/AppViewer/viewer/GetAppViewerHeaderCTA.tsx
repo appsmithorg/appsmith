@@ -4,10 +4,9 @@ import styled from "styled-components";
 import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Button, { IconPositions } from "components/ads/Button";
+import { Button, IconPositions, Size } from "components/ads";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { TriggerButton } from "pages/Applications/ForkModalStyles";
-import { Size } from "components/ads/Button";
 import { getAllApplications } from "actions/applicationActions";
 
 const Cta = styled(Button)`

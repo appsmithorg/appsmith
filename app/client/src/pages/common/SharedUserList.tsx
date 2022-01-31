@@ -5,7 +5,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "components/ads";
 import { OrgUser } from "constants/orgConstants";
 import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 

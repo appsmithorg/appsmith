@@ -7,9 +7,8 @@ import {
   cancelRunActionConfirmModal,
   acceptRunActionConfirmModal,
 } from "actions/pluginActionActions";
-import DialogComponent from "components/ads/DialogComponent";
+import { Button, Category, DialogComponent, Size } from "components/ads";
 import styled from "styled-components";
-import Button, { Category, Size } from "components/ads/Button";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
