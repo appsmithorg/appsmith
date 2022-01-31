@@ -644,7 +644,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
                         actionResult = filterDataService.filterDataNew(preFilteringResponse,
                                 new UQIDataFilterParams(condition, null, sortBy, paginateBy));
-                        
+
                         break;
                     case UPLOAD_FILE_FROM_BODY: {
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));

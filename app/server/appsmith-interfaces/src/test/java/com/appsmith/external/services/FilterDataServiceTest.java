@@ -1634,8 +1634,8 @@ public class FilterDataServiceTest {
 
             List<Map<String, String>> sortBy = new ArrayList<>();
             Map<String, String> sortCondition = new HashMap<>();
-            sortCondition.put("columnName", "orderAmount");
-            sortCondition.put("type", "DESCENDING");
+            sortCondition.put("column", "orderAmount");
+            sortCondition.put("order", "Descending");
             sortBy.add(sortCondition);
 
             HashMap<String, String> paginateBy = new HashMap<>();
