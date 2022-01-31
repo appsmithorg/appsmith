@@ -36,7 +36,7 @@ export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
 export const JAVASCRIPT_KEYWORDS = {
   Array: "Array",
   await: "await",
-  boolean: "boolean",
+  Boolean: "Boolean",
   break: "break",
   case: "case",
   catch: "catch",
@@ -57,6 +57,7 @@ export const JAVASCRIPT_KEYWORDS = {
   finally: "finally",
   for: "for",
   function: "function",
+  Function: "Function",
   hasOwnProperty: "hasOwnProperty",
   if: "if",
   implements: "implements",
