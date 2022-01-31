@@ -52,6 +52,7 @@ module.exports = class Perf {
       await this.page.screenshot({
         path: screenshotPath,
       });
+      await this.stopTrace();
       this.browser.close();
     });
   }
@@ -169,7 +170,7 @@ module.exports = class Perf {
       report[action].warnings = sortObjectKeys(tasks.getWarningCounts());
     });
 
-    fs.writeFile(
+    await fs.writeFile(
       `${APP_ROOT}/traces/reports/${getFormattedTime()}.json`,
       JSON.stringify(report, "", 4),
       (err) => {
