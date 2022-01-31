@@ -104,3 +104,7 @@ export type ValidationConfig = {
 export type PropertyPaneConfig =
   | PropertyPaneSectionConfig
   | PropertyPaneControlConfig;
+
+export interface ActionValidationConfigMap {
+  [configPropety: string]: ValidationConfig;
+}

@@ -34,7 +34,9 @@ describe("Undo/Redo functionality", function() {
       `${datasourceEditor.sectionAuthentication} .bp3-icon-chevron-up`,
     ).should("exist");
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").trigger("mouseover");
+    cy.get("li:contains(Edit)")
+      .eq(1)
+      .trigger("mouseover");
     cy.get("li:contains(Undo)").click({ multiple: true });
     cy.get(datasourceEditor.username).should("be.empty");
   });
@@ -112,7 +114,9 @@ describe("Undo/Redo functionality", function() {
     cy.get(".CodeMirror-code").should("have.text", "{{FirstAPI}}");
     // undo/redo through app menu
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").trigger("mouseover");
+    cy.get("li:contains(Edit)")
+      .eq(1)
+      .trigger("mouseover");
     cy.get("li:contains(Undo)").click({ multiple: true });
     cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
   });
@@ -135,7 +139,9 @@ describe("Undo/Redo functionality", function() {
     cy.get(".function-name").should("contain.text", "test");
     // performing undo from app menu
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").trigger("mouseover");
+    cy.get("li:contains(Edit)")
+      .eq(1)
+      .trigger("mouseover");
     cy.get("li:contains(Undo)").click({ multiple: true });
     // cy.get(".function-name").should("not.contain.text", "test");
   });

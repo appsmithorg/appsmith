@@ -21,7 +21,7 @@ public class GitUtils {
      * @param sshUrl ssh url of repo
      * @return https url supported by curl command extracted from ssh repo url
      */
-    public static String convertSshUrlToHttpsCurlSupportedUrl(String sshUrl) {
+    public static String convertSshUrlToBrowserSupportedUrl(String sshUrl) {
         if (StringUtils.isEmptyOrNull(sshUrl)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
         }
