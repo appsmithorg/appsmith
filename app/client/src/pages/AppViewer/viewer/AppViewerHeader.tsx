@@ -44,6 +44,7 @@ import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ShareButtonComponent } from "../../Editor/EditorHeader";
+import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -248,6 +249,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           currentApplicationDetails={currentApplicationDetails}
           pages={pages}
         />
+        <TourCompletionMessage />
       </HeaderWrapper>
     </ThemeProvider>
   );

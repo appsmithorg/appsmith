@@ -5,6 +5,7 @@
   "datepickerWidget": ".t--widget-datepickerwidget",
   "backToEditor": ".t--back-to-editor",
   "inputWidget": ".t--widget-inputwidgetv2",
+  "iconWidget":".t--widget-iconwidget",
   "checkboxWidget": ".t--widget-checkboxwidget",
   "switchwidget": ".t--widget-switchwidget",
   "radioWidget": ".t--widget-radiogroupwidget",

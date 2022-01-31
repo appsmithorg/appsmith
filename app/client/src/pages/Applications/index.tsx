@@ -68,6 +68,8 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
+import { onboardingCreateApplication } from "actions/onboardingActions";
+import { Classes, Menu } from "components/ads";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
@@ -81,9 +83,6 @@ import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWra
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
@@ -104,6 +103,7 @@ import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -418,8 +418,6 @@ function LeftPane() {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
-  const initiateOnboarding = useIntiateOnboarding();
-
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -484,8 +482,7 @@ function LeftPane() {
               icon="guide"
               onSelect={() => {
                 AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-
-                initiateOnboarding();
+                dispatch(onboardingCreateApplication());
               }}
               text={createMessage(WELCOME_TOUR)}
             />
@@ -972,7 +969,6 @@ function ApplicationsSection(props: any) {
   return (
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
-      <WelcomeHelper />
       {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );

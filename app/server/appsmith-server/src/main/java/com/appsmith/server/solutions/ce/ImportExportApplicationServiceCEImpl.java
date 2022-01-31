@@ -56,6 +56,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
@@ -621,14 +622,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 datasource.setOrganizationId(organizationId);
 
                                 // Check if any decrypted fields are present for datasource
-                                if (importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+                                if (importedDoc.getDecryptedFields()!= null
+                                        && importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
 
                                     DecryptedSensitiveFields decryptedFields =
                                             importedDoc.getDecryptedFields().get(datasource.getName());
 
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId);
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId, applicationId);
                             })
                             .map(datasource -> {
                                 datasourceMap.put(datasource.getName(), datasource.getId());
@@ -666,7 +668,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // the changes from remote
                                                     // We are using the save instead of update as we are using @Encrypted
                                                     // for GitAuth
-                                                    return applicationService.save(existingApplication);
+                                                    return applicationService.save(existingApplication)
+                                                            .onErrorResume(DuplicateKeyException.class, error -> {
+                                                                if (error.getMessage() != null) {
+                                                                    return applicationPageService
+                                                                            .createOrUpdateSuffixedApplication(
+                                                                                    existingApplication,
+                                                                                    existingApplication.getName(),
+                                                                                    0
+                                                                            );
+                                                                }
+                                                                throw error;
+                                                            });
                                                 });
                                     }
                                     return applicationService
@@ -1129,80 +1142,36 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
+        NewPage update = new NewPage();
         return newPageService.save(newPage)
                 .flatMap(page -> {
-                    if (page.getDefaultResources() == null) {
-                        NewPage update = new NewPage();
-                        update.setDefaultResources(DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
-                        return newPageService.update(page.getId(), update);
-                    }
-                    return Mono.just(page);
+                    update.setDefaultResources(DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
+                    return newPageService.update(page.getId(), update);
                 });
     }
 
     private Mono<NewAction> saveNewActionAndUpdateDefaultResources(NewAction newAction, String branchName) {
         return newActionService.save(newAction)
                 .flatMap(action -> {
-                    if (action.getDefaultResources() == null) {
-                        NewAction update = new NewAction();
-                        update.setDefaultResources(
-                                DefaultResourcesUtils
-                                        .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action, branchName).getDefaultResources());
-                        if (action.getUnpublishedAction() != null) {
-                            update.setUnpublishedAction(action.getUnpublishedAction());
-                            update.getUnpublishedAction()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action.getUnpublishedAction(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        if (action.getPublishedAction() != null) {
-                            update.setPublishedAction(action.getPublishedAction());
-                            update.getPublishedAction()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action.getPublishedAction(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        return newActionService.update(action.getId(), update);
-                    }
-                    return Mono.just(action);
+                    NewAction update = new NewAction();
+                    update.setDefaultResources(
+                            DefaultResourcesUtils
+                                    .createDefaultIdsOrUpdateWithGivenResourceIds(action, branchName).getDefaultResources()
+                    );
+                    return newActionService.update(action.getId(), update);
                 });
     }
 
     private Mono<ActionCollection> saveNewCollectionAndUpdateDefaultResources(ActionCollection actionCollection, String branchName) {
         return actionCollectionService.create(actionCollection)
                 .flatMap(actionCollection1 -> {
-                    if (actionCollection1.getDefaultResources() == null) {
-                        ActionCollection update = new ActionCollection();
-                        update.setDefaultResources(
-                                DefaultResourcesUtils
-                                        .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1, branchName)
-                                        .getDefaultResources()
-                        );
-                        if (actionCollection1.getUnpublishedCollection() != null) {
-                            update.setUnpublishedCollection(actionCollection1.getUnpublishedCollection());
-                            update.getUnpublishedCollection()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getUnpublishedCollection(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        if (actionCollection1.getPublishedCollection() != null) {
-                            update.setPublishedCollection(actionCollection1.getPublishedCollection());
-                            update.getPublishedCollection()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getPublishedCollection(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        return actionCollectionService.update(actionCollection1.getId(), update);
-                    }
-                    return Mono.just(actionCollection1);
+                    ActionCollection update = new ActionCollection();
+                    update.setDefaultResources(
+                            DefaultResourcesUtils
+                                    .createDefaultIdsOrUpdateWithGivenResourceIds(actionCollection1, branchName)
+                                    .getDefaultResources()
+                    );
+                    return actionCollectionService.update(actionCollection1.getId(), update);
                 });
     }
 
@@ -1348,7 +1317,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
                                                                 Datasource datasource,
-                                                                String organizationId) {
+                                                                String organizationId,
+                                                                String applicationId) {
 
         /*
             1. If same datasource is present return
@@ -1372,7 +1342,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return ds;
                 })
-                .filter(ds -> ds.softEquals(datasource))
+                // For git import exclude datasource configuration
+                .filter(ds -> applicationId != null ? ds.getName().equals(datasource.getName()) : ds.softEquals(datasource))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {

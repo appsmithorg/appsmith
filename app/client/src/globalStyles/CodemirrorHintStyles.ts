@@ -13,14 +13,13 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     list-style: none;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
-    font-size: 90%;
     font-family: monospace;
     max-height: 20em;
     overflow-y: auto;
     background: ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? "#FAFAFA" : "#262626"};
-    box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
-    border-radius: 0px;
+      props.editorTheme === EditorTheme.LIGHT ? "#fafafa" : "#262626"};
+    box-shadow: 0px 0px 2px 2px #ebebeb;
+    border-radius: 1px;
   }
 
   .CodeMirror-hint {
@@ -63,40 +62,35 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     font-family: ${(props) => props.theme.fonts.text};
     ${(props) => getTypographyByKey(props, "p3")}
     &.CodeMirror-hint-active {
-      svg {
-        path {
-          fill: #ffffff;
-        }
-      }
       .shortcut {
         color: #ffffff;
+      }
+      .add-datasource-icon {
+        background: white;
       }
     }
     .command-container {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding:5px 0;
       flex: 1;
     }
     .command {
       display: flex;
       align-items: center;
-      img {
-        height: 12px;
-        width: 12px;
-        margin-right: 7px;
-      }
-      svg {
-        height: 12px;
-        width: 12px;
-        margin-right: 7px;
+      > div {
+        padding: 0 2px;
+        img {
+          height: 14px;
+          width: 14px;
+        }
       }
     }
     .shortcut {
       font-style: italic;
       font-size: 10px;
       color: #a9a7a7;
-      margin-left: auto;
     }
   }
 
@@ -271,6 +265,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     color: #4B4848;
   }
   .CodeMirror-lint-mark-warning{
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJDw4cOCW1/KIAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==")
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAB1JREFUGFdjZICC/3sY/jO6MDAygvgwDpiGcWAqASvpC745SEL8AAAAAElFTkSuQmCC");
   }
 `;

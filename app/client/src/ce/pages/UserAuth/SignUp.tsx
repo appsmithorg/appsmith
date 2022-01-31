@@ -47,7 +47,6 @@ import { AppState } from "reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -96,7 +95,6 @@ export function SignUp(props: SignUpFormProps) {
   const isFormValid = valid && email && !isEmptyString(email);
   const socialLoginList = ThirdPartyLoginRegistry.get();
   const location = useLocation();
-  const initiateOnboarding = useIntiateOnboarding();
 
   const recaptchaStatus = useScript(
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
@@ -203,7 +201,6 @@ export function SignUp(props: SignUpFormProps) {
               PerformanceTracker.startTracking(
                 PerformanceTransactionName.SIGN_UP,
               );
-              initiateOnboarding();
             }}
             size={Size.large}
             tag="button"
