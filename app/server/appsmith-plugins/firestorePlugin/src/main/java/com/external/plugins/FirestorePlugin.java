@@ -627,7 +627,7 @@ public class FirestorePlugin extends BasePlugin {
                         requestParams.add(new RequestParamDTO(WHERE, conditionList, null, null, null));
 
                         for(Object condition : conditionList) {
-                            String path = (((Map<String, String>)condition).get("key")).trim();
+                            String path = ((Map<String, String>)condition).get("key");
                             String operatorString = ((Map<String, String>)condition).get("condition");
                             String value = ((Map<String, String>)condition).get("value");
 

@@ -20,7 +20,9 @@ public class WhereConditionUtils {
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static Query applyWhereConditional(Query query, String path, String operatorString, String strValue) throws AppsmithPluginException {
+    public static Query applyWhereConditional(Query query, String strPath, String operatorString, String strValue) throws AppsmithPluginException {
+
+        String path = strPath.trim();
 
         if (query == null) {
             throw new AppsmithPluginException(
