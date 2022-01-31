@@ -133,8 +133,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         Condition condition = uqiDataFilterParams.getCondition();
-        Condition updatedCondition = addValueDataType(condition);
-        uqiDataFilterParams.setCondition(updatedCondition);
+        if (condition != null) {
+            Condition updatedCondition = addValueDataType(condition);
+            uqiDataFilterParams.setCondition(updatedCondition);
+        }
 
         Map<String, DataType> schema = generateSchema(items);
         String tableName = generateTable(schema);
