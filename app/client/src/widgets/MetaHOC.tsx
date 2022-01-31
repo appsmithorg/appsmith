@@ -53,7 +53,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       );
     }
 
-    componentDidUpdate(prevProps: WidgetProps, prevState: MetaHOCState) {
+    componentDidUpdate(prevProps: WidgetProps) {
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
         /*
@@ -71,12 +71,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           this.props[metaProperty],
         );
 
-        const isMetaNotEqualToPrevState = !_.isEqual(
-          prevState[metaProperty],
-          this.props[metaProperty],
-        );
-
-        if (isMetaPropertyChanged && isMetaNotEqualToPrevState) {
+        if (isMetaPropertyChanged) {
           this.setState({ [metaProperty]: this.props[metaProperty] });
         }
       });
