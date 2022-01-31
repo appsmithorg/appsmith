@@ -69,9 +69,7 @@ describe("Git sync:", function() {
       .should("be.visible")
       .click({ force: true });
     cy.CreateAPI("ParentApi1");
-    cy.get(jsActions.addJsActionButton)
-      .last()
-      .click({ force: true });
+    cy.NavigateToJSEditor();
     cy.wait("@createNewJSCollection");
     cy.get(jsActions.name).click({ force: true });
     cy.get(jsActions.nameInput)
@@ -95,9 +93,7 @@ describe("Git sync:", function() {
       .should("be.visible")
       .click({ force: true });
     cy.CreateAPI("ChildApi1");
-    cy.get(jsActions.addJsActionButton)
-      .last()
-      .click({ force: true });
+    cy.NavigateToJSEditor();
     cy.wait("@createNewJSCollection");
     cy.get(jsActions.name).click({ force: true });
     cy.get(jsActions.nameInput)
