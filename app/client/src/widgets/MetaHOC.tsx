@@ -26,8 +26,10 @@ export interface WithMeta {
   ) => void;
 }
 
+type MetaHOCState = Record<string, unknown>;
+
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
-  return class MetaHOC extends React.PureComponent<WidgetProps, any> {
+  return class MetaHOC extends React.PureComponent<WidgetProps, MetaHOCState> {
     static contextType = EditorContext;
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
@@ -51,7 +53,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       );
     }
 
-    componentDidUpdate(prevProps: WidgetProps) {
+    componentDidUpdate(prevProps: WidgetProps, prevState: MetaHOCState) {
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
         /*
@@ -69,7 +71,12 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           this.props[metaProperty],
         );
 
-        if (isMetaPropertyChanged) {
+        const isMetaNotEqualToPrevState = !_.isEqual(
+          prevState[metaProperty],
+          this.props[metaProperty],
+        );
+
+        if (isMetaPropertyChanged && isMetaNotEqualToPrevState) {
           this.setState({ [metaProperty]: this.props[metaProperty] });
         }
       });
