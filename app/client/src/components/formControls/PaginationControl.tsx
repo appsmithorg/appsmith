@@ -76,12 +76,6 @@ export function Pagination(props: {
             label: "Offset",
             customStyles,
             configProperty: `${configProperty}.offset`,
-            valdationConfig: {
-              type: ValidationTypes.TEXT,
-              params: {
-                min: 0,
-              },
-            },
           }}
           formName={formName}
         />

@@ -55,8 +55,8 @@ class PluginsApi extends Api {
   static fetchFormConfig(
     id: string,
   ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
+    /* eslint-disable */
     return Api.get(PluginsApi.url + `/${id}/form`).then((response: any) => {
-      /* eslint-disable */
       return new Promise((resolve) => {
         //@ts-ignore
         return resolve(mockDataS3);
@@ -73,25 +73,3 @@ class PluginsApi extends Api {
 }
 
 export default PluginsApi;
-
-function addOptions(formConfig: any) {
-  /* eslint-disable */
-  // const allPluginIds = Object.keys(formConfig);
-  // for (let i = 0; i < allPluginIds.length; i++) {
-  //   if (formConfig[allPluginIds[i]].options) {
-  //     formConfig[allPluginIds[i]]["isMultiSelect"] = false;
-  //     const newOptions = formConfig[allPluginIds[i]].options?.map(
-  //       (option: any) => {
-  //         return option.value;
-  //       },
-  //     );
-  //     formConfig[allPluginIds[i]].options = newOptions;
-  //   }
-  //   if (formConfig[allPluginIds[i]].children) {
-  //     addOptions(formConfig[allPluginIds[i]].children);
-  //   }
-  // }
-  // console.log("rrai", formConfig);
-}
-
-function getMockData(response: any) {}

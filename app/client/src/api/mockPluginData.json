@@ -105,25 +105,13 @@
               "value": "LIST"
             },
             {
-              "label": "Create a new file",
-              "value": "UPLOAD_FILE_FROM_BODY"
-            },
-            {
-              "label": "Create multiple new files",
-              "value": "UPLOAD_MULTIPLE_FILES_FROM_BODY"
-            },
-            {
-              "label": "Read file",
-              "value": "READ_FILE"
-            },
-            {
-              "label": "Delete file",
-              "value": "DELETE_FILE"
-            },
-            {
                 "label": "Sample Query",
                 "value": "SAMPLE"
-              }
+            },
+            {
+              "label": "Sample Query2",
+              "value": "SAMPLE2"
+            }
           ],
           "label": "Commands",
           "description": "Choose method you would like to use",
@@ -155,7 +143,7 @@
                       "isRequired": true,
                       "initialValue": "",
                       "validationConfig": {
-                          
+                          "type": "TEXT"
                       }
                     }
                   ]
@@ -169,7 +157,57 @@
                       "label": "Prefix",
                       "configProperty": "actionConfiguration.formData.list.prefix",
                       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-                      "initialValue": ""
+                      "initialValue": "",
+                      "validationConfig": {
+                        "type": "TEXT"
+                    }
+                    },
+                    {
+                      "controlType": "SECTION",
+                      "label": "Options",
+                      "children": [
+                        {
+                          "label": "Generate Signed URL",
+                          "configProperty": "actionConfiguration.formData.list.signedUrl",
+                          "controlType": "DROP_DOWN",
+                          "initialValue": "NO",
+                          "options": [
+                            {
+                              "label": "Yes",
+                              "value": "YES"
+                            },
+                            {
+                              "label": "No",
+                              "value": "NO"
+                            }
+                          ]
+                        },
+                        {
+                          "label": "Expiry Duration of Signed URL (Minutes)",
+                          "configProperty": "actionConfiguration.formData.list.expiry",
+                          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                          "initialValue": "5",
+                          "conditionals": {
+                            "show": "{{actionConfiguration.formData.list.signedUrl === 'YES'}}"
+                          }
+                        },
+                        {
+                          "label": "Generate Un-signed URL",
+                          "configProperty": "actionConfiguration.formData.list.unSignedUrl",
+                          "controlType": "DROP_DOWN",
+                          "initialValue": "YES",
+                          "options": [
+                            {
+                              "label": "Yes",
+                              "value": "YES"
+                            },
+                            {
+                              "label": "No",
+                              "value": "NO"
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "label": "Where",
@@ -202,53 +240,6 @@
                         {
                           "label": "not in",
                           "value": "NOT_IN"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "controlType": "SECTION",
-                  "label": "Options",
-                  "children": [
-                    {
-                      "label": "Generate Signed URL",
-                      "configProperty": "actionConfiguration.formData.list.signedUrl",
-                      "controlType": "DROP_DOWN",
-                      "initialValue": "NO",
-                      "options": [
-                        {
-                          "label": "Yes",
-                          "value": "YES"
-                        },
-                        {
-                          "label": "No",
-                          "value": "NO"
-                        }
-                      ]
-                    },
-                    {
-                      "label": "Expiry Duration of Signed URL (Minutes)",
-                      "configProperty": "actionConfiguration.formData.list.expiry",
-                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-                      "initialValue": "5",
-                      "conditionals": {
-                        "show": "{{actionConfiguration.formData.list.signedUrl === 'YES'}}"
-                      }
-                    },
-                    {
-                      "label": "Generate Un-signed URL",
-                      "configProperty": "actionConfiguration.formData.list.unSignedUrl",
-                      "controlType": "DROP_DOWN",
-                      "initialValue": "YES",
-                      "options": [
-                        {
-                          "label": "Yes",
-                          "value": "YES"
-                        },
-                        {
-                          "label": "No",
-                          "value": "NO"
                         }
                       ]
                     }
@@ -480,48 +471,89 @@
               ]
             },
             {
-                "identifier": "SAMPLE",
-                "controlType": "SECTION",
-                "conditionals": {
-                  "show": "{{actionConfiguration.formData.command === 'SAMPLE'}}"
+              "identifier": "SAMPLE",
+              "controlType": "SECTION",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command === 'SAMPLE'}}"
+              },
+              "children": [
+                {
+                  "controlType": "SECTION",
+                  "label": "Sort",
+                  "children": [
+                    {
+                      "label": "Sort",
+                      "configProperty": "actionConfiguration.formData.sort",
+                      "controlType": "SORTING",
+                      "evaluationSubstitutionType": "TEMPLATE",
+                      "isRequired": true
+                    }
+                  ]
                 },
-                "children": [
-                  {
-                    "controlType": "SECTION",
-                    "label": "Sort",
-                    "children": [
-                      {
-                        "label": "Sort",
-                        "configProperty": "actionConfiguration.formData.sort",
-                        "controlType": "SORTING",
-                        "evaluationSubstitutionType": "TEMPLATE",
-                        "isRequired": true,
-                        "validationConfig": {
-                            "type": "TEXT",
-                            "required": true,
-                            "params": {
-                                "allowedValues": []
-                            }
-                        },
-                        "initialValue": ""
+                {
+                  "controlType": "SECTION",
+                  "label": "Pagination",
+                  "children": [
+                    {
+                      "label": "Pagination",
+                      "configProperty": "actionConfiguration.formData.pagination",
+                      "controlType": "PAGINATION"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "identifier": "SAMPLE2",
+              "controlType": "SECTION",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command === 'SAMPLE2'}}"
+              },
+              "children": [
+                {
+                  "controlType": "SECTION",
+                  "label": "TEXT",
+                  "children": [
+                    {
+                      "label": "Text",
+                      "configProperty": "actionConfiguration.formData.sample.text",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "evaluationSubstitutionType": "TEMPLATE",
+                      "isRequired": true,
+                      "initialValue": "",
+                      "validationConfig": {
+                          "type": "TEXT"
                       }
-                    ]
-                  },
-                  {
-                    "controlType": "SECTION",
-                    "label": "Pagination",
-                    "children": [
-                      {
-                        "label": "Pagination",
-                        "configProperty": "actionConfiguration.formData.pagination",
-                        "controlType": "PAGINATION",
-                        "initialValue": ""
-
+                    }, 
+                    {
+                      "label": "Object",
+                      "configProperty": "actionConfiguration.formData.sample.obj",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "evaluationSubstitutionType": "TEMPLATE",
+                      "isRequired": true,
+                      "initialValue": "",
+                      "validationConfig": {
+                          "type": "OBJECT"
                       }
-                    ]
-                  }
-                ]
-              }
+                    }, 
+                    {
+                      "label": "Number",
+                      "configProperty": "actionConfiguration.formData.sample.num",
+                      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                      "isRequired": true,
+                      "initialValue": "",
+                      "validationConfig": {
+                          "type": "NUMBER",
+                          "params": {
+                            "min": 0,
+                            "max": 200
+                          }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
           ]
         }
       ],
