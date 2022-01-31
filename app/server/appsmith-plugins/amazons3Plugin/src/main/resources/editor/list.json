@@ -92,11 +92,6 @@
           "controlType": "SORTING"
         },
         {
-          "label": "Show Columns",
-          "configProperty": "actionConfiguration.formData.list.projection",
-          "controlType": "PROJECTION"
-        },
-        {
           "label": "Paginate By",
           "configProperty": "actionConfiguration.formData.list.pagination",
           "controlType": "PAGINATION"

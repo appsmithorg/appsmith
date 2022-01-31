@@ -1492,10 +1492,10 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            List<Map<String, Object>> sortBy = new ArrayList<>();
-            Map<String, Object> sortCondition = new HashMap<>();
-            sortCondition.put("columnName", "orderAmount");
-            sortCondition.put("type", "DESCENDING");
+            List<Map<String, String>> sortBy = new ArrayList<>();
+            Map<String, String> sortCondition = new HashMap<>();
+            sortCondition.put("column", "orderAmount");
+            sortCondition.put("order", "Descending");
             sortBy.add(sortCondition);
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
@@ -1632,8 +1632,8 @@ public class FilterDataServiceTest {
 
             List<String> projectColumns = List.of("id", "email", "orderAmount");
 
-            List<Map<String, Object>> sortBy = new ArrayList<>();
-            Map<String, Object> sortCondition = new HashMap<>();
+            List<Map<String, String>> sortBy = new ArrayList<>();
+            Map<String, String> sortCondition = new HashMap<>();
             sortCondition.put("columnName", "orderAmount");
             sortCondition.put("type", "DESCENDING");
             sortBy.add(sortCondition);
