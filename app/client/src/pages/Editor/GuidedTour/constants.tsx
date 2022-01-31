@@ -47,6 +47,10 @@ export const Classes = {
   GUIDED_TOUR_INDICATOR: "guided-tour-indicator",
 };
 
+export const GuidedTourEntityNames = {
+  BUTTON_WIDGET: "UpdateButton",
+};
+
 export enum GUIDED_TOUR_STEPS {
   DEFAULT = 0,
   RUN_QUERY = 1,
@@ -497,11 +501,15 @@ export const Steps: StepsType = {
         </>
       ),
       onClick: (dispatch) => {
+        dispatch(focusWidget(GuidedTourEntityNames.BUTTON_WIDGET));
         dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.BUTTON_ONCLICK_BINDING));
-        showIndicator(`[data-guided-tour-iid='onClick']`, "top", {
-          top: 25,
-          left: 0,
-        });
+        // Timeout is for a to wait for slight delay for the UI elements to appear
+        setTimeout(() => {
+          showIndicator(`[data-guided-tour-iid='onClick']`, "top", {
+            top: 25,
+            left: 0,
+          });
+        }, 1000);
       },
     },
   },
