@@ -131,6 +131,8 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
           renderer = Renderers.DOCX_VIEWER;
         } else if (extension === "xlsx") {
           renderer = Renderers.XLSX_VIEWER;
+        } else if (extension === "pdf") {
+          viewer = "pdf";
         }
       } else {
         errorMessage = "invalid base64 data";
@@ -172,7 +174,13 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
   const { extension, hasExtension, validExtension } = checkUrlExtension(url);
   if (hasExtension) {
     if (validExtension) {
-      if (!(extension === "txt" || extension === "pdf")) {
+      if (extension === "pdf") {
+        viewer = "pdf";
+        renderer = Renderers.DOCUMENT_VIEWER;
+      } else if (extension === "txt") {
+        viewer = "url";
+        renderer = Renderers.DOCUMENT_VIEWER;
+      } else {
         viewer = "office";
         renderer = Renderers.DOCUMENT_VIEWER;
       }
@@ -206,6 +214,18 @@ function DocumentViewerComponent(props: DocumentViewerComponentProps) {
         </Suspense>
       );
     case Renderers.DOCUMENT_VIEWER:
+      if (viewer === "pdf") {
+        return (
+          <iframe
+            frameBorder="0"
+            height="100%"
+            id="pdfiframe"
+            src={url}
+            title="pdfiframe"
+            width="100%"
+          />
+        );
+      }
       return <DocumentViewer url={url} viewer={viewer} />;
 
     default:
