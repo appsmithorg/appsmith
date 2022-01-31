@@ -22,7 +22,6 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   schema: Schema;
   scrollContents: boolean;
   showReset: boolean;
-  sourceData?: TValues;
   stretchBodyVertically: boolean;
   submitButtonStyles: ButtonStyleProps;
   title: string;

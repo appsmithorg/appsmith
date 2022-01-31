@@ -16,21 +16,25 @@ import {
 import { FieldState, Schema } from "../constants";
 import { generateFieldState } from "./helper";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
+import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 
 export interface JSONFormWidgetProps extends WidgetProps {
+  borderColor?: string;
+  borderRadius?: number;
+  boxShadow?: BoxShadow;
+  boxShadowColor?: string;
   canvasWidgets: Record<string, WidgetProps>;
   disabledWhenInvalid?: boolean;
   fieldState: Record<string, any>;
   fixedFooter: boolean;
   isVisible: boolean;
   onSubmit?: string;
-  submitButtonStyles: ButtonStyleProps;
   resetButtonStyles: ButtonStyleProps;
   schema: Schema;
-  scrollContent: boolean;
   scrollContents: boolean;
   showReset: boolean;
   sourceData?: Record<string, any>;
+  submitButtonStyles: ButtonStyleProps;
   title: string;
 }
 
@@ -170,13 +174,28 @@ class JSONFormWidget extends BaseWidget<
   getPageView() {
     return (
       <JSONFormComponent
-        {...this.props}
+        backgroundColor={this.props.backgroundColor}
+        borderColor={this.props.borderColor}
+        borderRadius={this.props.borderRadius}
+        borderWidth={this.props.borderWidth}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
+        disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
+        fixedFooter={this.props.fixedFooter}
         onSubmit={this.onSubmit}
+        renderMode={this.props.renderMode}
+        resetButtonStyles={this.props.resetButtonStyles}
+        schema={this.props.schema}
+        scrollContents={this.props.scrollContents}
         setFieldValidityState={this.setFieldValidityState}
+        showReset={this.props.showReset}
+        submitButtonStyles={this.props.submitButtonStyles}
+        title={this.props.title}
         updateFormData={this.updateFormData}
         updateWidgetMetaProperty={this.onUpdateWidgetMetaProperty}
         updateWidgetProperty={this.onUpdateWidgetProperty}
+        widgetId={this.props.widgetId}
       />
     );
   }

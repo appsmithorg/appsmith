@@ -19,7 +19,7 @@ type StyledContainerProps = {
   backgroundColor?: string;
 };
 
-export type JSONFormComponentProps<TValues> = {
+export type JSONFormComponentProps<TValues = any> = {
   backgroundColor?: string;
   borderColor?: Color;
   borderRadius?: number;
@@ -37,7 +37,6 @@ export type JSONFormComponentProps<TValues> = {
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
   ) => void;
   showReset: boolean;
-  sourceData?: TValues;
   title: string;
   updateFormData: (values: TValues) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
@@ -74,7 +73,6 @@ function JSONFormComponent<TValues>({
   renderMode,
   schema,
   setFieldValidityState,
-  sourceData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
   ...rest
@@ -124,10 +122,17 @@ function JSONFormComponent<TValues>({
     >
       <StyledContainer {...styleProps}>
         <Form
-          {...rest}
+          disabledWhenInvalid={rest.disabledWhenInvalid}
+          fixedFooter={rest.fixedFooter}
+          onSubmit={rest.onSubmit}
+          resetButtonStyles={rest.resetButtonStyles}
           schema={schema}
-          sourceData={sourceData}
+          scrollContents={rest.scrollContents}
+          showReset={rest.showReset}
           stretchBodyVertically={isSchemaEmpty}
+          submitButtonStyles={rest.submitButtonStyles}
+          title={rest.title}
+          updateFormData={rest.updateFormData}
         >
           {isEmpty(schema) ? zeroState : renderRootField()}
         </Form>
@@ -136,4 +141,4 @@ function JSONFormComponent<TValues>({
   );
 }
 
-export default JSONFormComponent;
+export default React.memo(JSONFormComponent);
