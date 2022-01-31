@@ -44,7 +44,7 @@ public class WhereConditionUtils {
         }
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(strValue);
-        Object value = strValue;
+        Object value = strValue.trim();
 
         switch (dataType) {
             case INTEGER:
