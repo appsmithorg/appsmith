@@ -5,7 +5,6 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 describe("Form Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
-    cy.wait(7000);
   });
   it("Validate Select and TreeSelect Widget", function() {
     cy.get(widgetsPage.formButtonWidget)
