@@ -503,13 +503,12 @@ export const Steps: StepsType = {
       onClick: (dispatch) => {
         dispatch(focusWidget(GuidedTourEntityNames.BUTTON_WIDGET));
         dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.BUTTON_ONCLICK_BINDING));
-        // Timeout is for a to wait for slight delay for the UI elements to appear
-        setTimeout(() => {
+        requestAnimationFrame(() => {
           showIndicator(`[data-guided-tour-iid='onClick']`, "top", {
             top: 25,
             left: 0,
           });
-        }, 1000);
+        });
       },
     },
   },
