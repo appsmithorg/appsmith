@@ -37,6 +37,31 @@ const initialState: GitSyncReducerState = {
     id: "",
     name: "",
   },
+  importedApplicationViaGIT: {
+    id: "61f794adcbe6af1a280f74be",
+    name: "api_hosting_import",
+    organizationId: "61e539ea33f03a13de18c3d0",
+    pages: [
+      {
+        id: "61f794b0cbe6af1a280f74c0",
+        isDefault: true,
+        name: "sample",
+      },
+    ],
+    appIsExample: false,
+    unreadCommentThreads: 0,
+    gitApplicationMetadata: {
+      branchName: "master",
+      defaultBranchName: "master",
+      remoteUrl: "git@github.com:haojin111/api_hosting_import.git",
+      browserSupportedRemoteUrl:
+        "https://github.com/haojin111/api_hosting_import",
+      isRepoPrivate: false,
+      repoName: "api_hosting_import",
+      defaultApplicationId: "61f794adcbe6af1a280f74be",
+    },
+    evaluationVersion: 2,
+  },
 };
 
 const gitSyncReducer = createReducer(initialState, {

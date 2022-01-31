@@ -37,7 +37,20 @@ const initialState: DatasourceDataState = {
   mockDatasourceList: [],
   executingDatasourceQuery: false,
   isReconnectingModalOpen: false,
-  unconfiguredList: [],
+  unconfiguredList: [
+    {
+      id: "61f76d3fcbe6af1a280f74a9",
+      name: "Google sheets",
+      pluginId: "61e14b813d0a7d7212c5cf52",
+      organizationId: "61e539ea33f03a13de18c3d0",
+      datasourceConfiguration: {
+        url: "",
+      },
+      invalids: [],
+      messages: [],
+      isValid: true,
+    },
+  ],
 };
 
 const datasourceReducer = createReducer(initialState, {

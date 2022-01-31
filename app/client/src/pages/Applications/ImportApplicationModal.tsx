@@ -4,7 +4,10 @@ import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
 import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
-import { importApplication } from "actions/applicationActions";
+import {
+  importApplication,
+  setIsReconnectingDatasourcesModalOpen,
+} from "actions/applicationActions";
 import {
   createMessage,
   IMPORT_APPLICATION_MODAL_LABEL,
@@ -162,12 +165,14 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     onClose && onClose();
     dispatch(setOrgIdForGitImport(organizationId));
 
-    dispatch(
-      setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.GIT_CONNECTION,
-      }),
-    );
+    // dispatch(
+    //   setIsGitSyncModalOpen({
+    //     isOpen: true,
+    //     tab: GitSyncModalTab.GIT_CONNECTION,
+    //   }),
+    // );
+
+    dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
   }, []);
 
   const importingApplication = useSelector(getIsImportingApplication);

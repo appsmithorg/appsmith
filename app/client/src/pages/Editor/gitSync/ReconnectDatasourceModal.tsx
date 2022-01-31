@@ -51,12 +51,14 @@ import { DatasourceComponentTypes } from "api/PluginApi";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { connect } from "react-redux";
 import DatasourceForm from "../DataSourceEditor/DatasourceForm";
+import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 import Collapsible from "../DataSourceEditor/Collapsible";
 import Link from "./components/Link";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import { APPLICATIONS_URL, BUILDER_PAGE_URL } from "constants/routes";
 import { setOrgIdForGitImport } from "actions/gitSyncActions";
+import RestAPIDatasourceForm from "../DataSourceEditor/RestAPIDatasourceForm";
 
 const Container = styled.div`
   height: 804px;
@@ -261,6 +263,7 @@ const TooltipWrapper = styled.div`
 
 interface ReduxStateProps {
   formData: Datasource;
+  isDeleting: boolean;
   isSaving: boolean;
   isTesting: boolean;
   formConfig: any[];
@@ -278,7 +281,7 @@ enum DSCollapseMenu {
 }
 
 type DSProps = ReduxStateProps &
-  DatasourcePaneFunctions & { datasourceId: string };
+  DatasourcePaneFunctions & { datasourceId: string; pageId: string };
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { datasources, plugins } = state.entities;
@@ -291,6 +294,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginImages: getPluginImages(state),
     formData,
     pluginId,
+    isDeleting: datasources.isDeleting,
     isSaving: datasources.loading,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
@@ -298,7 +302,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
-    applicationId: "",
+    applicationId: props.applicationId || "",
   };
 
   return newProps;
@@ -322,23 +326,54 @@ const DSForm = connect(
   mapDispatchToProps,
 )((props: DSProps) => {
   const {
+    applicationId,
+    datasourceId,
     formConfig,
     formData,
+    isDeleting,
+    isSaving,
+    pageId,
     pluginId,
     pluginImages,
+    pluginPackageName,
     pluginType,
     setDatasourceEditorMode,
   } = props;
 
+  if (pluginType === "API") {
+    return (
+      <RestAPIDatasourceForm
+        applicationId={applicationId}
+        datasourceId={datasourceId}
+        isDeleting={isDeleting}
+        isSaving={isSaving}
+        location={location}
+        pageId={pageId}
+        pluginImage={pluginImages[pluginId]}
+        pluginPackageName={pluginPackageName}
+      />
+    );
+  }
+  if (pluginType === "SAAS") {
+    return (
+      <DatasourceSaasForm
+        datasourceId={datasourceId}
+        hiddenHeader
+        pageId={pageId}
+        pluginPackageName={pluginPackageName}
+      />
+    );
+  }
   return (
     <DatasourceForm
       applicationId={""}
-      datasourceId={props.datasourceId}
+      datasourceId={datasourceId}
       formConfig={formConfig}
       formData={formData}
       formName={DATASOURCE_DB_FORM}
-      pageId={""}
+      pageId={pageId}
       pluginImage={pluginImages[pluginId]}
+      pluginPackageName={pluginPackageName}
       pluginType={pluginType}
       setDatasourceEditorMode={setDatasourceEditorMode}
       viewMode={false}
@@ -417,6 +452,7 @@ function ReconnectDatasourceModal() {
   const [availableDatasources, setAvailableDatasources] = useState<
     Array<Datasource>
   >([]);
+  const [pageId, setPageId] = useState("");
   const [collapsedMenu, setCollapsedMenu] = useState(DSCollapseMenu.SUCCESSED);
   // todo use for loading state
   const isFetchingDatasourceConfigForImport = useSelector(
@@ -490,6 +526,7 @@ function ReconnectDatasourceModal() {
       (page: any) => page.isDefault,
     );
     if (defaultPage) {
+      setPageId(defaultPage.id);
       return BUILDER_PAGE_URL({
         applicationId: importedApplication?.id,
         pageId: defaultPage.id,
@@ -581,7 +618,7 @@ function ReconnectDatasourceModal() {
               </ListContainer>
               {!isFetchingDatasourceConfigForImport &&
                 collapsedMenu === DSCollapseMenu.SUCCESSED && (
-                  <DSForm datasourceId={selectedDatasourceId} />
+                  <DSForm datasourceId={selectedDatasourceId} pageId={pageId} />
                 )}
               {collapsedMenu === DSCollapseMenu.MISSED && (
                 <Section className="t--message-container">
