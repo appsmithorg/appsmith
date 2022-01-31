@@ -67,16 +67,16 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      applicationId: string,
-      pageId: string,
+      applicationSlug: string,
+      pageSlug: string,
       id: string,
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
         return SAAS_EDITOR_API_ID_URL(
-          applicationId,
-          pageId,
+          applicationSlug,
+          pageSlug,
           plugin.packageName,
           id,
         );
@@ -84,9 +84,9 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE
       ) {
-        return QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
+        return QUERIES_EDITOR_ID_URL(applicationSlug, pageSlug, id);
       } else {
-        return API_EDITOR_ID_URL(applicationId, pageId, id);
+        return API_EDITOR_ID_URL(applicationSlug, pageSlug, id);
       }
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {

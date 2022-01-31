@@ -59,6 +59,7 @@ import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 
 import {
@@ -111,12 +112,16 @@ export function* publishApplicationSaga(
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
       });
 
-      const applicationId = yield select(getCurrentApplicationId);
-      const currentPageId = yield select(getCurrentPageId);
-      const guidedTour = yield select(inGuidedTour);
-      const currentStep = yield select(getCurrentStep);
+      const applicationId: string = yield select(getCurrentApplicationId);
+      const currentPageId: string = yield select(getCurrentPageId);
+      const guidedTour: boolean = yield select(inGuidedTour);
+      const currentStep: number = yield select(getCurrentStep);
+      const applicationSlug: string = yield select(
+        selectCurrentApplicationSlug,
+      );
+
       let appicationViewPageUrl = getApplicationViewerPageURL({
-        applicationId,
+        applicationSlug,
         pageId: currentPageId,
       });
       if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {

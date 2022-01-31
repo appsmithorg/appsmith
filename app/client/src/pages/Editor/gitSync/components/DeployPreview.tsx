@@ -8,8 +8,8 @@ import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.
 import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import {
   LATEST_DP_TITLE,
@@ -62,12 +62,12 @@ const CloudIconWrapper = styled.div`
 `;
 
 export default function DeployPreview(props: { showSuccess: boolean }) {
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
 
   const showDeployPreview = () => {
-    const path = getApplicationViewerPageURL({ applicationId, pageId });
+    const path = getApplicationViewerPageURL({ applicationSlug, pageId });
     window.open(path, "_blank");
   };
 

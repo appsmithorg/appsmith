@@ -107,6 +107,9 @@ export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId ||
   ""; /** this is set during init can assume it to be defined */
 
+export const selectCurrentApplicationSlug = (state: AppState) =>
+  state.ui.applications.currentApplication?.slug || "";
+
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT
     ? RenderModes.CANVAS

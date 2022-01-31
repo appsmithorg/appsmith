@@ -133,13 +133,11 @@ class AppViewer extends Component<Props> {
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (applicationId) {
-      this.props.initializeAppViewer({
-        branch: branch,
-        applicationId,
-        pageId,
-      });
-    }
+    this.props.initializeAppViewer({
+      branch: branch,
+      applicationId,
+      pageId,
+    });
   }
 
   componentDidUpdate(prevProps: Props) {

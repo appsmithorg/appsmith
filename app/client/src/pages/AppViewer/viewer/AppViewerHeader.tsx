@@ -22,8 +22,8 @@ import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
 import {
-  getCurrentApplicationId,
   getViewModePageList,
+  selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
@@ -152,12 +152,12 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
 
   function HtmlTitle() {
     if (!currentApplicationDetails?.name) return null;
@@ -172,7 +172,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${
     window.location.origin
   }${getApplicationViewerPageURL({
-    applicationId,
+    applicationSlug,
     pageId,
     suffix: "fork",
   })}`;

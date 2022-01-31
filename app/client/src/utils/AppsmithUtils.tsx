@@ -407,7 +407,7 @@ export const getPageURL = (
   if (appMode === APP_MODE.PUBLISHED) {
     return trimQueryString(
       getApplicationViewerPageURL({
-        applicationId: currentApplicationDetails?.id,
+        applicationSlug: currentApplicationDetails?.slug,
         pageId: page.pageId,
       }),
     );

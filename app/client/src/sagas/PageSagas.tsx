@@ -136,6 +136,7 @@ export function* fetchPageListSaga(
         pageId: page.id,
         isDefault: page.isDefault,
         isHidden: !!page.isHidden,
+        slug: page.slug,
       }));
       yield put({
         type: ReduxActionTypes.SET_CURRENT_ORG_ID,

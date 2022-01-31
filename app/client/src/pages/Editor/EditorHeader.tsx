@@ -21,6 +21,7 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
+  selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -338,6 +339,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
 
   return (
     <ThemeProvider theme={theme}>
@@ -405,7 +407,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
               currentDeployLink={getApplicationViewerPageURL({
-                applicationId: props.applicationId,
+                applicationSlug,
                 pageId,
               })}
               defaultSavingState={
@@ -502,7 +504,8 @@ export function EditorHeader(props: EditorHeaderProps) {
 
               <DeployLinkButtonDialog
                 link={getApplicationViewerPageURL({
-                  applicationId: props.applicationId,
+                  applicationSlug,
+                  pageSlug: "dashboard",
                   pageId,
                 })}
                 trigger={

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
@@ -53,7 +54,8 @@ const StyledEntity = styled(Entity)`
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
-  const pages = useSelector(selectAllPages);
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pages: Page[] = useSelector(selectAllPages);
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
@@ -63,10 +65,14 @@ function Pages() {
   }, [currentPageId]);
 
   const switchPage = useCallback(
-    (pageId) => {
-      if (!!applicationId) {
-        history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
-      }
+    (page: Page) => {
+      history.push(
+        BUILDER_PAGE_URL({
+          applicationSlug,
+          pageSlug: page.slug,
+          pageId: page.pageId,
+        }),
+      );
     },
     [applicationId],
   );
@@ -133,7 +139,7 @@ function Pages() {
 
         return (
           <StyledEntity
-            action={() => switchPage(page.pageId)}
+            action={() => switchPage(page)}
             className={`page ${isCurrentPage && "activePage"}`}
             contextMenu={contextMenu}
             entityId={page.pageId}

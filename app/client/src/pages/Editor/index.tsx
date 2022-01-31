@@ -93,9 +93,7 @@ class Editor extends Component<Props> {
     const branch = getSearchQuery(search, "branch");
 
     const { applicationId, pageId } = this.props.match.params;
-    if (applicationId) {
-      this.props.initEditor(applicationId, pageId, branch);
-    }
+    this.props.initEditor(applicationId, pageId, branch);
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
 

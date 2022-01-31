@@ -898,6 +898,7 @@ export interface Page {
   isDefault: boolean;
   latest?: boolean;
   isHidden?: boolean;
+  slug?: string;
 }
 
 export interface ClonePageSuccessPayload {
@@ -919,6 +920,7 @@ export interface ApplicationPayload {
   isPublic?: boolean;
   userPermissions?: string[];
   appIsExample: boolean;
+  slug?: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;

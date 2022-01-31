@@ -8,8 +8,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useSelector } from "store";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
@@ -29,7 +29,7 @@ type ExplorerActionEntityProps = {
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
-  const currentApplicationId = useSelector(getCurrentApplicationId);
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
   const pageId = useSelector(getCurrentPageId) as string;
   const action = useSelector((state) => getAction(state, props.id)) as Action;
   const plugins = useSelector(getPlugins);
@@ -37,7 +37,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   const config = getActionConfig(props.type);
   const url = config?.getURL(
-    currentApplicationId,
+    applicationSlug,
     pageId as string,
     action.id,
     action.pluginType,

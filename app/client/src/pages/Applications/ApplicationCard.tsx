@@ -568,11 +568,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }
 
   const viewApplicationURL = getApplicationViewerPageURL({
-    applicationId: applicationId,
+    applicationSlug: props.application.slug,
     pageId: props.application.defaultPageId,
   });
   const editApplicationURL = BUILDER_PAGE_URL({
-    applicationId: applicationId,
+    applicationSlug: props.application.slug,
+    pageSlug: "dashboard",
     pageId: props.application.defaultPageId,
   });
 

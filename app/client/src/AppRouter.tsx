@@ -21,6 +21,8 @@ import {
   ADMIN_SETTINGS_URL,
   ADMIN_SETTINGS_CATEGORY_URL,
   ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
+  BUILDER_URL_DEP,
+  VIEWER_URL_DEP,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -49,6 +51,7 @@ import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
+import RedirectToV2Route from "pages/RedirectToV2Route";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -135,7 +138,15 @@ class AppRouter extends React.Component<any, any> {
                 />
                 <SentryRoute component={Setup} exact path={SETUP} />
                 <SentryRoute component={EditorLoader} path={BUILDER_URL} />
+                <SentryRoute
+                  component={RedirectToV2Route}
+                  path={BUILDER_URL_DEP}
+                />
                 <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
+                <SentryRoute
+                  component={RedirectToV2Route}
+                  path={VIEWER_URL_DEP}
+                />
                 <Redirect
                   exact
                   from={ADMIN_SETTINGS_URL}

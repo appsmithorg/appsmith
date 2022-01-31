@@ -65,6 +65,7 @@ import {
   updateBranchLocally,
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import PageApi, { FetchPageResponse } from "api/PageApi";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -104,8 +105,16 @@ function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   yield put(resetEditorSuccess());
-  const { applicationId, branch, pageId } = initializeEditorAction.payload;
+  const { branch, pageId } = initializeEditorAction.payload;
+  let applicationId = initializeEditorAction.payload.applicationId;
   try {
+    if (!applicationId) {
+      const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
+        id: pageId,
+      });
+      applicationId = currentPageInfo.data.applicationId;
+    }
+
     yield put(updateBranchLocally(branch || ""));
 
     PerformanceTracker.startAsyncTracking(
@@ -263,18 +272,28 @@ function* initializeEditorSaga(
 
 export function* initializeAppViewerSaga(
   action: ReduxAction<{
-    applicationId: string;
     branch: string;
     pageId: string;
+    applicationId: string;
   }>,
 ) {
-  const { applicationId, branch, pageId } = action.payload;
+  const { branch, pageId } = action.payload;
+
+  let { applicationId } = action.payload;
+
+  if (!applicationId) {
+    const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
+      id: pageId,
+    });
+    applicationId = currentPageInfo.data.applicationId;
+  }
 
   if (branch) yield put(updateBranchLocally(branch));
 
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.INIT_VIEW_APP,
-  );
+  if (!action.payload)
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.INIT_VIEW_APP,
+    );
   yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),

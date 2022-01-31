@@ -1,5 +1,9 @@
 import { call, select } from "redux-saga/effects";
-import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPageList,
+  selectCurrentApplicationSlug,
+} from "selectors/editorSelectors";
 import _ from "lodash";
 import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -14,7 +18,6 @@ import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { NavigateActionDescription } from "entities/DataTree/actionTriggers";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -37,8 +40,8 @@ const isValidUrlScheme = (url: string): boolean => {
 export default function* navigateActionSaga(
   action: NavigateActionDescription["payload"],
 ) {
-  const pageList = yield select(getPageList);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageList: Page[] = yield select(getPageList);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
   const {
     pageNameOrUrl,
     params,
@@ -49,22 +52,22 @@ export default function* navigateActionSaga(
     (page: Page) => page.pageName === pageNameOrUrl,
   );
   if (page) {
-    const currentPageId = yield select(getCurrentPageId);
+    const currentPageId: string = yield select(getCurrentPageId);
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: pageNameOrUrl,
       pageParams: params,
     });
-    const appMode = yield select(getAppMode);
+    const appMode: APP_MODE = yield select(getAppMode);
     // uses query BUILDER_PAGE_URL
     const path =
       appMode === APP_MODE.EDIT
         ? BUILDER_PAGE_URL({
-            applicationId,
+            applicationSlug,
             pageId: page.pageId,
             params,
           })
         : getApplicationViewerPageURL({
-            applicationId,
+            applicationSlug,
             pageId: page.pageId,
             params,
           });
