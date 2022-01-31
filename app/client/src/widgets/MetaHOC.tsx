@@ -57,14 +57,14 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
         /*
-          Generally the meta property value of a widget will directly be
-          controlled by itself and the platform will not interfere except:
-          When we reset the meta property value to it's default property value.
-          This operation happens by the platform and is outside the widget logic
-          so to identify this change, we want to see if the meta value has
-          changed to the current default value. If this has happened, we should
-          set the state of the meta property value (controlled by inside the
-          widget) to the current value that is outside (controlled by platform)
+          Generally the meta property value of a widget will directly be controlled by itself and the platform will not interfere except:
+          When we reset the meta property value to it's default property value or initial value when property doesn't have default value.
+
+          This operation happens by the platform and is outside the widget logic so to identify this change, we want to see if the meta value has
+          changed. 
+          
+          If this has happened, we should set the state of the meta property value (controlled by inside the
+          widget i.e., metaHOC state ) to the current value that is outside (controlled by platform i.e., dataTree )
         */
         const isMetaPropertyChanged = !_.isEqual(
           prevProps[metaProperty],
