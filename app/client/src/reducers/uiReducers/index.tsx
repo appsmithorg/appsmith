@@ -36,6 +36,8 @@ import appCollabReducer from "./appCollabReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 import gitSyncReducer from "./gitSyncReducer";
 import crudInfoModalReducer from "./crudInfoModalReducer";
+import { widgetReflowReducer } from "./reflowReducer";
+import jsObjectNameReducer from "./jsObjectNameReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -70,11 +72,13 @@ const uiReducer = combineReducers({
   debugger: debuggerReducer,
   tour: tourReducer,
   jsPane: jsPaneReducer,
+  jsObjectName: jsObjectNameReducer,
   notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
   gitSync: gitSyncReducer,
   appCollab: appCollabReducer,
   crudInfoModal: crudInfoModalReducer,
+  widgetReflow: widgetReflowReducer,
 });
 
 export default uiReducer;

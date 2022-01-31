@@ -41,6 +41,9 @@ export const getEditorURL = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
     pageList.applicationId && pageList.currentPageId
-      ? BUILDER_PAGE_URL(pageList.applicationId, pageList.currentPageId)
+      ? BUILDER_PAGE_URL({
+          applicationId: pageList.applicationId,
+          pageId: pageList.currentPageId,
+        })
       : "",
 );

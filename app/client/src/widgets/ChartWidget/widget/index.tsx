@@ -52,11 +52,12 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ChartComponent
-          allowHorizontalScroll={this.props.allowHorizontalScroll}
+          allowScroll={this.props.allowScroll}
           chartData={this.props.chartData}
           chartName={this.props.chartName}
           chartType={this.props.chartType}
           customFusionChartConfig={this.props.customFusionChartConfig}
+          isLoading={this.props.isLoading}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           labelOrientation={this.props.labelOrientation}
@@ -83,7 +84,7 @@ export interface ChartWidgetProps extends WidgetProps {
   yAxisName: string;
   chartName: string;
   isVisible?: boolean;
-  allowHorizontalScroll: boolean;
+  allowScroll: boolean;
 }
 
 type ChartComponentPartialProps = Omit<ChartComponentProps, "onDataPointClick">;

@@ -110,7 +110,6 @@ const DatasourceContentWrapper = styled.div`
 
 interface DatasourceHomeScreenProps {
   pageId: string;
-  applicationId: string;
   location: {
     search: string;
   };

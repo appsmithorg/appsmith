@@ -100,6 +100,7 @@ export const fetchApplicationThreadsMockResponse = {
         },
       ],
       new: false,
+      isViewed: true,
     },
     {
       id: "605c444c91dea93f0eaf91bd",
@@ -132,6 +133,7 @@ export const fetchApplicationThreadsMockResponse = {
         },
       ],
       new: false,
+      isViewed: true,
     },
     {
       id: "605c519391dea93f0eaf91bf",
@@ -164,6 +166,7 @@ export const fetchApplicationThreadsMockResponse = {
         },
       ],
       new: false,
+      isViewed: true,
     },
     {
       id: "605c519c91dea93f0eaf91c1",
@@ -215,6 +218,7 @@ export const fetchApplicationThreadsMockResponse = {
         },
       ],
       new: false,
+      isViewed: true,
     },
     {
       id: "605c51e891dea93f0eaf91c4",
@@ -247,6 +251,7 @@ export const fetchApplicationThreadsMockResponse = {
         },
       ],
       new: false,
+      isViewed: true,
     },
     {
       id: "605c53b491dea93f0eaf91c6",
@@ -279,6 +284,7 @@ export const fetchApplicationThreadsMockResponse = {
         },
       ],
       new: false,
+      isViewed: true,
     },
     {
       id: "605cb30c91dea93f0eaf91cb",
@@ -311,6 +317,7 @@ export const fetchApplicationThreadsMockResponse = {
         },
       ],
       new: false,
+      isViewed: true,
     },
     {
       id: "6060c45e91dea93f0eaf91ce",
@@ -343,6 +350,7 @@ export const fetchApplicationThreadsMockResponse = {
         },
       ],
       new: false,
+      isViewed: true,
     },
   ],
 };

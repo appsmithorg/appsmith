@@ -18,6 +18,12 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
   & {
     margin-right: 4px;
   }
+  & > div {
+    cursor: pointer;
+  }
+  &:hover {
+    border-color: var(--appsmith-input-focus-border-color);
+  }
   &&& svg {
     path {
       fill: ${(props) =>

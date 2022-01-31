@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { TabProp } from "components/ads/Tabs";
+import { Colors } from "constants/Colors";
 
 type WrapperProps = {
   selected: boolean;
@@ -14,13 +15,14 @@ const getSelectedStyles = (props: WrapperProps) =>
     ? `color: ${props.theme.colors.tabItemBackgroundFill.highlightTextColor};
       font-weight: 500;
       border-bottom: 2px solid ${props.theme.colors.info.light};
+     
      `
-    : `color: ${props.theme.colors.tabItemBackgroundFill.textColor};
+    : `color: ${Colors.GREY_7}
       `;
 
 const Wrapper = styled.div<WrapperProps>`
   display: flex;
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${(props) => getTypographyByKey(props, "p0")};
   ${(props) => getSelectedStyles(props)};
 
   &:hover,

@@ -83,17 +83,6 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   border-radius: 0px;
 `;
 
-const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  max-height: 300px;
-  min-height: 1rem;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  padding: ${(props) => props.theme.spaces[3]}px;
-  padding-right: 30px;
-  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
-  position: relative;
-`;
-
 const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   color: ${(props) => THEMES[props.colorTheme].textColor};
   position: absolute;
@@ -101,6 +90,24 @@ const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   top: 0;
   cursor: pointer;
   padding: 0;
+  border-radius: 0;
+  display: none;
+`;
+
+const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
+  // max-height: 300px;
+  min-height: 28px;
+  // overflow-y: auto;
+  -ms-overflow-style: none;
+  padding: ${(props) => props.theme.spaces[3]}px;
+  padding-right: 30px;
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  position: relative;
+  &:hover {
+    ${CopyIconWrapper} {
+      display: flex;
+    }
+  }
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -162,7 +169,11 @@ function CollapseToggle(props: { isOpen: boolean }) {
 }
 
 function copyContent(content: any) {
-  copy(content);
+  const stringifiedContent = _.isString(content)
+    ? content
+    : JSON.stringify(content, null, 2);
+
+  copy(stringifiedContent);
   Toaster.show({
     text: `Evaluated value copied to clipboard`,
     variant: Variant.success,
@@ -333,7 +344,7 @@ export const CurrentValueViewer = memo(
                 minimal
                 onClick={() => copyContent(props.evaluatedValue)}
               >
-                <CopyIcon />
+                <CopyIcon height={34} />
               </CopyIconWrapper>
             )}
           </CurrentValueWrapper>

@@ -21,30 +21,38 @@ body:
       | ------------- | -------------- |
       | e.g. Simplify user experience  | Customer satisfaction score increases  |
       | e.g. Simplify onboarding flow  | Decrease churn rate down to 30%        |
-    render: markdown
   validations:
     required: true
 - type: textarea
   attributes:
     label: Requirements 
     value: |
-      | Requirement   | User Story | Importance | Notes |
-      | ------------- | ------------- | ------------- | ------------- |
-      | e.g. Must be mobile responsive  | e.g. as a user, I want to be able to access the platform via mobile phone  | High, Low or Medium  | Content Cell  |
-      | e.g. The user should be able to leave a comment | e.g as a user, I want to be able to communicate with the other members on the canvas  | High, Low or Medium  | Content Cell  |
-    render: markdown
+      | Requirement   | User Story    |
+      | ------------- | ------------- |
+      | e.g. Must be mobile responsive  | e.g. as a user, I want to be able to access the platform via mobile phone  |
+      | e.g. The user should be able to leave a comment | e.g as a user, I want to be able to communicate with the other members on the canvas  |
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Documentation
+    description: |
+      List the documentation tasks that you are already aware of, and maintain this list as you go along
+    placeholder: |
+      - Item 1
+      - Item 2
+      - Item 3
   validations:
     required: false
 - type: textarea
   attributes:
     label: Out of Scope
     description: |
-      List the things that are out of cope or might be revisited after the first release.
+      List the things that are out of scope or might be revisited after the first release.
     placeholder: |
       - Item 1
       - Item 2
       - Item 3
-    render: markdown
   validations:
     required: false
 - type: input
@@ -63,6 +71,5 @@ body:
       | Accountable   |               |
       | Consulted     | @Nikhil-Nandagopal, @mohanarpit, @areyabhishek|
       | Informed      |               |
-    render: markdown
   validations:
     required: true

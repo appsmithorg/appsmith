@@ -110,10 +110,10 @@ describe("Checklist", () => {
     const widgetButton = screen.queryAllByTestId("checklist-widget-button");
     fireEvent.click(widgetButton[0]);
     expect(history).toHaveBeenCalledWith(
-      BUILDER_PAGE_URL(
-        initialState.entities.pageList.applicationId,
-        initialState.entities.pageList.currentPageId,
-      ),
+      BUILDER_PAGE_URL({
+        applicationId: initialState.entities.pageList.applicationId,
+        pageId: initialState.entities.pageList.currentPageId,
+      }),
     );
     expect(dispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,

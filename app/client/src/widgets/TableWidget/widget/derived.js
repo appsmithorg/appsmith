@@ -1,11 +1,28 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
-    const selectedRowIndex =
-      props.selectedRowIndex === undefined ||
-      Number.isNaN(parseInt(props.selectedRowIndex))
-        ? -1
-        : parseInt(props.selectedRowIndex);
+    let selectedRowIndices = [];
+    if (
+      Array.isArray(props.selectedRowIndices) &&
+      props.selectedRowIndices.every((el) => typeof el === "number")
+    ) {
+      selectedRowIndices = props.selectedRowIndices;
+    } else if (typeof props.selectedRowIndices === "number") {
+      selectedRowIndices = [props.selectedRowIndices];
+    }
+    let selectedRowIndex;
+    if (props.multiRowSelection) {
+      selectedRowIndex = selectedRowIndices.length
+        ? selectedRowIndices[selectedRowIndices.length - 1]
+        : -1;
+    } else {
+      selectedRowIndex =
+        props.selectedRowIndex === undefined ||
+        Number.isNaN(parseInt(props.selectedRowIndex))
+          ? -1
+          : parseInt(props.selectedRowIndex);
+    }
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
     if (selectedRowIndex === -1) {
@@ -40,7 +57,7 @@ export default {
   getSelectedRows: (props, moment, _) => {
     const selectedRowIndices = Array.isArray(props.selectedRowIndices)
       ? props.selectedRowIndices
-      : [props.selectedRowIndices];
+      : [];
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
@@ -101,10 +118,13 @@ export default {
         const sanitizedData = {};
 
         for (const [key, value] of Object.entries(entry)) {
-          const sanitizedKey = key
+          let sanitizedKey = key
             .split(separatorRegex)
             .join("_")
             .slice(0, 200);
+          sanitizedKey = _.isNaN(Number(sanitizedKey))
+            ? sanitizedKey
+            : `_${sanitizedKey}`;
           sanitizedData[sanitizedKey] = value;
         }
         return sanitizedData;
@@ -247,6 +267,9 @@ export default {
     derivedTableData = derivedTableData.map((item, index) => ({
       ...item,
       __originalIndex__: index,
+      __primaryKey__: props.primaryColumnId
+        ? item[props.primaryColumnId]
+        : undefined,
     }));
     const columns = props.tableColumns;
     const sortedColumn = props.sortOrder.column;
@@ -257,48 +280,51 @@ export default {
       const columnType =
         column && column.columnType ? column.columnType : "text";
       const inputFormat = column.inputFormat;
+      const isEmptyOrNil = (value) => {
+        return _.isNil(value) || value === "";
+      };
       sortedTableData = derivedTableData.sort((a, b) => {
-        if (
-          _.isPlainObject(a) &&
-          _.isPlainObject(b) &&
-          !_.isNil(a[sortedColumn]) &&
-          !_.isNil(b[sortedColumn])
-        ) {
-          switch (columnType) {
-            case "number":
-              return sortOrder
-                ? Number(a[sortedColumn]) > Number(b[sortedColumn])
-                  ? 1
-                  : -1
-                : Number(b[sortedColumn]) > Number(a[sortedColumn])
-                ? 1
-                : -1;
-            case "date":
-              try {
+        if (_.isPlainObject(a) && _.isPlainObject(b)) {
+          if (isEmptyOrNil(a[sortedColumn]) || isEmptyOrNil(b[sortedColumn])) {
+            /* push null, undefined and "" values to the bottom. */
+            return isEmptyOrNil(a[sortedColumn]) ? 1 : -1;
+          } else {
+            switch (columnType) {
+              case "number":
                 return sortOrder
-                  ? moment(a[sortedColumn], inputFormat).isAfter(
-                      moment(b[sortedColumn], inputFormat),
-                    )
+                  ? Number(a[sortedColumn]) > Number(b[sortedColumn])
                     ? 1
                     : -1
-                  : moment(b[sortedColumn], inputFormat).isAfter(
-                      moment(a[sortedColumn], inputFormat),
-                    )
+                  : Number(b[sortedColumn]) > Number(a[sortedColumn])
                   ? 1
                   : -1;
-              } catch (e) {
-                return -1;
-              }
-            default:
-              return sortOrder
-                ? a[sortedColumn].toString().toUpperCase() >
-                  b[sortedColumn].toString().toUpperCase()
+              case "date":
+                try {
+                  return sortOrder
+                    ? moment(a[sortedColumn], inputFormat).isAfter(
+                        moment(b[sortedColumn], inputFormat),
+                      )
+                      ? 1
+                      : -1
+                    : moment(b[sortedColumn], inputFormat).isAfter(
+                        moment(a[sortedColumn], inputFormat),
+                      )
+                    ? 1
+                    : -1;
+                } catch (e) {
+                  return -1;
+                }
+              default:
+                return sortOrder
+                  ? a[sortedColumn].toString().toUpperCase() >
+                    b[sortedColumn].toString().toUpperCase()
+                    ? 1
+                    : -1
+                  : b[sortedColumn].toString().toUpperCase() >
+                    a[sortedColumn].toString().toUpperCase()
                   ? 1
-                  : -1
-                : b[sortedColumn].toString().toUpperCase() >
-                  a[sortedColumn].toString().toUpperCase()
-                ? 1
-                : -1;
+                  : -1;
+            }
           }
         } else {
           return sortOrder ? 1 : 0;
@@ -400,17 +426,22 @@ export default {
       },
     };
 
-    const searchKey =
-      props.searchText && !props.onSearchTextChanged
-        ? props.searchText.toLowerCase()
-        : "";
+    const getSearchKey = () => {
+      if (
+        props.searchText &&
+        (!props.onSearchTextChanged || props.enableClientSideSearch)
+      ) {
+        return props.searchText.toLowerCase();
+      }
+      return "";
+    };
 
     const finalTableData = sortedTableData.filter((item) => {
-      const searchFound = searchKey
+      const searchFound = getSearchKey()
         ? Object.values(item)
             .join(", ")
             .toLowerCase()
-            .includes(searchKey)
+            .includes(getSearchKey())
         : true;
       if (!searchFound) return false;
       if (!props.filters || props.filters.length === 0) return true;

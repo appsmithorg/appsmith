@@ -69,7 +69,10 @@ export const updateRecentEntity = (payload: RecentEntity) => ({
   payload,
 });
 
-export const restoreRecentEntitiesRequest = (payload: string) => ({
+export const restoreRecentEntitiesRequest = (payload: {
+  applicationId: string;
+  branch?: string;
+}) => ({
   type: ReduxActionTypes.RESTORE_RECENT_ENTITIES_REQUEST,
   payload,
 });

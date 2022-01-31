@@ -5,7 +5,7 @@ import MapComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
@@ -122,6 +122,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                         name: "title",
                         type: ValidationTypes.TEXT,
                       },
+                      {
+                        name: "color",
+                        type: ValidationTypes.TEXT,
+                      },
                     ],
                   },
                 },
@@ -131,9 +135,18 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
+            propertyName: "isClickedMarkerCentered",
+            label: "Map & Marker centering",
+            helpText:
+              "Controls whether the clicked marker is centered on the map",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "enableSearch",
             label: "Enable search location",
-            helpText: "Enables locaton search",
+            helpText: "Allows a user to search for a location",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -165,6 +178,17 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "zoomLevel",
             label: "Zoom Level",
             controlType: "STEP",
@@ -176,7 +200,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             propertyName: "onMarkerClick",
@@ -316,6 +340,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             allowZoom={this.props.allowZoom}
             apiKey={google.apiKey}
             center={this.getCenter()}
+            clickedMarkerCentered={this.props.isClickedMarkerCentered}
             enableCreateMarker={this.props.enableCreateMarker}
             enableDrag={this.enableDrag}
             enablePickLocation={this.props.enablePickLocation}
@@ -364,6 +389,7 @@ export interface MapWidgetProps extends WidgetProps {
     lat: number;
     long: number;
     title?: string;
+    color?: string;
   };
   onMarkerClick?: string;
   onCreateMarker?: string;

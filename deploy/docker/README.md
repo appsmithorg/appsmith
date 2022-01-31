@@ -55,8 +55,8 @@ services:
     image: containrrr/watchtower:latest-dev
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # Update check interval in seconds.
-    command: --interval 300 --label-enable --cleanup
+    # Update check every hour.
+    command: --schedule "0 0 * ? * *" --label-enable --cleanup
 ```
 
 After saving this file, `cd` to the folder that contains this file and run the following command to start Appsmith:
@@ -87,6 +87,16 @@ To make Appsmith available on a custom domain, please update your domain's DNS r
 * [NameCheap](https://www.namecheap.com/support/knowledgebase/article.aspx/9776/2237/how-to-create-a-subdomain-for-my-domain)
 * [Domain.com](https://www.domain.com/help/article/domain-management-how-to-update-subdomains)
 
+## Custom SSL Certificate
+
+In our container, we support to generate a free SSL certificate If you have your owned certificate, please follow these steps to use it inside the container.
+- Firstly, please rename your certificate file as `fullchain.pem` and key file as `privkey.pem` 
+- Then, copy these files into the sub-directory `<mounting-directory>/ssl/` (*Note: Please change `<mounting-directory>` by the mounting volume directory in the `docker-compose.yml`. Default is `./stacks`*)
+- Restart the container using `docker restart appsmith`
+
+The container will check the certificate files in the folder `<mounting-directory>/ssl` and use them if they are existed.
+
+*Note: In case of the certificate files have different name from `fullchain.pem` and `privkey.pem`, it will be considered as missing custom certificate and auto-provisioning the certificate by Let's Encrypt*
 ## Instance Management Utilities
 
 The image includes an `appsmithctl` command to help with the management and maintenance of your instance. The following subsections describe what's available.
@@ -144,7 +154,12 @@ This will need a restart of the Appsmith server, which can be done using the fol
 ```sh
 docker-compose exec appsmith-ce supervisorctl restart backend
 ```
-
+### Migrate To New Server
+To migrate a running container to a new server or other machine, you can use the following `migrate` command and replace the `<user>` and `<new-server-ip-address>` by the user and IP address of the destination server or machine.
+```
+docker exec appsmith-ce appsmithctl migrate <user>@<new-server-ip-address>
+```
+This command will migrate all data and configuration of running container on source machine to destination machine and start a new container on destination machine.
 ## Supervisor
 
 The container runs multiple processes, including the Appsmith server, Nginx, MongoDB etc., inside a single Docker container. These processes are started and managed by [supervisord](http://supervisord.org/).

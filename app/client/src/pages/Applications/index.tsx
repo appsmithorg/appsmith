@@ -1,5 +1,6 @@
 import React, {
   Component,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -10,7 +11,10 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
+import {
+  thinScrollbar,
+  truncateTextUsingEllipsis,
+} from "constants/DefaultTheme";
 import {
   getApplicationList,
   getApplicationSearchKeyword,
@@ -50,6 +54,7 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
+import { onboardingCreateApplication } from "actions/onboardingActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -64,24 +69,16 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import { notEmptyValidator } from "components/ads/TextInput";
-import { saveOrg } from "actions/orgActions";
+import { deleteOrg, saveOrg } from "actions/orgActions";
 import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
-import {
-  BUILDER_PAGE_URL,
-  extractAppIdAndPageIdFromUrl,
-  SIGNUP_SUCCESS_URL,
-} from "constants/routes";
 import {
   createMessage,
   DOCUMENTATION,
@@ -92,14 +89,14 @@ import {
 } from "constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
-import { getIsSafeRedirectURL, howMuchTimeBeforeText } from "utils/helpers";
+import { howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
-import history from "utils/history";
 import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -314,6 +311,7 @@ const StyledAnchor = styled.a`
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
+  ${thinScrollbar};
   /* padding-bottom: 160px; */
 `;
 
@@ -413,8 +411,6 @@ function LeftPane() {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
-  const initiateOnboarding = useIntiateOnboarding();
-
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -422,15 +418,6 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {userOrgs &&
-            userOrgs.map((org: any) => (
-              <OrgMenuItem
-                isFetchingApplications={isFetchingApplications}
-                key={org.organization.slug}
-                org={org}
-                selected={urlHash === org.organization.slug}
-              />
-            ))}
           {!isFetchingApplications && fetchedUserOrgs && (
             <MenuItem
               cypressSelector="t--org-new-organization-auto-create"
@@ -449,6 +436,15 @@ function LeftPane() {
               text={CREATE_ORGANIZATION_FORM_NAME}
             />
           )}
+          {userOrgs &&
+            userOrgs.map((org: any) => (
+              <OrgMenuItem
+                isFetchingApplications={isFetchingApplications}
+                key={org.organization.slug}
+                org={org}
+                selected={urlHash === org.organization.slug}
+              />
+            ))}
         </WorkpsacesNavigator>
         <LeftPaneBottomSection>
           <MenuItem
@@ -479,8 +475,7 @@ function LeftPane() {
               icon="guide"
               onSelect={() => {
                 AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-
-                initiateOnboarding();
+                dispatch(onboardingCreateApplication());
               }}
               text={createMessage(WELCOME_TOUR)}
             />
@@ -513,21 +508,21 @@ const OrgNameHolder = styled(Text)`
 `;
 
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
-${(props) => {
-  const color = props.disabled
-    ? props.theme.colors.applications.orgColor
-    : props.theme.colors.applications.hover.orgColor[9];
-  return `${textIconStyles({
-    color: color,
-    hover: color,
-  })}`;
-}}
+  ${(props) => {
+    const color = props.disabled
+      ? props.theme.colors.applications.orgColor
+      : props.theme.colors.applications.hover.orgColor[9];
+    return `${textIconStyles({
+      color: color,
+      hover: color,
+    })}`;
+  }}
 
-.${Classes.ICON} {
-  display: ${(props) => (!props.disabled ? "inline" : "none")};;
-  margin-left: 8px;
-  color: ${(props) => props.theme.colors.applications.iconColor};
-}
+  .${Classes.ICON} {
+    display: ${(props) => (!props.disabled ? "inline" : "none")};
+    margin-left: 8px;
+    color: ${(props) => props.theme.colors.applications.iconColor};
+  }
 `;
 const OrgRename = styled(EditableText)`
   padding: 0 2px;
@@ -557,6 +552,7 @@ function ApplicationsSection(props: any) {
     }
   };
   const [warnLeavingOrganization, setWarnLeavingOrganization] = useState(false);
+  const [warnDeleteOrg, setWarnDeleteOrg] = useState(false);
   const [orgToOpenMenu, setOrgToOpenMenu] = useState<string | null>(null);
   const updateApplicationDispatch = (
     id: string,
@@ -581,6 +577,15 @@ function ApplicationsSection(props: any) {
     setOrgToOpenMenu(null);
     dispatch(leaveOrganization(orgId));
   };
+
+  const handleDeleteOrg = useCallback(
+    (orgId: string) => {
+      setWarnDeleteOrg(false);
+      setOrgToOpenMenu(null);
+      dispatch(deleteOrg(orgId));
+    },
+    [dispatch],
+  );
 
   const OrgNameChange = (newName: string, orgId: string) => {
     dispatch(
@@ -663,7 +668,7 @@ function ApplicationsSection(props: any) {
   } else {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
-        const { applications, organization, userRoles } = organizationObject;
+        const { applications, organization } = organizationObject;
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -702,7 +707,7 @@ function ApplicationsSection(props: any) {
               ) &&
                 !isFetchingApplications && (
                   <OrgShareUsers>
-                    <SharedUserList userRoles={userRoles} />
+                    <SharedUserList orgId={organization.id} />
                     <FormDialogComponent
                       Form={OrgInviteUsersForm}
                       canOutsideClickClose
@@ -763,6 +768,7 @@ function ApplicationsSection(props: any) {
                         }}
                         onClosing={() => {
                           setWarnLeavingOrganization(false);
+                          setWarnDeleteOrg(false);
                         }}
                         position={Position.BOTTOM_RIGHT}
                         target={
@@ -776,27 +782,29 @@ function ApplicationsSection(props: any) {
                       >
                         {hasManageOrgPermissions && (
                           <>
-                            <OrgRename
-                              cypressSelector="t--org-rename-input"
-                              defaultValue={organization.name}
-                              editInteractionKind={EditInteractionKind.SINGLE}
-                              fill
-                              hideEditIcon={false}
-                              isEditingDefault={false}
-                              isInvalid={(value: string) => {
-                                return notEmptyValidator(value).message;
-                              }}
-                              onBlur={(value: string) => {
-                                OrgNameChange(value, organization.id);
-                              }}
-                              placeholder="Workspace name"
-                              savingState={
-                                isSavingOrgInfo
-                                  ? SavingState.STARTED
-                                  : SavingState.NOT_STARTED
-                              }
-                              underline
-                            />
+                            <div className="px-3 py-2">
+                              <OrgRename
+                                cypressSelector="t--org-rename-input"
+                                defaultValue={organization.name}
+                                editInteractionKind={EditInteractionKind.SINGLE}
+                                fill
+                                hideEditIcon={false}
+                                isEditingDefault={false}
+                                isInvalid={(value: string) => {
+                                  return notEmptyValidator(value).message;
+                                }}
+                                onBlur={(value: string) => {
+                                  OrgNameChange(value, organization.id);
+                                }}
+                                placeholder="Workspace name"
+                                savingState={
+                                  isSavingOrgInfo
+                                    ? SavingState.STARTED
+                                    : SavingState.NOT_STARTED
+                                }
+                                underline
+                              />
+                            </div>
                             <MenuItem
                               cypressSelector="t--org-setting"
                               icon="general"
@@ -822,18 +830,21 @@ function ApplicationsSection(props: any) {
                                 text="Import Application"
                               />
                             )}
-                            {getFeatureFlags().GIT && (
+                            {getFeatureFlags().GIT_IMPORT && (
                               <MenuItem
                                 cypressSelector="t--org-import-app-git"
                                 icon="upload"
-                                onSelect={() =>
+                                onSelect={() => {
+                                  AnalyticsUtil.logEvent(
+                                    "GS_IMPORT_VIA_GIT_CLICK",
+                                  );
                                   dispatch(
                                     setIsImportAppViaGitModalOpen({
                                       isOpen: true,
                                       organizationId: organization.id,
                                     }),
-                                  )
-                                }
+                                  );
+                                }}
                                 text="Import Via GIT"
                               />
                             )}
@@ -872,6 +883,22 @@ function ApplicationsSection(props: any) {
                             !warnLeavingOrganization ? undefined : "warning"
                           }
                         />
+                        {applications.length === 0 && hasManageOrgPermissions && (
+                          <MenuItem
+                            icon="trash"
+                            onSelect={() => {
+                              warnDeleteOrg
+                                ? handleDeleteOrg(organization.id)
+                                : setWarnDeleteOrg(true);
+                            }}
+                            text={
+                              !warnDeleteOrg
+                                ? "Delete Organization"
+                                : "Are you sure?"
+                            }
+                            type={!warnDeleteOrg ? undefined : "warning"}
+                          />
+                        )}
                       </Menu>
                     )}
                   </OrgShareUsers>
@@ -935,8 +962,7 @@ function ApplicationsSection(props: any) {
   return (
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
-      <WelcomeHelper />
-      {getFeatureFlags().GIT && <ImportAppViaGitModal />}
+      {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );
 }
@@ -957,11 +983,6 @@ type ApplicationProps = {
     hideHeaderShadow: boolean,
     showHeaderSeparator: boolean,
   ) => void;
-  enableFirstTimeUserOnboarding: (applicationId: string) => void;
-};
-
-const getIsFromSignup = () => {
-  return window.location?.pathname === SIGNUP_SUCCESS_URL;
 };
 
 class Applications extends Component<
@@ -980,10 +1001,6 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    const isFromSignUp = getIsFromSignup();
-    if (isFromSignUp) {
-      this.redirectUsingQueryParam();
-    }
     this.props.getAllApplication();
     this.props.setHeaderMetaData(true, true);
   }
@@ -991,34 +1008,6 @@ class Applications extends Component<
   componentWillUnmount() {
     this.props.setHeaderMetaData(false, false);
   }
-
-  redirectUsingQueryParam = () => {
-    const urlObject = new URL(window.location.href);
-    const redirectUrl = urlObject?.searchParams.get("redirectUrl");
-    const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
-      "enableFirstTimeUserExperience",
-    );
-    if (redirectUrl) {
-      try {
-        if (
-          window.location.pathname == SIGNUP_SUCCESS_URL &&
-          shouldEnableFirstTimeUserOnboarding === "true"
-        ) {
-          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
-            redirectUrl,
-          );
-          if (applicationId && pageId) {
-            this.props.enableFirstTimeUserOnboarding(applicationId);
-            history.replace(BUILDER_PAGE_URL(applicationId, pageId));
-          }
-        } else if (getIsSafeRedirectURL(redirectUrl)) {
-          window.location.replace(redirectUrl);
-        }
-      } catch (e) {
-        console.error("Error handling the redirect url");
-      }
-    }
-  };
 
   public render() {
     return (
@@ -1066,20 +1055,6 @@ const mapDispatchToProps = (dispatch: any) => ({
     showHeaderSeparator: boolean,
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
-  },
-  enableFirstTimeUserOnboarding: (applicationId: string) => {
-    dispatch({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
-      payload: true,
-    });
-    dispatch({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      payload: applicationId,
-    });
-    dispatch({
-      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
-      payload: true,
-    });
   },
 });
 

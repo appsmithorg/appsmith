@@ -10,6 +10,7 @@ export interface JSCollectionCreateUpdateResponse extends ApiResponse {
 export interface MoveJSCollectionRequest {
   collectionId: string;
   destinationPageId: string;
+  name: string;
 }
 export interface UpdateJSObjectNameRequest {
   pageId: string;
@@ -29,6 +30,22 @@ export interface CreateJSCollectionRequest {
   actions: Array<Partial<JSAction>>;
   applicationId: string;
   pluginType: PluginType;
+}
+
+export interface RefactorAction {
+  pageId: string;
+  actionId: string;
+  newName: string;
+  oldName: string;
+  collectionName: string;
+}
+export interface RefactorActionRequest extends RefactorAction {
+  layoutId: string;
+}
+
+export interface UpdateCollectionActionNameRequest {
+  refactorAction: RefactorActionRequest;
+  actionCollection: JSCollection;
 }
 class JSActionAPI extends API {
   static url = "v1/collections/actions";
@@ -82,6 +99,15 @@ class JSActionAPI extends API {
     updateJSObjectNameRequest: UpdateJSObjectNameRequest,
   ) {
     return API.put(JSActionAPI.url + "/refactor", updateJSObjectNameRequest);
+  }
+
+  static updateJSCollectionActionRefactor(
+    updateJSCollectionActionName: UpdateCollectionActionNameRequest,
+  ) {
+    return API.put(
+      JSActionAPI.url + "/refactorAction",
+      updateJSCollectionActionName,
+    );
   }
 }
 

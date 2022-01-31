@@ -20,7 +20,7 @@ import {
   changeOrgUserRole,
   deleteOrgUser,
 } from "actions/orgActions";
-import Button, { Size } from "components/ads/Button";
+import Button, { Size, Category } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
 import Text, { TextType } from "components/ads/Text";
@@ -34,6 +34,7 @@ import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
+import { Colors } from "constants/Colors";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -81,28 +82,60 @@ const UserCardContainer = styled.div`
 const UserCard = styled(Card)`
   display: flex;
   flex-direction: column;
-  background-color: #ebebeb;
-  padding: ${(props) => props.theme.spaces[15]}px 64px;
-  width: 345px;
+  box-shadow: none;
+  background-color: ${Colors.GREY_1};
+  border: 1px solid ${Colors.GREY_3};
+  border-radius: 0px;
+  padding: ${(props) =>
+    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
+  width: 343px;
   height: 201px;
   margin: auto;
-  margin-bottom: 15px;
+  margin-bottom: ${(props) => props.theme.spaces[7] - 1}px;
   align-items: center;
   justify-content: center;
+  position: relative;
 
   .avatar {
     min-height: 71px;
+
+    .${AppClass.TEXT} {
+      margin: auto;
+    }
   }
 
   .${AppClass.TEXT} {
-    color: #090707;
-    &.email {
-      color: #858282;
+    color: ${Colors.GREY_10};
+    margin-top: ${(props) => props.theme.spaces[1]}px;
+    &.user-name {
+      margin-top: ${(props) => props.theme.spaces[4]}px;
+    }
+    &.user-email {
+      color: ${Colors.GREY_7};
+    }
+    &.user-role {
+      margin-bottom: ${(props) => props.theme.spaces[3]}px;
     }
   }
 
   .approve-btn {
-    background: #f86a2b;
+    padding: ${(props) =>
+      `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
+  }
+  .delete-btn {
+    position: absolute;
+  }
+
+  .t--user-status {
+    background: transparent;
+    border: 0px;
+    width: fit-content;
+    margin: auto;
+    .${AppClass.TEXT} {
+      width: fit-content;
+      margin-top: 0px;
+      color: ${Colors.GREY_10};
+    }
   }
 `;
 
@@ -116,6 +149,12 @@ const TableWrapper = styled(Table)`
       }
     }
   }
+`;
+
+const DeleteIcon = styled(Icon)`
+  position: absolute;
+  top: ${(props) => props.theme.spaces[9]}px;
+  right: ${(props) => props.theme.spaces[7]}px;
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -222,10 +261,7 @@ export default function MemberSettings(props: PageProps) {
           (role: { name: string; desc: string }) =>
             role.name === cellProps.cell.value,
         );
-        if (
-          cellProps.cell.row.values.username ===
-          useSelector(getCurrentUser)?.username
-        ) {
+        if (cellProps.cell.row.values.username === currentUser?.username) {
           return cellProps.cell.value;
         }
         return (
@@ -333,31 +369,60 @@ export default function MemberSettings(props: PageProps) {
                 const role =
                   roles.find((role) => role.value === user.roleName) ||
                   roles[0];
+                const isOwner = user.username === currentUser?.username;
                 return (
                   <UserCard key={index}>
                     <ProfileImage
                       className="avatar"
                       side={71}
                       source={`/api/${USER_PHOTO_URL}/${user.username}`}
-                      userName={"Test User"}
+                      userName={user.name || user.username}
                     />
-                    <Text type={TextType.P1}>{user.name || user.username}</Text>
-                    <Text className="email" type={TextType.P1}>
+                    <Text className="user-name" type={TextType.P1}>
+                      {user.name || user.username}
+                    </Text>
+                    <Text className="user-email" type={TextType.P1}>
                       {user.username}
                     </Text>
-                    <Dropdown
-                      height="31px"
-                      onSelect={(value) => {
-                        selectRole(value, user.username);
-                      }}
-                      options={roles}
-                      selected={role}
-                      width="140px"
-                    />
+                    {isOwner && (
+                      <Text className="user-role" type={TextType.P1}>
+                        {user.roleName}
+                      </Text>
+                    )}
+                    {!isOwner && (
+                      <Dropdown
+                        boundary="viewport"
+                        className="t--user-status"
+                        defaultIcon="downArrow"
+                        height="31px"
+                        onSelect={(value) => {
+                          selectRole(value, user.username);
+                        }}
+                        options={roles}
+                        selected={role}
+                        width="140px"
+                      />
+                    )}
                     <Button
+                      category={Category.primary}
                       className="approve-btn"
                       size={Size.xxs}
                       text="Approve"
+                    />
+                    <DeleteIcon
+                      className="t--deleteUser"
+                      cypressSelector="t--deleteUser"
+                      fillColor={Colors.DANGER_SOLID}
+                      hoverFillColor={Colors.DANGER_SOLID_HOVER}
+                      name="trash-outline"
+                      onClick={() => {
+                        onConfirmMemberDeletion(
+                          user.username,
+                          user.username,
+                          orgId,
+                        );
+                      }}
+                      size={IconSize.LARGE}
                     />
                   </UserCard>
                 );

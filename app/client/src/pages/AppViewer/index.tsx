@@ -7,7 +7,9 @@ import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
   BuilderRouteParams,
-  getApplicationViewerPageURL,
+  GIT_BRANCH_QUERY_KEY,
+  VIEWER_FORK_PATH,
+  VIEWER_URL,
 } from "constants/routes";
 import {
   PageListPayload,
@@ -16,7 +18,11 @@ import {
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
+import {
+  BatchPropertyUpdatePayload,
+  batchUpdateWidgetProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -26,24 +32,45 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
-import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 
+import { getSearchQuery } from "utils/helpers";
+import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
+import { showPostCompletionMessage } from "selectors/onboardingSelectors";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppViewerBody = styled.section<{ hasPages: boolean }>`
+const AppViewerBody = styled.section<{
+  hasPages: boolean;
+  showGuidedTourMessage: boolean;
+  isEmbeded: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(
-    100vh -
-      ${(props) => (!props.hasPages ? props.theme.smallHeaderHeight : "72px")}
-  );
+  height: ${(props) => {
+    // embeded page will not have top header
+    if (props.isEmbeded) return "100vh;";
+
+    let offsetHeight = "";
+
+    if (!props.hasPages) {
+      offsetHeight = `${props.theme.smallHeaderHeight} - 1px`;
+    } else {
+      offsetHeight = "72px";
+    }
+
+    if (props.showGuidedTourMessage) {
+      offsetHeight += " - 100px";
+    }
+
+    return `calc(100vh - ${offsetHeight});`;
+  }};
 `;
 
 const ContainerWithComments = styled.div`
@@ -60,8 +87,13 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 `;
 
 export type AppViewerProps = {
-  initializeAppViewer: (applicationId: string, pageId?: string) => void;
+  initializeAppViewer: (params: {
+    applicationId: string;
+    pageId?: string;
+    branch?: string;
+  }) => void;
   isInitialized: boolean;
+  showGuidedTourMessage: boolean;
   isInitializeError: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   updateWidgetProperty: (
@@ -77,11 +109,15 @@ export type AppViewerProps = {
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
   lightTheme: Theme;
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => void;
 } & RouteComponentProps<BuilderRouteParams>;
 
-class AppViewer extends Component<
-  AppViewerProps & RouteComponentProps<AppViewerRouteParams>
-> {
+type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
+
+class AppViewer extends Component<Props> {
   public state = {
     registered: false,
     isSideNavOpen: true,
@@ -90,9 +126,40 @@ class AppViewer extends Component<
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
+
     const { applicationId, pageId } = this.props.match.params;
+    const {
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+
     if (applicationId) {
-      this.props.initializeAppViewer(applicationId, pageId);
+      this.props.initializeAppViewer({
+        branch: branch,
+        applicationId,
+        pageId,
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { applicationId, pageId } = this.props.match.params;
+    const {
+      location: { search: prevSearch },
+    } = prevProps;
+    const {
+      location: { search },
+    } = this.props;
+
+    const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+
+    if (branch && branch !== prevBranch && applicationId && pageId) {
+      this.props.initializeAppViewer({
+        applicationId,
+        pageId,
+        branch: branch,
+      });
     }
   }
 
@@ -101,7 +168,8 @@ class AppViewer extends Component<
   };
 
   public render() {
-    const { isInitialized } = this.props;
+    const { isInitialized, location } = this.props;
+    const isEmbeded = location.search.indexOf("embed=true") !== -1;
     return (
       <ThemeProvider theme={this.props.lightTheme}>
         <GlobalHotKeys>
@@ -110,23 +178,28 @@ class AppViewer extends Component<
               executeAction: this.props.executeAction,
               updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
               resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+              batchUpdateWidgetProperty: this.props.batchUpdateWidgetProperty,
             }}
           >
             <ContainerWithComments>
-              <AppComments isInline />
+              <AppViewerCommentsSidebar />
               <AppViewerBodyContainer>
-                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                <AppViewerBody
+                  hasPages={this.props.pages.length > 1}
+                  isEmbeded={isEmbeded}
+                  showGuidedTourMessage={this.props.showGuidedTourMessage}
+                >
                   {isInitialized && this.state.registered && (
                     <Switch>
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={getApplicationViewerPageURL()}
+                        path={VIEWER_URL}
                       />
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={`${getApplicationViewerPageURL()}/fork`}
+                        path={VIEWER_FORK_PATH}
                       />
                     </Switch>
                   )}
@@ -146,6 +219,7 @@ const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  showGuidedTourMessage: showPostCompletionMessage(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -167,12 +241,20 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
-  initializeAppViewer: (applicationId: string, pageId?: string) => {
+  initializeAppViewer: (params: {
+    applicationId: string;
+    pageId?: string;
+    branch?: string;
+  }) => {
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: { applicationId, pageId },
+      payload: params,
     });
   },
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => dispatch(batchUpdateWidgetProperty(widgetId, updates)),
 });
 
 export default withRouter(

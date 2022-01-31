@@ -13,7 +13,7 @@
   "devDependencies": {
     "@types/express": "^4.17.11",
     "@types/mongodb": "^3.6.10",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "express": "^4.17.1",
     "loglevel": "^1.7.1",
     "mongodb": "^3.6.4",

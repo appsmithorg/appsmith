@@ -59,6 +59,8 @@ import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 import {
   getFirstTimeUserOnboardingComplete,
   getIsFirstTimeUserOnboardingEnabled,
@@ -169,10 +171,9 @@ function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
 
-  const {
-    applicationId: currentApplicationId,
-    pageId: currentPageId,
-  } = useParams<ExplorerURLParams>();
+  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
@@ -243,7 +244,6 @@ function GeneratePageForm() {
   const {
     bucketList,
     failedFetchingBucketList,
-    fetchBucketList,
     isFetchingBucketList,
   } = useS3BucketList();
 
@@ -277,9 +277,6 @@ function GeneratePageForm() {
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
-            case PLUGIN_PACKAGE_NAME.S3:
-              fetchBucketList({ selectedDatasource: dataSourceObj });
-              break;
             case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
               break;
             default: {
@@ -480,11 +477,13 @@ function GeneratePageForm() {
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
-      `${INTEGRATION_EDITOR_URL(
-        currentApplicationId,
+      INTEGRATION_EDITOR_URL(
+        applicationId,
         currentPageId,
         INTEGRATION_TABS.NEW,
-      )}?isGeneratePageMode=generate-page`,
+        "",
+        { isGeneratePageMode: "generate-page" },
+      ),
     );
   };
 
@@ -497,7 +496,7 @@ function GeneratePageForm() {
     }
 
     const payload = {
-      applicationId: currentApplicationId || "",
+      applicationId: applicationId || "",
       pageId:
         currentMode.current === GENERATE_PAGE_MODE.NEW
           ? ""
@@ -540,7 +539,7 @@ function GeneratePageForm() {
       datasourceId: selectedDatasource.id,
     });
     const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
-      currentApplicationId,
+      applicationId,
       currentPageId,
       selectedDatasource.id,
       { isGeneratePageMode: "generate-page" },
@@ -605,14 +604,14 @@ function GeneratePageForm() {
     !selectedTable.value || !showSubmitButton || isSelectedTableEmpty;
 
   return (
-    <div>
+    <div className="space-y-4">
       <Wrapper>
         <DescWrapper>
           <Title>{GENERATE_PAGE_FORM_TITLE()}</Title>
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
-        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+        <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
@@ -626,7 +625,7 @@ function GeneratePageForm() {
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}
                 isSelectedNode={isSelectedNode}
-                key={option.id}
+                key={(option as DropdownOption).id}
                 option={option}
                 optionClickHandler={optionClickHandler}
                 optionWidth={DROPDOWN_DIMENSION.WIDTH}
@@ -638,7 +637,7 @@ function GeneratePageForm() {
           />
         </SelectWrapper>
         {selectedDatasource.value ? (
-          <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+          <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
             <Label>
               Select {pluginField.TABLE} from{" "}
               <Bold>{selectedDatasource.label}</Bold>
@@ -670,7 +669,10 @@ function GeneratePageForm() {
         {!isGoogleSheetPlugin ? (
           <>
             {showSearchableColumn && (
-              <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+              <SelectWrapper
+                className="space-y-2"
+                width={DROPDOWN_DIMENSION.WIDTH}
+              >
                 <Row>
                   Select a searchable {pluginField.COLUMN} from the
                   selected&nbsp;
@@ -709,12 +711,14 @@ function GeneratePageForm() {
                 />
               </SelectWrapper>
             )}
-            <GeneratePageSubmitBtn
-              disabled={submitButtonDisable}
-              isLoading={!!isGeneratingTemplatePage}
-              onSubmit={handleFormSubmit}
-              showSubmitButton={!!showSubmitButton}
-            />
+            <div className="mt-4">
+              <GeneratePageSubmitBtn
+                disabled={submitButtonDisable}
+                isLoading={!!isGeneratingTemplatePage}
+                onSubmit={handleFormSubmit}
+                showSubmitButton={!!showSubmitButton}
+              />
+            </div>
           </>
         ) : (
           <GoogleSheetForm

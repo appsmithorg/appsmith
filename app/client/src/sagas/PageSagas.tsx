@@ -88,7 +88,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
@@ -103,10 +103,12 @@ import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import {
   getIsFirstTimeUserOnboardingEnabled,
   getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
 } from "selectors/onboardingSelectors";
 import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -145,7 +147,7 @@ export function* fetchPageListSaga(
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
         payload: {
           pages,
-          applicationId,
+          applicationId: applicationId,
         },
       });
       PerformanceTracker.stopAsyncTracking(
@@ -353,6 +355,7 @@ export function* fetchAllPublishedPagesSaga() {
 function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets = yield select(getWidgets);
   const editorConfigs = yield select(getEditorConfigs) as any;
+  const guidedTourEnabled = yield select(inGuidedTour);
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SAVE_PAGE_API,
@@ -382,8 +385,9 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     const isValidResponse: boolean = yield validateResponse(savePageResponse);
     if (isValidResponse) {
       const { actionUpdates, messages } = savePageResponse.data;
+      // We do not want to show these toasts in guided tour
       // Show toast messages from the server
-      if (messages && messages.length) {
+      if (messages && messages.length && !guidedTourEnabled) {
         savePageResponse.data.messages.forEach((message) => {
           Toaster.show({
             text: message,
@@ -493,6 +497,12 @@ export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
+    const guidedTourEnabled = yield select(inGuidedTour);
+    // Prevent user from creating a new page during the guided tour
+    if (guidedTourEnabled) {
+      yield put(toggleShowDeviationDialog(true));
+      return;
+    }
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -527,10 +537,10 @@ export function* createPageSaga(
           isFirstTimeUserOnboardingEnabled
         ) {
           history.push(
-            BUILDER_PAGE_URL(
-              createPageAction.payload.applicationId,
-              response.data.id,
-            ),
+            BUILDER_PAGE_URL({
+              applicationId: createPageAction.payload.applicationId,
+              pageId: response.data.id,
+            }),
           );
         } else {
           history.push(
@@ -602,7 +612,12 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
         (state: AppState) => state.entities.pageList.currentPageId,
       );
       if (currentPageId === action.payload.id)
-        history.push(BUILDER_PAGE_URL(applicationId, defaultPageId));
+        history.push(
+          BUILDER_PAGE_URL({
+            applicationId: applicationId,
+            pageId: defaultPageId,
+          }),
+        );
     }
   } catch (error) {
     yield put({
@@ -621,9 +636,6 @@ export function* clonePageSaga(
   try {
     const request: ClonePageRequest = clonePageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.clonePage, request);
-    const applicationId = yield select(
-      (state: AppState) => state.entities.pageList.applicationId,
-    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
@@ -643,10 +655,17 @@ export function* clonePageSaga(
       });
 
       yield put(fetchActionsForPage(response.data.id));
+      yield put(fetchJSCollectionsForPage(response.data.id));
       yield put(selectMultipleWidgetsAction([]));
 
       if (!clonePageAction.payload.blockNavigation) {
-        history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+        const applicationId = yield select(getCurrentApplicationId);
+        history.push(
+          BUILDER_PAGE_URL({
+            applicationId,
+            pageId: response.data.id,
+          }),
+        );
       }
     }
   } catch (error) {
@@ -782,7 +801,7 @@ export function* updateWidgetNameSaga(
           type: ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR,
           payload: {
             error: {
-              message: `Entity name: ${action.payload.newName} is already being used.`,
+              message: `Entity name: ${action.payload.newName} is already being used or is a restricted keyword.`,
             },
           },
         });
@@ -932,8 +951,6 @@ export function* generateTemplatePageSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageId = response.data.page.id;
-      const applicationId =
-        response.data.page.applicationId || request.applicationId;
       yield handleFetchedPage({
         fetchPageResponse: {
           data: response.data.page,
@@ -952,7 +969,13 @@ export function* generateTemplatePageSaga(
       // TODO : Add this to onSuccess (Redux Action)
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
       // TODO : Add it to onSuccessCallback
-      history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+      const applicationId = yield select(getCurrentApplicationId);
+      history.replace(
+        BUILDER_PAGE_URL({
+          applicationId,
+          pageId,
+        }),
+      );
       // TODO : Add it to onSuccessCallback
       Toaster.show({
         text: "Successfully generated a page",

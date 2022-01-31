@@ -7,8 +7,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
-  ONBOARDING_STATE: "OnboardingState",
-  ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
+  POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
   COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
@@ -18,6 +17,8 @@ const STORAGE_KEYS: { [id: string]: string } = {
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
+  REFLOW_BETA_FLAG: "REFLOW_BETA_FLAG",
+  REFLOW_ONBOARDED_FLAG: "REFLOW_ONBOARDED_FLAG",
 };
 
 const store = localforage.createInstance({
@@ -54,6 +55,47 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
   }
 };
 
+const getStoredUsersBetaFlags = (email: any) => {
+  return store.getItem(email);
+};
+
+const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
+  return store.setItem(email, userBetaFlagsObj);
+};
+
+export const setReflowBetaFlag = async (email: any, enable: boolean) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  const updatedObj = {
+    ...userBetaFlagsObj,
+    [STORAGE_KEYS.REFLOW_BETA_FLAG]: enable,
+  };
+  setStoredUsersBetaFlags(email, updatedObj);
+};
+
+export const getReflowBetaFlag = async (email: any) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  return userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_BETA_FLAG];
+};
+
+export const setReflowOnBoardingFlag = async (
+  email: any,
+  onBoardingState: boolean,
+) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  const updatedObj = {
+    ...userBetaFlagsObj,
+    [STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]: onBoardingState,
+  };
+  setStoredUsersBetaFlags(email, updatedObj);
+};
+
+export const getReflowOnBoardingFlag = async (email: any) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  return (
+    userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]
+  );
+};
+
 export const getCopiedWidgets = async () => {
   try {
     const widget: string | null = await store.getItem(
@@ -66,47 +108,25 @@ export const getCopiedWidgets = async () => {
     log.error("An error occurred when fetching copied widget: ", error);
     return;
   }
+  return [];
 };
 
-export const setOnboardingState = async (onboardingState: boolean) => {
+export const setPostWelcomeTourState = async (flag: boolean) => {
   try {
-    await store.setItem(STORAGE_KEYS.ONBOARDING_STATE, onboardingState);
+    await store.setItem(STORAGE_KEYS.POST_WELCOME_TOUR, flag);
     return true;
   } catch (error) {
-    log.error("An error occurred when setting onboarding state: ", error);
+    log.error("An error occurred when setting post welcome tour state", error);
     return false;
   }
 };
 
-export const getOnboardingState = async () => {
+export const getPostWelcomeTourState = async () => {
   try {
-    const onboardingState = await store.getItem(STORAGE_KEYS.ONBOARDING_STATE);
+    const onboardingState = await store.getItem(STORAGE_KEYS.POST_WELCOME_TOUR);
     return onboardingState;
   } catch (error) {
-    log.error("An error occurred when getting onboarding state: ", error);
-  }
-};
-
-export const setOnboardingWelcomeState = async (onboardingState: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.ONBOARDING_WELCOME_STATE, onboardingState);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting onboarding welcome state: ");
-    log.error(error);
-    return false;
-  }
-};
-
-export const getOnboardingWelcomeState = async () => {
-  try {
-    const onboardingState = await store.getItem(
-      STORAGE_KEYS.ONBOARDING_WELCOME_STATE,
-    );
-    return onboardingState;
-  } catch (error) {
-    log.error("An error occurred when getting onboarding welcome state: ");
-    log.error(error);
+    log.error("An error occurred when getting post welcome tour state", error);
   }
 };
 
@@ -125,12 +145,12 @@ export const setRecentAppEntities = async (entities: any, appId: string) => {
   }
 };
 
-export const fetchRecentAppEntities = async (appId: string) => {
+export const fetchRecentAppEntities = async (recentEntitiesKey: string) => {
   try {
     const recentEntities = (await store.getItem(
       STORAGE_KEYS.RECENT_ENTITIES,
     )) as Record<string, any>;
-    return (recentEntities && recentEntities[appId]) || [];
+    return (recentEntities && recentEntities[recentEntitiesKey]) || [];
   } catch (error) {
     log.error("An error occurred while fetching recent entities");
     log.error(error);
@@ -145,6 +165,7 @@ export const deleteRecentAppEntities = async (appId: string) => {
         any
       >) || {};
     if (typeof recentEntities === "object") {
+      // todo (rishabh s) purge recent entities across branches
       delete recentEntities[appId];
     }
     await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);

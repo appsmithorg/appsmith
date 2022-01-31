@@ -35,6 +35,12 @@ export const typography = {
     letterSpacing: 0.8,
     fontWeight: 500,
   },
+  p0: {
+    fontSize: 16,
+    lineHeight: 20,
+    letterSpacing: -0.24,
+    fontWeight: 500,
+  },
   p1: {
     fontSize: 14,
     lineHeight: 19,
@@ -128,6 +134,18 @@ export const typography = {
     fontStyle: "normal",
     fontWeight: "bold",
     fontSize: 13,
+  },
+  u1: {
+    fontStyle: "normal",
+    fontWeight: 600,
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  u2: {
+    fontSize: 10,
+    fontStyle: "normal",
+    fontWeight: 600,
+    lineHeight: 12,
   },
 };
 

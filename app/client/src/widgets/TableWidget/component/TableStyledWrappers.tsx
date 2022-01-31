@@ -61,13 +61,10 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        background: ${Colors.OPAQ_BLUE}!important;
-        &:hover {
-          background: ${Colors.OPAQ_BLUE};
-        }
+        background: ${Colors.NARVIK_GREEN}!important;
       }
       &:hover {
-        background: ${Colors.ATHENS_GRAY};
+        background: ${Colors.NARVIK_GREEN};
       }
     }
     .th,
@@ -243,6 +240,9 @@ export const PaginationItemWrapper = styled.div<{
   &:hover {
     border-color: ${Colors.GREEN};
   }
+  .bp3-icon svg {
+    fill: ${(props) => (props.disabled ? Colors.GREY_4 : "")};
+  }
 `;
 
 export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
@@ -278,8 +278,8 @@ export const ActionWrapper = styled.div<{
       text-decoration: none;
     }
     &&& .bp3-disabled {
-      color: ${Colors.SLATE_GRAY};
-      background: ${Colors.MERCURY};
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_4};
     }
   }
 `;
@@ -398,7 +398,7 @@ export const CellWrapper = styled.div<{
     `
     cursor: pointer;
     &:hover {
-      color: ${Colors.ROYAL_BLUE};      
+      color: ${Colors.ROYAL_BLUE};
       text-decoration: underline;
     }`};
   &.video-cell {
@@ -430,40 +430,36 @@ export const CellWrapper = styled.div<{
 export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
   justify-content: center;
   width: 40px;
-  background: ${Colors.WHITE};
   & > div {
-    background: ${(props) => (props.isChecked ? Colors.DANUBE : "")};
+    ${(props) =>
+      props.isChecked
+        ? `
+          background: ${Colors.FERN_GREEN};
+          &:hover {
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+            ${Colors.FERN_GREEN};
+          } 
+            `
+        : `
+          border: 1px solid ${Colors.GREY_3};
+          &:hover {
+            border: 1px solid ${Colors.GREY_5};
+          }
+        `};
   }
-
-  ${(props) =>
-    props.isChecked
-      ? `
-    background: #FAFAFA;
-    &:hover {
-      background: ${Colors.OPAQ_BLUE};
-    }
-    `
-      : `
-    &:hover {
-      & > div {
-        background: ${Colors.Gallery};
-      }
-    }
-  `}
 `;
 
 export const CellCheckbox = styled.div`
-  height: 15px;
-  width: 15px;
-  border: 0.5px solid ${Colors.GEYSER_LIGHT};
+  height: 14px;
+  width: 14px;
+  background: ${Colors.WHITE};
+  cursor: pointer;
   position: relative;
   .th-svg {
     display: block;
     position: absolute;
-    left: -1px;
-    top: -1px;
-    height: 15px;
-    width: 15px;
+    left: 2px;
+    top: 2px;
   }
 `;
 
@@ -544,12 +540,6 @@ export const TableIconWrapper = styled.div<{
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
-`;
-
-export const SortIconWrapper = styled.div`
-  display: inline-block;
-  height: 32px;
-  line-height: 32px;
 `;
 
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`

@@ -18,11 +18,14 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
+import log from "loglevel";
+import { extraLibrariesNames } from "./DynamicBindingUtils";
+import { ApiResponse } from "api/ApiResponses";
 
-const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const snapToGrid = (
   columnWidth: number,
@@ -142,6 +145,20 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
+export function hasClass(ele: HTMLElement, cls: string) {
+  return ele.classList.contains(cls);
+}
+
+function addClass(ele: HTMLElement, cls: string) {
+  if (!hasClass(ele, cls)) ele.classList.add(cls);
+}
+
+function removeClass(ele: HTMLElement, cls: string) {
+  if (hasClass(ele, cls)) {
+    ele.classList.remove(cls);
+  }
+}
+
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
@@ -153,12 +170,12 @@ export const removeSpecialChars = (value: string, limit?: number) => {
 export const flashElement = (
   el: HTMLElement,
   flashTimeout = 1000,
-  flashColor = "#FFCB33",
+  flashClass = "flash",
 ) => {
-  el.style.backgroundColor = flashColor;
-
+  if (!el) return;
+  addClass(el, flashClass);
   setTimeout(() => {
-    el.style.backgroundColor = "transparent";
+    removeClass(el, flashClass);
   }, flashTimeout);
 };
 
@@ -174,7 +191,7 @@ export const flashElementsById = (
   id: string | string[],
   timeout = 0,
   flashTimeout?: number,
-  flashColor?: string,
+  flashClass?: string,
 ) => {
   let ids: string[] = [];
 
@@ -194,7 +211,7 @@ export const flashElementsById = (
         inline: "center",
       });
 
-      if (el) flashElement(el, flashTimeout, flashColor);
+      if (el) flashElement(el, flashTimeout, flashClass);
     }, timeout);
   });
 };
@@ -285,6 +302,7 @@ export const isNameValid = (
     name in GLOBAL_FUNCTIONS ||
     name in WINDOW_OBJECT_PROPERTIES ||
     name in WINDOW_OBJECT_METHODS ||
+    name in extraLibrariesNames ||
     name in invalidNames
   );
 };
@@ -468,9 +486,10 @@ export function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
     let { email, username } = user || {};
     let name;
-    if (!isAppsmithCloud) {
+    if (!cloudHosting) {
       username = sha256(username || "");
-      email = sha256(email || "");
+      // keep email undefined so that users are prompted to enter it when they reach out on intercom
+      email = undefined;
     } else {
       name = user?.name;
     }
@@ -544,3 +563,102 @@ export const truncateString = (
  * @returns
  */
 export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+
+export const undoShortCut = () => <span>{modText()}+Z</span>;
+
+export const redoShortCut = () =>
+  isMac() ? (
+    <span>
+      {modText()}+<span>&#8682;</span>+Z
+    </span>
+  ) : (
+    <span>{modText()}+Y</span>
+  );
+
+/**
+ * @returns the original string after trimming the string past `?`
+ */
+export const trimQueryString = (value = "") => {
+  const index = value.indexOf("?");
+  if (index === -1) return value;
+  return value.slice(0, index);
+};
+
+/**
+ * returns the value in the query string for a key
+ */
+export const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return decodeURIComponent(params.get(key) || "");
+};
+
+/**
+ * get query params object
+ * ref: https://stackoverflow.com/a/8649003/1543567
+ */
+export const getQueryParamsObject = () => {
+  const search = window.location.search.substring(1);
+  if (!search) return {};
+  try {
+    return JSON.parse(
+      '{"' +
+        decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"') +
+        '"}',
+    );
+  } catch (e) {
+    log.error(e, "error parsing search string");
+    return {};
+  }
+};
+
+/*
+ * unfocus all window selection
+ *
+ * @param document
+ * @param window
+ */
+export function unFocus(document: Document, window: Window) {
+  if (document.getSelection()) {
+    document.getSelection()?.empty();
+  } else {
+    try {
+      window.getSelection()?.removeAllRanges();
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
+  }
+}
+
+export function getLogToSentryFromResponse(response?: ApiResponse) {
+  return response && response?.responseMeta?.status >= 500;
+}
+
+/*
+ *  Function to merge property pane config of a widget
+ *
+ */
+export const mergeWidgetConfig = (target: any, source: any) => {
+  const sectionMap: Record<string, any> = {};
+
+  target.forEach((section: { sectionName: string }) => {
+    sectionMap[section.sectionName] = section;
+  });
+
+  source.forEach((section: { sectionName: string; children: any[] }) => {
+    const targetSection = sectionMap[section.sectionName];
+
+    if (targetSection) {
+      Array.prototype.push.apply(targetSection.children, section.children);
+    } else {
+      target.push(section);
+    }
+  });
+
+  return target;
+};
+
+export const getLocale = () => {
+  return navigator.languages?.[0] || "en-US";
+};

@@ -59,9 +59,14 @@ export const createNewApiAction = (
 export const createNewQueryAction = (
   pageId: string,
   from: EventLocation,
-): ReduxAction<{ pageId: string; from: EventLocation }> => ({
+  datasourceId: string,
+): ReduxAction<{
+  pageId: string;
+  from: EventLocation;
+  datasourceId: string;
+}> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
-  payload: { pageId, from },
+  payload: { pageId, from, datasourceId },
 });
 
 export const updateBodyContentType = (
@@ -76,7 +81,11 @@ export const redirectToNewIntegrations = (
   applicationId: string,
   pageId: string,
   params?: any,
-): ReduxAction<{ applicationId: string; pageId: string; params: any }> => ({
+): ReduxAction<{
+  applicationId: string;
+  pageId: string;
+  params: any;
+}> => ({
   type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
   payload: { applicationId, pageId, params },
 });

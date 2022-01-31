@@ -11,6 +11,8 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
   if (customDataTree) {
     const customTreeDef = customTreeTypeDefCreator(customDataTree);
     TernServer.updateDef("customDataTree", customTreeDef);
+  } else {
+    TernServer.updateDef("customDataTree", {});
   }
 
   editor.setOption("extraKeys", {
@@ -18,7 +20,7 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
     // @ts-ignore: No types available
     ...editor.options.extraKeys,
     [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (cm: CodeMirror.Editor) =>
-      TernServer.complete(cm),
+      checkIfCursorInsideBinding(cm) && TernServer.complete(cm),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
       TernServer.showType(cm);
     },

@@ -44,7 +44,7 @@ import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import {
   ANONYMOUS_USERNAME,
   CommentsOnboardingState,
@@ -65,6 +65,7 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
+import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -113,13 +114,17 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const { enableTelemetry } = response.data;
+      if (enableTelemetry) {
+        initializeAnalyticsAndTrackers();
+      }
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());
       if (
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME
       ) {
-        AnalyticsUtil.identifyUser(response.data);
+        enableTelemetry && AnalyticsUtil.identifyUser(response.data);
         // make fetch feature call only if logged in
         yield put(fetchFeatureFlagsInit());
       } else {
@@ -293,6 +298,16 @@ export function* inviteUsers(
         orgId: data.orgId,
       },
     });
+    yield put({
+      type: ReduxActionTypes.INVITED_USERS_TO_ORGANIZATION,
+      payload: {
+        orgId: data.orgId,
+        users: data.usernames.map((name: string) => ({
+          username: name,
+          roleName: data.roleName,
+        })),
+      },
+    });
     yield call(resolve);
     yield put(reset(INVITE_USERS_TO_ORG_FORM));
   } catch (error) {
@@ -308,10 +323,12 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, name } = action.payload;
+    const { email, name, role, useCase } = action.payload;
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
+      role,
+      useCase,
     });
     const isValidResponse = yield validateResponse(response);
 
@@ -395,21 +412,25 @@ export function* waitForFetchUserSuccess() {
   }
 }
 
-function* removePhoto(action: ReduxAction<{ callback: () => void }>) {
+function* removePhoto(action: ReduxAction<{ callback: (id: string) => void }>) {
   try {
-    yield call(UserApi.deletePhoto);
-    if (action.payload.callback) action.payload.callback();
+    const response: ApiResponse = yield call(UserApi.deletePhoto);
+    const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
+    if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
   }
 }
 
 function* updatePhoto(
-  action: ReduxAction<{ file: File; callback: () => void }>,
+  action: ReduxAction<{ file: File; callback: (id: string) => void }>,
 ) {
   try {
-    yield call(UserApi.uploadPhoto, { file: action.payload.file });
-    if (action.payload.callback) action.payload.callback();
+    const response: ApiResponse = yield call(UserApi.uploadPhoto, {
+      file: action.payload.file,
+    });
+    const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
+    if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
   }

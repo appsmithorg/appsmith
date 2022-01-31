@@ -7,19 +7,22 @@ import type mongodb from "mongodb"
 import axios from "axios"
 import { LogLevelDesc } from "loglevel";
 import log from "loglevel";
+
 import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread, MousePointerEvent } from "./models"
+import { VERSION as buildVersion } from "./version"  // release version of the api
 
 const RTS_BASE_PATH = "/rts"
 
-const APP_ROOM_PREFIX : string = "app:"
-const PAGE_ROOM_PREFIX : string = "page:"
-const ROOT_NAMESPACE : string = "/"
-const PAGE_EDIT_NAMESPACE : string = "/page/edit"
+const APP_ROOM_PREFIX = "app:"
+const PAGE_ROOM_PREFIX = "page:"
+const ROOT_NAMESPACE = "/"
+const PAGE_EDIT_NAMESPACE = "/page/edit"
 
-const EDITORS_EVENT_NAME : string = "collab:online_editors"
-const START_EDIT_EVENT_NAME : string = "collab:start_edit"
-const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
-const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
+const EDITORS_EVENT_NAME = "collab:online_editors"
+const START_EDIT_EVENT_NAME = "collab:start_edit"
+const LEAVE_EDIT_EVENT_NAME = "collab:leave_edit"
+const MOUSE_POINTER_EVENT_NAME = "collab:mouse_pointer"
+const RELEASE_VERSION_EVENT_NAME = "info:release_version"
 
 // Setting the logLevel for all log messages
 const logLevel : LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL || "debug") as LogLevelDesc
@@ -59,6 +62,7 @@ function main() {
 	})
 
 	io.on("connection", (socket: Socket) => {
+		socket.emit(RELEASE_VERSION_EVENT_NAME, buildVersion)
 		subscribeToEditEvents(socket, APP_ROOM_PREFIX)
 		onAppSocketConnected(socket)
 			.catch((error) => log.error("Error in socket connected handler", error))
@@ -71,39 +75,46 @@ function main() {
 	});
 
 	io.of(ROOT_NAMESPACE).adapter.on("leave-room", (room, id) => {
-		log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} left the room ${room}`)
+		if(room.startsWith(APP_ROOM_PREFIX)) {
+			log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} left the room ${room}`)
+		}
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 	
 	io.of(ROOT_NAMESPACE).adapter.on("join-room", (room, id) => {
-		log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		if(room.startsWith(APP_ROOM_PREFIX)) {
+			log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		}
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 
 	io.of(PAGE_EDIT_NAMESPACE).adapter.on("leave-room", (room, id) => {
-		log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} left the room ${room}`)
 		if(room.startsWith(PAGE_ROOM_PREFIX)) { // someone left the page edit, notify others
+			log.debug(`ns:${PAGE_EDIT_NAMESPACE} # socket ${id} left the room ${room}`)
 			io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
 		}
 		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
 	});
 
 	io.of(PAGE_EDIT_NAMESPACE).adapter.on("join-room", (room, id) => {
-		log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		if(room.startsWith(PAGE_ROOM_PREFIX)) {
+			log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		}
 		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
 	});
 
-	watchMongoDB(io)
-		.catch((error) => log.error("Error watching MongoDB", error))
-
 	app.use(express.static(path.join(__dirname, "static")))
+
+	watchMongoDB(io).catch((error) => log.error("Error watching MongoDB", error))
+	
+	// run the server
 	server.listen(port, () => {
-		log.info(`RTS running at http://localhost:${port}`)
+		log.info(`RTS version ${buildVersion} running at http://localhost:${port}`)
 	})
 }
 
 function joinEditRoom(socket:Socket, roomId:string, roomPrefix:string) {
-	// remove this socket from any other app rooms
+	// remove this socket from any other rooms with roomPrefix
 	if(socket.rooms) {
 		socket.rooms.forEach(roomName => {
 			if(roomName.startsWith(roomPrefix)) {
@@ -158,11 +169,9 @@ async function tryAuth(socket:Socket) {
 	// we should be able to derive the API_BASE_URL from the host header. This will make configuration simpler
 	// for the user. The problem with this implementation is that Axios doesn't work for https endpoints currently.
 	// This needs to be debugged.
-	const host = socket.handshake.headers.host
-	const protocol = socket.handshake.headers.referer.startsWith("https") ? "https" : "http"
-	const apiUrl = "http://" + host + "/api/v1/users/me"
 	/* ********************************************************* */
 
+	// const host = socket.handshake.headers.host;
 	const connectionCookie = socket.handshake.headers.cookie;
 	if (connectionCookie !== null && connectionCookie !== "") {
 		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
@@ -235,11 +244,6 @@ async function watchMongoDB(io) {
 		if(comment.deleted) {
 			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
 		}
-		
-		const { applicationId }: CommentThread = await threadCollection.findOne(
-			{ _id: new ObjectId(comment.threadId) },
-			{ projection: { applicationId: 1 } },
-		)
 
 		comment.creationTime = comment.createdAt
 		comment.updationTime = comment.updatedAt

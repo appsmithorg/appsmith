@@ -35,7 +35,6 @@ body:
       2. Click on '....'
       3. Scroll down to '....'
       4. See error
-    render: markdown
   validations:
     required: true
 - type: dropdown

@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo } from "react";
-import { apiIcon, dbQueryIcon, MethodTag, QueryIcon } from "../ExplorerIcons";
+import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import {
@@ -11,11 +11,8 @@ import {
   INTEGRATION_TABS,
 } from "constants/routes";
 
-import { Page } from "constants/ReduxActionConstants";
 import { ExplorerURLParams } from "../helpers";
-import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
-import PluginGroup from "../PluginGroup/PluginGroup";
 import {
   SAAS_BASE_URL,
   SAAS_EDITOR_API_ID_URL,
@@ -25,7 +22,10 @@ import { AppState } from "reducers";
 import { groupBy } from "lodash";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { trimQueryString } from "utils/helpers";
 
+// TODO [new_urls] update would break for existing paths
+// using a common todo, this needs to be fixed
 export type ActionGroupConfig = {
   groupName: string;
   types: PluginType[];
@@ -44,9 +44,17 @@ export type ActionGroupConfig = {
     selectedTab: string,
     mode?: string,
   ) => string;
-  getIcon: (action: any, plugin: Plugin) => ReactNode;
-  isGroupActive: (params: ExplorerURLParams, pageId: string) => boolean;
-  isGroupExpanded: (params: ExplorerURLParams, pageId: string) => boolean;
+  getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
+  isGroupActive: (
+    params: ExplorerURLParams,
+    pageId: string,
+    applicationId: string,
+  ) => boolean;
+  isGroupExpanded: (
+    params: ExplorerURLParams,
+    pageId: string,
+    applicationId: string,
+  ) => boolean;
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -66,70 +74,82 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       plugin?: Plugin,
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
-        return `${SAAS_EDITOR_API_ID_URL(
+        return SAAS_EDITOR_API_ID_URL(
           applicationId,
           pageId,
           plugin.packageName,
           id,
-        )}`;
+        );
       } else if (
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE
       ) {
-        return `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`;
+        return QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
       } else {
-        return `${API_EDITOR_ID_URL(applicationId, pageId, id)}`;
+        return API_EDITOR_ID_URL(applicationId, pageId, id);
       }
     },
-    getIcon: (action: any, plugin: Plugin) => {
-      if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
-        return <QueryIcon />;
+    getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
+      if (plugin && plugin.type === PluginType.API && !remoteIcon) {
+        const method = action?.actionConfiguration?.httpMethod;
+        if (method) return <ApiMethodIcon type={method} />;
+      }
+      if (plugin && plugin.iconLocation)
+        return (
+          <EntityIcon>
+            <img alt="entityIcon" src={plugin.iconLocation} />
+          </EntityIcon>
+        );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
-
-      const method = action.actionConfiguration.httpMethod;
-      if (!method) return apiIcon;
-      return <MethodTag type={method} />;
     },
     generateCreatePageURL: INTEGRATION_EDITOR_URL,
-    isGroupActive: (params: ExplorerURLParams, pageId: string) =>
+    isGroupActive: (
+      params: ExplorerURLParams,
+      pageId: string,
+      applicationId: string,
+    ) =>
       [
-        INTEGRATION_EDITOR_URL(
-          params.applicationId,
-          pageId,
-          INTEGRATION_TABS.NEW,
+        trimQueryString(
+          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
         ),
-        INTEGRATION_EDITOR_URL(
-          params.applicationId,
-          pageId,
-          INTEGRATION_TABS.ACTIVE,
+        trimQueryString(
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.ACTIVE,
+          ),
         ),
-        API_EDITOR_URL(params.applicationId, pageId),
-        SAAS_BASE_URL(params.applicationId, pageId),
-        QUERIES_EDITOR_URL(params.applicationId, pageId),
+        trimQueryString(API_EDITOR_URL(applicationId, pageId)),
+        trimQueryString(SAAS_BASE_URL(applicationId, pageId)),
+        trimQueryString(QUERIES_EDITOR_URL(applicationId, pageId)),
       ].includes(window.location.pathname),
-    isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
+    isGroupExpanded: (
+      params: ExplorerURLParams,
+      pageId: string,
+      applicationId: string,
+    ) =>
       window.location.pathname.indexOf(
-        INTEGRATION_EDITOR_URL(
-          params.applicationId,
-          pageId,
-          INTEGRATION_TABS.NEW,
+        trimQueryString(
+          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
         ),
       ) > -1 ||
       window.location.pathname.indexOf(
-        INTEGRATION_EDITOR_URL(
-          params.applicationId,
-          pageId,
-          INTEGRATION_TABS.ACTIVE,
+        trimQueryString(
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.ACTIVE,
+          ),
         ),
       ) > -1 ||
       window.location.pathname.indexOf(
-        API_EDITOR_URL(params.applicationId, pageId),
+        trimQueryString(API_EDITOR_URL(applicationId, pageId)),
       ) > -1 ||
       window.location.pathname.indexOf(
-        SAAS_BASE_URL(params.applicationId, pageId),
+        trimQueryString(SAAS_BASE_URL(applicationId, pageId)),
       ) > -1 ||
       window.location.pathname.indexOf(
-        QUERIES_EDITOR_URL(params.applicationId, pageId),
+        trimQueryString(QUERIES_EDITOR_URL(applicationId, pageId)),
       ) > -1,
   },
 ];
@@ -138,71 +158,6 @@ export const getActionConfig = (type: PluginType) =>
   ACTION_PLUGIN_MAP.find((configByType: ActionGroupConfig | undefined) =>
     configByType?.types.includes(type),
   );
-
-export const getPluginGroups = (
-  page: Page,
-  step: number,
-  actions: any[],
-  datasources: Datasource[],
-  plugins: Plugin[],
-  searchKeyword?: string,
-  actionPluginMap = ACTION_PLUGIN_MAP,
-) => {
-  return actionPluginMap?.map((config?: ActionGroupConfig) => {
-    if (!config) return null;
-
-    let entries = actions?.filter((entry: any) =>
-      config.types.includes(entry.config.pluginType),
-    );
-
-    // To show properly ordered entries in integrations tab
-    entries = Array.isArray(entries)
-      ? [
-          ...entries.filter(
-            (entry: any) => entry.config.pluginType === PluginType.API,
-          ),
-          ...entries.filter(
-            (entry: any) => entry.config.pluginType === PluginType.SAAS,
-          ),
-          ...entries.filter(
-            (entry: any) => entry.config.pluginType === PluginType.DB,
-          ),
-          ...entries.filter(
-            (entry: any) => entry.config.pluginType === PluginType.REMOTE,
-          ),
-        ]
-      : entries;
-
-    const filteredPlugins = plugins.filter((plugin) =>
-      config.types.includes(plugin.type),
-    );
-
-    const filteredPluginIds = filteredPlugins.map((plugin) => plugin.id);
-    const filteredDatasources = datasources.filter((datasource) => {
-      return filteredPluginIds.includes(datasource.pluginId);
-    });
-
-    if (
-      (!entries && !filteredDatasources) ||
-      (entries.length === 0 &&
-        filteredDatasources.length === 0 &&
-        !!searchKeyword)
-    )
-      return null;
-
-    return (
-      <PluginGroup
-        actionConfig={config}
-        actions={entries}
-        datasources={filteredDatasources}
-        key={page.pageId + "_" + config.types.join("_")}
-        page={page}
-        searchKeyword={searchKeyword}
-        step={step}
-      />
-    );
-  });
-};
 
 export const useNewActionName = () => {
   // This takes into consideration only the current page widgets

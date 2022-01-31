@@ -46,12 +46,23 @@ import { getQueryParams } from "../../../../utils/AppsmithUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Colors } from "constants/Colors";
+import { Indices } from "constants/Layers";
+import { getExpectedValue } from "utils/validation/common";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { KeyValuePair } from "entities/Action";
+
 type ReduxStateProps = {
   orgId: string;
   datasource: Datasource | EmbeddedRestDatasource;
   datasourceList: Datasource[];
   currentPageId?: string;
   applicationId?: string;
+  dataTree: DataTree;
+  actionName: string;
 };
 
 type ReduxDispatchProps = {
@@ -71,9 +82,12 @@ const DatasourceContainer = styled.div`
   position: relative;
   align-items: center;
   .t--datasource-editor {
-    background-color: transparent;
+    background-color: ${Colors.WHITE};
     .cm-s-duotone-light.CodeMirror {
-      background: transparent;
+      background: ${Colors.WHITE};
+    }
+    .CodeEditorTarget {
+      z-index: ${Indices.Layer5};
     }
   }
 `;
@@ -252,7 +266,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const { datasourceList } = this.props;
     return () => {
       return {
-        trigger: (editor: CodeMirror.Editor) => {
+        showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
           if (
@@ -297,13 +311,49 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                 return hints;
               },
             });
+            return true;
           }
-        },
-        showHint: () => {
           return false;
         },
+        fireOnFocus: true,
       };
     };
+  };
+
+  handleEvaluatedValue = () => {
+    const { actionName, datasource, dataTree } = this.props;
+    const entity = dataTree[actionName];
+
+    if (!entity) return "";
+
+    if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+      let evaluatedPath = "path" in entity.config ? entity.config.path : "";
+
+      if (evaluatedPath && evaluatedPath.indexOf("?") > -1) {
+        evaluatedPath = evaluatedPath.slice(0, evaluatedPath.indexOf("?"));
+      }
+      const evaluatedQueryParameters = entity.config.queryParameters
+        ?.filter((p: KeyValuePair) => p.key)
+        .map(
+          (p: KeyValuePair, i: number) =>
+            `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
+        )
+        .join("");
+
+      // When Api is generated from a datasource,
+      // url is gotten from the datasource's configuration
+
+      const evaluatedDatasourceUrl =
+        "id" in datasource
+          ? datasource.datasourceConfiguration.url
+          : entity.datasourceUrl;
+
+      const fullDatasourceUrlPath =
+        evaluatedDatasourceUrl + evaluatedPath + evaluatedQueryParameters;
+
+      return fullDatasourceUrlPath;
+    }
+    return "";
   };
 
   render() {
@@ -330,14 +380,16 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
       fill: true,
+      expected: getExpectedValue({ type: ValidationTypes.SAFE_URL }),
     };
 
     return (
-      <DatasourceContainer>
+      <DatasourceContainer data-replay-id={btoa(props.input.name || "")}>
         <CodeEditor
           {...props}
           border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
+          evaluatedValue={this.handleEvaluatedValue()}
           height="35px"
         />
         {displayValue && datasource && !("id" in datasource) ? (
@@ -368,7 +420,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
 const mapStateToProps = (
   state: AppState,
-  ownProps: { pluginId: string },
+  ownProps: { pluginId: string; actionName: string },
 ): ReduxStateProps => {
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction;
@@ -393,7 +445,9 @@ const mapStateToProps = (
       (d) => d.pluginId === ownProps.pluginId,
     ),
     currentPageId: state.entities.pageList.currentPageId,
-    applicationId: state.entities.pageList.applicationId,
+    applicationId: getCurrentApplicationId(state),
+    dataTree: getDataTree(state),
+    actionName: ownProps.actionName,
   };
 };
 
@@ -414,6 +468,7 @@ function EmbeddedDatasourcePathField(
     pluginId: string;
     placeholder?: string;
     theme: EditorTheme;
+    actionName: string;
   },
 ) {
   return (

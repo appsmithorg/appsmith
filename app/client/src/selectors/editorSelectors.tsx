@@ -9,7 +9,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import {
   getActions,
   getCanvasWidgets,
@@ -69,7 +69,10 @@ export const getIsPageSaving = (state: AppState) => {
   });
 
   return (
-    state.ui.editor.loadingStates.saving || areApisSaving || areJsObjectsSaving
+    state.ui.editor.loadingStates.saving ||
+    areApisSaving ||
+    areJsObjectsSaving ||
+    state.ui.editor.loadingStates.savingEntity
   );
 };
 
@@ -97,8 +100,12 @@ export const getPageList = (state: AppState) => state.entities.pageList.pages;
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
+export const getCurrentApplication = (state: AppState) =>
+  state.ui.applications.currentApplication;
+
 export const getCurrentApplicationId = (state: AppState) =>
-  state.entities.pageList.applicationId;
+  state.entities.pageList.applicationId ||
+  ""; /** this is set during init can assume it to be defined */
 
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT
@@ -239,6 +246,24 @@ const getOccupiedSpacesForContainer = (
   });
 };
 
+const getWidgetSpacesForContainer = (
+  containerWidgetId: string,
+  widgets: FlattenedWidgetProps[],
+): WidgetSpace[] => {
+  return widgets.map((widget) => {
+    const occupiedSpace: WidgetSpace = {
+      id: widget.widgetId,
+      parentId: containerWidgetId,
+      left: widget.leftColumn,
+      top: widget.topRow,
+      bottom: widget.bottomRow,
+      right: widget.rightColumn,
+      type: widget.type,
+    };
+    return occupiedSpace;
+  });
+};
+
 export const getOccupiedSpaces = createSelector(
   getWidgets,
   (
@@ -305,6 +330,35 @@ export function getOccupiedSpacesSelectorForContainer(
   });
 }
 
+// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
+export function getWidgetSpacesSelectorForContainer(
+  containerId: string | undefined,
+) {
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
+    | WidgetSpace[]
+    | undefined => {
+    if (containerId === null || containerId === undefined) return undefined;
+
+    const containerWidget: FlattenedWidgetProps = widgets[containerId];
+
+    if (!containerWidget || !containerWidget.children) return undefined;
+
+    // Get child widgets for the container
+    const childWidgets = Object.keys(widgets).filter(
+      (widgetId) =>
+        containerWidget.children &&
+        containerWidget.children.indexOf(widgetId) > -1 &&
+        !widgets[widgetId].detachFromLayout,
+    );
+
+    const occupiedSpaces = getWidgetSpacesForContainer(
+      containerId,
+      childWidgets.map((widgetId) => widgets[widgetId]),
+    );
+    return occupiedSpaces;
+  });
+}
+
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
   (actions, id) => {
@@ -348,6 +402,9 @@ const createLoadingWidget = (
     validationPaths: {},
     logBlackList: {},
     isLoading: true,
+    propertyOverrideDependency: {},
+    overridingPropertyPaths: {},
+    privateWidgets: {},
   };
 };
 
@@ -368,3 +425,32 @@ export const getJSCollectionById = createSelector(
 
 export const getApplicationLastDeployedAt = (state: AppState) =>
   state.ui.applications.currentApplication?.lastDeployedAt;
+
+/**
+ * returns the `state.ui.editor.isPreviewMode`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const previewModeSelector = (state: AppState) => {
+  return state.ui.editor.isPreviewMode;
+};
+
+/**
+ * returns the `state.ui.editor.zoomLevel`
+ *
+ * @param state AppState
+ * @returns number
+ */
+export const getZoomLevel = (state: AppState) => {
+  return state.ui.editor.zoomLevel;
+};
+
+/**
+ * returns the `state.ui.editor.savingEntity`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const getIsSavingEntity = (state: AppState) =>
+  state.ui.editor.loadingStates.savingEntity;

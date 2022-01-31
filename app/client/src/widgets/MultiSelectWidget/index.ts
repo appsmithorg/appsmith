@@ -1,6 +1,5 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -8,9 +7,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
-    label: "",
+    rows: 7,
+    columns: 20,
+    animateLoading: true,
+    labelText: "Label",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
@@ -22,7 +22,7 @@ export const CONFIG = {
     version: 1,
     isRequired: false,
     isDisabled: false,
-    placeholderText: "Select Option(s)",
+    placeholderText: "Select option(s)",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

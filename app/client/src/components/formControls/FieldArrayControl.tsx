@@ -5,11 +5,10 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 
 const CenteredIcon = styled(Icon)`
-  margin-top: 25px;
+  margin-top: 26px;
   &.hide {
     opacity: 0;
     pointer-events: none;
@@ -22,7 +21,6 @@ const PrimaryBox = styled.div`
   flex-direction: column;
   border: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding: 10px;
-  border-radius: 5px;
 `;
 
 const SecondaryBox = styled.div`
@@ -32,6 +30,21 @@ const SecondaryBox = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 5px;
+
+  & > div {
+    margin-right: 8px;
+    height: 60px;
+  }
+
+  & > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > div {
+    width: 20vw !important;
+  }
+
+  & > .t--form-control-DROP_DOWN,
+  & > .t--form-control-DROP_DOWN > div > div,
+  & > .t--form-control-DROP_DOWN > div > div > div > div {
+    width: 12vw;
+  }
 `;
 
 const AddMoreAction = styled.div`
@@ -91,17 +104,14 @@ function NestedComponents(props: any) {
 }
 
 export default function FieldArrayControl(props: FieldArrayControlProps) {
-  const { configProperty, formName, label, schema } = props;
+  const { configProperty, formName, schema } = props;
   return (
-    <>
-      <FormLabel>{label}</FormLabel>
-      <FieldArray
-        component={NestedComponents}
-        name={configProperty}
-        props={{ formName, schema }}
-        rerenderOnEveryChange={false}
-      />
-    </>
+    <FieldArray
+      component={NestedComponents}
+      name={configProperty}
+      props={{ formName, schema }}
+      rerenderOnEveryChange={false}
+    />
   );
 }
 

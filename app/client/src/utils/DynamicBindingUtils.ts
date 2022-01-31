@@ -1,8 +1,5 @@
 import _, { VERSION as lodashVersion } from "lodash";
-import {
-  DATA_BIND_REGEX,
-  DATA_BIND_REGEX_GLOBAL,
-} from "constants/BindingsConstants";
+import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -14,17 +11,13 @@ import {
 } from "workers/evaluationUtils";
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { getType, Types } from "./TypeHelpers";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
 
-export const removeBindingsFromActionObject = (obj: Action) => {
-  const string = JSON.stringify(obj);
-  const withBindings = string.replace(DATA_BIND_REGEX_GLOBAL, "{{ }}");
-  return JSON.parse(withBindings);
-};
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
@@ -122,9 +115,9 @@ export enum EvalErrorTypes {
   EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
-  EVAL_TRIGGER_ERROR = "EVAL_TRIGGER_ERROR",
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
+  EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
 }
 
 export type EvalError = {
@@ -138,15 +131,16 @@ export enum EVAL_WORKER_ACTIONS {
   EVAL_TREE = "EVAL_TREE",
   EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
-  CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
-  CLEAR_PROPERTY_CACHE_OF_WIDGET = "CLEAR_PROPERTY_CACHE_OF_WIDGET",
+  PROCESS_TRIGGER = "PROCESS_TRIGGER",
   CLEAR_CACHE = "CLEAR_CACHE",
   VALIDATE_PROPERTY = "VALIDATE_PROPERTY",
   UNDO = "undo",
   REDO = "redo",
-  PARSE_JS_FUNCTION_BODY = "PARSE_JS_FUNCTION_BODY",
-  EVAL_JS_FUNCTION = "EVAL_JS_FUNCTION",
   EVAL_EXPRESSION = "EVAL_EXPRESSION",
+  UPDATE_REPLAY_OBJECT = "UPDATE_REPLAY_OBJECT",
+  SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
+  INIT_FORM_EVAL = "INIT_FORM_EVAL",
+  EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
 }
 
 export type ExtraLibrary = {
@@ -189,6 +183,19 @@ export const extraLibraries: ExtraLibrary[] = [
     displayName: "forge",
   },
 ];
+
+/**
+ * creates dynamic list of constants based on
+ * current list of extra libraries i.e lodash("_"), moment etc
+ * to be used in widget and entity name validations
+ */
+export const extraLibrariesNames = extraLibraries.reduce(
+  (prev: any, curr: any) => {
+    prev[curr.accessor] = curr.accessor;
+    return prev;
+  },
+  {},
+);
 
 export interface DynamicPath {
   key: string;
@@ -379,3 +386,66 @@ export const PropertyEvalErrorTypeDebugMessage: Record<
   [PropertyEvaluationErrorType.PARSE]: () => `Could not parse the binding`,
   [PropertyEvaluationErrorType.LINT]: () => `Errors found while evaluating`,
 };
+
+export function getDynamicBindingsChangesSaga(
+  action: Action,
+  value: unknown,
+  field: string,
+) {
+  const bindingField = field.replace("actionConfiguration.", "");
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
+
+  if (
+    action.datasource &&
+    "datasourceConfiguration" in action.datasource &&
+    field === "datasource"
+  ) {
+    // only the datasource.datasourceConfiguration.url can be a dynamic field
+    dynamicBindings = dynamicBindings.filter(
+      (binding) => binding.key !== "datasourceUrl",
+    );
+    const datasourceUrl = action.datasource.datasourceConfiguration.url;
+    isDynamicValue(datasourceUrl) &&
+      dynamicBindings.push({ key: "datasourceUrl" });
+    return dynamicBindings;
+  }
+
+  // When a key-value pair is added or deleted from a fieldArray
+  // Value is an Array representing the new fieldArray.
+
+  if (Array.isArray(value)) {
+    dynamicBindings = dynamicBindings.filter(
+      (binding) => !isChildPropertyPath(bindingField, binding.key),
+    );
+    value.forEach((keyValueRow, index) => {
+      if (!keyValueRow) return;
+
+      const { key, value } = keyValueRow;
+      key &&
+        isDynamicValue(key) &&
+        dynamicBindings.push({ key: `${bindingField}[${index}].key` });
+      value &&
+        isDynamicValue(value) &&
+        dynamicBindings.push({ key: `${bindingField}[${index}].value` });
+    });
+  } else if (getType(value) === Types.OBJECT) {
+    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
+      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
+        const childPropertyValue = _.get(value, dynamicPath.key);
+        return isDynamicValue(childPropertyValue);
+      }
+    });
+  } else if (typeof value === "string") {
+    const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+    const isDynamic = isDynamicValue(value);
+
+    if (!isDynamic && fieldExists) {
+      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    }
+    if (isDynamic && !fieldExists) {
+      dynamicBindings.push({ key: bindingField });
+    }
+  }
+  return dynamicBindings;
+}

@@ -6,7 +6,7 @@ const handleNewCommentThreadEvent = (
   state: CommentsReduxState,
   action: ReduxAction<any>,
 ) => {
-  const { thread } = action.payload;
+  const thread = action.payload;
   const applicationCommentIdsByRefId = get(
     state.applicationCommentThreadsByRef,
     thread.applicationId,
@@ -35,8 +35,6 @@ const handleNewCommentThreadEvent = (
     [thread.refId]: Array.from(new Set([thread._id, ...threadsForRefId])),
   };
 
-  const showUnreadIndicator = !state.isCommentMode;
-
   /**
    * Private threads are a part of the comments onboarding
    * These are termed bot threads, triggered from the backend based on the onboarding flow
@@ -49,8 +47,10 @@ const handleNewCommentThreadEvent = (
 
   return {
     ...state,
-    lastUpdatedCommentThreadId: thread.id,
-    showUnreadIndicator,
+    lastUpdatedCommentThreadByAppId: {
+      ...state.lastUpdatedCommentThreadByAppId,
+      [thread.applicationId]: thread._id,
+    },
   };
 };
 

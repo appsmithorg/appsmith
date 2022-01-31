@@ -3,6 +3,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableNewDslWithPagination.json");
 const testdata = require("../../../../fixtures/testdata.json");
+const emptyTableColumnNameData = require("../../../../fixtures/TableWidgetDatawithEmptyKeys.json");
 
 describe("Table Widget property pane feature validation", function() {
   before(() => {
@@ -27,6 +28,32 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.tabedataField).should("not.be.empty");
     cy.deleteWidget(widgetsPage.tableWidget);
     cy.wait(2000);
+    cy.ClearSearch();
+  });
+
+  it("Verify empty columnName in data", () => {
+    cy.get(widgetsPage.addWidget).click();
+    // Drag and drop table widget
+    cy.dragAndDropToCanvas("tablewidget", { x: 300, y: 200 });
+    // close Widget side bar
+    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
+    cy.get(widgetsPage.tabedataField).should("not.be.empty");
+    cy.get(`${widgetsPage.tabedataField} .CodeMirror`)
+      .first()
+      .then((ins) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        cy.wait(100);
+        input.setValue(JSON.stringify(emptyTableColumnNameData));
+      });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait(5000);
+    cy.get(".t--widget-tablewidget").should("be.visible");
+    cy.deleteWidget(widgetsPage.tableWidget);
   });
 
   it("Verify On Row Selected Action", function() {
@@ -169,6 +196,15 @@ describe("Table Widget property pane feature validation", function() {
       expect(hrefVal).to.be.contains(imageVal);
     });
 
+    // change column data type to "icon button"
+    cy.changeColumnType("Icon Button");
+    cy.wait(400);
+    cy.get(commonlocators.selectedIcon).should("have.text", "add");
+
+    cy.getTableDataSelector("0", "0").then((selector) => {
+      cy.get(selector + " button.bp3-button [data-icon=add]").should("exist");
+    });
+
     // Changing Column data type from "Date" to "URl"
     cy.readTabledataPublish("1", "1").then(() => {
       cy.changeColumnType("URL");
@@ -290,7 +326,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
       "background-color",
-      "rgba(106, 134, 206, 0.1)",
+      "rgb(236, 249, 243)",
     );
     cy.get(publish.backToEditor).click();
   });

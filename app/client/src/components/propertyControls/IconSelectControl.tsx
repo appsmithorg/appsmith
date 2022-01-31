@@ -7,6 +7,7 @@ import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -28,6 +29,11 @@ const StyledButton = styled(Button)`
   background-color: #ffffff !important;
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);
+  }
+
+  &:hover,
+  &:focus {
+    border: 1.2px solid var(--appsmith-input-focus-border-color);
   }
 `;
 
@@ -72,6 +78,7 @@ const StyledMenuItem = styled(MenuItem)`
 
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
+  defaultIconName?: IconName;
 }
 
 export interface IconSelectControlState {
@@ -120,12 +127,13 @@ class IconSelectControl extends BaseControl<
   }
 
   public render() {
-    const { propertyValue: iconName } = this.props;
+    const { defaultIconName, propertyValue: iconName } = this.props;
     const { popoverTargetWidth } = this.state;
     return (
       <>
         <IconSelectContainerStyles targetWidth={popoverTargetWidth} />
         <TypedSelect
+          activeItem={iconName || defaultIconName || NONE}
           className="icon-select-container"
           itemListRenderer={this.renderMenu}
           itemPredicate={this.filterIconName}
@@ -137,12 +145,14 @@ class IconSelectControl extends BaseControl<
         >
           <StyledButton
             alignText={Alignment.LEFT}
-            className={Classes.TEXT_OVERFLOW_ELLIPSIS}
+            className={
+              Classes.TEXT_OVERFLOW_ELLIPSIS + " " + replayHighlightClass
+            }
             elementRef={this.iconSelectTargetRef}
             fill
-            icon={iconName}
+            icon={iconName || defaultIconName}
             rightIcon="caret-down"
-            text={iconName || NONE}
+            text={iconName || defaultIconName || NONE}
           />
         </TypedSelect>
       </>

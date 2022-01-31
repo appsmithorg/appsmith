@@ -17,6 +17,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getActionById,
+  getCurrentApplicationId,
   getCurrentPageName,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
@@ -56,6 +57,7 @@ interface ReduxStateProps {
   apiAction: Action | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
   isEditorInitialized: boolean;
+  applicationId: string;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -69,9 +71,14 @@ function getPageName(pages: any, pageId: string) {
   return page ? page.pageName : "";
 }
 
+function getPackageNameFromPluginId(pluginId: string, plugins: Plugin[]) {
+  const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
+  return plugin?.packageName;
+}
+
 type Props = ReduxActionProps &
   ReduxStateProps &
-  RouteComponentProps<{ apiId: string; applicationId: string; pageId: string }>;
+  RouteComponentProps<{ apiId: string; pageId: string }>;
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount() {
@@ -220,9 +227,12 @@ class ApiEditor extends React.Component<Props> {
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
             SAAS_EDITOR_API_ID_URL(
-              this.props.match.params.applicationId,
+              this.props.applicationId,
               this.props.match.params.pageId,
-              this.props.plugins[this.props.pluginId]?.packageName ?? "",
+              getPackageNameFromPluginId(
+                this.props.pluginId,
+                this.props.plugins,
+              ) ?? "",
               this.props.match.params.apiId,
             ),
           )}
@@ -259,6 +269,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: isDeleting[props.match.params.apiId],
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

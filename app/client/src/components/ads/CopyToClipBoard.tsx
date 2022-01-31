@@ -4,21 +4,22 @@ import copy from "copy-to-clipboard";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ offset?: string }>`
   display: flex;
   height: 38px;
   background: none;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
 
   div {
-    flex-basis: calc(100% - 120px);
     height: 100%;
-  }
-  a {
-    flex-basis: 110px;
+    flex-basis: calc(100% - ${(props) => props.offset || "110px"});
+    margin-right: ${(props) => props.theme.spaces[3]}px;
   }
 `;
 
-function CopyToClipboard(props: any) {
+function CopyToClipboard(props: { copyText: string; btnWidth?: string }) {
   const { copyText } = props;
   const copyURLInput = createRef<HTMLInputElement>();
   const [isCopied, setIsCopied] = useState(false);
@@ -37,7 +38,7 @@ function CopyToClipboard(props: any) {
     }
   };
   return (
-    <Wrapper>
+    <Wrapper offset={props.btnWidth}>
       <TextInput
         defaultValue={copyText}
         onChange={() => {
@@ -54,6 +55,7 @@ function CopyToClipboard(props: any) {
         }}
         size={Size.large}
         text={isCopied ? "Copied" : "Copy"}
+        width={props.btnWidth || "110px"}
       />
     </Wrapper>
   );

@@ -11,7 +11,8 @@ const pageid = "MyPage";
 describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {
     cy.log("Login Successful");
-    cy.reload(); // To remove the rename tooltip
+    //cy.reload(); // To remove the rename tooltip
+    cy.wait(40000);
     cy.get(explorer.addWidget).click();
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch)
@@ -32,7 +33,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     /**
      * @param{Text} Random Colour
      */
-    cy.get(widgetsPage.backgroundcolorPicker)
+    cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();
@@ -46,19 +47,15 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
       .should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(explorer.explorerSwitchId).click();
     cy.PublishtheApp();
     cy.get(publish.backToEditor)
       .first()
       .click();
-    cy.SearchEntityandOpen("FormTest");
-    cy.get(".widgets " + explorer.collapse)
-      .last()
-      .click({ force: true });
-    cy.get(explorer.property)
-      .last()
-      .click({ force: true });
+    cy.selectEntityByName("WIDGETS");
+    cy.get(`.t--entity-name:contains(FormTest)`).trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
+    cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

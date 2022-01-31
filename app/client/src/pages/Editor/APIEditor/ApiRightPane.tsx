@@ -12,7 +12,10 @@ import { getQueryParams } from "../../../utils/AppsmithUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
+import { useSelector } from "react-redux";
+
 import { Classes } from "components/ads/common";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -143,6 +146,11 @@ const NoEntityFoundWrapper = styled.div`
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);
+  const queryParamters = get(
+    datasource,
+    "datasourceConfiguration.queryParameters",
+    [],
+  );
   const authType = get(
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
@@ -150,6 +158,12 @@ export const getDatasourceInfo = (datasource: any): string => {
   ).toUpperCase();
   if (headers.length)
     info.push(`${headers.length} HEADER${headers.length > 1 ? "S" : ""}`);
+  if (queryParamters.length)
+    info.push(
+      `${queryParamters.length} QUERY PARAMETER${
+        queryParamters.length > 1 ? "S" : ""
+      }`,
+    );
   if (authType.length) info.push(authType);
   return info.join(" | ");
 };
@@ -162,6 +176,9 @@ export default function ApiRightPane(props: any) {
   useEffect(() => {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
+
+  const applicationId = useSelector(getCurrentApplicationId);
+
   return (
     <DatasourceContainer>
       <TabbedViewContainer>
@@ -194,7 +211,7 @@ export default function ApiRightPane(props: any) {
                                 e.stopPropagation();
                                 history.push(
                                   DATA_SOURCES_EDITOR_ID_URL(
-                                    props.applicationId,
+                                    applicationId,
                                     props.currentPageId,
                                     d.id,
                                     getQueryParams(),

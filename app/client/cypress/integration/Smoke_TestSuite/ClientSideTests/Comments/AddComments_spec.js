@@ -121,6 +121,19 @@ describe("Comments", function() {
     });
   });
 
+  it("Can invite new collaborators, with substring emails", () => {
+    cy.get(commentsLocators.cancelCommentButton).click({ force: true });
+    cy.get(homePage.shareApp).click({ force: true });
+    cy.shareApp("cypresstest@appsmith.com", homePage.viewerRole);
+    cy.get(commonLocators.canvas).click(30, 30);
+    cy.wait(300);
+    cy.get(commentsLocators.mentionsInput).type("@test@appsmith.com", {
+      delay: 100,
+    });
+    cy.wait(1000);
+    cy.contains("Invite a new user").should("exist");
+  });
+
   it("unread indicator is visible for another app user when a new comment is added", () => {
     // share app with TESTUSERNAME2
     cy.get(homePage.shareApp).click({ force: true });

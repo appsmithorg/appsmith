@@ -6,7 +6,7 @@ import {
   ApplicationPayload,
   CurrentApplicationData,
 } from "constants/ReduxActionConstants";
-import { Organization } from "constants/orgConstants";
+import { Organization, OrgUser } from "constants/orgConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
@@ -104,7 +104,17 @@ const applicationsReducer = createReducer(initialState, {
       userOrgs: action.payload,
     };
   },
-
+  [ReduxActionTypes.DELETE_ORG_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      userOrgs: state.userOrgs.filter(
+        (org: Organization) => org.organization.id !== action.payload,
+      ),
+    };
+  },
   [ReduxActionTypes.FETCH_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplication: true }),
@@ -171,6 +181,26 @@ const applicationsReducer = createReducer(initialState, {
       ...state,
       creatingApplication: updatedCreatingApplication,
       applicationList: [...state.applicationList, action.payload.application],
+      userOrgs: _organizations,
+    };
+  },
+  [ReduxActionTypes.INVITED_USERS_TO_ORGANIZATION]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ orgId: string; users: OrgUser[] }>,
+  ) => {
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.orgId) {
+        const userRoles = org.userRoles;
+        org.userRoles = [...userRoles, ...action.payload.users];
+        return {
+          ...org,
+        };
+      }
+      return org;
+    });
+
+    return {
+      ...state,
       userOrgs: _organizations,
     };
   },
@@ -378,6 +408,17 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        SSHKeyPair: null,
+      },
+    };
+  },
   [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<GetSSHKeyResponseData>,
@@ -403,6 +444,19 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.UPDATE_BRANCH_LOCALLY]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      gitApplicationMetadata: {
+        ...(state.currentApplication?.gitApplicationMetadata || {}),
+        branchName: action.payload,
+      },
+    },
+  }),
 });
 
 export type creatingApplicationMap = Record<string, boolean>;

@@ -29,13 +29,16 @@ export type EditableTextProps = CommonComponentProps & {
   isError?: boolean;
 };
 
+// Width of the component when the `filled` prop is false
+export const UNFILLED_WIDTH = 243;
+
 export const EditableTextWrapper = styled.div<{
   filled: boolean;
 }>`
   ${(props) =>
     !props.filled
       ? `
-    width: 243px;
+    width: ${UNFILLED_WIDTH}px;
   `
       : `
     width: 100%;

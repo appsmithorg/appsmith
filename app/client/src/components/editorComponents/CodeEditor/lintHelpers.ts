@@ -4,6 +4,8 @@ import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { Severity } from "entities/AppsmithConsole";
+import { WARNING_LINT_ERRORS } from "./constants";
 
 export const getIndexOfRegex = (
   str: string,
@@ -97,9 +99,8 @@ export const getLintAnnotations = (
       for (const bindingLocation of bindingPositions) {
         const currentLine = bindingLocation.line + line;
         const lineContent = lines[currentLine] || "";
-        const currentCh = originalBinding.includes("\n")
-          ? ch
-          : bindingLocation.ch + ch;
+        const currentCh =
+          bindingLocation.line !== currentLine ? ch : bindingLocation.ch + ch;
         // Jshint counts \t as two characters and codemirror counts it as 1.
         // So we need to subtract number of tabs to get accurate position
         const tabs = lineContent.substr(0, currentCh).match(/\t/g)?.length || 0;
@@ -125,4 +126,12 @@ export const getLintAnnotations = (
     }
   });
   return annotations;
+};
+
+export const getLintSeverity = (
+  code: string,
+): Severity.WARNING | Severity.ERROR => {
+  const severity =
+    code in WARNING_LINT_ERRORS ? Severity.WARNING : Severity.ERROR;
+  return severity;
 };

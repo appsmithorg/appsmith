@@ -15,6 +15,20 @@ import history from "utils/history";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
 import { useNewActionName } from "./helpers";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import {
+  CONTEXT_COPY,
+  CONTEXT_DELETE,
+  CONTEXT_EDIT_NAME,
+  CONTEXT_MOVE,
+  CONTEXT_NO_PAGE,
+  CONTEXT_SHOW_BINDING,
+  createMessage,
+} from "constants/messages";
 
 type EntityContextMenuProps = {
   id: string;
@@ -25,6 +39,8 @@ type EntityContextMenuProps = {
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
   const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
@@ -50,16 +66,39 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch, nextEntityName, props.pageId],
   );
   const deleteActionFromPage = useCallback(
-    (actionId: string, actionName: string, onSuccess?: () => void) =>
-      dispatch(deleteAction({ id: actionId, name: actionName, onSuccess })),
-    [dispatch],
+    (actionId: string, actionName: string, onSuccess?: () => void) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+
+      dispatch(deleteAction({ id: actionId, name: actionName, onSuccess }));
+    },
+    [dispatch, guidedTourEnabled],
   );
 
   const menuPages = useSelector(getPageListAsOptions);
 
-  const editActionName = useCallback(
-    () => dispatch(initExplorerEntityNameEdit(props.id)),
-    [dispatch, props.id],
+  const editActionName = useCallback(() => {
+    if (guidedTourEnabled) {
+      dispatch(toggleShowDeviationDialog(true));
+      return;
+    }
+    dispatch(initExplorerEntityNameEdit(props.id));
+  }, [dispatch, props.id, guidedTourEnabled]);
+
+  const showBinding = useCallback(
+    (actionId, actionName) =>
+      dispatch({
+        type: ReduxActionTypes.SET_ENTITY_INFO,
+        payload: {
+          entityId: actionId,
+          entityName: actionName,
+          entityType: ENTITY_TYPE.ACTION,
+          show: true,
+        },
+      }),
+    [],
   );
 
   return (
@@ -72,12 +111,17 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         {
           value: "rename",
           onSelect: editActionName,
-          label: "Edit Name",
+          label: createMessage(CONTEXT_EDIT_NAME),
+        },
+        {
+          value: "showBinding",
+          onSelect: () => showBinding(props.id, props.name),
+          label: createMessage(CONTEXT_SHOW_BINDING),
         },
         {
           value: "copy",
           onSelect: noop,
-          label: "Copy to page",
+          label: createMessage(CONTEXT_COPY),
           children: menuPages.map((page) => {
             return {
               ...page,
@@ -88,7 +132,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         {
           value: "move",
           onSelect: noop,
-          label: "Move to page",
+          label: createMessage(CONTEXT_MOVE),
           children:
             menuPages.length > 1
               ? menuPages
@@ -100,16 +144,25 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
                         moveActionToPage(props.id, props.name, page.id),
                     };
                   })
-              : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
+              : [
+                  {
+                    value: "No Pages",
+                    onSelect: noop,
+                    label: createMessage(CONTEXT_NO_PAGE),
+                  },
+                ],
         },
         {
           value: "delete",
-          label: "Delete",
+          label: createMessage(CONTEXT_DELETE),
           intent: "danger",
           onSelect: () =>
             deleteActionFromPage(props.id, props.name, () => {
               history.push(
-                BUILDER_PAGE_URL(params.applicationId, params.pageId),
+                BUILDER_PAGE_URL({
+                  applicationId,
+                  pageId: params.pageId,
+                }),
               );
             }),
         },

@@ -21,8 +21,20 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.SAFE_URL,
               params: {
-                default: "https://wikipedia.org",
+                default: "https://www.example.com",
               },
+            },
+          },
+          {
+            propertyName: "srcDoc",
+            helpText: "Inline HTML to embed, overriding the src attribute",
+            label: "srcDoc",
+            controlType: "INPUT_TEXT",
+            placeholderText: "<p>Inline HTML</p>",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
             },
           },
           {
@@ -35,15 +47,35 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the source URL is changed",
             propertyName: "onURLChanged",
             label: "onURLChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the srcDoc is changed",
+            propertyName: "onSrcDocChanged",
+            label: "onSrcDocChanged",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -105,7 +137,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     };
   }
 
-  urlChangedHandler = (url: string) => {
+  handleUrlChange = (url: string) => {
     if (url && this.props.onURLChanged) {
       super.executeAction({
         triggerPropertyName: "onURLChanged",
@@ -117,7 +149,19 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     }
   };
 
-  messageReceivedHandler = (event: MessageEvent) => {
+  handleSrcDocChange = (srcDoc?: string) => {
+    if (srcDoc && this.props.onSrcDocChanged) {
+      super.executeAction({
+        triggerPropertyName: "onSrcDocChanged",
+        dynamicString: this.props.onSrcDocChanged,
+        event: {
+          type: EventType.ON_IFRAME_SRC_DOC_CHANGED,
+        },
+      });
+    }
+  };
+
+  handleMessageReceive = (event: MessageEvent) => {
     // Accept messages only from the current iframe
     if (!this.props.source?.includes(event.origin)) {
       return;
@@ -139,6 +183,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       borderWidth,
       renderMode,
       source,
+      srcDoc,
       title,
       widgetId,
     } = this.props;
@@ -148,10 +193,12 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         borderColor={borderColor}
         borderOpacity={borderOpacity}
         borderWidth={borderWidth}
-        onMessageReceived={this.messageReceivedHandler}
-        onURLChanged={this.urlChangedHandler}
+        onMessageReceived={this.handleMessageReceive}
+        onSrcDocChanged={this.handleSrcDocChange}
+        onURLChanged={this.handleUrlChange}
         renderMode={renderMode}
         source={source}
+        srcDoc={srcDoc}
         title={title}
         widgetId={widgetId}
       />

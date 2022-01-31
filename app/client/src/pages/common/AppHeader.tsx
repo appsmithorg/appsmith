@@ -4,10 +4,11 @@ import PageHeader from "pages/common/PageHeader";
 import LoginHeader from "pages/common/LoginHeader";
 import { Route, Switch } from "react-router";
 import {
-  APP_VIEW_URL,
+  VIEWER_URL,
   BASE_URL,
   BUILDER_URL,
   SETUP,
+  SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
 } from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
@@ -31,9 +32,10 @@ class AppHeader extends React.Component<Props, any> {
     return (
       <Switch>
         <Route component={AppEditorHeader} path={BUILDER_URL} />
-        <Route component={AppViewerHeader} path={APP_VIEW_URL} />
+        <Route component={AppViewerHeader} exact path={VIEWER_URL} />
         <Route component={LoginHeader} path={USER_AUTH_URL} />
         <Route path={SETUP} />
+        <Route path={SIGNUP_SUCCESS_URL} />
         <Route component={PageHeader} path={BASE_URL} />
       </Switch>
     );

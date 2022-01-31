@@ -381,6 +381,25 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "rafaeelaudibert",
+      "name": "Rafael Baldasso Audibert",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32079912?v=4",
+      "profile": "https://www.rafaaudibert.dev",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "yaldram",
+      "name": "Arsalan Yaldram",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13429535?v=4",
+      "profile": "https://github.com/yaldram",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
