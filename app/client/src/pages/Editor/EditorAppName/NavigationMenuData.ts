@@ -125,7 +125,7 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Rename",
+      text: "Edit Name",
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,

@@ -30,14 +30,15 @@ describe("Entity explorer datasource structure", function() {
     cy.WaitAutoSave();
 
     cy.GlobalSearchEntity(datasourceName);
-
     cy.get(`.t--entity.datasource:contains(${datasourceName})`)
       .find(explorer.collapse)
       .click();
+    cy.get(".t--entity-name")
+      .contains(datasourceName)
+      .click({ force: true });
     cy.wait("@getDatasourceStructure").should((interception) => {
       expect(interception.response.body.responseMeta.status).to.deep.eq(200);
     });
-
     cy.get(explorer.datasourceStructure)
       .first()
       .find(explorer.collapse)

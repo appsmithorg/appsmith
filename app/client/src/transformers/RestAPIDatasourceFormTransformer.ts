@@ -36,6 +36,9 @@ export const datasourceToFormValues = (
     isValid: datasource.isValid,
     url: datasource.datasourceConfiguration.url,
     headers: cleanupProperties(datasource.datasourceConfiguration.headers),
+    queryParameters: cleanupProperties(
+      datasource.datasourceConfiguration.queryParameters,
+    ),
     isSendSessionEnabled: isSendSessionEnabled,
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
