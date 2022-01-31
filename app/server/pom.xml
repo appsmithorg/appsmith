@@ -25,6 +25,7 @@
         <!-- By default skip the dockerization step. Only activate if necessary -->
         <skipDockerBuild>true</skipDockerBuild>
         <log4j2.version>2.17.1</log4j2.version>
+        <sentry.version>5.6.0</sentry.version>
     </properties>
 
     <build>

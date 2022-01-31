@@ -207,7 +207,7 @@
         <dependency>
             <groupId>io.sentry</groupId>
             <artifactId>sentry-spring-boot-starter</artifactId>
-            <version>3.1.2</version>
+            <version>${sentry.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
