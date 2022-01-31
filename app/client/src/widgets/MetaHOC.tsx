@@ -55,7 +55,9 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
 
     componentDidUpdate(prevProps: WidgetProps) {
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
+      const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
+        const defaultProperty = defaultProperties[metaProperty];
         /*
           Generally the meta property value of a widget will directly be controlled by itself and the platform will not interfere except:
           When we reset the meta property value to it's default property value or initial value when property doesn't have default value.
@@ -71,8 +73,19 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           this.props[metaProperty],
         );
 
+        const defaultPropertyExist = !!defaultProperty;
         if (isMetaPropertyChanged) {
-          this.setState({ [metaProperty]: this.props[metaProperty] });
+          if (defaultPropertyExist) {
+            const isMetaEqualToDefault = _.isEqual(
+              this.props[defaultProperty],
+              this.props[metaProperty],
+            );
+            if (isMetaEqualToDefault) {
+              this.setState({ [metaProperty]: this.props[metaProperty] });
+            }
+          } else {
+            this.setState({ [metaProperty]: this.props[metaProperty] });
+          }
         }
       });
     }
