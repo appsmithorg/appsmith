@@ -284,3 +284,6 @@ jobs:
         run: exit 1
       - name: Print message if we don't fail
         run: echo Should not get here
+      - name: Set fail if there are test failures
+        if: failure()
+        run: echo "::set-output name=run_result::failedtest" > ~/run_result
