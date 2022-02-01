@@ -10,10 +10,7 @@ describe("Form Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  beforeEach(() => {
-    cy.wait(7000);
-  });
-  it("Defult Form text,  Reset and Close button Validation", function() {
+  it("Default Form text,  Reset and Close button Validation", function() {
     cy.get(widgetsPage.textWidget).should("be.visible");
     cy.get(widgetsPage.formButtonWidget)
       .contains("Submit")
