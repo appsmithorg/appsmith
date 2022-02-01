@@ -359,6 +359,7 @@ export const pusher = function(
     this.TRIGGER_COLLECTOR.push(actionPayload);
   } else if (executionType && executionType === ExecutionType.RETURN) {
     return payload;
+  } else {
+    return promisifyAction(this.REQUEST_ID, actionPayload);
   }
-  return promisifyAction(this.REQUEST_ID, actionPayload);
 };
