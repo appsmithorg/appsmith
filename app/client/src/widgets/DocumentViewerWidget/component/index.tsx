@@ -131,8 +131,6 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
           renderer = Renderers.DOCX_VIEWER;
         } else if (extension === "xlsx") {
           renderer = Renderers.XLSX_VIEWER;
-        } else if (extension === "pdf") {
-          viewer = "pdf";
         }
       } else {
         errorMessage = "invalid base64 data";
@@ -174,20 +172,9 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
   const { extension, hasExtension, validExtension } = checkUrlExtension(url);
   if (hasExtension) {
     if (validExtension) {
-      renderer = Renderers.DOCUMENT_VIEWER;
-      switch (extension) {
-        case "pdf": {
-          viewer = "pdf";
-          break;
-        }
-        case "txt": {
-          viewer = "url";
-          break;
-        }
-        default: {
-          viewer = "office";
-          break;
-        }
+      if (!(extension === "txt" || extension === "pdf")) {
+        viewer = "office";
+        renderer = Renderers.DOCUMENT_VIEWER;
       }
     } else {
       errorMessage = "Current file type is not supported";
@@ -219,20 +206,7 @@ function DocumentViewerComponent(props: DocumentViewerComponentProps) {
         </Suspense>
       );
     case Renderers.DOCUMENT_VIEWER:
-      if (viewer === "pdf") {
-        return (
-          <iframe
-            frameBorder="0"
-            height="100%"
-            id="pdfiframe"
-            src={url}
-            title="pdfiframe"
-            width="100%"
-          />
-        );
-      } else {
-        return <DocumentViewer url={url} viewer={viewer} />;
-      }
+      return <DocumentViewer url={url} viewer={viewer} />;
 
     default:
       return null;
