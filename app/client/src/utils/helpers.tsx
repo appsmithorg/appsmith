@@ -11,7 +11,7 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { set } from "lodash";
+import { get, set, find } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
@@ -22,8 +22,12 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
 import log from "loglevel";
-import { extraLibrariesNames } from "./DynamicBindingUtils";
+import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
+import { DSLWidget } from "widgets/constants";
+import WidgetFactory from "./WidgetFactory";
+import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
+import * as Sentry from "@sentry/react";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -661,4 +665,50 @@ export const mergeWidgetConfig = (target: any, source: any) => {
 
 export const getLocale = () => {
   return navigator.languages?.[0] || "en-US";
+};
+
+/**
+ * Function to check if the DynamicBindingPathList is valid
+ * @param currentDSL
+ * @returns
+ */
+export const isInvalidDynamicBindingPath = (
+  currentDSL: Readonly<DSLWidget>,
+) => {
+  //Get the propertyPaneConfig for the current DSL Type
+  const propertyPaneConfig = WidgetFactory.getWidgetPropertyPaneConfig(
+    currentDSL.type,
+  );
+
+  //Get the bindingPaths from the dsl and propertyPaneConfig
+  const { bindingPaths } = getAllPathsFromPropertyConfig(
+    currentDSL,
+    propertyPaneConfig,
+    {},
+  );
+
+  //Get the dynamicBindingPathList of the current DSL
+  const dynamicBindingPathList = get(currentDSL, "dynamicBindingPathList");
+  Object.keys(bindingPaths).forEach((bindingPath) => {
+    const pathValue = get(currentDSL, bindingPath); //Gets the value for the given binding path
+
+    /**
+     * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
+     */
+    if (
+      !isDynamicValue(pathValue) &&
+      !!find(dynamicBindingPathList, { key: bindingPath })
+    ) {
+      Sentry.captureException(
+        new Error(`INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list. 
+          ${bindingPath} still present in the dynamicBindingPathList even if ${bindingPath} does not contain any bindings.`),
+      );
+      return;
+    }
+  });
+
+  if (currentDSL.children) {
+    currentDSL.children.map(isInvalidDynamicBindingPath);
+  }
+  return currentDSL;
 };
