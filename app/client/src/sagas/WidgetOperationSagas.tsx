@@ -478,6 +478,29 @@ export function* getPropertiesUpdatedWidget(
   if (Array.isArray(remove) && remove.length > 0) {
     widget = yield removeWidgetProperties(widget, remove);
   }
+
+  // Note: This may not be the best place to do this.
+  // If there exists another spot in this workflow, where we are iterating over the dynamicTriggerPathList, after
+  // performing all updates to the widget, we can piggy back on that iteration to purge orphaned paths
+  // I couldn't find it, so here it is.
+  return purgeOrphanedDynamicTriggerPaths(widget);
+}
+
+// Purge all paths in a provided widgets' dynamicTriggerPathList, which don't exist in the widget
+function purgeOrphanedDynamicTriggerPaths(widget: WidgetProps) {
+  // Attempt to purge only if there are dynamicTriggerPaths in this widget
+  if (
+    widget.dynamicTriggerPathList &&
+    widget.dynamicTriggerPathList.length > 0
+  ) {
+    // Filter out all the paths from the dynamicTriggerPathList which don't exist in the widget
+    widget.dynamicTriggerPathList = widget.dynamicTriggerPathList.filter(
+      (path: DynamicPath) => {
+        // Use lodash _.has to check if the path exists in the widget
+        return _.has(widget, path.key);
+      },
+    );
+  }
   return widget;
 }
 
