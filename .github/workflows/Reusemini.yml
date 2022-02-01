@@ -357,7 +357,7 @@ jobs:
         run: echo ${{env.failed_spec_env}}
 
       - name: "combine all specs"
-        run: echo ${{env.failed_spec_env}} >> ~/combined_failed_spec
+        run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
 
       - name: Store the combined run result
         uses: martijnhols/actions-cache/save@v3
