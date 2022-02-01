@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import log from "loglevel";
-import moment from "moment";
-import {
+import moment, { MomentInput } from "moment";
+import _, {
   isNumber,
   isString,
   isNil,
@@ -19,8 +19,6 @@ import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
-  getDefaultColumnProperties,
-  getTableStyles,
   renderCell,
   renderDropdown,
   renderActions,
@@ -28,15 +26,32 @@ import {
   RenderMenuButtonProps,
   renderIconButton,
 } from "../component/TableUtilities";
-import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
-import { TableWidgetProps } from "../constants";
+import {
+  COLUMN_MIN_WIDTH,
+  COLUMN_TYPES,
+  DEFAULT_BUTTON_COLOR,
+  DEFAULT_BUTTON_LABEL,
+  DEFAULT_BUTTON_LABEL_COLOR,
+  DEFAULT_COLUMN_WIDTH,
+  DEFAULT_MENU_BUTTON_LABEL,
+  DEFAULT_MENU_VARIANT,
+  ORIGINAL_INDEX_KEY,
+  TableWidgetProps,
+} from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import { selectRowIndex, selectRowIndices } from "./utilities";
+import {
+  getAllTableColumnKeys,
+  getDefaultColumnProperties,
+  getDerivedColumns,
+  getTableStyles,
+  getSelectRowIndex,
+  getSelectRowIndices,
+} from "./utilities";
 
 import {
   ColumnProperties,
@@ -65,9 +80,6 @@ const defaultFilter = [
 ];
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
-  static getPropertyValidationMap() {
-    throw new Error("Method not implemented.");
-  }
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
   }
@@ -79,7 +91,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndices: undefined,
       searchText: undefined,
       triggeredRowIndex: undefined,
-      // The following meta property is used for rendering the table.
       filters: [],
       sortOrder: {
         column: "",
@@ -109,436 +120,463 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  /*
+   * Function to get the table columns with appropriate render functions
+   * based on columnType
+   */
+  //TODO(Balaji): Move this to Utility and write test cases.
   getTableColumns = () => {
+    const {
+      columnWidthMap = {},
+      filteredTableData = [],
+      multiRowSelection,
+      selectedRowIndex,
+      selectedRowIndices,
+      tableColumns = [],
+    } = this.props;
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
-    const { columnSizeMap } = this.props;
-    const { componentWidth } = this.getComponentDimensions();
-    let totalColumnSizes = 0;
-    const defaultColumnWidth = 150;
-    const allColumnProperties = this.props.tableColumns || [];
 
-    for (let index = 0; index < allColumnProperties.length; index++) {
-      const isAllCellVisible: boolean | boolean[] =
-        allColumnProperties[index].isCellVisible;
-      const columnProperties = allColumnProperties[index];
-      const isHidden = !columnProperties.isVisible;
-      const accessor = columnProperties.id;
+    const { componentWidth } = this.getComponentDimensions();
+    let totalColumnWidth = 0;
+
+    tableColumns.forEach((column) => {
+      const isHidden = !column.isVisible;
+      const accessor = column.id;
       const columnData = {
-        Header: columnProperties.label,
+        Header: column.label,
         accessor: accessor,
-        width:
-          columnSizeMap && columnSizeMap[accessor]
-            ? columnSizeMap[accessor]
-            : defaultColumnWidth,
-        minWidth: 60,
+        width: columnWidthMap[accessor] || DEFAULT_COLUMN_WIDTH,
+        minWidth: COLUMN_MIN_WIDTH,
         draggable: true,
         isHidden: false,
-        isAscOrder: columnProperties.isAscOrder,
-        isDerived: columnProperties.isDerived,
+        isAscOrder: column.isAscOrder,
+        isDerived: column.isDerived,
         metaProperties: {
           isHidden: isHidden,
-          type: columnProperties.columnType,
-          format: columnProperties?.outputFormat || "",
-          inputFormat: columnProperties?.inputFormat || "",
+          type: column.columnType,
+          format: column.outputFormat || "",
+          inputFormat: column.inputFormat || "",
         },
-        columnProperties: columnProperties,
+        columnProperties: column,
         Cell: (props: any) => {
           const rowIndex: number = props.cell.row.index;
-          const data = this.props.filteredTableData[rowIndex];
-          const originalIndex = data.__originalIndex__ ?? rowIndex;
+          const row = filteredTableData[rowIndex];
+          const originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
 
           // cellProperties order or size does not change when filter/sorting/grouping is applied
-          // on the data thus original index is need to identify the column's cell property.
-          const cellProperties = getCellProperties(
-            columnProperties,
-            originalIndex,
-          );
+          // on the data thus original index is needed to identify the column's cell property.
+          const cellProperties = getCellProperties(column, originalIndex);
           let isSelected = false;
-          if (this.props.multiRowSelection) {
-            isSelected =
-              Array.isArray(this.props.selectedRowIndices) &&
-              this.props.selectedRowIndices.includes(rowIndex);
-          } else {
-            isSelected = this.props.selectedRowIndex === rowIndex;
-          }
-          if (columnProperties.columnType === "button") {
-            const buttonProps = {
-              isSelected: isSelected,
-              onCommandClick: (action: string, onComplete: () => void) =>
-                this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
-              buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
-              isDisabled: cellProperties.isDisabled || false,
-              isCellVisible: cellProperties.isCellVisible ?? true,
-              columnActions: [
-                {
-                  id: columnProperties.id,
-                  label: cellProperties.buttonLabel || "Action",
-                  dynamicTrigger: columnProperties.onClick || "",
-                },
-              ],
-            };
-            return renderActions(buttonProps, isHidden, cellProperties);
-          } else if (columnProperties.columnType === "dropdown") {
-            let options = [];
-            try {
-              options = JSON.parse(columnProperties.dropdownOptions || "");
-            } catch (e) {}
-            return renderDropdown({
-              options: options,
-              onItemSelect: this.onItemSelect,
-              isCellVisible: cellProperties.isCellVisible ?? true,
-              onOptionChange: columnProperties.onOptionChange || "",
-              selectedIndex: isNumber(props.cell.value)
-                ? props.cell.value
-                : undefined,
-            });
-          } else if (columnProperties.columnType === "image") {
-            const isCellVisible = cellProperties.isCellVisible ?? true;
-            const onClick = columnProperties.onClick
-              ? () =>
-                  this.onCommandClick(rowIndex, columnProperties.onClick, noop)
-              : noop;
-            return renderCell(
-              props.cell.value,
-              columnProperties.columnType,
-              isHidden,
-              cellProperties,
-              componentWidth,
-              isCellVisible,
-              onClick,
-              isSelected,
-            );
-          } else if (columnProperties.columnType === "menuButton") {
-            const menuButtonProps: RenderMenuButtonProps = {
-              isSelected: isSelected,
-              onCommandClick: (action: string, onComplete?: () => void) =>
-                this.onCommandClick(rowIndex, action, onComplete),
-              isDisabled: cellProperties.isDisabled || false,
-              menuItems: cellProperties.menuItems,
-              isCompact: cellProperties.isCompact || false,
-              menuVariant: cellProperties.menuVariant ?? "PRIMARY",
-              menuColor: cellProperties.menuColor || Colors.GREEN,
-              borderRadius: cellProperties.borderRadius,
-              boxShadow: cellProperties.boxShadow,
-              boxShadowColor: cellProperties.boxShadowColor,
-              iconName: cellProperties.iconName,
-              iconAlign: cellProperties.iconAlign,
-              isCellVisible: cellProperties.isCellVisible ?? true,
-              label: cellProperties.menuButtonLabel ?? "Open menu",
-            };
-            return renderMenuButton(menuButtonProps, isHidden, cellProperties);
-          } else if (columnProperties.columnType === "iconButton") {
-            const iconButtonProps = {
-              isSelected: isSelected,
-              onCommandClick: (action: string, onComplete: () => void) =>
-                this.onCommandClick(rowIndex, action, onComplete),
-              columnActions: [
-                {
-                  id: columnProperties.id,
-                  dynamicTrigger: columnProperties.onClick || "",
-                },
-              ],
-              iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
-              buttonColor: cellProperties.buttonColor || Colors.GREEN,
-              buttonVariant: cellProperties.buttonVariant || "PRIMARY",
-              borderRadius: cellProperties.borderRadius || "SHARP",
-              boxShadow: cellProperties.boxShadow || "NONE",
-              boxShadowColor: cellProperties.boxShadowColor || "",
-              isCellVisible: cellProperties.isCellVisible ?? true,
-              disabled: !!cellProperties.isDisabled,
-            };
-            return renderIconButton(iconButtonProps, isHidden, cellProperties);
-          } else {
-            const isCellVisible = cellProperties.isCellVisible ?? true;
 
-            return renderCell(
-              props.cell.value,
-              columnProperties.columnType,
-              isHidden,
-              cellProperties,
-              componentWidth,
-              isCellVisible,
-            );
+          if (multiRowSelection) {
+            isSelected =
+              _.isArray(selectedRowIndices) &&
+              selectedRowIndices.includes(rowIndex);
+          } else {
+            isSelected = selectedRowIndex === rowIndex;
+          }
+
+          switch (column.columnType) {
+            case COLUMN_TYPES.BUTTON:
+              const buttonProps = {
+                isSelected: isSelected,
+                onCommandClick: (action: string, onComplete: () => void) =>
+                  this.onCommandClick(rowIndex, action, onComplete),
+                backgroundColor:
+                  cellProperties.buttonColor || DEFAULT_BUTTON_COLOR,
+                buttonLabelColor:
+                  cellProperties.buttonLabelColor || DEFAULT_BUTTON_LABEL_COLOR,
+                isDisabled: !!cellProperties.isDisabled,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                columnActions: [
+                  {
+                    id: column.id,
+                    label: cellProperties.buttonLabel || DEFAULT_BUTTON_LABEL,
+                    dynamicTrigger: column.onClick || "",
+                  },
+                ],
+              };
+              return renderActions(buttonProps, isHidden, cellProperties);
+
+            case COLUMN_TYPES.DROPDOWN:
+              let options = [];
+
+              try {
+                options = JSON.parse(column.dropdownOptions || "");
+              } catch (e) {}
+
+              return renderDropdown({
+                options: options,
+                onItemSelect: this.onDropdownOptionSelect,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                onOptionChange: column.onOptionChange || "",
+                selectedIndex: isNumber(props.cell.value)
+                  ? props.cell.value
+                  : undefined,
+              });
+
+            case COLUMN_TYPES.IMAGE:
+              const onClick = column.onClick
+                ? () => this.onCommandClick(rowIndex, column.onClick, noop)
+                : noop;
+
+              return renderCell(
+                props.cell.value,
+                column.columnType,
+                isHidden,
+                cellProperties,
+                componentWidth,
+                cellProperties.isCellVisible ?? true,
+                onClick,
+                isSelected,
+              );
+
+            case COLUMN_TYPES.MENUBUTTON:
+              const menuButtonProps: RenderMenuButtonProps = {
+                isSelected: isSelected,
+                onCommandClick: (action: string, onComplete?: () => void) =>
+                  this.onCommandClick(rowIndex, action, onComplete),
+                isDisabled: !!cellProperties.isDisabled,
+                menuItems: cellProperties.menuItems,
+                isCompact: !!cellProperties.isCompact,
+                menuVariant: cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT,
+                menuColor: cellProperties.menuColor || Colors.GREEN,
+                borderRadius: cellProperties.borderRadius,
+                boxShadow: cellProperties.boxShadow,
+                boxShadowColor: cellProperties.boxShadowColor,
+                iconName: cellProperties.iconName,
+                iconAlign: cellProperties.iconAlign,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                label:
+                  cellProperties.menuButtonLabel ?? DEFAULT_MENU_BUTTON_LABEL,
+              };
+
+              return renderMenuButton(
+                menuButtonProps,
+                isHidden,
+                cellProperties,
+              );
+
+            case COLUMN_TYPES.ICONBUTTON:
+              const iconButtonProps = {
+                isSelected: isSelected,
+                onCommandClick: (action: string, onComplete: () => void) =>
+                  this.onCommandClick(rowIndex, action, onComplete),
+                columnActions: [
+                  {
+                    id: column.id,
+                    dynamicTrigger: column.onClick || "",
+                  },
+                ],
+                iconName: (cellProperties.iconName ||
+                  IconNames.ADD) as IconName,
+                buttonColor: cellProperties.buttonColor || Colors.GREEN,
+                buttonVariant: cellProperties.buttonVariant || "PRIMARY",
+                borderRadius: cellProperties.borderRadius || "SHARP",
+                boxShadow: cellProperties.boxShadow || "NONE",
+                boxShadowColor: cellProperties.boxShadowColor || "",
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                disabled: !!cellProperties.isDisabled,
+              };
+
+              return renderIconButton(
+                iconButtonProps,
+                isHidden,
+                cellProperties,
+              );
+
+            default:
+              return renderCell(
+                props.cell.value,
+                column.columnType,
+                isHidden,
+                cellProperties,
+                componentWidth,
+                cellProperties.isCellVisible ?? true,
+              );
           }
         },
       };
 
-      // Hide Column when All cells are hidden
+      const isAllCellVisible: boolean | boolean[] = column.isCellVisible;
+
+      /*
+       * If all cells are not visible or column itself is not visible,
+       * set isHidden and push it to hiddenColumns array else columns array
+       */
       if (
         (isBoolean(isAllCellVisible) && !isAllCellVisible) ||
         (isArray(isAllCellVisible) &&
-          isAllCellVisible.every((v) => v === false)) ||
+          isAllCellVisible.every((visibility) => visibility === false)) ||
         isHidden
       ) {
         columnData.isHidden = true;
         hiddenColumns.push(columnData);
       } else {
-        totalColumnSizes += columnData.width;
+        totalColumnWidth += columnData.width;
         columns.push(columnData);
       }
-    }
-    if (totalColumnSizes < componentWidth) {
+    });
+
+    if (totalColumnWidth < componentWidth) {
       const lastColumnIndex = columns.length - 1;
-      let remainingColumnsSize = 0;
-      for (let i = 0; i < columns.length - 1; i++) {
-        remainingColumnsSize += columns[i].width || defaultColumnWidth;
-      }
+
       if (columns[lastColumnIndex]) {
+        const remainingWidth = componentWidth - totalColumnWidth;
         columns[lastColumnIndex].width =
-          componentWidth - remainingColumnsSize < defaultColumnWidth
-            ? defaultColumnWidth
-            : componentWidth - remainingColumnsSize; //Min remaining width to be defaultColumnWidth
+          remainingWidth < DEFAULT_COLUMN_WIDTH
+            ? DEFAULT_COLUMN_WIDTH
+            : remainingWidth;
       }
     }
+
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
     }
-    return columns.filter((column: ReactTableColumnProps) => column.accessor);
+
+    return columns.filter((column: ReactTableColumnProps) => !!column.accessor);
   };
 
+  //TODO(Balaji): Move this to utilities and write test cases
   transformData = (
     tableData: Array<Record<string, unknown>>,
     columns: ReactTableColumnProps[],
   ) => {
-    const updatedTableData = [];
-    // For each row in the tableData (filteredTableData)
-    for (let row = 0; row < tableData.length; row++) {
-      // Get the row object
-      const data: { [key: string]: any } = tableData[row];
-      if (data) {
-        const tableRow: { [key: string]: any } = {};
-        // For each column in the expected columns of the table
-        for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-          // Get the column properties
-          const column = columns[colIndex];
-          const { accessor } = column;
-          let value = data[accessor];
-          if (column.metaProperties) {
-            const type = column.metaProperties.type;
-            switch (type) {
-              case ColumnTypes.DATE:
-                let isValidDate = true;
-                let outputFormat = Array.isArray(column.metaProperties.format)
-                  ? column.metaProperties.format[row]
-                  : column.metaProperties.format;
-                let inputFormat;
-                try {
-                  const type = Array.isArray(column.metaProperties.inputFormat)
-                    ? column.metaProperties.inputFormat[row]
-                    : column.metaProperties.inputFormat;
-                  if (type !== "Epoch" && type !== "Milliseconds") {
-                    inputFormat = type;
-                    moment(value, inputFormat);
-                  } else if (!isNumber(value)) {
-                    isValidDate = false;
-                  }
-                } catch (e) {
+    return tableData.map((row, rowIndex) => {
+      const newRow: { [key: string]: any } = {};
+
+      columns.forEach((column) => {
+        const { accessor } = column;
+        let value = row[accessor];
+
+        if (column.metaProperties) {
+          switch (column.metaProperties.type) {
+            case ColumnTypes.DATE:
+              let isValidDate = true;
+              let outputFormat = _.isArray(column.metaProperties.format)
+                ? column.metaProperties.format[rowIndex]
+                : column.metaProperties.format;
+              let inputFormat;
+
+              try {
+                const type = _.isArray(column.metaProperties.inputFormat)
+                  ? column.metaProperties.inputFormat[rowIndex]
+                  : column.metaProperties.inputFormat;
+
+                if (type !== "Epoch" && type !== "Milliseconds") {
+                  inputFormat = type;
+                  moment(value as MomentInput, inputFormat);
+                } else if (!isNumber(value)) {
                   isValidDate = false;
                 }
-                if (isValidDate && value) {
-                  try {
-                    if (outputFormat === "SAME_AS_INPUT") {
-                      outputFormat = inputFormat;
-                    }
-                    if (column.metaProperties.inputFormat === "Milliseconds") {
-                      value = Number(value);
-                    } else if (column.metaProperties.inputFormat === "Epoch") {
-                      value = 1000 * Number(value);
-                    }
-                    tableRow[accessor] = moment(value, inputFormat).format(
-                      outputFormat,
-                    );
-                  } catch (e) {
-                    log.debug("Unable to parse Date:", { e });
-                    tableRow[accessor] = "";
+              } catch (e) {
+                isValidDate = false;
+              }
+
+              if (isValidDate && value) {
+                try {
+                  if (outputFormat === "SAME_AS_INPUT") {
+                    outputFormat = inputFormat;
                   }
-                } else if (value) {
-                  tableRow[accessor] = "Invalid Value";
-                } else {
-                  tableRow[accessor] = "";
+
+                  if (column.metaProperties.inputFormat === "Milliseconds") {
+                    value = Number(value);
+                  } else if (column.metaProperties.inputFormat === "Epoch") {
+                    value = 1000 * Number(value);
+                  }
+
+                  newRow[accessor] = moment(
+                    value as MomentInput,
+                    inputFormat,
+                  ).format(outputFormat);
+                } catch (e) {
+                  log.debug("Unable to parse Date:", { e });
+                  newRow[accessor] = "";
                 }
-                break;
-              default:
-                const data =
-                  isString(value) || isNumber(value)
-                    ? value
-                    : isNil(value)
-                    ? ""
-                    : JSON.stringify(value);
-                tableRow[accessor] = data;
-                break;
-            }
+              } else if (value) {
+                newRow[accessor] = "Invalid Value";
+              } else {
+                newRow[accessor] = "";
+              }
+              break;
+            default:
+              let data;
+
+              if (_.isString(value) || _.isNumber(value)) {
+                data = value;
+              } else if (isNil(value)) {
+                data = "";
+              } else {
+                data = JSON.stringify(value);
+              }
+
+              newRow[accessor] = data;
+              break;
           }
         }
+      });
 
-        updatedTableData.push(tableRow);
-      }
-    }
-
-    return updatedTableData;
+      return newRow;
+    });
   };
 
+  //TODO(Balaji): Move this to utilities and write test cases
   getParsedComputedValues = (value: string | Array<unknown>) => {
     let computedValues: Array<unknown> = [];
-    if (isString(value)) {
+
+    if (_.isString(value)) {
       try {
         computedValues = JSON.parse(value);
       } catch (e) {
         log.debug("Error parsing column value: ", value);
       }
-    } else if (Array.isArray(value)) {
+    } else if (_.isArray(value)) {
       computedValues = value;
     } else {
       log.debug("Error parsing column values:", value);
     }
+
     return computedValues;
   };
 
-  getDerivedColumns = (
+  updateDerivedColumnsIndex = (
     derivedColumns: Record<string, ColumnProperties>,
     tableColumnCount: number,
   ) => {
-    if (!derivedColumns) return [];
+    if (!derivedColumns) {
+      return [];
+    }
+
     //update index property of all columns in new derived columns
-    return (
-      Object.keys(derivedColumns)?.map((columnId: string, index: number) => {
+    return Object.values(derivedColumns).map(
+      (column: ColumnProperties, index: number) => {
         return {
-          ...derivedColumns[columnId],
+          ...column,
           index: index + tableColumnCount,
         };
-      }) || []
+      },
     );
   };
 
+  /*
+   * Function to create new primary Columns from the sanitizedTableData
+   * gets called on component mount and on component update
+   */
+  //TODO(Balaji): Move this to utilities and write test cases
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
-    const {
-      sanitizedTableData = [],
-      primaryColumns = {},
-      columnNameMap = {},
-      columnTypeMap = {},
-      derivedColumns = {},
-      hiddenColumns = [],
-      migrated,
-    } = this.props;
-    // Bail out if the data doesn't exist.
-    // This is a temporary measure,
-    // to solve for the scenario where the column properties are getting reset
-    // Repurcussion: The primary columns control will never go into the "no data" state.
-    if (isString(sanitizedTableData) || sanitizedTableData.length === 0) return;
+    const { sanitizedTableData = [], primaryColumns = {} } = this.props;
 
-    const previousColumnIds = Object.keys(primaryColumns);
-    const tableColumns: Record<string, ColumnProperties> = {};
-    //Get table level styles
+    if (!_.isArray(sanitizedTableData) || sanitizedTableData.length === 0) {
+      return;
+    }
+
+    const existingColumnIds = Object.keys(primaryColumns);
+    const newTableColumns: Record<string, ColumnProperties> = {};
     const tableStyles = getTableStyles(this.props);
     const columnKeys: string[] = getAllTableColumnKeys(sanitizedTableData);
-    // Generate default column properties for all columns
-    // But donot replace existing columns with the same id
-    for (let index = 0; index < columnKeys.length; index++) {
-      const i = columnKeys[index];
-      const prevIndex = previousColumnIds.indexOf(i);
+
+    /*
+     * Generate default column properties for all columns
+     * But do not replace existing columns with the same id
+     */
+    columnKeys.forEach((columnKey, index) => {
+      const prevIndex = existingColumnIds.indexOf(columnKey);
+
       if (prevIndex > -1) {
-        // we found an existing property with the same column id use the previous properties
-        tableColumns[i] = primaryColumns[i];
+        // Use the existing column properties
+        newTableColumns[columnKey] = primaryColumns[columnKey];
       } else {
+        // Create column properties for the new column
         const columnProperties = getDefaultColumnProperties(
-          i,
+          columnKey,
           index,
           this.props.widgetName,
         );
-        if (migrated === false) {
-          // Update column names using the names from the table before migration
-          if ((columnNameMap as Record<string, string>)[i]) {
-            columnProperties.label = columnNameMap[i];
-          }
-          // Update column types using types from the table before migration
-          if (
-            (columnTypeMap as Record<
-              string,
-              { type: ColumnTypes; inputFormat?: string; format?: string }
-            >)[i]
-          ) {
-            columnProperties.columnType = columnTypeMap[i].type;
-            columnProperties.inputFormat = columnTypeMap[i].inputFormat;
-            columnProperties.outputFormat = columnTypeMap[i].format;
-          }
-          // Hide columns which were hidden in the table before migration
-          if (hiddenColumns.indexOf(i) > -1) {
-            columnProperties.isVisible = false;
-          }
-        }
-        //add column properties along with table level styles
-        tableColumns[columnProperties.id] = {
+
+        newTableColumns[columnProperties.id] = {
           ...columnProperties,
           ...tableStyles,
         };
       }
-    }
-    // Get derived columns
-    const updatedDerivedColumns = this.getDerivedColumns(
-      derivedColumns,
-      Object.keys(tableColumns).length,
-    );
-
-    //add derived columns to primary columns
-    updatedDerivedColumns.forEach((derivedColumn: ColumnProperties) => {
-      tableColumns[derivedColumn.id] = derivedColumn;
     });
 
-    const newColumnIds = Object.keys(tableColumns);
+    const derivedColumns: Record<string, ColumnProperties> = getDerivedColumns(
+      primaryColumns,
+    );
 
-    if (xor(previousColumnIds, newColumnIds).length > 0) return tableColumns;
-    else return;
+    const updatedDerivedColumns = this.updateDerivedColumnsIndex(
+      derivedColumns,
+      Object.keys(newTableColumns).length,
+    );
+
+    //add derived columns to new Table columns
+    updatedDerivedColumns.forEach((derivedColumn: ColumnProperties) => {
+      newTableColumns[derivedColumn.id] = derivedColumn;
+    });
+
+    const newColumnIds = Object.keys(newTableColumns);
+
+    // check if the columns ids differ
+    if (_.xor(existingColumnIds, newColumnIds).length > 0) {
+      return newTableColumns;
+    } else {
+      return;
+    }
   };
 
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
   ) => {
-    const { primaryColumns = {}, derivedColumns = {} } = this.props;
-    const { columnOrder, migrated } = this.props;
+    const { columnOrder = [], primaryColumns = {} } = this.props;
+    const derivedColumns = getDerivedColumns(primaryColumns);
+
     if (tableColumns) {
-      const previousColumnIds = Object.keys(primaryColumns);
-      const previousDerivedColumnIds = Object.keys(derivedColumns);
+      const existingColumnIds = Object.keys(primaryColumns);
+      const existingDerivedColumnIds = Object.keys(derivedColumns);
 
       const newColumnIds = Object.keys(tableColumns);
 
-      if (xor(previousColumnIds, newColumnIds).length > 0) {
-        const columnIdsToAdd = without(newColumnIds, ...previousColumnIds);
+      //Check if there is any difference in the existing and new columns ids
+      if (_.xor(existingColumnIds, newColumnIds).length > 0) {
+        const newColumnIdsToAdd = _.without(newColumnIds, ...existingColumnIds);
 
         const propertiesToAdd: Record<string, unknown> = {};
-        columnIdsToAdd.forEach((id: string) => {
-          if (id) {
-            Object.entries(tableColumns[id]).forEach(([key, value]) => {
-              propertiesToAdd[`primaryColumns.${id}.${key}`] = value;
+
+        newColumnIdsToAdd.forEach((columnId: string) => {
+          // id could be an empty string
+          if (!!columnId) {
+            Object.entries(tableColumns[columnId]).forEach(([key, value]) => {
+              propertiesToAdd[`primaryColumns.${columnId}.${key}`] = value;
             });
           }
         });
 
-        // If new columnOrders have different values from the original columnOrders
-        // Only update when there are new Columns(Derived or Primary)
+        /*
+         * If new columnOrders have different values from the original columnOrders
+         * Only update when there are new Columns(Derived or Primary)
+         */
         if (
-          xor(newColumnIds, columnOrder).length > 0 &&
           newColumnIds.length > 0 &&
-          !isEqual(sortBy(newColumnIds), sortBy(previousDerivedColumnIds))
+          _.xor(newColumnIds, columnOrder).length > 0 &&
+          !_.isEqual(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
         ) {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
 
         const pathsToDelete: string[] = [];
-        if (migrated === false) {
-          propertiesToAdd["migrated"] = true;
-        }
         const propertiesToUpdate: BatchPropertyUpdatePayload = {
           modify: propertiesToAdd,
         };
+        const columnsIdsToDelete = without(existingColumnIds, ...newColumnIds);
 
-        const columnsIdsToDelete = without(previousColumnIds, ...newColumnIds);
         if (columnsIdsToDelete.length > 0) {
           columnsIdsToDelete.forEach((id: string) => {
-            pathsToDelete.push(`primaryColumns.${id}`);
+            if (!primaryColumns[id].isDerived) {
+              pathsToDelete.push(`primaryColumns.${id}`);
+            }
           });
           propertiesToUpdate.remove = pathsToDelete;
         }
@@ -550,13 +588,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidMount() {
     const { sanitizedTableData } = this.props;
-    let newPrimaryColumns;
-    // When we have tableData, the primaryColumns order is unlikely to change
-    // When we don't have tableData primaryColumns will not be available, so let's let it be.
 
-    if (Array.isArray(sanitizedTableData) && sanitizedTableData.length > 0) {
-      newPrimaryColumns = this.createTablePrimaryColumns();
-      if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
+    if (_.isArray(sanitizedTableData) && sanitizedTableData.length > 0) {
+      const newPrimaryColumns = this.createTablePrimaryColumns();
+
+      // When the Table data schema changes
+      if (newPrimaryColumns) {
+        this.updateColumnProperties(newPrimaryColumns);
+      }
     }
   }
 
@@ -564,15 +603,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { primaryColumns = {} } = this.props;
 
     // Bail out if santizedTableData is a string. This signifies an error in evaluations
-    // Since, it is an error in evaluations, we should not attempt to process the data
-    if (isString(this.props.sanitizedTableData)) return;
+    if (isString(this.props.sanitizedTableData)) {
+      return;
+    }
 
-    // Check if data is modifed by comparing the stringified versions of the previous and next tableData
-    const tableDataModified =
+    // Check if tableData is modifed
+    const isTableDataModified =
       JSON.stringify(this.props.sanitizedTableData) !==
       JSON.stringify(prevProps.sanitizedTableData);
 
-    if (tableDataModified) {
+    if (isTableDataModified) {
+      //update
       this.updateMetaRowData(
         prevProps.filteredTableData,
         this.props.filteredTableData,
@@ -707,7 +748,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     newTableData: Array<Record<string, unknown>>,
   ) => {
     if (!this.props.multiRowSelection) {
-      const selectedRowIndex = selectRowIndex(
+      const selectedRowIndex = getSelectRowIndex(
         oldTableData,
         newTableData,
         this.props.defaultSelectedRow,
@@ -716,7 +757,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       );
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
-      const selectedRowIndices = selectRowIndices(
+      const selectedRowIndices = getSelectRowIndices(
         oldTableData,
         newTableData,
         this.props.defaultSelectedRow,
@@ -783,7 +824,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
           applyFilter={this.applyFilters}
-          columnSizeMap={this.props.columnSizeMap}
+          columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           delimiter={delimiter}
@@ -859,11 +900,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  handleResizeColumn = (columnSizeMap: { [key: string]: number }) => {
+  handleResizeColumn = (columnWidthMap: { [key: string]: number }) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+      super.updateWidgetProperty("columnWidthMap", columnWidthMap);
     } else {
-      this.props.updateWidgetMetaProperty("columnSizeMap", columnSizeMap);
+      this.props.updateWidgetMetaProperty("columnWidthMap", columnWidthMap);
     }
   };
 
@@ -913,7 +954,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  onItemSelect = (action: string) => {
+  onDropdownOptionSelect = (action: string) => {
     super.executeAction({
       dynamicString: action,
       event: {

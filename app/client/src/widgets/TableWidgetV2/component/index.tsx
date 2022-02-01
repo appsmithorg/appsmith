@@ -62,8 +62,8 @@ interface ReactTableComponentProps {
   multiRowSelection?: boolean;
   hiddenColumns?: string[];
   triggerRowSelection: boolean;
-  columnSizeMap?: { [key: string]: number };
-  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
+  columnWidthMap?: { [key: string]: number };
+  handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
@@ -82,7 +82,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   const {
     applyFilter,
     columns,
-    columnSizeMap,
+    columnWidthMap,
     compactMode,
     delimiter,
     disableDrag,
@@ -248,7 +248,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   return (
     <Table
       applyFilter={applyFilter}
-      columnSizeMap={columnSizeMap}
+      columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode}
       data={tableData}
@@ -326,7 +326,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.widgetId === next.widgetId &&
     prev.widgetName === next.widgetName &&
     prev.width === next.width &&
-    isEqual(prev.columnSizeMap, next.columnSizeMap) &&
+    isEqual(prev.columnWidthMap, next.columnWidthMap) &&
     isEqual(prev.tableData, next.tableData) &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
