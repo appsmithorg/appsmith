@@ -282,7 +282,7 @@ jobs:
       - name: Accidentally upload to the same artifact via multiple jobs
         uses: actions/upload-artifact@v2
         with:
-          name: failed-spec
+          name: failed-spec-${{ matrix.job }}
           path: ~/failed_spec
 
       - uses: actions/checkout@v1
@@ -329,7 +329,13 @@ jobs:
       - uses: actions/download-artifact@v2
         id: download
         with:
-          name: failed-spec
+          name: failed-spec-0
+          path: ~/failed_spec
+
+      - uses: actions/download-artifact@v2
+        id: download
+        with:
+          name: failed-spec-1
           path: ~/failed_spec
 
       - name: "Echo download path"
