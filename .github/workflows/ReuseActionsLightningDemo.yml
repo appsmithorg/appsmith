@@ -1,4 +1,4 @@
-name: Reuse Actions
+name: Reuse Actions Lightning
 
 on:
   # This line enables manual triggering of this workflow.
