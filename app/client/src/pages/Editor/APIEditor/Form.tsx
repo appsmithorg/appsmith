@@ -70,6 +70,7 @@ import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 
 const Form = styled.form`
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;

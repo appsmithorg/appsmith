@@ -292,7 +292,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       }`;
     }
 
-    return _.memoize((editorInstance: CodeMirror.Doc) => {
+    return (editorInstance: CodeMirror.Doc) => {
       if (
         editorInstance.lineCount() === 1 &&
         datasource &&
@@ -310,12 +310,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<
           },
         );
       }
-    });
+    };
   };
 
   handleDatasourceHint = (): HintHelper => {
     const { datasourceList } = this.props;
-    return _.memoize(() => {
+    return () => {
       return {
         showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
@@ -368,7 +368,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         },
         fireOnFocus: true,
       };
-    });
+    };
   };
 
   handleEvaluatedValue = () => {
@@ -408,7 +408,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
   };
 
   // handles when user's mouse enters the highlighted component
-  handleMouseEnter = _.memoize((event: MouseEvent) => {
+  handleMouseEnter = (event: MouseEvent) => {
     if (
       this.state.highlightedElementWidth !==
       (event.currentTarget as HTMLElement).getBoundingClientRect()?.width
@@ -420,13 +420,13 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     }
     // add class to trigger custom tooltip to show when mouse enters the component
     document.getElementById("custom-tooltip")?.classList.add("highlighter");
-  });
+  };
 
   // handles when user's mouse leaves the highlighted component
-  handleMouseLeave = _.memoize(() => {
+  handleMouseLeave = () => {
     // remove class to trigger custom tooltip to not show when mouse leaves the component.
     document.getElementById("custom-tooltip")?.classList.remove("highlighter");
-  });
+  };
 
   // if the next props is not equal to the current props, do not rerender, same for state
   shouldComponentUpdate(nextProps: any, nextState: any) {
@@ -479,27 +479,29 @@ class EmbeddedDatasourcePathComponent extends React.Component<
           className="t--datasource-editor"
           evaluatedValue={this.handleEvaluatedValue()}
         />
-        <CustomToolTip
-          id="custom-tooltip"
-          width={this.state.highlightedElementWidth}
-        >
-          <Text
-            color={Colors.ALABASTER_ALT}
-            style={{ fontSize: "10px", display: "block", fontWeight: 600 }}
-            type={TextType.SIDE_HEAD}
-            weight={FontWeight.BOLD}
+        {datasource && datasource.name !== "DEFAULT_REST_DATASOURCE" && (
+          <CustomToolTip
+            id="custom-tooltip"
+            width={this.state.highlightedElementWidth}
           >
-            Datasource
-          </Text>{" "}
-          <Text
-            color={Colors.ALABASTER_ALT}
-            style={{ display: "block" }}
-            type={TextType.P3}
-          >
-            {" "}
-            {this.props.datasource?.name}{" "}
-          </Text>
-        </CustomToolTip>
+            <Text
+              color={Colors.ALABASTER_ALT}
+              style={{ fontSize: "10px", display: "block", fontWeight: 600 }}
+              type={TextType.SIDE_HEAD}
+              weight={FontWeight.BOLD}
+            >
+              Datasource
+            </Text>{" "}
+            <Text
+              color={Colors.ALABASTER_ALT}
+              style={{ display: "block" }}
+              type={TextType.P3}
+            >
+              {" "}
+              {datasource?.name}{" "}
+            </Text>
+          </CustomToolTip>
+        )}
         {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
