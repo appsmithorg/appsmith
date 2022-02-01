@@ -333,7 +333,7 @@ jobs:
           path: ~/failed_spec
 
       - uses: actions/download-artifact@v2
-        id: download
+        id: download-1
         with:
           name: failed-spec-1
           path: ~/failed_spec
