@@ -1416,7 +1416,7 @@ Cypress.Commands.add("PublishtheApp", () => {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.wait(3000);
   cy.assertPageSave();
 
   // Stubbing window.open to open in the same tab
