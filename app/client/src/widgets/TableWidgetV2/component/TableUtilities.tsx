@@ -627,49 +627,6 @@ export function TableHeaderCell(props: {
   );
 }
 
-export function getDefaultColumnProperties(
-  accessor: string,
-  index: number,
-  widgetName: string,
-  isDerived?: boolean,
-): ColumnProperties {
-  const id = generateTableColumnId(accessor);
-  const columnProps = {
-    index: index,
-    width: 150,
-    id,
-    horizontalAlignment: CellAlignmentTypes.LEFT,
-    verticalAlignment: VerticalAlignmentTypes.CENTER,
-    columnType: ColumnTypes.TEXT,
-    textColor: Colors.THUNDER,
-    textSize: TextSizes.PARAGRAPH,
-    fontStyle: FontStyleTypes.REGULAR,
-    enableFilter: true,
-    enableSort: true,
-    isVisible: true,
-    isDisabled: false,
-    isCellVisible: true,
-    isDerived: !!isDerived,
-    label: accessor,
-    computedValue: isDerived
-      ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
-  };
-
-  return columnProps;
-}
-
-export function getTableStyles(props: TableStyles) {
-  return {
-    textColor: props.textColor,
-    textSize: props.textSize,
-    fontStyle: props.fontStyle,
-    cellBackground: props.cellBackground,
-    verticalAlignment: props.verticalAlignment,
-    horizontalAlignment: props.horizontalAlignment,
-  };
-}
-
 const SingleDropDown = Select.ofType<DropdownOption>();
 
 const StyledSingleDropDown = styled(SingleDropDown)`
