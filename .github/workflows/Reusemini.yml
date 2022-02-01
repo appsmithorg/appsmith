@@ -319,19 +319,6 @@ jobs:
     steps:
       - run: echo "All ui-test matrices completed"
 
-      - name: Return status for ui-matrix
-        run: |
-          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
-            echo "Integration tests completed successfully!";
-            exit 0;
-          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then
-            echo "Integration tests were skipped";
-            exit 1;
-          else
-            echo "Integration tests have failed";
-            exit 1;
-          fi
-
       - name: Restore the previous failed specs 0
         uses: martijnhols/actions-cache@v3
         with:
