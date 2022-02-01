@@ -131,7 +131,7 @@ export const CONFIG = {
         action: "",
       },
     ],
-    columnSizeMap: {
+    columnWidthMap: {
       task: 245,
       step: 62,
       status: 75,

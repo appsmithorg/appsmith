@@ -2,12 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
-    let selectedRowIndex = -1;
+    let index = -1;
     const {
-      selectedRowIndices,
       filteredTableData,
-      sanitizedTableData,
       multiRowSelection,
+      sanitizedTableData,
+      selectedRowIndex,
+      selectedRowIndices,
     } = props;
 
     /*
@@ -15,31 +16,33 @@ export default {
      * populate the selectedRowIndex
      */
     if (multiRowSelection) {
-      // check if selectedRowIndices is an array & every item is a number
       if (
         _.isArray(selectedRowIndices) &&
         selectedRowIndices.length &&
         selectedRowIndices.every((i) => _.isNumber(i))
       ) {
-        selectedRowIndex = selectedRowIndices[selectedRowIndices.length - 1];
+        index = selectedRowIndices[selectedRowIndices.length - 1];
       } else if (_.isNumber(selectedRowIndices)) {
-        selectedRowIndex = selectedRowIndices;
+        index = selectedRowIndices;
       }
-    } else if (!_.isNil(props.selectedRowIndex) && !_.isNaN(parseInt(props.selectedRowIndex))) {
-      selectedRowIndex = parseInt(props.selectedRowIndex);
+    } else if (
+      !_.isNil(selectedRowIndex) &&
+      !_.isNaN(parseInt(selectedRowIndex))
+    ) {
+      index = parseInt(selectedRowIndex);
     }
 
     const rows = filteredTableData || sanitizedTableData || [];
     let selectedRow;
-    
+
     //Note(Balaji): Need to include customColumn values in the selectedRow (select, rating)
     // It should have updated values.
-    if (selectedRowIndex > -1) {
-      selectedRow = { ...rows[selectedRowIndex] };
+    if (index > -1) {
+      selectedRow = { ...rows[index] };
     } else {
       /*
-       *  If selectedRowIndex is not a valid index, selectedRow should
-       *  proper row structure with empty string values 
+       *  If index is not a valid, selectedRow should have
+       *  proper row structure with empty string values
        */
       selectedRow = {};
       Object.keys(rows[0]).forEach((key) => {
@@ -52,17 +55,17 @@ export default {
   //
   getTriggeredRow: (props, moment, _) => {
     let index = -1;
-    const { triggeredRowIndex, sanitizedTableData } = props;
-    const parsedTriggeredRowIndex = parseInt(triggeredRowIndex)
+    const { sanitizedTableData, triggeredRowIndex } = props;
+    const parsedTriggeredRowIndex = parseInt(triggeredRowIndex);
 
     if (!_.isNaN(parsedTriggeredRowIndex)) {
       index = parsedTriggeredRowIndex;
     }
-    
+
     //TODO(balaji): Should check if we need to include filteredTableData
     const rows = sanitizedTableData || [];
     const triggeredRow;
-    
+
     //Note(Balaji): Need to include customColumn values in the triggeredRow (select, rating)
     // It should have updated values.
     if (index > -1) {
@@ -70,7 +73,7 @@ export default {
     } else {
       /*
        *  If triggeredRowIndex is not a valid index, triggeredRow should
-       *  have proper row structure with empty string values 
+       *  have proper row structure with empty string values
        */
       triggeredRow = {};
       Object.keys(rows[0]).forEach((key) => {
@@ -82,7 +85,7 @@ export default {
   },
   //
   getSelectedRows: (props, moment, _) => {
-    const { selectedRowIndices, filteredTableData, sanitizedTableData } = props;
+    const { filteredTableData, sanitizedTableData, selectedRowIndices } = props;
     let indices = [];
 
     if (
@@ -154,15 +157,31 @@ export default {
   },
   //
   getTableColumns: (props, moment, _) => {
-    const { sanitizedTableData, primaryColumns, sortOrder, columnOrder } = props;
+    /*
+     * existing columns - primaryColumns
+     * new columns - sanitizedTableData columns
+     */
+    const {
+      columnOrder,
+      primaryColumns,
+      sanitizedTableData,
+      sortOrder,
+    } = props;
     const data = sanitizedTableData || [];
 
     let columns = [];
+
+    /* Shallow copy primaryColumns */
     let existingColumns = Object.assign({}, primaryColumns || {});
 
+    /*
+     * Add colummns from sanitizedTableData to existingColumns if they're not already preset
+     * Remove columns from existingColumns if they're not present in the sanitizedTableData
+     */
     if (data.length > 0) {
       const columnIdSet = new Set();
 
+      // Create a unigue column ids list from newColumns
       data.forEach((row) => {
         Object.keys(row).forEach((key) => {
           columnIdSet.add(key);
@@ -175,7 +194,7 @@ export default {
       newColumnIds.forEach((id) => {
         if (!existingColumns[id]) {
           const currIndex = Object.keys(existingColumns).length;
-          allColumns[id] = {
+          existingColumns[id] = {
             index: currIndex,
             width: 150,
             accessor: id,
@@ -198,70 +217,93 @@ export default {
         }
       });
 
-      /* We need to delete the columns which are not present the 
-       * new sanitizedTableData from primary columns.
+      /* We need to delete the columns, which are not present in the
+       * new sanitizedTableData, from existing columns.
        */
       const existingColumnIds = Object.keys(existingColumns);
-      
+
       _.without(existingColumnIds, ...newColumnIds)
-        .map((excludedId) => {
-          /* only remove the non derived columns */
-          if (existingColumns[excludedId] && !existingColumns[excludedId].isDerived) {
-            return excludedId;
-          }
+        .filter((excludedId) => {
+          /*
+           * only remove the non derived columns, since sanitized tabledata
+           * doesn't have the derived columns
+           */
+          const column = existingColumns[excludedId];
+
+          return column && !column.isDerived;
         })
-        .filter(Boolean)
         .forEach((id) => delete existingColumns[id]);
+    }
+
+    /*
+     * Need to reassign index keys to columns in existing columns
+     * since we have added/removed columns from it
+     */
+    if (_.isArray(columnOrder) && columnOrder.length > 0) {
+      const newColumnsInOrder = {};
+
+      let index = 0;
+
+      /* Assign index for the columns that are already present */
+      _.uniq(columnOrder).forEach((columnId) => {
+        if (existingColumns[columnId]) {
+          newColumnsInOrder[columnId] = {
+            ...existingColumns[columnId],
+            index,
+          };
+          index++;
+        }
+      });
+
+      const len = Object.keys(newColumnsInOrder).length;
+
+      /* Assign index for the new columns */
+      _.without(
+        Object.keys(existingColumns),
+        ...Object.keys(newColumnsInOrder),
+      ).forEach((id, index) => {
+        newColumnsInOrder[id] = { ...existingColumns[id], index: len + index };
+      });
+
+      existingColumns = newColumnsInOrder;
     }
 
     const sortByColumn = sortOrder.column;
     const isAscOrder = sortOrder.order === "asc";
-    
-    if (_.isArray(columnOrder) && columnOrder.length > 0) {
-      const newColumnOrder = {};
 
-      _.uniq(columnOrder)
-        .forEach((id, index) => {
-          if (existingColumns[id]) {
-            newColumnOrder[id] = { ...allColumns[id], index };
-          }
-        });
-      
-      const remaining = _.without(
-        Object.keys(allColumns),
-        ...Object.keys(newColumnsInOrder),
-      );
-      
-      const len = Object.keys(newColumnsInOrder).length;
-      
-      if (remaining && remaining.length > 0) {
-        remaining.forEach((id, index) => {
-          newColumnsInOrder[id] = { ...allColumns[id], index: len + index };
-        });
+    /* set sorting flags and convert the existing columns into an array */
+    Object.values(existingColumns).forEach((column) => {
+      /* guard to not allow columns without id */
+      if (column.id) {
+        column.isAscOrder = column.id === sortByColumn ? isAscOrder : undefined;
+        columns.push(column);
       }
-      allColumns = newColumnsInOrder;
-    }
-    const allColumnProperties = Object.values(allColumns);
-    for (let index = 0; index < allColumnProperties.length; index++) {
-      const columnProperties = { ...allColumnProperties[index] };
-      columnProperties.isAscOrder =
-        columnProperties.id === sortColumn ? sortOrder : undefined;
-      const columnData = columnProperties;
-      columns.push(columnData);
-    }
-    return columns.filter((column) => column.id);
+    });
+
+    return columns;
   },
   //
   getFilteredTableData: (props, moment, _) => {
-    if (!props.sanitizedTableData || !props.sanitizedTableData.length) {
+    /* Make a shallow copy */
+    const sanitizedTableData = [...props.sanitizedTableData];
+    const {
+      derivedColumns,
+      primaryColumnId,
+      primaryColumns,
+      sortOrder,
+      tableColumns,
+    } = props;
+
+    if (!sanitizedTableData || !sanitizedTableData.length) {
       return [];
     }
-    let derivedTableData = [...props.sanitizedTableData];
-    if (props.primaryColumns && _.isPlainObject(props.primaryColumns)) {
-      const primaryColumns = props.primaryColumns;
-      const columnIds = Object.keys(props.primaryColumns);
-      columnIds.forEach((columnId) => {
-        const column = primaryColumns[columnId];
+
+    /* extend sanitizedTableData with values from
+     *  - computedValues, in case of normal column
+     *  - empty values, in case of derived column
+     */
+    if (primaryColumns && _.isPlainObject(primaryColumns)) {
+      Object.entries(primaryColumns).forEach(([id, column]) => {
         let computedValues = [];
 
         if (column && column.computedValue) {
@@ -271,138 +313,133 @@ export default {
             } catch (e) {
               console.error(
                 e,
-                "Error parsing column value: ",
+                "Error parsing column computedValue: ",
                 column.computedValue,
               );
             }
-          } else if (Array.isArray(column.computedValue)) {
+          } else if (_.isArray(column.computedValue)) {
             computedValues = column.computedValue;
           }
         }
 
+        /* for derived columns inject empty strings */
         if (computedValues.length === 0) {
           if (props.derivedColumns) {
-            const derivedColumn = props.derivedColumns[columnId];
-            if (derivedColumn) {
-              computedValues = Array(derivedTableData.length).fill("");
+            if (derivedColumns[id]) {
+              computedValues = Array(sanitizedTableData.length).fill("");
             }
           }
         }
 
-        for (let index = 0; index < computedValues.length; index++) {
-          derivedTableData[index] = {
-            ...derivedTableData[index],
-            [columnId]: computedValues[index],
+        computedValues.forEach((computedValue, index) => {
+          sanitizedTableData[index] = {
+            ...sanitizedTableData[index],
+            [id]: computedValue,
           };
-        }
+        });
       });
     }
 
-    derivedTableData = derivedTableData.map((item, index) => ({
-      ...item,
+    /* Populate meta keys (__originalIndex__, __primaryKey__) */
+    sanitizedTableData = sanitizedTableData.map((row, index) => ({
+      ...row,
       __originalIndex__: index,
-      __primaryKey__: props.primaryColumnId
-        ? item[props.primaryColumnId]
-        : undefined,
+      __primaryKey__: primaryColumnId ? row[primaryColumnId] : undefined,
     }));
-    const columns = props.tableColumns;
-    const sortedColumn = props.sortOrder.column;
+
+    const columns = tableColumns;
+    const sortByColumnId = sortOrder.column;
+
     let sortedTableData;
-    if (sortedColumn) {
-      const sortOrder = props.sortOrder.order === "asc" ? true : false;
-      const column = columns.find((column) => column.id === sortedColumn);
+
+    if (sortByColumnId) {
+      const sortBycolumn = columns.find(
+        (column) => column.id === sortByColumnId,
+      );
       const columnType =
-        column && column.columnType ? column.columnType : "text";
-      const inputFormat = column.inputFormat;
+        sortBycolumn && sortBycolumn.columnType
+          ? sortBycolumn.columnType
+          : "text";
+      const inputFormat = sortBycolumn.inputFormat;
       const isEmptyOrNil = (value) => {
         return _.isNil(value) || value === "";
       };
-      sortedTableData = derivedTableData.sort((a, b) => {
+      const isAscOrder = sortOrder.order === "asc";
+      const sortByOrder = (isAGreaterThanB) => {
+        if (isAGreaterThanB) {
+          return isAscOrder ? 1 : -1;
+        } else {
+          return isAscOrder ? -1 : 1;
+        }
+      };
+      
+      sortedTableData = sanitizedTableData.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
-          if (isEmptyOrNil(a[sortedColumn]) || isEmptyOrNil(b[sortedColumn])) {
+          if (
+            isEmptyOrNil(a[sortByColumnId]) ||
+            isEmptyOrNil(b[sortByColumnId])
+          ) {
             /* push null, undefined and "" values to the bottom. */
-            return isEmptyOrNil(a[sortedColumn]) ? 1 : -1;
+            return isEmptyOrNil(a[sortByColumnId]) ? 1 : -1;
           } else {
             switch (columnType) {
               case "number":
-                return sortOrder
-                  ? Number(a[sortedColumn]) > Number(b[sortedColumn])
-                    ? 1
-                    : -1
-                  : Number(b[sortedColumn]) > Number(a[sortedColumn])
-                  ? 1
-                  : -1;
+                return sortByOrder(
+                  Number(a[sortByColumnId]) > Number(b[sortByColumnId]),
+                );
               case "date":
                 try {
-                  return sortOrder
-                    ? moment(a[sortedColumn], inputFormat).isAfter(
-                        moment(b[sortedColumn], inputFormat),
-                      )
-                      ? 1
-                      : -1
-                    : moment(b[sortedColumn], inputFormat).isAfter(
-                        moment(a[sortedColumn], inputFormat),
-                      )
-                    ? 1
-                    : -1;
+                  return sortByOrder(
+                    moment(a[sortByColumnId], inputFormat).isAfter(
+                      moment(b[sortByColumnId], inputFormat),
+                    ),
+                  );
                 } catch (e) {
                   return -1;
                 }
               default:
-                return sortOrder
-                  ? a[sortedColumn].toString().toUpperCase() >
-                    b[sortedColumn].toString().toUpperCase()
-                    ? 1
-                    : -1
-                  : b[sortedColumn].toString().toUpperCase() >
-                    a[sortedColumn].toString().toUpperCase()
-                  ? 1
-                  : -1;
+                return sortByOrder(
+                  a[sortByColumnId].toString().toLowerCase() >
+                    b[sortByColumnId].toString().toLowerCase(),
+                );
             }
           }
         } else {
-          return sortOrder ? 1 : 0;
+          return isAscOrder ? 1 : 0;
         }
       });
     } else {
-      sortedTableData = [...derivedTableData];
+      sortedTableData = [...sanitizedTableData];
     }
+
     const ConditionFunctions = {
       isExactly: (a, b) => {
         return a.toString() === b.toString();
       },
       empty: (a) => {
-        if (a === null || a === undefined || a === "") return true;
-        return _.isEmpty(a.toString());
+        return _.isNil(a) || _.isEmpty(a.toString());
       },
       notEmpty: (a) => {
-        return a !== "" && a !== undefined && a !== null;
+        return !_.isNil(a) && _.isEmpty(a.toString());
       },
       notEqualTo: (a, b) => {
         return a.toString() !== b.toString();
       },
+      /* Note: Duplicate of isExactly */
       isEqualTo: (a, b) => {
         return a.toString() === b.toString();
       },
       lessThan: (a, b) => {
-        const numericB = Number(b);
-        const numericA = Number(a);
-        return numericA < numericB;
+        return Number(a) < Number(b);
       },
       lessThanEqualTo: (a, b) => {
-        const numericB = Number(b);
-        const numericA = Number(a);
-        return numericA <= numericB;
+        return Number(a) <= Number(b);
       },
       greaterThan: (a, b) => {
-        const numericB = Number(b);
-        const numericA = Number(a);
-        return numericA > numericB;
+        return Number(a) > Number(b);
       },
       greaterThanEqualTo: (a, b) => {
-        const numericB = Number(b);
-        const numericA = Number(a);
-        return numericA >= numericB;
+        return Number(a) >= Number(b);
       },
       contains: (a, b) => {
         try {
@@ -460,49 +497,76 @@ export default {
       },
     };
 
-    const getSearchKey = () => {
-      if (
-        props.searchText &&
-        (!props.onSearchTextChanged || props.enableClientSideSearch)
-      ) {
-        return props.searchText.toLowerCase();
-      }
-      return "";
-    };
+    const {
+      enableClientSideSearch,
+      filters,
+      onSearchTextChanged,
+      searchText,
+    } = props;
+    let searchKey;
 
-    const finalTableData = sortedTableData.filter((item) => {
-      const searchFound = getSearchKey()
-        ? Object.values(item)
-            .join(", ")
-            .toLowerCase()
-            .includes(getSearchKey())
-        : true;
-      if (!searchFound) return false;
-      if (!props.filters || props.filters.length === 0) return true;
-      const filters = props.filters;
+    /* skipping search when client side search is turned off */
+    if (searchText && (!onSearchTextChanged || enableClientSideSearch)) {
+      searchKey = searchText.toLowerCase();
+    } else {
+      searchKey = "";
+    }
+
+    const finalTableData = sortedTableData.filter((row) => {
+      let isSearchKeyFound = true;
+
+      if (searchKey) {
+        isSearchKeyFound = Object.values(row)
+          .join(", ")
+          .toLowerCase()
+          .includes(getSearchKey());
+      }
+
+      if (!isSearchKeyFound) {
+        return false;
+      }
+
+      /* when there is no filter defined */
+      if (!filters || filters.length === 0) {
+        return true;
+      }
+
       const filterOperator = filters.length >= 2 ? filters[1].operator : "OR";
-      let filter = filterOperator === "AND";
+      let isSatisfyingFilters = filterOperator === "AND";
       for (let i = 0; i < filters.length; i++) {
-        let result = true;
+        let filterResult = true;
         try {
           const conditionFunction = ConditionFunctions[filters[i].condition];
           if (conditionFunction) {
-            result = conditionFunction(
-              item[filters[i].column],
+            filterResult = conditionFunction(
+              row[filters[i].column],
               filters[i].value,
             );
           }
         } catch (e) {
+          filterResult = false;
           console.error(e);
         }
-        const filterValue = result;
-        filter =
+
+        /* if one filter condition is not satisfied and filter operator is AND, bailout early */
+        if (!filterResult && filterOperator === "AND") {
+          isSatisfyingFilters = false;
+          break;
+        } else if (filterResult && filterOperator === "OR") {
+          /* if one filter condition is satisfied and filter operator is OR, bailout early */
+          isSatisfyingFilters = true;
+          break;
+        }
+
+        isSatisfyingFilters =
           filterOperator === "AND"
-            ? filter && filterValue
-            : filter || filterValue;
+            ? isSatisfyingFilters && filterResult
+            : isSatisfyingFilters || filterResult;
       }
-      return filter;
+
+      return isSatisfyingFilters;
     });
+
     return finalTableData;
   },
   //

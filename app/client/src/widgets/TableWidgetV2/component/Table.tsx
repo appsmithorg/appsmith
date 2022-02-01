@@ -42,13 +42,13 @@ interface TableProps {
   widgetName: string;
   searchKey: string;
   isLoading: boolean;
-  columnSizeMap?: { [key: string]: number };
+  columnWidthMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   data: Array<Record<string, unknown>>;
   totalRecordsCount?: number;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
+  handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   selectTableRow: (row: {
     original: Record<string, unknown>;
     index: number;
@@ -97,26 +97,26 @@ export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
 
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
-    const columnSizeMap = {
-      ...props.columnSizeMap,
+    const columnWidthMap = {
+      ...props.columnWidthMap,
       ...columnWidths,
     };
-    for (const i in columnSizeMap) {
-      if (columnSizeMap[i] < 60) {
-        columnSizeMap[i] = 60;
-      } else if (columnSizeMap[i] === undefined) {
+    for (const i in columnWidthMap) {
+      if (columnWidthMap[i] < 60) {
+        columnWidthMap[i] = 60;
+      } else if (columnWidthMap[i] === undefined) {
         const columnCounts = props.columns.filter((column) => !column.isHidden)
           .length;
-        columnSizeMap[i] = props.width / columnCounts;
+        columnWidthMap[i] = props.width / columnCounts;
       }
     }
-    props.handleResizeColumn(columnSizeMap);
+    props.handleResizeColumn(columnWidthMap);
   };
   const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
     columns: props.columns,
     compactMode: props.compactMode,
-    columnSizeMap: props.columnSizeMap,
+    columnWidthMap: props.columnWidthMap,
   });
   const columns = React.useMemo(() => props.columns, [columnString]);
   const tableHeadercolumns = React.useMemo(
