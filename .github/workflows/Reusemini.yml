@@ -271,6 +271,8 @@ jobs:
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+      - name: cat minifailed_spec
+        run: echo ${{ env.failed_spec_env }}
 
       - name: list failed tests if there are test failures
         run: |
