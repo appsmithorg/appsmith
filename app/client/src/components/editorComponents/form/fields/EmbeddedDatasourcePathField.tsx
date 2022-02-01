@@ -46,7 +46,11 @@ import { getQueryParams } from "../../../../utils/AppsmithUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
+} from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
@@ -63,6 +67,8 @@ type ReduxStateProps = {
   applicationId?: string;
   dataTree: DataTree;
   actionName: string;
+  applicationSlug: string;
+  pageSlug?: string;
 };
 
 type ReduxDispatchProps = {
@@ -401,7 +407,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               this.props.setDatasourceEditorMode(datasource.id, false);
               history.push(
                 DATA_SOURCES_EDITOR_ID_URL(
-                  this.props.applicationId,
+                  this.props.applicationSlug,
+                  this.props.pageSlug,
                   this.props.currentPageId,
                   datasource.id,
                   getQueryParams(),
@@ -446,6 +453,8 @@ const mapStateToProps = (
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: getCurrentApplicationId(state),
+    applicationSlug: selectCurrentApplicationSlug(state),
+    pageSlug: selectCurrentPageSlug(state),
     dataTree: getDataTree(state),
     actionName: ownProps.actionName,
   };

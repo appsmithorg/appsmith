@@ -9,6 +9,8 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "selectors/editorSelectors";
 import {
   getAction,
@@ -24,6 +26,8 @@ import { JS_COLLECTION_ID_URL } from "constants/routes";
 function ActionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   const action = useSelector((state: AppState) => getAction(state, props.id));
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pageSlug = useSelector(selectCurrentPageSlug);
 
   const onClick = useCallback(() => {
     if (action) {
@@ -31,7 +35,7 @@ function ActionLink(props: EntityLinkProps) {
       const actionConfig = getActionConfig(pluginType);
       const url =
         applicationId &&
-        actionConfig?.getURL(applicationId, pageId, id, pluginType);
+        actionConfig?.getURL(applicationSlug, pageSlug, pageId, id, pluginType);
 
       if (url) {
         history.push(url);
@@ -56,13 +60,17 @@ function ActionLink(props: EntityLinkProps) {
 }
 
 function JSCollectionLink(props: EntityLinkProps) {
-  const applicationId = useSelector(getCurrentApplicationId);
-  // const action = useSelector((state: AppState) => getJSAction(state, props.id));
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pageSlug = useSelector(selectCurrentPageSlug);
   const pageId = useSelector(getCurrentPageId);
   const onClick = useCallback(() => {
     if (props.id) {
-      // const { id } = action;
-      const url = JS_COLLECTION_ID_URL(applicationId, pageId, props.id);
+      const url = JS_COLLECTION_ID_URL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+        props.id,
+      );
 
       if (url) {
         history.push(url);
@@ -119,13 +127,15 @@ function DatasourceLink(props: EntityLinkProps) {
     getDatasource(state, props.id),
   );
   const pageId = useSelector(getCurrentPageId);
-  const applicationId = useSelector(getCurrentApplicationId);
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pageSlug = useSelector(selectCurrentPageSlug);
 
   const onClick = () => {
     if (datasource) {
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          applicationId,
+          applicationSlug,
+          pageSlug,
           pageId,
           datasource.id,
           getQueryParams(),

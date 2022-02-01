@@ -174,42 +174,50 @@ export const BUILDER_PAGE_URL = (props: {
 
 export const API_EDITOR_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: "api",
   });
 
 export const PAGE_LIST_EDITOR_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: "pages",
   });
 
 export const DATA_SOURCES_EDITOR_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: "datasource",
   });
 
 export const DATA_SOURCES_EDITOR_ID_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
   datasourceId = ":datasourceId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: `datasource/${datasourceId}`,
     params,
@@ -217,20 +225,24 @@ export const DATA_SOURCES_EDITOR_ID_URL = (
 
 export const QUERIES_EDITOR_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: "queries",
   });
 
 export const JS_COLLECTION_EDITOR_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: "jsObjects",
   });
@@ -246,6 +258,7 @@ export const INTEGRATION_EDITOR_MODES = {
 };
 export const INTEGRATION_EDITOR_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
   selectedTab = ":selectedTab",
   mode = "",
@@ -258,6 +271,7 @@ export const INTEGRATION_EDITOR_URL = (
   const suffixPath = suffix ? `/${suffix}` : "";
   return BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: `datasources/${selectedTab}${suffixPath}`,
     params,
@@ -266,12 +280,14 @@ export const INTEGRATION_EDITOR_URL = (
 
 export const QUERIES_EDITOR_ID_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
   queryId = ":queryId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: `queries/${queryId}`,
     params,
@@ -279,12 +295,14 @@ export const QUERIES_EDITOR_ID_URL = (
 
 export const API_EDITOR_ID_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
   apiId = ":apiId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: `api/${apiId}`,
     params,
@@ -292,11 +310,13 @@ export const API_EDITOR_ID_URL = (
 
 export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
   selectedPageId = ":importTo",
 ): string => {
   return BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: "api",
     params: {
@@ -307,12 +327,14 @@ export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
 
 export const JS_COLLECTION_ID_URL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
   collectionId = ":collectionId",
   params = {},
 ): string => {
   return BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: `jsObjects/${collectionId}`,
     params,
@@ -325,7 +347,7 @@ export const getApplicationEditorPageURL = (
   pageId = ":pageId",
   params: Record<string, string> = {},
 ): string => {
-  const url = `/${applicationSlug}/${pageSlug}/${pageId}/edit`;
+  const url = `/${applicationSlug}/${pageSlug}-${pageId}/edit`;
   const queryString = convertToQueryParams(params);
   return url + queryString;
 };
@@ -412,21 +434,25 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
 
 export const getGenerateTemplateURL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: GEN_TEMPLATE_URL,
   });
 
 export const getGenerateTemplateFormURL = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: `${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`,
     params,
@@ -434,10 +460,12 @@ export const getGenerateTemplateFormURL = (
 
 export const getOnboardingCheckListUrl = (
   applicationSlug = ":applicationSlug",
+  pageSlug = ":pageSlug",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: "checklist",
   });

@@ -7,6 +7,8 @@ import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
@@ -104,6 +106,8 @@ export const useEntityLink = () => {
   const dataTree = useSelector(getDataTree);
   const pageId = useSelector(getCurrentPageId);
   const applicationId = useSelector(getCurrentApplicationId);
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pageSlug = useSelector(selectCurrentPageSlug);
 
   const { navigateToWidget } = useNavigateToWidget();
 
@@ -117,7 +121,8 @@ export const useEntityLink = () => {
         const url =
           applicationId &&
           actionConfig?.getURL(
-            applicationId,
+            applicationSlug,
+            pageSlug,
             pageId || "",
             entity.actionId,
             entity.pluginType,
@@ -128,7 +133,12 @@ export const useEntityLink = () => {
         }
       } else if (isJSAction(entity)) {
         history.push(
-          JS_COLLECTION_ID_URL(applicationId, pageId, entity.actionId),
+          JS_COLLECTION_ID_URL(
+            applicationSlug,
+            pageSlug,
+            pageId,
+            entity.actionId,
+          ),
         );
       }
     },

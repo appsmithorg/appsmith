@@ -20,6 +20,8 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "selectors/editorSelectors";
 import {
   getDatasource,
@@ -175,7 +177,10 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
-      const applicationId: string = yield select(getCurrentApplicationId);
+      const applicationSlug: string = yield select(
+        selectCurrentApplicationSlug,
+      );
+      const pageSlug: string = yield select(selectCurrentPageSlug);
       const pageId: string = yield select(getCurrentPageId);
       const isGeneratePageInitiator = getIsGeneratePageInitiator(
         isGeneratePageMode,
@@ -183,7 +188,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       const isInGuidedTour = yield select(inGuidedTour);
       if (isGeneratePageInitiator) {
         history.push(
-          getGenerateTemplateFormURL(applicationId, pageId, {
+          getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId, {
             datasourceId: response.data.id,
           }),
         );
@@ -191,7 +196,8 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         if (isInGuidedTour) return;
         history.push(
           INTEGRATION_EDITOR_URL(
-            applicationId,
+            applicationSlug,
+            pageSlug,
             pageId,
             INTEGRATION_TABS.ACTIVE,
             "",
@@ -218,7 +224,8 @@ export function* deleteDatasourceSaga(
     );
 
     const isValidResponse = yield validateResponse(response);
-    const applicationId = yield select(getCurrentApplicationId);
+    const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+    const pageSlug: string = yield select(selectCurrentPageSlug);
 
     if (isValidResponse) {
       const pageId = yield select(getCurrentPageId);
@@ -226,12 +233,13 @@ export function* deleteDatasourceSaga(
         getPluginPackageFromDatasourceId(state, id),
       );
       const datasourcePathWithoutQuery = trimQueryString(
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id),
+        DATA_SOURCES_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, id),
       );
 
       const saasPathWithoutQuery = trimQueryString(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          applicationId,
+          applicationSlug,
+          pageSlug,
           pageId,
           pluginPackageName,
           id,
@@ -244,7 +252,8 @@ export function* deleteDatasourceSaga(
       ) {
         history.push(
           INTEGRATION_EDITOR_URL(
-            applicationId,
+            applicationSlug,
+            pageSlug,
             pageId,
             INTEGRATION_TABS.NEW,
             INTEGRATION_EDITOR_MODES.AUTO,
@@ -674,7 +683,8 @@ function* changeDatasourceSaga(
   const { datasource } = actionPayload.payload;
   const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
-  const applicationId: string = yield select(getCurrentApplicationId);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const pageSlug: string = yield select(selectCurrentPageSlug);
   const pageId: string = yield select(getCurrentPageId);
   let data;
 
@@ -687,13 +697,19 @@ function* changeDatasourceSaga(
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
+    DATA_SOURCES_EDITOR_ID_URL(
+      applicationSlug,
+      pageSlug,
+      pageId,
+      datasource.id,
+    ),
   );
 
   if (history.location.pathname !== datasourcePath)
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
-        applicationId,
+        applicationSlug,
+        pageSlug,
         pageId,
         datasource.id,
         getQueryParams(),
@@ -787,7 +803,8 @@ function* storeAsDatasourceSaga() {
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const state = yield select();
   const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
-  const applicationId: string = yield select(getCurrentApplicationId);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const pageSlug: string = yield select(selectCurrentPageSlug);
   const pageId: string = yield select(getCurrentPageId);
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
     getGenerateCRUDEnabledPluginMap,
@@ -806,7 +823,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
     generateCRUDSupportedPlugin[updatedDatasource.pluginId]
   ) {
     history.push(
-      getGenerateTemplateFormURL(applicationId, pageId, {
+      getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId, {
         datasourceId: updatedDatasource.id,
       }),
     );
@@ -817,7 +834,8 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       API_EDITOR_ID_URL(
-        applicationId,
+        applicationSlug,
+        pageSlug,
         actionRouteInfo.pageId,
         actionRouteInfo.apiId,
       ),

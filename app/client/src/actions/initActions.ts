@@ -11,7 +11,6 @@ export const initEditor = (
 ): ReduxAction<InitializeEditorPayload> => ({
   type: ReduxActionTypes.INITIALIZE_EDITOR,
   payload: {
-    applicationId,
     pageId,
     branch,
   },

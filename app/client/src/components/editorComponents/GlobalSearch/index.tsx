@@ -60,7 +60,11 @@ import {
 } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectCurrentApplicationSlug,
+  selectPageSlugToIdMap,
+} from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -407,11 +411,20 @@ function GlobalSearch() {
     );
   };
 
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pageIdToSlugMap = useSelector(selectPageSlugToIdMap);
+
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    const url = actionConfig?.getURL(applicationId, pageId, id, pluginType);
+    const url = actionConfig?.getURL(
+      applicationSlug,
+      pageIdToSlugMap[pageId],
+      pageId,
+      id,
+      pluginType,
+    );
     toggleShow();
     url && history.push(url);
   };
@@ -419,7 +432,14 @@ function GlobalSearch() {
   const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId } = config;
-    history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id));
+    history.push(
+      JS_COLLECTION_ID_URL(
+        applicationSlug,
+        pageIdToSlugMap[pageId],
+        pageId,
+        id,
+      ),
+    );
     toggleShow();
   };
 
@@ -427,7 +447,8 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
-        applicationId,
+        applicationSlug,
+        pageIdToSlugMap[item.pageId],
         item.pageId,
         item.id,
         getQueryParams(),
@@ -437,7 +458,13 @@ function GlobalSearch() {
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
-    history.push(BUILDER_PAGE_URL({ applicationId, pageId: item.pageId }));
+    history.push(
+      BUILDER_PAGE_URL({
+        applicationSlug,
+        pageSlug: pageIdToSlugMap[item.pageId],
+        pageId: item.pageId,
+      }),
+    );
   };
 
   const onEnterSnippet = useSelector(

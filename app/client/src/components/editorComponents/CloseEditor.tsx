@@ -18,6 +18,8 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "../../selectors/editorSelectors";
 
 const IconContainer = styled.div`
@@ -34,9 +36,10 @@ const IconContainer = styled.div`
 function CloseEditor() {
   const history = useHistory();
   const applicationId = useSelector(getCurrentApplicationId);
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
   const pageId = useSelector(getCurrentPageId);
   const params: string = location.search;
-
+  const pageSlug = useSelector(selectCurrentPageSlug);
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
 
@@ -53,9 +56,10 @@ function CloseEditor() {
   // then route user back to `/generate-page/form`
   // else go back to BUILDER_PAGE
   const redirectURL = isGeneratePageInitiator
-    ? getGenerateTemplateFormURL(applicationId, pageId)
+    ? getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId)
     : BUILDER_PAGE_URL({
         applicationId,
+        pageSlug,
         pageId,
       });
 
@@ -70,6 +74,7 @@ function CloseEditor() {
       redirectTo === "datasources"
         ? INTEGRATION_EDITOR_URL(
             applicationId,
+            pageSlug,
             pageId,
             integrationTab,
             "",

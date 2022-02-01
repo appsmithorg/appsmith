@@ -70,6 +70,7 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
+  selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -514,6 +515,7 @@ export function* createPageSaga(
           pageId: response.data.id,
           pageName: response.data.name,
           layoutId: response.data.layouts[0].id,
+          slug: response.data.slug,
         },
       });
       // Add this to the page DSLs for entity explorer
@@ -524,6 +526,9 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
+      const applicationSlug: string = yield select(
+        selectCurrentApplicationSlug,
+      );
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
         const firstTimeUserOnboardingApplicationId = yield select(
@@ -539,14 +544,16 @@ export function* createPageSaga(
         ) {
           history.push(
             BUILDER_PAGE_URL({
-              applicationId: createPageAction.payload.applicationId,
+              applicationSlug: applicationSlug,
+              pageSlug: response.data.slug,
               pageId: response.data.id,
             }),
           );
         } else {
           history.push(
             getGenerateTemplateURL(
-              createPageAction.payload.applicationId,
+              applicationSlug,
+              response.data.slug,
               response.data.id,
             ),
           );

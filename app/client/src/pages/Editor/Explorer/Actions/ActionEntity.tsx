@@ -10,6 +10,7 @@ import { useSelector } from "store";
 import {
   getCurrentPageId,
   selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
@@ -34,10 +35,12 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const action = useSelector((state) => getAction(state, props.id)) as Action;
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const pageSlug = useSelector(selectCurrentPageSlug);
 
   const config = getActionConfig(props.type);
   const url = config?.getURL(
     applicationSlug,
+    pageSlug,
     pageId as string,
     action.id,
     action.pluginType,

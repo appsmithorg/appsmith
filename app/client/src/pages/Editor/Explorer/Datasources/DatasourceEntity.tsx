@@ -20,8 +20,9 @@ import { isStoredDatasource, PluginType } from "entities/Action";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { getQueryParams } from "utils/AppsmithUtils";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
 
@@ -36,15 +37,17 @@ type ExplorerDatasourceEntityProps = {
 
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
-    const applicationId = useSelector(getCurrentApplicationId);
     const pageId = useSelector(getCurrentPageId) as string;
+    const applicationSlug = useSelector(selectCurrentApplicationSlug);
+    const pageSlug = useSelector(selectCurrentPageSlug);
     const dispatch = useDispatch();
     const icon = getPluginIcon(props.plugin);
     const switchDatasource = useCallback(() => {
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
         history.push(
           SAAS_EDITOR_DATASOURCE_ID_URL(
-            applicationId,
+            applicationSlug,
+            pageSlug,
             pageId,
             props.plugin.packageName,
             props.datasource.id,
@@ -59,14 +62,15 @@ const ExplorerDatasourceEntity = React.memo(
         );
         history.push(
           DATA_SOURCES_EDITOR_ID_URL(
-            applicationId,
+            applicationSlug,
+            pageSlug,
             pageId,
             props.datasource.id,
             getQueryParams(),
           ),
         );
       }
-    }, [applicationId, pageId, props.datasource.id]);
+    }, [applicationSlug, pageSlug, pageId, props.datasource.id]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>

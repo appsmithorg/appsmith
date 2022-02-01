@@ -34,6 +34,7 @@ export type PageLayout = {
 export type FetchPageResponseData = {
   id: string;
   name: string;
+  slug: string;
   applicationId: string;
   layouts: Array<PageLayout>;
   lastUpdatedTime: number;

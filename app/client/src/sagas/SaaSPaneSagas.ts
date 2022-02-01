@@ -14,8 +14,9 @@ import {
 } from "pages/Editor/SaaSEditor/constants";
 
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "selectors/editorSelectors";
 import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
@@ -32,12 +33,14 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   // Only look at SAAS plugins
   if (plugin.type !== PluginType.SAAS) return;
 
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const pageSlug: string = yield select(selectCurrentPageSlug);
 
   history.push(
     SAAS_EDITOR_DATASOURCE_ID_URL(
-      applicationId,
+      applicationSlug,
+      pageSlug,
       pageId,
       plugin.packageName,
       actionPayload.payload.id,
@@ -51,13 +54,21 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const plugin = yield select(getPlugin, pluginId);
 
   if (plugin.type !== "SAAS") return;
-  const applicationId = yield select(getCurrentApplicationId);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const pageSlug: string = yield select(selectCurrentPageSlug);
   const pageId = yield select(getCurrentPageId);
   history.push(
-    SAAS_EDITOR_API_ID_URL(applicationId, pageId, plugin.packageName, id, {
-      editName: "true",
-      from: "datasources",
-    }),
+    SAAS_EDITOR_API_ID_URL(
+      applicationSlug,
+      pageSlug,
+      pageId,
+      plugin.packageName,
+      id,
+      {
+        editName: "true",
+        from: "datasources",
+      },
+    ),
   );
 }
 

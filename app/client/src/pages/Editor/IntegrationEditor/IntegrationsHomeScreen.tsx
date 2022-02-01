@@ -26,7 +26,11 @@ import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
+} from "selectors/editorSelectors";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -100,6 +104,8 @@ type IntegrationsHomeScreenProps = {
   dataSources: Datasource[];
   mockDatasources: MockDatasource[];
   applicationId: string;
+  applicationSlug?: string;
+  pageSlug?: string;
 };
 
 type IntegrationsHomeScreenState = {
@@ -317,7 +323,13 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   componentDidMount() {
-    const { applicationId, dataSources, history, pageId } = this.props;
+    const {
+      applicationSlug,
+      dataSources,
+      history,
+      pageId,
+      pageSlug,
+    } = this.props;
 
     const queryParams = getQueryParams();
     const redirectMode = queryParams.mode;
@@ -328,7 +340,8 @@ class IntegrationsHomeScreen extends React.Component<
         delete queryParams.from;
         history.replace(
           INTEGRATION_EDITOR_URL(
-            applicationId,
+            applicationSlug,
+            pageSlug,
             pageId,
             INTEGRATION_TABS.NEW,
             "",
@@ -342,12 +355,16 @@ class IntegrationsHomeScreen extends React.Component<
     ) {
       // User will be taken to active tab if there are datasources
       history.replace(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+        INTEGRATION_EDITOR_URL(
+          applicationSlug,
+          pageId,
+          INTEGRATION_TABS.ACTIVE,
+        ),
       );
     } else if (redirectMode === INTEGRATION_EDITOR_MODES.MOCK) {
       // If there are no datasources -> new user
       history.replace(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(applicationSlug, pageId, INTEGRATION_TABS.NEW),
       );
       this.onSelectSecondaryMenu(
         getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
@@ -359,10 +376,21 @@ class IntegrationsHomeScreen extends React.Component<
 
   componentDidUpdate(prevProps: Props) {
     this.syncActivePrimaryMenu();
-    const { applicationId, dataSources, history, pageId } = this.props;
+    const {
+      applicationSlug,
+      dataSources,
+      history,
+      pageId,
+      pageSlug,
+    } = this.props;
     if (dataSources.length === 0 && prevProps.dataSources.length > 0) {
       history.replace(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          applicationSlug,
+          pageSlug,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
       this.onSelectSecondaryMenu(
         getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
@@ -371,13 +399,20 @@ class IntegrationsHomeScreen extends React.Component<
   }
 
   onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
-    const { applicationId, dataSources, history, pageId } = this.props;
+    const {
+      applicationSlug,
+      dataSources,
+      history,
+      pageId,
+      pageSlug,
+    } = this.props;
     if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
       return;
     }
     history.push(
       INTEGRATION_EDITOR_URL(
-        applicationId,
+        applicationSlug,
+        pageSlug,
         pageId,
         activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
           ? INTEGRATION_TABS.ACTIVE
@@ -532,6 +567,8 @@ const mapStateToProps = (state: AppState) => {
     mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
     applicationId: getCurrentApplicationId(state),
+    applicationSlug: selectCurrentApplicationSlug(state),
+    pageSlug: selectCurrentPageSlug(state),
   };
 };
 

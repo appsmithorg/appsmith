@@ -37,6 +37,8 @@ interface StateProps extends JSONtoFormProps {
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
+  applicationSlug: string;
+  pageSlug?: string;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -75,12 +77,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      applicationId,
+      applicationSlug,
       datasource,
       formData,
       match: {
         params: { datasourceId, pageId, pluginPackageName },
       },
+      pageSlug,
     } = this.props;
 
     const params: string = location.search;
@@ -104,7 +107,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               onClick={() => {
                 this.props.history.replace(
                   SAAS_EDITOR_DATASOURCE_ID_URL(
-                    applicationId,
+                    applicationSlug,
+                    pageSlug,
                     pageId,
                     pluginPackageName,
                     datasourceId,

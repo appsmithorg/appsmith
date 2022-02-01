@@ -37,7 +37,10 @@ import TooltipComponent from "components/ads/Tooltip";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
+} from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -160,8 +163,6 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const params = useParams<{ pageId: string }>();
 
-  const applicationId = useSelector(getCurrentApplicationId);
-
   const { datasource, plugin } = props;
   const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
     datasource.pluginId
@@ -183,12 +184,16 @@ function DatasourceCard(props: DatasourceCardProps) {
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
 
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pageSlug = useSelector(selectCurrentPageSlug);
+
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          applicationId,
+          applicationSlug,
+          pageSlug,
           params.pageId,
           plugin.packageName,
           datasource.id,
@@ -202,7 +207,8 @@ function DatasourceCard(props: DatasourceCardProps) {
       dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          applicationId,
+          applicationSlug,
+          pageSlug,
           params.pageId,
           datasource.id,
           {
@@ -222,7 +228,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
-      getGenerateTemplateFormURL(applicationId, params.pageId, {
+      getGenerateTemplateFormURL(applicationSlug, pageSlug, params.pageId, {
         datasourceId: datasource.id,
         new_page: true,
       }),

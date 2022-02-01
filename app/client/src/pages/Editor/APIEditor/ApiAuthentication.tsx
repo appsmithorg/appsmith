@@ -27,11 +27,17 @@ import {
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
 } from "constants/messages";
+import {
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
+} from "selectors/editorSelectors";
 
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
   applicationId?: string;
   currentPageId?: string;
+  applicationSlug?: string;
+  pageSlug?: string;
 }
 
 interface ReduxDispatchProps {
@@ -84,7 +90,7 @@ type Props = ReduxStateProps & ReduxDispatchProps;
 
 function ApiAuthentication(props: Props): JSX.Element {
   const dispatch = useDispatch();
-  const { applicationId, currentPageId, datasource } = props;
+  const { applicationSlug, currentPageId, datasource, pageSlug } = props;
   const authType = get(
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
@@ -103,7 +109,8 @@ function ApiAuthentication(props: Props): JSX.Element {
       props.setDatasourceEditorMode(id, false);
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          applicationId,
+          applicationSlug,
+          pageSlug,
           currentPageId,
           id,
           getQueryParams(),
@@ -155,6 +162,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     datasource: datasourceMerged,
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
+    applicationSlug: selectCurrentApplicationSlug(state),
+    pageSlug: selectCurrentPageSlug(state),
   };
 };
 

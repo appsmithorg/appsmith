@@ -20,6 +20,8 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "selectors/editorSelectors";
 import { autofill, change, initialize } from "redux-form";
 import {
@@ -62,6 +64,8 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const pageSlug: string = yield select(selectCurrentPageSlug);
   const pageId: string = yield select(getCurrentPageId);
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
@@ -70,7 +74,12 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const action = yield select(getAction, id);
   if (!action) {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      INTEGRATION_EDITOR_URL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+        INTEGRATION_TABS.ACTIVE,
+      ),
     );
     return;
   }
@@ -177,7 +186,8 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   } = actionPayload.payload;
   if (pluginType === PluginType.DB || pluginType === PluginType.REMOTE) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
-    const applicationId: string = yield select(getCurrentApplicationId);
+    const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+    const pageSlug: string = yield select(selectCurrentPageSlug);
     const pageId: string = yield select(getCurrentPageId);
     const pluginTemplates = yield select(getPluginTemplates);
     const queryTemplate = pluginTemplates[pluginId];
@@ -186,7 +196,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       !!actionConfiguration.body || isEmpty(queryTemplate)
     );
     history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
+      QUERIES_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, id, {
         editName: "true",
         showTemplate,
         from: "datasources",
@@ -201,15 +211,17 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   if (plugin.type !== PluginType.DB && plugin.type !== PluginType.REMOTE)
     return;
 
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const pageSlug: string = yield select(selectCurrentPageSlug);
 
   yield put(
     initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
   );
   history.push(
     DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
+      applicationSlug,
+      pageSlug,
       pageId,
       actionPayload.payload.id,
       { from: "datasources", ...getQueryParams() },
@@ -251,10 +263,17 @@ function* handleNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId = yield select(getCurrentApplicationId);
+    const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+    const pageSlug: string = yield select(selectCurrentPageSlug);
     const pageId = yield select(getCurrentPageId);
     history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
+      QUERIES_EDITOR_ID_URL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+        actionId,
+        params,
+      ),
     );
   }
 }

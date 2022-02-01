@@ -31,6 +31,7 @@ import { find, pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+import { Page } from "constants/ReduxActionConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -97,8 +98,26 @@ export const getCurrentLayoutId = (state: AppState) =>
 
 export const getPageList = (state: AppState) => state.entities.pageList.pages;
 
+export const getPageById = (pageId: string) =>
+  createSelector(getPageList, (pages: Page[]) =>
+    pages.find((page) => page.pageId === pageId),
+  );
+
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
+
+export const selectCurrentPageSlug = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) => pages.find((page) => page.pageId === pageId)?.slug,
+);
+
+export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
+  pages.reduce((acc, page: Page) => {
+    acc[page.pageId] = page.slug;
+    return acc;
+  }, {} as Record<string, string | undefined>),
+);
 
 export const getCurrentApplication = (state: AppState) =>
   state.ui.applications.currentApplication;

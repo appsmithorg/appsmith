@@ -59,7 +59,11 @@ import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
+} from "selectors/editorSelectors";
 
 import {
   getFirstTimeUserOnboardingComplete,
@@ -474,11 +478,15 @@ function GeneratePageForm() {
     }
   }, [querySearch, setDatasourceIdToBeSelected]);
 
+  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pageSlug = useSelector(selectCurrentPageSlug);
+
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
       INTEGRATION_EDITOR_URL(
-        applicationId,
+        applicationSlug,
+        pageSlug,
         currentPageId,
         INTEGRATION_TABS.NEW,
         "",
@@ -539,7 +547,8 @@ function GeneratePageForm() {
       datasourceId: selectedDatasource.id,
     });
     const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
+      applicationSlug,
+      pageSlug,
       currentPageId,
       selectedDatasource.id,
       { isGeneratePageMode: "generate-page" },

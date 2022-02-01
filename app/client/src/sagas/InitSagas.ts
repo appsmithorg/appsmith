@@ -9,7 +9,9 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
+  CurrentApplicationData,
   InitializeEditorPayload,
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -52,11 +54,15 @@ import { resetEditorSuccess } from "actions/initActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import { getIsEditorInitialized, getPageById } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
-import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
+import {
+  addBranchParam,
+  BUILDER_PAGE_URL,
+  getApplicationEditorPageURL,
+} from "constants/routes";
 import history from "utils/history";
 import {
   fetchGitStatusInit,
@@ -106,14 +112,11 @@ function* initializeEditorSaga(
 ) {
   yield put(resetEditorSuccess());
   const { branch, pageId } = initializeEditorAction.payload;
-  let applicationId = initializeEditorAction.payload.applicationId;
   try {
-    if (!applicationId) {
-      const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
-        id: pageId,
-      });
-      applicationId = currentPageInfo.data.applicationId;
-    }
+    const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
+      id: pageId,
+    });
+    const applicationId = currentPageInfo.data.applicationId;
 
     yield put(updateBranchLocally(branch || ""));
 
@@ -209,10 +212,24 @@ function* initializeEditorSaga(
     );
     if (!actionsCall) return;
 
-    const currentApplication = yield select(getCurrentApplication);
+    const currentApplication: CurrentApplicationData = yield select(
+      getCurrentApplication,
+    );
     const appName = currentApplication ? currentApplication.name : "";
     const appId = currentApplication ? currentApplication.id : "";
-    const branchInStore = yield select(getCurrentGitBranch);
+    const applicationSlug = currentApplication.slug;
+    const currentPage: Page = yield select(getPageById(toLoadPageId));
+    const pageSlug = currentPage?.slug;
+
+    const originalUrl = getApplicationEditorPageURL(
+      applicationSlug,
+      pageSlug,
+      pageId,
+    );
+
+    window.history.replaceState(null, "", originalUrl);
+
+    const branchInStore: string = yield select(getCurrentGitBranch);
 
     yield put(
       restoreRecentEntitiesRequest({
@@ -274,19 +291,14 @@ export function* initializeAppViewerSaga(
   action: ReduxAction<{
     branch: string;
     pageId: string;
-    applicationId: string;
   }>,
 ) {
   const { branch, pageId } = action.payload;
 
-  let { applicationId } = action.payload;
-
-  if (!applicationId) {
-    const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
-      id: pageId,
-    });
-    applicationId = currentPageInfo.data.applicationId;
-  }
+  const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
+    id: pageId,
+  });
+  const applicationId = currentPageInfo.data.applicationId;
 
   if (branch) yield put(updateBranchLocally(branch));
 
@@ -351,13 +363,16 @@ export function* initializeAppViewerSaga(
     return;
   }
 
-  const defaultPageId = yield select(getDefaultPageId);
+  const defaultPageId: string = yield select(getDefaultPageId);
   const toLoadPageId = pageId || defaultPageId;
 
   if (toLoadPageId) {
     yield put(fetchPublishedPage(toLoadPageId, true));
 
-    const resultOfFetchPage = yield race({
+    const resultOfFetchPage: {
+      success: boolean;
+      failure: boolean;
+    } = yield race({
       success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
       failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
     });
