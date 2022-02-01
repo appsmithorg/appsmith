@@ -275,13 +275,13 @@ jobs:
         run: echo ${{ env.failed_spec_env }}
 
       - name: list failed tests if there are test failures
-        if: ${{ matrix.job }} == 0
+        if: matrix.job  == 0
         run: |
           mkdir  ~/failed_spec
           echo  "Matrixid=${{ matrix.job }}" >> ~/failed_spec/failed_spec-${{ matrix.job }}
 
       - name: Accidentally upload to the same artifact via multiple jobs
-        if: ${{ matrix.job }} == 0
+        if: matrix.job == 0
         uses: actions/upload-artifact@v2
         with:
           name: failed-spec-${{ matrix.job }}
