@@ -78,6 +78,7 @@ interface DatasourceRestApiEditorProps {
   actions: ActionDataState;
   formMeta: any;
   messages?: Array<string>;
+  hiddenHeader?: boolean;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -303,7 +304,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   render = () => {
     return (
       <>
-        <CloseEditor />
+        {/* this is true during import flow */}
+        {!this.props.hiddenHeader && <CloseEditor />}
         <RestApiForm>
           <form
             onSubmit={(e) => {
@@ -320,15 +322,15 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderHeader = () => {
-    const { isNewDatasource, pluginImage } = this.props;
-    return (
+    const { hiddenHeader, isNewDatasource, pluginImage } = this.props;
+    return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
           <PluginImage alt="Datasource" src={pluginImage} />
           <FormTitle focusOnMount={isNewDatasource} />
         </FormTitleContainer>
       </Header>
-    );
+    ) : null;
   };
 
   renderSave = () => {

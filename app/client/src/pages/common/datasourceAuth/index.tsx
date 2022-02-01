@@ -44,6 +44,7 @@ function DatasourceAuth({
           datasource={datasource}
           getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
+          pageId={pageId}
           shouldRender={shouldRender}
         />
       );
@@ -54,6 +55,7 @@ function DatasourceAuth({
           datasource={datasource}
           getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
+          pageId={pageId}
           shouldRender={shouldRender}
         />
       );

@@ -80,21 +80,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     const {
       applicationId,
       datasource,
+      datasourceId,
       formData,
       hiddenHeader,
-      // match: {
-      //   params: { datasourceId, pageId, pluginPackageName },
-      // },
+      pageId,
+      pluginPackageName,
     } = this.props;
-
-    let datasourceId = "",
-      pageId = this.props.pageId ?? "",
-      pluginPackageName = this.props.pluginPackageName ?? "";
-    if (!hiddenHeader) {
-      datasourceId = this.props.match.params.datasourceId;
-      pageId = this.props.match.params.pageId;
-      pluginPackageName = this.props.match.params.pluginPackageName;
-    }
 
     const params: string = location.search;
     const viewMode = new URLSearchParams(params).get("viewMode");
@@ -104,7 +95,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
       >
-        {!this.props.hiddenHeader && (
+        {!hiddenHeader && (
           <Header>
             <FormTitleContainer>
               <PluginImage alt="Datasource" src={this.props.pluginImage} />
@@ -160,7 +151,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
-  const datasourceId = props.datasourceId || props.match.params.datasourceId;
+  const datasourceId = props.datasourceId || props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
   const datasource = getDatasource(state, datasourceId);
@@ -175,12 +166,16 @@ const mapStateToProps = (state: AppState, props: any) => {
   merge(initialValues, datasource);
   return {
     datasource,
+    datasourceId,
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     formData: formData,
     formConfig,
     isNewDatasource: datasourcePane.newDatasource === datasourceId,
+    pageId: props.pageId || props.match?.params?.pageId,
     pluginImage: getPluginImages(state)[pluginId],
+    pluginPackageName:
+      props.pluginPackageName || props.match?.params?.pluginPackageName,
     initialValues,
     pluginId: pluginId,
     actions: state.entities.actions,

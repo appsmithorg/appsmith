@@ -62,7 +62,7 @@ function OAuth({
   datasource,
   getSanitizedFormData,
   isInvalid,
-  pageId,
+  pageId: pageIdProp,
   shouldRender,
 }: Props): JSX.Element {
   const { id: datasourceId } = datasource;
@@ -83,6 +83,8 @@ function OAuth({
   const location = useLocation();
   const { pageId: pathPageId } = useParams<ExplorerURLParams>();
 
+  const pageId = pathPageId || pageIdProp;
+
   // Handles datasource saving
   const handleDatasourceSave = () => {
     dispatch(
@@ -90,7 +92,7 @@ function OAuth({
         getSanitizedFormData(),
         pluginType
           ? redirectAuthorizationCode(
-              pageId || pathPageId,
+              pageId as string,
               datasourceId,
               pluginType,
             )

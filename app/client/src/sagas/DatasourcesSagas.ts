@@ -95,7 +95,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
-import { getOrganizationIdForImport } from "selectors/gitSyncSelectors";
+import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ orgId?: string } | undefined>,

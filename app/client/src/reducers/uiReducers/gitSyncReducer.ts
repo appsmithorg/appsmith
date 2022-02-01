@@ -1,16 +1,11 @@
 import { createReducer } from "utils/AppsmithUtils";
 import {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 import { GetSSHKeyResponseData } from "actions/gitSyncActions";
-import {
-  ApplicationPagePayload,
-  ApplicationResponsePayload,
-} from "api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -36,31 +31,6 @@ const initialState: GitSyncReducerState = {
   disconnectingGitApp: {
     id: "",
     name: "",
-  },
-  importedApplicationViaGIT: {
-    id: "61f794adcbe6af1a280f74be",
-    name: "api_hosting_import",
-    organizationId: "61e539ea33f03a13de18c3d0",
-    pages: [
-      {
-        id: "61f794b0cbe6af1a280f74c0",
-        isDefault: true,
-        name: "sample",
-      },
-    ],
-    appIsExample: false,
-    unreadCommentThreads: 0,
-    gitApplicationMetadata: {
-      branchName: "master",
-      defaultBranchName: "master",
-      remoteUrl: "git@github.com:haojin111/api_hosting_import.git",
-      browserSupportedRemoteUrl:
-        "https://github.com/haojin111/api_hosting_import",
-      isRepoPrivate: false,
-      repoName: "api_hosting_import",
-      defaultApplicationId: "61f794adcbe6af1a280f74be",
-    },
-    evaluationVersion: 2,
   },
 };
 
@@ -414,25 +384,11 @@ const gitSyncReducer = createReducer(initialState, {
       deployKeyDocUrl: action.payload.docUrl,
     };
   },
-  [ReduxActionTypes.SET_ORG_ID_FOR_GIT_IMPORT]: (
-    state: GitSyncReducerState,
-    action: ReduxAction<string>,
-  ) => {
-    const orgIdForImport = action.payload;
-    let SSHKeyPair = state.SSHKeyPair;
-    let tempRemoteUrl = state.tempRemoteUrl;
-
-    // reset on updating org id for import
-    if (orgIdForImport !== state.orgIdForImport) {
-      SSHKeyPair = "";
-      tempRemoteUrl = "";
-    }
-
+  [ReduxActionTypes.SET_ORG_ID_FOR_IMPORT]: (state: GitSyncReducerState) => {
     return {
       ...state,
-      orgIdForImport,
-      SSHKeyPair,
-      tempRemoteUrl,
+      SSHKeyPair: "",
+      tempRemoteUrl: "",
     };
   },
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: (
@@ -444,12 +400,10 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_SUCCESS]: (
     state: GitSyncReducerState,
-    action: ReduxAction<ApplicationPayload>,
   ) => ({
     ...state,
     isImportingApplicationViaGit: false,
     gitImportError: null,
-    importedApplicationViaGIT: action.payload,
   }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR]: (
     state: GitSyncReducerState,
@@ -502,7 +456,6 @@ export type GitSyncReducerState = {
   isFetchingMergeStatus: boolean;
 
   activeGitSyncModalTab: GitSyncModalTab;
-  orgIdForImport?: string;
   isErrorPopupVisible?: boolean;
   globalGitConfig: GitConfig;
 
@@ -535,10 +488,6 @@ export type GitSyncReducerState = {
   isImportingApplicationViaGit?: boolean;
 
   gitImportError?: any;
-
-  importedApplicationViaGIT?: ApplicationResponsePayload & {
-    pages: ApplicationPagePayload[];
-  };
 };
 
 export default gitSyncReducer;

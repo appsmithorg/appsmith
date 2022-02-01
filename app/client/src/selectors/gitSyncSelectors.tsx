@@ -33,9 +33,6 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getOrganizationIdForImport = (state: AppState) =>
-  state.ui.gitSync.orgIdForImport;
-
 export const getGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.globalGitConfig;
 
@@ -176,6 +173,3 @@ export const getSshKeyPair = (state: AppState) => state.ui.gitSync.SSHKeyPair;
 
 export const getIsImportingApplicationViaGit = (state: AppState) =>
   state.ui.gitSync.isImportingApplicationViaGit;
-
-export const getImportedApplicationViaGIT = (state: AppState) =>
-  state.ui.gitSync.importedApplicationViaGIT;
