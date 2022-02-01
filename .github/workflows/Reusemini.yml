@@ -285,7 +285,7 @@ jobs:
         run: echo ${{ env.failed_spec_env }}
 
       - name: list failed tests create dir
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result != 'failedtest'
         run: |
           mkdir  ~/failed_spec
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
