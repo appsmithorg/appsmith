@@ -51,16 +51,13 @@ function HomeScreenTabs() {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   useEffect(() => {
-    dispatch(setHeaderMeta(true, true));
-  }, []);
-
-  useEffect(() => {
     if (window.location.pathname === TEMPLATES_URL) {
       setSelectedIndex(1);
     }
   }, [window.location.pathname]);
 
   useEffect(() => {
+    dispatch(setHeaderMeta(true, true));
     history.push(HomeTabs[selectedIndex].path);
   }, [selectedIndex]);
 
