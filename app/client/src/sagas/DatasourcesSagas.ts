@@ -31,7 +31,6 @@ import {
 import {
   changeDatasource,
   createDatasourceFromForm,
-  expandDatasourceEntity,
   fetchDatasourceStructure,
   setDatsourceEditorMode,
   updateDatasourceSuccess,
@@ -92,6 +91,7 @@ import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 import { trimQueryString } from "utils/helpers";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
@@ -108,9 +108,6 @@ function* fetchDatasourcesSaga() {
         type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
         payload: response.data,
       });
-      if (response.data.length) {
-        yield put(expandDatasourceEntity(response.data[0].id));
-      }
     }
   } catch (error) {
     yield put({
@@ -183,6 +180,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       const isGeneratePageInitiator = getIsGeneratePageInitiator(
         isGeneratePageMode,
       );
+      const isInGuidedTour = yield select(inGuidedTour);
       if (isGeneratePageInitiator) {
         history.push(
           getGenerateTemplateFormURL(applicationId, pageId, {
@@ -190,6 +188,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           }),
         );
       } else {
+        if (isInGuidedTour) return;
         history.push(
           INTEGRATION_EDITOR_URL(
             applicationId,
@@ -751,9 +750,6 @@ function* storeAsDatasourceSaga() {
     }),
   );
   _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
-  history.push(
-    INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
-  );
 
   yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction = yield take(

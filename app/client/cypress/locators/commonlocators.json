@@ -105,6 +105,8 @@
   "entityName": ".t--entity-name",
   "entityItem": ".t--entity-item",
   "entityCollapseToggle": ".t--entity-collapse-toggle",
+  "entityContextMenu": ".t--context-menu",
+  "entityContextMenuContent": ".t--entity-context-menu",
   "filePickerButton": ".t--widget-filepickerwidget",
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
@@ -150,5 +152,6 @@
   "textWidget": ".t--draggable-textwidget",
   "filepickerv2": ".t--draggable-filepickerwidgetv2",
   "dashboardItemName": ".uppy-Dashboard-Item-name",
-  "mapChartShowLabels": ".t--property-control-showlabels input"
+  "mapChartShowLabels": ".t--property-control-showlabels input",
+  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle"
 }
