@@ -331,3 +331,69 @@ jobs:
             echo "Integration tests have failed";
             exit 1;
           fi
+
+      - name: Restore the previous failed specs 0
+        uses: martijnhols/actions-cache@v3
+        with:
+          path: |
+            ~/failed_spec
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}--0
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}--0
+      - name: Get failed tests 0
+        id: vars2
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
+
+      - name: Get Failed Tests
+        id: vars3
+        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
+      - name: cat failed_spec
+        run: echo ${{ steps.var3.outputs.failed_spec }} >> ~/combined_failed_spec
+
+      - name: Restore the previous failed specs 1
+        uses: martijnhols/actions-cache@v3
+        with:
+          path: |
+            ~/failed_spec
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}--1
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}--1
+      - name: Get failed tests 0
+        id: vars2
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
+
+      - name: Get Failed Tests
+        id: vars3
+        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
+      - name: cat failed_spec
+        run: echo ${{ steps.var3.outputs.failed_spec }} >> ~/combined_failed_spec
+
+      - name: Restore the previous failed specs 2
+        uses: martijnhols/actions-cache@v3
+        with:
+          path: |
+            ~/failed_spec
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}--2
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}--2
+      - name: Get failed tests 0
+        id: vars2
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
+
+      - name: Get Failed Tests
+        id: vars3
+        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
+      - name: cat failed_spec
+        run: echo ${{ steps.var3.outputs.failed_spec }} >> ~/combined_failed_spec
+
+      - name: Store the combined run result
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/combined_failed_spec
+          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
