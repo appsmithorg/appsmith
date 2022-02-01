@@ -218,7 +218,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app/client
+        #        working-directory: app/client
         shell: bash
     strategy:
       fail-fast: false
