@@ -277,7 +277,7 @@ jobs:
       - name: list failed tests if there are test failures
         run: |
           mkdir  ~/failed_spec
-          echo  ${{ matrix.job }} >> ~/failed_spec/failed_spec-${{ matrix.job }}
+          echo  "Matrixid =${{ matrix.job }}"" >> ~/failed_spec/failed_spec-${{ matrix.job }}
 
       - name: Accidentally upload to the same artifact via multiple jobs
         uses: actions/upload-artifact@v2
@@ -336,6 +336,12 @@ jobs:
         id: download-1
         with:
           name: failed-spec-1
+          path: ~/failed_spec
+
+      - uses: actions/download-artifact@v2
+        id: download-2
+        with:
+          name: failed-spec-2
           path: ~/failed_spec
 
       - name: "Echo download path"
