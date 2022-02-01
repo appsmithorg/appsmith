@@ -275,7 +275,6 @@ jobs:
         run: echo ${{ env.failed_spec_env }}
 
       - name: list failed tests create dir
-        if: matrix.job  == 0
         run: |
           mkdir  ~/failed_spec
 
