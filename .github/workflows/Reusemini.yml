@@ -282,7 +282,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: failed-spec
-          path: ~/failed_spec-${{ matrix.job }}
+          path: ~/failed_spec
 
       - uses: actions/checkout@v1
       - name: Try to fail
@@ -329,10 +329,10 @@ jobs:
         id: download
         with:
           name: failed-spec
-          path: ~/failed_spec*
+          path: ~/failed_spec
 
       - name: "Echo download path"
-        run: echo ${{steps.download.outputs.download-path}}
+        run: echo ${{steps.download.outputs}}
 
       - name: Get failed_spec
         #id: failed_spec_var
