@@ -256,6 +256,12 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo ::set-output name=failedspecs::$(cat ~/minifailed_spec)
 
+      - name: Get Failed Tests
+        id: vars3
+        run: echo ::set-output name=minifailed_spec::$(cat ~/minifailed_spec)
+      - name: cat minifailed_spec
+        run: echo ${{ steps.var3.outputs.minifailed_spec }}
+
       - name: Get failed_spec
         #id: failed_spec_var
         #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
