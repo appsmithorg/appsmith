@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { TabComponent } from "components/ads/Tabs";
 import ApplicationLoader from "pages/Applications/loader";
 import PageWrapper from "pages/common/PageWrapper";
-import { LeftPane } from "pages/Applications";
+import { LeftPane as ApplicationsLeftPane } from "pages/Applications";
 import styled from "styled-components";
 import { Indices } from "constants/Layers";
 import { useDispatch } from "react-redux";
@@ -37,12 +37,14 @@ const HomeTabs = [
     title: "Applications",
     panelComponent: <ApplicationLoader />,
     path: APPLICATIONS_URL,
+    leftPane: <ApplicationsLeftPane />,
   },
   {
     key: HomePageTabsKeys.TEMPLATES,
     title: "Templates",
     panelComponent: <div>Templates</div>,
     path: TEMPLATES_URL,
+    leftPane: <div>test</div>,
   },
 ];
 
@@ -63,7 +65,7 @@ function HomeScreenTabs() {
 
   return (
     <PageWrapper>
-      <LeftPane />
+      {HomeTabs[selectedIndex].leftPane}
       <TabsWrapper>
         <TabComponent
           onSelect={setSelectedIndex}
