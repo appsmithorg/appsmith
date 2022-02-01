@@ -7,6 +7,7 @@ import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -85,6 +86,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -97,6 +99,7 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Michael Lawson\",\n" +
                 "    \"productName\": \"Chicken Sandwich\",\n" +
                 "    \"orderAmount\": 4.99,\n" +
+                "    \"anotherKey\": 20,\n" +
                 "    \"orderStatus\": \"READY\"\n" +
                 "  },\n" +
                 "  {\n" +
@@ -105,6 +108,7 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Lindsay Ferguson\",\n" +
                 "    \"productName\": \"Tuna Salad\",\n" +
                 "    \"orderAmount\": 9.99,\n" +
+                "    \"anotherKey\": 12,\n" +
                 "    \"orderStatus\": \"NOT READY\"\n" +
                 "  },\n" +
                 "  {\n" +
@@ -113,6 +117,7 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Tobias Funke\",\n" +
                 "    \"productName\": \"Beef steak\",\n" +
                 "    \"orderAmount\": 19.99,\n" +
+                "    \"anotherKey\": 20,\n" +
                 "    \"orderStatus\": \"READY\"\n" +
                 "  }\n" +
                 "]";
@@ -125,8 +130,12 @@ public class FilterDataServiceTest {
             Condition condition = new Condition("orderAmount", "LT", "15");
             conditionList.add(condition);
 
-            Condition condition1 = new Condition("orderStatus", "EQ", "READY");
+            Condition condition1 = new Condition("anotherKey", "GT", "15");
             conditionList.add(condition1);
+
+
+            Condition condition2 = new Condition("orderStatus", "EQ", "READY");
+            conditionList.add(condition2);
 
             ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
@@ -135,6 +144,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -185,6 +195,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -235,6 +246,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -285,6 +297,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -341,6 +354,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -388,6 +402,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -435,6 +450,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -485,6 +501,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -578,6 +595,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -637,6 +655,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -649,6 +668,7 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Michael Lawson\",\n" +
                 "    \"productName\": \"Chicken Sandwich\",\n" +
                 "    \"orderAmount\": 4.99,\n" +
+                "    \"anotherKey\": 20,\n" +
                 "    \"orderStatus\": \"READY\"\n" +
                 "  },\n" +
                 "  {\n" +
@@ -657,6 +677,7 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Lindsay Ferguson\",\n" +
                 "    \"productName\": \"Tuna Salad\",\n" +
                 "    \"orderAmount\": 9.99,\n" +
+                "    \"anotherKey\": 12,\n" +
                 "    \"orderStatus\": \"NOT READY\"\n" +
                 "  },\n" +
                 "  {\n" +
@@ -665,6 +686,7 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Tobias Funke\",\n" +
                 "    \"productName\": \"Beef steak\",\n" +
                 "    \"orderAmount\": 19.99,\n" +
+                "    \"anotherKey\": 20,\n" +
                 "    \"orderStatus\": \"READY\"\n" +
                 "  }\n" +
                 "]";
@@ -675,6 +697,11 @@ public class FilterDataServiceTest {
                 "      {\n" +
                 "        \"key\": \"orderAmount\",\n" +
                 "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"key\": \"anotherKey\",\n" +
+                "        \"condition\": \"GT\",\n" +
                 "        \"value\": \"15\"\n" +
                 "      },\n" +
                 "      {\n" +
@@ -702,6 +729,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -767,6 +795,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -831,6 +860,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -965,6 +995,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1025,6 +1056,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1088,6 +1120,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1146,6 +1179,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1199,6 +1233,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1259,6 +1294,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1318,6 +1354,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1377,6 +1414,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1440,6 +1478,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedColumns, returnedColumns);
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1510,6 +1549,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedOrder, returnedOrder);
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1578,6 +1618,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedOrderAmountValues, returnedOrderAmountValues);
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -1652,6 +1693,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedOrderAmount, returnedOrderAmount);
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 }
