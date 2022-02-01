@@ -602,6 +602,21 @@
           }
         ]
       },
+      "publishedCollection": {
+        "name": "JSObject1_Published",
+        "pageId": "Page1",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tresults: [],\n\trunMethod: () => {\n\t\t//write code here\n\t\treturn \"Hi\"\n\t}\n}",
+        "variables": [
+          {
+            "name": "results",
+            "value": []
+          }
+        ]
+      },
       "new": false
     },
     {

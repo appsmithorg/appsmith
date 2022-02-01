@@ -183,13 +183,18 @@ public class GitFileUtils {
     private <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {
 
         List<T> deserializedResources = new ArrayList<>();
-        for (Map.Entry<String, Object> resource : resources.entrySet()) {
-            deserializedResources.add(getApplicationResource(resource.getValue(), type));
+        if (!CollectionUtils.isNullOrEmpty(resources)) {
+            for (Map.Entry<String, Object> resource : resources.entrySet()) {
+                deserializedResources.add(getApplicationResource(resource.getValue(), type));
+            }
         }
         return deserializedResources;
     }
 
     private <T> T getApplicationResource(Object resource, Type type) {
+        if (resource == null) {
+            return null;
+        }
         Gson gson = new Gson();
         return gson.fromJson(gson.toJson(resource), type);
     }
@@ -228,13 +233,13 @@ public class GitFileUtils {
     }
 
     private void removeUnwantedFieldsFromPage(NewPage page) {
-        // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO will
-        // be same, so we only commit unpublished PageDTO.
         page.setDefaultResources(null);
         page.setCreatedAt(null);
         page.setUpdatedAt(null);
-        PageDTO unpublishedPage = page.getUnpublishedPage();
+        // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO will
+        // be same, so we only commit unpublished PageDTO.
         page.setPublishedPage(null);
+        PageDTO unpublishedPage = page.getUnpublishedPage();
         if (unpublishedPage != null) {
             unpublishedPage
                     .getLayouts()
