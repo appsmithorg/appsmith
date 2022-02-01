@@ -140,6 +140,9 @@ export type EditorProps = EditorStyleProps &
     isInvalid?: boolean;
     isEditorHidden?: boolean;
     codeEditorVisibleOverflow?: boolean; // flag for determining the input overflow type for the code editor
+    embeddedDatasourceUrl?: boolean;
+    handleMouseEnter?: (event: MouseEvent) => void;
+    handleMouseLeave?: () => void;
   };
 
 type Props = ReduxStateProps &
@@ -160,7 +163,8 @@ class CodeEditor extends Component<Props, State> {
     marking: [bindingMarker],
     hinting: [bindingHint, commandsHelper],
   };
-
+  // this is the higlighted element for the datasource url in the EmbeddedDatasourcePathField component
+  highlightedUrlElement: any;
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
@@ -304,9 +308,44 @@ class CodeEditor extends Component<Props, State> {
         }
       }
     });
+
+    // this code only runs when we are in the EmbeddedDatasourcePathField component
+    if (this.props.embeddedDatasourceUrl) {
+      this.highlightedUrlElement = document.getElementsByClassName(
+        "datasource-highlight",
+      )[0];
+      // if the highlighted element exists
+      if (
+        this.highlightedUrlElement &&
+        !!this.props.handleMouseEnter &&
+        !!this.props.handleMouseLeave
+      ) {
+        this.highlightedUrlElement.addEventListener(
+          "mouseenter",
+          this.props.handleMouseEnter,
+        );
+
+        this.highlightedUrlElement.addEventListener(
+          "mouseleave",
+          this.props.handleMouseLeave,
+        );
+      }
+    }
   }
 
   componentWillUnmount() {
+    // if the highlighted element exists, remove the event listeners to prevent memory leaks
+    if (this.highlightedUrlElement) {
+      this.highlightedUrlElement.removeEventListener(
+        "mouseenter",
+        this.props.handleMouseEnter,
+      );
+      this.highlightedUrlElement.removeEventListener(
+        "mouseleave",
+        this.props.handleMouseLeave,
+      );
+    }
+
     // return if component unmounts before editor is created
     if (!this.editor) return;
 

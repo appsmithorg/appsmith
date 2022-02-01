@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import {
   change,
@@ -58,7 +58,7 @@ import {
   getAction,
   getActionResponses,
 } from "../../../selectors/entitiesSelector";
-import { isEmpty } from "lodash";
+import { isEmpty, isEqual } from "lodash";
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -554,8 +554,11 @@ function ApiEditorForm(props: Props) {
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
-  const actions: Action[] = useSelector((state: AppState) =>
-    state.entities.actions.map((action) => action.config),
+  // passing lodash's equality function to ensure that this selector does not cause a rerender multiple times.
+  // it checks each value to make sure none has changed before recomputing the actions.
+  const actions: Action[] = useSelector(
+    (state: AppState) => state.entities.actions.map((action) => action.config),
+    isEqual,
   );
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
@@ -642,108 +645,113 @@ function ApiEditorForm(props: Props) {
               <TabComponent
                 onSelect={setSelectedIndex}
                 selectedIndex={selectedIndex}
-                tabs={[
-                  {
-                    key: API_EDITOR_TABS.HEADERS,
-                    title: createMessage(API_EDITOR_TAB_TITLES.HEADERS),
-                    count: headersCount,
-                    panelComponent: (
-                      <TabSection>
-                        {apiBindHelpSectionVisible &&
-                          renderHelpSection(
-                            handleClickLearnHow,
-                            setApiBindHelpSectionVisible,
+                tabs={useMemo(
+                  () => [
+                    {
+                      key: API_EDITOR_TABS.HEADERS,
+                      title: createMessage(API_EDITOR_TAB_TITLES.HEADERS),
+                      count: headersCount,
+                      panelComponent: (
+                        <TabSection>
+                          {apiBindHelpSectionVisible &&
+                            renderHelpSection(
+                              handleClickLearnHow,
+                              setApiBindHelpSectionVisible,
+                            )}
+                          {props.datasourceHeaders.length > 0 && (
+                            <ImportedDatas
+                              attributeName="headers"
+                              data={props.datasourceHeaders}
+                            />
                           )}
-                        {props.datasourceHeaders.length > 0 && (
-                          <ImportedDatas
-                            attributeName="headers"
-                            data={props.datasourceHeaders}
+                          <KeyValueFieldArray
+                            actionConfig={actionConfigurationHeaders}
+                            dataTreePath={`${actionName}.config.headers`}
+                            hideHeader={!!props.datasourceHeaders.length}
+                            label="Headers"
+                            name="actionConfiguration.headers"
+                            placeholder="Value"
+                            pushFields
+                            theme={theme}
                           />
-                        )}
-                        <KeyValueFieldArray
-                          actionConfig={actionConfigurationHeaders}
-                          dataTreePath={`${actionName}.config.headers`}
-                          hideHeader={!!props.datasourceHeaders.length}
-                          label="Headers"
-                          name="actionConfiguration.headers"
-                          placeholder="Value"
-                          pushFields
-                          theme={theme}
-                        />
-                      </TabSection>
-                    ),
-                  },
-                  {
-                    key: API_EDITOR_TABS.PARAMS,
-                    title: createMessage(API_EDITOR_TAB_TITLES.PARAMS),
-                    count: paramsCount,
-                    panelComponent: (
-                      <TabSection>
-                        {props.datasourceParams.length > 0 && (
-                          <ImportedDatas
-                            attributeName={"params"}
-                            data={props.datasourceParams}
+                        </TabSection>
+                      ),
+                    },
+                    {
+                      key: API_EDITOR_TABS.PARAMS,
+                      title: createMessage(API_EDITOR_TAB_TITLES.PARAMS),
+                      count: paramsCount,
+                      panelComponent: (
+                        <TabSection>
+                          {props.datasourceParams.length > 0 && (
+                            <ImportedDatas
+                              attributeName={"params"}
+                              data={props.datasourceParams}
+                            />
+                          )}
+                          <KeyValueFieldArray
+                            actionConfig={actionConfigurationParams}
+                            dataTreePath={`${actionName}.config.queryParameters`}
+                            hideHeader={!!props.datasourceParams.length}
+                            label="Params"
+                            name="actionConfiguration.queryParameters"
+                            pushFields
+                            removeTopPadding
+                            theme={theme}
                           />
-                        )}
-                        <KeyValueFieldArray
-                          actionConfig={actionConfigurationParams}
-                          dataTreePath={`${actionName}.config.queryParameters`}
-                          hideHeader={!!props.datasourceParams.length}
-                          label="Params"
-                          name="actionConfiguration.queryParameters"
-                          pushFields
-                          removeTopPadding
+                        </TabSection>
+                      ),
+                    },
+                    {
+                      key: API_EDITOR_TABS.BODY,
+                      title: createMessage(API_EDITOR_TAB_TITLES.BODY),
+                      panelComponent: allowPostBody ? (
+                        <PostBodyData
+                          dataTreePath={`${actionName}.config`}
                           theme={theme}
                         />
-                      </TabSection>
-                    ),
-                  },
-                  {
-                    key: API_EDITOR_TABS.BODY,
-                    title: createMessage(API_EDITOR_TAB_TITLES.BODY),
-                    panelComponent: allowPostBody ? (
-                      <PostBodyData
-                        dataTreePath={`${actionName}.config`}
-                        theme={theme}
-                      />
-                    ) : (
-                      <NoBodyMessage>
-                        <Text type={TextType.P2}>
-                          This request does not have a body
-                        </Text>
-                      </NoBodyMessage>
-                    ),
-                  },
-                  {
-                    key: API_EDITOR_TABS.PAGINATION,
-                    title: createMessage(API_EDITOR_TAB_TITLES.PAGINATION),
-                    panelComponent: (
-                      <Pagination
-                        onTestClick={props.onRunClick}
-                        paginationType={props.paginationType}
-                        theme={theme}
-                      />
-                    ),
-                  },
-                  {
-                    key: API_EDITOR_TABS.AUTHENTICATION,
-                    title: createMessage(API_EDITOR_TAB_TITLES.AUTHENTICATION),
-                    panelComponent: <ApiAuthentication />,
-                  },
-                  {
-                    key: API_EDITOR_TABS.SETTINGS,
-                    title: createMessage(API_EDITOR_TAB_TITLES.SETTINGS),
-                    panelComponent: (
-                      <SettingsWrapper>
-                        <ActionSettings
-                          actionSettingsConfig={settingsConfig}
-                          formName={API_EDITOR_FORM_NAME}
+                      ) : (
+                        <NoBodyMessage>
+                          <Text type={TextType.P2}>
+                            This request does not have a body
+                          </Text>
+                        </NoBodyMessage>
+                      ),
+                    },
+                    {
+                      key: API_EDITOR_TABS.PAGINATION,
+                      title: createMessage(API_EDITOR_TAB_TITLES.PAGINATION),
+                      panelComponent: (
+                        <Pagination
+                          onTestClick={props.onRunClick}
+                          paginationType={props.paginationType}
                           theme={theme}
                         />
-                      </SettingsWrapper>
-                    ),
-                  },
-                ]}
+                      ),
+                    },
+                    {
+                      key: API_EDITOR_TABS.AUTHENTICATION,
+                      title: createMessage(
+                        API_EDITOR_TAB_TITLES.AUTHENTICATION,
+                      ),
+                      panelComponent: <ApiAuthentication />,
+                    },
+                    {
+                      key: API_EDITOR_TABS.SETTINGS,
+                      title: createMessage(API_EDITOR_TAB_TITLES.SETTINGS),
+                      panelComponent: (
+                        <SettingsWrapper>
+                          <ActionSettings
+                            actionSettingsConfig={settingsConfig}
+                            formName={API_EDITOR_FORM_NAME}
+                            theme={theme}
+                          />
+                        </SettingsWrapper>
+                      ),
+                    },
+                  ],
+                  [props.pluginId],
+                )}
               />
             </TabbedViewContainer>
             <ApiResponseView

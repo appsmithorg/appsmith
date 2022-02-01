@@ -270,8 +270,8 @@ export const EditorWrapper = styled.div<{
   ${(props) =>
     props.codeEditorVisibleOverflow &&
     `
-    & .CodeMirror-scroll {
-      overflow: visible !important;
+    &&&&&&&& .CodeMirror-scroll {
+      overflow: visible;
     }
    
     & .CodeEditorTarget {

@@ -487,6 +487,11 @@ export const getAllPageWidgets = createSelector(
   },
 );
 
+export const getPageList = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) => pages,
+);
+
 export const getPageListAsOptions = createSelector(
   (state: AppState) => state.entities.pageList.pages,
   (pages) =>
