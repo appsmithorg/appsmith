@@ -181,26 +181,26 @@ jobs:
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Test failed_spec
-        #run: echo ${{ steps.failed_spec_var.outputs.failed_spec }}
-        run: echo ${{ env.failed_spec_env }}
+      #- name: Test failed_spec
+      #  #run: echo ${{ steps.failed_spec_var.outputs.failed_spec }}
+      #  run: echo ${{ env.failed_spec_env }}
 
-      - name: Restore the previous bundle
-        #if: steps.run_result.outputs.run_result == 'success'
-        uses: actions/cache@v2
-        with:
-          path: |
-            app/client/build/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+      #- name: Restore the previous bundle
+      #  #if: steps.run_result.outputs.run_result == 'success'
+      #  uses: actions/cache@v2
+      #  with:
+      #    path: |
+      #      app/client/build/
+      #    key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+      #    restore-keys: |
+      #      ${{ github.run_id }}-${{ github.job }}
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload react build bundle
-        uses: actions/upload-artifact@v2
-        with:
-          name: client-build
-          path: app/client/build/
+      #- name: Upload react build bundle
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: client-build
+      #    path: app/client/build/
 
       - run: echo "::set-output name=run_result::success" > ~/run_result
   ui-test:
@@ -224,20 +224,6 @@ jobs:
       fail-fast: false
       matrix:
         job: [0, 1, 2]
-
-    # Service containers to run with this job. Required for running tests
-    services:
-      # Label used to access the service container
-      redis:
-        # Docker Hub image for Redis
-        image: redis
-        ports:
-          # Opens tcp port 6379 on the host and service container
-          - 6379:6379
-      mongo:
-        image: mongo
-        ports:
-          - 27017:27017
 
     steps:
       # Checkout the code
