@@ -262,9 +262,9 @@ jobs:
       - name: cat failed_spec
         run: echo ${{ steps.var3.outputs.failed_spec }}
 
-      - name: Restore the previous failed result
+      - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: martijnhols/actions-cache@v3
+        uses: martijnhols/actions-cache/restore@v3
         with:
           path: |
             ~/combined_failed_spec
@@ -285,6 +285,7 @@ jobs:
         run: echo ${{ env.failed_spec_env }}
 
       - name: list failed tests create dir
+        if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
           mkdir  ~/failed_spec
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
