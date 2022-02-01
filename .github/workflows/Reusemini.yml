@@ -262,12 +262,22 @@ jobs:
       - name: cat failed_spec
         run: echo ${{ steps.var3.outputs.failed_spec }}
 
+      - name: Restore the previous failed result
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        uses: martijnhols/actions-cache@v3
+        with:
+          path: |
+            ~/combined_failed_spec
+          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
       - name: Get failed_spec
         #id: failed_spec_var
         #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat ~/failed_spec)
+          failed_spec_env=$(cat ~/combined_failed_spec)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -363,6 +373,9 @@ jobs:
 
       - name: "Echo all files"
         run: echo ${{env.failed_spec_env}}
+
+      - name: "combine all specs"
+        run: echo ${{env.failed_spec_env}} > ~/combined_failed_spec
 
       - name: Store the combined run result
         uses: martijnhols/actions-cache/save@v3
