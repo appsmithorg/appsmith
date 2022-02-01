@@ -28,7 +28,7 @@ export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
 
 export const BUILDER_URL_DEP = `/applications/:applicationId/(pages)?/:pageId/edit`;
-export const BUILDER_URL = `/:applicationSlug/:pageSlug/:pageId/edit`;
+export const BUILDER_URL = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_URL = `/:applicationSlug/:pageSlug/:pageId`;
 export const VIEWER_URL_DEP = `/applications/:applicationId/(pages)?/:pageId?`;
 
@@ -158,7 +158,7 @@ export const BUILDER_PAGE_URL = (props: {
   // todo (rishabh s) check when this is applicable
   // if (!pageId) return APPLICATIONS_URL;
 
-  const pageIdPath = pageId ? `/${pageSlug}/${pageId}` : `/${pageSlug}`;
+  const pageIdPath = pageId ? `/${pageSlug}-${pageId}` : `/${pageSlug}`;
 
   const paramsToPersist = fetchParamsToPersist();
   const modifiedParams = { ...paramsToPersist, ...params };
