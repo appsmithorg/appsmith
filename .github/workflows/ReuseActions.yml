@@ -675,7 +675,7 @@ jobs:
           headless: true
           record: true
           install: false
-          parallel: true
+          parallel: false
           group: "Electrons on Github Action"
           #spec: steps.failed_spec.outputs.failed_spec Not working
           #spec: $(cat ~/failed_spec)
