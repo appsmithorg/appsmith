@@ -276,7 +276,13 @@ jobs:
 
       - name: list failed tests if there are test failures
         run: |
-          echo  ${{ matrix.job }} >> ~/failed_spec
+          echo  ${{ matrix.job }} >> ~/failed_spec-${{ matrix.job }}
+
+      - name: Accidentally upload to the same artifact via multiple jobs
+        uses: actions/upload-artifact@v2
+        with:
+          name: failed-spec
+          path: ~/failed_spec-${{ matrix.job }}
 
       - uses: actions/checkout@v1
       - name: Try to fail
@@ -319,59 +325,14 @@ jobs:
     steps:
       - run: echo "All ui-test matrices completed"
 
-      - name: Restore the previous failed specs 0
-        uses: martijnhols/actions-cache@v3
+      - uses: actions/download-artifact@v2
+        id: download
         with:
-          path: |
-            ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}--0
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}--0
-      - name: Get failed tests 0
-        id: vars10
-        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
+          name: failed-spec
+          path: ~/failed_spec*
 
-      - name: Get Failed Tests
-        id: vars101
-        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
-      - name: cat failed_spec
-        run: echo ${{ steps.var101.outputs.failed_spec }} >> ~/combined_failed_spec
-
-      - name: Restore the previous failed specs 1
-        uses: martijnhols/actions-cache@v3
-        with:
-          path: |
-            ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}--1
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}--1
-      - name: Get failed tests 1
-        id: vars11
-        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
-
-      - name: Get Failed Tests
-        id: vars111
-        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
-      - name: cat failed_spec
-        run: echo ${{ steps.var111.outputs.failed_spec }} >> ~/combined_failed_spec
-
-      - name: Restore the previous failed specs 2
-        uses: martijnhols/actions-cache@v3
-        with:
-          path: |
-            ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}--2
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}--2
-      - name: Get failed tests 2
-        id: vars12
-        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
-
-      - name: Get Failed Tests
-        id: vars121
-        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
-      - name: cat failed_spec
-        run: echo ${{ steps.var121.outputs.failed_spec }} >> ~/combined_failed_spec
+      - name: "Echo download path"
+        run: echo ${{steps.download.outputs.download-path}}
 
       - name: Store the combined run result
         uses: martijnhols/actions-cache/save@v3
