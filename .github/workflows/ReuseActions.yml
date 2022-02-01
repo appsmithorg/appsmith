@@ -676,7 +676,7 @@ jobs:
           record: true
           install: false
           parallel: false
-          group: "Electrons on Github Action"
+          #group: "Electrons on Github Action"
           #spec: steps.failed_spec.outputs.failed_spec Not working
           #spec: $(cat ~/failed_spec)
           #spec: ${{ steps.failed_spec.outputs.failed_spec }}
