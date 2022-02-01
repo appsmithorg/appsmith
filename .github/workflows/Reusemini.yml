@@ -367,3 +367,9 @@ jobs:
           key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
+
+      - name: upload combined failed spec
+        uses: actions/upload-artifact@v2
+        with:
+          name: combined_failed_spec
+          path: ~/combined_failed_spec
