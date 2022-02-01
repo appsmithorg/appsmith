@@ -174,15 +174,20 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
   const { extension, hasExtension, validExtension } = checkUrlExtension(url);
   if (hasExtension) {
     if (validExtension) {
-      if (extension === "pdf") {
-        viewer = "pdf";
-        renderer = Renderers.DOCUMENT_VIEWER;
-      } else if (extension === "txt") {
-        viewer = "url";
-        renderer = Renderers.DOCUMENT_VIEWER;
-      } else {
-        viewer = "office";
-        renderer = Renderers.DOCUMENT_VIEWER;
+      renderer = Renderers.DOCUMENT_VIEWER;
+      switch (extension) {
+        case "pdf": {
+          viewer = "pdf";
+          break;
+        }
+        case "txt": {
+          viewer = "url";
+          break;
+        }
+        default: {
+          viewer = "office";
+          break;
+        }
       }
     } else {
       errorMessage = "Current file type is not supported";
@@ -225,8 +230,9 @@ function DocumentViewerComponent(props: DocumentViewerComponentProps) {
             width="100%"
           />
         );
+      } else {
+        return <DocumentViewer url={url} viewer={viewer} />;
       }
-      return <DocumentViewer url={url} viewer={viewer} />;
 
     default:
       return null;
