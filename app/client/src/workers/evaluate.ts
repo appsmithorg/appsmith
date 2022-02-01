@@ -13,7 +13,6 @@ import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import MOCK_APP_LEVEL_ENTITY from "./MOCK_APP_LEVEL_ENTITY";
 
 export type EvalResult = {
   result: any;
