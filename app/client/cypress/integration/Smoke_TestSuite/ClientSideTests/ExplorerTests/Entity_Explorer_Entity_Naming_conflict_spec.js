@@ -27,7 +27,7 @@ describe("Tab widget test", function() {
 
   it("Rename Table widget with api name validation test", function() {
     cy.GlobalSearchEntity("Table1");
-    cy.RenameEntity(tableName);
-    cy.validateMessage(tableName);
+    cy.RenameEntity(apiName);
+    cy.validateMessage(apiName);
   });
 });

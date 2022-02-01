@@ -78,6 +78,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /appsmith-stacks
+          envFrom:
+            - configMapRef:
+                name: {{ include "appsmith.fullname" . }}
       volumes:
   {{- if not .Values.persistence.enabled }}
       - name: data

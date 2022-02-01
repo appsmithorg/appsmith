@@ -13,6 +13,8 @@ import {
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
+import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
+import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -62,11 +64,6 @@ export const widgetIcon = (
   <WidgetIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
-const ApiIcon = MenuIcons.APIS_COLORED_ICON;
-export const apiIcon = (
-  <ApiIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
-);
-
 const DBQueryIcon = MenuIcons.DATASOURCE_ICON_v2;
 export const dbQueryIcon = (
   <DBQueryIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
@@ -93,7 +90,7 @@ export const jsFunctionIcon = (
 
 const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 export const settingsIcon = (
-  <SettingsIcon color={Colors.GRAY} height={16} width={16} />
+  <SettingsIcon color={Colors.CODE_GRAY} height={16} width={16} />
 );
 
 const QueryMainIcon = MenuIcons.QUERY_MAIN;
@@ -195,3 +192,136 @@ export function MethodTag(props: { type: typeof HTTP_METHODS[number] }) {
     </StyledTag>
   );
 }
+
+const CurrentPageIcon = MenuIcons.CURRENT_PAGE_ICON;
+export const currentPageIcon = (
+  <CurrentPageIcon
+    color={Colors.CHARCOAL}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
+);
+
+const SortIcon = MenuIcons.SORT_ICON;
+export const SortFileIcon = (
+  <SortIcon
+    color={Colors.CHARCOAL}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
+);
+
+/**
+ * Entity Icon components
+ */
+
+type EntityTextIconProps = {
+  children: React.ReactNode;
+  textColor?: string;
+};
+
+const EntityTextIconWrapper = styled.div<{ color?: string }>`
+  color: ${({ color }) => (color ? color : Colors.SCORPION)};
+  font-size: 56%;
+  font-weight: 900;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 2px;
+`;
+
+function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
+  return (
+    <EntityTextIconWrapper color={props.textColor}>
+      {props.children}
+    </EntityTextIconWrapper>
+  );
+}
+
+const EntityIconWrapper = styled.div<{
+  borderColor?: string;
+  width?: string;
+  height?: string;
+  noBorder?: boolean;
+  bgColor?: string;
+}>`
+  height: ${({ height }) => (height ? height : "18px")};
+  width: ${({ width }) => (width ? width : "18px")};
+  background: ${({ bgColor }) => bgColor ?? Colors.WHITE};
+  border: ${({ borderColor, noBorder }) =>
+    noBorder ? "none" : `1.5px solid ${borderColor ?? Colors.SCORPION}`};
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  svg,
+  img {
+    height: 12px !important;
+    width: 12px !important;
+  }
+`;
+
+type EntityIconType = {
+  children: React.ReactNode;
+  borderColor?: string;
+  width?: string;
+  height?: string;
+  noBorder?: boolean;
+  bgColor?: string;
+};
+
+function EntityIcon(props: EntityIconType): JSX.Element {
+  return (
+    <EntityIconWrapper
+      bgColor={props.bgColor}
+      borderColor={props.borderColor}
+      height={props.height}
+      noBorder={props.noBorder}
+      width={props.width}
+    >
+      {props.children}
+    </EntityIconWrapper>
+  );
+}
+
+EntityIcon.textIcon = EntityTextIcon;
+export { EntityIcon };
+
+/** ======= Entity Icon components ends ====== */
+
+export function ApiMethodIcon(props: { type: typeof HTTP_METHODS[number] }) {
+  return (
+    <EntityIcon borderColor={HTTP_METHOD_COLOR_MAP[props.type]} width={"36px"}>
+      <EntityIcon.textIcon textColor={HTTP_METHOD_COLOR_MAP[props.type]}>
+        {props.type}
+      </EntityIcon.textIcon>
+    </EntityIcon>
+  );
+}
+
+export function DefaultApiIcon() {
+  return (
+    <EntityIcon>
+      <ApiIcon />
+    </EntityIcon>
+  );
+}
+
+export function CurlIconV2() {
+  return (
+    <EntityIcon>
+      <CurlIcon />
+    </EntityIcon>
+  );
+}
+
+export const JsFileIconV2 = (
+  <EntityIcon>
+    <EntityIcon.textIcon>JS</EntityIcon.textIcon>
+  </EntityIcon>
+);
