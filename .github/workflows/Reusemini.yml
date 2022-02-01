@@ -344,7 +344,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: "Echo all files"
-        run: echo ${{failed_spec_env}}
+        run: echo ${{env.failed_spec_env}}
 
       - name: Store the combined run result
         uses: martijnhols/actions-cache/save@v3
