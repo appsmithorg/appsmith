@@ -97,9 +97,11 @@ function TableDropdown(props: DropdownProps) {
   }, [props.selectedIndex]);
 
   const optionSelector = (index: number) => {
-    setSelectedIndex(index);
-    setSelectedOption(props.options[index]);
-    props.onSelect && props.onSelect(props.options[index]);
+    if (index !== selectedIndex) {
+      setSelectedIndex(index);
+      setSelectedOption(props.options[index]);
+      props.onSelect && props.onSelect(props.options[index]);
+    }
     setIsDropdownOpen(false);
   };
 
