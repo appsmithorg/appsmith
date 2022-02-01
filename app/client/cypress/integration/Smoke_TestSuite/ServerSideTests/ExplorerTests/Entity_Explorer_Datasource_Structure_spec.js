@@ -30,11 +30,9 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
-
-    cy.GlobalSearchEntity(datasourceName);
-    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-      .find(explorer.collapse)
-      .click();
+    cy.get(".t--entity-name")
+      .contains(datasourceName)
+      .click({ force: true });
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",

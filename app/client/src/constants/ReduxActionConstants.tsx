@@ -11,6 +11,7 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  SET_ENTITY_INFO: "SET_ENTITY_INFO",
   UPDATE_META_STATE: "UPDATE_META_STATE",
   DISCONNECT_GIT: "DISCONNECT_GIT",
   SHOW_CONNECT_GIT_MODAL: "SHOW_CONNECT_GIT_MODAL",

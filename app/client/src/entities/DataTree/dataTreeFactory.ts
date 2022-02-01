@@ -21,6 +21,7 @@ import {
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
+import { PluginId } from "api/PluginApi";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -50,6 +51,7 @@ export interface DataTreeAction
   actionId: string;
   config: Partial<ActionConfig>;
   pluginType: PluginType;
+  pluginId: PluginId;
   name: string;
   run: ActionDispatcher | RunPluginActionDescription | Record<string, unknown>;
   clear:
