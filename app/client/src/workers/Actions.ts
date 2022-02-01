@@ -20,6 +20,7 @@ declare global {
 enum ExecutionType {
   PROMISE = "PROMISE",
   TRIGGER = "TRIGGER",
+  RETURN = "RETURN",
 }
 
 type ActionDescriptionWithExecutionType = ActionDescription & {
@@ -269,16 +270,12 @@ const DATA_TREE_FUNCTIONS: Record<
           if (parentScopedEntity) {
             return {
               type: ActionTriggerType.IMPORT,
-              payload: { path },
-              executionType: ExecutionType.PROMISE,
+              payload: parentScopedEntity,
+              executionType: ExecutionType.RETURN,
             };
           }
         }
-        return {
-          type: ActionTriggerType.IMPORT,
-          payload: { path: "" },
-          executionType: ExecutionType.TRIGGER,
-        };
+        throw Error("Incorrect path");
       },
   },
 };
@@ -351,6 +348,7 @@ export const pusher = function(
   ...args: any[]
 ) {
   const actionDescription = action(...args);
+
   const { executionType, payload, type } = actionDescription;
   const actionPayload = {
     type,
@@ -359,7 +357,8 @@ export const pusher = function(
 
   if (executionType && executionType === ExecutionType.TRIGGER) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
-  } else {
-    return promisifyAction(this.REQUEST_ID, actionPayload);
+  } else if (executionType && executionType === ExecutionType.RETURN) {
+    return payload;
   }
+  return promisifyAction(this.REQUEST_ID, actionPayload);
 };
