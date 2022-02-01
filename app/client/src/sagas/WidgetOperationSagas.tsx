@@ -489,10 +489,7 @@ export function* getPropertiesUpdatedWidget(
 // Purge all paths in a provided widgets' dynamicTriggerPathList, which don't exist in the widget
 function purgeOrphanedDynamicTriggerPaths(widget: WidgetProps) {
   // Attempt to purge only if there are dynamicTriggerPaths in this widget
-  if (
-    widget.dynamicTriggerPathList &&
-    widget.dynamicTriggerPathList.length > 0
-  ) {
+  if (widget.dynamicTriggerPathList && widget.dynamicTriggerPathList.length) {
     // Filter out all the paths from the dynamicTriggerPathList which don't exist in the widget
     widget.dynamicTriggerPathList = widget.dynamicTriggerPathList.filter(
       (path: DynamicPath) => {
