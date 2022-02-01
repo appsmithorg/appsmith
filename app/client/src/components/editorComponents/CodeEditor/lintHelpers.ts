@@ -4,6 +4,8 @@ import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { Severity } from "entities/AppsmithConsole";
+import { WARNING_LINT_ERRORS } from "./constants";
 
 export const getIndexOfRegex = (
   str: string,
@@ -124,4 +126,12 @@ export const getLintAnnotations = (
     }
   });
   return annotations;
+};
+
+export const getLintSeverity = (
+  code: string,
+): Severity.WARNING | Severity.ERROR => {
+  const severity =
+    code in WARNING_LINT_ERRORS ? Severity.WARNING : Severity.ERROR;
+  return severity;
 };
