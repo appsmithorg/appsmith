@@ -279,6 +279,7 @@ jobs:
         if: failure()
         run: echo "::set-output name=run_result::failedtest" > ~/run_result
       - name: Store the previous failed result
+        if: always()
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
