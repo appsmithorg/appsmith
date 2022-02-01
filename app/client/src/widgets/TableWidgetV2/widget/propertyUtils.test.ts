@@ -146,7 +146,7 @@ const tableWProps = {
   isVisibleSearch: true,
   isVisiblePagination: true,
   verticalAlignment: "CENTER",
-  columnSizeMap: {
+  columnWidthMap: {
     task: 245,
     step: 62,
     status: 75,
