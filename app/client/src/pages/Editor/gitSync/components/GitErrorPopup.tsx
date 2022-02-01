@@ -2,31 +2,22 @@ import React from "react";
 import styled, { useTheme } from "styled-components";
 import { Overlay, Classes } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
-import { gitPullInit, setIsGitErrorPopupVisible } from "actions/gitSyncActions";
+import { setIsGitErrorPopupVisible } from "actions/gitSyncActions";
 import {
+  getConflictFoundDocUrlDeploy,
   getIsGitErrorPopupVisible,
-  getIsPullingProgress,
 } from "selectors/gitSyncSelectors";
 import Icon, { IconSize } from "components/ads/Icon";
 
 import {
   createMessage,
   CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
-  OPEN_REPO,
-  PULL_CHANGES,
-  GIT_CONFLICTING_INFO,
-  LEARN_MORE,
 } from "constants/messages";
-import Button, { Category, Size } from "components/ads/Button";
 import { Space } from "./StyledComponents";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 import { get } from "lodash";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import InfoWrapper from "./InfoWrapper";
-import Link from "./Link";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import Text, { TextType } from "components/ads/Text";
+
+import ConflictInfo from "../components/ConflictInfo";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -53,11 +44,6 @@ const StyledGitErrorPopup = styled.div`
       flex-direction: column;
     }
   }
-`;
-
-const Row = styled.div`
-  display: flex;
-  align-items: center;
 `;
 
 function Header({ closePopup }: { closePopup: () => void }) {
@@ -91,13 +77,8 @@ function GitErrorPopup() {
   const hidePopup = () => {
     dispatch(setIsGitErrorPopupVisible({ isVisible: false }));
   };
-  const theme = useTheme() as Theme;
-  const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const isPulingProgress = useSelector(getIsPullingProgress);
 
-  const handlePull = () => {
-    dispatch(gitPullInit({ triggeredFromBottomBar: true }));
-  };
+  const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
 
   return (
     <StyledGitErrorPopup>
@@ -112,35 +93,10 @@ function GitErrorPopup() {
           <div className="git-error-popup">
             <Header closePopup={hidePopup} />
             <Space size={2} />
-            <InfoWrapper isError>
-              <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
-                {createMessage(GIT_CONFLICTING_INFO)}
-              </Text>
-              <Link link={DOCS_BASE_URL} text={createMessage(LEARN_MORE)} />
-            </InfoWrapper>
-            <Row>
-              <div style={{ marginRight: theme.spaces[3] }}>
-                <Button
-                  category={Category.tertiary}
-                  className="t--commit-button"
-                  href={gitMetaData?.browserSupportedRemoteUrl}
-                  size={Size.medium}
-                  tag="a"
-                  target="_blank"
-                  text={createMessage(OPEN_REPO)}
-                  width="max-content"
-                />
-              </div>
-              <Button
-                className="t--commit-button"
-                isLoading={isPulingProgress}
-                onClick={handlePull}
-                size={Size.medium}
-                tag="button"
-                text={createMessage(PULL_CHANGES)}
-                width="max-content"
-              />
-            </Row>
+            <ConflictInfo
+              isConflicting
+              learnMoreLink={gitConflictDocumentUrl}
+            />
           </div>
         </div>
       </Overlay>

@@ -11,7 +11,6 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
   it("1. Validate JSObject creation & Run", () => {
     jsEditor.CreateJSObject('return "Hello World";');
     agHelper.ValidateEntityPresenceInExplorer("JSObject1")
-    agHelper.expandCollapseEntity("JSObject1")
     jsEditor.validateDefaultJSObjProperties("JSObject1")
   });
 
@@ -28,9 +27,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       "response.body.responseMeta.status",
       201,
     );
-    agHelper.ValidateEntityPresenceInExplorer("RenamedJSObjectCopy")
-    agHelper.expandCollapseEntity("RenamedJSObjectCopy")
-    jsEditor.validateDefaultJSObjProperties("RenamedJSObjectCopy")
+    agHelper.ValidateEntityPresenceInExplorer("RenamedJSObjectCopy");
+    jsEditor.validateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
   it("4. Validate Rename JSObject from Entity Explorer", function() {
@@ -40,18 +38,20 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
   });
 
   it("5. Validate Move JSObject", function() {
-    pageId = 'Page2'
+    let newPageId = 'Page2';
     agHelper.AddNewPage();
-    agHelper.ValidateEntityPresenceInExplorer(pageId);
-    agHelper.ActionContextMenuByEntityName("RenamedJSObjectCopy", "Move to page", pageId)
+    agHelper.ValidateEntityPresenceInExplorer(newPageId);
+    agHelper.SelectEntityByName(pageId);
+    agHelper.ActionContextMenuByEntityName("RenamedJSObjectCopy", "Move to page", newPageId);
+    agHelper.SelectEntityByName(newPageId);
     agHelper.ValidateEntityPresenceInExplorer("RenamedJSObjectCopy")
-    agHelper.expandCollapseEntity("RenamedJSObjectCopy")
     jsEditor.validateDefaultJSObjProperties("RenamedJSObjectCopy")
   });
 
   it("6. Validate Deletion of JSObject", function() {
-    agHelper.ActionContextMenuByEntityName("RenamedJSObjectCopy", "Delete")
+    agHelper.SelectEntityByName(pageId);
     agHelper.ActionContextMenuByEntityName("ExplorerRenamed", "Delete")
+    agHelper.ValidateEntityAbsenceInExplorer('ExplorerRenamed')
   });
 
 });

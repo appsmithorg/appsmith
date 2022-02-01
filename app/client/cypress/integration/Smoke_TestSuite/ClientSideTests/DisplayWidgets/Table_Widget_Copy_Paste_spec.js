@@ -10,7 +10,6 @@ before(() => {
 describe("Test Suite to validate copy/paste table Widget", function() {
   it("Copy paste table widget and valdiate application status", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.get("body").type(`{${modifierKey}}c`);
@@ -33,9 +32,14 @@ describe("Test Suite to validate copy/paste table Widget", function() {
       "not.exist",
     );
     cy.GlobalSearchEntity("Table1Copy");
-    cy.get(".widgets .t--entity-collapse-toggle")
-      .last()
+    cy.get(".widgets")
+      .first()
       .click();
+    cy.get(".t--entity-name")
+      .contains("Table1Copy")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
+    cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(12);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");

@@ -38,7 +38,7 @@ describe("Rest Bugs tests", function() {
 
     cy.contains(commonlocators.entityName, "Page1").click({ force: true });
     cy.clickButton("Get Facts!");
-    cy.wait(8000); // for all api calls to complete!
+    cy.wait(12000); // for all api calls to complete!
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
@@ -113,13 +113,12 @@ describe("Rest Bugs tests", function() {
   it("Bug 4775: No Cyclical dependency when Api returns an error", function() {
     cy.addDsl(dslTable);
     //Api 1
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("Currencies");
     cy.enterDatasource("https://api.coinbase.com/v2/currencies");
     cy.WaitAutoSave();
     cy.onlyQueryRun();
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.selectEntityByName("Widgets");
+    cy.selectEntityByName("WIDGETS");
     cy.selectEntityByName("Table1"); //expand
     cy.selectEntityByName("Table1"); //collapse
     cy.selectEntityByName("Currencies");
