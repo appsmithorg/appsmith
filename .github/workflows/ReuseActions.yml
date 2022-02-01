@@ -675,8 +675,8 @@ jobs:
           headless: true
           record: true
           install: false
-          parallel: true
-          group: "Electrons on Github Action"
+          parallel: false
+          #group: "Electrons on Github Action"
           #spec: steps.failed_spec.outputs.failed_spec Not working
           #spec: $(cat ~/failed_spec)
           #spec: ${{ steps.failed_spec.outputs.failed_spec }}
@@ -695,7 +695,7 @@ jobs:
         if: failure()
         run: |
           cd /home/runner/work/appsmith/appsmith/app/client/cypress/
-          find screenshots -type d|grep spec |sed 's/screenshots/cypress\/integration/g' >> ~/failed_spec
+          find screenshots -type d|grep spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec
 
       - name: Store the previous run result
         if: failure()
@@ -713,7 +713,7 @@ jobs:
         with:
           path: |
             ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
