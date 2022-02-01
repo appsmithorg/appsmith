@@ -1,4 +1,4 @@
-name: Reuse Actions Lightning Demo
+name: Reuse Actions
 
 on:
   # This line enables manual triggering of this workflow.
@@ -390,33 +390,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job:
-          [
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-          ]
+        job: [0, 1, 2]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -701,8 +675,8 @@ jobs:
           headless: true
           record: true
           install: false
-          parallel: true
-          group: "Electrons on Github Action"
+          parallel: false
+          #group: "Electrons on Github Action"
           #spec: steps.failed_spec.outputs.failed_spec Not working
           #spec: $(cat ~/failed_spec)
           #spec: ${{ steps.failed_spec.outputs.failed_spec }}
