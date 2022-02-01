@@ -270,15 +270,6 @@ jobs:
         run: |
           echo  ${{ matrix.job }} >> ~/minifailed_spec
 
-      - name: Store the previous failed result
-        uses: martijnhols/actions-cache/save@v3
-        with:
-          path: |
-            ~/minifailed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
-
       - uses: actions/checkout@v1
       - name: Try to fail
         run: exit 1
@@ -287,3 +278,11 @@ jobs:
       - name: Set fail if there are test failures
         if: failure()
         run: echo "::set-output name=run_result::failedtest" > ~/run_result
+      - name: Store the previous failed result
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/minifailed_spec
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
