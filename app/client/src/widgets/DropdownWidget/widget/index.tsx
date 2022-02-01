@@ -278,7 +278,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue : true}}`,
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
       selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.value }); return this.options[index]?.label; })()}}`,
       selectedOptionValue: `{{(()=>{const index = _.findIndex(this.options, { value: this.value }); return this.options[index]?.value; })()}}`,
     };

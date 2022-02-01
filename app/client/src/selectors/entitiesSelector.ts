@@ -9,9 +9,10 @@ import {
   Datasource,
   MockDatasource,
   DatasourceStructure,
+  isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find } from "lodash";
+import { find, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -20,6 +21,9 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { JSCollection } from "entities/JSCollection";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
+import getFeatureFlags from "utils/featureFlags";
+import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
+import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -583,3 +587,131 @@ export const getPageActions = (pageId = "") => {
     });
   };
 };
+
+export const selectDatasourceIdToNameMap = createSelector(
+  getDatasources,
+  (datasources) => {
+    return datasources.reduce((acc, datasource) => {
+      acc[datasource.id] = datasource.name;
+      return acc;
+    }, {} as Record<string, string>);
+  },
+);
+
+export const selectWidgetsForCurrentPage = createSelector(
+  (state: AppState) => state.ui.pageCanvasStructure,
+  getCurrentPageId,
+  (canvasStructure, pageId) => (pageId ? canvasStructure[pageId] : null),
+);
+
+export const selectAllPages = (state: AppState) => {
+  return state.entities.pageList.pages;
+};
+
+export const selectFilesForExplorer = createSelector(
+  getActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
+  selectDatasourceIdToNameMap,
+  (actions, jsActions, datasourceIdToNameMap) => {
+    const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
+    const files = [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
+      (acc, file) => {
+        let group = "";
+        if (file.config.pluginType === PluginType.JS) {
+          group = "JS Objects";
+        } else if (file.config.pluginType === PluginType.API) {
+          group = isEmbeddedRestDatasource(file.config.datasource)
+            ? "APIs"
+            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+        } else {
+          group = datasourceIdToNameMap[file.config.datasource.id];
+        }
+        acc = acc.concat({
+          type: file.config.pluginType,
+          entity: file,
+          group,
+        });
+        return acc;
+      },
+      [] as Array<ExplorerFileEntity>,
+    );
+
+    const filesSortedByGroupName = sortBy(files, "group", "entity.config.name");
+    const groupedFiles = filesSortedByGroupName.reduce(
+      (acc, file) => {
+        if (acc.group !== file.group) {
+          acc.files = acc.files.concat({
+            type: "group",
+            entity: {
+              name: file.group,
+            },
+          });
+          acc.group = file.group;
+        }
+        acc.files = acc.files.concat({
+          ...file,
+          entity: { id: file.entity.config.id, name: file.entity.config.name },
+        });
+        return acc;
+      },
+      {
+        group: "" as any,
+        files: [] as any,
+      },
+    );
+    return groupedFiles.files;
+  },
+);
+
+export const getActionValidationConfig = (state: AppState, action: any) => {
+  const pluginId = action.pluginId;
+  return getActionValidationConfigFromPlugin(
+    state.entities.plugins.editorConfigs[pluginId],
+    {},
+  );
+};
+
+export const getAllActionValidationConfig = (state: AppState) => {
+  const allActions = state.entities.actions;
+  const allValidationConfigs: {
+    [actionId: string]: ActionValidationConfigMap;
+  } = {};
+  for (let i = 0; i < allActions.length; i++) {
+    const pluginId = allActions[i].config.pluginId;
+    let validationConfigs: ActionValidationConfigMap = {};
+    validationConfigs = getActionValidationConfigFromPlugin(
+      state.entities.plugins.editorConfigs[pluginId],
+      {},
+    );
+    allValidationConfigs[allActions[i].config.id] = validationConfigs;
+  }
+  return allValidationConfigs;
+};
+
+function getActionValidationConfigFromPlugin(
+  editorConfig: any,
+  validationConfig: ActionValidationConfigMap,
+): ActionValidationConfigMap {
+  let newValidationConfig: ActionValidationConfigMap = {
+    ...validationConfig,
+  };
+  if (!editorConfig || !editorConfig.length) return {};
+  for (let i = 0; i < editorConfig.length; i++) {
+    if (editorConfig[i].validationConfig) {
+      const configProperty = editorConfig[i].configProperty;
+      newValidationConfig[configProperty] = editorConfig[i].validationConfig;
+    }
+
+    if (editorConfig[i].children) {
+      const childrenValidationConfig = getActionValidationConfigFromPlugin(
+        editorConfig[i].children,
+        validationConfig,
+      );
+      newValidationConfig = Object.assign(
+        newValidationConfig,
+        childrenValidationConfig,
+      );
+    }
+  }
+  return newValidationConfig;
+}

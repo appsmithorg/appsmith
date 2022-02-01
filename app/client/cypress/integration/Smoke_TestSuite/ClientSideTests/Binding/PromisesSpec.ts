@@ -18,7 +18,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
-        agHelper.SelectEntityByName("Widgets")//to expand widgets
+        agHelper.SelectEntityByName("WIDGETS")//to expand widgets
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}", true, true);
         agHelper.ClickButton('Submit')
@@ -32,6 +32,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
+        agHelper.SelectEntityByName("WIDGETS")
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{new Promise((resolve)=>{
             resolve("We are on planet")
@@ -53,6 +54,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
         apiPage.CreateAndFillApi("https://api.genderize.io?name={{this.params.country}}", "Genderize")
         apiPage.ValidateQueryParams({ key: "name", value: "{{this.params.country}}" }); // verifies Bug 10055
+        agHelper.SelectEntityByName("WIDGETS")
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{(async function(){
             const user = await RandomUser.run();
@@ -72,7 +74,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://source.unsplash.com/collection/8439505", "Christmas")
-        agHelper.SelectEntityByName("Widgets")//to expand widgets
+        agHelper.SelectEntityByName("WIDGETS")//to expand widgets
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{
             (function(){
@@ -95,7 +97,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
         jsEditor.CreateJSObject(`const user = 'You';
         return InspiringQuotes.run().then((res) => {showAlert("Today's quote for "+ user + " is "+ JSON.stringify(res.quote.body), 'success')}).catch(() => showAlert("Unable to fetch quote for "+ user, 'warning'))`);
-        agHelper.SelectEntityByName("Widgets")//to expand widgets
+        agHelper.SelectEntityByName("WIDGETS")//to expand widgets
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{JSObject1.myFun1()}}`, true, true);
         agHelper.ClickButton('Submit')
@@ -108,7 +110,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         });
         apiPage.CreateAndFillApi("https://api.agify.io?name={{this.params.person}}", "Agify")
         apiPage.ValidateQueryParams({ key: "name", value: "{{this.params.person}}" }); // verifies Bug 10055
-
+        agHelper.SelectEntityByName("WIDGETS")
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{Promise.race([Agify.run({person:'Melinda' }),Agify.run({person:'Trump'})]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success')})}}`, true, true);
         agHelper.ClickButton('Submit')
@@ -120,7 +122,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://api.jikan.moe/v3/search/anime?q={{this.params.name}}", "GetAnime")
-        agHelper.SelectEntityByName("Widgets")//to expand widgets
+        agHelper.SelectEntityByName("WIDGETS")//to expand widgets
         agHelper.SelectEntityByName("List1");
         jsEditor.EnterJSContext('items', `[
             {
@@ -156,7 +158,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         });
         apiPage.CreateAndFillApi("https://api.agify.io?name={{this.params.person}}", "Agify")
         apiPage.ValidateQueryParams({ key: "name", value: "{{this.params.person}}" }); // verifies Bug 10055
-
+        agHelper.SelectEntityByName("WIDGETS")
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{Promise.race([Agify.run({person:'Melinda' }),Agify.run({person:'Trump'})]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name))})}}`, true, true);
         agHelper.ClickButton('Submit')

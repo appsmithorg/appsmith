@@ -34,7 +34,7 @@ const LintText = styled.a`
   cursor: pointer;
 `;
 
-export default function GitSyncError({
+export default function GitConnectError({
   onDisplay,
 }: {
   onDisplay?: () => void;
@@ -44,19 +44,12 @@ export default function GitSyncError({
   const titleMessage = error?.errorType
     ? error.errorType.replaceAll("_", " ")
     : "";
-  let errorVisible = false;
-  if (error) {
-    errorVisible = true;
-    if (error.code === 5006) {
-      errorVisible = error.message.indexOf("git  push failed") < 0;
-    }
-  }
   useEffect(() => {
-    if (errorVisible && onDisplay) {
+    if (error && onDisplay) {
       onDisplay();
     }
-  }, []);
-  return errorVisible ? (
+  }, [error]);
+  return error ? (
     <ErrorWrapper>
       {titleMessage.length > 0 && (
         <Text
