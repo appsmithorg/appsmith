@@ -173,7 +173,7 @@ class IconSelectControl extends BaseControl<
             minimal: true,
             isOpen: this.state.isOpen,
             onInteraction: (state) => {
-              this.setState({ isOpen: state });
+              if (this.state.isOpen !== state) this.setState({ isOpen: state });
             },
           }}
         >
@@ -264,8 +264,12 @@ class IconSelectControl extends BaseControl<
         case " ":
         case "Enter": {
           if (this.searchInput.current === document.activeElement) break;
-          this.setState({ isOpen: false });
           this.handleIconChange(this.filteredItems[this.initialItemIndex]);
+          setTimeout(() => {
+            // setTimeout is used to wait for asynchronous Popover rendering to catchup
+            // refer: Renering delays @ https://blueprintjs.com/docs/#core/components/popover.props
+            this.setState({ isOpen: false });
+          });
           e.preventDefault();
           e.stopPropagation();
           break;
@@ -279,7 +283,7 @@ class IconSelectControl extends BaseControl<
       this.iconSelectTargetRef.current === document.activeElement &&
       (e.key === "ArrowUp" || e.key === "ArrowDown")
     ) {
-      this.setState({ isOpen: true });
+      this.setState({ isOpen: true }, this.handleButtonClick);
     }
   };
 
