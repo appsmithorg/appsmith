@@ -92,8 +92,10 @@ export function setupEvaluationEnvironment() {
   });
 }
 
-function addAppLevelEntity(GLOBAL_DATA: Record<string, any>) {
-  GLOBAL_DATA.app = MOCK_APP_LEVEL_ENTITY;
+function addAppLevelEntityToWorkerGlobal(GLOBAL_DATA: Record<string, any>) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore: No types available
+  globalThis["@app"] = GLOBAL_DATA;
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
@@ -107,7 +109,7 @@ export const createGlobalData = (
   const GLOBAL_DATA: Record<string, any> = {};
 
   //
-  addAppLevelEntity(GLOBAL_DATA);
+  addAppLevelEntityToWorkerGlobal(GLOBAL_DATA);
 
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
