@@ -243,25 +243,6 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      - name: Restore the previous failed specs
-        uses: martijnhols/actions-cache@v3
-        with:
-          path: |
-            ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-      - name: Get failed tests
-        id: vars2
-        if: steps.run_result.outputs.run_result == 'failedtest'
-        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
-
-      - name: Get Failed Tests
-        id: vars3
-        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
-      - name: cat failed_spec
-        run: echo ${{ steps.var3.outputs.failed_spec }}
-
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: martijnhols/actions-cache/restore@v3
