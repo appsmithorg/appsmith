@@ -345,10 +345,10 @@ jobs:
         run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
 
       - name: Get Failed Tests
-        id: vars10
+        id: vars101
         run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
       - name: cat failed_spec
-        run: echo ${{ steps.var10.outputs.failed_spec }} >> ~/combined_failed_spec
+        run: echo ${{ steps.var101.outputs.failed_spec }} >> ~/combined_failed_spec
 
       - name: Restore the previous failed specs 1
         uses: martijnhols/actions-cache@v3
@@ -363,10 +363,10 @@ jobs:
         run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
 
       - name: Get Failed Tests
-        id: vars11
+        id: vars111
         run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
       - name: cat failed_spec
-        run: echo ${{ steps.var11.outputs.failed_spec }} >> ~/combined_failed_spec
+        run: echo ${{ steps.var111.outputs.failed_spec }} >> ~/combined_failed_spec
 
       - name: Restore the previous failed specs 2
         uses: martijnhols/actions-cache@v3
@@ -381,10 +381,10 @@ jobs:
         run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
 
       - name: Get Failed Tests
-        id: vars12
+        id: vars121
         run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
       - name: cat failed_spec
-        run: echo ${{ steps.var12.outputs.failed_spec }} >> ~/combined_failed_spec
+        run: echo ${{ steps.var121.outputs.failed_spec }} >> ~/combined_failed_spec
 
       - name: Store the combined run result
         uses: martijnhols/actions-cache/save@v3
