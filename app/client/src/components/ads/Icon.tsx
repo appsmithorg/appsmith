@@ -54,6 +54,7 @@ import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.sv
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
 // import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
+import { ReactComponent as DoubleArrowRightIcon } from "assets/icons/ads/double-arrow-right.svg";
 import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
 import { ReactComponent as CapDotIcon } from "assets/icons/control/cap_dot.svg";
 import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dotted.svg";
@@ -87,6 +88,7 @@ import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
 import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
+import Database2Line from "remixicon-react/Database2LineIcon";
 import DatasourceIcon from "remixicon-react/CloudFillIcon";
 import DeleteBin7 from "remixicon-react/DeleteBin7LineIcon";
 import DiscordIcon from "remixicon-react/DiscordLineIcon";
@@ -107,6 +109,7 @@ import GitCommit from "remixicon-react/GitCommitLineIcon";
 import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import LightbulbFlashLine from "remixicon-react/LightbulbFlashLineIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
 import KeyIcon from "remixicon-react/Key2LineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
@@ -133,6 +136,9 @@ import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
 import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
+import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
+import StarLineIcon from "remixicon-react/StarLineIcon";
+import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
 
 export enum IconSize {
@@ -194,6 +200,7 @@ export const IconCollection = [
   "add-more-fill",
   "arrow-forward",
   "arrow-left",
+  "double-arrow-right",
   "swap-horizontal",
   "billing",
   "book",
@@ -204,6 +211,7 @@ export const IconCollection = [
   "cap-solid",
   "card-context-menu",
   "chat",
+  "checkbox-circle-line",
   "chevron-left",
   "chevron-right",
   "close",
@@ -215,6 +223,7 @@ export const IconCollection = [
   "context-menu",
   "cross",
   "danger",
+  "database-2-line",
   "datasource",
   "delete",
   "delete-blank",
@@ -226,6 +235,7 @@ export const IconCollection = [
   "duplicate",
   "edit",
   "edit-line",
+  "edit-box-line",
   "emoji",
   "error",
   "expand-less",
@@ -250,6 +260,7 @@ export const IconCollection = [
   "lightning",
   "line-dashed",
   "line-dotted",
+  "lightbulb-flash-line",
   "link",
   "link-2",
   "logout",
@@ -279,6 +290,8 @@ export const IconCollection = [
   "share-box",
   "share-line",
   "shine",
+  "star-line",
+  "star-fill",
   "success",
   "support",
   "tables",
@@ -383,6 +396,9 @@ const Icon = forwardRef(
       case "arrow-forward":
         returnIcon = <ArrowForwardIcon />;
         break;
+      case "double-arrow-right":
+        returnIcon = <DoubleArrowRightIcon />;
+        break;
       case "arrow-left":
         returnIcon = <ArrowLeft />;
         break;
@@ -447,6 +463,9 @@ const Icon = forwardRef(
       case "danger":
         returnIcon = <ErrorIcon />;
         break;
+      case "database-2-line":
+        returnIcon = <Database2Line />;
+        break;
       case "datasource":
         returnIcon = <DatasourceIcon />;
         break;
@@ -479,6 +498,9 @@ const Icon = forwardRef(
         break;
       case "edit-line":
         returnIcon = <EditLineIcon />;
+        break;
+      case "edit-box-line":
+        returnIcon = <EditBoxLineIcon />;
         break;
       case "emoji":
         returnIcon = <Emoji />;
@@ -545,6 +567,9 @@ const Icon = forwardRef(
         break;
       case "lightning":
         returnIcon = <LightningIcon />;
+        break;
+      case "lightbulb-flash-line":
+        returnIcon = <LightbulbFlashLine />;
         break;
       case "line-dashed":
         returnIcon = <LineDashedIcon />;
@@ -638,6 +663,12 @@ const Icon = forwardRef(
         break;
       case "shine":
         returnIcon = <ShineIcon />;
+        break;
+      case "star-line":
+        returnIcon = <StarLineIcon />;
+        break;
+      case "star-fill":
+        returnIcon = <StarFillIcon />;
         break;
       case "success":
         returnIcon = <SuccessIcon />;

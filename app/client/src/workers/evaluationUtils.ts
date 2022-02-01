@@ -19,6 +19,7 @@ import {
   ENTITY_TYPE,
   DataTreeJSAction,
   EvaluationSubstitutionType,
+  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -26,6 +27,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
+import { cloneDeep } from "lodash";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -347,6 +349,19 @@ export function validateWidgetProperty(
     };
   }
   return validate(config, value, props);
+}
+
+export function validateActionProperty(
+  config: ValidationConfig,
+  value: unknown,
+) {
+  if (!config) {
+    return {
+      isValid: true,
+      parsed: value,
+    };
+  }
+  return validate(config, value, undefined);
 }
 
 export function getValidatedTree(tree: DataTree) {
@@ -709,4 +724,116 @@ export const removeFunctionsAndVariableJSCollection = (
   _.set(modifiedDataTree, `${entity.name}.dependencyMap.body`, dependencyMap);
   _.set(modifiedDataTree, `${entity.name}.meta`, meta);
   return modifiedDataTree;
+};
+
+export const addWidgetPropertyDependencies = ({
+  entity,
+  entityName,
+}: {
+  entity: DataTreeWidget;
+  entityName: string;
+}) => {
+  const dependencies: DependencyMap = {};
+
+  Object.entries(entity.propertyOverrideDependency).forEach(
+    ([overriddenPropertyKey, overridingPropertyKeyMap]) => {
+      const existingDependenciesSet = new Set(
+        dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
+      );
+      // add meta dependency
+      overridingPropertyKeyMap.META &&
+        existingDependenciesSet.add(
+          `${entityName}.${overridingPropertyKeyMap.META}`,
+        );
+      // add default dependency
+      overridingPropertyKeyMap.DEFAULT &&
+        existingDependenciesSet.add(
+          `${entityName}.${overridingPropertyKeyMap.DEFAULT}`,
+        );
+
+      dependencies[`${entityName}.${overriddenPropertyKey}`] = [
+        ...existingDependenciesSet,
+      ];
+    },
+  );
+  return dependencies;
+};
+
+export const isPrivateEntityPath = (
+  privateWidgets: PrivateWidgets,
+  fullPropertyPath: string,
+) => {
+  const entityName = fullPropertyPath.split(".")[0];
+  if (Object.keys(privateWidgets).indexOf(entityName) !== -1) {
+    return true;
+  }
+  return false;
+};
+
+export const getAllPrivateWidgetsInDataTree = (
+  dataTree: DataTree,
+): PrivateWidgets => {
+  let privateWidgets: PrivateWidgets = {};
+
+  Object.keys(dataTree).forEach((entityName) => {
+    const entity = dataTree[entityName];
+    if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
+      privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
+    }
+  });
+
+  return privateWidgets;
+};
+
+export const getDataTreeWithoutPrivateWidgets = (
+  dataTree: DataTree,
+): DataTree => {
+  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree);
+  const privateWidgetNames = Object.keys(privateWidgets);
+  const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
+  return treeWithoutPrivateWidgets;
+};
+
+export const overrideWidgetProperties = (
+  entity: DataTreeWidget,
+  propertyPath: string,
+  value: unknown,
+  currentTree: DataTree,
+) => {
+  const clonedValue = cloneDeep(value);
+  if (propertyPath in entity.overridingPropertyPaths) {
+    const overridingPropertyPaths =
+      entity.overridingPropertyPaths[propertyPath];
+
+    overridingPropertyPaths.forEach((overriddenPropertyKey) => {
+      _.set(
+        currentTree,
+        `${entity.widgetName}.${overriddenPropertyKey}`,
+        clonedValue,
+      );
+    });
+  } else if (
+    propertyPath in entity.propertyOverrideDependency &&
+    clonedValue === undefined
+  ) {
+    // when value is undefined and has default value then set value to default value.
+    // this is for resetForm
+    const propertyOverridingKeyMap =
+      entity.propertyOverrideDependency[propertyPath];
+    if (propertyOverridingKeyMap.DEFAULT) {
+      const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
+      const clonedDefaultValue = cloneDeep(defaultValue);
+      if (defaultValue !== undefined) {
+        _.set(
+          currentTree,
+          `${entity.widgetName}.${propertyPath}`,
+          clonedDefaultValue,
+        );
+        return {
+          overwriteParsedValue: true,
+          newValue: clonedDefaultValue,
+        };
+      }
+    }
+  }
 };

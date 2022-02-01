@@ -252,6 +252,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
+
     this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
@@ -772,7 +773,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         <FormInputContainer>
-          <div style={{ width: "50vh" }}>
+          <div style={{ width: "20vw" }}>
             <FormLabel>
               Redirect URL
               <br />

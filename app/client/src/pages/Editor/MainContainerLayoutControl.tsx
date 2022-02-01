@@ -15,6 +15,7 @@ import {
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { updateApplicationLayout } from "actions/applicationActions";
+import { ReflowBetaCard } from "./ReflowBetaCard";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -123,6 +124,7 @@ export function MainContainerLayoutControl() {
           );
         })}
       </div>
+      <ReflowBetaCard />
     </div>
   );
 }

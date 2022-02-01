@@ -1,10 +1,11 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import {
   isHidden,
   getJSONToRawToggleProperty,
 } from "components/formControls/utils";
-import { useSelector } from "react-redux";
+import { useSelector, shallowEqual } from "react-redux";
+
 import { getFormValues } from "redux-form";
 import FormControlFactory from "utils/FormControlFactory";
 import Tooltip from "components/ads/Tooltip";
@@ -21,6 +22,13 @@ import ToggleJSONToRaw, {
   ToggleJSONToRawButton,
 } from "components/editorComponents/form/ToggleJSONToRaw";
 
+import { AppState } from "reducers";
+import { Action } from "entities/Action";
+import {
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
+import { getConfigErrors } from "selectors/formSelectors";
 interface FormControlProps {
   config: ControlProps;
   formName: string;
@@ -28,14 +36,33 @@ interface FormControlProps {
 }
 
 function FormControl(props: FormControlProps) {
-  const formValues = useSelector((state) =>
+  const formValues: Partial<Action> = useSelector((state: AppState) =>
     getFormValues(props.formName)(state),
   );
+
   const hidden = isHidden(formValues, props.config.hidden);
   const viewType = getJSONToRawToggleProperty(
     formValues,
     props.config.controlType,
     props.config.configProperty,
+  );
+  const configErrors: EvaluationError[] = useSelector(
+    (state: AppState) =>
+      getConfigErrors(state, {
+        configProperty: props?.config?.configProperty,
+        formName: props.formName,
+      }),
+    shallowEqual,
+  );
+
+  const FormConfigMemoizedValue = useMemo(
+    () =>
+      FormControlFactory.createControl(
+        props.config,
+        props.formName,
+        props?.multipleConfig,
+      ),
+    [],
   );
 
   if (hidden) return null;
@@ -43,6 +70,7 @@ function FormControl(props: FormControlProps) {
   return (
     <FormConfig
       config={props.config}
+      configErrors={configErrors}
       formName={props.formName}
       multipleConfig={props?.multipleConfig}
       viewType={viewType}
@@ -54,18 +82,10 @@ function FormControl(props: FormControlProps) {
             toggleProperty={`${props.config.configProperty}.viewType`}
             viewType={viewType}
           >
-            {FormControlFactory.createControl(
-              props.config,
-              props.formName,
-              props?.multipleConfig,
-            )}
+            {FormConfigMemoizedValue}
           </ToggleJSONToRaw>
         ) : (
-          FormControlFactory.createControl(
-            props.config,
-            props.formName,
-            props?.multipleConfig,
-          )
+          FormConfigMemoizedValue
         )}
       </div>
     </FormConfig>
@@ -75,6 +95,7 @@ function FormControl(props: FormControlProps) {
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
   viewType: string | undefined;
+  configErrors: EvaluationError[];
 }
 // top contains label, subtitle, urltext, tooltip, dispaly type
 // bottom contains the info and error text
@@ -133,12 +154,15 @@ function FormConfig(props: FormConfigProps) {
           </>
         )}
       </div>
-      {renderFormConfigBottom({ config: props.config })}
+      {renderFormConfigBottom({
+        config: props.config,
+        configErrors: props.configErrors,
+      })}
     </div>
   );
 }
 
-export default FormControl;
+export default memo(FormControl);
 
 function renderFormConfigTop(props: {
   config: ControlProps;
@@ -192,12 +216,26 @@ function renderFormConfigTop(props: {
   );
 }
 
-function renderFormConfigBottom(props: { config: ControlProps }) {
-  const { errorText, info, showError } = { ...props.config };
+function renderFormConfigBottom(props: {
+  config: ControlProps;
+  configErrors?: EvaluationError[];
+}) {
+  const { info } = { ...props.config };
   return (
     <>
       {info && <FormInputHelperText>{info}</FormInputHelperText>}
-      {showError && <FormInputErrorText>{errorText}</FormInputErrorText>}
+      {props.configErrors &&
+        props.configErrors.length > 0 &&
+        props.configErrors
+          .filter(
+            (error) =>
+              error.errorType === PropertyEvaluationErrorType.VALIDATION,
+          )
+          .map((error, index) => (
+            <FormInputErrorText key={index}>
+              {`* ${error?.errorMessage}`}
+            </FormInputErrorText>
+          ))}
     </>
   );
 }
