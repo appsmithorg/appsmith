@@ -7,6 +7,7 @@ export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
+export const TEMPLATES_URL = `/templates`;
 
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";

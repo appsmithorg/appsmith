@@ -1,13 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { TabComponent } from "components/ads/Tabs";
 import ApplicationLoader from "pages/Applications/loader";
-import Templates from "pages/Templates";
 import PageWrapper from "pages/common/PageWrapper";
 import { LeftPane } from "pages/Applications";
 import styled from "styled-components";
 import { Indices } from "constants/Layers";
 import { useDispatch } from "react-redux";
 import { setHeaderMeta } from "actions/themeActions";
+import { APPLICATIONS_URL, TEMPLATES_URL } from "constants/routes";
+import history from "utils/history";
 
 const TabsWrapper = styled.div`
   position: fixed;
@@ -25,30 +26,52 @@ const TabsWrapper = styled.div`
   }
 `;
 
+const HomePageTabsKeys = {
+  APPLICATIONS: "applications",
+  TEMPLATES: "templates",
+};
+
+const HomeTabs = [
+  {
+    key: HomePageTabsKeys.APPLICATIONS,
+    title: "Applications",
+    panelComponent: <ApplicationLoader />,
+    path: APPLICATIONS_URL,
+  },
+  {
+    key: HomePageTabsKeys.TEMPLATES,
+    title: "Templates",
+    panelComponent: <div>Templates</div>,
+    path: TEMPLATES_URL,
+  },
+];
+
 function HomeScreenTabs() {
   const dispatch = useDispatch();
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   useEffect(() => {
     dispatch(setHeaderMeta(true, true));
   }, []);
+
+  useEffect(() => {
+    if (window.location.pathname === TEMPLATES_URL) {
+      setSelectedIndex(1);
+    }
+  }, [window.location.pathname]);
+
+  useEffect(() => {
+    history.push(HomeTabs[selectedIndex].path);
+  }, [selectedIndex]);
 
   return (
     <PageWrapper>
       <LeftPane />
       <TabsWrapper>
         <TabComponent
-          tabs={[
-            {
-              key: "applications",
-              title: "Applications",
-              panelComponent: <ApplicationLoader />,
-            },
-            {
-              key: "templates",
-              title: "Templates",
-              panelComponent: <div>Templates</div>,
-            },
-          ]}
+          onSelect={setSelectedIndex}
+          selectedIndex={selectedIndex}
+          tabs={HomeTabs}
         />
       </TabsWrapper>
     </PageWrapper>
