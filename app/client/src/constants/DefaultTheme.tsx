@@ -2906,7 +2906,7 @@ export const theme: Theme = {
       rightMargin: 12,
     },
     search: {
-      height: 68,
+      height: 81, //TODO: Add a field for tab height
       paddingTop: 30,
     },
     sidebar: 256,

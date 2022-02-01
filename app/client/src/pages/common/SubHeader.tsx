@@ -13,11 +13,9 @@ const SubHeaderWrapper = styled.div`
   width: 250px;
   display: flex;
   justify-content: space-between;
-  position: fixed;
   background: ${(props) => props.theme.colors.homepageBackground};
-  top: 2px;
-  left: ${(props) => props.theme.homePage.sidebar + 24}px;
   z-index: ${Indices.Layer9};
+  margin-left: 20px;
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;

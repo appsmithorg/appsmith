@@ -181,7 +181,11 @@ export type TabItemProps = {
 function DefaultTabItem(props: TabItemProps) {
   const { selected, tab, vertical } = props;
   return (
-    <TabTitleWrapper selected={selected} vertical={vertical}>
+    <TabTitleWrapper
+      className="tab-title-wrapper"
+      selected={selected}
+      vertical={vertical}
+    >
       {tab.icon ? (
         <Icon
           name={tab.icon}

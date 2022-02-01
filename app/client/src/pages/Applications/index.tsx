@@ -199,14 +199,11 @@ const LeftPaneWrapper = styled.div`
   box-shadow: 1px 0px 0px #ededed;
 `;
 const ApplicationContainer = styled.div`
-  height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
+  height: calc(100vh - ${(props) => props.theme.homePage.search.height}px);
   overflow: auto;
   padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   padding-top: 16px;
-  margin-left: ${(props) =>
-    props.theme.homePage.leftPane.width +
-    props.theme.homePage.leftPane.rightMargin +
-    props.theme.homePage.leftPane.leftPadding}px;
+  margin-left: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   width: calc(
     100% -
       ${(props) =>
@@ -394,7 +391,7 @@ const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
   return result;
 };
 
-function LeftPane() {
+export function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const onboardingOrgs = useSelector(getOnboardingOrganisations);
@@ -1011,8 +1008,7 @@ class Applications extends Component<
 
   public render() {
     return (
-      <PageWrapper displayName="Applications">
-        <LeftPane />
+      <>
         <SubHeader
           search={{
             placeholder: createMessage(SEARCH_APPS),
@@ -1021,7 +1017,7 @@ class Applications extends Component<
           }}
         />
         <ApplicationsSection searchKeyword={this.props.searchKeyword} />
-      </PageWrapper>
+      </>
     );
   }
 }

@@ -24,6 +24,8 @@ import {
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
+import HomeScreenTabs from "pages/Home";
+import Templates from "pages/Templates";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
 import LandingScreen from "./LandingScreen";
@@ -118,9 +120,14 @@ class AppRouter extends React.Component<any, any> {
                 <SentryRoute component={Users} exact path={USERS_URL} />
                 <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
                 <SentryRoute
-                  component={ApplicationListLoader}
+                  component={HomeScreenTabs}
                   exact
                   path={APPLICATIONS_URL}
+                />
+                <SentryRoute
+                  component={HomeScreenTabs}
+                  exact
+                  path={"/templates"}
                 />
                 <SentryRoute
                   component={SignupSuccess}
