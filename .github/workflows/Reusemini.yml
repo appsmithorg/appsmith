@@ -253,13 +253,13 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
       - name: Get failed tests
         id: vars2
-        #if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo ::set-output name=failedspecs::$(cat ~/minifailed_spec)
 
       - name: Get failed_spec
         #id: failed_spec_var
         #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
-        #if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
           failed_spec_env=$(cat ~/minifailed_spec)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
@@ -287,3 +287,12 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
+      - name: Store the previous run result
+        if: failure()
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
