@@ -57,9 +57,9 @@ jobs:
         with:
           path: |
             ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       - name: Get the previous failed_spec
         id: failed_spec
@@ -247,36 +247,36 @@ jobs:
         uses: martijnhols/actions-cache@v3
         with:
           path: |
-            ~/minifailed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+            ~/failed_spec
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
       - name: Get failed tests
         id: vars2
         if: steps.run_result.outputs.run_result == 'failedtest'
-        run: echo ::set-output name=failedspecs::$(cat ~/minifailed_spec)
+        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
 
       - name: Get Failed Tests
         id: vars3
-        run: echo ::set-output name=minifailed_spec::$(cat ~/minifailed_spec)
-      - name: cat minifailed_spec
-        run: echo ${{ steps.var3.outputs.minifailed_spec }}
+        run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
+      - name: cat failed_spec
+        run: echo ${{ steps.var3.outputs.failed_spec }}
 
       - name: Get failed_spec
         #id: failed_spec_var
         #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat ~/minifailed_spec)
+          failed_spec_env=$(cat ~/failed_spec)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-      - name: cat minifailed_spec
+      - name: cat failed_spec
         run: echo ${{ env.failed_spec_env }}
 
       - name: list failed tests if there are test failures
         run: |
-          echo  ${{ matrix.job }} >> ~/minifailed_spec
+          echo  ${{ matrix.job }} >> ~/failed_spec
 
       - uses: actions/checkout@v1
       - name: Try to fail
@@ -291,10 +291,10 @@ jobs:
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
-            ~/minifailed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+            ~/failed_spec
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
       - name: Store the previous run result
         if: failure()
         uses: martijnhols/actions-cache/save@v3
