@@ -5,7 +5,7 @@ const queryLocators = require("../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
-describe("Always fail1", function() {
+describe("Always fail2", function() {
   let orgid;
   let newOrganizationName;
   let appname;
