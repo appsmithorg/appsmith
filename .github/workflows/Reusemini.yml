@@ -277,6 +277,7 @@ jobs:
       - name: list failed tests create dir
         run: |
           mkdir  ~/failed_spec
+          echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
       - name: list failed tests if there are test failures
         if: matrix.job  == 0
@@ -355,7 +356,7 @@ jobs:
         #id: failed_spec_var
         #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec*)
         run: |
-          failed_spec_env=$(cat ~/failed_spec/*)
+          failed_spec_env=$(cat ~/failed_spec/failed_spec*)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
