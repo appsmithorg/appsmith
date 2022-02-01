@@ -188,6 +188,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
             applicationFile: file,
           }),
         );
+        onClose && onClose();
       } else {
         setAppFileToBeUploaded(null);
       }
