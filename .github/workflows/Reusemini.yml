@@ -266,6 +266,7 @@ jobs:
         run: echo ${{ env.failed_spec_env }}
 
       - uses: actions/checkout@v1
+        if: steps.run_result.outputs.run_result == 'failedtest'
       - name: Try to fail
         run: exit 1
 
@@ -312,6 +313,8 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+
+      - run: echo "::set-output name=run_result::success" > ~/run_result
   ui-test-result:
     needs: ui-test
     if: always() &&
