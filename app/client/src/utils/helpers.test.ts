@@ -6,7 +6,7 @@ import {
   flattenObject,
   getLocale,
   getSubstringBetweenTwoWords,
-  isInvalidDynamicBindingPath,
+  captureInvalidDynamicBindingPath,
   mergeWidgetConfig,
 } from "./helpers";
 import WidgetFactory from "./WidgetFactory";
@@ -195,8 +195,8 @@ describe("#getLocale", () => {
   });
 });
 
-describe("#isInvalidDynamicBindingPath", () => {
-  it("DSL should not alter", () => {
+describe("#captureInvalidDynamicBindingPath", () => {
+  it("DSL should not be altered", () => {
     const baseDSL = {
       widgetName: "RadioGroup1",
       dynamicPropertyPathList: [],
@@ -364,7 +364,7 @@ describe("#isInvalidDynamicBindingPath", () => {
         id: "b2k5a0t632",
       },
     ]);
-    const newDsl = isInvalidDynamicBindingPath(baseDSL);
+    const newDsl = captureInvalidDynamicBindingPath(baseDSL);
     expect(baseDSL).toEqual(newDsl);
   });
 
@@ -538,7 +538,7 @@ describe("#isInvalidDynamicBindingPath", () => {
 
     const sentrySpy = jest.spyOn(Sentry, "captureException");
 
-    isInvalidDynamicBindingPath(baseDSL);
+    captureInvalidDynamicBindingPath(baseDSL);
     expect(sentrySpy).toHaveBeenCalledWith(
       new Error(
         `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: RadioGroup1.options`,

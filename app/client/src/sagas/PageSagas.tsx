@@ -53,7 +53,7 @@ import {
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
-import { isInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
+import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
@@ -378,7 +378,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       payload: savePageRequest.dsl,
     });
 
-    isInvalidDynamicBindingPath(
+    captureInvalidDynamicBindingPath(
       CanvasWidgetsNormalizer.denormalize("0", {
         canvasWidgets: widgets,
       }),

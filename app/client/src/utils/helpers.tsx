@@ -11,7 +11,7 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { get, set, find } from "lodash";
+import { get, set } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
@@ -672,7 +672,7 @@ export const getLocale = () => {
  * @param currentDSL
  * @returns
  */
-export const isInvalidDynamicBindingPath = (
+export const captureInvalidDynamicBindingPath = (
   currentDSL: Readonly<DSLWidget>,
 ) => {
   //Get the propertyPaneConfig for the current DSL Type
@@ -689,19 +689,19 @@ export const isInvalidDynamicBindingPath = (
 
   //Get the dynamicBindingPathList of the current DSL
   const dynamicBindingPathList = get(currentDSL, "dynamicBindingPathList");
-  Object.keys(bindingPaths).forEach((bindingPath) => {
-    const pathValue = get(currentDSL, bindingPath); //Gets the value for the given binding path
+  dynamicBindingPathList?.forEach((dBindingPath) => {
+    const pathValue = get(currentDSL, dBindingPath.key); //Gets the value for the given dynamic binding path
 
     /**
      * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
      */
     if (
       !isDynamicValue(pathValue) &&
-      !!find(dynamicBindingPathList, { key: bindingPath })
+      bindingPaths.hasOwnProperty(dBindingPath.key)
     ) {
       Sentry.captureException(
         new Error(
-          `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${bindingPath}`,
+          `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
         ),
       );
       return;
@@ -709,7 +709,7 @@ export const isInvalidDynamicBindingPath = (
   });
 
   if (currentDSL.children) {
-    currentDSL.children.map(isInvalidDynamicBindingPath);
+    currentDSL.children.map(captureInvalidDynamicBindingPath);
   }
   return currentDSL;
 };
