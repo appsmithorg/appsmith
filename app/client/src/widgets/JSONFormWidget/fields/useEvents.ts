@@ -10,11 +10,13 @@ type BaseEvents = Pick<
 >;
 
 type UseEventsProps = {
+  fieldBlurHandler?: ControllerRenderProps["onBlur"];
   onFocusDynamicString?: string;
   onBlurDynamicString?: string;
 };
 
 function useEvents<TElement extends BaseEvents>({
+  fieldBlurHandler,
   onBlurDynamicString,
   onFocusDynamicString,
 }: UseEventsProps = {}) {
@@ -25,6 +27,10 @@ function useEvents<TElement extends BaseEvents>({
   const onBlurHandler = useCallback(() => {
     if (fieldBlurHandlerRef.current) {
       fieldBlurHandlerRef.current?.();
+    }
+
+    if (fieldBlurHandler) {
+      fieldBlurHandler();
     }
 
     if (onBlurDynamicString) {

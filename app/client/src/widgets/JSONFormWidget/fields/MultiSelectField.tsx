@@ -1,8 +1,7 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import styled from "styled-components";
-import { pick } from "lodash";
+import { useController } from "react-hook-form";
 
-import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import MultiSelect from "widgets/MultiSelectWidget/component";
 import useEvents from "./useEvents";
@@ -16,6 +15,7 @@ import {
 import { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
+import NewField from "../component/NewField";
 
 type MultiSelectComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -59,11 +59,17 @@ const defaultValueValidator = (value: any) => {
   return true;
 };
 
+const DEFAULT_DROPDOWN_STYLES = {
+  zIndex: Layers.dropdownModalWidget,
+};
+
+const DEFAULT_VALUE = [""];
+
 function MultiSelectField({
+  fieldClassName,
   name,
   propertyPath,
   schemaItem,
-  ...rest
 }: MultiSelectFieldProps) {
   const {
     fieldType,
@@ -73,96 +79,115 @@ function MultiSelectField({
   } = schemaItem;
   const { executeAction, updateWidgetMetaProperty } = useContext(FormContext);
   const {
+    field: { onBlur, onChange, value },
+    fieldState: { isDirty },
+  } = useController({
+    name,
+  });
+
+  const {
     onBlurHandler,
     onFocusHandler,
     registerFieldOnBlurHandler,
   } = useEvents<HTMLInputElement>({
+    fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
 
-  const { onFieldValidityChange } = useRegisterFieldValidity({
+  const isValueValid = isValid(schemaItem, value);
+
+  useRegisterFieldValidity({
+    isValid: isValueValid,
     fieldName: name,
     fieldType,
+    useNewLogic: true,
   });
 
-  const labelStyles = pick(schemaItem, [
-    "labelStyle",
-    "labelTextColor",
-    "labelTextSize",
+  const onFilterChange = useCallback(
+    (value: string) => {
+      updateWidgetMetaProperty(`${propertyPath}.filterText`, value);
+
+      if (schemaItem.onFilterUpdate) {
+        executeAction({
+          triggerPropertyName: "onFilterUpdate",
+          dynamicString: schemaItem.onFilterUpdate,
+          event: {
+            type: EventType.ON_FILTER_UPDATE,
+          },
+        });
+      }
+    },
+    [updateWidgetMetaProperty, executeAction, schemaItem.onFilterUpdate],
+  );
+
+  const onOptionChange = useCallback(
+    (values: DefaultValueType) => {
+      onChange(values);
+
+      if (schemaItem.onOptionChange && executeAction) {
+        executeAction({
+          triggerPropertyName: "onOptionChange",
+          dynamicString: schemaItem.onOptionChange,
+          event: {
+            type: EventType.ON_OPTION_CHANGE,
+          },
+        });
+      }
+    },
+    [executeAction, schemaItem.onOptionChange],
+  );
+
+  registerFieldOnBlurHandler(onBlur);
+
+  const comp = useMemo(() => {
+    return (
+      <MultiSelect
+        compactMode={false}
+        disabled={schemaItem.isDisabled}
+        dropDownWidth={90}
+        dropdownStyle={DEFAULT_DROPDOWN_STYLES}
+        isValid={isDirty ? isValueValid : true}
+        loading={false}
+        onBlur={onBlurHandler}
+        onChange={onOptionChange}
+        onFilterChange={onFilterChange}
+        onFocus={onFocusHandler}
+        options={schemaItem.options || []}
+        placeholder={schemaItem.placeholderText || ""}
+        serverSideFiltering={schemaItem.serverSideFiltering}
+        value={value || DEFAULT_VALUE}
+        width={100}
+      />
+    );
+  }, [
+    schemaItem,
+    isValueValid,
+    isDirty,
+    onBlurHandler,
+    onOptionChange,
+    onFilterChange,
+    onFocusHandler,
+    value,
   ]);
 
-  const onFilterChange = (value: string) => {
-    updateWidgetMetaProperty(`${propertyPath}.filterText`, value);
-
-    if (schemaItem.onFilterUpdate) {
-      executeAction({
-        triggerPropertyName: "onFilterUpdate",
-        dynamicString: schemaItem.onFilterUpdate,
-        event: {
-          type: EventType.ON_FILTER_UPDATE,
-        },
-      });
-    }
-  };
-
   return (
-    <Field
-      {...rest}
-      defaultValue={schemaItem.defaultValue as string[]}
-      defaultValueValidatorFn={defaultValueValidator}
-      isRequiredField={isRequired}
-      label={schemaItem.label}
-      labelStyles={labelStyles}
-      name={name}
-      render={({
-        field: { onChange, value = [], onBlur },
-        fieldState: { isDirty },
-      }) => {
-        const onOptionChange = (values: DefaultValueType) => {
-          onChange(values);
-
-          if (schemaItem.onOptionChange && executeAction) {
-            executeAction({
-              triggerPropertyName: "onOptionChange",
-              dynamicString: schemaItem.onOptionChange,
-              event: {
-                type: EventType.ON_OPTION_CHANGE,
-              },
-            });
-          }
-        };
-
-        const isValueValid = isValid(schemaItem, value);
-
-        registerFieldOnBlurHandler(onBlur);
-        onFieldValidityChange(isValueValid);
-
-        return (
-          <StyledMultiSelectWrapper>
-            <MultiSelect
-              compactMode={false}
-              disabled={schemaItem.isDisabled}
-              dropDownWidth={90}
-              dropdownStyle={{
-                zIndex: Layers.dropdownModalWidget,
-              }}
-              isValid={isDirty ? isValueValid : true}
-              loading={false}
-              onBlur={onBlurHandler}
-              onChange={onOptionChange}
-              onFilterChange={onFilterChange}
-              onFocus={onFocusHandler}
-              options={schemaItem.options}
-              placeholder={schemaItem.placeholderText || ""}
-              serverSideFiltering={schemaItem.serverSideFiltering}
-              value={value}
-              width={100}
-            />
-          </StyledMultiSelectWrapper>
-        );
-      }}
-    />
+    <StyledMultiSelectWrapper>
+      <NewField
+        defaultValue={schemaItem.defaultValue}
+        defaultValueValidatorFn={defaultValueValidator}
+        fieldClassName={fieldClassName}
+        isRequiredField={isRequired}
+        label={schemaItem.label}
+        labelStyle={schemaItem.labelStyle}
+        labelTextColor={schemaItem.labelTextColor}
+        labelTextSize={schemaItem.labelTextSize}
+        name={name}
+        tooltip={schemaItem.tooltip}
+      >
+        {comp}
+      </NewField>
+    </StyledMultiSelectWrapper>
   );
 }
 

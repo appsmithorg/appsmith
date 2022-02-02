@@ -21,7 +21,7 @@ type StyledLabelTextProps = {
   textDecoration: string;
 };
 
-type LabelStyles = {
+export type LabelStyles = {
   labelStyle?: string;
   labelTextColor?: string;
   labelTextSize?: TextSize;
