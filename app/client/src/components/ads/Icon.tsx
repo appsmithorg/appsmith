@@ -79,6 +79,7 @@ import { ControlIcons } from "icons/ControlIcons";
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
 import AddMoreFillIcon from "remixicon-react/AddCircleFillIcon";
+import AlertFillIcon from "remixicon-react/AlertFillIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
@@ -103,12 +104,14 @@ import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
+import FileLine from "remixicon-react/FileLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GitCommit from "remixicon-react/GitCommitLineIcon";
 import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import HelpFillIcon from "remixicon-react/QuestionFillIcon";
 import LightbulbFlashLine from "remixicon-react/LightbulbFlashLineIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
 import KeyIcon from "remixicon-react/Key2LineIcon";
@@ -128,6 +131,7 @@ import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
 import Trash from "remixicon-react/DeleteBinLineIcon";
 import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
+import WarningLineIcon from "remixicon-react/ErrorWarningLineIcon";
 import EditUnderlineIcon from "remixicon-react/EditLineIcon";
 import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
@@ -140,6 +144,8 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import UploadCloud2LineIcon from "remixicon-react/UploadCloud2LineIcon";
+import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -198,6 +204,7 @@ export const IconCollection = [
   "PARAGRAPH_TWO",
   "add-more",
   "add-more-fill",
+  "alert-fill",
   "arrow-forward",
   "arrow-left",
   "double-arrow-right",
@@ -232,6 +239,7 @@ export const IconCollection = [
   "down-arrow-2",
   "downArrow",
   "download",
+  "download-line",
   "duplicate",
   "edit",
   "edit-line",
@@ -243,6 +251,7 @@ export const IconCollection = [
   "eye-on",
   "eye-off",
   "file-transfer",
+  "file-line",
   "filter",
   "fluid",
   "fork",
@@ -253,6 +262,7 @@ export const IconCollection = [
   "git-pull-request",
   "guide",
   "help",
+  "help-fill",
   "info",
   "invite-user",
   "left-arrow",
@@ -303,12 +313,14 @@ export const IconCollection = [
   "unread-pin",
   "upArrow",
   "upload",
+  "upload-cloud",
   "user",
   "user-2",
   "view-all",
   "view-less",
   "wand",
   "warning",
+  "warning-line",
   "warning-triangle",
   "workspace",
   "git-branch",
@@ -392,6 +404,9 @@ const Icon = forwardRef(
         break;
       case "add-more-fill":
         returnIcon = <AddMoreFillIcon />;
+        break;
+      case "alert-fill":
+        returnIcon = <AlertFillIcon />;
         break;
       case "arrow-forward":
         returnIcon = <ArrowForwardIcon />;
@@ -490,6 +505,9 @@ const Icon = forwardRef(
       case "download":
         returnIcon = <Download />;
         break;
+      case "download-line":
+        returnIcon = <DownloadLineIcon />;
+        break;
       case "duplicate":
         returnIcon = <DuplicateIcon />;
         break;
@@ -523,6 +541,9 @@ const Icon = forwardRef(
       case "file-transfer":
         returnIcon = <FileTransfer />;
         break;
+      case "file-line":
+        returnIcon = <FileLine />;
+        break;
       case "filter":
         returnIcon = <Filter />;
         break;
@@ -552,6 +573,9 @@ const Icon = forwardRef(
         break;
       case "help":
         returnIcon = <HelpIcon />;
+        break;
+      case "help-fill":
+        returnIcon = <HelpFillIcon />;
         break;
       case "info":
         returnIcon = <InfoIcon />;
@@ -703,6 +727,9 @@ const Icon = forwardRef(
       case "upload":
         returnIcon = <Upload />;
         break;
+      case "upload-cloud":
+        returnIcon = <UploadCloud2LineIcon />;
+        break;
       case "user":
         returnIcon = <UserIcon />;
         break;
@@ -720,6 +747,9 @@ const Icon = forwardRef(
         break;
       case "warning":
         returnIcon = <WarningIcon />;
+        break;
+      case "warning-line":
+        returnIcon = <WarningLineIcon />;
         break;
       case "warning-triangle":
         returnIcon = <WarningTriangleIcon />;

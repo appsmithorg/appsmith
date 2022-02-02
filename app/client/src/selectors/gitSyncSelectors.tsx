@@ -33,12 +33,6 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getIsImportAppViaGitModalOpen = (state: AppState) =>
-  state.ui.gitSync.isImportAppViaGitModalOpen;
-
-export const getOrganizationIdForImport = (state: AppState) =>
-  state.ui.gitSync.organizationIdForImport;
-
 export const getGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.globalGitConfig;
 
@@ -139,36 +133,43 @@ export const getDisconnectingGitApplication = (state: AppState) =>
 export const getUseGlobalProfile = (state: AppState) =>
   state.ui.gitSync.useGlobalProfile;
 
+const FALLBACK_DOCS_URL = "https://docs.appsmith.com/";
+
 // git connect ssh key deploy url
 export const getSSHKeyDeployDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl;
+  state.ui.gitSync.deployKeyDocUrl || FALLBACK_DOCS_URL;
 
 // git connect remote url
 export const getRemoteUrlDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  "https://docs.appsmith.com/";
+  state.ui.gitSync.deployKeyDocUrl || FALLBACK_DOCS_URL;
 
 // git deploy conflict doc url
-export const getConflictFoundDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  "https://docs.appsmith.com/";
+export const getConflictFoundDocUrlDeploy = (state: AppState) =>
+  state.ui.gitSync.pullError?.error?.referenceDoc || FALLBACK_DOCS_URL;
+
+// git deploy conflict doc url
+export const getConflictFoundDocUrlMerge = (state: AppState) =>
+  state.ui.gitSync.mergeStatus?.referenceDoc ||
+  state.ui.gitSync.mergeError?.error?.referenceDoc ||
+  FALLBACK_DOCS_URL;
 
 // git disconnect learn more doc url
 export const getDisconnectDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  "https://docs.appsmith.com/";
+  state.ui.gitSync.deployKeyDocUrl || FALLBACK_DOCS_URL;
 
 // git disconnect learn more doc url
 export const getRepoLimitedDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  "https://docs.appsmith.com/";
+  state.ui.gitSync.deployKeyDocUrl || FALLBACK_DOCS_URL;
 
 // git disconnect learn more doc url
 export const getConnectingErrorDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  "https://docs.appsmith.com/";
+  state.ui.gitSync.connectError?.error.referenceDoc || FALLBACK_DOCS_URL;
 
 // git disconnect learn more doc url
 export const getUpstreamErrorDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  "https://docs.appsmith.com/";
+  state.ui.gitSync.commitAndPushError?.error?.referenceDoc || FALLBACK_DOCS_URL;
+
+export const getSshKeyPair = (state: AppState) => state.ui.gitSync.SSHKeyPair;
+
+export const getIsImportingApplicationViaGit = (state: AppState) =>
+  state.ui.gitSync.isImportingApplicationViaGit;

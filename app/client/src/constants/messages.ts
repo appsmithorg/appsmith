@@ -306,6 +306,8 @@ export const OMNIBAR_PLACEHOLDER = () =>
 export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
+export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
+  "Create a new Query, API or JSObject";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -437,7 +439,36 @@ export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 
 // Import/Export Application features
-export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
+export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
+export const IMPORT_APPLICATION_MODAL_LABEL = () =>
+  "Where would you like to import your application from?";
+export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
+export const IMPORT_APP_FROM_GIT_TITLE = () => "Import for Github";
+export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
+  "Drag and drop your file or upload from your computer";
+export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
+  "Use SSH link from your repository to import application";
+export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git Repository";
+export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
+  "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
+  "Reconnect missing datasource credentials";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
+  "Fill these with utmost care as the application will not behave normally otherwsie";
+export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
+  "These datasources were imported successfully!";
+export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
+  "Please fill up the missing datasources";
+export const ADD_MISSING_DATASOURCES = () => "Add missing Datasources";
+export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
+  "This action is irreversible.";
+export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
+  `If you continue without connecting your datasources the application may
+  not behave correctly. The datasouces will be availabe inside the
+  application for you to reconnect later.`;
+export const SKIP_TO_APPLICATION = () => "Skip to Application";
+export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
+  "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
@@ -537,6 +568,7 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 
 export const GIT_CONNECTION = () => "Git Connection";
+export const GIT_IMPORT = () => "Git Import";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
@@ -581,6 +613,7 @@ export const IS_MERGING = () => "MERGING CHANGES...";
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
+export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "RETRY";
 export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
@@ -595,6 +628,7 @@ export const PASTE_SSH_URL_INFO = () =>
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
+export const IMPORT_BTN_LABEL = () => "IMPORT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const NO_MERGE_CONFLICT = () =>
@@ -637,6 +671,7 @@ export const APPLICATION_NAME = () => "Application Name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
+export const IMPORTING_APP_FROM_GIT = () => "IMPORTING APPLICATION FROM GIT";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
@@ -668,6 +703,8 @@ export const DOC_DESCRIPTION = () =>
   `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
+export const ACTION_OPERATION_DESCRIPTION = () =>
+  `Create a new Query, API or JS Object`;
 
 export const TRIGGER_ACTION_VALIDATION_ERROR = (
   functionName: string,
@@ -909,9 +946,12 @@ export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
+export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
+export const ADD_QUERY_JS_TOOLTIP = () => "Add a new Query, API or JS Object";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -986,3 +1026,10 @@ export const END_TITLE = () => "What’s next? Start building your own apps.";
 export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "START BUILDING AN APP";
+
+export const CONTEXT_EDIT_NAME = () => "Edit Name";
+export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
+export const CONTEXT_MOVE = () => "Move to page";
+export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DELETE = () => "Delete";
+export const CONTEXT_NO_PAGE = () => "No pages";

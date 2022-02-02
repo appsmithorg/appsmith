@@ -66,7 +66,7 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
-function* failFastApiCalls(
+export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
   failureActions: string[],

@@ -1,11 +1,11 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
+import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
 import {
-  ReduxActionErrorTypes,
-  ReduxActionWithCallbacks,
-} from "../constants/ReduxActionConstants";
-import { FetchApplicationResponse } from "../api/ApplicationApi";
-import { ResponseMeta } from "../api/ApiResponses";
+  ApplicationPagePayload,
+  ApplicationResponsePayload,
+  FetchApplicationResponse,
+} from "../api/ApplicationApi";
 import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
@@ -103,6 +103,17 @@ export const importApplication = (appDetails: ImportApplicationRequest) => {
   };
 };
 
+export const importApplicationSuccess = (
+  importedApp: ApplicationResponsePayload & {
+    pages: ApplicationPagePayload[];
+  },
+) => {
+  return {
+    type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
+    payload: importedApp,
+  };
+};
+
 export const getAllApplications = () => {
   return {
     type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
@@ -120,104 +131,29 @@ export const setShowAppInviteUsersDialog = (payload: boolean) => ({
   payload,
 });
 
-type ErrorPayload = string;
-export type GetSSHKeyResponseData = {
-  docUrl: string;
-  publicKey?: string;
-};
-
-export type GenerateSSHKeyPairResponsePayload<T> = {
-  responseMeta: ResponseMeta;
-  data: T;
-};
-
-export type GenerateSSHKeyPairReduxAction = ReduxActionWithCallbacks<
-  undefined,
-  GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
-  ErrorPayload
->;
-
-export type GenerateKeyParams = {
-  onErrorCallback?: (payload: ErrorPayload) => void;
-  onSuccessCallback?: (
-    payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
-  ) => void;
-  payload?: undefined;
-};
-
-export const generateSSHKeyPair = ({
-  onErrorCallback,
-  onSuccessCallback,
+export const initDatasourceConnectionDuringImportRequest = (
+  payload: string,
+) => ({
+  type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
   payload,
-}: GenerateKeyParams): GenerateSSHKeyPairReduxAction => {
-  return {
-    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
-    payload,
-    onErrorCallback,
-    onSuccessCallback,
-  };
-};
+});
 
-export const generateSSHKeyPairSuccess = (
-  payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
-) => {
-  return {
-    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS,
-    payload,
-  };
-};
+export const initDatasourceConnectionDuringImportSuccess = () => ({
+  type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS,
+});
 
-export type GetSSHKeyPairResponsePayload<T> = {
-  responseMeta: ResponseMeta;
-  data: T;
-};
+export const resetDatasourceConfigForImportFetchedFlag = () => ({
+  type: ReduxActionTypes.RESET_DATASOURCE_CONFIG_FETCHED_FOR_IMPORT_FLAG,
+});
 
-export type GetSSHKeyPairReduxAction = ReduxActionWithCallbacks<
-  undefined,
-  GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
-  ErrorPayload
->;
-
-export type GetKeyParams = {
-  onErrorCallback?: (payload: ErrorPayload) => void;
-  onSuccessCallback?: (
-    payload: GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
-  ) => void;
-  payload?: undefined;
-};
-
-export const getSSHKeyPair = ({
-  onErrorCallback,
-  onSuccessCallback,
+export const setIsReconnectingDatasourcesModalOpen = (payload: {
+  isOpen: boolean;
+}) => ({
+  type: ReduxActionTypes.SET_IS_RECONNECTING_DATASOURCES_MODAL_OPEN,
   payload,
-}: GetKeyParams): GetSSHKeyPairReduxAction => {
-  return {
-    type: ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT,
-    payload,
-    onErrorCallback,
-    onSuccessCallback,
-  };
-};
+});
 
-export const getSSHKeyPairSuccess = (
-  payload: GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
-) => {
-  return {
-    type: ReduxActionTypes.FETCH_SSH_KEY_PAIR_SUCCESS,
-    payload,
-  };
-};
-
-export const getSSHKeyPairError = (payload: {
-  error: string;
-  show: boolean;
-}) => {
-  return {
-    type: ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR,
-    payload,
-  };
-};
-
-export const initSSHKeyPairWithNull = () => ({
-  type: ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL,
+export const setOrgIdForImport = (orgId?: string) => ({
+  type: ReduxActionTypes.SET_ORG_ID_FOR_IMPORT,
+  payload: orgId,
 });

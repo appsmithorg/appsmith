@@ -11,8 +11,7 @@ const pageid = "MyPage";
 describe("Entity explorer tests related to widgets and validation", function() {
   it("Add a widget to default page and verify the properties", function() {
     cy.addDsl(dsl);
-    cy.SearchEntityandOpen("Text1");
-    cy.SearchEntityAndUnfold("Text1");
+    cy.OpenBindings("Text1");
     cy.get(explorer.property)
       .last()
       .click({ force: true });
@@ -29,8 +28,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.GlobalSearchEntity("Table1");
-    cy.SearchEntityandOpen("Table1");
-    cy.SearchEntityAndUnfold("Table1");
+    cy.OpenBindings("Table1");
     cy.get(explorer.property)
       .last()
       .click({ force: true });
@@ -52,8 +50,12 @@ describe("Entity explorer tests related to widgets and validation", function() {
   });
 
   it("Toggle between widgets in different pages using search functionality", function() {
+    cy.get(".t--entity-name")
+      .contains("Page1")
+      .click({ force: true });
+    cy.wait(2000);
     cy.SearchEntityandOpen("Text1");
-    cy.SearchEntityAndUnfold("Text1");
+    cy.OpenBindings("Text1");
     cy.get(explorer.property)
       .last()
       .click({ force: true });

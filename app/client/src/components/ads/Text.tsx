@@ -4,6 +4,7 @@ import { Theme } from "constants/DefaultTheme";
 import { TypographyKeys } from "constants/typography";
 
 export enum TextType {
+  P0 = "p0",
   P1 = "p1",
   P2 = "p2",
   P3 = "p3",
@@ -42,6 +43,9 @@ export type TextProps = CommonComponentProps & {
 const typeSelector = (props: TextProps & ThemeProp): string => {
   let color = "";
   switch (props.type) {
+    case TextType.P0:
+      color = props.theme.colors.text.normal;
+      break;
     case TextType.P1:
       color = props.theme.colors.text.normal;
       break;

@@ -5,7 +5,7 @@
     "AddPage": ".pages .t--entity-add-btn",
     "addEntityAPI": ".datasources .t--entity-add-btn",
     "addEntityJSEditor": ".js_actions .t--entity-add-btn",
-    "entityWidget": ".t--entity-name:contains('Widgets')",
+    "entityWidget": ".t--entity-name:contains('WIDGETS')",
     "entityTable": ".t--entity-name:contains('Table1')",
     "entityText": ".t--entity-name:contains('Text1')",
     "entityExplorer": ".t--nav-link-entity-explorer",
@@ -14,7 +14,7 @@
     "editName": ".single-select >div:contains('Edit Name')",
     "deletePage": ".single-select >div:contains('Delete')",
     "refreshStructure": ".single-select >div:contains('Refresh')",
-    "entityQuery": ".t--entity-name:contains('Datasources')",
+    "entityQuery": ".t--entity-name:contains('DATASOURCES')",
     "datasourceStructure": ".t--entity.datasourceStructure",
     "datasourceColumn": ".t--datasource-column",
     "templateMenuIcon": ".t--template-menu-trigger",
@@ -30,5 +30,8 @@
     "editEntity": ".t--entity-name input",
     "explorerSwitchId": "#switcher--explorer",
     "widgetSwitchId": "#switcher--widgets",
-    "activeTab": "span:contains('Active')"
+    "activeTab": "span:contains('Active')",
+    "createNew": ".t--entity-add-btn.group.files",
+    "blankAPI": "span:contains('New Blank API')",
+    "addQuery": ".files .t--entity-add-btn"
 }

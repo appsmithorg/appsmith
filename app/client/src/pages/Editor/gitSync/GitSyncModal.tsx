@@ -7,6 +7,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setOrgIdForImport } from "actions/applicationActions";
 import Menu from "./Menu";
 import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
@@ -19,6 +20,7 @@ import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import { createMessage, GIT_IMPORT } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
@@ -60,7 +62,7 @@ const TabKeys: string[] = Object.values(GitSyncModalTab)
   .filter((value) => typeof value === "string")
   .map((value) => value as string);
 
-function GitSyncModal() {
+function GitSyncModal(props: { isImport?: boolean }) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
@@ -69,6 +71,7 @@ function GitSyncModal() {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
+    dispatch(setOrgIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const setActiveTabIndex = useCallback(
@@ -91,10 +94,17 @@ function GitSyncModal() {
   }, [isGitConnected]);
 
   let menuOptions = allMenuOptions;
-  if (!isGitConnected) {
-    menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
+  if (props.isImport) {
+    menuOptions = [
+      {
+        key: MENU_ITEM.GIT_CONNECTION,
+        title: createMessage(GIT_IMPORT),
+      },
+    ];
   } else {
-    menuOptions = allMenuOptions;
+    menuOptions = isGitConnected
+      ? allMenuOptions
+      : [MENU_ITEMS_MAP.GIT_CONNECTION];
   }
 
   useEffect(() => {
@@ -143,7 +153,12 @@ function GitSyncModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent />
+            {activeTabIndex === GitSyncModalTab.GIT_CONNECTION && (
+              <BodyComponent isImport={props.isImport} />
+            )}
+            {activeTabIndex !== GitSyncModalTab.GIT_CONNECTION && (
+              <BodyComponent />
+            )}
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon

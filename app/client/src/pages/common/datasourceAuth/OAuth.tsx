@@ -35,6 +35,7 @@ interface Props {
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
   shouldRender: boolean;
+  pageId?: string;
 }
 
 enum AuthorizationStatus {
@@ -61,6 +62,7 @@ function OAuth({
   datasource,
   getSanitizedFormData,
   isInvalid,
+  pageId: pageIdProp,
   shouldRender,
 }: Props): JSX.Element {
   const { id: datasourceId } = datasource;
@@ -79,7 +81,9 @@ function OAuth({
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const { pageId } = useParams<ExplorerURLParams>();
+  const { pageId: pathPageId } = useParams<ExplorerURLParams>();
+
+  const pageId = pathPageId || pageIdProp;
 
   // Handles datasource saving
   const handleDatasourceSave = () => {
@@ -87,7 +91,11 @@ function OAuth({
       updateDatasource(
         getSanitizedFormData(),
         pluginType
-          ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
+          ? redirectAuthorizationCode(
+              pageId as string,
+              datasourceId,
+              pluginType,
+            )
           : undefined,
       ),
     );

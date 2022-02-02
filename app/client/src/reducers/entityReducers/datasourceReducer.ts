@@ -21,6 +21,8 @@ export interface DatasourceDataState {
   isFetchingMockDataSource: false;
   mockDatasourceList: any[];
   executingDatasourceQuery: boolean;
+  isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
+  unconfiguredList: Datasource[];
 }
 
 const initialState: DatasourceDataState = {
@@ -34,6 +36,8 @@ const initialState: DatasourceDataState = {
   isFetchingMockDataSource: false,
   mockDatasourceList: [],
   executingDatasourceQuery: false,
+  isReconnectingModalOpen: false,
+  unconfiguredList: [],
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -221,6 +225,20 @@ const datasourceReducer = createReducer(initialState, {
       }),
     };
   },
+  [ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ): DatasourceDataState => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) return action.payload;
+
+        return datasource;
+      }),
+    };
+  },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
@@ -297,6 +315,24 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       executingDatasourceQuery: false,
+    };
+  },
+  [ReduxActionTypes.SET_IS_RECONNECTING_DATASOURCES_MODAL_OPEN]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ isOpen: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isReconnectingModalOpen: action.payload.isOpen,
+    };
+  },
+  [ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource[]>,
+  ) => {
+    return {
+      ...state,
+      unconfiguredList: action.payload,
     };
   },
 });

@@ -31,7 +31,6 @@ import {
 import {
   changeDatasource,
   createDatasourceFromForm,
-  expandDatasourceEntity,
   fetchDatasourceStructure,
   setDatsourceEditorMode,
   updateDatasourceSuccess,
@@ -96,10 +95,15 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
+import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 
-function* fetchDatasourcesSaga() {
+function* fetchDatasourcesSaga(
+  action: ReduxAction<{ orgId?: string } | undefined>,
+) {
   try {
-    const orgId = yield select(getCurrentOrgId);
+    let orgId = yield select(getCurrentOrgId);
+    if (action.payload?.orgId) orgId = action.payload?.orgId;
+
     const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
       orgId,
     );
@@ -109,9 +113,6 @@ function* fetchDatasourcesSaga() {
         type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
         payload: response.data,
       });
-      if (response.data.length) {
-        yield put(expandDatasourceEntity(response.data[0].id));
-      }
     }
   } catch (error) {
     yield put({
@@ -492,7 +493,12 @@ function* handleDatasourceNameChangeFailureSaga(
 }
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  const organizationId = yield select(getCurrentOrgId);
+  let organizationId = yield select(getCurrentOrgId);
+
+  // test button within the import modal
+  if (!organizationId) {
+    organizationId = yield select(getOrganizationIdForImport);
+  }
   const { initialValues, values } = yield select(
     getFormData,
     DATASOURCE_DB_FORM,

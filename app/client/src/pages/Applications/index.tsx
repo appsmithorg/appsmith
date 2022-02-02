@@ -78,7 +78,7 @@ import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
-import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
+import ImportApplicationModalOld from "./ImportApplicationModalOld";
 import {
   createMessage,
   DOCUMENTATION,
@@ -92,10 +92,11 @@ import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
 import getFeatureFlags from "utils/featureFlags";
-import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div`
@@ -596,6 +597,10 @@ function ApplicationsSection(props: any) {
     );
   };
 
+  const ImportModal = getFeatureFlags().GIT_IMPORT
+    ? ImportApplicationModal
+    : ImportApplicationModalOld;
+
   function OrgMenuTarget(props: {
     orgName: string;
     disabled?: boolean;
@@ -681,15 +686,6 @@ function ApplicationsSection(props: any) {
                   orgName: organization.name,
                   orgSlug: organization.slug,
                 })}
-              {selectedOrgIdForImportApplication && (
-                <ImportApplicationModal
-                  isModalOpen={
-                    selectedOrgIdForImportApplication === organization.id
-                  }
-                  onClose={() => setSelectedOrgIdForImportApplication("")}
-                  organizationId={selectedOrgIdForImportApplication}
-                />
-              )}
               {hasManageOrgPermissions && (
                 <Dialog
                   canEscapeKeyClose={false}
@@ -700,6 +696,15 @@ function ApplicationsSection(props: any) {
                 >
                   <Form orgId={organization.id} />
                 </Dialog>
+              )}
+              {selectedOrgIdForImportApplication && (
+                <ImportModal
+                  isModalOpen={
+                    selectedOrgIdForImportApplication === organization.id
+                  }
+                  onClose={() => setSelectedOrgIdForImportApplication("")}
+                  organizationId={selectedOrgIdForImportApplication}
+                />
               )}
               {isPermitted(
                 organization.userPermissions,
@@ -775,7 +780,9 @@ function ApplicationsSection(props: any) {
                           <Icon
                             className="t--options-icon"
                             name="context-menu"
-                            onClick={() => setOrgToOpenMenu(organization.slug)}
+                            onClick={() => {
+                              setOrgToOpenMenu(organization.slug);
+                            }}
                             size={IconSize.XXXL}
                           />
                         }
@@ -828,24 +835,6 @@ function ApplicationsSection(props: any) {
                                   )
                                 }
                                 text="Import Application"
-                              />
-                            )}
-                            {getFeatureFlags().GIT_IMPORT && (
-                              <MenuItem
-                                cypressSelector="t--org-import-app-git"
-                                icon="upload"
-                                onSelect={() => {
-                                  AnalyticsUtil.logEvent(
-                                    "GS_IMPORT_VIA_GIT_CLICK",
-                                  );
-                                  dispatch(
-                                    setIsImportAppViaGitModalOpen({
-                                      isOpen: true,
-                                      organizationId: organization.id,
-                                    }),
-                                  );
-                                }}
-                                text="Import Via GIT"
                               />
                             )}
                             <MenuItem
@@ -962,7 +951,8 @@ function ApplicationsSection(props: any) {
   return (
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
-      {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
+      {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
+      {getFeatureFlags().GIT_IMPORT && <ReconnectDatasourceModal />}
     </ApplicationContainer>
   );
 }

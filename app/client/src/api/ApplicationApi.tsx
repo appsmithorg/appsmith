@@ -258,14 +258,6 @@ class ApplicationApi extends Api {
       },
     );
   }
-
-  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
-  }
-
-  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
-  }
 }
 
 export default ApplicationApi;
