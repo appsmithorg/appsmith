@@ -2,7 +2,7 @@ import React, { ReactNode, useState, useEffect, useRef, useMemo } from "react";
 import styled, { StyledComponent } from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDrag } from "react-use-gesture";
-import { Spring } from "react-spring/renderprops";
+import { animated, Spring } from "react-spring";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -18,7 +18,7 @@ import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 
-const ResizeWrapper = styled.div<{ prevents: boolean }>`
+const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
   display: block;
   & {
     * {

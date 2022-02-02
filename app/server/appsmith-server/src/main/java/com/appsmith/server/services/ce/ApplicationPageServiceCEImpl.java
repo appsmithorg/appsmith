@@ -45,6 +45,7 @@ import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -588,13 +589,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             // Set id as null, otherwise create (which is using under the hood save)
                                             // will try to overwrite same resource instead of creating a new resource
                                             actionCollection.setId(null);
+                                            // Set published version to null as the published version of the page does
+                                            // not exists when we clone the page.
+                                            actionCollection.setPublishedCollection(null);
                                             return actionCollectionService.create(actionCollection)
                                                     .flatMap(savedActionCollection -> {
                                                         if (StringUtils.isEmpty(savedActionCollection.getDefaultResources().getCollectionId())) {
                                                             savedActionCollection.getDefaultResources().setCollectionId(savedActionCollection.getId());
                                                             return actionCollectionService.update(savedActionCollection.getId(), savedActionCollection);
                                                         }
-                                                        else return Mono.just(savedActionCollection);
+                                                        return Mono.just(savedActionCollection);
                                                     })
                                                     .flatMap(newlyCreatedActionCollection ->
                                                             Flux.fromIterable(updatedDefaultToBranchedActionId.values())
@@ -683,6 +687,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
                     newApplication.setLastEditedAt(Instant.now());
+                    newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
@@ -778,9 +783,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
                     /**
-                     *  Only delete unpublished action and not the entire action.
+                     *  Only delete unpublished action and not the entire action. Also filter actions embedded in
+                     *  actionCollection which will be deleted while deleting the collection, this will avoid the race
+                     *  condition for delete action
                      */
                     Mono<List<ActionDTO>> archivedActionsMono = newActionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                            .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
                                 return newActionService.deleteUnpublishedAction(action.getId());
@@ -1004,6 +1012,37 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE, false));
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
+    }
+
+    /**
+     * This method will create a new suffixed application or update the existing application if there is name conflict
+     * @param application resource which needs to be created or updated
+     * @param name name which should be assigned to the application
+     * @param suffix extension to application name
+     * @return updated application with modified name if duplicate key exception is thrown
+     */
+    public Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getOrganizationId(), application);
+
+        return applicationWithPoliciesMono
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    // We can't use create or createApplication method here as we are expecting update operation if the
+                    // _id is available with application object
+                    return applicationService.save(application);
+                })
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null) {
+                        return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 
 

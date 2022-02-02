@@ -50,6 +50,7 @@ import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION
 import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
 import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -765,7 +766,7 @@ public class RestApiPluginTest {
      * This test case is only meant to test the actual hint statement i.e. how it is worded. It is not meant to test
      * the correctness of duplication finding flow - since it is done as part of the test case named
      * `testGetDuplicateHeadersAndParams`. A separate test is used instead of a single test because the list of
-     * duplicates is returned as a set, hence order cannot be ascertained beforehand. 
+     * duplicates is returned as a set, hence order cannot be ascertained beforehand.
      */
     @Test
     public void testHintMessageForDuplicateHeadersAndParamsWithDatasourceConfigOnly() {
@@ -959,4 +960,33 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testDenyInstanceMetadataAws() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://169.254.169.254/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDenyInstanceMetadataGcp() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .verifyComplete();
+    }
+
 }

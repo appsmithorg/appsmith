@@ -10,7 +10,7 @@ describe("Input Widget Functionality", function() {
 
   // Note: commenting it out because Drag/Drop feature is not stable on cypress.
   // it("Checks if default values are not persisted in cache after delete", function() {
-  //   cy.openPropertyPane("inputwidget");
+  //   cy.openPropertyPane("inputwidgetv2");
   //   cy.get(widgetsPage.defaultInput)
   //     .type(this.data.command)
   //     .type(this.data.defaultdata);
@@ -19,7 +19,7 @@ describe("Input Widget Functionality", function() {
   //     .should("contain", this.data.defaultdata);
   //   cy.get(commonlocators.deleteWidget).click();
   //   cy.get(explorer.addWidget).click();
-  //   cy.dragAndDropToCanvas("inputwidget");
+  //   cy.dragAndDropToCanvas("inputwidgetv2");
   //   cy.get(widgetsPage.inputWidget + " " + "input")
   //     .invoke("attr", "value")
   //     .should("not.contain", this.data.defaultdata);
@@ -29,7 +29,7 @@ describe("Input Widget Functionality", function() {
   // });
 
   it("Input Widget Functionality", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     /**
      * @param{Text} Random Text
      * @param{InputWidget}Mouseover
@@ -48,7 +48,7 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.para);
-    //cy.openPropertyPane("inputwidget");
+    //cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", this.data.defaultdata);
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
@@ -81,7 +81,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("isSpellCheck: true", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.spellCheck + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
@@ -91,7 +91,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("isSpellCheck: false", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.spellCheck + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
@@ -101,28 +101,28 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input Widget Functionality To Check Disabled Widget", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.disabled");
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Widget Functionality To Check Enabled Widget", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.enabled");
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Unchecked Visible Widget", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Check Visible Widget", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.visible");
@@ -130,7 +130,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input Functionality To check number input type with custom regex", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.get(commonlocators.dataType)
       .last()
       .click({ force: true });
@@ -152,50 +152,7 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.innertext)
       .click({ force: true })
       .clear();
-    cy.closePropertyPane("inputwidget");
-  });
-
-  it("Input Functionality To check currency input type", function() {
-    cy.openPropertyPane("inputwidget");
-    cy.testJsontext("regex", "");
-    cy.get(widgetsPage.innertext)
-      .click()
-      .clear()
-      .type("13242.2");
-    cy.selectDropdownValue(commonlocators.dataType, "Currency");
-    cy.selectDropdownValue(commonlocators.decimalType, "1");
-    cy.togglebar(commonlocators.allowCurrencyChange);
-    cy.selectDropdownValue(commonlocators.currencyType, "EUR - Euro");
-    cy.get(widgetsPage.innertext)
-      .click()
-      .focus({ force: true })
-      .blur();
-    cy.wait(1000);
-    cy.get(commonlocators.inputCurrencyChangeType)
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("€");
-      });
-    cy.closePropertyPane("inputwidget");
-    cy.get(widgetsPage.innertext)
-      .invoke("attr", "value")
-      .then((text) => {
-        expect(text).to.equal("13,242.2");
-      });
-  });
-
-  it("Input Functionality To check phone number input type", function() {
-    cy.get(widgetsPage.innertext)
-      .click()
-      .clear();
-    cy.openPropertyPane("inputwidget");
-    cy.wait(1000);
-    cy.selectDropdownValue(commonlocators.dataType, "Phone Number");
-    cy.get(commonlocators.inputCountryCodeChangeType)
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("🇺🇸+1");
-      });
+    cy.closePropertyPane("inputwidgetv2");
   });
 
   it("Input label wrapper do not show if lable and tooltip is empty", () => {
@@ -203,6 +160,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input label renders if label prop is not empty", () => {
+    cy.openPropertyPane("inputwidgetv2");
     // enter label in property pan
     cy.get(widgetsPage.inputLabelControl).type("Label1");
     // test if label shows up with correct text
@@ -210,6 +168,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("inputwidgetv2");
     // enter tooltip in property pan
     cy.get(widgetsPage.inputTooltipControl).type("Helpfull text for input");
     // tooltip help icon shows
@@ -233,7 +192,7 @@ describe("Input Widget Functionality", function() {
       .click({ force: true })
       .type("0");*/
     cy.testJsontext("defaulttext", "0");
-    cy.closePropertyPane("inputwidget");
+    cy.closePropertyPane("inputwidgetv2");
     cy.get(widgetsPage.innertext)
       .invoke("val")
       .then((text) => {

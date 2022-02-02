@@ -1,5 +1,4 @@
 import { FetchPageResponse } from "api/PageApi";
-import { XYCord } from "utils/hooks/useCanvasDragging";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   WidgetOperation,
@@ -14,7 +13,8 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { transformDSL } from "./DSLMigrations";
 import { WidgetType } from "./WidgetFactory";
 import { DSLWidget } from "widgets/constants";
-import { WidgetDraggingBlock } from "./hooks/useBlocksToBeDraggedOnCanvas";
+import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;

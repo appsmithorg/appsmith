@@ -387,6 +387,7 @@ type GitErrorPayloadType = {
   code: number;
   errorType?: string;
   message: string;
+  referenceDoc?: string;
 };
 
 export type GitErrorType = {
