@@ -339,7 +339,7 @@ jobs:
           path: ~/failed_spec
 
       - uses: actions/download-artifact@v2
-        if: ${{ failure() }}
+        if: needs.ui-test.result
         id: download-2
         with:
           name: failed-spec-2
@@ -352,11 +352,11 @@ jobs:
         run: echo ${{env.failed_spec_env}}
 
       - name: "combine all specs"
-        if: ${{ failure() }}
+        if: needs.ui-test.result
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
 
       - name: Store the combined run result
-        if: ${{ failure() }}
+        if: needs.ui-test.result
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
@@ -366,8 +366,21 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       - name: upload combined failed spec
-        if: ${{ failure() }}
+        if: needs.ui-test.result
         uses: actions/upload-artifact@v2
         with:
           name: combined_failed_spec
           path: ~/combined_failed_spec
+
+      - name: Return status for ui-matrix
+        run: |
+          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
+            echo "Integration tests completed successfully!";
+            exit 0;
+          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then
+            echo "Integration tests were skipped";
+            exit 1;
+          else
+            echo "Integration tests have failed";
+            exit 1;
+          fi
