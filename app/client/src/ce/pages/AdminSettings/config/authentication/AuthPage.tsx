@@ -47,9 +47,7 @@ const SettingsSubHeader = styled.div`
 
 const MethodCard = styled.div`
   display: flex;
-  width: 648px;
   align-items: center;
-  justify-content: space-between;
   margin: 32px 0;
 `;
 
@@ -67,7 +65,7 @@ const Image = styled.img`
 const MethodDetailsWrapper = styled.div`
   color: #2e3d49;
   width: 492px;
-  margin-right: 108px;
+  margin-right: 60px;
 `;
 
 const MethodTitle = styled.div`

@@ -13,6 +13,7 @@ import {
 import { AuthPage, AuthMethodType } from "./AuthPage";
 import Google from "assets/images/Google.png";
 import SamlSso from "assets/images/saml.svg";
+import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -137,7 +138,7 @@ export const Form_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_FORM_LOGIN_AUTH",
   category: SettingCategories.FORM_AUTH,
   label: "Form Login",
-  subText: "Enable your organization to sign in with Google (OAuth).",
+  subText: "Enable your organization to sign in with Appsmith Form.",
   image: Lock,
   type: "LINK",
   isConnected: !disableLoginForm,
@@ -157,8 +158,7 @@ export const Github_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
-  subText: `Enable your organization to sign in with your preferred SAML2 compliant provider like Ping
-      Identity, Google SAML, Keycloak, or VMware Identity Manager.`,
+  subText: `Enable your organization to sign in with Github SAML single sign-on (SSO).`,
   image: Github,
   type: "LINK",
   isConnected: enableGithubOAuth,
@@ -167,8 +167,7 @@ export const Github_Auth_Callout: AuthMethodType = {
 export const Saml_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
   label: "SAML 2.0",
-  subText: `Enable your organization to sign in with your preferred SAML2 compliant provider like Ping
-      Identity, Google SAML, Keycloak, or VMware Identity Manager.`,
+  subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
   needsUpgrade: true,
   type: "OTHER",
@@ -177,16 +176,16 @@ export const Saml_Auth_Callout: AuthMethodType = {
 export const Oidc_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   label: "OIDC",
-  subText: `Enable your organization to sign in with your preferred OIDC compliant provider.`,
-  image: SamlSso,
+  subText: `Enable your organization to sign in with Open ID Connect.`,
+  image: OIDC,
   needsUpgrade: true,
   type: "OTHER",
 };
 
 const AuthMethods = [
-  Saml_Auth_Callout,
-  Oidc_Auth_Callout,
   Google_Auth_Callout,
+  Oidc_Auth_Callout,
+  Saml_Auth_Callout,
   Github_Auth_Callout,
   Form_Auth_Callout,
 ];
