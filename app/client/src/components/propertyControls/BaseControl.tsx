@@ -46,7 +46,7 @@ export interface ControlData
 }
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
-  openNextPanel: (panelProps: any) => void;
+  openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   theme: EditorTheme;
   hideEvaluatedValue?: boolean;

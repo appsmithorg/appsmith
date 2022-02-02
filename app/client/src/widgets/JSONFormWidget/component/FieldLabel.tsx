@@ -105,13 +105,16 @@ function FieldLabel({
     const { labelStyle, labelTextColor = "", labelTextSize = "PARAGRAPH" } =
       labelStyles || {};
 
-    const st = labelStyle?.split(",");
+    // labelStyles contains styles as comma separated values eg. "BOLD,UNDERLINE"
+    const styles = labelStyle?.split(",");
     return {
       color: labelTextColor,
       fontSize: TEXT_SIZES[labelTextSize],
-      fontWeight: st?.includes(FontStyleTypes.BOLD) ? "bold" : "normal",
-      fontStyle: st?.includes(FontStyleTypes.ITALIC) ? "italic" : "",
-      textDecoration: st?.includes(FontStyleTypes.UNDERLINE) ? "underline" : "",
+      fontWeight: styles?.includes(FontStyleTypes.BOLD) ? "bold" : "normal",
+      fontStyle: styles?.includes(FontStyleTypes.ITALIC) ? "italic" : "",
+      textDecoration: styles?.includes(FontStyleTypes.UNDERLINE)
+        ? "underline"
+        : "",
     };
   })();
 

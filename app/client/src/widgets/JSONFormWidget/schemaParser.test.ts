@@ -968,13 +968,16 @@ describe(".constructPlausibleObjectFromArray", () => {
     const input = [
       { firstName: "20" },
       { lastName: 30 },
+      { foo: { bar: 20, zoo: "test" } },
       { lastName: 20, addresses: [{ line1: "line1" }] },
+      { foo: { bar: { zoo: 100 } } },
     ];
 
     const expectedOutput = {
       firstName: "20",
       lastName: 20,
       addresses: [{ line1: "line1" }],
+      foo: { zoo: "test", bar: { zoo: 100 } },
     };
 
     const result = constructPlausibleObjectFromArray(input);

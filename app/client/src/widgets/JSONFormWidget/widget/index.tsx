@@ -1,5 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
+import log from "loglevel";
 import { connect } from "react-redux";
 import { debounce, isEmpty } from "lodash";
 
@@ -113,13 +114,13 @@ class JSONFormWidget extends BaseWidget<
       currSourceData,
       widget.schema,
     );
-    const end = performance.now();
 
-    // eslint-disable-next-line
-    console.log("FORM BUILDER _ PERF", `${end - start} ms`);
+    log.debug(
+      "JSONForm widget schema parsing took",
+      performance.now() - start,
+      "ms",
+    );
 
-    // eslint-disable-next-line
-    console.log("FORM BUILDER - SCHEMA", schema);
     this.updateWidgetProperty("schema", schema);
   };
 

@@ -102,6 +102,10 @@ const getUpdatedSchemaFor = (
   return newSchema;
 };
 
+// This hook updates the disabled state for array and object field types only
+// If such field is disabled then all the underlying fields are recursively
+// disabled by setting the isDisabled property in the schema and updating it
+// in the dsl.
 export const updateChildrenDisabledStateHook = (
   props: JSONFormWidgetProps,
   propertyPath: string,
@@ -131,6 +135,10 @@ export const updateChildrenDisabledStateHook = (
   return;
 };
 
+// This hook updates the name property based on the "accessor" property value
+// The "accessor" property acts like a staging area for the value to be validated
+// and if the "accessor" value is deemed a valid key then it is used in the "name"
+// property.
 export const accessorUpdateHook = (
   props: JSONFormWidgetProps,
   propertyPath: string,

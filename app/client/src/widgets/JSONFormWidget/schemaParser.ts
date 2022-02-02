@@ -2,6 +2,7 @@ import {
   cloneDeep,
   difference,
   isEmpty,
+  merge,
   omit,
   pick,
   sortBy,
@@ -58,20 +59,27 @@ type SchemaItemsByFieldOptions = {
  *  Input - [{ firstName: "John", age: 20 }, { lastName: "Doe", age: 30 }]
  *  Output - { firstName: "John", age: 20, lastName: "Doe" }
  */
-
-// TODO: Improve logic to look into all the array items to get the proper object
 export const constructPlausibleObjectFromArray = (arrayOfObj: Obj[]) => {
   let plausibleObj = {};
 
   arrayOfObj.forEach((obj) => {
-    plausibleObj = {
-      ...plausibleObj,
-      ...obj,
-    };
+    plausibleObj = merge(plausibleObj, obj);
   });
 
   return plausibleObj;
 };
+
+/**
+ * This method looks at the type of data "name" is i.e. either string or number and returns a string which can
+ * act as a path of an object.
+ *
+ * @param name a string or a number, if string then represents an item in object and a number represents item in array.
+ * @param basePath The path that the name should be appended to if present
+ *
+ * @example
+ *  getSourcePath("age", "sourceData.profile") -> "sourceData.profile.age"
+ *  getSourcePath(0, "sourceData.education") -> "sourceData.education[0]"
+ */
 
 export const getSourcePath = (name: string | number, basePath?: string) => {
   let nameWithNotation = name;
@@ -91,6 +99,15 @@ export const getSourcePath = (name: string | number, basePath?: string) => {
 
   return basePath ? `${basePath}${nameWithNotation}` : `${nameWithNotation}`;
 };
+
+/**
+ * This method resolves the schema path to a source data path. As from a source data we create a schema, in certain
+ * cases we have a schemaItemPath i.e "schema.__root_schema__.children.name" and we want equivalent path in the source data
+ * which would be "sourceData.name"
+ *
+ * @param schema Schema object
+ * @param schemaItemPath the schema item path that we are resolving
+ */
 
 export const getSourceDataPathFromSchemaItemPath = (
   schema: Schema,
@@ -156,6 +173,15 @@ export const subDataTypeFor = (value: any) => {
   return undefined;
 };
 
+/**
+ *  This method tries to get an object out of an array for further process of the JSON data source
+ *
+ * @param data any array data
+ *
+ * @example
+ *  normalizeArrayValue([""]) -> ""
+ *  normalizeArrayValue([{ foo: 10 }, { bar: "hello"}]) -> { foo: 10, bar: "hello" }
+ */
 export const normalizeArrayValue = (data: any[]) => {
   if (subDataTypeFor(data) === DataType.OBJECT) {
     return constructPlausibleObjectFromArray(data);
@@ -251,6 +277,16 @@ export const applyPositions = (schema: Schema, newKeys?: string[]) => {
   });
 };
 
+/**
+ * This function checks if both the currentData and prevData are arrays.
+ * If they both are, then the function checks if the sub data type has changed or not
+ *
+ * @example
+ *  checkIfArrayAndSubDataTypeChanged(["test"], ["test"]) -> false
+ *  checkIfArrayAndSubDataTypeChanged(["test"], [10]) -> true
+ *  checkIfArrayAndSubDataTypeChanged(["test"], [{ name: 10 }]) -> true
+ *  checkIfArrayAndSubDataTypeChanged(["test"], "test") -> false
+ */
 export const checkIfArrayAndSubDataTypeChanged = (
   currentData: any,
   prevData: any,
@@ -266,6 +302,13 @@ export const checkIfArrayAndSubDataTypeChanged = (
 export const hasNullOrUndefined = (items: any[]) =>
   items.includes(null) || items.includes(undefined);
 
+/**
+ * This function sanitizes the key by looking at existing keys in the current schema
+ * It considers the "identifier" and the "name" property.
+ *
+ * @param key The key that is to be sanitized
+ * @param schema current schema
+ */
 export const sanitizeSchemaItemKey = (key: string, schema: Schema) => {
   const existingKeys = [
     ...getKeysFromSchema(schema, ["identifier", "name"], {
@@ -278,6 +321,14 @@ export const sanitizeSchemaItemKey = (key: string, schema: Schema) => {
 };
 
 class SchemaParser {
+  /**
+   * This method parses the source data and converts it into a schema. The passing of previous schema ensures
+   * micro parsing to occur i.e only the parts where the source data is modified is parsed and the rest is left as is.
+   *
+   * @param widgetName name of the current widget (This helps in assigning defaultValue bindings)
+   * @param currSourceData The source data for parsing
+   * @param schema Previous generated schema if present.
+   */
   static parse = (
     widgetName: string,
     currSourceData?: JSON,
@@ -306,6 +357,13 @@ class SchemaParser {
     };
   };
 
+  /**
+   * getSchemaItemByFieldType generates a schemaItem based on the field type passed. This
+   * method is useful when the field type is modified in the property pane.
+   *
+   * @param fieldType The field type that we want the schemaItem to convert to.
+   * @param options configuration options
+   */
   static getSchemaItemByFieldType = (
     fieldType: FieldType,
     options: SchemaItemsByFieldOptions,
@@ -322,6 +380,10 @@ class SchemaParser {
         return potentialData;
       }
 
+      // This is for the case where a non custom field type is changed from a primitive type
+      // to an array type. In that case we first check if the sourceData has an array value
+      // if not then we assign a generic one so that it gets parsed as an array when getSchemaItemFor
+      // is called else it might error out as the fieldType would be array but the sourceData would not be an array.
       if (
         fieldType === FieldType.ARRAY &&
         dataTypeFor(schemaItem.sourceData) !== DataType.ARRAY
@@ -342,6 +404,8 @@ class SchemaParser {
       sanitizedKey: schemaItem.identifier,
     });
 
+    // We try to salvage some of the properties that we do not want to get modified by the
+    // new generated schemaItem that we got from the getSchemaItem
     const oldSchemaItemProperties = pick(schemaItem, [
       "accessor",
       "identifier",
@@ -360,12 +424,15 @@ class SchemaParser {
       newSchemaItem.sourceData = schemaItem.sourceData;
     }
 
-    return {
-      ...newSchemaItem,
-      ...oldSchemaItemProperties,
-    };
+    return merge(newSchemaItem, oldSchemaItemProperties);
   };
 
+  /**
+   * This method returns a schemaItem for a key and it's sourceData. This is a recursive method i.e if
+   * an array or object is encountered it will call convertObjectToSchema or convertArrayToSchema respectively
+   * and that in turn would call this method. If a primitive data type is detected for the source data, it would
+   * return the default values for the particular auto-detected field type.
+   */
   static getSchemaItemFor = (
     key: string,
     options: ParserOptions,
@@ -409,6 +476,8 @@ class SchemaParser {
       children = SchemaParser.convertArrayToSchema(sanitizedOptions);
     }
 
+    // Field default values (that are attached to the react field component)
+    // can either be an object or a function.
     const componentDefaultValues = (() => {
       const { componentDefaultValues } = FieldComponent;
       let defaultValues = componentDefaultValues as FieldComponentBaseProps;
@@ -445,6 +514,10 @@ class SchemaParser {
     };
   };
 
+  // getUnModifiedSchemaItemFor is called when we want to process a field whose
+  // data type is not changed. It returns the schema item as is except the children
+  // which is further processed and based on it's changes the children is fetched and
+  // returned in the schemaItem object
   static getUnModifiedSchemaItemFor = ({
     currSourceData,
     schemaItem = {} as SchemaItem,
@@ -474,6 +547,7 @@ class SchemaParser {
     };
   };
 
+  // This method deals with the conversion of array data to a schema
   static convertArrayToSchema = ({
     currSourceData = [],
     prevSchema = {},
@@ -510,6 +584,7 @@ class SchemaParser {
     return schema;
   };
 
+  // This method deals with the conversion of object data to a schema
   static convertObjectToSchema = ({
     currSourceData = {},
     prevSchema = {},
