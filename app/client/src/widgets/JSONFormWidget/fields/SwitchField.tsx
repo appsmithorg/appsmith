@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { pick } from "lodash";
 
 import Field from "widgets/JSONFormWidget/component/Field";
 import { AlignWidget } from "widgets/constants";
@@ -29,7 +28,7 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   label: "",
 };
 
-function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
+function SwitchField({ fieldClassName, name, schemaItem }: SwitchFieldProps) {
   const {
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
@@ -40,20 +39,16 @@ function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
     onBlurDynamicString,
   });
 
-  const labelStyles = pick(schemaItem, [
-    "labelStyle",
-    "labelTextColor",
-    "labelTextSize",
-  ]);
-
   return (
     <Field
-      {...rest}
       defaultValue={schemaItem.defaultValue}
+      fieldClassName={fieldClassName}
       inlineLabel
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
-      labelStyles={labelStyles}
+      labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
       name={name}
       render={({ field: { onBlur, onChange, value } }) => {
         const onSwitchChange = (value: boolean) => {
@@ -85,6 +80,7 @@ function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
           />
         );
       }}
+      tooltip={schemaItem.tooltip}
     />
   );
 }

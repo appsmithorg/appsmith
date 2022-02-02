@@ -81,16 +81,7 @@ function ArrayField({
   const [keys, setKeys] = useState<string[]>([]);
   const { setFieldValidityState } = useContext(FormContext);
 
-  const {
-    backgroundColor,
-    cellBackgroundColor,
-    cellBorderColor,
-    children,
-    isVisible = true,
-    label,
-    tooltip,
-  } = schemaItem;
-  const arrayItemSchema = children[ARRAY_ITEM_KEY];
+  const arrayItemSchema = schemaItem.children[ARRAY_ITEM_KEY];
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
   const defaultValue = (() => {
@@ -103,12 +94,6 @@ function ArrayField({
     hideLabel: true,
     hideAccordion: true,
   };
-
-  const labelStyles = pick(schemaItem, [
-    "labelStyle",
-    "labelTextColor",
-    "labelTextSize",
-  ]);
 
   const add = () => {
     setKeys((prevKeys) => [...prevKeys, generateReactKey()]);
@@ -174,24 +159,30 @@ function ArrayField({
     });
   }, [keys]);
 
-  if (!isVisible) {
+  if (!schemaItem.isVisible) {
     return null;
   }
 
   return (
     <StyledNestedFormWrapper
-      backgroundColor={backgroundColor}
+      backgroundColor={schemaItem.backgroundColor}
       className={`t--jsonformfield-${fieldClassName}`}
     >
-      <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip} />
+      <FieldLabel
+        label={schemaItem.label}
+        labelStyle={schemaItem.labelStyle}
+        labelTextColor={schemaItem.labelTextColor}
+        labelTextSize={schemaItem.labelTextSize}
+        tooltip={schemaItem.tooltip}
+      />
       {keys.map((key, index) => {
         const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
-        const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
+        const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.identifier}`;
 
         return (
           <Accordion
-            backgroundColor={cellBackgroundColor}
-            borderColor={cellBorderColor}
+            backgroundColor={schemaItem.cellBackgroundColor}
+            borderColor={schemaItem.cellBorderColor}
             className={`t--jsonformfield-${fieldClassName}-item t--item-${index}`}
             isCollapsible={schemaItem.isCollapsible}
             key={key}

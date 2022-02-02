@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useMemo } from "react";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 
@@ -27,13 +27,14 @@ export type LabelStyles = {
   labelTextSize?: TextSize;
 };
 
-export type FieldLabelProps = PropsWithChildren<{
-  direction?: "row" | "column";
-  isRequiredField?: boolean;
-  label: string;
-  labelStyles?: LabelStyles;
-  tooltip?: string;
-}>;
+export type FieldLabelProps = PropsWithChildren<
+  LabelStyles & {
+    direction?: "row" | "column";
+    isRequiredField?: boolean;
+    label: string;
+    tooltip?: string;
+  }
+>;
 
 type StyledLabelTextWrapperProps = {
   direction: FieldLabelProps["direction"];
@@ -98,13 +99,12 @@ function FieldLabel({
   direction = "column",
   isRequiredField = false,
   label,
-  labelStyles,
+  labelStyle,
+  labelTextColor = "",
+  labelTextSize = "PARAGRAPH",
   tooltip,
 }: FieldLabelProps) {
-  const labelStyleProps = (() => {
-    const { labelStyle, labelTextColor = "", labelTextSize = "PARAGRAPH" } =
-      labelStyles || {};
-
+  const labelStyleProps = useMemo(() => {
     // labelStyles contains styles as comma separated values eg. "BOLD,UNDERLINE"
     const styles = labelStyle?.split(",");
     return {
@@ -116,7 +116,7 @@ function FieldLabel({
         ? "underline"
         : "",
     };
-  })();
+  }, [labelStyle, labelTextColor, labelTextSize]);
 
   return (
     <StyledLabel direction={direction}>

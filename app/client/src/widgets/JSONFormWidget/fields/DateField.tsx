@@ -1,6 +1,5 @@
 import moment from "moment";
 import React, { useContext, useRef } from "react";
-import { pick } from "lodash";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
 import Field from "widgets/JSONFormWidget/component/Field";
@@ -88,7 +87,7 @@ export const isValidType = (value: string) =>
 const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
   schemaItem.isRequired ? Boolean(value?.trim()) : true;
 
-function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
+function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
   const {
     fieldType,
     onBlur: onBlurDynamicString,
@@ -106,19 +105,15 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
     fieldType,
   });
 
-  const labelStyles = pick(schemaItem, [
-    "labelStyle",
-    "labelTextColor",
-    "labelTextSize",
-  ]);
-
   return (
     <Field
-      {...rest}
       defaultValue={schemaItem.defaultValue}
+      fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
-      labelStyles={labelStyles}
+      labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
       name={name}
       render={({ field: { onBlur, onChange, value } }) => {
         const onDateSelected = (selectedValue: string) => {
@@ -191,6 +186,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
           />
         );
       }}
+      tooltip={schemaItem.tooltip}
     />
   );
 }

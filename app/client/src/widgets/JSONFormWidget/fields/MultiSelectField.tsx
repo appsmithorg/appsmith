@@ -83,13 +83,10 @@ function MultiSelectField({
     fieldState: { isDirty },
   } = useController({
     name,
+    shouldUnregister: true,
   });
 
-  const {
-    onBlurHandler,
-    onFocusHandler,
-    registerFieldOnBlurHandler,
-  } = useEvents<HTMLInputElement>({
+  const { onBlurHandler, onFocusHandler } = useEvents<HTMLInputElement>({
     fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
@@ -138,9 +135,7 @@ function MultiSelectField({
     [executeAction, schemaItem.onOptionChange],
   );
 
-  registerFieldOnBlurHandler(onBlur);
-
-  const comp = useMemo(() => {
+  const fieldComponent = useMemo(() => {
     return (
       <MultiSelect
         compactMode={false}
@@ -185,7 +180,7 @@ function MultiSelectField({
         name={name}
         tooltip={schemaItem.tooltip}
       >
-        {comp}
+        {fieldComponent}
       </NewField>
     </StyledMultiSelectWrapper>
   );

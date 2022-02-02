@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { pick } from "lodash";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import Field from "widgets/JSONFormWidget/component/Field";
@@ -35,7 +34,12 @@ const isValid = (
   schemaItem: CheckboxFieldProps["schemaItem"],
 ) => (schemaItem.isRequired ? Boolean(value) : true);
 
-function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
+function CheckboxField({
+  fieldClassName,
+  hideLabel,
+  name,
+  schemaItem,
+}: CheckboxFieldProps) {
   const {
     isRequired,
     label,
@@ -53,19 +57,16 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
     fieldType: schemaItem.fieldType,
   });
 
-  const labelStyles = pick(schemaItem, [
-    "labelStyle",
-    "labelTextColor",
-    "labelTextSize",
-  ]);
-
   return (
     <Field
-      {...rest}
       defaultValue={schemaItem.defaultValue}
+      fieldClassName={fieldClassName}
+      hideLabel={hideLabel}
       isRequiredField={isRequired}
       label={label}
-      labelStyles={labelStyles}
+      labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
       name={name}
       render={({
         field: { onBlur, onChange, value },

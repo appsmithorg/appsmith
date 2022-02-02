@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import moment from "moment";
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 
 import BaseInputField, {
   BaseInputComponentProps,
@@ -29,6 +29,13 @@ type CurrencyInputComponentProps = BaseInputComponentProps & {
 export type CurrencyInputFieldProps = BaseFieldComponentProps<
   CurrencyInputComponentProps
 >;
+
+type CurrencyTypeDropdownComponentProps = {
+  allowCurrencyChange?: boolean;
+  currencyCountryCode: string;
+  isDisabled: boolean;
+  propertyPath: string;
+};
 
 const COMPONENT_DEFAULT_VALUES: CurrencyInputComponentProps = {
   currencyCountryCode: getDefaultCurrency().currency,
@@ -71,15 +78,18 @@ const isValid = (
   return parsedRegex ? parsedRegex.test(inputValue) : hasValidValue;
 };
 
-function CurrencyInputField(props: CurrencyInputFieldProps) {
-  const { propertyPath, schemaItem } = props;
-
+function CurrencyTypeDropdownComponent({
+  allowCurrencyChange,
+  currencyCountryCode,
+  isDisabled,
+  propertyPath,
+}: CurrencyTypeDropdownComponentProps) {
   const { renderMode, updateWidgetProperty } = useContext(FormContext);
   const [metaCurrencyCountryCode, setMetaCurrencyCountryCode] = useState<
     string
   >();
-
   const onCurrencyTypeChange = (code?: string) => {
+    debugger;
     if (renderMode === RenderModes.CANVAS) {
       updateWidgetProperty?.(`${propertyPath}.currencyCountryCode`, code);
     } else {
@@ -88,45 +98,72 @@ function CurrencyInputField(props: CurrencyInputFieldProps) {
   };
 
   const selectedCurrencyCountryCode =
-    metaCurrencyCountryCode || schemaItem.currencyCountryCode;
+    metaCurrencyCountryCode || currencyCountryCode;
+  console.log("CURRENCY", {
+    propertyPath,
+    selectedCurrencyCountryCode,
+    metaCurrencyCountryCode,
+    currencyCountryCode,
+  });
+  return (
+    <CurrencyTypeDropdown
+      allowCurrencyChange={allowCurrencyChange && !isDisabled}
+      onCurrencyTypeChange={onCurrencyTypeChange}
+      options={CurrencyDropdownOptions}
+      selected={selectedCurrencyCountryCode}
+    />
+  );
+}
 
-  const transformValue = (inputValue: string) => {
-    let text = "";
-    const decimalSeperator = getLocaleDecimalSeperator();
-    try {
-      if (inputValue && inputValue.includes(decimalSeperator)) {
-        text = limitDecimalValue(schemaItem.decimalsInCurrency, inputValue);
-      } else {
+function CurrencyInputField({
+  fieldClassName,
+  name,
+  propertyPath,
+  schemaItem,
+}: CurrencyInputFieldProps) {
+  const transformValue = useCallback(
+    (inputValue: string) => {
+      let text = "";
+      const decimalSeperator = getLocaleDecimalSeperator();
+      try {
+        if (inputValue && inputValue.includes(decimalSeperator)) {
+          text = limitDecimalValue(schemaItem.decimalsInCurrency, inputValue);
+        } else {
+          text = inputValue;
+        }
+      } catch (e) {
         text = inputValue;
+        Sentry.captureException(e);
       }
-    } catch (e) {
-      text = inputValue;
-      Sentry.captureException(e);
-    }
 
-    const value = derived.value({ text }, moment, _);
+      const value = derived.value({ text }, moment, _);
 
-    return {
-      text,
-      value,
-    };
-  };
+      return {
+        text,
+        value,
+      };
+    },
+    [schemaItem.decimalsInCurrency],
+  );
+
+  const leftIcon = (
+    <CurrencyTypeDropdownComponent
+      allowCurrencyChange={schemaItem.allowCurrencyChange}
+      currencyCountryCode={schemaItem.currencyCountryCode}
+      isDisabled={schemaItem.isDisabled}
+      propertyPath={propertyPath}
+    />
+  );
 
   return (
     <BaseInputField
-      {...props}
+      fieldClassName={fieldClassName}
       inputHTMLType="NUMBER"
       isValid={isValid}
-      leftIcon={
-        <CurrencyTypeDropdown
-          allowCurrencyChange={
-            schemaItem.allowCurrencyChange && !schemaItem.isDisabled
-          }
-          onCurrencyTypeChange={onCurrencyTypeChange}
-          options={CurrencyDropdownOptions}
-          selected={selectedCurrencyCountryCode}
-        />
-      }
+      leftIcon={leftIcon}
+      name={name}
+      propertyPath={propertyPath}
+      schemaItem={schemaItem}
       transformValue={transformValue}
     />
   );

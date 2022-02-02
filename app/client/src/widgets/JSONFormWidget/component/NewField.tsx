@@ -81,11 +81,9 @@ function NewField<TValue>({
           direction={direction}
           isRequiredField={isRequiredField}
           label={label}
-          labelStyles={{
-            labelStyle,
-            labelTextColor,
-            labelTextSize,
-          }}
+          labelStyle={labelStyle}
+          labelTextColor={labelTextColor}
+          labelTextSize={labelTextSize}
           tooltip={tooltip}
         >
           {children}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import BaseInputField, {
   BaseInputComponentProps,
@@ -123,48 +123,57 @@ function isValidType(value: string, options?: IsValidOptions) {
   return false;
 }
 
-function InputField(props: InputFieldProps) {
-  const { schemaItem } = props;
+function InputField({
+  fieldClassName,
+  name,
+  propertyPath,
+  schemaItem,
+}: InputFieldProps) {
+  const transformValue = useCallback(
+    (inputValue: string) => {
+      let value;
+      switch (schemaItem.fieldType) {
+        case FieldType.NUMBER:
+          try {
+            if (inputValue === "") {
+              value = null;
+            } else if (inputValue === "-") {
+              value = "-";
+            } else if (/\.$/.test(inputValue)) {
+              value = inputValue;
+            } else {
+              value = Number(inputValue);
 
-  const transformValue = (inputValue: string) => {
-    let value;
-    switch (schemaItem.fieldType) {
-      case FieldType.NUMBER:
-        try {
-          if (inputValue === "") {
-            value = null;
-          } else if (inputValue === "-") {
-            value = "-";
-          } else if (/\.$/.test(inputValue)) {
-            value = inputValue;
-          } else {
-            value = Number(inputValue);
-
-            if (isNaN(value)) {
-              value = undefined;
+              if (isNaN(value)) {
+                value = undefined;
+              }
             }
+            break;
+          } catch (e) {
+            value = inputValue;
           }
           break;
-        } catch (e) {
+        default:
           value = inputValue;
-        }
-        break;
-      default:
-        value = inputValue;
-        break;
-    }
+          break;
+      }
 
-    return {
-      text: inputValue,
-      value,
-    };
-  };
+      return {
+        text: inputValue,
+        value,
+      };
+    },
+    [schemaItem.fieldType],
+  );
 
   return (
     <BaseInputField
-      {...props}
+      fieldClassName={fieldClassName}
       inputHTMLType={getInputHTMLType(schemaItem.fieldType)}
       isValid={isValid}
+      name={name}
+      propertyPath={propertyPath}
+      schemaItem={schemaItem}
       transformValue={transformValue}
     />
   );

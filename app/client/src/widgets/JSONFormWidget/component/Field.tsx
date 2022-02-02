@@ -3,10 +3,10 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
-import FieldLabel, { FieldLabelProps } from "./FieldLabel";
+import FieldLabel, { LabelStyles } from "./FieldLabel";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 
-type FieldProps<TValue> = {
+type FieldProps<TValue> = LabelStyles & {
   defaultValue: TValue;
   defaultValueValidatorFn?: (value: TValue) => boolean;
   fieldClassName: string;
@@ -14,7 +14,6 @@ type FieldProps<TValue> = {
   inlineLabel?: boolean;
   isRequiredField?: boolean;
   label: string;
-  labelStyles: FieldLabelProps["labelStyles"];
   name: ControllerProps["name"];
   render: ControllerProps["render"];
   tooltip?: string;
@@ -45,7 +44,9 @@ function Field<TValue>({
   inlineLabel = false,
   isRequiredField,
   label,
-  labelStyles = {},
+  labelStyle,
+  labelTextColor,
+  labelTextSize,
   name,
   render,
   tooltip,
@@ -89,7 +90,9 @@ function Field<TValue>({
           direction={direction}
           isRequiredField={isRequiredField}
           label={label}
-          labelStyles={labelStyles}
+          labelStyle={labelStyle}
+          labelTextColor={labelTextColor}
+          labelTextSize={labelTextSize}
           tooltip={tooltip}
         >
           {controller}

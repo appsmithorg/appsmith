@@ -22,6 +22,13 @@ export type PhoneInputFieldProps = BaseFieldComponentProps<
   PhoneInputComponentProps
 >;
 
+type ISDCodeDropdownComponentProps = {
+  allowDialCodeChange: boolean;
+  dialCode: string;
+  isDisabled: boolean;
+  propertyPath: string;
+};
+
 const COMPONENT_DEFAULT_VALUES: PhoneInputComponentProps = {
   allowDialCodeChange: false,
   dialCode: getDefaultISDCode().dial_code,
@@ -54,11 +61,24 @@ const isValid = (
   return parsedRegex ? parsedRegex.test(value) : hasValidValue;
 };
 
-function PhoneInputField(props: PhoneInputFieldProps) {
-  const { propertyPath, schemaItem } = props;
+const transformValue = (value: string) => {
+  return {
+    text: value,
+    value: value,
+  };
+};
 
+function ISDCodeDropdownComponent({
+  allowDialCodeChange,
+  dialCode,
+  isDisabled,
+  propertyPath,
+}: ISDCodeDropdownComponentProps) {
   const { renderMode, updateWidgetProperty } = useContext(FormContext);
   const [metaDialCode, setMetaDialCode] = useState<string>();
+
+  const selectedDialCode = metaDialCode || dialCode;
+  const selectedISDCode = getSelectedISDCode(selectedDialCode);
 
   const onISDCodeChange = (code?: string) => {
     if (renderMode === RenderModes.CANVAS) {
@@ -68,34 +88,41 @@ function PhoneInputField(props: PhoneInputFieldProps) {
     }
   };
 
-  const selectedDialCode = metaDialCode || schemaItem.dialCode;
+  return (
+    <ISDCodeDropdown
+      allowDialCodeChange={allowDialCodeChange}
+      disabled={isDisabled}
+      onISDCodeChange={onISDCodeChange}
+      options={ISDCodeDropdownOptions}
+      selected={selectedISDCode}
+    />
+  );
+}
 
-  const transformValue = (value: string) => {
-    return {
-      text: value,
-      value: value,
-    };
-  };
-
-  const renderLeftIcon = () => {
-    const selectedISDCode = getSelectedISDCode(selectedDialCode);
-    return (
-      <ISDCodeDropdown
-        allowDialCodeChange={schemaItem.allowDialCodeChange}
-        disabled={schemaItem.isDisabled}
-        onISDCodeChange={onISDCodeChange}
-        options={ISDCodeDropdownOptions}
-        selected={selectedISDCode}
-      />
-    );
-  };
+function PhoneInputField({
+  fieldClassName,
+  name,
+  propertyPath,
+  schemaItem,
+}: PhoneInputFieldProps) {
+  const leftIcon = (
+    <ISDCodeDropdownComponent
+      allowDialCodeChange={schemaItem.allowDialCodeChange}
+      dialCode={schemaItem.dialCode}
+      isDisabled={schemaItem.isDisabled}
+      propertyPath={propertyPath}
+    />
+  );
 
   return (
     <BaseInputField
-      {...props}
+      fieldClassName={fieldClassName}
       inputHTMLType="TEL"
       isValid={isValid}
-      leftIcon={renderLeftIcon()}
+      leftIcon={leftIcon}
+      name={name}
+      propertyPath={propertyPath}
+      schemaItem={schemaItem}
       transformValue={transformValue}
     />
   );

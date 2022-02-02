@@ -1,5 +1,4 @@
 import React from "react";
-import { pick } from "lodash";
 
 import Field from "widgets/JSONFormWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
@@ -32,25 +31,25 @@ const isValid = (
   value?: string,
 ) => (schemaItem.isRequired ? Boolean(value) : true);
 
-function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
+function RadioGroupField({
+  fieldClassName,
+  name,
+  schemaItem,
+}: RadioGroupFieldProps) {
   const { onFieldValidityChange } = useRegisterFieldValidity({
     fieldName: name,
     fieldType: schemaItem.fieldType,
   });
 
-  const labelStyles = pick(schemaItem, [
-    "labelStyle",
-    "labelTextColor",
-    "labelTextSize",
-  ]);
-
   return (
     <Field
-      {...rest}
       defaultValue={schemaItem.defaultValue}
+      fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
-      labelStyles={labelStyles}
+      labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
       name={name}
       render={({ field: { onChange, value } }) => {
         const isValueValid = isValid(schemaItem, value);
@@ -69,6 +68,7 @@ function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
           />
         );
       }}
+      tooltip={schemaItem.tooltip}
     />
   );
 }

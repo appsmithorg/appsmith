@@ -75,7 +75,7 @@ function ObjectField({
   const renderFields = () => {
     return sortedChildren.map((schemaItem) => {
       const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
-      const fieldPropertyPath = `${propertyPath}.children.${schemaItem.name}`;
+      const fieldPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
 
       return fieldRenderer(
         fieldName as ControllerRenderProps["name"],

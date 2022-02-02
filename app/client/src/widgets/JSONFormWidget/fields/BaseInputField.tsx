@@ -1,8 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
-import { pick } from "lodash";
+import { useController } from "react-hook-form";
 
-import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
@@ -24,6 +23,7 @@ import {
 import BaseInputComponent, {
   InputHTMLType,
 } from "widgets/BaseInputWidget/component";
+import NewField from "../component/NewField";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -116,13 +116,13 @@ function isValidType(value: string, options?: IsValidOptions) {
 }
 
 function BaseInputField<TSchemaItem extends SchemaItem>({
+  fieldClassName,
   inputHTMLType = "TEXT",
   isValid,
   leftIcon,
   name,
   schemaItem,
   transformValue,
-  ...rest
 }: BaseInputFieldProps<TSchemaItem>) {
   const { executeAction } = useContext(FormContext);
 
@@ -130,18 +130,29 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   const [textValue, setTextValue] = useState<string>("");
 
   const {
+    field: { onBlur, onChange, value },
+    fieldState: { isDirty },
+  } = useController({
+    name,
+    shouldUnregister: true,
+  });
+
+  const {
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
 
-  const { onFieldValidityChange } = useRegisterFieldValidity({
+  const isValueValid = isValid(schemaItem, value);
+
+  useRegisterFieldValidity({
     fieldName: name,
     fieldType: schemaItem.fieldType,
+    useNewLogic: true,
+    isValid: isValueValid,
   });
 
-  const { inputRef, registerFieldOnBlurHandler } = useEvents<
-    HTMLInputElement | HTMLTextAreaElement
-  >({
+  const { inputRef } = useEvents<HTMLInputElement | HTMLTextAreaElement>({
+    fieldBlurHandler: onBlur,
     onBlurDynamicString,
     onFocusDynamicString,
   });
@@ -149,143 +160,145 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   const inputType =
     INPUT_FIELD_TYPE[schemaItem.fieldType as typeof INPUT_TYPES[number]];
 
-  const keyDownHandler = (
-    e:
-      | React.KeyboardEvent<HTMLTextAreaElement>
-      | React.KeyboardEvent<HTMLInputElement>,
-    fieldOnChangeHandler: (...event: any[]) => void,
-    isValueValid: boolean,
-  ) => {
-    const { onEnterKeyPress } = schemaItem;
-    const isEnterKey = e.key === "Enter";
+  const keyDownHandler = useCallback(
+    (
+      e:
+        | React.KeyboardEvent<HTMLTextAreaElement>
+        | React.KeyboardEvent<HTMLInputElement>,
+      fieldOnChangeHandler: (...event: any[]) => void,
+      isValueValid: boolean,
+    ) => {
+      const { onEnterKeyPress } = schemaItem;
+      const isEnterKey = e.key === "Enter";
 
-    if (isEnterKey && onEnterKeyPress && isValueValid) {
-      executeAction({
-        triggerPropertyName: "onEnterKeyPress",
-        dynamicString: onEnterKeyPress,
-        event: {
-          type: EventType.ON_ENTER_KEY_PRESS,
-          callback: () =>
-            onTextChangeHandler("", fieldOnChangeHandler, "onEnterKeyPress"),
-        },
-      });
+      if (isEnterKey && onEnterKeyPress && isValueValid) {
+        executeAction({
+          triggerPropertyName: "onEnterKeyPress",
+          dynamicString: onEnterKeyPress,
+          event: {
+            type: EventType.ON_ENTER_KEY_PRESS,
+            callback: () =>
+              onTextChangeHandler("", fieldOnChangeHandler, "onEnterKeyPress"),
+          },
+        });
+      }
+    },
+    [schemaItem.onEnterKeyPress, isValueValid],
+  );
+
+  const onTextChangeHandler = useCallback(
+    (
+      inputValue: string,
+      fieldOnChangeHandler: (...event: any[]) => void,
+      triggerPropertyName = "onTextChange",
+    ) => {
+      const { onTextChanged } = schemaItem;
+      const { text, value } = transformValue(inputValue, textValue);
+
+      fieldOnChangeHandler(value);
+      setTextValue(text);
+
+      if (onTextChanged && executeAction) {
+        executeAction({
+          triggerPropertyName,
+          dynamicString: onTextChanged,
+          event: {
+            type: EventType.ON_TEXT_CHANGE,
+          },
+        });
+      }
+    },
+    [schemaItem.onTextChanged, transformValue, executeAction, textValue],
+  );
+
+  const conditionalProps = useMemo(() => {
+    const { defaultValue, errorMessage, isRequired, maxChars } = schemaItem;
+
+    const isInvalid = !isValueValid; // valid property in property pane
+    const props = {
+      errorMessage,
+      isInvalid: false,
+      maxChars: undefined as number | undefined,
+    };
+
+    if (isDirty && isInvalid) {
+      props.isInvalid = true;
+
+      if (isDirty && isRequired && !textValue?.trim()?.length) {
+        props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+      }
     }
-  };
 
-  const onTextChangeHandler = (
-    inputValue: string,
-    fieldOnChangeHandler: (...event: any[]) => void,
-    triggerPropertyName = "onTextChange",
-  ) => {
-    const { onTextChanged } = schemaItem;
-    const { text, value } = transformValue(inputValue, textValue);
-
-    fieldOnChangeHandler(value);
-    setTextValue(text);
-
-    if (onTextChanged && executeAction) {
-      executeAction({
-        triggerPropertyName,
-        dynamicString: onTextChanged,
-        event: {
-          type: EventType.ON_TEXT_CHANGE,
-        },
-      });
+    if (
+      inputType === "TEXT" &&
+      maxChars &&
+      defaultValue &&
+      defaultValue?.toString()?.length > maxChars
+    ) {
+      props.isInvalid = true;
+      props.errorMessage = createMessage(INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR);
+      props.maxChars = maxChars;
     }
-  };
 
-  const labelStyles = pick(schemaItem, [
-    "labelStyle",
-    "labelTextColor",
-    "labelTextSize",
+    return props;
+  }, [schemaItem, isDirty, isValueValid, textValue]);
+
+  const fieldComponent = useMemo(() => {
+    return (
+      <BaseInputComponent
+        {...conditionalProps}
+        compactMode={false}
+        disableNewLineOnPressEnterKey={Boolean(schemaItem.onEnterKeyPress)}
+        disabled={schemaItem.isDisabled}
+        iconAlign={schemaItem.iconAlign || "left"}
+        iconName={schemaItem.iconName}
+        inputHTMLType={inputHTMLType}
+        inputRef={inputRef}
+        inputType={inputType}
+        isLoading={false}
+        label=""
+        leftIcon={leftIcon}
+        maxNum={schemaItem.maxNum}
+        minNum={schemaItem.minNum}
+        multiline={schemaItem.fieldType === FieldType.MULTILINE}
+        onFocusChange={setIsFocused}
+        onKeyDown={(e) => keyDownHandler(e, onChange, isValueValid)}
+        onValueChange={(value) => onTextChangeHandler(value, onChange)}
+        placeholder={schemaItem.placeholderText}
+        showError={isFocused}
+        spellCheck={schemaItem.isSpellCheck}
+        stepSize={1}
+        value={textValue}
+        widgetId=""
+      />
+    );
+  }, [
+    conditionalProps,
+    inputHTMLType,
+    inputRef,
+    isFocused,
+    keyDownHandler,
+    leftIcon,
+    onTextChangeHandler,
+    schemaItem,
+    setIsFocused,
+    value,
   ]);
 
   return (
-    <Field
-      {...rest}
+    <NewField
       defaultValue={schemaItem.defaultValue}
+      fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
-      labelStyles={labelStyles}
+      labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
       name={name}
-      render={({
-        field: { onBlur, onChange, value },
-        fieldState: { isDirty },
-      }) => {
-        const isValueValid = isValid(schemaItem, value);
-        const conditionalProps = (() => {
-          const {
-            defaultValue,
-            errorMessage,
-            isRequired,
-            maxChars,
-          } = schemaItem;
-
-          const isInvalid = !isValueValid; // valid property in property pane
-          const props = {
-            errorMessage,
-            isInvalid: false,
-            maxChars: undefined as number | undefined,
-          };
-
-          if (isDirty && isInvalid) {
-            props.isInvalid = true;
-
-            if (isDirty && isRequired && !value?.trim()?.length) {
-              props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
-            }
-          }
-
-          if (
-            inputType === "TEXT" &&
-            maxChars &&
-            defaultValue &&
-            defaultValue?.toString()?.length > maxChars
-          ) {
-            props.isInvalid = true;
-            props.errorMessage = createMessage(
-              INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
-            );
-            props.maxChars = maxChars;
-          }
-
-          return props;
-        })();
-
-        registerFieldOnBlurHandler(onBlur);
-        onFieldValidityChange(isValueValid);
-
-        return (
-          <BaseInputComponent
-            {...conditionalProps}
-            compactMode={false}
-            disableNewLineOnPressEnterKey={Boolean(schemaItem.onEnterKeyPress)}
-            disabled={schemaItem.isDisabled}
-            iconAlign={schemaItem.iconAlign || "left"}
-            iconName={schemaItem.iconName}
-            inputHTMLType={inputHTMLType}
-            inputRef={inputRef}
-            inputType={inputType}
-            isLoading={false}
-            label=""
-            leftIcon={leftIcon}
-            maxNum={schemaItem.maxNum}
-            minNum={schemaItem.minNum}
-            multiline={schemaItem.fieldType === FieldType.MULTILINE}
-            onFocusChange={setIsFocused}
-            onKeyDown={(e) => keyDownHandler(e, onChange, isValueValid)}
-            onValueChange={(value) => onTextChangeHandler(value, onChange)}
-            placeholder={schemaItem.placeholderText}
-            showError={isFocused}
-            spellCheck={schemaItem.isSpellCheck}
-            stepSize={1}
-            value={(value || "").toString()}
-            widgetId=""
-          />
-        );
-      }}
       tooltip={schemaItem.tooltip}
-    />
+    >
+      {fieldComponent}
+    </NewField>
   );
 }
 

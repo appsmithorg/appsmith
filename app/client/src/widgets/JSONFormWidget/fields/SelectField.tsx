@@ -1,6 +1,5 @@
 import React, { useContext, useRef } from "react";
 import styled from "styled-components";
-import { pick } from "lodash";
 
 import DropDownComponent from "widgets/DropdownWidget/component";
 import Field from "widgets/JSONFormWidget/component/Field";
@@ -49,10 +48,10 @@ const isValid = (schemaItem: SelectFieldProps["schemaItem"], value?: string) =>
   schemaItem.isRequired ? Boolean(value?.trim()) : true;
 
 function SelectField({
+  fieldClassName,
   name,
   propertyPath,
   schemaItem,
-  ...rest
 }: SelectFieldProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction, updateWidgetMetaProperty } = useContext(FormContext);
@@ -61,12 +60,6 @@ function SelectField({
     fieldName: name,
     fieldType: schemaItem.fieldType,
   });
-
-  const labelStyles = pick(schemaItem, [
-    "labelStyle",
-    "labelTextColor",
-    "labelTextSize",
-  ]);
 
   const onFilterChange = (value: string) => {
     updateWidgetMetaProperty(`${propertyPath}.filterText`, value);
@@ -84,11 +77,13 @@ function SelectField({
 
   return (
     <Field
-      {...rest}
       defaultValue={schemaItem.defaultValue}
+      fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
-      labelStyles={labelStyles}
+      labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
       name={name}
       render={({ field: { onChange, value }, fieldState: { isDirty } }) => {
         const selectedOptionIndex = schemaItem.options.findIndex(
@@ -137,6 +132,7 @@ function SelectField({
           </StyledSelectWrapper>
         );
       }}
+      tooltip={schemaItem.tooltip}
     />
   );
 }

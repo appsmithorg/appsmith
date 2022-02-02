@@ -4,7 +4,6 @@ import { useContext, useEffect, useRef } from "react";
 
 import FormContext from "../FormContext";
 import { FieldType } from "../constants";
-import useDeepEffect from "utils/hooks/useDeepEffect";
 
 type UseRegisterFieldValidityProps = {
   isValid?: boolean;
