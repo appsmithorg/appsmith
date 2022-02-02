@@ -226,6 +226,7 @@ class PhoneInputWidget extends BaseInputWidget<
   onValueChange = (value: string) => {
     let formattedValue;
 
+    // Don't format, as value is typed, when user is deleting
     if (value && value.length > this.props.text.length) {
       formattedValue = this.getFormattedPhoneNumber(value);
     } else {
