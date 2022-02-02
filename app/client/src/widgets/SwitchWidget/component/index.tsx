@@ -18,11 +18,11 @@ const SwitchComponentContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  .${Classes.CONTROL} {
+  &&& .${Classes.CONTROL} {
     margin: 0;
     input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${Colors.GREEN} !important;
-      border: 1px solid ${Colors.GREEN} !important;
+      background: ${Colors.GREEN};
+      border: 1px solid ${Colors.GREEN};
     }
   }
   &.${Alignment.RIGHT} {
