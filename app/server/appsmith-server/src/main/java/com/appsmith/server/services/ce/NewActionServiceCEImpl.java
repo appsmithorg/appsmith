@@ -1237,6 +1237,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
+    @Override
+    public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
+        return this.getUnpublishedActions(params, branchName)
+                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
+    }
+
     // We can afford to make this call all the time since we already have all the info we need in context
     private Mono<DatasourceContext> getRemoteDatasourceContext(Plugin plugin, Datasource datasource) {
         final DatasourceContext datasourceContext = new DatasourceContext();
@@ -1329,7 +1335,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.just(FALSE);
                     }
 
-                    // Extract names of existing pageload actions and new page load actions for quick lookup.
+                    // Extract names of existing page load actions and new page load actions for quick lookup.
                     Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions
                             .stream()
                             .map(ActionDTO::getValidName)
