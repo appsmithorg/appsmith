@@ -273,9 +273,8 @@ jobs:
         run: echo Should not get here
 
       - name: list failed tests create dir
-        if: steps.run_result.outputs.run_result != 'failedtest'
         run: |
-          mkdir  ~/failed_spec
+          mkdir -p  ~/failed_spec
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
       - name: list failed tests if there are test failures
