@@ -130,7 +130,7 @@ const Label = styled.span<{ enterprise?: boolean }>`
     color: #03B365;
     background: #E5F6EC;
   `};
-  padding: 2px 4px;
+  padding: 0px 4px;
   font-size: 12px;
 `;
 
