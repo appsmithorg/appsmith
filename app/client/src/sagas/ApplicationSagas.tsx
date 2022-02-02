@@ -21,6 +21,7 @@ import ApplicationApi, {
   UpdateApplicationRequest,
   ImportApplicationRequest,
   FetchApplicationResponse,
+  ApplicationResponsePayload,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -42,6 +43,8 @@ import {
   importApplicationSuccess,
   setOrgIdForImport,
   setIsReconnectingDatasourcesModalOpen,
+  getAllApplications,
+  showReconnectDatasourceModal,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -78,7 +81,10 @@ import {
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
-import { fetchDatasources } from "actions/datasourceActions";
+import {
+  fetchDatasources,
+  setUnconfiguredDatasourcesDuringImport,
+} from "actions/datasourceActions";
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
@@ -572,6 +578,23 @@ export function* forkApplicationSaga(
   }
 }
 
+function* showReconnectDatasourcesModalSaga(
+  action: ReduxAction<{
+    application: ApplicationResponsePayload;
+    unConfiguredDatasourceList: Array<Datasource>;
+    orgId: string;
+  }>,
+) {
+  const { application, orgId, unConfiguredDatasourceList } = action.payload;
+  yield put(getAllApplications());
+  yield put(importApplicationSuccess(application));
+  yield put(
+    setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
+  );
+  yield put(setOrgIdForImport(orgId));
+  yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+}
+
 export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
 ) {
@@ -601,12 +624,14 @@ export function* importApplicationSaga(
         yield put(importApplicationSuccess(response.data?.application));
 
         if (isPartialImport) {
-          yield put({
-            type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
-            payload: response?.data.unConfiguredDatasourceList || [],
-          });
-          yield put(setOrgIdForImport(action.payload.orgId));
-          yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+          yield put(
+            showReconnectDatasourceModal({
+              application: response.data?.application,
+              unConfiguredDatasourceList:
+                response?.data.unConfiguredDatasourceList,
+              orgId: action.payload.orgId,
+            }),
+          );
         } else {
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = BUILDER_PAGE_URL({
@@ -747,6 +772,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
       initDatasourceConnectionDuringImport,
+    ),
+    takeLatest(
+      ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
+      showReconnectDatasourcesModalSaga,
     ),
   ]);
 }
