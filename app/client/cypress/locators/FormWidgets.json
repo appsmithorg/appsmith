@@ -26,6 +26,7 @@
   "dropdowninner": ".bp3-button > .bp3-button-text",
   "Textinput": ".t--property-control-options .CodeMirror-code",
   "labelvalue": ".t--draggable-dropdownwidget label",
+  "dropdownWidgetInput" : ".t--draggable-dropdownwidget .bp3-control-group .bp3-popover-target",
   "dropdownInput": ".bp3-tag-input-values",
   "mulitiselectInput": ".rc-select-selection-search-input",
   "treeSelectInput": ".rc-tree-select-selection-search-input",
