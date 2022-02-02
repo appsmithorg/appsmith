@@ -348,15 +348,6 @@ jobs:
       - name: "Echo download path"
         run: echo ${{steps.download.outputs}}
 
-      - name: Get failed_spec
-        #id: failed_spec_var
-        #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec*)
-        run: |
-          failed_spec_env=$(cat ~/failed_spec/failed_spec*)
-          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          echo "$failed_spec_env" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
       - name: "Echo all files"
         run: echo ${{env.failed_spec_env}}
 
