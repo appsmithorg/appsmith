@@ -12,12 +12,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import {
   createMessage,
   CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
-  OPEN_REPO,
-  PULL_CHANGES,
-  GIT_CONFLICTING_INFO,
-  LEARN_MORE,
 } from "@appsmith/constants/messages";
-import Button, { Category, Size } from "components/ads/Button";
 import { Space } from "./StyledComponents";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";

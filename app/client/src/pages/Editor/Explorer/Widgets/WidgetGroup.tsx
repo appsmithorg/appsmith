@@ -3,17 +3,7 @@ import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import WidgetEntity from "./WidgetEntity";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getSelectedWidgets } from "selectors/ui";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   ADD_WIDGET_TOOLTIP,
   createMessage,
