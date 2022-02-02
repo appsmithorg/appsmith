@@ -490,7 +490,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         true,
       );
     });
-    await component.findByTestId("canvas-0");
+    await component.findByTestId("canvas-selection-0");
     selectedWidgets = await component.queryAllByTestId("t--selected");
     //adding extra time to let cut cmd works
     jest.useFakeTimers();

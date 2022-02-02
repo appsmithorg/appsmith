@@ -9,6 +9,7 @@ import {
   Menu,
   Button,
   Classes,
+  Position,
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -42,6 +43,7 @@ type TreeDropdownProps = {
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
   onMenuToggle?: (isOpen: boolean) => void;
+  position?: Position;
 };
 
 const StyledMenu = styled(Menu)`
@@ -252,7 +254,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         setIsOpen(false);
         props.onMenuToggle && props.onMenuToggle(false);
       }}
-      position={PopoverPosition.LEFT}
+      position={props.position || PopoverPosition.LEFT}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

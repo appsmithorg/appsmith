@@ -71,7 +71,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             if (input == null) {
                 throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.CURL_CODE);
             }
-            action = curlToAction((String) input, pageId, name);
+            action = curlToAction((String) input, name);
         } catch (AppsmithException e) {
             return Mono.error(e);
         }
@@ -97,16 +97,16 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     datasource.setOrganizationId(orgId);
                     // Set git related resource IDs
                     action1.setDefaultResources(newPage.getDefaultResources());
+                    action1.setPageId(newPage.getId());
                     return Mono.just(action1);
                 })
                 .flatMap(layoutActionService::createSingleAction)
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
-    public ActionDTO curlToAction(String command, String pageId, String name) throws AppsmithException {
+    public ActionDTO curlToAction(String command, String name) throws AppsmithException {
         ActionDTO action = curlToAction(command);
         if (action != null) {
-            action.setPageId(pageId);
             action.setName(name);
         }
         return action;
