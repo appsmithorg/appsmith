@@ -302,8 +302,8 @@ class SingleSelectTreeWidget extends BaseWidget<
     return {
       selectedOptionLabel: `{{  this.selectedLabel[0] }}`,
       selectedOptionValue:
-        '{{  JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined  }}',
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue?.length : true}}`,
+        '{{  JSON.stringify(this.options).match(new RegExp(`"value":${Number.isFinite(this.selectedOption) ? this.selectedOption : `"${this.selectedOption}"` }`), "g") ? this.selectedOption : undefined  }}',
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
     };
   }
 
@@ -328,11 +328,13 @@ class SingleSelectTreeWidget extends BaseWidget<
       !this.props.__evaluation__?.errors.options.length
         ? this.props.options
         : [];
-    const values: string | undefined = isString(this.props.selectedOption)
-      ? this.props.selectedOption
-      : undefined;
+    const value: string | number | undefined =
+      isString(this.props.selectedOption) ||
+      Number.isFinite(this.props.selectedOption)
+        ? this.props.selectedOption
+        : undefined;
 
-    const filteredValue = this.filterValues(values);
+    const filteredValue = this.filterValue(value);
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
     return (
@@ -385,7 +387,7 @@ class SingleSelectTreeWidget extends BaseWidget<
   };
 
   flat(array: DropdownOption[]) {
-    let result: { value: string }[] = [];
+    let result: { value: string | number }[] = [];
     array.forEach((a) => {
       result.push({ value: a.value });
       if (Array.isArray(a.children)) {
@@ -395,12 +397,12 @@ class SingleSelectTreeWidget extends BaseWidget<
     return result;
   }
 
-  filterValues(values: string | undefined) {
+  filterValue(value: string | number | undefined) {
     const options = this.props.options ? this.flat(this.props.options) : [];
 
-    if (isString(values)) {
-      const index = findIndex(options, { value: values as string });
-      return index > -1 ? values : undefined;
+    if (isString(value) || Number.isFinite(value)) {
+      const index = findIndex(options, { value: value as string });
+      return index > -1 ? value : undefined;
     }
   }
 
@@ -411,7 +413,7 @@ class SingleSelectTreeWidget extends BaseWidget<
 
 export interface DropdownOption {
   label: string;
-  value: string;
+  value: string | number;
   disabled?: boolean;
   children?: DropdownOption[];
 }
@@ -427,7 +429,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   allowClear: boolean;
   labelText?: string;
   selectedLabel: string[];
-  selectedOption: string;
+  selectedOption: string | number;
   selectedOptionValue: string;
   selectedOptionLabel: string;
   expandAll: boolean;
