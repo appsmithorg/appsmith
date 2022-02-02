@@ -14,6 +14,4 @@ public class FieldName {
     public static final String VALUE = "value";
 
     public static final String FILE_TYPE = "FILE";
-
-    public static final String GOOGLE_SHEET = "google-sheet";
 }

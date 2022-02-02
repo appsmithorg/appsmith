@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.external.constants.FieldName.GOOGLE_SHEET;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
 import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
 
@@ -61,20 +60,6 @@ public class DataTypeStringUtils {
 
 
     public static DataType stringToKnownDataTypeConverter(String input) {
-        return stringToKnownDataTypeConverter(input, null);
-    }
-
-    /**
-     * Fix #9667 :
-     * Overloaded to handle google-sheet Numeric column datatype.
-     * When called by GoogleSheet related methods, always set the DataType to DOUBLE
-     * as Integer, Long and Float columns can have potential Double datatype data.
-     *
-     * @param input     Data for which the datatype need to be determined.
-     * @param source    The Functionality which requested this method.
-     * @return          Predicted DataType of the input value
-     */
-    public static DataType stringToKnownDataTypeConverter(String input, String source) {
 
         if (input == null) {
             return DataType.NULL;
@@ -95,33 +80,21 @@ public class DataTypeStringUtils {
 
         try {
             Integer.parseInt(input);
-            if (source != null && source.equals(GOOGLE_SHEET)) {
-                return DataType.DOUBLE;
-            } else {
-                return DataType.INTEGER;
-            }
+            return DataType.INTEGER;
         } catch (NumberFormatException e) {
             // Not an integer
         }
 
         try {
             Long.parseLong(input);
-            if (source != null && source.equals(GOOGLE_SHEET)) {
-                return DataType.DOUBLE;
-            } else {
-                return DataType.LONG;
-            }
+            return DataType.LONG;
         } catch (NumberFormatException e1) {
             // Not long
         }
 
         try {
             Float.parseFloat(input);
-            if (source != null && source.equals(GOOGLE_SHEET)) {
-                return DataType.DOUBLE;
-            } else {
-                return DataType.FLOAT;
-            }
+            return DataType.FLOAT;
         } catch (NumberFormatException e2) {
             // Not float
         }

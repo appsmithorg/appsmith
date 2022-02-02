@@ -3,8 +3,8 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
-import com.appsmith.external.services.FilterDataService;
 import com.external.domains.RowObject;
+import com.external.services.FilterDataService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.appsmith.external.constants.FieldName.GOOGLE_SHEET;
 
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
@@ -210,7 +208,7 @@ public class GetValuesMethod implements Method {
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
         if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions(), GOOGLE_SHEET);
+            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions());
         }
 
         return preFilteringResponse;
