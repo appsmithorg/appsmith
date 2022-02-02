@@ -275,7 +275,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue : true}}`,
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
       selectedOptionLabel: `{{ this.optionValue.label ?? this.optionValue.value }}`,
       selectedOptionValue: `{{ this.optionValue.value }}`,
     };
