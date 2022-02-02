@@ -454,8 +454,8 @@ jobs:
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-      - name: cat failed_spec
-        run: echo ${{ env.failed_spec_env }}
+      #- name: cat failed_spec
+      #  run: echo ${{ env.failed_spec_env }}
 
       - uses: actions/checkout@v2
         if: steps.run_result.outputs.run_result != 'success'
