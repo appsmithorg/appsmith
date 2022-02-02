@@ -15,7 +15,7 @@ export type MenuItemProps = CommonComponentProps & {
   ellipsize?: number;
   selected?: boolean;
   containerClassName?: string;
-  onSelect?: () => void;
+  onSelect?: (e: React.MouseEvent) => void;
 };
 
 const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
