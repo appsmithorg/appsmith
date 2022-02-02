@@ -24,6 +24,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { WidgetProps } from "widgets/BaseWidget";
+import { clearEvalPropertyCacheOfWidget } from "./EvaluationsSaga";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
@@ -153,6 +154,8 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       widgetName = widget.tabName;
     }
 
+    yield call(clearEvalPropertyCacheOfWidget, widgetName);
+
     let finalWidgets: CanvasWidgetsReduxState = updateListWidgetPropertiesOnChildDelete(
       widgets,
       widgetId,
@@ -244,8 +247,8 @@ function* deleteAllSelectedWidgetsSaga(
         return call(getAllWidgetsInTree, eachId, widgets);
       }),
     );
-    const flattenedWidgets: any = flattenDeep(widgetsToBeDeleted);
-    const parentUpdatedWidgets = flattenedWidgets.reduce(
+    const falttendedWidgets: any = flattenDeep(widgetsToBeDeleted);
+    const parentUpdatedWidgets = falttendedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
         const { parentId, widgetId } = eachWidget;
         const stateParent: FlattenedWidgetProps = allWidgets[parentId];
@@ -263,7 +266,7 @@ function* deleteAllSelectedWidgetsSaga(
     );
     const finalWidgets: CanvasWidgetsReduxState = omit(
       parentUpdatedWidgets,
-      flattenedWidgets.map((widgets: any) => widgets.widgetId),
+      falttendedWidgets.map((widgets: any) => widgets.widgetId),
     );
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
@@ -278,7 +281,7 @@ function* deleteAllSelectedWidgetsSaga(
       yield put(closeTableFilterPane());
       showUndoRedoToast(`${selectedWidgets.length}`, true, false, true);
       if (bulkDeleteKey) {
-        flattenedWidgets.map((widget: any) => {
+        falttendedWidgets.map((widget: any) => {
           AppsmithConsole.info({
             logType: LOG_TYPE.ENTITY_DELETED,
             text: "Widget was deleted",
@@ -354,7 +357,7 @@ function resizeCanvasToLowestWidget(
   );
   const childIds = finalWidgets[parentId].children || [];
 
-  // find the lowest row
+  // find lowest row
   childIds.forEach((cId) => {
     const child = finalWidgets[cId];
 

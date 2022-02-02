@@ -168,7 +168,7 @@ describe("generateDataTreeWidget", () => {
       version: 0,
       widgetId: "123",
       widgetName: "Input1",
-      defaultText: "",
+      defaultText: "Testing",
     };
 
     const widgetMetaProps: Record<string, unknown> = {
@@ -201,10 +201,6 @@ describe("generateDataTreeWidget", () => {
         resetOnSubmit: EvaluationSubstitutionType.TEMPLATE,
         text: EvaluationSubstitutionType.TEMPLATE,
         value: EvaluationSubstitutionType.TEMPLATE,
-        "meta.text": EvaluationSubstitutionType.TEMPLATE,
-      },
-      meta: {
-        text: "Tester",
       },
       triggerPaths: {
         onSubmit: true,
@@ -242,12 +238,6 @@ describe("generateDataTreeWidget", () => {
       leftColumn: 0,
       parentColumnSpace: 0,
       parentRowSpace: 0,
-      propertyOverrideDependency: {
-        text: {
-          DEFAULT: "defaultText",
-          META: "meta.text",
-        },
-      },
       renderMode: RenderModes.CANVAS,
       rightColumn: 0,
       topRow: 0,
@@ -256,19 +246,16 @@ describe("generateDataTreeWidget", () => {
       widgetId: "123",
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-      defaultText: "",
+      defaultText: "Testing",
       defaultMetaProps: ["text", "isDirty", "isFocused"],
       defaultProps: {
         text: "defaultText",
-      },
-      overridingPropertyPaths: {
-        defaultText: ["text", "meta.text"],
-        "meta.text": ["text"],
       },
       privateWidgets: {},
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);
+
     expect(result).toStrictEqual(expected);
   });
 });
