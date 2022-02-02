@@ -2,16 +2,17 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import {
+  Classes,
   DropdownOption,
   RenderDropdownOptionType,
-} from "components/ads/Dropdown";
+  Text,
+  TextType,
+  Tooltip as TooltipComponent,
+} from "components/ads";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "../../../../selectors/entitiesSelector";
-import { Classes } from "../../../../components/ads/common";
-import Text, { TextType } from "components/ads/Text";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
-import TooltipComponent from "components/ads/Tooltip";
 
 // ---------- Helpers and constants ----------
 

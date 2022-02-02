@@ -2,25 +2,31 @@ import React, { useState, useEffect, ReactElement, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getEditorConfig } from "selectors/entitiesSelector";
 import { AppState } from "reducers/index";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import {
+  Dropdown,
+  DropdownOption,
+  FontWeight,
+  Icon,
+  IconSize,
+  Text,
+  TextInput,
+  TextType,
+  Tooltip,
+} from "components/ads";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
-import TextInput from "components/ads/TextInput";
 import { GeneratePagePayload } from "./types";
 import { getSheetUrl } from "./hooks";
-import Tooltip from "components/ads/Tooltip";
 import styled from "styled-components";
 import {
   UseSheetListReturn,
   UseSpreadSheetsReturn,
   UseSheetColumnHeadersReturn,
 } from "./hooks";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { debounce } from "lodash";
-import Text, { TextType, FontWeight } from "components/ads/Text";
 import {
   createMessage,
   GEN_CRUD_TABLE_HEADER_LABEL,

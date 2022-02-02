@@ -7,7 +7,7 @@ import {
   executeDatasourceQuery,
   executeDatasourceQuerySuccessPayload,
 } from "actions/datasourceActions";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "components/ads";
 import { useDispatch } from "react-redux";
 import { isObject } from "lodash";
 

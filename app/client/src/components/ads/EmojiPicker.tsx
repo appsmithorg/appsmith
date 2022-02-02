@@ -6,7 +6,8 @@ import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "emoji-mart/css/emoji-mart.css";
-import { Icon, IconName, IconSize, Tooltip } from "components/ads";
+import Tooltip from "components/ads/Tooltip";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { ADD_REACTION, createMessage, EMOJI } from "constants/messages";
 import { Colors } from "constants/Colors";
 

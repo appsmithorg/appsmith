@@ -1,5 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
-import TextInput from "components/ads/TextInput";
+import {
+  TextInput,
+  Button,
+  Category,
+  Size,
+  Icon,
+  IconSize,
+  IconWrapper,
+  Tooltip,
+  Spinner,
+  Text,
+  TextType,
+  Classes,
+  ListSegmentHeader as SegmentHeader,
+} from "components/ads";
 import styled, { useTheme } from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
@@ -31,19 +45,11 @@ import {
 } from "constants/messages";
 
 import { Branch } from "entities/GitSync";
-import Button, { Category, Size } from "components/ads/Button";
 import { Space } from "./StyledComponents";
-import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
 import { get } from "lodash";
-import Tooltip from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
-import Spinner from "components/ads/Spinner";
-import Text, { TextType } from "components/ads/Text";
-import { Classes } from "components/ads/common";
 import { isEllipsisActive } from "utils/helpers";
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
-
-import SegmentHeader from "components/ads/ListSegmentHeader";
 
 const ListContainer = styled.div`
   flex: 1;

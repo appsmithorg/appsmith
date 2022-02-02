@@ -1,6 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Dialog from "components/ads/DialogComponent";
+import {
+  DialogComponent as Dialog,
+  Button,
+  Category,
+  Size,
+  Text,
+  TextType,
+  Icon,
+  IconSize,
+} from "components/ads";
 import {
   getRepoLimitedDocUrl,
   getShowRepoLimitErrorModal,
@@ -10,10 +19,8 @@ import {
   setIsDisconnectGitModalOpen,
   setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
-import Button, { Category, Size } from "components/ads/Button";
 import styled, { useTheme } from "styled-components";
 import { MENU_HEIGHT } from "./constants";
-import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES,
@@ -28,7 +35,6 @@ import {
   DISCONNECT_EXISTING_REPOSITORIES_INFO,
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
 } from "constants/messages";
-import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
 import { get } from "lodash";
 import { Theme } from "constants/DefaultTheme";

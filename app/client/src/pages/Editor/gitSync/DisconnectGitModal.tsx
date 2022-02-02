@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import Dialog from "components/ads/DialogComponent";
+import {
+  Button,
+  Category,
+  DialogComponent as Dialog,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextInput,
+  TextType,
+} from "components/ads";
 import {
   getDisconnectDocUrl,
   getDisconnectingGitApplication,
@@ -12,11 +22,9 @@ import {
   setIsDisconnectGitModalOpen,
 } from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
-import Icon, { IconSize } from "components/ads/Icon";
 
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
-import Text, { TextType } from "components/ads/Text";
 import InfoWrapper from "./components/InfoWrapper";
 import { Colors } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
@@ -31,8 +39,6 @@ import {
   TYPE_PROMO_CODE,
 } from "constants/messages";
 import Link from "./components/Link";
-import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
 

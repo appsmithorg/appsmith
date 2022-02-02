@@ -1,5 +1,5 @@
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
-import DialogComponent from "components/ads/DialogComponent";
+import { DialogComponent } from "components/ads";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsImportAppViaGitModalOpen } from "selectors/gitSyncSelectors";

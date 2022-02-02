@@ -23,9 +23,7 @@ import {
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
-import ProgressiveImage, {
-  ProgressiveImageContainer,
-} from "components/ads/ProgressiveImage";
+import { ProgressiveImage, ProgressiveImageContainer } from "components/ads";
 import SuccessTick from "pages/common/SuccessTick";
 
 type Props = {
