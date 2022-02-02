@@ -272,7 +272,7 @@ jobs:
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
       - name: list failed tests if there are test failures
-        if: matrix.job  != 0
+        if: failure()
         run: |
           echo  "Matrixid=${{ matrix.job }}" >> ~/failed_spec/failed_spec-${{ matrix.job }}
 
