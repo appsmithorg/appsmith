@@ -52,7 +52,9 @@ module.exports = class Perf {
       await this.page.screenshot({
         path: screenshotPath,
       });
-      await this.stopTrace();
+      if (this.currentTrace) {
+        await this.stopTrace();
+      }
       this.browser.close();
     });
   }
