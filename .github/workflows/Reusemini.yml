@@ -359,7 +359,7 @@ jobs:
         run: echo ${{env.failed_spec_env}}
 
       - name: "combine all specs"
-        if: needs.ui-test.result == failure()
+        if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
 
       - name: Store the combined run result
