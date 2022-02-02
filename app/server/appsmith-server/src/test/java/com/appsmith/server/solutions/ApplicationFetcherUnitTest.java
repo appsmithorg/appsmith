@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -57,6 +58,7 @@ public class ApplicationFetcherUnitTest {
 
     User testUser;
 
+    final static String defaultPageId = "defaultPageId";
 
     @Before
     public void setup() {
@@ -77,10 +79,22 @@ public class ApplicationFetcherUnitTest {
                 application.setOrganizationId("org-" + i);
                 application.setId("org-" + i + "-app-" + j); // e.g. org-1-app-3
                 application.setName(application.getId()); // e.g. org-1-app-3
+                // Set dummy applicationPages
+                ApplicationPage applicationPage = new ApplicationPage();
+                applicationPage.setId("page" + j);
+                applicationPage.setDefaultPageId(defaultPageId);
+                application.setPages(List.of(applicationPage));
+                application.setPublishedPages(List.of(applicationPage));
                 applicationList.add(application);
             }
         }
         return applicationList;
+    }
+
+    private Application updateDefaultPageIdsWithinApplication(Application application) {
+        application.getPublishedPages().forEach(page -> page.setId(page.getDefaultPageId()));
+        application.getPages().forEach(page -> page.setId(page.getDefaultPageId()));
+        return application;
     }
 
     private List<Organization> createDummyOrganizations() {
@@ -117,9 +131,16 @@ public class ApplicationFetcherUnitTest {
         Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(userData));
 
         // mock the list of applications
+        List<Application> applications = createDummyApplications(4,4);
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
-        ).thenReturn(Flux.fromIterable(createDummyApplications(4,4)));
+        ).thenReturn(Flux.fromIterable(applications));
+
+        for (Application application : applications) {
+            Mockito
+                    .when(responseUtils.updateApplicationWithDefaultResources(application))
+                    .thenReturn(updateDefaultPageIdsWithinApplication(application));
+        }
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
@@ -127,6 +148,14 @@ public class ApplicationFetcherUnitTest {
                     assertThat(dtos.size()).isEqualTo(4);
                     for (OrganizationApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
+                        List<Application> applicationList = dto.getApplications();
+                        for (Application application : applicationList) {
+                            List<ApplicationPage> pages = application.getPages();
+                            pages.forEach(page -> assertThat(page.getId()).isEqualTo(defaultPageId));
+
+                            pages = application.getPublishedPages();
+                            pages.forEach(page -> assertThat(page.getId()).isEqualTo(defaultPageId));
+                        }
                     }
                 }).verifyComplete();
     }
@@ -141,9 +170,15 @@ public class ApplicationFetcherUnitTest {
         Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(userData));
 
         // mock the list of applications
+        List<Application> applications = createDummyApplications(4,4);
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
-        ).thenReturn(Flux.fromIterable(createDummyApplications(4,4)));
+        ).thenReturn(Flux.fromIterable(applications));
+        for (Application application : applications) {
+            Mockito
+                    .when(responseUtils.updateApplicationWithDefaultResources(application))
+                    .thenReturn(updateDefaultPageIdsWithinApplication(application));
+        }
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
@@ -182,9 +217,15 @@ public class ApplicationFetcherUnitTest {
         Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(userData));
 
         // mock the list of applications
+        List<Application> applications = createDummyApplications(3,3);
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
-        ).thenReturn(Flux.fromIterable(createDummyApplications(3,3)));
+        ).thenReturn(Flux.fromIterable(applications));
+        for (Application application : applications) {
+            Mockito
+                    .when(responseUtils.updateApplicationWithDefaultResources(application))
+                    .thenReturn(updateDefaultPageIdsWithinApplication(application));
+        }
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
