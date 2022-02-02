@@ -22,7 +22,7 @@ import {
   CONTEXT_NO_PAGE,
   CONTEXT_SHOW_BINDING,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 type EntityContextMenuProps = {
   id: string;
