@@ -140,9 +140,9 @@ function SortingComponent(props: any) {
               <FormControl
                 config={{
                   ...columnFieldConfig,
-                  label: "",
                   customStyles,
                   configProperty: `${field}.column`,
+                  nestedFormControl: true,
                 }}
                 formName={props.formName}
               />
@@ -151,9 +151,9 @@ function SortingComponent(props: any) {
               <FormControl
                 config={{
                   ...orderFieldConfig,
-                  label: "",
                   customStyles,
                   configProperty: `${field}.order`,
+                  nestedFormControl: true,
                 }}
                 formName={props.formName}
               />
