@@ -765,6 +765,7 @@ function ApplicationsSection(props: any) {
                     {(currentUser || isFetchingApplications) && (
                       <Menu
                         className="t--org-name"
+                        closeOnItemClick
                         cypressSelector="t--org-name"
                         disabled={isFetchingApplications}
                         isOpen={organization.slug === orgToOpenMenu}

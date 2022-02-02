@@ -7,6 +7,7 @@ import { PopperModifiers } from "@blueprintjs/core";
 
 export type MenuProps = CommonComponentProps & {
   children?: ReactNode[];
+  closeOnItemClick?: boolean;
   target: JSX.Element;
   position?: Position;
   onOpening?: (node: HTMLElement) => void;
@@ -49,7 +50,20 @@ function Menu(props: MenuProps) {
       <MenuWrapper width={props.menuItemWrapperWidth}>
         {props.children &&
           props.children.map((el, index) => {
-            return <MenuOption key={index}>{el}</MenuOption>;
+            return (
+              <MenuOption
+                key={index}
+                onClick={() => {
+                  if (
+                    typeof props.onClose === "function" &&
+                    props.closeOnItemClick
+                  )
+                    props.onClose();
+                }}
+              >
+                {el}
+              </MenuOption>
+            );
           })}
       </MenuWrapper>
     </Popover>
