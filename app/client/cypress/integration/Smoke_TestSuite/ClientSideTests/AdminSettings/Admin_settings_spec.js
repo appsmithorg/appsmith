@@ -233,7 +233,7 @@ describe("Admin settings page", function() {
       .within(() => {
         cy.get(AdminsSettingsLocators.breadcrumbItem).should(
           "have.length",
-          "3",
+          "2",
         );
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(0)
@@ -242,11 +242,6 @@ describe("Admin settings page", function() {
           .and("eq", "/applications");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(1)
-          .contains("Settings")
-          .should("have.attr", "href")
-          .and("eq", "/settings/general");
-        cy.get(AdminsSettingsLocators.breadcrumbItem)
-          .eq(2)
           .contains("Authentication")
           .should("have.attr", "href")
           .and("eq", "/settings/authentication");
@@ -259,7 +254,7 @@ describe("Admin settings page", function() {
       .within(() => {
         cy.get(AdminsSettingsLocators.breadcrumbItem).should(
           "have.length",
-          "4",
+          "3",
         );
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(0)
@@ -268,16 +263,11 @@ describe("Admin settings page", function() {
           .and("eq", "/applications");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(1)
-          .contains("Settings")
-          .should("have.attr", "href")
-          .and("eq", "/settings/general");
-        cy.get(AdminsSettingsLocators.breadcrumbItem)
-          .eq(2)
           .contains("Authentication")
           .should("have.attr", "href")
           .and("eq", "/settings/authentication");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
-          .eq(3)
+          .eq(2)
           .contains("Google Authentication")
           .should("have.attr", "href")
           .and("eq", "/settings/authentication/google-auth");
