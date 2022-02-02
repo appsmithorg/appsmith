@@ -2,6 +2,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("API Panel Test Functionality", function() {
   before(() => {
@@ -25,12 +26,16 @@ describe("API Panel Test Functionality", function() {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.SearchEntityandOpen("FirstAPI");
-    cy.EditApiName("SecondAPI");
-    cy.ClearSearch();
-    cy.SearchEntityandOpen("SecondAPI");
+    cy.get(".t--entity-name:contains('FirstAPI')").should("be.visible");
+    cy.hoverAndClick();
+    cy.selectAction("Edit Name");
+    //cy.RenameEntity(tabname);
+    cy.get(explorer.editEntity)
+      .last()
+      .type("SecondAPI", { force: true });
     cy.DeleteAPI();
-    cy.ClearSearch();
+    cy.wait(2000);
+    cy.get(".t--entity-name:contains('SecondAPI')").should("not.exist");
   });
 
   it("Should update loading state after cancellation of confirmation for run query", function() {

@@ -100,6 +100,11 @@ public class RestApiPlugin extends BasePlugin {
         // `WebClient` instance was loaded as an auto-wired bean.
         public ExchangeStrategies EXCHANGE_STRATEGIES;
 
+        private static final Set<String> DISALLOWED_HOSTS = Set.of(
+                "169.254.169.254",
+                "metadata.google.internal"
+        );
+
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
             this.dataUtils = DataUtils.getInstance();
@@ -251,6 +256,12 @@ public class RestApiPlugin extends BasePlugin {
 
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
+
+            if (DISALLOWED_HOSTS.contains(uri.getHost())) {
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
+            }
 
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));

@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import * as log from "loglevel";
 
 import {
   getIsFetchingPage,
@@ -32,6 +31,9 @@ import {
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import { PropertyPaneSidebar } from "components/editorComponents/PropertyPaneSidebar";
+import { updateExplorerWidthAction } from "actions/explorerActions";
+import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import Guide from "../GuidedTour/Guide";
 
 /* eslint-disable react/display-name */
@@ -107,7 +109,25 @@ function WidgetsEditor() {
     [allowDragToSelect],
   );
 
-  log.debug("Canvas rendered");
+  const [propertyPaneWidth, setPropertyPaneWidth] = React.useState(
+    DEFAULT_PROPERTY_PANE_WIDTH,
+  );
+
+  /**
+   * on property pane sidebar drag end
+   *
+   * @return void
+   */
+  const onRightSidebarDragEnd = useCallback(() => {
+    dispatch(updateExplorerWidthAction(propertyPaneWidth));
+  }, [propertyPaneWidth]);
+
+  /**
+   * on property pane sidebar width change
+   */
+  const onRightSidebarWidthChange = useCallback((newWidth) => {
+    setPropertyPaneWidth(newWidth);
+  }, []);
 
   PerformanceTracker.stopTracking();
   return (
@@ -120,7 +140,7 @@ function WidgetsEditor() {
         <>
           {guidedTourEnabled && <Guide />}
           <div
-            className="relative overflow-hidden flex flex-col"
+            className="relative overflow-hidden flex flex-row w-full"
             data-testid="widgets-editor"
             draggable
             onClick={handleWrapperClick}
@@ -130,6 +150,11 @@ function WidgetsEditor() {
             <CanvasContainer />
             <CrudInfoModal />
             <Debugger />
+            <PropertyPaneSidebar
+              onDragEnd={onRightSidebarDragEnd}
+              onWidthChange={onRightSidebarWidthChange}
+              width={propertyPaneWidth}
+            />
           </div>
         </>
       )}
