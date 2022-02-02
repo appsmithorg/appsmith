@@ -4985,4 +4985,12 @@ public class DatabaseChangelog {
         );
     }
 
+    @ChangeSet(order = "115", id = "mark-mssql-crud-unavailable", author = "")
+    public void markMSSQLCrudUnavailable(MongockTemplate mongockTemplate) {
+        Plugin plugin = mongockTemplate.findOne(query(where("packageName").is("mssql-plugin")), Plugin.class);
+        assert plugin != null;
+        plugin.setGenerateCRUDPageComponent(null);
+        mongockTemplate.save(plugin);
+    }
+
 }
