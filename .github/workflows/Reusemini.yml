@@ -265,18 +265,6 @@ jobs:
       - name: cat failed_spec
         run: echo ${{ env.failed_spec_env }}
 
-      - name: list failed tests create dir
-        if: steps.run_result.outputs.run_result != 'failedtest'
-        run: |
-          mkdir  ~/failed_spec
-          echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
-
-      - name: Accidentally upload to the same artifact via multiple jobs
-        uses: actions/upload-artifact@v2
-        with:
-          name: failed-spec-${{ matrix.job }}
-          path: ~/failed_spec
-
       - uses: actions/checkout@v1
       - name: Try to fail
         run: exit 1
@@ -288,6 +276,18 @@ jobs:
         if: failure()
         run: |
           echo  "Matrixid=${{ matrix.job }}" >> ~/failed_spec/failed_spec-${{ matrix.job }}
+
+      - name: list failed tests create dir
+        if: steps.run_result.outputs.run_result != 'failedtest'
+        run: |
+          mkdir  ~/failed_spec
+          echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
+
+      - name: Accidentally upload to the same artifact via multiple jobs
+        uses: actions/upload-artifact@v2
+        with:
+          name: failed-spec-${{ matrix.job }}
+          path: ~/failed_spec
 
       - name: Set fail if there are test failures
         if: failure()
