@@ -768,7 +768,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
                                 return applicationPages;
                             })
-                            .then(Mono.empty())
+                            .then()
+                            .thenReturn(applicationPages)
                             .flatMap(unused -> {
                                 if (!Optional.ofNullable(importedApplication.getId()).isEmpty()) {
                                     Set<String> validPageIds = applicationPages.get(PublishType.UNPUBLISHED).stream()
