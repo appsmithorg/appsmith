@@ -266,7 +266,7 @@ jobs:
         run: echo ${{ env.failed_spec_env }}
 
       - uses: actions/checkout@v1
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result != 'failedtest'
       - name: Try to fail
         run: exit 1
 
