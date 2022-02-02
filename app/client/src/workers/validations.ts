@@ -78,7 +78,7 @@ function validatePlainObject(
               );
             });
         }
-      } else if (entry.params?.required) {
+      } else if (entry.params?.required || entry.params?.requiredKey) {
         _valid = false;
         _messages.push(`Missing required key: ${entryName}`);
       }

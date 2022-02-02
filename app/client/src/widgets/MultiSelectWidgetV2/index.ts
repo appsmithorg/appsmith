@@ -1,12 +1,12 @@
-import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import IconSVG from "./icon.svg";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "MultiSelect",
   iconSVG: IconSVG,
   needsMeta: true,
-  hideCard: true,
+  isFilterable: true,
   defaults: {
     rows: 7,
     columns: 20,
@@ -19,7 +19,7 @@ export const CONFIG = {
     ],
     widgetName: "MultiSelect",
     serverSideFiltering: false,
-    defaultOptionValue: ["GREEN"],
+    defaultOptionValue: [{ label: "Green", value: "GREEN" }],
     version: 1,
     isRequired: false,
     isDisabled: false,

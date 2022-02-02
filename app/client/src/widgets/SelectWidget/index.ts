@@ -1,29 +1,29 @@
-import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import IconSVG from "./icon.svg";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "MultiSelect",
+  name: "Select",
   iconSVG: IconSVG,
   needsMeta: true,
-  hideCard: true,
   defaults: {
     rows: 7,
     columns: 20,
-    animateLoading: true,
+    placeholderText: "Select option",
     labelText: "Label",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
-    widgetName: "MultiSelect",
     serverSideFiltering: false,
-    defaultOptionValue: ["GREEN"],
+    widgetName: "Select",
+    defaultOptionValue: { label: "Green", value: "GREEN" },
     version: 1,
+    isFilterable: false,
     isRequired: false,
     isDisabled: false,
-    placeholderText: "Select option(s)",
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
