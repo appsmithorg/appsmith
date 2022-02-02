@@ -142,8 +142,16 @@ export const LabelContainer = styled.div<LabelContainerProps>`
         : `width: 100%;`
     }
     ${position === LabelPositionTypes.Left &&
-      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
-        `justify-content:  flex-end`};`}
+      `
+      label {
+        ${width && `width: ${width}px`};
+        ${
+          alignment === Alignment.RIGHT
+            ? `text-align: right`
+            : `text-align: left`
+        };
+      }
+    `}
 
     ${!inline && optionCount > 1 && `align-self: flex-start;`}
   `}

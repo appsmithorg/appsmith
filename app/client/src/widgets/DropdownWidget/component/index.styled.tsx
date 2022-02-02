@@ -29,8 +29,16 @@ export const TextLabelWrapper = styled.div<{
         : `width: 100%;`
     }
     ${position === LabelPositionTypes.Left &&
-      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
-        `justify-content:  flex-end`};`}
+      `
+      label {
+        ${width && `width: ${width}px`};
+        ${
+          alignment === Alignment.RIGHT
+            ? `text-align: right`
+            : `text-align: left`
+        };
+      }
+    `}
   `}
 `;
 

@@ -11,6 +11,7 @@ export const CONFIG = {
     rows: 4,
     columns: 9,
     animateLoading: true,
+    label: "",
     options: [
       { label: "Yes", value: "Y" },
       { label: "No", value: "N" },
@@ -20,7 +21,6 @@ export const CONFIG = {
     isDisabled: false,
     isInline: true,
     alignment: Alignment.LEFT,
-    label: "",
     widgetName: "RadioGroup",
     version: 1,
   },

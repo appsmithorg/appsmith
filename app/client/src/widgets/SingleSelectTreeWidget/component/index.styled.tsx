@@ -44,8 +44,16 @@ export const TextLabelWrapper = styled.div<{
         : `width: 100%;`
     }
     ${position === LabelPositionTypes.Left &&
-      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
-        `justify-content:  flex-end`};`}
+      `
+      label {
+        ${width && `width: ${width}px`};
+        ${
+          alignment === Alignment.RIGHT
+            ? `text-align: right`
+            : `text-align: left`
+        };
+      }
+    `}
   `}
 `;
 
@@ -990,4 +998,15 @@ export const inputIcon = (): JSX.Element => (
 
 export const StyledTooltip = styled(Tooltip)`
   overflow: hidden;
+`;
+
+export const InputContainer = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  width: 100%;
+  ${({ compactMode, labelPosition }) =>
+    labelPosition !== LabelPositionTypes.Top &&
+    compactMode &&
+    `overflow-x: hidden`};
 `;

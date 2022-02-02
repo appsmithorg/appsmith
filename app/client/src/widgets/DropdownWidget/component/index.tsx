@@ -110,7 +110,14 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
   }
 `;
 
-const StyledControlGroup = styled(ControlGroup)`
+const StyledControlGroup = styled(ControlGroup)<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  ${({ compactMode, labelPosition }) =>
+    labelPosition !== LabelPositionTypes.Top &&
+    compactMode &&
+    `overflow-x: hidden`};
   &&& > {
     span {
       height: 100%;
@@ -401,7 +408,11 @@ class DropDownComponent extends React.Component<
             )}
           </TextLabelWrapper>
         )}
-        <StyledControlGroup fill>
+        <StyledControlGroup
+          compactMode={compactMode}
+          fill
+          labelPosition={labelPosition}
+        >
           <StyledSingleDropDown
             activeItem={activeItem}
             className={isLoading ? Classes.SKELETON : ""}

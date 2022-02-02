@@ -13,6 +13,7 @@ import {
   StyledLabel,
   TextLabelWrapper,
   StyledTooltip,
+  InputContainer,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
@@ -213,48 +214,50 @@ function SingleSelectTreeComponent({
           )}
         </TextLabelWrapper>
       )}
-      <TreeSelect
-        allowClear={allowClear}
-        animation="slide-up"
-        choiceTransitionName="rc-tree-select-selection__choice-zoom"
-        className="rc-tree-select"
-        clearIcon={
-          <Icon
-            className="clear-icon"
-            fillColor={Colors.GREY_10}
-            name="close-x"
-          />
-        }
-        disabled={disabled}
-        dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${id}`}
-        dropdownStyle={dropdownStyle}
-        getPopupContainer={getDropdownPosition}
-        inputIcon={
-          <Icon
-            className="dropdown-icon"
-            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-            name="dropdown"
-          />
-        }
-        key={key}
-        loading={loading}
-        maxTagCount={"responsive"}
-        maxTagPlaceholder={(e) => `+${e.length} more`}
-        notFoundContent="No Results Found"
-        onChange={onChange}
-        onClear={onClear}
-        placeholder={placeholder}
-        showArrow
-        showSearch
-        style={{ width: "100%" }}
-        switcherIcon={switcherIcon}
-        transitionName="rc-tree-select-dropdown-slide-up"
-        treeData={options}
-        treeDefaultExpandAll={expandAll}
-        treeIcon
-        treeNodeFilterProp="label"
-        value={value}
-      />
+      <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
+        <TreeSelect
+          allowClear={allowClear}
+          animation="slide-up"
+          choiceTransitionName="rc-tree-select-selection__choice-zoom"
+          className="rc-tree-select"
+          clearIcon={
+            <Icon
+              className="clear-icon"
+              fillColor={Colors.GREY_10}
+              name="close-x"
+            />
+          }
+          disabled={disabled}
+          dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${id}`}
+          dropdownStyle={dropdownStyle}
+          getPopupContainer={getDropdownPosition}
+          inputIcon={
+            <Icon
+              className="dropdown-icon"
+              fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+              name="dropdown"
+            />
+          }
+          key={key}
+          loading={loading}
+          maxTagCount={"responsive"}
+          maxTagPlaceholder={(e) => `+${e.length} more`}
+          notFoundContent="No Results Found"
+          onChange={onChange}
+          onClear={onClear}
+          placeholder={placeholder}
+          showArrow
+          showSearch
+          style={{ width: "100%" }}
+          switcherIcon={switcherIcon}
+          transitionName="rc-tree-select-dropdown-slide-up"
+          treeData={options}
+          treeDefaultExpandAll={expandAll}
+          treeIcon
+          treeNodeFilterProp="label"
+          value={value}
+        />
+      </InputContainer>
     </TreeSelectContainer>
   );
 }

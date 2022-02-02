@@ -129,8 +129,16 @@ export const TextLabelWrapper = styled.div<{
         : `&&& {flex:0; width: 100%;}`
     }
     ${position === LabelPositionTypes.Left &&
-      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
-        `justify-content:  flex-end`};`}
+      `
+      label {
+        ${width && `width: ${width}px`};
+        ${
+          alignment === Alignment.RIGHT
+            ? `text-align: right`
+            : `text-align: left`
+        };
+      }
+    `}
   `}
 `;
 
@@ -159,9 +167,16 @@ export const StyledTooltip = styled(Tooltip)`
   overflow: hidden;
 `;
 
-export const DateInputWrapper = styled.div`
+export const DateInputWrapper = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
   display: flex;
   width: 100%;
+  ${({ compactMode, labelPosition }) =>
+    labelPosition !== LabelPositionTypes.Top &&
+    compactMode &&
+    `overflow-x: hidden`};
 `;
 
 class DatePickerComponent extends React.Component<
@@ -308,7 +323,10 @@ class DatePickerComponent extends React.Component<
             )}
           </TextLabelWrapper>
         )}
-        <DateInputWrapper>
+        <DateInputWrapper
+          compactMode={compactMode}
+          labelPosition={labelPosition}
+        >
           <ErrorTooltip
             isOpen={!isValid}
             message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}

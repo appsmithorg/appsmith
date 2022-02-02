@@ -219,7 +219,7 @@ const InputComponentWrapper = styled((props) => (
           ? `margin-bottom: 0px; margin-right: 5px`
           : `margin-bottom: 5px; margin-right: 0px`};
 
-      text-align: right;
+      // text-align: right;
       align-self: flex-start;
       color: ${(props) => props.labelTextColor || "inherit"};
       font-size: ${(props) => props.labelTextSize};
@@ -340,8 +340,16 @@ const TextLabelWrapper = styled.div<{
         : `width: 100%;`
     }
     ${position === LabelPositionTypes.Left &&
-      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
-        `justify-content: flex-end`};`}
+      `
+      label {
+        ${width && `width: ${width}px`};
+        ${
+          alignment === Alignment.RIGHT
+            ? `text-align: right`
+            : `text-align: left`
+        };
+      }
+    `}
   `}
 `;
 
