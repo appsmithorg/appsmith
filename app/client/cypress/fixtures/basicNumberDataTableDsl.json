@@ -24,7 +24,7 @@
         "label": "Data",
         "widgetName": "Table1",
         "searchKey": "",
-        "tableData": "[{\"1\":\"abc\",\"2\":\"bcd\",\"3\":\"cde\",\"Dec\":\"mon\",\"demo\":\"3\",\"demo_1\":\"1\",\"test one\":\"1\",\"test 3 4 9\":\"4\",\"rowIndex\":\"0\"},{\"1\":\"asd\",\"2\":\"dfg\",\"3\":\"jkl\",\"Dec\":\"mon2\",\"demo\":\"2\",\"demo_1\":\"1\",\"test one\":\"2\",\"test 3 4 9\":\"3\",\"rowIndex\":\"1\"}]",
+        "tableData": "",
         "type": "TABLE_WIDGET",
         "isLoading": false,
         "parentColumnSpace": 74,

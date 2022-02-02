@@ -990,6 +990,9 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication.getOrganizationId().equals(orgId));
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
+                    assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
+                    assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
+
                     List<ApplicationPage> pages = clonedApplication.getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
@@ -1906,7 +1909,9 @@ public class ApplicationServiceTest {
                 .assertNext(applicationPagesDTO -> {
                     assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toList());
+                    List<String> slugNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getSlug()).collect(Collectors.toList());
                     assertThat(pageNames).containsExactly("Page1", "Page2", "Page3", "Page4");
+                    assertThat(slugNames).containsExactly("page1", "page2", "page3", "page4");
                 })
                 .verifyComplete();
     }

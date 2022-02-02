@@ -69,6 +69,7 @@ export const copyJSCollectionError = (payload: {
 export const moveJSCollectionRequest = (payload: {
   id: string;
   destinationPageId: string;
+  name: string;
 }) => {
   return {
     type: ReduxActionTypes.MOVE_JS_ACTION_INIT,

@@ -9,6 +9,7 @@ import {
   Menu,
   Button,
   Classes,
+  Position,
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -42,6 +43,7 @@ type TreeDropdownProps = {
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
   onMenuToggle?: (isOpen: boolean) => void;
+  position?: Position;
 };
 
 const StyledMenu = styled(Menu)`
@@ -72,15 +74,22 @@ const StyledMenu = styled(Menu)`
       fill: #9f9f9f;
     }
 
-    &.t--apiFormDeleteBtn,
-    &.t--apiFormDeleteBtn:hover {
+    &.t--apiFormDeleteBtn {
       color: ${Colors.DANGER_SOLID};
       .${Classes.ICON} svg {
         fill: ${Colors.DANGER_SOLID};
       }
     }
 
-    &:hover {
+    &.t--apiFormDeleteBtn:hover {
+      background-color: ${Colors.GREY_3};
+      color: ${Colors.DANGER_SOLID};
+      .${Classes.ICON} svg {
+        fill: ${Colors.DANGER_SOLID};
+      }
+    }
+
+    &:hover:not(.t--apiFormDeleteBtn) {
       background-color: ${Colors.GREY_3};
       color: ${Colors.GREY_10};
       .${Classes.ICON} > svg:not([fill]) {
@@ -245,7 +254,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         setIsOpen(false);
         props.onMenuToggle && props.onMenuToggle(false);
       }}
-      position={PopoverPosition.LEFT}
+      position={props.position || PopoverPosition.LEFT}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

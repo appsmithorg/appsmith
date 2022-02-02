@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 export const StyledDivider = styled(Divider)<{ color?: string }>`
   && {
-    margin: 10px 0;
+    margin: 5px 0 0;
   }
 `;
 

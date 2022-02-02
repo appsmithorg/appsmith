@@ -33,6 +33,9 @@ describe("<DropdownWidget />", () => {
       editor: {
         isPreviewMode: false,
       },
+      widgetReflow: {
+        enableReflow: true,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

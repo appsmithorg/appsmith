@@ -1,11 +1,16 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
+import { Colors } from "constants/Colors";
 
-const StyledRTEditor = styled.div`
+const StyledRTEditor = styled.div<{
+  isValid?: boolean;
+}>`
   && {
     width: 100%;
     height: 100%;
+    border: 1px solid
+      ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
     .tox .tox-editor-header {
       z-index: 0;
     }
@@ -21,17 +26,19 @@ const StyledRTEditor = styled.div`
 `;
 
 export interface RichtextEditorComponentProps {
-  defaultValue?: string;
+  value?: string;
+  isMarkdown: boolean;
   placeholder?: string;
   widgetId: string;
   isDisabled?: boolean;
-  defaultText?: string;
   isVisible?: boolean;
   isToolbarHidden: boolean;
+  isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
+const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
-  const [value, setValue] = React.useState<string>(props.defaultText as string);
+  const [value, setValue] = React.useState<string>(props.value as string);
   const editorRef = useRef<any>(null);
   const isInit = useRef<boolean>(false);
 
@@ -39,28 +46,31 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help";
 
   useEffect(() => {
-    if (!value) return;
-    // Prevent calling onTextChange when initialized
+    if (!value && !props.value) return;
+    // This Prevents calling onTextChange when initialized
     if (!isInit.current) return;
     const timeOutId = setTimeout(() => props.onValueChange(value), 1000);
     return () => clearTimeout(timeOutId);
   }, [value]);
 
   useEffect(() => {
-    if (!props.defaultText) return;
-    setValue(props.defaultText);
-  }, [props.defaultText]);
+    if (!editorRef.current) return;
+    setValue(props.value as string);
+  }, [props.value]);
 
   const onEditorChange = (newValue: string) => {
-    if (!isInit.current) {
-      isInit.current = true;
-      return;
+    // Prevents cursur shift in Markdown
+    if (newValue === "" && props.isMarkdown) {
+      setValue(initValue);
+    } else {
+      setValue(newValue);
     }
-    if (newValue === value) return;
-    setValue(newValue);
   };
   return (
-    <StyledRTEditor className={`container-${props.widgetId}`}>
+    <StyledRTEditor
+      className={`container-${props.widgetId}`}
+      isValid={props.isValid}
+    >
       <Editor
         disabled={props.isDisabled}
         id={`rte-${props.widgetId}`}
@@ -81,6 +91,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         onEditorChange={onEditorChange}
         onInit={(evt, editor) => {
           editorRef.current = editor;
+          isInit.current = true;
         }}
         tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
         toolbar={props.isToolbarHidden ? false : toolbarConfig}

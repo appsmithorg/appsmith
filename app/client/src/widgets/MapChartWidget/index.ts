@@ -1,6 +1,6 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
 import { dataSetForWorld, MapTypes } from "./constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
