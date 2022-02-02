@@ -25,8 +25,6 @@ import log from "loglevel";
 import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
-import WidgetFactory from "./WidgetFactory";
-import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import * as Sentry from "@sentry/react";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
@@ -675,30 +673,14 @@ export const getLocale = () => {
 export const captureInvalidDynamicBindingPath = (
   currentDSL: Readonly<DSLWidget>,
 ) => {
-  //Get the propertyPaneConfig for the current DSL Type
-  const propertyPaneConfig = WidgetFactory.getWidgetPropertyPaneConfig(
-    currentDSL.type,
-  );
-
-  //Get the bindingPaths from the dsl and propertyPaneConfig
-  const { bindingPaths } = getAllPathsFromPropertyConfig(
-    currentDSL,
-    propertyPaneConfig,
-    {},
-  );
-
   //Get the dynamicBindingPathList of the current DSL
   const dynamicBindingPathList = get(currentDSL, "dynamicBindingPathList");
   dynamicBindingPathList?.forEach((dBindingPath) => {
     const pathValue = get(currentDSL, dBindingPath.key); //Gets the value for the given dynamic binding path
-
     /**
      * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
      */
-    if (
-      !isDynamicValue(pathValue) &&
-      bindingPaths.hasOwnProperty(dBindingPath.key)
-    ) {
+    if (!isDynamicValue(pathValue)) {
       Sentry.captureException(
         new Error(
           `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
