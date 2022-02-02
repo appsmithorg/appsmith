@@ -71,7 +71,9 @@ const MethodDetailsWrapper = styled.div`
 const MethodTitle = styled.div`
   font-weight: 500;
   font-size: 16px;
-  line-height: 24px;
+  display: flex;
+  align-items: center;
+  margin: 0 0 4px;
 `;
 
 const MethodDets = styled.div`
@@ -117,11 +119,11 @@ const ButtonTitle = styled.span`
 
 const Label = styled.span<{ enterprise?: boolean }>`
   display: inline;
-  color: #fff;
-  background: ${(props) => (props.enterprise ? "#979797" : "#03b365")};
+  color: ${(props) => (props.enterprise ? "#191919" : "#03B365")};
+  background: ${(props) => (props.enterprise ? "#fff" : "#E5F6EC")};
+  border: ${(props) => (props.enterprise ? "1px solid #191919" : "none")};
   padding: 2px 6px;
   font-size: 12px;
-  margin: 4px 0;
 `;
 
 export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {

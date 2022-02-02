@@ -183,9 +183,9 @@ export const Oidc_Auth_Callout: AuthMethodType = {
 };
 
 const AuthMethods = [
-  Google_Auth_Callout,
   Oidc_Auth_Callout,
   Saml_Auth_Callout,
+  Google_Auth_Callout,
   Github_Auth_Callout,
   Form_Auth_Callout,
 ];
