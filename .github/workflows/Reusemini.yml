@@ -366,6 +366,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       - name: upload combined failed spec
+        if: ${{ failure() }}
         uses: actions/upload-artifact@v2
         with:
           name: combined_failed_spec
