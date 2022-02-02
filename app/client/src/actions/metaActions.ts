@@ -50,7 +50,7 @@ export const updateMetaState = (updates: Diff<any, any>[]) => {
   const updatedWidgetMetaState: MetaState = {};
   if (updates.length) {
     updates.forEach((update) => {
-      // if meta field is updated in old and new dataTree when update metaReducer
+      // if meta field is updated in the dataTree then update metaReducer values.
       if (update.kind === "E" && update.path && update.path?.includes("meta")) {
         set(updatedWidgetMetaState, update.path, update.rhs);
       }
