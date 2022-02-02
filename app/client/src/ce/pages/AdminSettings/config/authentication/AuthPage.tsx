@@ -119,10 +119,18 @@ const ButtonTitle = styled.span`
 
 const Label = styled.span<{ enterprise?: boolean }>`
   display: inline;
-  color: ${(props) => (props.enterprise ? "#191919" : "#03B365")};
-  background: ${(props) => (props.enterprise ? "#fff" : "#E5F6EC")};
-  border: ${(props) => (props.enterprise ? "1px solid #191919" : "none")};
-  padding: 2px 6px;
+  ${(props) =>
+    props.enterprise
+      ? `
+    border: 1px solid #191919;
+    color: #191919;
+    background: #fff;
+  `
+      : `
+    color: #03B365;
+    background: #E5F6EC;
+  `};
+  padding: 2px 4px;
   font-size: 12px;
 `;
 
