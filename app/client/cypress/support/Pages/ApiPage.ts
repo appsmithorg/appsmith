@@ -1,4 +1,5 @@
 import { AggregateHelper } from "./AggregateHelper";
+import explorer from "../../locators/explorerlocators.json";
 const agHelper = new AggregateHelper();
 
 export class ApiPage {
@@ -17,8 +18,8 @@ export class ApiPage {
 
 
     CreateAndFillApi(url: string, apiname: string = "", queryTimeout = 30000) {
-        agHelper.NavigateToCreateNewTabPage()
-        cy.get(this._createapi).click({ force: true });
+        cy.get(explorer.createNew).click({ force: true });
+        cy.get(explorer.blankAPI).click({ force: true });
         cy.wait("@createNewApi").should(
             "have.nested.property",
             "response.body.responseMeta.status",
