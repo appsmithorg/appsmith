@@ -1,9 +1,8 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "../workers/evaluationUtils";
 import { MetaState } from "../reducers/entityReducers/metaReducer";
-import isEmpty from "lodash/isEmpty";
+import set from "lodash/set";
+import { Diff } from "deep-diff";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
@@ -47,14 +46,16 @@ export const resetChildrenMetaProperty = (
   };
 };
 
-export const updateMetaState = (evaluatedDataTree: DataTree) => {
+export const updateMetaState = (updates: Diff<any, any>[]) => {
   const updatedWidgetMetaState: MetaState = {};
-  Object.values(evaluatedDataTree).forEach((entity) => {
-    if (isWidget(entity) && entity.widgetId && !isEmpty(entity.meta)) {
-      updatedWidgetMetaState[entity.widgetId] = entity.meta;
-    }
-  });
-
+  if (updates.length) {
+    updates.forEach((update) => {
+      // if meta field is updated in old and new dataTree when update metaReducer
+      if (update.kind === "E" && update.path && update.path?.includes("meta")) {
+        set(updatedWidgetMetaState, update.path, update.rhs);
+      }
+    });
+  }
   return {
     type: ReduxActionTypes.UPDATE_META_STATE,
     payload: {
