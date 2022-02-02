@@ -118,4 +118,5 @@ async function runTests() {
   await testTyping();
   await testTyping();
   await testTyping();
+}
 runTests();
