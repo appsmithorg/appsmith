@@ -235,16 +235,15 @@ class DatePickerComponent extends React.Component<
    * checks if selelectedDate is null or not,
    * sets state and calls props onDateSelected
    * if its null, don't call onDateSelected
+   * update internal state while changing month/year to update calender
    *
    * @param selectedDate
    */
   onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
+    const { onDateSelected } = this.props;
+    const date = selectedDate ? selectedDate.toISOString() : "";
+    this.setState({ selectedDate: date });
     if (isUserChange) {
-      const { onDateSelected } = this.props;
-      const date = selectedDate ? selectedDate.toISOString() : "";
-      this.setState({
-        selectedDate: date,
-      });
       onDateSelected(date);
     }
   };

@@ -13,9 +13,11 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 /// <reference types="Cypress" />
-require("cypress-xpath");
+
 import "cypress-real-events/support";
-let pageid;
+import "cypress-xpath";
+/// <reference types="cypress-xpath" />
+
 let appId;
 
 // Import commands.js using ES2015 syntax:

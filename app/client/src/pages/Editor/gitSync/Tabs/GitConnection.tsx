@@ -62,7 +62,7 @@ import Statusbar, {
 } from "pages/Editor/gitSync/components/Statusbar";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
-import GitSyncError from "../components/GitSyncError";
+import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -500,7 +500,7 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
-            {!isConnectingToGit && <GitSyncError onDisplay={scrolling} />}
+            {!isConnectingToGit && <GitConnectError onDisplay={scrolling} />}
           </ButtonContainer>
         </>
       ) : null}

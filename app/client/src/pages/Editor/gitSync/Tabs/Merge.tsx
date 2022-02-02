@@ -19,6 +19,7 @@ import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import {
+  getConflictFoundDocUrlMerge,
   getGitBranches,
   getGitStatus,
   getIsFetchingGitStatus,
@@ -224,6 +225,7 @@ export default function Merge() {
   const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
   const showMergeButton =
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
+  const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
 
   return (
     <>
@@ -264,7 +266,10 @@ export default function Merge() {
       </Row>
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
-      <ConflictInfo isConflicting={isConflicting} />
+      <ConflictInfo
+        isConflicting={isConflicting}
+        learnMoreLink={gitConflictDocumentUrl}
+      />
       {showMergeSuccessIndicator ? (
         <MergeSuccessIndicator />
       ) : (

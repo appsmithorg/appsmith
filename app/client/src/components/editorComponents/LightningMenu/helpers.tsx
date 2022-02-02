@@ -95,7 +95,7 @@ export const getQueryOptions = (
             />
           ),
           onSelect: () => {
-            dispatch(createNewQueryAction(pageId, "LIGHTNING_MENU"));
+            dispatch(createNewQueryAction(pageId, "LIGHTNING_MENU", ""));
           },
         },
       ],
