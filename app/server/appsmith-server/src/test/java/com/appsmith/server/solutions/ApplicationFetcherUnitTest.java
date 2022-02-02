@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -49,6 +50,9 @@ public class ApplicationFetcherUnitTest {
     @MockBean
     ReleaseNotesService releaseNotesService;
 
+    @MockBean
+    ResponseUtils responseUtils;
+
     ApplicationFetcher applicationFetcher;
 
     User testUser;
@@ -61,7 +65,8 @@ public class ApplicationFetcherUnitTest {
                 userDataService,
                 organizationService,
                 applicationRepository,
-                releaseNotesService);
+                releaseNotesService,
+                responseUtils);
     }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {
