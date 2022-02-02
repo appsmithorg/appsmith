@@ -271,11 +271,6 @@ jobs:
           mkdir  ~/failed_spec
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
-      - name: list failed tests if there are test failures
-        if: failure()
-        run: |
-          echo  "Matrixid=${{ matrix.job }}" >> ~/failed_spec/failed_spec-${{ matrix.job }}
-
       - name: Accidentally upload to the same artifact via multiple jobs
         uses: actions/upload-artifact@v2
         with:
@@ -288,9 +283,16 @@ jobs:
 
       - name: Print message if we don't fail
         run: echo Should not get here
+
+      - name: list failed tests if there are test failures
+        if: failure()
+        run: |
+          echo  "Matrixid=${{ matrix.job }}" >> ~/failed_spec/failed_spec-${{ matrix.job }}
+
       - name: Set fail if there are test failures
         if: failure()
         run: echo "::set-output name=run_result::failedtest" > ~/run_result
+
       - name: Store the previous failed result
         if: always()
         uses: martijnhols/actions-cache/save@v3
