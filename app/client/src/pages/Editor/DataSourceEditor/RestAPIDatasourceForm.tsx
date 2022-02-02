@@ -24,6 +24,7 @@ import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
+  createDatasourceFromForm,
   deleteDatasource,
   redirectAuthorizationCode,
   updateDatasource,
@@ -56,6 +57,7 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "../../../actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Plugin } from "api/PluginApi";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -79,6 +81,8 @@ interface DatasourceRestApiEditorProps {
   actions: ActionDataState;
   formMeta: any;
   messages?: Array<string>;
+  createDatasource: (data: Datasource) => void;
+  plugins: Plugin[];
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -267,16 +271,27 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
+    const plugin = this.props.plugins.find((p) => p.name === "REST API");
     const normalizedValues = formValuesToDatasource(
       this.props.datasource,
       this.props.formData,
     );
-    AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
-      pageId: this.props.pageId,
-      appId: this.props.applicationId,
-    });
+    console.log("plugin", (plugin as any).id, normalizedValues);
+
+    // this.props.createDatasource({
+    //   ...normalizedValues,
+    //   pluginId: (plugin as any).id,
+    // });
 
     this.props.updateDatasource(normalizedValues, onSuccess);
+
+    // if(p)
+    // AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
+    //   pageId: this.props.pageId,
+    //   appId: this.props.applicationId,
+    // });
+
+    // this.props.createDatasource(normalizedValues);
   };
 
   createApiAction = () => {
@@ -1089,6 +1104,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
+    plugins: state.entities.plugins.list,
   };
 };
 
@@ -1098,6 +1114,8 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
+    createDatasource: (formData: any) =>
+      dispatch(createDatasourceFromForm(formData)),
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
   };
 };

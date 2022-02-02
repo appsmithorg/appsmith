@@ -47,7 +47,7 @@ export const JS_COLLECTION_EDITOR_PATH = `${BUILDER_URL}/jsObjects`;
 export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
 export const CURL_IMPORT_PAGE_PATH = `${BUILDER_URL}/api/curl/curl-import`;
 export const PAGE_LIST_EDITOR_PATH = `${BUILDER_URL}/pages`;
-export const DATA_SOURCES_EDITOR_ID_PATH = `${BUILDER_URL}/datasource/:datasourceId`;
+export const DATA_SOURCES_EDITOR_ID_PATH = `${BUILDER_URL}/datasource/:datasourceId?`;
 export const PROVIDER_TEMPLATE_PATH = `${BUILDER_URL}/provider/:providerId`;
 
 export const GEN_TEMPLATE_URL = "generate-page";

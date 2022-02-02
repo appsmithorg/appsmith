@@ -1,7 +1,10 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL } from "constants/routes";
+import {
+  DATA_SOURCES_EDITOR_ID_URL,
+  getCurlImportPageURL,
+} from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -19,6 +22,7 @@ import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSele
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -165,16 +169,45 @@ function NewApiScreen(props: Props) {
 
   const handleCreateAuthApiDatasource = useCallback(() => {
     if (authApiPlugin) {
-      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
-        pluginId: authApiPlugin.id,
-      });
-      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-        pluginName: authApiPlugin.name,
-        pluginPackageName: authApiPlugin.packageName,
-      });
+      // AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
+      //   pluginId: authApiPlugin.id,
+      // });
+      // AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+      //   pluginName: authApiPlugin.name,
+      //   pluginPackageName: authApiPlugin.packageName,
+      // });
       props.createDatasourceFromForm({
         pluginId: authApiPlugin.id,
       });
+
+      console.log(
+        "pppppppppp",
+        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, "", {
+          from: "datasources",
+          pluginId: authApiPlugin.id,
+          ...getQueryParams(),
+        }),
+      );
+
+      // history.push(
+      //   DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, "", {
+      //     from: "datasources",
+      //     pluginId: authApiPlugin.id,
+      //     ...getQueryParams(),
+      //   }),
+      // );
+
+      console.log("authApiPlugin", authApiPlugin);
+
+      // history.push(
+      //   SAAS_EDITOR_DATASOURCE_ID_URL(
+      //     applicationId,
+      //     pageId,
+      //     authApiPlugin?.packageName,
+      //     authApiPlugin?.id,
+      //     { from: "datasources" },
+      //   ),
+      // );
     }
   }, [authApiPlugin, props.createDatasourceFromForm]);
 
@@ -227,6 +260,7 @@ function NewApiScreen(props: Props) {
         break;
       }
       case API_ACTION.CREATE_DATASOURCE_FORM: {
+        console.log("params", params);
         props.createDatasourceFromForm({ pluginId: params.pluginId });
         break;
       }
