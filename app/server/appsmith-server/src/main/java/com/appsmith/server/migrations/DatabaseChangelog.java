@@ -5130,17 +5130,17 @@ public class DatabaseChangelog {
     }
 
     private void mapS3ToNewFormData(ActionDTO action, Map<String, Object> newUnpublishedFormDataMap) {
-        final Map<String, Object> unpublishedFormData = action.getActionConfiguration().getFormData();
-        final String command = (String) unpublishedFormData.get("command");
+        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
+        final String command = (String) formData.get("command");
         if (command == null) {
             return;
         }
         convertToFormDataObject(newUnpublishedFormDataMap, "command", command);
-        convertToFormDataObject(newUnpublishedFormDataMap, "bucket", unpublishedFormData.get("bucket"));
-        convertToFormDataObject(newUnpublishedFormDataMap, "smartSubstitution", unpublishedFormData.get("smartSubstitution"));
+        convertToFormDataObject(newUnpublishedFormDataMap, "bucket", formData.get("bucket"));
+        convertToFormDataObject(newUnpublishedFormDataMap, "smartSubstitution", formData.get("smartSubstitution"));
         switch (command) {
             case "LIST":
-                final Map listMap = (Map) unpublishedFormData.get("list");
+                final Map listMap = (Map) formData.get("list");
                 if (listMap == null) {
                     break;
                 }
@@ -5152,7 +5152,7 @@ public class DatabaseChangelog {
                 break;
             case "UPLOAD_FILE_FROM_BODY":
             case "UPLOAD_MULTIPLE_FILES_FROM_BODY":
-                final Map createMap = (Map) unpublishedFormData.get("create");
+                final Map createMap = (Map) formData.get("create");
                 if (createMap == null) {
                     break;
                 }
@@ -5160,14 +5160,14 @@ public class DatabaseChangelog {
                 convertToFormDataObject(newUnpublishedFormDataMap, "expiry", createMap.get("expiry"));
                 break;
             case "DELETE_FILE":
-                final Map deleteMap = (Map) unpublishedFormData.get("delete");
+                final Map deleteMap = (Map) formData.get("delete");
                 if (deleteMap == null) {
                     break;
                 }
                 convertToFormDataObject(newUnpublishedFormDataMap, "expiry", deleteMap.get("expiry"));
                 break;
             case "READ_FILE":
-                final Map readMap = (Map) unpublishedFormData.get("read");
+                final Map readMap = (Map) formData.get("read");
                 if (readMap == null) {
                     break;
                 }
@@ -5228,17 +5228,17 @@ public class DatabaseChangelog {
     }
 
     private void mapMongoToNewFormData(ActionDTO action, Map<String, Object> newUnpublishedFormDataMap) {
-        final Map<String, Object> unpublishedFormData = action.getActionConfiguration().getFormData();
-        final String command = (String) unpublishedFormData.get("command");
+        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
+        final String command = (String) formData.get("command");
         if (command == null) {
             return;
         }
         convertToFormDataObject(newUnpublishedFormDataMap, "command", command);
-        convertToFormDataObject(newUnpublishedFormDataMap, "collection", unpublishedFormData.get("collection"));
-        convertToFormDataObject(newUnpublishedFormDataMap, "smartSubstitution", unpublishedFormData.get("smartSubstitution"));
+        convertToFormDataObject(newUnpublishedFormDataMap, "collection", formData.get("collection"));
+        convertToFormDataObject(newUnpublishedFormDataMap, "smartSubstitution", formData.get("smartSubstitution"));
         switch (command) {
             case "AGGREGATE":
-                final Map aggregateMap = (Map) unpublishedFormData.get("aggregate");
+                final Map aggregateMap = (Map) formData.get("aggregate");
                 if (aggregateMap == null) {
                     break;
                 }
@@ -5246,14 +5246,14 @@ public class DatabaseChangelog {
                 convertToFormDataObject(newUnpublishedFormDataMap, "limit", aggregateMap.get("limit"));
                 break;
             case "COUNT":
-                final Map countMap = (Map) unpublishedFormData.get("count");
+                final Map countMap = (Map) formData.get("count");
                 if (countMap == null) {
                     break;
                 }
                 convertToFormDataObject(newUnpublishedFormDataMap, "query", countMap.get("query"));
                 break;
             case "DELETE":
-                final Map deleteMap = (Map) unpublishedFormData.get("delete");
+                final Map deleteMap = (Map) formData.get("delete");
                 if (deleteMap == null) {
                     break;
                 }
@@ -5261,7 +5261,7 @@ public class DatabaseChangelog {
                 convertToFormDataObject(newUnpublishedFormDataMap, "limit", deleteMap.get("limit"));
                 break;
             case "DISTINCT":
-                final Map distinctMap = (Map) unpublishedFormData.get("distinct");
+                final Map distinctMap = (Map) formData.get("distinct");
                 if (distinctMap == null) {
                     break;
                 }
@@ -5269,7 +5269,7 @@ public class DatabaseChangelog {
                 convertToFormDataObject(newUnpublishedFormDataMap, "key", distinctMap.get("key"));
                 break;
             case "FIND":
-                final Map findMap = (Map) unpublishedFormData.get("find");
+                final Map findMap = (Map) formData.get("find");
                 if (findMap == null) {
                     break;
                 }
@@ -5280,14 +5280,14 @@ public class DatabaseChangelog {
                 convertToFormDataObject(newUnpublishedFormDataMap, "skip", findMap.get("skip"));
                 break;
             case "INSERT":
-                final Map insertMap = (Map) unpublishedFormData.get("insert");
+                final Map insertMap = (Map) formData.get("insert");
                 if (insertMap == null) {
                     break;
                 }
                 convertToFormDataObject(newUnpublishedFormDataMap, "documents", insertMap.get("documents"));
                 break;
             case "UPDATE":
-                final Map updateMap = (Map) unpublishedFormData.get("updateMany");
+                final Map updateMap = (Map) formData.get("updateMany");
                 if (updateMap == null) {
                     break;
                 }
