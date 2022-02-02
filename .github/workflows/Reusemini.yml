@@ -284,6 +284,7 @@ jobs:
           echo  "Matrixid=${{ matrix.job }}" >> ~/failed_spec/failed_spec-${{ matrix.job }}
 
       - name: Accidentally upload to the same artifact via multiple jobs
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: failed-spec-${{ matrix.job }}
