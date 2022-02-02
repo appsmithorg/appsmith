@@ -25,7 +25,14 @@ import {
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { EditInteractionKind, SavingState } from "components/ads/EditableText";
+import {
+  Button,
+  EditInteractionKind,
+  Icon,
+  IconSize,
+  SavingState,
+  Size,
+} from "components/ads";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
@@ -37,8 +44,6 @@ import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
-import Button, { Size } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
@@ -61,7 +66,7 @@ import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
 
 import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent } from "components/ads";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,

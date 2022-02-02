@@ -12,7 +12,7 @@ import {
 import { isMac } from "utils/helpers";
 import { Layers } from "constants/Layers";
 import { FormIcons } from "icons/FormIcons";
-import Tooltip from "components/ads/Tooltip";
+import { Tooltip } from "components/ads";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 import { generateClassName } from "utils/generators";

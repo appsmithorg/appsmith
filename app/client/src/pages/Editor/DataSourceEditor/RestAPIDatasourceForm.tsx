@@ -19,8 +19,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Callout, Toaster, Variant } from "components/ads";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -50,7 +49,6 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "../../../actions/pageActions";

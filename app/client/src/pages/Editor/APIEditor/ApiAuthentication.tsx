@@ -3,7 +3,7 @@ import { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size, Text, TextType } from "components/ads";
 import {
   setDatsourceEditorMode,
   storeAsDatasource,
@@ -11,7 +11,6 @@ import {
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
-import Text, { TextType } from "components/ads/Text";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { formValueSelector } from "redux-form";

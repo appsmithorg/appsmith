@@ -11,11 +11,9 @@ import {
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
-import TreeDropdown from "components/ads/TreeDropdown";
+import { Classes, Icon, IconSize, TreeDropdown } from "components/ads";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
 import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";

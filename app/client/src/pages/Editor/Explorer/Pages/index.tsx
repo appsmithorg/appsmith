@@ -24,7 +24,7 @@ import { Page } from "constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { Position } from "@blueprintjs/core";
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent } from "components/ads";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";

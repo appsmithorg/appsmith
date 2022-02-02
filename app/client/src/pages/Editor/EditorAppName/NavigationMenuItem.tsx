@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Classes, MenuItem } from "@blueprintjs/core";
 import _, { noop } from "lodash";
 
-import { CommonComponentProps } from "components/ads/common";
+import { CommonComponentProps } from "components/ads";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { HeaderIcons } from "icons/HeaderIcons";

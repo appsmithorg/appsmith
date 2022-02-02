@@ -1,5 +1,4 @@
-import Button, { Category } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
+import { Button, Category, Text, TextType } from "components/ads";
 import { Icon } from "@blueprintjs/core";
 import React from "react";
 import styled from "styled-components";

@@ -8,10 +8,7 @@ import React, {
 } from "react";
 import { isEqual } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
+import { EditableText, EditInteractionKind, SavingState } from "components/ads";
 import { Position } from "@blueprintjs/core";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "reducers";
@@ -21,7 +18,7 @@ import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 
 import { WidgetType } from "constants/WidgetConstants";
 
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent } from "components/ads";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";

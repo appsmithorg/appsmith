@@ -2,9 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
-import { ThemeProp } from "components/ads/common";
+import { ThemeProp, Toaster, Variant } from "components/ads";
 import {
   setCommentModeInUrl,
   useHideComments,

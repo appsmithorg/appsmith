@@ -5,7 +5,7 @@ import styled from "styled-components";
 import moment from "moment/moment";
 
 import { AppState } from "reducers";
-import TooltipComponent from "components/ads/Tooltip";
+import { Tooltip as TooltipComponent, Icon } from "components/ads";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import {
@@ -13,7 +13,6 @@ import {
   EDITOR_HEADER_SAVE_INDICATOR,
 } from "constants/messages";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
 
 const SaveStatusContainer = styled.div`
   border-radius: 50%;

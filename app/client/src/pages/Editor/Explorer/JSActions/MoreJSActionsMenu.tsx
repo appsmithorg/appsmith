@@ -11,10 +11,9 @@ import {
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
-import TreeDropdown from "components/ads/TreeDropdown";
+import { Icon, IconSize, TreeDropdown } from "components/ads";
 import { useNewJSCollectionName } from "./helpers";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Position } from "@blueprintjs/core";
 
 type EntityContextMenuProps = {

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
-import Checkbox from "components/ads/Checkbox";
+import { Checkbox } from "components/ads";
 import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";

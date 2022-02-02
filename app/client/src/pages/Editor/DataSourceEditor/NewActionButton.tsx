@@ -1,11 +1,9 @@
 import React, { useCallback, useState } from "react";
 import { Action, ApiActionConfig, PluginType } from "entities/Action";
 import styled from "styled-components";
-import Button from "components/ads/Button";
+import { Button, Classes, Toaster, Variant } from "components/ads";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
-import { Toaster } from "components/ads/Toast";
 import { ERROR_ADD_API_INVALID_URL } from "constants/messages";
-import { Classes, Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import { useDispatch, useSelector } from "react-redux";

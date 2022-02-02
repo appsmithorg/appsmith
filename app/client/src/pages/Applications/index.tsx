@@ -69,7 +69,6 @@ import {
   updateApplication,
 } from "actions/applicationActions";
 import { onboardingCreateApplication } from "actions/onboardingActions";
-import { Classes, Menu } from "components/ads";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {

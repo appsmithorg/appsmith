@@ -12,8 +12,12 @@ import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import TooltipComponent from "components/ads/Tooltip";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import {
+  Icon,
+  IconName,
+  IconSize,
+  Tooltip as TooltipComponent,
+} from "components/ads";
 import { updateApplicationLayout } from "actions/applicationActions";
 import { ReflowBetaCard } from "./ReflowBetaCard";
 

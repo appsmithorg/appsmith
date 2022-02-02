@@ -35,13 +35,22 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Icon, { IconSize } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
-import { TabComponent } from "components/ads/Tabs";
+import {
+  Callout,
+  Case,
+  Classes,
+  Button,
+  Icon,
+  IconSize,
+  SearchSnippets,
+  Size,
+  TabComponent,
+  Text,
+  TextType,
+  Tooltip as TooltipComponent,
+  Variant,
+} from "components/ads";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import Text, { Case, TextType } from "components/ads/Text";
-import { Classes, Variant } from "components/ads/common";
-import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -60,10 +69,8 @@ import {
 } from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import { Colors } from "constants/Colors";
-import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
-import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";

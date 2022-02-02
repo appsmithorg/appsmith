@@ -3,7 +3,7 @@ import styled, { createGlobalStyle, withTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, Tooltip as TooltipComponent } from "components/ads";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -12,7 +12,6 @@ import { getCurrentUser } from "../../selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { bootIntercom } from "utils/helpers";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";

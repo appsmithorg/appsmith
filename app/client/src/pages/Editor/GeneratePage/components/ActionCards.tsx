@@ -3,7 +3,7 @@ import ActionCard from "./ActionCard";
 import { FormIcons } from "icons/FormIcons";
 import history from "utils/history";
 import { BUILDER_PAGE_URL, getGenerateTemplateFormURL } from "constants/routes";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "components/ads";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
 import {
