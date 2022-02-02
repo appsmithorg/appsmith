@@ -48,7 +48,6 @@ import {
   getParams,
   updateJSCollectionInDataTree,
   removeFunctionsAndVariableJSCollection,
-  isPrivateEntityPath,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -578,13 +577,9 @@ export default class DataTreeEvaluator {
     sortedDependencies: Array<string>,
   ): DataTree {
     const tree = _.cloneDeep(oldUnevalTree);
-    this.privateWidgets = this.getPrivateWidgets(oldUnevalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
-          // do not evaluate private entities
-          if (isPrivateEntityPath(this.privateWidgets, fullPropertyPath))
-            return currentTree;
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
