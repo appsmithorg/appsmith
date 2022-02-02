@@ -590,12 +590,12 @@ describe("WidgetOperationSaga", () => {
         { key: "primaryColumns.name.computedValue" },
         { key: "primaryColumns.name.fontStyle" },
         { key: "primaryColumns.name.nonExistentPath" },
-        { key: "nonExistentKey}" },
+        { key: "nonExistentKey" },
       ],
       dynamicTriggerPathList: [
         { key: "primaryColumns.name.onClick" },
         { key: "primaryColumns.name.nonExistentPath" },
-        { key: "nonExistentKey}" },
+        { key: "nonExistentKey" },
       ],
       primaryColumns: {
         name: {
