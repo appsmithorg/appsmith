@@ -289,7 +289,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: failed-spec-${{ matrix.job }}
+          name: failed-spec
           path: ~/failed_spec
 
       - name: Set fail if there are test failures
