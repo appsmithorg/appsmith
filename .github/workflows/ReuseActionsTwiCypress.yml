@@ -640,21 +640,6 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      - name: Get failed tests
-        id: vars2
-        if: steps.run_result.outputs.run_result == 'failedtest'
-        run: echo ::set-output name=failedspecs::$(cat ~/failed_spec)
-
-      - name: Get failed_spec
-        #id: failed_spec_var
-        #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
-        if: steps.run_result.outputs.run_result == 'failedtest'
-        run: |
-          failed_spec_env=$(cat ~/failed_spec)
-          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          echo "$failed_spec_env" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
