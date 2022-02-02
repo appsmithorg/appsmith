@@ -1,0 +1,61 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1864,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1160,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 47,
+        "minHeight": 1140,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "widgetName": "RadioGroup1",
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "options"
+                    }
+                ],
+                "displayName": "Radio Group",
+                "iconSVG": "/static/media/icon.ba2b2ee0.svg",
+                "topRow": 19,
+                "bottomRow": 27,
+                "parentRowSpace": 10,
+                "type": "RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "defaultOptionValue": "{{1}}",
+                "animateLoading": true,
+                "parentColumnSpace": 28.9375,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 6,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "defaultOptionValue"
+                    }
+                ],
+                "options": "[\n  {\n    \"label\": \"Yes\",\n    \"value\": 1\n  },\n  {\n    \"label\": \"No\",\n    \"value\": 2\n  }\n]",
+                "isDisabled": false,
+                "key": "otmzcdpsn9",
+                "isRequired": false,
+                "rightColumn": 26,
+                "widgetId": "nb624gk7je",
+                "isVisible": true,
+                "label": "",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false
+            }
+        ]
+    }
+}

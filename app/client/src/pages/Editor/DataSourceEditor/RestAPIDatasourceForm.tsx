@@ -252,6 +252,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
+
     this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
