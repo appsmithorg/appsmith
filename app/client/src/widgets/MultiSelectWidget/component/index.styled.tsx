@@ -58,6 +58,10 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	display: flex;
 	flex-direction: row-reverse;
 
+  &:hover {
+    background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+  }
+
 	.rc-select-item-option-state {
 		pointer-events: all;
 		margin-right: 10px;
@@ -76,7 +80,6 @@ ${({ dropDownWidth, id, parentWidth }) => `
   font-weight: 400;
 }
 .rc-select-item-option-active {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
   & .rc-select-item-option-content {
     color: ${Colors.GREY_9};
   }
