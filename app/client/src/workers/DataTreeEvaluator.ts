@@ -1699,7 +1699,8 @@ export const extractReferencesFromBinding = (
   return Array.from(references);
 };
 
-// TODO cryptic comment below. Dont know if we still need this. Duplicate function
+// TODO
+// cryptic comment below. Dont know if we still need this. Duplicate function
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
 
