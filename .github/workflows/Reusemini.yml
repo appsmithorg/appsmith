@@ -265,9 +265,10 @@ jobs:
       - name: cat failed_spec
         run: echo ${{ env.failed_spec_env }}
 
-      - uses: actions/checkout@v1
-        if: steps.run_result.outputs.run_result != 'failedtest'
+      #- uses: actions/checkout@v1
+
       - name: Try to fail
+        if: steps.run_result.outputs.run_result != 'failedtest'
         run: exit 1
 
       - name: Print message if we don't fail
