@@ -42,6 +42,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   pluginType: string;
   messages?: Array<string>;
   datasource: Datasource;
+  hiddenHeader?: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -102,25 +103,27 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
       >
-        <Header>
-          <FormTitleContainer>
-            <PluginImage alt="Datasource" src={this.props.pluginImage} />
-            <FormTitle focusOnMount={this.props.isNewDatasource} />
-          </FormTitleContainer>
-          {viewMode && (
-            <EditDatasourceButton
-              category={Category.tertiary}
-              className="t--edit-datasource"
-              onClick={() => {
-                this.props.setDatasourceEditorMode(
-                  this.props.datasourceId,
-                  false,
-                );
-              }}
-              text="EDIT"
-            />
-          )}
-        </Header>
+        {!this.props.hiddenHeader && (
+          <Header>
+            <FormTitleContainer>
+              <PluginImage alt="Datasource" src={this.props.pluginImage} />
+              <FormTitle focusOnMount={this.props.isNewDatasource} />
+            </FormTitleContainer>
+            {viewMode && (
+              <EditDatasourceButton
+                category={Category.tertiary}
+                className="t--edit-datasource"
+                onClick={() => {
+                  this.props.setDatasourceEditorMode(
+                    this.props.datasourceId,
+                    false,
+                  );
+                }}
+                text="EDIT"
+              />
+            )}
+          </Header>
+        )}
         {messages &&
           messages.map((msg, i) => (
             <Callout

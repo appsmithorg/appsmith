@@ -6,10 +6,8 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
-import {
-  setIsGitSyncModalOpen,
-  setOrgIdForGitImport,
-} from "actions/gitSyncActions";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setOrgIdForImport } from "actions/applicationActions";
 import Menu from "./Menu";
 import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
@@ -73,7 +71,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(setOrgIdForGitImport(""));
+    dispatch(setOrgIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const setActiveTabIndex = useCallback(

@@ -37,8 +37,12 @@ import {
   GenerateSSHKeyPairReduxAction,
   GetSSHKeyPairReduxAction,
   importAppViaGitSuccess,
-  setOrgIdForGitImport,
 } from "actions/gitSyncActions";
+
+import {
+  importApplicationSuccess,
+  setOrgIdForImport,
+} from "actions/applicationActions";
 
 import {
   connectToGitSuccess,
@@ -74,11 +78,10 @@ import {
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
-  getOrganizationIdForImport,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
-
+import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { setIsReconnectingDatasourcesModalOpen } from "actions/applicationActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
@@ -653,15 +656,16 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
           };
           isPartialImport: boolean;
         } = response?.data;
-        yield put(importAppViaGitSuccess(response?.data?.application));
+        yield put(importAppViaGitSuccess()); // reset flag for loader
         yield put(setIsGitSyncModalOpen({ isOpen: false }));
         // there is configuration-missing datasources
         if (isPartialImport) {
+          yield put(importApplicationSuccess(response?.data?.application));
           yield put({
-            type: ReduxActionTypes.MISSED_DATASOURCES_INIT,
+            type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
             payload: response?.data.unConfiguredDatasourceList || [],
           });
-          yield put(setOrgIdForGitImport(organizationIdForImport));
+          yield put(setOrgIdForImport(organizationIdForImport));
           yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
         } else {
           let pageId = "";

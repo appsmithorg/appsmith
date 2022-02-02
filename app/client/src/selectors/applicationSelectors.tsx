@@ -154,8 +154,14 @@ export const getIsSavingOrgInfo = (state: AppState) =>
 export const showAppInviteUsersDialogSelector = (state: AppState) =>
   state.ui.applications.showAppInviteUsersDialog;
 
-export const getFetchingDatasourceConfigForImport = (state: AppState) =>
-  state.ui.applications.fetchingDatasourceConfigForImport;
+export const getIsDatasourceConfigForImportFetched = (state: AppState) =>
+  state.ui.applications.isDatasourceConfigForImportFetched;
 
 export const getIsImportingApplication = (state: AppState) =>
   state.ui.applications.importingApplication;
+
+export const getOrganizationIdForImport = (state: AppState) =>
+  state.ui.applications.organizationIdForImport;
+
+export const getImportedApplication = (state: AppState) =>
+  state.ui.applications.importedApplication;

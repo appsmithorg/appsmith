@@ -1,7 +1,4 @@
-import {
-  ApplicationPayload,
-  ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import {
   ReduxActionWithCallbacks,
@@ -365,14 +362,8 @@ export const initSSHKeyPairWithNull = () => ({
   type: ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL,
 });
 
-export const setOrgIdForGitImport = (orgId?: string) => ({
-  type: ReduxActionTypes.SET_ORG_ID_FOR_GIT_IMPORT,
-  payload: orgId,
-});
-
-export const importAppViaGitSuccess = (application: ApplicationPayload) => ({
+export const importAppViaGitSuccess = () => ({
   type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_SUCCESS,
-  payload: application,
 });
 
 // todo define type

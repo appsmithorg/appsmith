@@ -1,9 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
+
 import {
-  getImportedApplicationViaGIT,
   getOrganizationIdForImport,
-} from "selectors/gitSyncSelectors";
+  getImportedApplication,
+  getIsDatasourceConfigForImportFetched,
+} from "selectors/applicationSelectors";
+
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import TabMenu from "./Menu";
@@ -37,11 +40,13 @@ import {
   getPluginNames,
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
-import { setIsReconnectingDatasourcesModalOpen } from "actions/applicationActions";
+import {
+  resetDatasourceConfigForImportFetchedFlag,
+  setIsReconnectingDatasourcesModalOpen,
+} from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "../DataSourceEditor/JSONtoForm";
 import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";
-import { getFetchingDatasourceConfigForImport } from "selectors/applicationSelectors";
 import { DatasourcePaneFunctions } from "../DataSourceEditor";
 import { AppState } from "reducers";
 import { DATASOURCE_DB_FORM } from "constants/forms";
@@ -50,13 +55,15 @@ import { testDatasource, updateDatasource } from "actions/datasourceActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { connect } from "react-redux";
-import DatasourceForm from "../DataSourceEditor/DatasourceForm";
+import DBForm from "../DataSourceEditor/DBForm";
+import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 import Collapsible from "../DataSourceEditor/Collapsible";
 import Link from "./components/Link";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
-import { APPLICATIONS_URL, BUILDER_PAGE_URL } from "constants/routes";
-import { setOrgIdForGitImport } from "actions/gitSyncActions";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import { setOrgIdForImport } from "actions/applicationActions";
+import RestAPIDatasourceForm from "../DataSourceEditor/RestAPIDatasourceForm";
 
 const Container = styled.div`
   height: 804px;
@@ -261,6 +268,7 @@ const TooltipWrapper = styled.div`
 
 interface ReduxStateProps {
   formData: Datasource;
+  isDeleting: boolean;
   isSaving: boolean;
   isTesting: boolean;
   formConfig: any[];
@@ -273,12 +281,12 @@ interface ReduxStateProps {
 }
 
 enum DSCollapseMenu {
-  MISSED = "MISSED",
-  SUCCESSED = "SUCCESSED",
+  CONFIGURED = "CONFIGURED",
+  UNCONFIGURED = "UNCONFIGURED",
 }
 
 type DSProps = ReduxStateProps &
-  DatasourcePaneFunctions & { datasourceId: string };
+  DatasourcePaneFunctions & { datasourceId: string; pageId: string };
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { datasources, plugins } = state.entities;
@@ -291,6 +299,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginImages: getPluginImages(state),
     formData,
     pluginId,
+    isDeleting: datasources.isDeleting,
     isSaving: datasources.loading,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
@@ -298,7 +307,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
-    applicationId: "",
+    applicationId: props.applicationId || "",
   };
 
   return newProps;
@@ -322,23 +331,57 @@ const DSForm = connect(
   mapDispatchToProps,
 )((props: DSProps) => {
   const {
+    applicationId,
+    datasourceId,
     formConfig,
     formData,
+    isDeleting,
+    isSaving,
+    pageId,
+    pluginDatasourceForm,
     pluginId,
     pluginImages,
+    pluginPackageName,
     pluginType,
     setDatasourceEditorMode,
   } = props;
 
+  if (pluginDatasourceForm === "RestAPIDatasourceForm") {
+    return (
+      <RestAPIDatasourceForm
+        applicationId={applicationId}
+        datasourceId={datasourceId}
+        hiddenHeader
+        isDeleting={isDeleting}
+        isSaving={isSaving}
+        location={location}
+        pageId={pageId}
+        pluginImage={pluginImages[pluginId]}
+        pluginPackageName={pluginPackageName}
+      />
+    );
+  }
+  if (pluginType === "SAAS") {
+    return (
+      <DatasourceSaasForm
+        datasourceId={datasourceId}
+        hiddenHeader
+        pageId={pageId}
+        pluginPackageName={pluginPackageName}
+      />
+    );
+  }
   return (
-    <DatasourceForm
+    <DBForm
       applicationId={""}
-      datasourceId={props.datasourceId}
+      datasourceId={datasourceId}
       formConfig={formConfig}
       formData={formData}
       formName={DATASOURCE_DB_FORM}
-      pageId={""}
+      hiddenHeader
+      pageId={pageId}
       pluginImage={pluginImages[pluginId]}
+      pluginPackageName={pluginPackageName}
       pluginType={pluginType}
       setDatasourceEditorMode={setDatasourceEditorMode}
       viewMode={false}
@@ -349,19 +392,19 @@ const DSForm = connect(
 function ListItemWrapper(props: {
   ds: Datasource;
   selected?: boolean;
-  disabled?: boolean;
+  isConfigured?: boolean;
   plugin: {
     image: string;
     name: string;
   };
-  onClick: (ds: Datasource, disabled?: boolean) => void;
+  onClick: (ds: Datasource, isConfigured?: boolean) => void;
 }) {
-  const { disabled, ds, onClick, plugin, selected } = props;
+  const { ds, isConfigured, onClick, plugin, selected } = props;
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}
-      disabled={disabled}
-      onClick={() => onClick(ds, disabled)}
+      disabled={isConfigured}
+      onClick={() => onClick(ds, isConfigured)}
     >
       <PluginImage alt="Datasource" src={plugin.image} />
       <ListLabels>
@@ -407,7 +450,7 @@ function ReconnectDatasourceModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const organizationId = useSelector(getOrganizationIdForImport);
-  const dataSources = useSelector(getDatasources);
+  const datasources = useSelector(getDatasources);
   const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
@@ -417,11 +460,12 @@ function ReconnectDatasourceModal() {
   const [availableDatasources, setAvailableDatasources] = useState<
     Array<Datasource>
   >([]);
-  const [collapsedMenu, setCollapsedMenu] = useState(DSCollapseMenu.SUCCESSED);
-  // todo use for loading state
-  const isFetchingDatasourceConfigForImport = useSelector(
-    getFetchingDatasourceConfigForImport,
+  const [pageId, setPageId] = useState("");
+  const [appURL, setAppURL] = useState("");
+  const [collapsedMenu, setCollapsedMenu] = useState(
+    DSCollapseMenu.UNCONFIGURED,
   );
+  const isConfigFetched = useSelector(getIsDatasourceConfigForImportFetched);
 
   // todo uncomment this to fetch datasource config
   useEffect(() => {
@@ -434,33 +478,34 @@ function ReconnectDatasourceModal() {
 
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-    dispatch(setOrgIdForGitImport(""));
+    dispatch(setOrgIdForImport(""));
+    dispatch(resetDatasourceConfigForImportFetchedFlag());
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
 
-  const onSelectedDatasource = useCallback(
-    (ds: Datasource, disabled?: boolean) => {
+  const onSelectDatasource = useCallback(
+    (ds: Datasource, isConfigured?: boolean) => {
       setSelectedDatasourceId(ds.id);
       setCollapsedMenu(
-        disabled ? DSCollapseMenu.MISSED : DSCollapseMenu.SUCCESSED,
+        isConfigured ? DSCollapseMenu.CONFIGURED : DSCollapseMenu.UNCONFIGURED,
       );
     },
     [],
   );
 
   useEffect(() => {
-    if (!isFetchingDatasourceConfigForImport) {
-      if (
-        unconfiguredDatasources &&
-        unconfiguredDatasources[0] &&
-        !selectedDatasourceId
-      ) {
-        setSelectedDatasourceId(unconfiguredDatasources[0].id);
-      }
+    if (
+      isConfigFetched &&
+      datasources &&
+      unconfiguredDatasources &&
+      unconfiguredDatasources[0] &&
+      !selectedDatasourceId
+    ) {
+      setSelectedDatasourceId(unconfiguredDatasources[0].id);
     }
-  }, [isFetchingDatasourceConfigForImport, selectedDatasourceId]);
+  }, [isConfigFetched, selectedDatasourceId, unconfiguredDatasources]);
 
   useEffect(() => {
-    const selectedDatasourceConfig = dataSources.find(
+    const selectedDatasourceConfig = datasources.find(
       (datasource: Datasource) => datasource.id === selectedDatasourceId,
     );
     dispatch(initialize(DATASOURCE_DB_FORM, selectedDatasourceConfig));
@@ -475,28 +520,29 @@ function ReconnectDatasourceModal() {
 
   useEffect(() => {
     setAvailableDatasources(
-      dataSources.filter((ds: Datasource) => {
+      datasources.filter((ds: Datasource) => {
         const index = unconfiguredDatasources.findIndex(
           (uds: Datasource) => uds.id === ds.id,
         );
         return index < 0;
       }),
     );
-  }, [dataSources, unconfiguredDatasources]);
+  }, [datasources, unconfiguredDatasources]);
 
-  const importedApplication = useSelector(getImportedApplicationViaGIT);
-  const appURL = useMemo(() => {
+  const importedApplication = useSelector(getImportedApplication);
+  useEffect(() => {
     const defaultPage = importedApplication?.pages?.find(
       (page: any) => page.isDefault,
     );
     if (defaultPage) {
-      return BUILDER_PAGE_URL({
-        applicationId: importedApplication?.id,
-        pageId: defaultPage.id,
-      });
+      setPageId(defaultPage.id);
+      setAppURL(
+        BUILDER_PAGE_URL({
+          applicationId: importedApplication?.id,
+          pageId: defaultPage.id,
+        }),
+      );
     }
-
-    return APPLICATIONS_URL;
   }, [importedApplication]);
 
   return (
@@ -532,7 +578,7 @@ function ReconnectDatasourceModal() {
             <ContentWrapper>
               <ListContainer>
                 <Collapsible
-                  defaultIsOpen={collapsedMenu === DSCollapseMenu.MISSED}
+                  defaultIsOpen={collapsedMenu === DSCollapseMenu.CONFIGURED}
                   headerIcon={{
                     name: "oval-check",
                     color: Colors.GREEN,
@@ -542,10 +588,10 @@ function ReconnectDatasourceModal() {
                   {availableDatasources.map((ds: Datasource) => {
                     return (
                       <ListItemWrapper
-                        disabled
                         ds={ds}
+                        isConfigured
                         key={ds.id}
-                        onClick={onSelectedDatasource}
+                        onClick={onSelectDatasource}
                         plugin={{
                           name: pluginNames[ds.pluginId],
                           image: pluginImages[ds.pluginId],
@@ -556,7 +602,7 @@ function ReconnectDatasourceModal() {
                   })}
                 </Collapsible>
                 <Collapsible
-                  defaultIsOpen={collapsedMenu === DSCollapseMenu.SUCCESSED}
+                  defaultIsOpen={collapsedMenu === DSCollapseMenu.UNCONFIGURED}
                   headerIcon={{
                     name: "warning-line",
                     color: Colors.WARNING_SOLID,
@@ -568,7 +614,7 @@ function ReconnectDatasourceModal() {
                       <ListItemWrapper
                         ds={ds}
                         key={ds.id}
-                        onClick={onSelectedDatasource}
+                        onClick={onSelectDatasource}
                         plugin={{
                           name: pluginNames[ds.pluginId],
                           image: pluginImages[ds.pluginId],
@@ -579,11 +625,11 @@ function ReconnectDatasourceModal() {
                   })}
                 </Collapsible>
               </ListContainer>
-              {!isFetchingDatasourceConfigForImport &&
-                collapsedMenu === DSCollapseMenu.SUCCESSED && (
-                  <DSForm datasourceId={selectedDatasourceId} />
+              {isConfigFetched &&
+                collapsedMenu === DSCollapseMenu.UNCONFIGURED && (
+                  <DSForm datasourceId={selectedDatasourceId} pageId={pageId} />
                 )}
-              {collapsedMenu === DSCollapseMenu.MISSED && (
+              {collapsedMenu === DSCollapseMenu.CONFIGURED && (
                 <Section className="t--message-container">
                   <Message>
                     {createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE1)}
@@ -596,10 +642,10 @@ function ReconnectDatasourceModal() {
                     hasIcon
                     link={DOCS_BASE_URL || ""}
                     onClick={() => {
-                      const ds = dataSources[0];
+                      const ds = datasources[0];
                       if (ds) {
                         setSelectedDatasourceId(ds.id);
-                        setCollapsedMenu(DSCollapseMenu.SUCCESSED);
+                        setCollapsedMenu(DSCollapseMenu.UNCONFIGURED);
                       }
                     }}
                     text={createMessage(ADD_MISSING_DATASOURCES)}

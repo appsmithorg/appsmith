@@ -4,7 +4,10 @@ import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
 import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
-import { importApplication } from "actions/applicationActions";
+import {
+  importApplication,
+  // setIsReconnectingDatasourcesModalOpen,
+} from "actions/applicationActions";
 import {
   createMessage,
   IMPORT_APPLICATION_MODAL_LABEL,
@@ -19,10 +22,8 @@ import { Colors } from "constants/Colors";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
-import {
-  setIsGitSyncModalOpen,
-  setOrgIdForGitImport,
-} from "actions/gitSyncActions";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setOrgIdForImport } from "actions/applicationActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
 
@@ -160,7 +161,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   const dispatch = useDispatch();
   const onGitImport = useCallback(() => {
     onClose && onClose();
-    dispatch(setOrgIdForGitImport(organizationId));
+    dispatch(setOrgIdForImport(organizationId));
 
     dispatch(
       setIsGitSyncModalOpen({
@@ -168,6 +169,8 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
+
+    // dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
   }, []);
 
   const importingApplication = useSelector(getIsImportingApplication);
@@ -185,6 +188,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
             applicationFile: file,
           }),
         );
+        onClose && onClose();
       } else {
         setAppFileToBeUploaded(null);
       }

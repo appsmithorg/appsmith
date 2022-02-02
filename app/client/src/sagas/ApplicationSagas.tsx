@@ -39,6 +39,9 @@ import {
   resetCurrentApplication,
   FetchApplicationReduxAction,
   initDatasourceConnectionDuringImportSuccess,
+  importApplicationSuccess,
+  setOrgIdForImport,
+  setIsReconnectingDatasourcesModalOpen,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -585,32 +588,41 @@ export function* importApplicationSaga(
       );
       if (currentOrg.length > 0) {
         const {
-          id: appId,
-          pages,
+          application: { id, pages },
+          isPartialImport,
         }: {
-          id: string;
-          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          application: {
+            id: string;
+            pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          };
+          isPartialImport: boolean;
         } = response.data;
-        yield put({
-          type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
-          payload: {
-            importedApplication: appId,
-          },
-        });
-        const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
-        const pageURL = BUILDER_PAGE_URL({
-          applicationId: appId,
-          pageId: defaultPage[0].id,
-        });
-        history.push(pageURL);
-        const guidedTour = yield select(inGuidedTour);
 
-        if (guidedTour) return;
+        yield put(importApplicationSuccess(response.data?.application));
 
-        Toaster.show({
-          text: "Application imported successfully",
-          variant: Variant.success,
-        });
+        if (isPartialImport) {
+          yield put({
+            type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
+            payload: response?.data.unConfiguredDatasourceList || [],
+          });
+          yield put(setOrgIdForImport(action.payload.orgId));
+          yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+        } else {
+          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const pageURL = BUILDER_PAGE_URL({
+            applicationId: id,
+            pageId: defaultPage[0].id,
+          });
+          history.push(pageURL);
+          const guidedTour = yield select(inGuidedTour);
+
+          if (guidedTour) return;
+
+          Toaster.show({
+            text: "Application imported successfully",
+            variant: Variant.success,
+          });
+        }
       }
     }
   } catch (error) {

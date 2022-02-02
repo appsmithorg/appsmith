@@ -8,6 +8,7 @@ interface Props {
   formData: Datasource;
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
+  pageId?: string;
   shouldRender: boolean;
 }
 
@@ -16,6 +17,7 @@ function DatasourceAuth({
   formData,
   getSanitizedFormData,
   isInvalid,
+  pageId,
   shouldRender,
 }: Props) {
   const authType =
@@ -31,6 +33,7 @@ function DatasourceAuth({
           datasource={datasource}
           getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
+          pageId={pageId}
           shouldRender={shouldRender}
         />
       );
@@ -41,6 +44,7 @@ function DatasourceAuth({
           datasource={datasource}
           getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
+          pageId={pageId}
           shouldRender={shouldRender}
         />
       );
@@ -51,6 +55,7 @@ function DatasourceAuth({
           datasource={datasource}
           getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
+          pageId={pageId}
           shouldRender={shouldRender}
         />
       );

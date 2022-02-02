@@ -29,6 +29,7 @@ interface Props {
   datasource: Datasource;
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
+  pageId?: string;
   shouldRender: boolean;
 }
 const StyledButton = styled(EditButton)`
@@ -42,6 +43,7 @@ export default function DefaultAuth({
   datasource,
   getSanitizedFormData,
   isInvalid,
+  pageId: pageIdProp,
   shouldRender,
 }: Props): JSX.Element {
   const { id: datasourceId } = datasource;
@@ -58,7 +60,9 @@ export default function DefaultAuth({
   const {
     datasources: { isDeleting, isTesting, loading: isSaving },
   } = useSelector(getEntities);
-  const { pageId } = useParams<ExplorerURLParams>();
+  const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
+
+  const pageId = (pageIdQuery || pageIdProp) as string;
 
   // Handles datasource deletion
   const handleDatasourceDelete = () => {

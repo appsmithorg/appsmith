@@ -1,16 +1,11 @@
 import { createReducer } from "utils/AppsmithUtils";
 import {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 import { GetSSHKeyResponseData } from "actions/gitSyncActions";
-import {
-  ApplicationPagePayload,
-  ApplicationResponsePayload,
-} from "api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -389,25 +384,11 @@ const gitSyncReducer = createReducer(initialState, {
       deployKeyDocUrl: action.payload.docUrl,
     };
   },
-  [ReduxActionTypes.SET_ORG_ID_FOR_GIT_IMPORT]: (
-    state: GitSyncReducerState,
-    action: ReduxAction<string>,
-  ) => {
-    const orgIdForImport = action.payload;
-    let SSHKeyPair = state.SSHKeyPair;
-    let tempRemoteUrl = state.tempRemoteUrl;
-
-    // reset on updating org id for import
-    if (orgIdForImport !== state.orgIdForImport) {
-      SSHKeyPair = "";
-      tempRemoteUrl = "";
-    }
-
+  [ReduxActionTypes.SET_ORG_ID_FOR_IMPORT]: (state: GitSyncReducerState) => {
     return {
       ...state,
-      orgIdForImport,
-      SSHKeyPair,
-      tempRemoteUrl,
+      SSHKeyPair: "",
+      tempRemoteUrl: "",
     };
   },
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: (
@@ -419,12 +400,10 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_SUCCESS]: (
     state: GitSyncReducerState,
-    action: ReduxAction<ApplicationPayload>,
   ) => ({
     ...state,
     isImportingApplicationViaGit: false,
     gitImportError: null,
-    importedApplicationViaGIT: action.payload,
   }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR]: (
     state: GitSyncReducerState,
@@ -477,7 +456,6 @@ export type GitSyncReducerState = {
   isFetchingMergeStatus: boolean;
 
   activeGitSyncModalTab: GitSyncModalTab;
-  orgIdForImport?: string;
   isErrorPopupVisible?: boolean;
   globalGitConfig: GitConfig;
 
@@ -510,10 +488,6 @@ export type GitSyncReducerState = {
   isImportingApplicationViaGit?: boolean;
 
   gitImportError?: any;
-
-  importedApplicationViaGIT?: ApplicationResponsePayload & {
-    pages: ApplicationPagePayload[];
-  };
 };
 
 export default gitSyncReducer;

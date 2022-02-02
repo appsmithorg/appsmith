@@ -33,7 +33,6 @@ const initialState: ApplicationsReduxState = {
   showAppInviteUsersDialog: false,
   isImportAppModalOpen: false,
   organizationIdForImport: null,
-  fetchingDatasourceConfigForImport: false,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -261,7 +260,7 @@ const applicationsReducer = createReducer(initialState, {
     state: ApplicationsReduxState,
     action: ReduxAction<{ importedApplication: any }>,
   ) => {
-    const { importedApplication } = action.payload;
+    const importedApplication = action.payload;
     return {
       ...state,
       importingApplication: false,
@@ -424,19 +423,19 @@ const applicationsReducer = createReducer(initialState, {
       },
     },
   }),
-  [ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST]: (
-    state: ApplicationsReduxState,
-  ) => ({
-    ...state,
-    fetchingDatasourceConfigForImport: true,
-  }),
   [ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS]: (
     state: ApplicationsReduxState,
   ) => ({
     ...state,
-    fetchingDatasourceConfigForImport: false,
+    isDatasourceConfigForImportFetched: true,
   }),
-  [ReduxActionTypes.SET_ORG_ID_FOR_GIT_IMPORT]: (
+  [ReduxActionTypes.RESET_DATASOURCE_CONFIG_FETCHED_FOR_IMPORT_FLAG]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isDatasourceConfigForImportFetched: false,
+  }),
+  [ReduxActionTypes.SET_ORG_ID_FOR_IMPORT]: (
     state: ApplicationsReduxState,
     action: ReduxAction<string>,
   ) => {
@@ -448,6 +447,7 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       currentApplication,
+      organizationIdForImport: action.payload,
     };
   },
 });
@@ -475,7 +475,7 @@ export interface ApplicationsReduxState {
   importedApplication: any;
   isImportAppModalOpen: boolean;
   organizationIdForImport: any;
-  fetchingDatasourceConfigForImport: boolean;
+  isDatasourceConfigForImportFetched?: boolean;
 }
 
 export interface Application {
