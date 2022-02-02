@@ -325,14 +325,14 @@ jobs:
       - run: echo "All ui-test matrices completed"
 
       - uses: actions/download-artifact@v2
-        if: ${{ failure() }}
+        if: needs.ui-test.result
         id: download
         with:
           name: failed-spec-0
           path: ~/failed_spec
 
       - uses: actions/download-artifact@v2
-        if: ${{ failure() }}
+        if: needs.ui-test.result
         id: download-1
         with:
           name: failed-spec-1
