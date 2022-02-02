@@ -14,6 +14,7 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { transformDSL } from "./DSLMigrations";
 import { WidgetType } from "./WidgetFactory";
 import { DSLWidget } from "widgets/constants";
+import { WidgetDraggingBlock } from "./hooks/useBlocksToBeDraggedOnCanvas";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -39,6 +40,36 @@ export const extractCurrentDSL = (
   };
   return transformDSL(currentDSL, newPage);
 };
+
+export function getDraggingSpacesFromBlocks(
+  draggingBlocks: WidgetDraggingBlock[],
+  snapColumnSpace: number,
+  snapRowSpace: number,
+) {
+  const draggingSpaces = [];
+  for (const draggingBlock of draggingBlocks) {
+    const [leftColumn, topRow] = getDropZoneOffsets(
+      snapColumnSpace,
+      snapRowSpace,
+      {
+        x: draggingBlock.left,
+        y: draggingBlock.top,
+      },
+      {
+        x: 0,
+        y: 0,
+      },
+    );
+    draggingSpaces.push({
+      left: leftColumn,
+      top: topRow,
+      right: leftColumn + draggingBlock.width / snapColumnSpace,
+      bottom: topRow + draggingBlock.height / snapRowSpace,
+      id: draggingBlock.widgetId,
+    });
+  }
+  return draggingSpaces;
+}
 
 export const getDropZoneOffsets = (
   colWidth: number,

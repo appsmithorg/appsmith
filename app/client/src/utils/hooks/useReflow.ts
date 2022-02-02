@@ -11,7 +11,10 @@ import {
   ReflowDirection,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
-import { getLimitedMovementMap } from "reflow/reflowUtils";
+import {
+  flattenCollidingMapToArray,
+  getLimitedMovementMap,
+} from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 
@@ -20,13 +23,15 @@ type WidgetCollidingSpace = CollidingSpace & {
 };
 
 type WidgetCollidingSpaceMap = {
-  [key: string]: WidgetCollidingSpace;
+  [key: string]: {
+    vertical?: WidgetCollidingSpace;
+    horizontal?: WidgetCollidingSpace;
+  };
 };
 
 export interface ReflowInterface {
   (
-    newPositions: OccupiedSpace,
-    OGPositions: OccupiedSpace,
+    newPositions: OccupiedSpace[],
     direction: ReflowDirection,
     stopMoveAfterLimit?: boolean,
     shouldSkipContainerReflow?: boolean,
@@ -41,7 +46,7 @@ export interface ReflowInterface {
 }
 
 export const useReflow = (
-  widgetId: string,
+  OGPositions: OccupiedSpace[],
   parentId: string,
   gridProps: GridProps,
 ): ReflowInterface => {
@@ -54,20 +59,13 @@ export const useReflow = (
   const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
   const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
-  const originalSpacePosition = widgetSpaces?.find(
-    (space) => space.id === widgetId,
-  );
-
-  const prevPositions = useRef<OccupiedSpace | undefined>(
-    originalSpacePosition,
-  );
+  const prevPositions = useRef<OccupiedSpace[] | undefined>(OGPositions);
   const prevCollidingSpaces = useRef<WidgetCollidingSpaceMap>();
   const prevMovementMap = useRef<ReflowedSpaceMap>({});
   // will become a state if we decide that resize should be a "toggle on-demand" feature
   const shouldResize = true;
   return function reflowSpaces(
-    newPositions: OccupiedSpace,
-    OGPositions: OccupiedSpace,
+    newPositions: OccupiedSpace[],
     direction: ReflowDirection,
     stopMoveAfterLimit = false,
     shouldSkipContainerReflow = false,
@@ -100,9 +98,10 @@ export const useReflow = (
       );
 
     if (shouldSkipContainerReflow) {
-      const collidingSpaces = Object.values(
-        (collidingSpaceMap as WidgetCollidingSpaceMap) || {},
-      );
+      const collidingSpaces = flattenCollidingMapToArray(
+        collidingSpaceMap || {},
+      ) as WidgetCollidingSpace[];
+
       for (const collidingSpace of collidingSpaces) {
         if (checkIsDropTarget(collidingSpace.type)) {
           correctedMovementMap = {};
@@ -124,7 +123,7 @@ export const useReflow = (
 
     const bottomMostRow = getBottomRowAfterReflow(
       movementMap,
-      newPositions.bottom,
+      getBottomMostRow(newPositions),
       widgetSpaces,
       gridProps,
     );
@@ -136,3 +135,12 @@ export const useReflow = (
     };
   };
 };
+function getBottomMostRow(newPositions: OccupiedSpace[]): number {
+  return newPositions
+    .map((space) => space.bottom)
+    .reduce(
+      (prevBottomRow, currentBottomRow) =>
+        Math.max(prevBottomRow, currentBottomRow),
+      0,
+    );
+}

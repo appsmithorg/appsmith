@@ -206,7 +206,7 @@ export function ReflowResizable(props: ResizableProps) {
   const reflowedPosition = useSelector(reflowSelector, equal);
 
   const reflow = useReflow(
-    props.widgetId,
+    [props.originalPositions],
     props.parentId || "",
     props.gridProps,
   );
@@ -251,8 +251,7 @@ export function ReflowResizable(props: ResizableProps) {
         }
         if (resizedPositions) {
           ({ bottomMostRow, canHorizontalMove, canVerticalMove } = reflow(
-            resizedPositions,
-            props.originalPositions,
+            [resizedPositions],
             direction,
             true,
           ));

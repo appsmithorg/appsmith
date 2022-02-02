@@ -10,7 +10,11 @@ import { useReflow, ReflowInterface } from "utils/hooks/useReflow";
 import { useSelector } from "react-redux";
 import { getZoomLevel } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
-import { getDropZoneOffsets, noCollision } from "utils/WidgetPropsUtils";
+import {
+  getDraggingSpacesFromBlocks,
+  getDropZoneOffsets,
+  noCollision,
+} from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
 import {
   useBlocksToBeDraggedOnCanvas,
@@ -44,6 +48,7 @@ export const useCanvasDragging = (
   const {
     blocksToDraw,
     defaultHandlePositions,
+    draggingSpaces,
     getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
@@ -60,7 +65,6 @@ export const useCanvasDragging = (
     stopReflowing,
     updateBottomRow,
     updateRelativeRows,
-    widgetOccupiedSpace,
   } = useBlocksToBeDraggedOnCanvas({
     canExtend,
     noPad,
@@ -77,11 +81,7 @@ export const useCanvasDragging = (
   };
 
   const reflow = useRef<ReflowInterface>();
-  reflow.current = useReflow(
-    widgetOccupiedSpace ? widgetOccupiedSpace.id : "",
-    widgetId || "",
-    gridProps,
-  );
+  reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
   const {
     setDraggingCanvas,
@@ -427,9 +427,7 @@ export const useCanvasDragging = (
           const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove();
           const isReflowing = !isEmpty(currentReflowParams.movementMap);
           const canReflow =
-            reflowEnabled &&
-            currentRectanglesToDraw.length === 1 &&
-            !currentRectanglesToDraw[0].detachFromLayout;
+            reflowEnabled && !currentRectanglesToDraw[0].detachFromLayout;
           const currentBlock = currentRectanglesToDraw[0];
           const [leftColumn, topRow] = getDropZoneOffsets(
             snapColumnSpace,
@@ -453,22 +451,11 @@ export const useCanvasDragging = (
           };
           if (canReflow && reflow.current) {
             if (needsReflow) {
-              const resizedPositions = {
-                left: leftColumn,
-                top: topRow,
-                right: leftColumn + currentBlock.width / snapColumnSpace,
-                bottom: topRow + currentBlock.height / snapRowSpace,
-                id: currentBlock.widgetId,
-              };
-              const originalPositions = widgetOccupiedSpace
-                ? { ...widgetOccupiedSpace }
-                : {
-                    left: 0,
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    id: currentBlock.widgetId,
-                  };
+              const resizedPositions = getDraggingSpacesFromBlocks(
+                currentRectanglesToDraw,
+                snapColumnSpace,
+                snapRowSpace,
+              );
               currentDirection.current = getMouseMoveDirection(e);
               const immediateExitContainer = lastDraggedCanvas.current;
               if (lastDraggedCanvas.current) {
@@ -476,7 +463,6 @@ export const useCanvasDragging = (
               }
               currentReflowParams = reflow.current(
                 resizedPositions,
-                originalPositions,
                 currentDirection.current,
                 false,
                 !canReflowBasedOnMouseSpeed,

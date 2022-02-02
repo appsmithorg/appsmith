@@ -3,11 +3,12 @@ import { getMovementMap } from "./reflowHelpers";
 import { CollidingSpaceMap, GridProps, ReflowDirection } from "./reflowTypes";
 import {
   changeExitContainerDirection,
-  filterSpaceById,
+  filterCommonSpaces,
+  flattenCollidingMapToArray,
   getCollidingSpaces,
   getDelta,
   getIsHorizontalMove,
-  getShouldReflow,
+  getSpacesMapFromArray,
 } from "./reflowUtils";
 
 /**
@@ -18,42 +19,52 @@ import {
  * @param occupiedSpaces array of all the occupied spaces on the canvas
  * @param direction direction of movement of the moving space
  * @param gridProps properties of the canvas's grid
- * @param forceDirection boolean to force the direction on certain scenarioes
+ * @param forceDirection boolean to force the direction on certain scenarios
  * @param shouldResize boolean to indicate if colliding spaces should resize
- * @param immediateExitContainer boolean to indicate if the space exitted a nested canvas
+ * @param immediateExitContainer boolean to indicate if the space exited a nested canvas
  * @param prevPositions last known position of the space
- * @param prevCollidingSpaces last known colliding spaces of the dragging/resising space
+ * @param prevCollidingSpaces last known colliding spaces of the dragging/resizing space
  * @returns movement information of the dragging/resizing space and other colliding spaces
  */
 export function reflow(
-  newPositions: OccupiedSpace,
-  OGPositions: OccupiedSpace,
-  occupiedSpaces: OccupiedSpace[],
+  newPositionsArray: OccupiedSpace[],
+  OGPositionsArray: OccupiedSpace[],
+  occupiedSpacesArray: OccupiedSpace[],
   direction: ReflowDirection,
   gridProps: GridProps,
   forceDirection = false,
   shouldResize = true,
   immediateExitContainer?: string,
-  prevPositions?: OccupiedSpace,
+  prevSpacesArray?: OccupiedSpace[],
   prevCollidingSpaces?: CollidingSpaceMap,
 ) {
-  const isHorizontalMove = getIsHorizontalMove(newPositions, prevPositions);
-  const filteredOccupiedSpace = filterSpaceById(
-    newPositions.id,
-    occupiedSpaces,
-  );
+  const newPositionsMap = getSpacesMapFromArray(newPositionsArray);
+  const OGPositionsMap = getSpacesMapFromArray(OGPositionsArray);
+  const OccupiedSpacesMap = getSpacesMapFromArray(occupiedSpacesArray);
+  const prevSpacesMap = getSpacesMapFromArray(prevSpacesArray);
 
+  const isHorizontalMove = getIsHorizontalMove(
+    newPositionsArray,
+    prevSpacesArray,
+  );
+  filterCommonSpaces(newPositionsMap, OccupiedSpacesMap);
+  const filteredOccupiedSpace = Object.values(OccupiedSpacesMap);
   const { collidingSpaceMap, isColliding } = getCollidingSpaces(
-    newPositions,
+    newPositionsArray,
     direction,
     filteredOccupiedSpace,
     isHorizontalMove,
-    prevPositions,
+    prevSpacesMap,
     prevCollidingSpaces,
     forceDirection,
   );
 
-  if (!isColliding || !OGPositions || direction === ReflowDirection.UNSET) {
+  const collidingSpacesArray = flattenCollidingMapToArray(collidingSpaceMap);
+  if (
+    !isColliding ||
+    !OGPositionsArray ||
+    direction === ReflowDirection.UNSET
+  ) {
     return {
       movementLimit: {
         canHorizontalMove: true,
@@ -68,23 +79,27 @@ export function reflow(
     direction,
   );
 
-  const delta = getDelta(OGPositions, newPositions, direction);
+  const tempId = newPositionsArray[0].id;
+  const delta = getDelta(
+    OGPositionsMap[tempId],
+    newPositionsMap[tempId],
+    direction,
+  );
 
-  const { movementMap, newPositionsMovement } = getMovementMap(
+  const { movementMap } = getMovementMap(
     filteredOccupiedSpace,
-    newPositions,
+    collidingSpacesArray,
     collidingSpaceMap,
     gridProps,
     delta,
     shouldResize,
   );
 
-  const movementLimit = getShouldReflow(newPositionsMovement, delta);
+  const movementLimit = { canVerticalMove: true, canHorizontalMove: true }; //getShouldReflow(newPositionsMovement, delta);
 
   return {
     movementLimit,
     movementMap,
-    newPositionsMovement,
     collidingSpaceMap,
   };
 }

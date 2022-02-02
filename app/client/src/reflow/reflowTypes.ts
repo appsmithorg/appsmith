@@ -44,6 +44,7 @@ export type CollisionAccessors = {
   mathComparator: MathComparators;
   directionIndicator: 1 | -1;
   isHorizontal: boolean;
+  plane: "vertical" | "horizontal";
 };
 
 export type Delta = {
@@ -53,13 +54,19 @@ export type Delta = {
 
 export type CollidingSpace = OccupiedSpace & {
   direction: ReflowDirection;
+  collidingValue: number;
+  collidingId: string;
 };
 
 export type CollidingSpaceMap = {
-  [key: string]: CollidingSpace;
+  [key: string]: {
+    vertical?: CollidingSpace;
+    horizontal?: CollidingSpace;
+  };
 };
 
 export type CollisionTree = OccupiedSpace & {
+  direction: ReflowDirection;
   children?: {
     [key: string]: CollisionTree;
   };
@@ -82,17 +89,22 @@ export type ReflowedSpace = {
   Y?: number;
   width?: number;
   height?: number;
-  depth?: number;
+  horizontalDepth?: number;
+  verticalDepth?: number;
   x?: number;
   y?: number;
   maxX?: number;
   maxY?: number;
   dimensionXBeforeCollision?: number;
   dimensionYBeforeCollision?: number;
-  maxOccupiedSpace?: number;
-  emptySpaces?: number;
+  horizontalMaxOccupiedSpace?: number;
+  horizontalEmptySpaces?: number;
+  verticalMaxOccupiedSpace?: number;
+  verticalEmptySpaces?: number;
 };
 
 export type ReflowedSpaceMap = {
   [key: string]: ReflowedSpace;
 };
+
+export type SpaceMap = { [id: string]: OccupiedSpace };
