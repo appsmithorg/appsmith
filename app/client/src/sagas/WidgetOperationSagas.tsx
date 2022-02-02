@@ -94,6 +94,7 @@ import {
   getNextWidgetName,
   getParentWidgetIdForGrouping,
   isCopiedModalWidget,
+  purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -478,7 +479,12 @@ export function* getPropertiesUpdatedWidget(
   if (Array.isArray(remove) && remove.length > 0) {
     widget = yield removeWidgetProperties(widget, remove);
   }
-  return widget;
+
+  // Note: This may not be the best place to do this.
+  // If there exists another spot in this workflow, where we are iterating over the dynamicTriggerPathList and dynamicBindingPathList, after
+  // performing all updates to the widget, we can piggy back on that iteration to purge orphaned paths
+  // I couldn't find it, so here it is.
+  return purgeOrphanedDynamicPaths(widget);
 }
 
 function* batchUpdateWidgetPropertySaga(
