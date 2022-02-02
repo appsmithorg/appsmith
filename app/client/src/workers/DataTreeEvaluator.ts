@@ -54,6 +54,7 @@ import { applyChange, Diff, diff } from "deep-diff";
 import toposort from "toposort";
 import {
   EXECUTION_PARAM_KEY,
+  EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
@@ -1572,10 +1573,21 @@ export default class DataTreeEvaluator {
       );
     }
 
-    return bindings.map((binding) =>
-      this.getDynamicValue(
-        `{{${binding}}}`,
-        this.evalTree,
+    const dataTreeWithExecutionParams = Object.assign({}, this.evalTree, {
+      [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
+    });
+
+    return bindings.map((binding) => {
+      // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
+      // also helps with dealing with IIFE which are normal functions (not arrow)
+      // because normal functions won't retain 'this' context (when execute elsewhere)
+      const replacedBinding = binding.replace(
+        EXECUTION_PARAM_REFERENCE_REGEX,
+        EXECUTION_PARAM_KEY,
+      );
+      return this.getDynamicValue(
+        `{{${replacedBinding}}}`,
+        dataTreeWithExecutionParams,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"
@@ -1583,8 +1595,8 @@ export default class DataTreeEvaluator {
           thisContext: { [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams },
           globalContext: { [EXECUTION_PARAM_KEY]: evaluatedExecutionParams },
         },
-      ),
-    );
+      );
+    });
   }
 
   clearErrors() {
