@@ -27,7 +27,7 @@ describe("Form Widget Functionality", function() {
     cy.get(".select-popover-wrapper")
       .contains("Blue")
       .click({ force: true });
-
+    cy.wait(2000);
     cy.get(widgetsPage.formButtonWidget)
       .contains("Submit")
       .should("not.have.attr", "disabled");
