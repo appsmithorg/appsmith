@@ -771,7 +771,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .then()
                             .thenReturn(applicationPages)
                             .flatMap(unused -> {
-                                if (StringUtils.isEmpty(applicationId)) {
+                                if (!StringUtils.isEmpty(applicationId)) {
                                     Set<String> validPageIds = applicationPages.get(PublishType.UNPUBLISHED).stream()
                                             .map(ApplicationPage::getId).collect(Collectors.toSet());
 
