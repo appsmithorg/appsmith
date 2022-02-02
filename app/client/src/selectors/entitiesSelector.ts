@@ -602,7 +602,7 @@ export const getPageActions = (pageId = "") => {
 };
 
 export const getUnconfiguredDatasources = (state: AppState): Datasource[] => {
-  return state.entities.datasources.unconfiguredList;
+  return state.entities.datasources.unconfiguredList || [];
 };
 
 export const selectDatasourceIdToNameMap = createSelector(

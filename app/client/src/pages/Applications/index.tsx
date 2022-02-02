@@ -765,6 +765,7 @@ function ApplicationsSection(props: any) {
                     {(currentUser || isFetchingApplications) && (
                       <Menu
                         className="t--org-name"
+                        closeOnItemClick
                         cypressSelector="t--org-name"
                         disabled={isFetchingApplications}
                         isOpen={organization.slug === orgToOpenMenu}
@@ -858,11 +859,12 @@ function ApplicationsSection(props: any) {
                         )}
                         <MenuItem
                           icon="logout"
-                          onSelect={() =>
+                          onSelect={(e: React.MouseEvent) => {
+                            e.stopPropagation();
                             !warnLeavingOrganization
                               ? setWarnLeavingOrganization(true)
-                              : leaveOrg(organization.id)
-                          }
+                              : leaveOrg(organization.id);
+                          }}
                           text={
                             !warnLeavingOrganization
                               ? "Leave Organization"
@@ -875,7 +877,8 @@ function ApplicationsSection(props: any) {
                         {applications.length === 0 && hasManageOrgPermissions && (
                           <MenuItem
                             icon="trash"
-                            onSelect={() => {
+                            onSelect={(e: React.MouseEvent) => {
+                              e.stopPropagation();
                               warnDeleteOrg
                                 ? handleDeleteOrg(organization.id)
                                 : setWarnDeleteOrg(true);

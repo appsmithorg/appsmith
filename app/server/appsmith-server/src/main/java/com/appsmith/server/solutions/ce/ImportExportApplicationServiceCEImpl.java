@@ -502,8 +502,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                                     applicationImportDTO.setApplication(application);
                                     applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                                    Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.TRUE)).count();
-                                    applicationImportDTO.setIsPartialImport(unConfiguredDatasource > 0);
+                                    Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.FALSE)).count();
+                                    applicationImportDTO.setIsPartialImport(unConfiguredDatasource != 0);
                                     return applicationImportDTO;
                                 })));
 

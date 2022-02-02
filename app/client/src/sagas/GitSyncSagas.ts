@@ -39,10 +39,7 @@ import {
   importAppViaGitSuccess,
 } from "actions/gitSyncActions";
 
-import {
-  importApplicationSuccess,
-  setOrgIdForImport,
-} from "actions/applicationActions";
+import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 import {
   connectToGitSuccess,
@@ -83,7 +80,6 @@ import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { setIsReconnectingDatasourcesModalOpen } from "actions/applicationActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import { log } from "loglevel";
@@ -660,13 +656,14 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
         yield put(setIsGitSyncModalOpen({ isOpen: false }));
         // there is configuration-missing datasources
         if (isPartialImport) {
-          yield put(importApplicationSuccess(response?.data?.application));
-          yield put({
-            type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
-            payload: response?.data.unConfiguredDatasourceList || [],
-          });
-          yield put(setOrgIdForImport(organizationIdForImport));
-          yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+          yield put(
+            showReconnectDatasourceModal({
+              application: response?.data?.application,
+              unConfiguredDatasourceList:
+                response?.data.unConfiguredDatasourceList,
+              orgId: organizationIdForImport,
+            }),
+          );
         } else {
           let pageId = "";
           if (app.pages && app.pages.length > 0) {

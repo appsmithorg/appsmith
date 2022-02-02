@@ -51,7 +51,11 @@ import { DatasourcePaneFunctions } from "../DataSourceEditor";
 import { AppState } from "reducers";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { getFormValues, initialize, submit } from "redux-form";
-import { testDatasource, updateDatasource } from "actions/datasourceActions";
+import {
+  setUnconfiguredDatasourcesDuringImport,
+  testDatasource,
+  updateDatasource,
+} from "actions/datasourceActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { connect } from "react-redux";
@@ -480,6 +484,8 @@ function ReconnectDatasourceModal() {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setOrgIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
+    dispatch(setUnconfiguredDatasourcesDuringImport());
+    setSelectedDatasourceId("");
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
 
   const onSelectDatasource = useCallback(

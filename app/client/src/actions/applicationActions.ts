@@ -2,7 +2,6 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
 import {
-  ApplicationPagePayload,
   ApplicationResponsePayload,
   FetchApplicationResponse,
 } from "../api/ApplicationApi";
@@ -10,6 +9,7 @@ import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
 } from "api/ApplicationApi";
+import { Datasource } from "entities/Datasource";
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -104,9 +104,7 @@ export const importApplication = (appDetails: ImportApplicationRequest) => {
 };
 
 export const importApplicationSuccess = (
-  importedApp: ApplicationResponsePayload & {
-    pages: ApplicationPagePayload[];
-  },
+  importedApp: ApplicationResponsePayload,
 ) => {
   return {
     type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
@@ -156,4 +154,13 @@ export const setIsReconnectingDatasourcesModalOpen = (payload: {
 export const setOrgIdForImport = (orgId?: string) => ({
   type: ReduxActionTypes.SET_ORG_ID_FOR_IMPORT,
   payload: orgId,
+});
+
+export const showReconnectDatasourceModal = (payload: {
+  application: ApplicationResponsePayload;
+  unConfiguredDatasourceList: Array<Datasource>;
+  orgId: string;
+}) => ({
+  type: ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
+  payload,
 });
