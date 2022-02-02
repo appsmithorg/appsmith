@@ -69,6 +69,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -767,31 +768,33 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
                                 return applicationPages;
                             })
-                            .then()
-                            .thenReturn(Mono.empty())
+                            .then(Mono.empty())
                             .flatMap(unused -> {
-                                Set<String> validPageIds = applicationPages.get(PublishType.UNPUBLISHED).stream()
-                                        .map(ApplicationPage::getId).collect(Collectors.toSet());
+                                if (!Optional.ofNullable(importedApplication.getId()).isEmpty()) {
+                                    Set<String> validPageIds = applicationPages.get(PublishType.UNPUBLISHED).stream()
+                                            .map(ApplicationPage::getId).collect(Collectors.toSet());
 
-                               validPageIds.addAll(applicationPages.get(PublishType.PUBLISHED).stream()
-                                        .map(ApplicationPage::getId).collect(Collectors.toSet()));
+                                    validPageIds.addAll(applicationPages.get(PublishType.PUBLISHED).stream()
+                                            .map(ApplicationPage::getId).collect(Collectors.toSet()));
 
-                               return existingPagesMono
-                                       .flatMap(existingPagesList -> {
-                                           List<String> inValidIds = new ArrayList<>();
-                                           for (NewPage newPage : existingPagesList) {
-                                               if(!validPageIds.contains(newPage.getId())) {
-                                                   inValidIds.add(newPage.getId());
-                                               }
-                                           }
+                                    return existingPagesMono
+                                            .flatMap(existingPagesList -> {
+                                                List<String> inValidIds = new ArrayList<>();
+                                                for (NewPage newPage : existingPagesList) {
+                                                    if(!validPageIds.contains(newPage.getId())) {
+                                                        inValidIds.add(newPage.getId());
+                                                    }
+                                                }
 
-                                           // Delete the pages which were removed during git merge operation
-                                           // This does not apply to the traditional import via file approach
-                                           return Flux.fromIterable(inValidIds)
-                                                   .flatMap(newPageService::archiveById)
-                                                   .then()
-                                                   .thenReturn(applicationPages);
-                                       });
+                                                // Delete the pages which were removed during git merge operation
+                                                // This does not apply to the traditional import via file approach
+                                                return Flux.fromIterable(inValidIds)
+                                                        .flatMap(applicationPageService::deleteUnpublishedPage)
+                                                        .then()
+                                                        .thenReturn(applicationPages);
+                                            });
+                                }
+                                return Mono.just(applicationPages);
                             });
                 })
                 .flatMap(applicationPageMap -> {
