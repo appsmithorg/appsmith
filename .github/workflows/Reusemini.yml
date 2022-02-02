@@ -302,9 +302,9 @@ jobs:
         with:
           path: |
             ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+            ${{ github.run_id }}-${{ github.job }}
       - name: Store the previous run result
         if: failure()
         uses: martijnhols/actions-cache/save@v3
@@ -335,22 +335,22 @@ jobs:
         if: needs.ui-test.result
         id: download
         with:
-          name: failed-spec-0
+          name: failed-spec
           path: ~/failed_spec
 
-      - uses: actions/download-artifact@v2
-        if: needs.ui-test.result
-        id: download-1
-        with:
-          name: failed-spec-1
-          path: ~/failed_spec
+      #- uses: actions/download-artifact@v2
+      #  if: needs.ui-test.result
+      #  id: download-1
+      #  with:
+      #    name: failed-spec-1
+      #    path: ~/failed_spec
 
-      - uses: actions/download-artifact@v2
-        if: needs.ui-test.result
-        id: download-2
-        with:
-          name: failed-spec-2
-          path: ~/failed_spec
+      #- uses: actions/download-artifact@v2
+      #  if: needs.ui-test.result
+      #  id: download-2
+      #  with:
+      #    name: failed-spec-2
+      #    path: ~/failed_spec
 
       - name: "Echo download path"
         run: echo ${{steps.download.outputs}}
