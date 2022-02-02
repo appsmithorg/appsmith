@@ -282,9 +282,9 @@ jobs:
           name: failed-spec-${{ matrix.job }}
           path: ~/failed_spec
 
-      #- uses: actions/checkout@v1
-      #- name: Try to fail
-      #  run: exit 1
+      - uses: actions/checkout@v1
+      - name: Try to fail
+        run: exit 1
 
       - name: Print message if we don't fail
         run: echo Should not get here
