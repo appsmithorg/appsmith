@@ -502,7 +502,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                                     applicationImportDTO.setApplication(application);
                                     applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                                    applicationImportDTO.setIsPartialImport(!datasources.isEmpty());
+                                    Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.TRUE)).count();
+                                    applicationImportDTO.setIsPartialImport(unConfiguredDatasource > 0);
                                     return applicationImportDTO;
                                 })));
 
@@ -1489,8 +1490,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
     }
 
-    private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
-                                                                              List<Datasource> datasourceList) {
+    public Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId, List<Datasource> datasourceList) {
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()
                 .flatMap(actionList -> {
@@ -1504,7 +1504,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .map(datasources -> {
                     for (Datasource datasource:datasources) {
-                        datasource.setIsConfigured(!Optional.ofNullable(datasource.getInvalids()).isEmpty());
+                        datasource.setIsConfigured(!Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
                     }
                     return datasources;
                 });
