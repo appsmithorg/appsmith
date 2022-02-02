@@ -16,6 +16,7 @@ import { useNewActionName } from "./helpers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
+import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
@@ -159,6 +160,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           className: "t--apiFormDeleteBtn",
         },
       ]}
+      position={Position.LEFT_TOP}
       selectedValue=""
       toggle={
         <MoreActionablesContainer

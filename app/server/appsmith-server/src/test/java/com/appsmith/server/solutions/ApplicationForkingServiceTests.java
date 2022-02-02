@@ -61,6 +61,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -380,6 +381,107 @@ public class ApplicationForkingServiceTests {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, testUserOrgId)))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test4_validForkApplication_cancelledMidWay_createValidApplication() {
+
+        Organization targetOrganization = new Organization();
+        targetOrganization.setName("Target Organization");
+        targetOrganization = organizationService.create(targetOrganization).block();
+
+        // Trigger the fork application flow
+        applicationForkingService.forkApplicationToOrganization(sourceAppId, targetOrganization.getId())
+                .timeout(Duration.ofMillis(10))
+                .subscribe();
+
+        // Wait for fork to complete
+        Mono<Application> forkedAppFromDbMono = Mono.just(targetOrganization)
+                .flatMap(organization -> {
+                    try {
+                        // Before fetching the forked application, sleep for 5 seconds to ensure that the forking finishes
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS).next();
+                })
+                .cache();
+
+        StepVerifier
+                .create(forkedAppFromDbMono.zipWhen(application ->
+                        Mono.zip(
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()))
+                )
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
+                    List<NewPage> pageList = tuple.getT2().getT3();
+
+                    assertThat(application).isNotNull();
+                    assertThat(application.getName()).isEqualTo("1 - public app");
+                    assertThat(application.getPages().get(0).getDefaultPageId())
+                            .isEqualTo(application.getPages().get(0).getId());
+                    assertThat(application.getPublishedPages().get(0).getDefaultPageId())
+                            .isEqualTo(application.getPublishedPages().get(0).getId());
+
+                    assertThat(pageList).isNotEmpty();
+                    pageList.forEach(newPage -> {
+                        assertThat(newPage.getDefaultResources()).isNotNull();
+                        assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
+                        assertThat(newPage.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        newPage.getUnpublishedPage()
+                                .getLayouts()
+                                .forEach(layout ->
+                                        layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
+                                            dslActionDTOS.forEach(actionDTO -> {
+                                                assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
+                                            });
+                                        })
+                                );
+                    });
+
+                    assertThat(actionList).hasSize(2);
+                    actionList.forEach(newAction -> {
+                        assertThat(newAction.getDefaultResources()).isNotNull();
+                        assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
+                        assertThat(newAction.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        ActionDTO action = newAction.getUnpublishedAction();
+                        assertThat(action.getDefaultResources()).isNotNull();
+                        assertThat(action.getDefaultResources().getPageId()).isEqualTo(application.getPages().get(0).getId());
+                        if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
+                            assertThat(action.getDefaultResources().getCollectionId()).isEqualTo(action.getCollectionId());
+                        }
+                    });
+
+                    assertThat(actionCollectionList).hasSize(1);
+                    actionCollectionList.forEach(actionCollection -> {
+                        assertThat(actionCollection.getDefaultResources()).isNotNull();
+                        assertThat(actionCollection.getDefaultResources().getCollectionId()).isEqualTo(actionCollection.getId());
+                        assertThat(actionCollection.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+
+                        assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
+                                .hasSize(1);
+                        unpublishedCollection.getDefaultToBranchedActionIdsMap().keySet()
+                                .forEach(key ->
+                                        assertThat(key).isEqualTo(unpublishedCollection.getDefaultToBranchedActionIdsMap().get(key))
+                                );
+
+                        assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
+                        assertThat(unpublishedCollection.getDefaultResources().getPageId())
+                                .isEqualTo(application.getPages().get(0).getId());
+                    });
+                })
+                .verifyComplete();
+
     }
 
     private Flux<ActionDTO> getActionsInOrganization(Organization organization) {
