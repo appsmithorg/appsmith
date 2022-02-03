@@ -271,7 +271,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         if (isBlank(offset)) {
             offset = "0";
         }
-        // Set offset value and data type for prepared statement substitution
         values.add(new PreparedStatementValueDTO(offset, DataType.INTEGER));
     }
 
