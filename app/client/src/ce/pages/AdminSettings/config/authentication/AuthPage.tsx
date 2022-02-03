@@ -14,7 +14,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Callout, CalloutType } from "pages/Settings/Callout";
+import { Callout, CalloutType } from "components/ads/CalloutV2";
 import SettingsBreadcrumbs from "pages/Settings/SettingsBreadcrumbs";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";

@@ -13,7 +13,7 @@ import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
 import { createMessage } from "@appsmith/constants/messages";
-import { Callout } from "../Callout";
+import { Callout } from "components/ads/CalloutV2";
 
 type GroupProps = {
   name?: string;

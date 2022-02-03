@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Variant } from "components/ads/common";
 import Button from "components/ads/Button";
-import { Callout } from "./Callout";
+import { Callout } from "components/ads/CalloutV2";
 import { createMessage, DANGER_ZONE } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
