@@ -158,13 +158,13 @@ public class GitFileUtils {
      * @param branchName for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> reconstructApplicationFromGitRepo(String organisationId,
-                                                                   String defaultApplicationId,
-                                                                   String repoName,
-                                                                   String branchName) {
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String organisationId,
+                                                                       String defaultApplicationId,
+                                                                       String repoName,
+                                                                       String branchName) {
 
 
-        return fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
+        return fileUtils.reconstructApplicationReferenceFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
                 .map(applicationReference -> {
 
                     // Extract application metadata from the json
@@ -239,6 +239,7 @@ public class GitFileUtils {
         // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO will
         // be same, so we only commit unpublished PageDTO.
         page.setPublishedPage(null);
+        page.setUserPermissions(null);
         PageDTO unpublishedPage = page.getUnpublishedPage();
         if (unpublishedPage != null) {
             unpublishedPage
@@ -258,6 +259,7 @@ public class GitFileUtils {
         datasource.setStructure(null);
         datasource.setUpdatedAt(null);
         datasource.setCreatedAt(null);
+        datasource.setUserPermissions(null);
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {
@@ -267,6 +269,7 @@ public class GitFileUtils {
         // As we are publishing the app and then committing to git we expect the published and unpublished ActionDTO will
         // be same, so we only commit unpublished ActionDTO.
         action.setPublishedAction(null);
+        action.setUserPermissions(null);
         ActionDTO unpublishedAction = action.getUnpublishedAction();
         if (unpublishedAction != null) {
             unpublishedAction.setDefaultResources(null);
@@ -283,10 +286,14 @@ public class GitFileUtils {
         // As we are publishing the app and then committing to git we expect the published and unpublished
         // ActionCollectionDTO will be same, so we only commit unpublished ActionCollectionDTO.
         actionCollection.setPublishedCollection(null);
+        actionCollection.setUserPermissions(null);
         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
         if (unpublishedCollection != null) {
             unpublishedCollection.setDefaultResources(null);
             unpublishedCollection.setDefaultToBranchedActionIdsMap(null);
+            unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(null);
+            unpublishedCollection.setActionIds(null);
+            unpublishedCollection.setArchivedActionIds(null);
         }
     }
 

@@ -127,10 +127,10 @@ public class GitFileUtilsTest {
         applicationReference.setActions(actionRef);
         applicationReference.setActionsCollections(actionCollectionRef);
 
-        Mockito.when(fileInterface.reconstructApplicationFromGitRepo(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(fileInterface.reconstructApplicationReferenceFromGitRepo(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(applicationReference));
 
-        Mono<ApplicationJson> resultMono = gitFileUtils.reconstructApplicationFromGitRepo(
+        Mono<ApplicationJson> resultMono = gitFileUtils.reconstructApplicationJsonFromGitRepo(
                 "orgId", "appId", "repoName", "branch"
         )
                 .cache();
