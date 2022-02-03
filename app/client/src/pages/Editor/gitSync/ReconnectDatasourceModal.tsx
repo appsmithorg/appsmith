@@ -501,7 +501,7 @@ function ReconnectDatasourceModal() {
                 </Collapsible>
               </ListContainer>
               {isConfigFetched &&
-                collapsedMenu === DSCollapseMenu.CONFIGURED && (
+                collapsedMenu === DSCollapseMenu.UNCONFIGURED && (
                   <DatasourceForm
                     applicationId={importedApplication?.id}
                     datasourceId={selectedDatasourceId}
@@ -509,7 +509,7 @@ function ReconnectDatasourceModal() {
                     pageId={pageId}
                   />
                 )}
-              {collapsedMenu === DSCollapseMenu.UNCONFIGURED && (
+              {collapsedMenu === DSCollapseMenu.CONFIGURED && (
                 <Section className="t--message-container">
                   <Message>
                     {createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE1)}
