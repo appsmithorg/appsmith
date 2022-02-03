@@ -53,7 +53,7 @@ function getPropertyEntry(
 function validatePlainObject(
   config: ValidationConfig,
   value: Record<string, unknown>,
-  props?: Record<string, unknown>,
+  props: Record<string, unknown>,
 ) {
   if (config.params?.allowedKeys) {
     let _valid = true;
@@ -216,7 +216,7 @@ function validateArray(
 export const validate = (
   config: ValidationConfig,
   value: unknown,
-  props: undefined | Record<string, unknown>,
+  props: Record<string, unknown>,
 ): ValidationResponse => {
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,
@@ -300,7 +300,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.TEXT]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
@@ -377,7 +377,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.REGEX]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     const { isValid, messages, parsed } = VALIDATORS[ValidationTypes.TEXT](
       config,
@@ -400,7 +400,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.NUMBER]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     if (value === undefined || value === null || value === "") {
       if (config.params?.required) {
@@ -490,7 +490,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.BOOLEAN]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
@@ -534,7 +534,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.OBJECT]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     if (
       value === undefined ||
@@ -589,7 +589,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.ARRAY]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -630,11 +630,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       try {
         const _value = JSON.parse(value);
         if (Array.isArray(_value)) {
-          const result = validateArray(
-            config,
-            _value,
-            props as Record<string, unknown>,
-          );
+          const result = validateArray(config, _value, props);
           return result;
         }
       } catch (e) {
@@ -643,7 +639,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (Array.isArray(value)) {
-      return validateArray(config, value, props as Record<string, unknown>);
+      return validateArray(config, value, props);
     }
 
     return invalidResponse;
@@ -651,7 +647,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.OBJECT_ARRAY]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -712,7 +708,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.NESTED_OBJECT_ARRAY]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     let response: ValidationResponse = {
       isValid: false,
@@ -749,7 +745,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.DATE_ISO_STRING]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -794,7 +790,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.FUNCTION]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -819,7 +815,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.IMAGE_URL]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -884,7 +880,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.TABLE_PROPERTY]: (
     config: ValidationConfig,
     value: unknown,
-    props?: Record<string, unknown>,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     if (!config.params?.type)
       return {
