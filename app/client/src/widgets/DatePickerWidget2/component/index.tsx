@@ -130,6 +130,8 @@ export const TextLabelWrapper = styled.div<{
     }
     ${position === LabelPositionTypes.Left &&
       `
+      ${!width && `width: 33%`};
+      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
       label {
         ${width && `width: ${width}px`};
         ${

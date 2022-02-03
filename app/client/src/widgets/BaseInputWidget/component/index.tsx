@@ -336,11 +336,14 @@ const TextLabelWrapper = styled.div<{
     ${
       position !== LabelPositionTypes.Top &&
       (position === LabelPositionTypes.Left || compactMode)
-        ? `&&& {margin-right: 5px;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
+
     ${position === LabelPositionTypes.Left &&
       `
+      ${!width && `width: 33%`};
+      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
       label {
         ${width && `width: ${width}px`};
         ${
