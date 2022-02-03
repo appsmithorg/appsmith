@@ -41,10 +41,7 @@ import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButton
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
-import {
-  migrateCheckboxGroupDefaultSelectedValuesProperty,
-  migrateCheckboxGroupWidgetInlineProperty,
-} from "./migrations/CheckboxGroupWidget";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
@@ -1043,11 +1040,6 @@ export const transformDSL = (
 
   if (currentDSL.version === 50) {
     currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
-    currentDSL.version = 51;
-  }
-
-  if (currentDSL.version === 51) {
-    currentDSL = migrateCheckboxGroupDefaultSelectedValuesProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
