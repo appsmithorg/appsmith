@@ -16,12 +16,12 @@ export type UpdateSelectedAppThemeAction = {
   applicationId: string;
   theme: AppTheme;
   shouldReplay?: boolean;
-  isNewThemeApplied?: boolean;
 };
 
 export type ChangeSelectedAppThemeAction = {
   applicationId: string;
   theme: AppTheme;
+  shouldReplay?: boolean;
 };
 
 export type HydrateSelectedAppThemeAction = {

@@ -5,7 +5,10 @@ import * as Sentry from "@sentry/react";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateSelectedAppThemeAction } from "actions/appThemingActions";
+import {
+  changeSelectedAppThemeAction,
+  updateSelectedAppThemeAction,
+} from "actions/appThemingActions";
 import {
   AppThemingMode,
   getAppThemingStack,
@@ -97,14 +100,13 @@ export function ThemeCard(props: ThemeCard) {
   const changeSelectedTheme = useCallback(() => {
     if (isThemeSelectionMode && selectable) {
       dispatch(
-        updateSelectedAppThemeAction({
+        changeSelectedAppThemeAction({
           applicationId,
           theme,
-          isNewThemeApplied: true,
         }),
       );
     }
-  }, [updateSelectedAppThemeAction, theme]);
+  }, [changeSelectedAppThemeAction, theme]);
 
   return (
     <div className="space-y-1">

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import { get } from "lodash";
 import {
   CurrentApplicationData,
   PageListPayload,
@@ -180,7 +181,11 @@ export function PageTabs(props: Props) {
           >
             <PageTabName
               name={page.pageName}
-              primaryColor={selectedTheme.properties.colors.primaryColor}
+              primaryColor={get(
+                selectedTheme,
+                "properties.colors.primaryColor",
+                "inherit",
+              )}
             />
           </PageTab>
         </PageTabContainer>

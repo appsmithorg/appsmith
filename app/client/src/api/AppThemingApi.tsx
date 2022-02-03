@@ -26,7 +26,7 @@ class AppThemingApi extends API {
     mode = "EDIT",
   ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
     return API.get(
-      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}?mode=${mode}`,
+      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}/current?mode=${mode}`,
     );
   }
 
@@ -41,7 +41,7 @@ class AppThemingApi extends API {
     applicationId: string,
     theme: AppTheme,
   ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
-    return API.post(
+    return API.put(
       `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
       theme,
     );
