@@ -52,10 +52,6 @@ const StyledFieldToggleGroup = styled.div`
   }
 `;
 
-const Spacing = styled.div`
-  height: 20px;
-`;
-
 export function ToggleComponent({ setting }: SettingComponentProps) {
   return (
     <StyledFieldToggleGroup>
@@ -64,7 +60,6 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
           component={FieldToggleWithToggleText(setting.toggleText)}
           name={setting.name}
         />
-        <Spacing />
       </FormGroup>
     </StyledFieldToggleGroup>
   );
