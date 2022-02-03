@@ -136,23 +136,25 @@ function MultiSelectField({
 
   const fieldComponent = useMemo(() => {
     return (
-      <MultiSelect
-        compactMode={false}
-        disabled={schemaItem.isDisabled}
-        dropDownWidth={90}
-        dropdownStyle={DEFAULT_DROPDOWN_STYLES}
-        isValid={isDirty ? isValueValid : true}
-        loading={false}
-        onBlur={onBlurHandler}
-        onChange={onOptionChange}
-        onFilterChange={onFilterChange}
-        onFocus={onFocusHandler}
-        options={schemaItem.options || []}
-        placeholder={schemaItem.placeholderText || ""}
-        serverSideFiltering={schemaItem.serverSideFiltering}
-        value={value || DEFAULT_VALUE}
-        width={100}
-      />
+      <StyledMultiSelectWrapper>
+        <MultiSelect
+          compactMode={false}
+          disabled={schemaItem.isDisabled}
+          dropDownWidth={90}
+          dropdownStyle={DEFAULT_DROPDOWN_STYLES}
+          isValid={isDirty ? isValueValid : true}
+          loading={false}
+          onBlur={onBlurHandler}
+          onChange={onOptionChange}
+          onFilterChange={onFilterChange}
+          onFocus={onFocusHandler}
+          options={schemaItem.options || []}
+          placeholder={schemaItem.placeholderText || ""}
+          serverSideFiltering={schemaItem.serverSideFiltering}
+          value={value || DEFAULT_VALUE}
+          width={100}
+        />
+      </StyledMultiSelectWrapper>
     );
   }, [
     schemaItem,
@@ -166,22 +168,20 @@ function MultiSelectField({
   ]);
 
   return (
-    <StyledMultiSelectWrapper>
-      <Field
-        defaultValue={schemaItem.defaultValue}
-        defaultValueValidatorFn={defaultValueValidator}
-        fieldClassName={fieldClassName}
-        isRequiredField={isRequired}
-        label={schemaItem.label}
-        labelStyle={schemaItem.labelStyle}
-        labelTextColor={schemaItem.labelTextColor}
-        labelTextSize={schemaItem.labelTextSize}
-        name={name}
-        tooltip={schemaItem.tooltip}
-      >
-        {fieldComponent}
-      </Field>
-    </StyledMultiSelectWrapper>
+    <Field
+      defaultValue={schemaItem.defaultValue}
+      defaultValueValidatorFn={defaultValueValidator}
+      fieldClassName={fieldClassName}
+      isRequiredField={isRequired}
+      label={schemaItem.label}
+      labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
+      name={name}
+      tooltip={schemaItem.tooltip}
+    >
+      {fieldComponent}
+    </Field>
   );
 }
 

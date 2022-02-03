@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
 import { useController } from "react-hook-form";
 
@@ -149,6 +155,14 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     fieldType: schemaItem.fieldType,
     isValid: isValueValid,
   });
+
+  useEffect(() => {
+    const stringifiedValue: string = value?.toString();
+
+    if (stringifiedValue !== textValue) {
+      setTextValue(stringifiedValue);
+    }
+  }, [value]);
 
   const { inputRef } = useEvents<HTMLInputElement | HTMLTextAreaElement>({
     fieldBlurHandler: onBlur,

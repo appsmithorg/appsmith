@@ -1,4 +1,5 @@
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
+const widgetsLocators = require("../../../../../locators/Widgets.json");
 
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
@@ -63,7 +64,7 @@ describe("JSON Form Widget Form Bindings", () => {
 
     cy.wait(1000);
     // Check if modified text updates formData
-    cy.get(".t--draggable-textwidget")
+    cy.get(widgetsLocators.textWidget)
       .find(".bp3-ui-text")
       .then(($el) => {
         const formData = JSON.parse($el.text());
@@ -95,6 +96,8 @@ describe("JSON Form Widget Form Bindings", () => {
         isDisabled: false,
         isVisible: true,
         isRequired: false,
+        isValid: true,
+        isValid: true,
       },
       address: {
         street: {
@@ -157,6 +160,7 @@ describe("JSON Form Widget Form Bindings", () => {
         isDisabled: false,
         isVisible: false,
         isRequired: false,
+        isValid: true,
       },
       address: {
         street: {
@@ -301,6 +305,7 @@ describe("JSON Form Widget Form Bindings", () => {
         isDisabled: false,
         isVisible: false,
         isRequired: false,
+        isValid: true,
       },
       address: {
         street: {

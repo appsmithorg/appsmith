@@ -46,13 +46,14 @@ const COMPONENT_DEFAULT_VALUES = {
 };
 
 const componentDefaultValues = ({
-  bindingTemplate,
+  // bindingTemplate,
   isCustomField,
-  skipDefaultValueProcessing,
+  // skipDefaultValueProcessing,
+  // sourceDataPath,
   sourceData,
-  sourceDataPath,
 }: ComponentDefaultValuesFnProps<string>): DateComponentProps => {
-  let defaultValue;
+  // let defaultValue;
+  // const { endTemplate, startTemplate } = bindingTemplate;
   let dateFormat = COMPONENT_DEFAULT_VALUES.dateFormat;
 
   if (!isCustomField) {
@@ -64,16 +65,15 @@ const componentDefaultValues = ({
       dateFormat = format.value;
     }
 
-    if (sourceDataPath && !skipDefaultValueProcessing) {
-      const { endTemplate, startTemplate } = bindingTemplate;
-      const defaultValueString = `moment(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
-      defaultValue = `${startTemplate}${defaultValueString}${endTemplate}`;
-    }
+    // if (sourceDataPath && !skipDefaultValueProcessing) {
+    //   const { endTemplate, startTemplate } = bindingTemplate;
+    //   const defaultValueString = `moment(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
+    //   defaultValue = `${startTemplate}${defaultValueString}${endTemplate}`;
+    // }
   }
 
   return {
     ...COMPONENT_DEFAULT_VALUES,
-    defaultValue,
     dateFormat,
   };
 };
@@ -119,7 +119,7 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
 
   const onDateSelected = useCallback(
     (selectedValue: string) => {
-      if (schemaItem.convertToISO || selectedValue === "") {
+      if (schemaItem.convertToISO || !selectedValue) {
         onChange(selectedValue);
       } else {
         onChange(moment(selectedValue).format(schemaItem.dateFormat));
@@ -161,8 +161,16 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
   }, [value, schemaItem.dateFormat]);
 
   useEffect(() => {
-    onDateSelected(valueInISOFormat);
-  }, [valueInISOFormat]);
+    if (schemaItem.convertToISO && value !== valueInISOFormat) {
+      onChange(valueInISOFormat);
+    }
+
+    if (!schemaItem.convertToISO && value && value === valueInISOFormat) {
+      if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
+        onChange(moment(value).format(schemaItem.dateFormat));
+      }
+    }
+  }, [schemaItem.convertToISO, value, valueInISOFormat, schemaItem.dateFormat]);
 
   const fieldComponent = useMemo(() => {
     return (
