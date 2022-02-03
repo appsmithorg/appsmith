@@ -1045,6 +1045,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 50) {
+    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
+    currentDSL.version = 51;
+  }
+
+  if (currentDSL.version === 51) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
