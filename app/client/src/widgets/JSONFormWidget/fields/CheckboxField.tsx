@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
+import { useController } from "react-hook-form";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
-import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
+import NewField from "../component/NewField";
 import useEvents from "./useEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { AlignWidget } from "widgets/constants";
@@ -41,75 +42,86 @@ function CheckboxField({
   schemaItem,
 }: CheckboxFieldProps) {
   const {
-    isRequired,
-    label,
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
-  const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
+
+  const {
+    field: { onBlur, onChange, value },
+    fieldState: { isDirty },
+  } = useController({
+    name,
+    shouldUnregister: true,
+  });
+
+  const { inputRef } = useEvents<HTMLInputElement>({
+    fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
 
-  const { onFieldValidityChange } = useRegisterFieldValidity({
+  const isValueValid = isValid(value, schemaItem);
+
+  useRegisterFieldValidity({
     fieldName: name,
     fieldType: schemaItem.fieldType,
+    isValid: isValueValid,
+    useNewLogic: true,
   });
 
+  const onCheckChange = useCallback(
+    (isChecked: boolean) => {
+      onChange(isChecked);
+
+      if (schemaItem.onCheckChange && executeAction) {
+        executeAction({
+          triggerPropertyName: "onCheckChange",
+          dynamicString: schemaItem.onCheckChange,
+          event: {
+            type: EventType.ON_CHECK_CHANGE,
+          },
+        });
+      }
+    },
+    [schemaItem.onCheckChange, onChange, executeAction],
+  );
+
+  const fieldComponent = useMemo(
+    () => (
+      <CheckboxComponent
+        alignWidget={schemaItem.alignWidget}
+        inputRef={(e) => (inputRef.current = e)}
+        isChecked={value}
+        isDisabled={schemaItem.isDisabled}
+        isLoading={false}
+        isRequired={schemaItem.isRequired}
+        isValid={isDirty ? isValueValid : true}
+        label=""
+        noContainerPadding
+        onCheckChange={onCheckChange}
+        rowSpace={20}
+        widgetId=""
+      />
+    ),
+    [schemaItem, inputRef, value, isDirty, isValueValid, onCheckChange],
+  );
+
   return (
-    <Field
+    <NewField
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       hideLabel={hideLabel}
-      isRequiredField={isRequired}
-      label={label}
+      isRequiredField={schemaItem.isRequired}
+      label={schemaItem.label}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
-      render={({
-        field: { onBlur, onChange, value },
-        fieldState: { isDirty },
-      }) => {
-        const onCheckChange = (isChecked: boolean) => {
-          onChange(isChecked);
-
-          if (schemaItem.onCheckChange && executeAction) {
-            executeAction({
-              triggerPropertyName: "onCheckChange",
-              dynamicString: schemaItem.onCheckChange,
-              event: {
-                type: EventType.ON_CHECK_CHANGE,
-              },
-            });
-          }
-        };
-
-        const isValueValid = isValid(value, schemaItem);
-
-        registerFieldOnBlurHandler(onBlur);
-        onFieldValidityChange(isValueValid);
-
-        return (
-          <CheckboxComponent
-            alignWidget={schemaItem.alignWidget}
-            inputRef={(e) => (inputRef.current = e)}
-            isChecked={value}
-            isDisabled={schemaItem.isDisabled}
-            isLoading={false}
-            isRequired={isRequired}
-            isValid={isDirty ? isValueValid : true}
-            label=""
-            noContainerPadding
-            onCheckChange={onCheckChange}
-            // TODO: Handle default value of rowSpace
-            rowSpace={20}
-            widgetId=""
-          />
-        );
-      }}
-    />
+      tooltip={schemaItem.tooltip}
+    >
+      {fieldComponent}
+    </NewField>
   );
 }
 
