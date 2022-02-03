@@ -19,11 +19,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
+import static com.appsmith.external.services.ce.FilterDataServiceCE.PAGINATE_LIMIT_KEY;
+import static com.appsmith.external.services.ce.FilterDataServiceCE.PAGINATE_OFFSET_KEY;
+import static com.appsmith.external.services.ce.FilterDataServiceCE.SORT_BY_COLUMN_NAME_KEY;
+import static com.appsmith.external.services.ce.FilterDataServiceCE.SORT_BY_TYPE_KEY;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class FilterDataServiceTest {
+
+    public static final String VALUE_DESCENDING = "Descending";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final FilterDataService filterDataService = FilterDataService.getInstance();
@@ -1634,13 +1640,13 @@ public class FilterDataServiceTest {
 
             List<Map<String, String>> sortBy = new ArrayList<>();
             Map<String, String> sortCondition = new HashMap<>();
-            sortCondition.put("column", "orderAmount");
-            sortCondition.put("order", "Descending");
+            sortCondition.put(SORT_BY_COLUMN_NAME_KEY, "orderAmount");
+            sortCondition.put(SORT_BY_TYPE_KEY, VALUE_DESCENDING);
             sortBy.add(sortCondition);
 
             HashMap<String, String> paginateBy = new HashMap<>();
-            paginateBy.put("limit", "1");
-            paginateBy.put("offset", "1");
+            paginateBy.put(PAGINATE_LIMIT_KEY, "1");
+            paginateBy.put(PAGINATE_OFFSET_KEY, "1");
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
                     projectColumns, sortBy,paginateBy));
