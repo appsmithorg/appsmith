@@ -11,6 +11,9 @@ import ButtonGroupWidget, {
 import ButtonWidget, {
   CONFIG as BUTTON_WIDGET_CONFIG,
 } from "widgets/ButtonWidget";
+import SelectWidget, {
+  CONFIG as SELECT_WIDGET_CONFIG,
+} from "widgets/SelectWidget";
 import CameraWidget, {
   CONFIG as CAMERA_WIDGET_CONFIG,
 } from "widgets/CameraWidget";
@@ -44,6 +47,9 @@ import DatePickerWidget2, {
 import DividerWidget, {
   CONFIG as DIVIDER_WIDGET_CONFIG,
 } from "widgets/DividerWidget";
+import MultiSelectWidgetV2, {
+  CONFIG as MULTI_SELECT_WIDGET_V2_CONFIG,
+} from "widgets/MultiSelectWidgetV2";
 import DocumentViewerWidget, {
   CONFIG as DOCUMENT_VIEWER_WIDGET_CONFIG,
 } from "widgets/DocumentViewerWidget";
@@ -180,6 +186,8 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG],
   [CameraWidget, CAMERA_WIDGET_CONFIG],
   [MapChartWidget, MAP_CHART_WIDGET_CONFIG],
+  [SelectWidget, SELECT_WIDGET_CONFIG],
+  [MultiSelectWidgetV2, MULTI_SELECT_WIDGET_V2_CONFIG],
   [CircularProgressWidget, CIRCULAR_PROGRESS_WIDGET_CONFIG],
   [InputWidgetV2, INPUT_WIDGET_V2_CONFIG],
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],

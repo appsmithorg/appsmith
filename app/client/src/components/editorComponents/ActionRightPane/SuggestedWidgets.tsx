@@ -138,7 +138,12 @@ function getWidgetProps(
         type: suggestedWidget.type,
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
-          defaultOptionValue: `{{${widgetName}.options[0].value}}`,
+          defaultOptionValue: `{{
+            {
+              label: ${widgetName}.options[0].label,
+              value: ${widgetName}.options[0].value
+            }
+          }}`,
           dynamicBindingPathList: [
             { key: widgetInfo.propertyName },
             { key: "defaultOptionValue" },

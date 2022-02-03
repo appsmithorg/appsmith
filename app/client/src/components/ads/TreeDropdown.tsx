@@ -60,6 +60,8 @@ const StyledMenu = styled(Menu)`
     border-radius: 0px;
     background-color: ${(props) =>
       props.theme.colors.treeDropdown.menuBg.normal};
+    max-height: 90vh;
+    overflow-y: scroll;
   }
   .${Classes.MENU_ITEM} {
     border-radius: 0px;

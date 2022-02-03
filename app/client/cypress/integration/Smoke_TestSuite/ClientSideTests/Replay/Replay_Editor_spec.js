@@ -7,12 +7,13 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Undo/Redo functionality", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+  let postgresDatasourceName;
 
   it("Checks undo/redo in datasource forms", () => {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.generateUUID().then((uid) => {
-      let postgresDatasourceName = uid;
+      postgresDatasourceName = uid;
 
       cy.get(".t--edit-datasource-name").click();
       cy.get(".t--edit-datasource-name input")
@@ -76,10 +77,7 @@ describe("Undo/Redo functionality", function() {
   });
 
   it("Checks undo/redo in query editor", () => {
-    cy.get(".bp3-icon-chevron-left").click();
-    cy.get(".t--create-query")
-      .last()
-      .click();
+    cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()

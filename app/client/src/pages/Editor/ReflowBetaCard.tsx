@@ -34,12 +34,11 @@ const ReflowBetaWrapper = styled.div`
   .beta-icon {
     width: 45px;
     height: 25px;
-    fill: #1d9bd1;
     rect {
-      stroke: #1d9bd1;
+      stroke: #191919;
     }
     path {
-      fill: #fff;
+      fill: #191919;
     }
   }
 `;

@@ -95,6 +95,11 @@ const ExplorerDatasourceEntity = React.memo(
       [datasourceStructure, props.datasource.id, dispatch],
     );
 
+    const nameTransformFn = useCallback(
+      (input: string) => input.slice(0, 30),
+      [],
+    );
+
     let isDefaultExpanded = false;
     if (expandDatasourceId === props.datasource.id) {
       isDefaultExpanded = true;
@@ -119,6 +124,7 @@ const ExplorerDatasourceEntity = React.memo(
         isDefaultExpanded={isDefaultExpanded}
         key={props.datasource.id}
         name={props.datasource.name}
+        onNameEdit={nameTransformFn}
         onToggle={getDatasourceStructure}
         searchKeyword={props.searchKeyword}
         step={props.step}
