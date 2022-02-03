@@ -32,7 +32,6 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.DatasourceService;
@@ -42,6 +41,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -86,6 +86,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEME;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -144,7 +145,7 @@ public class ImportExportApplicationServiceTests {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    ThemeRepository themeRepository;
+    ThemeService themeService;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -833,8 +834,8 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                themeRepository.findById(application.getEditModeThemeId()),
-                                themeRepository.findById(application.getPublishedModeThemeId())
+                                themeService.getThemeById(application.getEditModeThemeId(), MANAGE_THEME),
+                                themeService.getThemeById(application.getPublishedModeThemeId(), MANAGE_THEME)
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -843,9 +844,13 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
                     assertThat(editTheme.getName()).isEqualTo("Custom edit theme");
+                    assertThat(editTheme.getOrganizationId()).isNull();
+                    assertThat(editTheme.getApplicationId()).isNull();
 
                     assertThat(publishedTheme.isSystemTheme()).isFalse();
                     assertThat(publishedTheme.getName()).isEqualTo("Custom published theme");
+                    assertThat(publishedTheme.getOrganizationId()).isNullOrEmpty();
+                    assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })
                 .verifyComplete();
     }

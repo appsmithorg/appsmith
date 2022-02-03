@@ -8,6 +8,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import lombok.Getter;
 
@@ -81,6 +82,8 @@ public enum AclPermission {
     READ_COMMENT("read:comments", Comment.class),
     MANAGE_COMMENT("manage:comments", Comment.class),
 
+    READ_THEME("read:theme", Theme.class),
+    MANAGE_THEME("manage:theme", Theme.class),
     ;
 
     private final String value;

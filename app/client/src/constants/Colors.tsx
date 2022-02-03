@@ -164,6 +164,8 @@ export const Colors = {
 
   GRAY_900: "#101828",
   SCORPION: "#575757",
+
+  COD_GRAY: "#191919",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

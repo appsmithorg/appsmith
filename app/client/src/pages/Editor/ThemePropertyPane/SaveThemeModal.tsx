@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 import Checkbox from "components/ads/Checkbox";
 import Dialog from "components/ads/DialogComponent";
@@ -37,7 +37,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
             You can save your custom themes to use across applications and use
             them when you need.
           </p>
-          <div className="mt-4 space-y-2">
+          <div className="mt-6 space-y-2">
             <h3 className="text-gray-700">Your theme name</h3>
             <TextInput
               autoFocus

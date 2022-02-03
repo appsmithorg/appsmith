@@ -40,12 +40,15 @@
                 ],
                 "serverSideFiltering": false,
                 "widgetName": "Select1",
-                "defaultOptionValue": "GREEN",
+                "defaultOptionValue": {
+                    "label": "Green",
+                    "value": "GREEN"
+                },
                 "version": 1,
                 "isFilterable": false,
                 "isRequired": false,
                 "isDisabled": false,
-                "type": "DROP_DOWN_WIDGET",
+                "type": "SELECT_WIDGET",
                 "hideCard": false,
                 "displayName": "Select",
                 "key": "xlzcpnuumm",

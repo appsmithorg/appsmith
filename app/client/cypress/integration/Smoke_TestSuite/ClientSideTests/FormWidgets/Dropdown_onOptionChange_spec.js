@@ -98,7 +98,7 @@ describe("Dropdown Widget Functionality", function() {
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("selectwidget");
     // Adding the query in the onClickAction of the button widget.
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
@@ -155,10 +155,8 @@ describe("Dropdown Widget Functionality", function() {
       .contains("Option 1")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
-    cy.openPropertyPane("dropdownwidget");
+    cy.get(publish.backToEditor).click();
+    cy.openPropertyPane("selectwidget");
     // Click on onOptionChange JS button
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
     cy.get(commonlocators.dropdownSelectButton)
