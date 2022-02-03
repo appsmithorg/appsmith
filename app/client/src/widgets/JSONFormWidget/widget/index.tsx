@@ -109,6 +109,7 @@ class JSONFormWidget extends BaseWidget<
     }
 
     const start = performance.now();
+
     const schema = SchemaParser.parse(
       widget.widgetName,
       currSourceData,

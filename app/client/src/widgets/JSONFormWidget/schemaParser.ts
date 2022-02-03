@@ -20,7 +20,6 @@ import {
   Schema,
   SchemaItem,
   getBindingTemplate,
-  FieldComponentBaseProps,
   RESTRICTED_KEYS,
 } from "./constants";
 
@@ -480,7 +479,7 @@ class SchemaParser {
     // can either be an object or a function.
     const componentDefaultValues = (() => {
       const { componentDefaultValues } = FieldComponent;
-      let defaultValues = componentDefaultValues as FieldComponentBaseProps;
+      let defaultValues;
       if (typeof componentDefaultValues === "function") {
         defaultValues = componentDefaultValues({
           sourceDataPath,
@@ -490,11 +489,19 @@ class SchemaParser {
           sourceData: currSourceData,
           skipDefaultValueProcessing,
         });
+      } else if (!componentDefaultValues) {
+        defaultValues = {
+          isDisabled: false,
+          isRequired: false,
+          isVisible: true,
+        };
+      } else {
+        defaultValues = componentDefaultValues;
       }
 
       return {
         ...defaultValues,
-        label: startCase(key) || key || defaultValues.label,
+        label: startCase(key) || key || defaultValues?.label || "",
       };
     })();
 

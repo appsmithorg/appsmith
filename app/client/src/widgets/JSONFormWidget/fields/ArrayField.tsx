@@ -1,18 +1,19 @@
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 import { ControllerRenderProps, useFormContext } from "react-hook-form";
 import { Icon } from "@blueprintjs/core";
-import { cloneDeep, get, pick, set } from "lodash";
+import { cloneDeep, get, set } from "lodash";
 
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
-import fieldRenderer from "./fieldRenderer";
+import FieldRenderer from "./FieldRenderer";
 import FormContext from "../FormContext";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import useDeepEffect from "utils/hooks/useDeepEffect";
 import {
   ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
   FieldState,
 } from "../constants";
@@ -71,6 +72,20 @@ const StyledDeleteButton = styled(StyledButton)`
   align-self: flex-end;
   color: ${Colors.CRIMSON};
 `;
+
+const DEFAULT_FIELD_RENDERER_OPTIONS = {
+  hideLabel: true,
+  hideAccordion: true,
+};
+
+const deleteIcon = (
+  <Icon
+    icon="trash"
+    iconSize={ACTION_ICON_SIZE}
+    style={{ color: Colors.CRIMSON }}
+  />
+);
+
 function ArrayField({
   fieldClassName,
   name,
@@ -81,7 +96,6 @@ function ArrayField({
   const [keys, setKeys] = useState<string[]>([]);
   const { setFieldValidityState } = useContext(FormContext);
 
-  const arrayItemSchema = schemaItem.children[ARRAY_ITEM_KEY];
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
   const defaultValue = (() => {
@@ -90,33 +104,33 @@ function ArrayField({
       : (schemaItemDefaultValue(schemaItem) as any[]);
   })();
 
-  const options = {
-    hideLabel: true,
-    hideAccordion: true,
-  };
-
   const add = () => {
     setKeys((prevKeys) => [...prevKeys, generateReactKey()]);
   };
 
-  const remove = (removedKey: string) => {
-    const removedIndex = keys.findIndex((key) => key === removedKey);
-    const values = getValues(name);
+  const remove = useCallback(
+    (removedKey: string) => {
+      const removedIndex = keys.findIndex((key) => key === removedKey);
+      const values = getValues(name);
 
-    if (values === undefined) {
-      return;
-    }
+      if (values === undefined) {
+        return;
+      }
 
-    // Manually remove from the values and re-insert to maintain the position of the
-    // values
-    const newValues = values.filter(
-      (_val: any, index: number) => index !== removedIndex,
-    );
+      // Manually remove from the values and re-insert to maintain the position of the
+      // values
+      const newValues = values.filter(
+        (_val: any, index: number) => index !== removedIndex,
+      );
 
-    setValue(name, newValues);
+      setValue(name, newValues);
 
-    setKeys((prevKeys) => prevKeys.filter((prevKey) => prevKey !== removedKey));
-  };
+      setKeys((prevKeys) =>
+        prevKeys.filter((prevKey) => prevKey !== removedKey),
+      );
+    },
+    [keys, setKeys, setValue, getValues],
+  );
 
   const reset = (values: any[]) => {
     const newKeys = values?.map(generateReactKey);
@@ -159,6 +173,43 @@ function ArrayField({
     });
   }, [keys]);
 
+  const fields = useMemo(() => {
+    const arrayItemSchema = schemaItem.children[ARRAY_ITEM_KEY];
+
+    return keys.map((key, index) => {
+      const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
+      const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.identifier}`;
+
+      return (
+        <Accordion
+          backgroundColor={schemaItem.cellBackgroundColor}
+          borderColor={schemaItem.cellBorderColor}
+          className={`t--jsonformfield-${fieldClassName}-item t--item-${index}`}
+          isCollapsible={schemaItem.isCollapsible}
+          key={key}
+          title={`${index + 1}`}
+        >
+          <StyledItemWrapper>
+            <FieldRenderer
+              fieldName={fieldName}
+              options={DEFAULT_FIELD_RENDERER_OPTIONS}
+              propertyPath={fieldPropertyPath}
+              schemaItem={arrayItemSchema}
+            />
+            <StyledDeleteButton
+              className="t--jsonformfield-array-delete-btn"
+              onClick={() => remove(key)}
+              type="button"
+            >
+              {deleteIcon}
+              <span className="t--text">Delete</span>
+            </StyledDeleteButton>
+          </StyledItemWrapper>
+        </Accordion>
+      );
+    });
+  }, [schemaItem, basePropertyPath, name, remove, keys, fieldClassName]);
+
   if (!schemaItem.isVisible) {
     return null;
   }
@@ -175,42 +226,7 @@ function ArrayField({
         labelTextSize={schemaItem.labelTextSize}
         tooltip={schemaItem.tooltip}
       />
-      {keys.map((key, index) => {
-        const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
-        const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.identifier}`;
-
-        return (
-          <Accordion
-            backgroundColor={schemaItem.cellBackgroundColor}
-            borderColor={schemaItem.cellBorderColor}
-            className={`t--jsonformfield-${fieldClassName}-item t--item-${index}`}
-            isCollapsible={schemaItem.isCollapsible}
-            key={key}
-            title={`${index + 1}`}
-          >
-            <StyledItemWrapper>
-              {fieldRenderer(
-                fieldName,
-                arrayItemSchema,
-                fieldPropertyPath,
-                options,
-              )}
-              <StyledDeleteButton
-                className="t--jsonformfield-array-delete-btn"
-                onClick={() => remove(key)}
-                type="button"
-              >
-                <Icon
-                  icon="trash"
-                  iconSize={ACTION_ICON_SIZE}
-                  style={{ color: Colors.CRIMSON }}
-                />
-                <span className="t--text">Delete</span>
-              </StyledDeleteButton>
-            </StyledItemWrapper>
-          </Accordion>
-        );
-      })}
+      {fields}
       <StyledButton
         className="t--jsonformfield-array-add-btn"
         onClick={add}
@@ -227,6 +243,7 @@ function ArrayField({
   );
 }
 
-ArrayField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const MemoedArrayField: FieldComponent = React.memo(ArrayField);
+MemoedArrayField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
-export default ArrayField;
+export default MemoedArrayField;

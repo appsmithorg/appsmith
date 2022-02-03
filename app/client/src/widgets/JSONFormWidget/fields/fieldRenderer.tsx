@@ -3,32 +3,38 @@ import { ControllerRenderProps } from "react-hook-form";
 
 import { FIELD_MAP, SchemaItem } from "../constants";
 
-const fieldRenderer = (
-  fieldName: ControllerRenderProps["name"],
-  schemaItem: SchemaItem,
-  propertyPath: string,
-  options?: Record<string, any>,
-) => {
-  const { fieldType, isVisible = true, tooltip } = schemaItem;
+type FieldRendererProps = {
+  fieldName: ControllerRenderProps["name"];
+  schemaItem: SchemaItem;
+  propertyPath: string;
+  options?: Record<string, any>;
+};
+
+function FieldRenderer({
+  fieldName,
+  options,
+  propertyPath,
+  schemaItem,
+}: FieldRendererProps) {
+  const { fieldType, isVisible = true } = schemaItem;
+
+  const FieldComponent = FIELD_MAP[fieldType];
 
   if (!isVisible) {
     return null;
   }
 
-  const FieldComponent = FIELD_MAP[fieldType];
-
   if (!FieldComponent) return null;
 
-  const fieldProps = {
-    key: fieldName,
-    name: fieldName,
-    fieldClassName: fieldName.replace(/[\.\[\]]/gi, "-"), // replace [,],. with -
-    tooltip,
-    schemaItem,
-    propertyPath,
-  };
+  return (
+    <FieldComponent
+      fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")} // replace [,],. with -
+      name={fieldName}
+      propertyPath={propertyPath}
+      schemaItem={schemaItem}
+      {...options}
+    />
+  );
+}
 
-  return <FieldComponent {...fieldProps} {...options} />;
-};
-
-export default fieldRenderer;
+export default FieldRenderer;

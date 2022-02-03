@@ -89,7 +89,6 @@ function CurrencyTypeDropdownComponent({
     string
   >();
   const onCurrencyTypeChange = (code?: string) => {
-    debugger;
     if (renderMode === RenderModes.CANVAS) {
       updateWidgetProperty?.(`${propertyPath}.currencyCountryCode`, code);
     } else {
@@ -99,12 +98,7 @@ function CurrencyTypeDropdownComponent({
 
   const selectedCurrencyCountryCode =
     metaCurrencyCountryCode || currencyCountryCode;
-  console.log("CURRENCY", {
-    propertyPath,
-    selectedCurrencyCountryCode,
-    metaCurrencyCountryCode,
-    currencyCountryCode,
-  });
+
   return (
     <CurrencyTypeDropdown
       allowCurrencyChange={allowCurrencyChange && !isDisabled}

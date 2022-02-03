@@ -32,12 +32,6 @@ const StyledWrapper = styled.div<StyledWrapperProps>`
   }
 `;
 
-// TODO: Do we need this?
-const StyledControllerWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 function NewField<TValue>({
   children,
   defaultValue,

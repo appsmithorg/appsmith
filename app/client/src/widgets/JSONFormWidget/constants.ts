@@ -118,9 +118,9 @@ export type ComponentDefaultValuesFnProps<TSourceData = any> = {
 };
 
 // This defines a react component with componentDefaultValues property attached to it.
-type FieldComponent = {
+export type FieldComponent = {
   (props: BaseFieldComponentProps): JSX.Element | null;
-  componentDefaultValues:
+  componentDefaultValues?:
     | FieldComponentBaseProps
     | ((props: ComponentDefaultValuesFnProps) => FieldComponentBaseProps);
   isValidType?: (value: any, options?: any) => boolean;

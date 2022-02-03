@@ -1,14 +1,18 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { ControllerRenderProps } from "react-hook-form";
 import { sortBy } from "lodash";
 
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
-import fieldRenderer from "./fieldRenderer";
+import FieldRenderer from "./FieldRenderer";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
-import { FieldComponentBaseProps, SchemaItem } from "../constants";
+import {
+  FieldComponent,
+  FieldComponentBaseProps,
+  SchemaItem,
+} from "../constants";
 
 type ObjectComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
@@ -65,27 +69,31 @@ function ObjectField({
     label,
     tooltip,
   } = schemaItem;
-  const children = Object.values(schemaItem.children);
-  const sortedChildren = sortBy(children, ({ position }) => position);
+
+  const fields = useMemo(() => {
+    const children = Object.values(schemaItem.children);
+    const sortedChildren = sortBy(children, ({ position }) => position);
+
+    return sortedChildren.map((schemaItem) => {
+      const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
+      const fieldPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
+
+      return (
+        <FieldRenderer
+          fieldName={fieldName as ControllerRenderProps["name"]}
+          key={fieldName}
+          propertyPath={fieldPropertyPath}
+          schemaItem={schemaItem}
+        />
+      );
+    });
+  }, [schemaItem, name, schemaItem.identifier, propertyPath]);
 
   if (!isVisible) {
     return null;
   }
 
-  const renderFields = () => {
-    return sortedChildren.map((schemaItem) => {
-      const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
-      const fieldPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
-
-      return fieldRenderer(
-        fieldName as ControllerRenderProps["name"],
-        schemaItem,
-        fieldPropertyPath,
-      );
-    });
-  };
-
-  const field = <StyledFieldsWrapper>{renderFields()}</StyledFieldsWrapper>;
+  const field = <StyledFieldsWrapper>{fields}</StyledFieldsWrapper>;
 
   return (
     <StyledWrapper
@@ -112,6 +120,7 @@ function ObjectField({
   );
 }
 
-ObjectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const MemoedObjectField: FieldComponent = React.memo(ObjectField);
+MemoedObjectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
-export default ObjectField;
+export default MemoedObjectField;
