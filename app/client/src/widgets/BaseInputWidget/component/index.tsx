@@ -360,12 +360,13 @@ const StyledTooltip = styled(Tooltip)`
   overflow: hidden;
 `;
 
-const TextInputWrapper = styled.div<{ numeric?: boolean }>`
+const TextInputWrapper = styled.div<{ inputHtmlType?: InputHTMLType }>`
   width: 100%;
   display: flex;
   flex: 1;
   overflow-x: hidden;
-  ${({ numeric }) => numeric && `&&& {flex-grow: 0;}`}
+  ${({ inputHtmlType }) =>
+    inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
   min-height: 36px;
 `;
 
@@ -648,10 +649,7 @@ class BaseInputComponent extends React.Component<
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={(!!multiline).toString()}
-        numeric={
-          inputType === InputTypes.PHONE_NUMBER ||
-          isNumberInputType(inputHTMLType)
-        }
+        numeric={isNumberInputType(inputHTMLType)}
       >
         {showLabelHeader && (
           <TextLabelWrapper
@@ -708,12 +706,7 @@ class BaseInputComponent extends React.Component<
             )}
           </TextLabelWrapper>
         )}
-        <TextInputWrapper
-          numeric={
-            inputType === InputTypes.PHONE_NUMBER ||
-            isNumberInputType(inputHTMLType)
-          }
-        >
+        <TextInputWrapper inputHtmlType={inputHTMLType}>
           <ErrorTooltip
             isOpen={isInvalid && showError}
             message={
