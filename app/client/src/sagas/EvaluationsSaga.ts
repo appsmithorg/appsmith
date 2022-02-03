@@ -2,12 +2,12 @@ import {
   actionChannel,
   all,
   call,
+  delay,
   fork,
   put,
   select,
   spawn,
   take,
-  delay,
 } from "redux-saga/effects";
 
 import {
@@ -85,6 +85,8 @@ import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
+import { updateMetaState } from "../actions/metaActions";
+import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -94,8 +96,10 @@ function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   shouldReplay?: boolean,
 ) {
+  const allActionValidationConfig = yield select(getAllActionValidationConfig);
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
+
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -108,8 +112,10 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
       widgets,
       shouldReplay,
+      allActionValidationConfig,
     },
   );
+
   const {
     dataTree,
     dependencies,
@@ -133,6 +139,8 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+
+  yield put(updateMetaState(dataTree));
 
   const updatedDataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
@@ -208,7 +216,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       keepAlive = false;
       /* Handle errors during evaluation
        * A finish event with errors means that the error was not caught by the user code.
-       * We raise an error telling the user that an uncaught error has occured
+       * We raise an error telling the user that an uncaught error has occurred
        * */
       if (requestData.result.errors.length) {
         throw new UncaughtPromiseError(
@@ -298,12 +306,6 @@ export function* clearEvalCache() {
   return true;
 }
 
-export function* clearEvalPropertyCache(propertyPath: string) {
-  yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE, {
-    propertyPath,
-  });
-}
-
 export function* executeFunction(collectionName: string, action: JSAction) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
@@ -331,21 +333,6 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   const { errors, result } = response;
   yield call(evalErrorHandler, errors);
   return result;
-}
-
-/**
- * clears all cache keys of a widget
- *
- * @param widgetName
- */
-export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
-  yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET,
-    {
-      widgetName,
-    },
-  );
 }
 
 export function* validateProperty(
@@ -554,23 +541,17 @@ export function* updateReplayEntitySaga(
   //Delay updates to replay object to not persist every keystroke
   yield delay(REPLAY_DELAY);
   const { entity, entityId, entityType } = actionPayload.payload;
-  const workerResponse = yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
-    {
-      entityId,
-      entity,
-      entityType,
-    },
-  );
-  return workerResponse;
+  return yield call(worker.request, EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT, {
+    entityId,
+    entity,
+    entityType,
+  });
 }
 
 export function* workerComputeUndoRedo(operation: string, entityId: string) {
-  const workerResponse: any = yield call(worker.request, operation, {
+  return yield call(worker.request, operation, {
     entityId,
   });
-  return workerResponse;
 }
 
 // Type to represent the state of the evaluation reducer

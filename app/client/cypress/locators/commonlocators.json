@@ -105,6 +105,8 @@
   "entityName": ".t--entity-name",
   "entityItem": ".t--entity-item",
   "entityCollapseToggle": ".t--entity-collapse-toggle",
+  "entityContextMenu": ".t--context-menu",
+  "entityContextMenuContent": ".t--entity-context-menu",
   "filePickerButton": ".t--widget-filepickerwidget",
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
@@ -146,11 +148,12 @@
   "errorTab": "[data-cy=t--tab-ERROR]",
   "debugErrorMsg": ".t--debugger-message",
   "debuggerLabel": "span.debugger-label",
-  "selectInner": ".t--draggable-dropdownwidget span.t--widget-name, Select1",
+  "selectInner": ".t--draggable-selectwidget span.t--widget-name, Select1",
   "toastifyError": "//div[@class='Toastify']//span]",
-  "dropdownWidget": ".t--draggable-dropdownwidget",
+  "selectwidget": ".t--draggable-selectwidget",
   "textWidget": ".t--draggable-textwidget",
   "filepickerv2": ".t--draggable-filepickerwidgetv2",
   "dashboardItemName": ".uppy-Dashboard-Item-name",
-  "mapChartShowLabels": ".t--property-control-showlabels input"
+  "mapChartShowLabels": ".t--property-control-showlabels input",
+  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle"
 }

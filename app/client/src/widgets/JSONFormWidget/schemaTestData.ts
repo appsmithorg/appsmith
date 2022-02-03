@@ -83,8 +83,7 @@ const initialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            // eslint-disable-next-line prettier/prettier
-            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.DATE,
           timePrecision: "minute",
           sourceData: "10/12/2021",
@@ -464,8 +463,7 @@ const withRemovedKeyFromInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            // eslint-disable-next-line prettier/prettier
-            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.DATE,
           timePrecision: "minute",
           sourceData: "10/12/2021",
@@ -805,8 +803,7 @@ const withRemovedAddedKeyToInitialDataset = {
           dataType: DataType.STRING,
           convertToISO: false,
           defaultValue:
-            // eslint-disable-next-line prettier/prettier
-            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.DATE,
           timePrecision: "minute",
           sourceData: "10/12/2021",
