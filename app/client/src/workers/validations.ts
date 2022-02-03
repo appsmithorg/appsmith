@@ -630,11 +630,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       try {
         const _value = JSON.parse(value);
         if (Array.isArray(_value)) {
-          const result = validateArray(
-            config,
-            _value,
-            props as Record<string, unknown>,
-          );
+          const result = validateArray(config, _value, props);
           return result;
         }
       } catch (e) {
@@ -643,7 +639,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (Array.isArray(value)) {
-      return validateArray(config, value, props as Record<string, unknown>);
+      return validateArray(config, value, props);
     }
 
     return invalidResponse;
