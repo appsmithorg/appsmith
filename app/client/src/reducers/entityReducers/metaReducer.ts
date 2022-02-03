@@ -90,7 +90,7 @@ export const metaReducer = createReducer(initialState, {
         ...state[widgetId],
       };
       Object.keys(resetData).forEach((key: string) => {
-        delete resetData[key];
+        resetData[key] = undefined;
       });
       return { ...state, [widgetId]: { ...resetData } };
     }
