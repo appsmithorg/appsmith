@@ -1,19 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
 
-const ItemWrapper = styled.div<{ selected: boolean }>`
+const ItemWrapper = styled.div<{ selected: boolean; focused: boolean }>`
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid ${Colors.GREY_5};
-  background: ${(props) =>
-    props.selected
-      ? Colors.GREY_10
-      : props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
+  border: 1px solid
+    ${(props) => (props.selected ? Colors.GREY_10 : Colors.GREY_5)};
+  background: ${(props) => (props.focused ? Colors.GREY_3 : Colors.WHITE)};
+
   cursor: pointer;
   & {
     margin-right: 4px;
@@ -22,14 +21,11 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
     cursor: pointer;
   }
   &:hover {
-    border-color: var(--appsmith-input-focus-border-color);
+    background: ${Colors.GREY_3};
   }
   &&& svg {
     path {
-      fill: ${(props) =>
-        props.selected
-          ? props.theme.colors.propertyPane.buttonText
-          : props.theme.colors.propertyPane.jsIconBg} !important;
+      fill: ${Colors.GREY_7} !important;
     }
   }
 `;
@@ -50,17 +46,59 @@ interface ButtonTabComponentProps {
 }
 
 function ButtonTabComponent(props: ButtonTabComponentProps) {
+  const valueSet = new Set(props.values);
+  let firstValueIndex = 0;
+  for (const [i, x] of props.options.entries()) {
+    if (valueSet.has(x.value)) {
+      firstValueIndex = i;
+      break;
+    }
+  }
+
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case "ArrowRight":
+      case "Right":
+        setFocusedIndex((prev) =>
+          prev === props.options.length - 1 ? 0 : prev + 1,
+        );
+        break;
+      case "ArrowLeft":
+      case "Left":
+        setFocusedIndex((prev) =>
+          prev === 0 ? props.options.length - 1 : prev - 1,
+        );
+        break;
+      case "Enter":
+      case " ":
+        props.selectButton(props.options[focusedIndex].value);
+        e.preventDefault();
+        break;
+    }
+  };
+
   return (
-    <FlexWrapper>
+    <FlexWrapper
+      onBlur={() => setFocusedIndex(-1)}
+      onFocus={() => setFocusedIndex(firstValueIndex)}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
       {props.options.map((option: ButtonTabOption, index: number) => {
         const controlIconName: ControlIconName = option.icon;
         const ControlIcon = ControlIcons[controlIconName];
-        const isSelected = props.values.includes(option.value);
+        const isSelected = valueSet.has(option.value);
         return (
           <ItemWrapper
             className={`t--button-tab-${option.value}`}
+            focused={index === focusedIndex}
             key={index}
-            onClick={() => props.selectButton(option.value)}
+            onClick={() => {
+              props.selectButton(option.value);
+              setFocusedIndex(index);
+            }}
             selected={isSelected}
           >
             <ControlIcon height={24} width={24} />
