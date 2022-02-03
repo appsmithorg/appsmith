@@ -30,6 +30,9 @@ describe("evaluateSync", () => {
     triggerPaths: {},
     validationPaths: {},
     logBlackList: {},
+    overridingPropertyPaths: {},
+    privateWidgets: {},
+    propertyOverrideDependency: {},
   };
   const dataTree: DataTree = {
     Input1: widget,
@@ -272,7 +275,7 @@ describe("isFunctionAsync", () => {
       if (typeof testFunc === "string") {
         testFunc = eval(testFunc);
       }
-      const actual = isFunctionAsync(testFunc, {});
+      const actual = isFunctionAsync(testFunc, {}, {});
       expect(actual).toBe(testCase.expected);
     }
   });
