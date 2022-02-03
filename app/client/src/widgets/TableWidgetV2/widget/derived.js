@@ -372,7 +372,7 @@ export default {
           return isAscOrder ? -1 : 1;
         }
       };
-      
+
       sortedTableData = sanitizedTableData.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
           if (
