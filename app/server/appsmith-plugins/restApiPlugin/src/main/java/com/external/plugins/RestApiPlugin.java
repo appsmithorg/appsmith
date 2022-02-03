@@ -52,10 +52,12 @@ import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -257,8 +259,17 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            if (DISALLOWED_HOSTS.contains(uri.getHost())) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
+            try {
+                final String host = uri.getHost();
+                if (StringUtils.isEmpty(host)
+                        || DISALLOWED_HOSTS.contains(host)
+                        || DISALLOWED_HOSTS.contains(InetAddress.getByName(host).getHostAddress())) {
+                    errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
+                    errorResult.setRequest(actionExecutionRequest);
+                    return Mono.just(errorResult);
+                }
+            } catch (UnknownHostException e) {
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Unknown host."));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
