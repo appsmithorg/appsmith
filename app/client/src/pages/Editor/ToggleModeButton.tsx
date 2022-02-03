@@ -47,6 +47,7 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { isExploringSelector } from "selectors/onboardingSelectors";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -324,6 +325,7 @@ function ToggleCommentModeButton({
   showSelectedMode = true,
 }: ToggleCommentModeButtonProps) {
   const dispatch = useDispatch();
+  const isExploring = useSelector(isExploringSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentUser = useSelector(getCurrentUser);
@@ -378,8 +380,8 @@ function ToggleCommentModeButton({
   return (
     <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
-        <div className="flex">
-          {appMode === APP_MODE.EDIT && (
+        <div style={{ display: "flex" }}>
+          {!isExploring && (
             <ModeButton
               active={!isCommentMode && !isPreviewMode}
               className="t--switch-comment-mode-off"

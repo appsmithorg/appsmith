@@ -29,5 +29,4 @@ export const PopoverStyles = createGlobalStyle`
   .auth-type-dropdown .ads-dropdown-options-wrapper {
     padding: 0;
   }
-
 `;

@@ -4,7 +4,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ALL_WDIGETS_AND_CONFIG } from "./WidgetRegistry";
+import { ALL_WIDGETS_AND_CONFIG } from "./WidgetRegistry";
 
 function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
   for (const sectionOrControlConfig of config) {
@@ -74,16 +74,22 @@ function validateValidationStructure(
   }
   return true;
 }
-
+const isNotFloat = (n: any) => {
+  return Number(n) === n && n % 1 === 0;
+};
 describe("Tests all widget's propertyPane config", () => {
-  ALL_WDIGETS_AND_CONFIG.forEach((widgetAndConfig) => {
-    const widget: any = widgetAndConfig[0];
+  ALL_WIDGETS_AND_CONFIG.forEach((widgetAndConfig) => {
+    const [widget, config]: any = widgetAndConfig;
     it(`Checks ${widget.getWidgetType()}'s propertyPaneConfig`, () => {
       const propertyPaneConfig = widget.getPropertyPaneConfig();
       const validatedPropertyPaneConfig = validatePropertyPaneConfig(
         propertyPaneConfig,
       );
       expect(validatedPropertyPaneConfig).toStrictEqual(true);
+    });
+    it(`Check if ${widget.getWidgetType()}'s dimensions are always integers`, () => {
+      expect(isNotFloat(config.defaults.rows)).toBe(true);
+      expect(isNotFloat(config.defaults.columns)).toBe(true);
     });
   });
 });

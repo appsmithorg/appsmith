@@ -6,12 +6,14 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -40,7 +42,6 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
@@ -57,6 +58,7 @@ import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
 import static com.appsmith.external.constants.Authentication.SCOPE;
 import static com.appsmith.external.constants.Authentication.STATE;
 import static com.appsmith.external.constants.Authentication.SUCCESS;
+
 
 @RequiredArgsConstructor
 @Slf4j
@@ -298,15 +300,26 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                                newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.READ_PAGES)
-                                        .map(page -> List.of(page.getId(), page.getApplicationId())),
-                                configService.getInstanceId(),
-                                pluginService.findById(datasource.getPluginId()))
+                            newPageService.findById(pageId, AclPermission.READ_PAGES),
+                            configService.getInstanceId(),
+                            pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {
                             IntegrationDTO integrationDTO = new IntegrationDTO();
-                            integrationDTO.setPageId(tuple.getT1().get(0));
-                            integrationDTO.setApplicationId(tuple.getT1().get(1));
                             integrationDTO.setInstallationKey(tuple.getT2());
+                            NewPage page = tuple.getT1();
+
+                            DefaultResources defaultResourceIds = page.getDefaultResources();
+                            String defaultPageId = StringUtils.hasLength(defaultResourceIds.getPageId())
+                                    ? defaultResourceIds.getPageId()
+                                    : page.getId();
+
+                            String defaultApplicationId = StringUtils.hasLength(defaultResourceIds.getApplicationId())
+                                    ? defaultResourceIds.getApplicationId()
+                                    : page.getApplicationId();
+
+                            integrationDTO.setPageId(defaultPageId);
+                            integrationDTO.setApplicationId(defaultApplicationId);
+                            integrationDTO.setBranch(branchName);
                             final Plugin plugin = tuple.getT3();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());

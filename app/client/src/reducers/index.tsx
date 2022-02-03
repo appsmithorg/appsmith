@@ -128,5 +128,8 @@ export interface AppState {
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
   };
+  form: {
+    [key: string]: any;
+  };
   settings: SettingsReduxState;
 }

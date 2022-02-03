@@ -404,6 +404,8 @@ const createLoadingWidget = (
     validationPaths: {},
     logBlackList: {},
     isLoading: true,
+    propertyOverrideDependency: {},
+    overridingPropertyPaths: {},
     privateWidgets: {},
   };
 };

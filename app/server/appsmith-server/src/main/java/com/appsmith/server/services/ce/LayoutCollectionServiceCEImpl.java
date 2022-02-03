@@ -78,7 +78,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         DefaultResources defaultResources = collection.getDefaultResources();
 
         if (defaultResources == null) {
-            DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(collection, null);
+            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(collection, null);
         }
 
         final String pageId = collection.getPageId();
@@ -195,7 +195,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actions.forEach(actionDTO -> {
                                     // Update all the actions in the list to belong to actionCollectionService collection
                                     actionDTO.setCollectionId(actionCollection1.getId());
-                                    if (!StringUtils.isEmpty(actionDTO.getDefaultResources().getCollectionId())) {
+                                    if (StringUtils.isEmpty(actionDTO.getDefaultResources().getCollectionId())) {
                                         actionDTO.getDefaultResources().setCollectionId(actionCollection1.getId());
                                     }
                                 });

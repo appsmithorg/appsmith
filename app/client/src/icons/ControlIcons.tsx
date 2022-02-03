@@ -55,7 +55,7 @@ import { ReactComponent as BoxShadowVariant2Icon } from "assets/icons/control/bo
 import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/box-shadow-variant3.svg";
 import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
 import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
-import IncreaseV2Icon from "remixicon-react/AddCircleLineIcon";
+import IncreaseV2Icon from "remixicon-react/AddLineIcon";
 import PlayIcon from "assets/icons/control/play-icon.png";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import QuestionIcon from "remixicon-react/QuestionLineIcon";

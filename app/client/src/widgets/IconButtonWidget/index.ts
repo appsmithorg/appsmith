@@ -1,8 +1,7 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
 import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariantTypes } from "components/constants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -13,8 +12,8 @@ export const CONFIG = {
     buttonVariant: ButtonVariantTypes.PRIMARY,
     isDisabled: false,
     isVisible: true,
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 1 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 4,
     widgetName: "IconButton",
     version: 1,
     animateLoading: true,

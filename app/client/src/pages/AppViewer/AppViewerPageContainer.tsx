@@ -12,7 +12,6 @@ import {
   getCanvasWidgetDsl,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import EndTourHelper from "components/editorComponents/Onboarding/EndTourHelper";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
@@ -70,31 +69,33 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
     }
   }, [currentApplication?.userPermissions]);
 
-  if (isFetchingPage) {
-    return (
-      <Centered style={{ height: `calc(100vh - 87px)` }}>
-        <Spinner />
-      </Centered>
-    );
-  }
+  const pageNotFound = (
+    <Centered>
+      <NonIdealState
+        description={appsmithEditorLink}
+        icon={
+          <Icon
+            color={theme.colors.primaryOld}
+            icon="page-layout"
+            iconSize={theme.fontSizes[9]}
+          />
+        }
+        title="This page seems to be blank"
+      />
+    </Centered>
+  );
+
+  const pageLoading = (
+    <Centered>
+      <Spinner />
+    </Centered>
+  );
+
+  if (isFetchingPage) return pageLoading;
 
   return (
     <Section>
-      {!(widgets.children && widgets?.children.length > 0) && (
-        <Centered>
-          <NonIdealState
-            description={appsmithEditorLink}
-            icon={
-              <Icon
-                color={theme.colors.primaryOld}
-                icon="page-layout"
-                iconSize={theme.fontSizes[9]}
-              />
-            }
-            title="This page seems to be blank"
-          />
-        </Centered>
-      )}
+      {!(widgets.children && widgets.children.length > 0) && pageNotFound}
       <AppPage
         appName={currentApplication?.name}
         dsl={widgets}
@@ -102,7 +103,6 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
         pageName={currentPageName}
       />
       <ConfirmRunModal />
-      <EndTourHelper />
     </Section>
   );
 }

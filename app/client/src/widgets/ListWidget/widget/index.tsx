@@ -131,6 +131,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       props,
       PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
     );
+    if (!listWidgetChildren) return;
     listWidgetChildren.map((child) => {
       privateWidgets[child.widgetName] = true;
     });

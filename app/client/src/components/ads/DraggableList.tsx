@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { clamp } from "lodash-es";
 import swap from "lodash-move";
 import { useDrag } from "react-use-gesture";
-import { useSprings, animated, interpolate } from "react-spring";
+import { useSprings, animated, to } from "react-spring";
 import styled from "styled-components";
 import { debounce, get } from "lodash";
 
@@ -132,7 +132,7 @@ function DraggableList(props: any) {
           style={{
             zIndex,
             width: "100%",
-            transform: interpolate(
+            transform: to(
               [y, scale],
               (y, s) => `translate3d(0,${y}px,0) scale(${s})`,
             ),

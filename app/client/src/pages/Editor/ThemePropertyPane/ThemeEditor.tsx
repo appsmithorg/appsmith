@@ -20,7 +20,6 @@ import { AppTheme } from "entities/AppTheming";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import Button, { Category, Size } from "components/ads/Button";
-import Dropdown from "components/ads/Dropdown";
 import MoreIcon from "remixicon-react/MoreFillIcon";
 import DownloadIcon from "remixicon-react/DownloadLineIcon";
 import SaveThemeModal from "./SaveThemeModal";
@@ -28,13 +27,19 @@ import { Popover, Position } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import Menu from "components/ads/Menu";
 import MenuItem from "components/ads/MenuItem";
+import {
+  Dropdown,
+  DropdownList,
+  DropdownItem,
+  DropdownTrigger,
+} from "components/ads/DropdownV2";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const themingStack = useSelector(getAppThemingStack);
-  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isSaveModalOpen, setSaveModalOpen] = useState(false);
 
   const updateSelectedTheme = useCallback(
     (theme: AppTheme) => {
@@ -62,16 +67,19 @@ function ThemeEditor() {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-normal capitalize">Theme Properties</h3>
             <div>
-              <Menu position={Position.BOTTOM} target={<MoreIcon />}>
-                <MenuItem
-                  icon="download2"
-                  onSelect={() => {
-                    console.log("hello");
-                  }}
-                  text="Save theme"
-                />
-                <div />
-              </Menu>
+              <Dropdown>
+                <DropdownTrigger>
+                  <MoreIcon />
+                </DropdownTrigger>
+                <DropdownList>
+                  <DropdownItem
+                    onClick={() => {
+                      setSaveModalOpen(true);
+                    }}
+                    text="Save theme"
+                  />
+                </DropdownList>
+              </Dropdown>
             </div>
           </div>
           <ThemeCard changeable theme={selectedTheme} />
@@ -178,7 +186,12 @@ function ThemeEditor() {
           </SettingSection>
         </main>
       </div>
-      {/* <SaveThemeModal isOpen={isOpen} onClose={onClose} /> */}
+      <SaveThemeModal
+        isOpen={isSaveModalOpen}
+        onClose={() => {
+          setSaveModalOpen(false);
+        }}
+      />
     </>
   );
 }

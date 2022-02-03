@@ -1,6 +1,5 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { BarType } from "./constants";
 
 export const CONFIG = {
@@ -11,8 +10,8 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "ProgressBar",
-    rows: 0.9 * GRID_DENSITY_MIGRATION_V1,
-    columns: 7 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 28,
     isVisible: true,
     showResult: false,
     barType: BarType.INDETERMINATE,

@@ -1,14 +1,18 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
+import { Colors } from "constants/Colors";
 
 const StyledRTEditor = styled.div<{
   borderRadius: string;
   boxShadow?: string;
+  isValid?: boolean;
 }>`
   && {
     width: 100%;
     height: 100%;
+    border: 1px solid
+      ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
     .tox .tox-editor-header {
       z-index: 0;
     }
@@ -39,6 +43,7 @@ export interface RichtextEditorComponentProps {
   borderRadius: string;
   boxShadow?: string;
 
+  isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 const initValue = "<p></p>";
@@ -76,6 +81,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
       className={`container-${props.widgetId}`}
+      isValid={props.isValid}
     >
       <Editor
         disabled={props.isDisabled}

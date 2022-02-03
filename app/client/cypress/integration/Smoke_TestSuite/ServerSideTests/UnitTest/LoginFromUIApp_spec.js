@@ -1,5 +1,7 @@
 const homePage = require("../../../../locators/HomePage.json");
 const HelpLocators = require("../../../../locators/HelpLocators.json");
+const pages = require("../../../../locators/Pages.json");
+
 let pageid;
 let appId;
 
@@ -9,11 +11,18 @@ describe("Login from UI and check the functionality", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appname);
     cy.get("#loading").should("not.exist");
-
+    cy.wait(30000);
     cy.generateUUID().then((uid) => {
       pageid = uid;
       cy.Createpage(pageid);
-      cy.DeletepageFromSideBar();
+      cy.get(`.t--entity-name`)
+        .contains(pageid)
+        .trigger("mouseover");
+      cy.hoverAndClick();
+      cy.get(pages.deletePage)
+        .first()
+        .click({ force: true });
+      cy.wait(2000);
     });
     cy.wait("@deletePage");
     cy.get("@deletePage").should("have.property", "status", 200);

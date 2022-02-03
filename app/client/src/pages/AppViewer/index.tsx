@@ -42,12 +42,14 @@ import {
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
+import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
+  showGuidedTourMessage: boolean;
 }>`
   display: flex;
   flex-direction: row;
@@ -90,6 +92,7 @@ function AppViewer(props: Props) {
   const lightTheme = useSelector((state: AppState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
   );
+  const showGuidedTourMessage = useSelector(showPostCompletionMessage);
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
@@ -214,6 +217,7 @@ function AppViewer(props: Props) {
               <AppViewerBody
                 hasPages={pages.length > 1}
                 headerHeight={headerHeight}
+                showGuidedTourMessage={showGuidedTourMessage}
               >
                 {isInitialized && registered && (
                   <Switch>
