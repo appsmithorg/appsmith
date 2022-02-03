@@ -1,6 +1,14 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Text,
+  TextType,
+  Button,
+  Category,
+  Size,
+  Icon,
+  IconSize,
+} from "components/ads";
 import InfoWrapper from "./InfoWrapper";
 import Link from "./Link";
 import {
@@ -10,10 +18,8 @@ import {
   OPEN_REPO,
 } from "constants/messages";
 import { Theme } from "constants/DefaultTheme";
-import Button, { Category, Size } from "components/ads/Button";
 import { useSelector } from "store";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 
 const Row = styled.div`

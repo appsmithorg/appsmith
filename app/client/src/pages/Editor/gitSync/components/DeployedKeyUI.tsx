@@ -6,8 +6,7 @@ import {
 } from "constants/messages";
 import React from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
-import TooltipComponent from "components/ads/Tooltip";
+import { Text, TextType, Tooltip as TooltipComponent } from "components/ads";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";

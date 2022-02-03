@@ -16,7 +16,7 @@ import {
   LATEST_DP_SUBTITLE,
   createMessage,
 } from "constants/messages";
-import Text, { TextType, Case } from "components/ads/Text";
+import { Text, TextType, Case } from "components/ads";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
