@@ -1477,7 +1477,7 @@ Cypress.Commands.add("updateComputedValue", (value) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is empty");
       cy.get(".CodeMirror textarea")
         .first()
@@ -1532,7 +1532,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is not empty");
       cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
@@ -1602,7 +1602,7 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is empty");
       cy.get(".CodeMirror textarea")
         .last()
@@ -1948,7 +1948,7 @@ Cypress.Commands.add("DeleteAppByApi", () => {
     const match = myRegexp.exec(currentURL);
     appId = match ? match[1].split("/")[1] : null;
 
-    if (appId != null) {
+    if (appId !== null) {
       cy.log(appId + "appId");
       cy.request({
         method: "DELETE",
