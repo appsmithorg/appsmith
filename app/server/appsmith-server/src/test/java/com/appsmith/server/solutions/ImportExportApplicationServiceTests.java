@@ -1206,9 +1206,9 @@ public class ImportExportApplicationServiceTests {
                     assertThat(applicationPageIdsBeforeImport).hasSize(2);
                     assertThat(newPages.size()).isEqualTo(3);
                     List<String> pageNames = newPages.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
-                    assertThat(pageNames.contains("Page1"));
-                    assertThat(pageNames.contains("Page2"));
-                    assertThat(pageNames.contains("Page3"));
+                    assertThat(pageNames).contains("Page1");
+                    assertThat(pageNames).contains("Page2");
+                    assertThat(pageNames).contains("Page3");
                     for (NewPage newPage: newPages) {
                         assertThat(newPage.getGitSyncId()).isEqualTo(gitSyncIdBeforeImport);
                     }
