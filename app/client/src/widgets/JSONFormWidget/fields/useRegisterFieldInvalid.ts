@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { cloneDeep, set } from "lodash";
 import { ControllerProps, useFormContext } from "react-hook-form";
 import { useContext, useEffect } from "react";
@@ -5,7 +6,7 @@ import { useContext, useEffect } from "react";
 import FormContext from "../FormContext";
 import { FieldType } from "../constants";
 
-type UseRegisterFieldValidityProps = {
+export type UseRegisterFieldValidityProps = {
   isValid: boolean;
   fieldName: ControllerProps["name"];
   fieldType: FieldType;
@@ -30,7 +31,9 @@ function useRegisterFieldValidity({
             type: fieldType,
             message: "Invalid field",
           });
-    } catch (e) {}
+    } catch (e) {
+      Sentry.captureException(e);
+    }
 
     setFieldValidityState((prevState) => {
       const fieldValidity = cloneDeep(prevState.fieldValidity);
@@ -41,7 +44,7 @@ function useRegisterFieldValidity({
         fieldValidity,
       };
     });
-  }, [isValid]);
+  }, [isValid, fieldName, fieldType]);
 }
 
 export default useRegisterFieldValidity;

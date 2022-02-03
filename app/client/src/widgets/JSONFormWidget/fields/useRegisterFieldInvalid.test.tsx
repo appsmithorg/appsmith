@@ -3,7 +3,9 @@ import { renderHook } from "@testing-library/react-hooks";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { FormContextProvider } from "../FormContext";
-import useRegisterFieldValidity from "./useRegisterFieldInvalid";
+import useRegisterFieldValidity, {
+  UseRegisterFieldValidityProps,
+} from "./useRegisterFieldInvalid";
 import { FieldType } from "../constants";
 
 const initialFieldState = {
@@ -45,14 +47,15 @@ describe("useRegisterFieldInvalid", () => {
 
     const fieldName = "array[0].first";
     const { rerender } = renderHook(
-      () =>
+      ({ fieldName, isValid }: UseRegisterFieldValidityProps) =>
         useRegisterFieldValidity({
-          isValid: false,
+          isValid,
           fieldName,
           fieldType: FieldType.TEXT,
         }),
       {
         wrapper: Wrapper,
+        initialProps: { isValid: false, fieldName, fieldType: FieldType.TEXT },
       },
     );
 
@@ -74,16 +77,19 @@ describe("useRegisterFieldInvalid", () => {
       },
     };
 
+    expect(mockSetFieldValidityState).toBeCalledTimes(1);
+
     rerender({
       isValid: true,
       fieldName,
       fieldType: FieldType.TEXT,
     });
 
-    expect(mockSetFieldValidityState).toBeCalledTimes(1);
-    const cbResult = mockSetFieldValidityState.mock.calls[0][0](
+    expect(mockSetFieldValidityState).toBeCalledTimes(2);
+    const cbResult = mockSetFieldValidityState.mock.calls[1][0](
       initialFieldState,
     );
+
     expect(cbResult).toEqual(expectedUpdatedFieldState);
   });
 
