@@ -1,8 +1,9 @@
-import React, { useContext, useRef } from "react";
+import React, { useCallback, useContext, useMemo, useRef } from "react";
 import styled from "styled-components";
+import { useController } from "react-hook-form";
 
 import DropDownComponent from "widgets/DropdownWidget/component";
-import Field from "widgets/JSONFormWidget/component/Field";
+import NewField from "widgets/JSONFormWidget/component/NewField";
 import FormContext from "../FormContext";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
@@ -55,10 +56,21 @@ function SelectField({
 }: SelectFieldProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction, updateWidgetMetaProperty } = useContext(FormContext);
+  const {
+    field: { onChange, value },
+    fieldState: { isDirty },
+  } = useController({
+    name,
+    shouldUnregister: true,
+  });
 
-  const { onFieldValidityChange } = useRegisterFieldValidity({
+  const isValueValid = isValid(schemaItem, value);
+
+  useRegisterFieldValidity({
+    isValid: isValueValid,
     fieldName: name,
     fieldType: schemaItem.fieldType,
+    useNewLogic: true,
   });
 
   const onFilterChange = (value: string) => {
@@ -75,8 +87,56 @@ function SelectField({
     }
   };
 
+  const selectedOptionIndex = schemaItem.options.findIndex(
+    (option) => option.value === value,
+  );
+  const selectedIndex =
+    selectedOptionIndex > -1 ? selectedOptionIndex : undefined;
+
+  const onOptionSelected = useCallback(
+    (option: DropdownOption) => {
+      onChange(option.value);
+
+      if (schemaItem.onOptionChange && executeAction) {
+        executeAction({
+          triggerPropertyName: "onOptionChange",
+          dynamicString: schemaItem.onOptionChange,
+          event: {
+            type: EventType.ON_OPTION_CHANGE,
+          },
+        });
+      }
+    },
+    [onChange, schemaItem.onOptionChange, executeAction],
+  );
+
+  const fieldComponent = useMemo(
+    () => (
+      <StyledSelectWrapper ref={wrapperRef}>
+        <DropDownComponent
+          compactMode={false}
+          disabled={schemaItem.isDisabled}
+          dropDownWidth={wrapperRef.current?.clientWidth || 100}
+          height={10}
+          isFilterable={schemaItem.isFilterable}
+          isLoading={false}
+          isValid={isDirty ? isValueValid : true}
+          onFilterChange={onFilterChange}
+          onOptionSelected={onOptionSelected}
+          options={schemaItem.options}
+          placeholder={schemaItem.placeholderText}
+          selectedIndex={selectedIndex}
+          serverSideFiltering={schemaItem.serverSideFiltering}
+          widgetId=""
+          width={10}
+        />
+      </StyledSelectWrapper>
+    ),
+    [wrapperRef, isDirty, isValueValid, onOptionSelected, selectedIndex],
+  );
+
   return (
-    <Field
+    <NewField
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
@@ -85,55 +145,10 @@ function SelectField({
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
-      render={({ field: { onChange, value }, fieldState: { isDirty } }) => {
-        const selectedOptionIndex = schemaItem.options.findIndex(
-          (option) => option.value === value,
-        );
-        const selectedIndex =
-          selectedOptionIndex > -1 ? selectedOptionIndex : undefined;
-
-        const onOptionSelected = (option: DropdownOption) => {
-          onChange(option.value);
-
-          if (schemaItem.onOptionChange && executeAction) {
-            executeAction({
-              triggerPropertyName: "onOptionChange",
-              dynamicString: schemaItem.onOptionChange,
-              event: {
-                type: EventType.ON_OPTION_CHANGE,
-              },
-            });
-          }
-        };
-
-        const isValueValid = isValid(schemaItem, value);
-
-        onFieldValidityChange(isValueValid);
-
-        return (
-          <StyledSelectWrapper ref={wrapperRef}>
-            <DropDownComponent
-              compactMode={false}
-              disabled={schemaItem.isDisabled}
-              dropDownWidth={wrapperRef.current?.clientWidth || 100}
-              height={10}
-              isFilterable={schemaItem.isFilterable}
-              isLoading={false}
-              isValid={isDirty ? isValueValid : true}
-              onFilterChange={onFilterChange}
-              onOptionSelected={onOptionSelected}
-              options={schemaItem.options}
-              placeholder={schemaItem.placeholderText}
-              selectedIndex={selectedIndex}
-              serverSideFiltering={schemaItem.serverSideFiltering}
-              widgetId=""
-              width={10}
-            />
-          </StyledSelectWrapper>
-        );
-      }}
       tooltip={schemaItem.tooltip}
-    />
+    >
+      {fieldComponent}
+    </NewField>
   );
 }
 

@@ -227,8 +227,7 @@ const COMMON_PROPERTIES = {
         return getSchemaItem(...args).then(
           (schemaItem) =>
             schemaItem.fieldType === FieldType.OBJECT ||
-            schemaItem.fieldType === FieldType.ARRAY ||
-            schemaItem.fieldType === FieldType.SWITCH,
+            schemaItem.fieldType === FieldType.ARRAY,
         );
       },
       dependencies: ["schema", "sourceData"],

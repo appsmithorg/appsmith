@@ -1,6 +1,10 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
+import { useController } from "react-hook-form";
 
-import Field from "widgets/JSONFormWidget/component/Field";
+import FormContext from "../FormContext";
+import NewField from "widgets/JSONFormWidget/component/NewField";
+import useEvents from "./useEvents";
+import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { AlignWidget } from "widgets/constants";
 import {
   BaseFieldComponentProps,
@@ -8,8 +12,6 @@ import {
   FieldEventProps,
 } from "../constants";
 import { SwitchComponent } from "widgets/SwitchWidget/component";
-import FormContext from "../FormContext";
-import useEvents from "./useEvents";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 type SwitchComponentOwnProps = FieldComponentBaseProps &
@@ -28,19 +30,73 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   label: "",
 };
 
+const isValid = (value: boolean, schemaItem: SwitchFieldProps["schemaItem"]) =>
+  schemaItem.isRequired ? Boolean(value) : true;
+
 function SwitchField({ fieldClassName, name, schemaItem }: SwitchFieldProps) {
   const {
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
-  const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
+
+  const {
+    field: { onBlur, onChange, value },
+  } = useController({
+    name,
+    shouldUnregister: true,
+  });
+
+  const { inputRef } = useEvents<HTMLInputElement>({
+    fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
 
+  const isValueValid = isValid(value, schemaItem);
+
+  useRegisterFieldValidity({
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
+    isValid: isValueValid,
+    useNewLogic: true,
+  });
+
+  const onSwitchChange = useCallback(
+    (value: boolean) => {
+      onChange(value);
+
+      if (schemaItem.onChange && executeAction) {
+        executeAction({
+          triggerPropertyName: "onChange",
+          dynamicString: schemaItem.onChange,
+          event: {
+            type: EventType.ON_SWITCH_CHANGE,
+          },
+        });
+      }
+    },
+    [onChange, executeAction, schemaItem.onChange],
+  );
+
+  const fieldComponent = useMemo(
+    () => (
+      <SwitchComponent
+        alignWidget={schemaItem.alignWidget}
+        inputRef={(e) => (inputRef.current = e)}
+        isDisabled={schemaItem.isDisabled}
+        isLoading={false}
+        isSwitchedOn={value ?? false}
+        label=""
+        onChange={onSwitchChange}
+        widgetId=""
+      />
+    ),
+    [schemaItem.alignWidget, schemaItem.isDisabled, onSwitchChange, value],
+  );
+
   return (
-    <Field
+    <NewField
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       inlineLabel
@@ -50,38 +106,10 @@ function SwitchField({ fieldClassName, name, schemaItem }: SwitchFieldProps) {
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
-      render={({ field: { onBlur, onChange, value } }) => {
-        const onSwitchChange = (value: boolean) => {
-          onChange(value);
-
-          if (schemaItem.onChange && executeAction) {
-            executeAction({
-              triggerPropertyName: "onChange",
-              dynamicString: schemaItem.onChange,
-              event: {
-                type: EventType.ON_SWITCH_CHANGE,
-              },
-            });
-          }
-        };
-
-        registerFieldOnBlurHandler(onBlur);
-
-        return (
-          <SwitchComponent
-            alignWidget={schemaItem.alignWidget}
-            inputRef={(e) => (inputRef.current = e)}
-            isDisabled={schemaItem.isDisabled}
-            isLoading={false}
-            isSwitchedOn={value ?? false}
-            label=""
-            onChange={onSwitchChange}
-            widgetId=""
-          />
-        );
-      }}
       tooltip={schemaItem.tooltip}
-    />
+    >
+      {fieldComponent}
+    </NewField>
   );
 }
 

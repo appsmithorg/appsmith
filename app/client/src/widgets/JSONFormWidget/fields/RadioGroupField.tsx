@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useCallback, useContext } from "react";
+import { useController } from "react-hook-form";
 
-import Field from "widgets/JSONFormWidget/component/Field";
+import FormContext from "../FormContext";
+import NewField from "widgets/JSONFormWidget/component/NewField";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];
@@ -36,13 +39,42 @@ function RadioGroupField({
   name,
   schemaItem,
 }: RadioGroupFieldProps) {
-  const { onFieldValidityChange } = useRegisterFieldValidity({
-    fieldName: name,
-    fieldType: schemaItem.fieldType,
+  const { executeAction } = useContext(FormContext);
+  const {
+    field: { onChange, value },
+  } = useController({
+    name,
+    shouldUnregister: true,
   });
 
+  const isValueValid = isValid(schemaItem, value);
+
+  useRegisterFieldValidity({
+    isValid: isValueValid,
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
+    useNewLogic: true,
+  });
+
+  const onSelectionChange = useCallback(
+    (selectedValue: string) => {
+      onChange(selectedValue);
+
+      if (schemaItem.onSelectionChange && executeAction) {
+        executeAction({
+          triggerPropertyName: "onSelectionOptionChange",
+          dynamicString: schemaItem.onSelectionChange,
+          event: {
+            type: EventType.ON_OPTION_CHANGE,
+          },
+        });
+      }
+    },
+    [onChange, executeAction, schemaItem.onSelectionChange],
+  );
+
   return (
-    <Field
+    <NewField
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
@@ -51,25 +83,18 @@ function RadioGroupField({
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
-      render={({ field: { onChange, value } }) => {
-        const isValueValid = isValid(schemaItem, value);
-
-        onFieldValidityChange(isValueValid);
-
-        return (
-          <RadioGroupComponent
-            isDisabled={schemaItem.isDisabled}
-            isLoading={false}
-            label=""
-            onRadioSelectionChange={onChange}
-            options={schemaItem.options || []}
-            selectedOptionValue={value}
-            widgetId=""
-          />
-        );
-      }}
       tooltip={schemaItem.tooltip}
-    />
+    >
+      <RadioGroupComponent
+        isDisabled={schemaItem.isDisabled}
+        isLoading={false}
+        label=""
+        onRadioSelectionChange={onSelectionChange}
+        options={schemaItem.options || []}
+        selectedOptionValue={value}
+        widgetId=""
+      />
+    </NewField>
   );
 }
 

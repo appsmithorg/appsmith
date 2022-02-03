@@ -46,8 +46,9 @@ type StyledLabelProps = {
 
 const LABEL_TEXT_WRAPPER_MARGIN_BOTTOM = 4;
 const LABEL_TEXT_MARGIN_RIGHT_WITH_REQUIRED = 2;
-const LABEL_TEXT_MARGIN_RIGHT_DEFAULT = 10;
 const TOOLTIP_CLASSNAME = "tooltip-wrapper";
+// Default spacing between elements like label/tooltip etc
+const DEFAULT_GAP = 10;
 
 const StyledLabel = styled.label<StyledLabelProps>`
   display: flex;
@@ -67,15 +68,13 @@ const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
 
 const StyledRequiredMarker = styled.div`
   color: ${Colors.CRIMSON};
-  margin-right: ${LABEL_TEXT_MARGIN_RIGHT_DEFAULT}px;
+  margin-right: ${DEFAULT_GAP}px;
 `;
 
 const StyledLabelText = styled.p<StyledLabelTextProps>`
   margin-bottom: 0;
   margin-right: ${({ isRequiredField }) =>
-    isRequiredField
-      ? LABEL_TEXT_MARGIN_RIGHT_WITH_REQUIRED
-      : LABEL_TEXT_MARGIN_RIGHT_DEFAULT}px;
+    isRequiredField ? LABEL_TEXT_MARGIN_RIGHT_WITH_REQUIRED : DEFAULT_GAP}px;
   color: ${({ color }) => color};
   font-size: ${({ fontSize }) => fontSize};
   font-weight: ${({ fontWeight }) => fontWeight};
@@ -92,6 +91,10 @@ const ToolTipIcon = styled(IconWrapper)`
       }
     }
   }
+`;
+
+const StyledTooltip = styled(Tooltip)`
+  margin-right: ${DEFAULT_GAP}px;
 `;
 
 function FieldLabel({
@@ -126,7 +129,7 @@ function FieldLabel({
         </StyledLabelText>
         {isRequiredField && <StyledRequiredMarker>*</StyledRequiredMarker>}
         {tooltip && (
-          <Tooltip
+          <StyledTooltip
             className={TOOLTIP_CLASSNAME}
             content={tooltip}
             hoverOpenDelay={200}
@@ -135,7 +138,7 @@ function FieldLabel({
             <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
               <HelpIcon className="t--input-widget-tooltip" />
             </ToolTipIcon>
-          </Tooltip>
+          </StyledTooltip>
         )}
       </StyledLabelTextWrapper>
       {children}

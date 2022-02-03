@@ -1,8 +1,9 @@
 import moment from "moment";
-import React, { useContext, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import { useController } from "react-hook-form";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
-import Field from "widgets/JSONFormWidget/component/Field";
+import NewField from "widgets/JSONFormWidget/component/NewField";
 import FormContext from "../FormContext";
 import useEvents from "./useEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
@@ -94,19 +95,109 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
     onFocus: onFocusDynamicString,
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
-  const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
+
+  const {
+    field: { onBlur, onChange, value },
+  } = useController({
+    name,
+    shouldUnregister: true,
+  });
+
+  const { inputRef } = useEvents<HTMLInputElement>({
+    fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
-  const convertToISORef = useRef<boolean>();
 
-  const { onFieldValidityChange } = useRegisterFieldValidity({
+  const isValueValid = isValid(schemaItem, value);
+
+  useRegisterFieldValidity({
+    isValid: isValueValid,
     fieldName: name,
     fieldType,
+    useNewLogic: true,
   });
 
+  const onDateSelected = useCallback(
+    (selectedValue: string) => {
+      if (schemaItem.convertToISO || selectedValue === "") {
+        onChange(selectedValue);
+      } else {
+        onChange(moment(selectedValue).format(schemaItem.dateFormat));
+      }
+
+      if (schemaItem.onDateSelected && executeAction) {
+        executeAction({
+          triggerPropertyName: "onDateSelected",
+          dynamicString: schemaItem.onDateSelected,
+          event: {
+            type: EventType.ON_DATE_SELECTED,
+          },
+        });
+      }
+    },
+    [
+      executeAction,
+      onChange,
+      schemaItem.convertToISO,
+      schemaItem.dateFormat,
+      schemaItem.onDateSelected,
+    ],
+  );
+
+  const valueInISOFormat = useMemo(() => {
+    if (!isValueValid) return value;
+
+    if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
+      return value;
+    }
+
+    const valueInSelectedFormat = moment(value, schemaItem.dateFormat, true);
+
+    if (valueInSelectedFormat.isValid()) {
+      return valueInSelectedFormat.format(ISO_DATE_FORMAT);
+    }
+
+    return value;
+  }, [value, schemaItem.dateFormat]);
+
+  useEffect(() => {
+    onDateSelected(valueInISOFormat);
+  }, [valueInISOFormat]);
+
+  const fieldComponent = useMemo(() => {
+    return (
+      <DateComponent
+        closeOnSelection={schemaItem.closeOnSelection}
+        dateFormat={schemaItem.dateFormat}
+        datePickerType="DATE_PICKER"
+        inputRef={inputRef}
+        isDisabled={schemaItem.isDisabled}
+        isLoading={false}
+        label=""
+        maxDate={schemaItem.maxDate}
+        minDate={schemaItem.minDate}
+        onDateSelected={onDateSelected}
+        selectedDate={valueInISOFormat}
+        shortcuts={schemaItem.shortcuts}
+        timePrecision={schemaItem.timePrecision}
+        widgetId=""
+      />
+    );
+  }, [
+    schemaItem.closeOnSelection,
+    schemaItem.dateFormat,
+    schemaItem.isDisabled,
+    schemaItem.maxDate,
+    onDateSelected,
+    valueInISOFormat,
+    schemaItem.shortcuts,
+    schemaItem.timePrecision,
+    inputRef,
+  ]);
+
   return (
-    <Field
+    <NewField
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
@@ -115,79 +206,9 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
-      render={({ field: { onBlur, onChange, value } }) => {
-        const onDateSelected = (selectedValue: string) => {
-          if (schemaItem.convertToISO) {
-            onChange(selectedValue);
-          } else {
-            onChange(moment(selectedValue).format(schemaItem.dateFormat));
-          }
-
-          if (schemaItem.onDateSelected && executeAction) {
-            executeAction({
-              triggerPropertyName: "onDateSelected",
-              dynamicString: schemaItem.onDateSelected,
-              event: {
-                type: EventType.ON_DATE_SELECTED,
-              },
-            });
-          }
-        };
-
-        const isValueValid = isValid(schemaItem, value);
-
-        const valueInISOFormat = (() => {
-          if (!isValueValid) return value;
-
-          if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
-            return value;
-          }
-
-          const valueInSelectedFormat = moment(
-            value,
-            schemaItem.dateFormat,
-            true,
-          );
-
-          if (valueInSelectedFormat.isValid()) {
-            return valueInSelectedFormat.format(ISO_DATE_FORMAT);
-          }
-
-          return value;
-        })();
-
-        if (
-          valueInISOFormat &&
-          convertToISORef.current !== schemaItem.convertToISO
-        ) {
-          convertToISORef.current = schemaItem.convertToISO;
-          onDateSelected(valueInISOFormat);
-        }
-
-        registerFieldOnBlurHandler(onBlur);
-        onFieldValidityChange(isValueValid);
-
-        return (
-          <DateComponent
-            closeOnSelection={schemaItem.closeOnSelection}
-            dateFormat={schemaItem.dateFormat}
-            datePickerType="DATE_PICKER"
-            inputRef={inputRef}
-            isDisabled={schemaItem.isDisabled}
-            isLoading={false}
-            label=""
-            maxDate={schemaItem.maxDate}
-            minDate={schemaItem.minDate}
-            onDateSelected={onDateSelected}
-            selectedDate={valueInISOFormat}
-            shortcuts={schemaItem.shortcuts}
-            timePrecision={schemaItem.timePrecision}
-            widgetId=""
-          />
-        );
-      }}
-      tooltip={schemaItem.tooltip}
-    />
+    >
+      {fieldComponent}
+    </NewField>
   );
 }
 
