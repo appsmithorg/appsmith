@@ -105,7 +105,7 @@ function MultiSelectComponent({
 
   const checkHasLabelEllipsis = useCallback(() => {
     const labelElement = document.querySelector(
-      `.appsmith_widget_${widgetId} .multiselect-label`,
+      `.appsmith_widget_${widgetId} .tree-multiselect-label`,
     );
 
     if (labelElement) {
