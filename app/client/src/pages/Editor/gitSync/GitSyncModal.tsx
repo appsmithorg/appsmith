@@ -8,18 +8,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import Menu from "./Menu";
-import { MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
+import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "./constants";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   height: 600px;
@@ -33,10 +33,12 @@ const Container = styled.div`
 
 const BodyContainer = styled.div`
   flex: 3;
-  height: 100%;
+  height: calc(100% - ${MENU_HEIGHT}px);
 `;
 
-const MenuContainer = styled.div``;
+const MenuContainer = styled.div`
+  height: ${MENU_HEIGHT}px;
+`;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
@@ -54,6 +56,9 @@ const ComponentsByTab = {
 };
 
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
+const TabKeys: string[] = Object.values(GitSyncModalTab)
+  .filter((value) => typeof value === "string")
+  .map((value) => value as string);
 
 function GitSyncModal() {
   const theme = useTheme();
@@ -122,7 +127,18 @@ function GitSyncModal() {
           <MenuContainer>
             <Menu
               activeTabIndex={activeTabIndex}
-              onSelect={setActiveTabIndex}
+              onSelect={(tabIndex: number) => {
+                if (tabIndex === GitSyncModalTab.DEPLOY) {
+                  AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
+                  });
+                } else if (tabIndex === GitSyncModalTab.MERGE) {
+                  AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
+                  });
+                }
+                setActiveTabIndex(tabIndex);
+              }}
               options={menuOptions}
             />
           </MenuContainer>

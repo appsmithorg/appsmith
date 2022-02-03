@@ -24,6 +24,8 @@ public class IntegrationDTO {
 
     String pluginName;
 
+    String pluginVersion;
+
     // TODO start using this in the future
     Type authenticationType;
 
@@ -32,6 +34,8 @@ public class IntegrationDTO {
     AuthenticationResponse authenticationResponse;
 
     String redirectionDomain;
+
+    String branch;
 
     public enum Type {
         @JsonProperty("oAuth2")

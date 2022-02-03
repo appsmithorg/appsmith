@@ -1,6 +1,7 @@
 import { CommonComponentProps } from "./common";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import * as log from "loglevel";
 
 type OptionProps = {
   label: string;
@@ -115,9 +116,7 @@ export default function RadioComponent(props: RadioProps) {
 
   useEffect(() => {
     if (props.rows && props.columns && props.rows > 0 && props.columns > 0) {
-      console.error(
-        "Please pass either rows prop or column prop but not both.",
-      );
+      log.error("Please pass either rows prop or column prop but not both.");
     }
   }, [props]);
 

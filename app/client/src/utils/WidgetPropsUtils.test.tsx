@@ -243,7 +243,7 @@ describe("Initial value migration test", () => {
     expect(migrateInitialValues(input)).toEqual(output);
   });
 
-  it("DROP_DOWN_WIDGET", () => {
+  it("SELECT_WIDGET", () => {
     const input = {
       ...containerWidget,
       children: [
@@ -257,7 +257,9 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: "DROP_DOWN_WIDGET",
+          isRequired: false,
+          isDisabled: false,
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -296,7 +298,7 @@ describe("Initial value migration test", () => {
           isVisible: true,
           label: "",
           selectionType: "SINGLE_SELECT",
-          type: "DROP_DOWN_WIDGET",
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -318,7 +320,6 @@ describe("Initial value migration test", () => {
               value: "RED",
             },
           ],
-          // following properties get added
           isRequired: false,
           isDisabled: false,
         },
@@ -549,7 +550,7 @@ describe("Initial value migration test", () => {
           renderMode: RenderModes.CANVAS,
           version: 1,
           onPlay: "",
-          url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+          url: "https://assets.appsmith.com/widgets/bird.mp4",
           parentId: "0",
           isLoading: false,
           parentColumnSpace: 67.375,
@@ -574,7 +575,7 @@ describe("Initial value migration test", () => {
           renderMode: RenderModes.CANVAS,
           version: 1,
           onPlay: "",
-          url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+          url: "https://assets.appsmith.com/widgets/bird.mp4",
           parentId: "0",
           isLoading: false,
           parentColumnSpace: 67.375,

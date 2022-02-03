@@ -17,7 +17,6 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {
@@ -29,7 +28,10 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
   });
 
   it("Validate NavigateTo Page functionality ", function() {
-    cy.SearchEntityandOpen("Table1");
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait(4000);
     cy.PublishtheApp();
     cy.readTabledataPublish("1", "0").then((tabDataP) => {
       const tabValueP = tabDataP;

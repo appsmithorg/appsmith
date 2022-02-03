@@ -14,7 +14,6 @@ import { getWidgets } from "sagas/selectors";
 import { useWidgetSelection } from "./useWidgetSelection";
 import React, { ReactNode, useCallback } from "react";
 import { stopEventPropagation } from "utils/AppsmithUtils";
-import { useShowPropertyPane } from "./dragResizeHooks";
 
 /**
  *
@@ -102,7 +101,6 @@ export function ClickContentToOpenPropPane({
 
 export const useClickToSelectWidget = () => {
   const { focusWidget, selectWidget } = useWidgetSelection();
-  const showPropertyPane = useShowPropertyPane();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
   const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
@@ -146,7 +144,7 @@ export const useClickToSelectWidget = () => {
         selectWidget(focusedWidgetId, isMultiSelect);
         focusWidget(focusedWidgetId);
       }
-      showPropertyPane();
+
       if (isMultiSelect) {
         e.stopPropagation();
       }

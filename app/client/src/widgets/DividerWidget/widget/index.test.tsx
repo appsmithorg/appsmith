@@ -26,6 +26,12 @@ describe("<DividerWidget />", () => {
       comments: {
         dragPointerOffset: null,
       },
+      editor: {
+        isPreviewMode: false,
+      },
+      widgetReflow: {
+        enableReflow: true,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

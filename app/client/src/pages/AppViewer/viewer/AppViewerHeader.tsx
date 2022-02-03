@@ -39,11 +39,14 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton from "pages/Editor/ToggleModeButton";
+import ToggleCommentModeButton, {
+  useHideComments,
+} from "pages/Editor/ToggleModeButton";
 import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ShareButtonComponent } from "../../Editor/EditorHeader";
+import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -109,24 +112,20 @@ const HeaderRow = styled.div<{ justify: string }>`
     ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
 
-const HeaderSection = styled.div<{ justify: string }>`
+const HeaderSection = styled.div`
   display: flex;
   flex: 1;
   align-items: center;
-  justify-content: ${(props) => props.justify};
 `;
 
 const AppsmithLogoImg = styled(AppsmithLogo)`
   max-width: 110px;
   width: 110px;
-  margin-right: 40px;
-  margin-left: 16px;
 `;
 
 const HeaderRightItemContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-right: ${(props) => props.theme.spaces[7]}px;
   height: 100%;
 `;
 
@@ -155,7 +154,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const hideHeader = !!isEmbed;
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
-
+  const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
@@ -192,29 +191,35 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     <ThemeProvider theme={props.lightTheme}>
       <HeaderWrapper hasPages={pages.length > 1}>
         <HtmlTitle />
-        <HeaderRow justify={"space-between"}>
-          <HeaderSection justify={"flex-start"}>
+        <HeaderRow className="px-3" justify={"space-between"}>
+          <HeaderSection className="space-x-3 justify-start">
             <div>
               <PrimaryLogoLink to={APPLICATIONS_URL}>
                 <AppsmithLogoImg />
               </PrimaryLogoLink>
             </div>
-            <div>
-              <ToggleCommentModeButton />
-            </div>
+            {!shouldHideComments && (
+              <div>
+                <ToggleCommentModeButton />
+              </div>
+            )}
           </HeaderSection>
-          <HeaderSection className="current-app-name" justify={"center"}>
+          <HeaderSection className="current-app-name justify-center">
             {currentApplicationDetails && (
               <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
             )}
           </HeaderSection>
-          <HeaderSection justify={"flex-end"}>
+          <HeaderSection className="justify-end space-x-3">
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent
                   Form={AppInviteUsersForm}
                   applicationId={currentApplicationDetails.id}
                   canOutsideClickClose
+                  headerIcon={{
+                    name: "right-arrow",
+                    bgColor: "transparent",
+                  }}
                   isOpen={showAppInviteUsersDialog}
                   orgId={currentOrgId}
                   title={currentApplicationDetails.name}
@@ -235,6 +240,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                     },
                   }}
                   name={currentUser.name}
+                  photoId={currentUser?.photoId}
                   userName={currentUser?.username || ""}
                 />
               </HeaderRightItemContainer>
@@ -245,6 +251,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           currentApplicationDetails={currentApplicationDetails}
           pages={pages}
         />
+        <TourCompletionMessage />
       </HeaderWrapper>
     </ThemeProvider>
   );

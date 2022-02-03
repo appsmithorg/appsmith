@@ -11,6 +11,8 @@ import {
   EXECUTING_FUNCTION,
   EMPTY_JS_OBJECT,
   PARSING_ERROR,
+  EMPTY_RESPONSE_FIRST_HALF,
+  EMPTY_RESPONSE_LAST_HALF,
 } from "constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -37,6 +39,8 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
+import Icon from "components/ads/Icon";
+import FlagBadge from "components/utils/FlagBadge";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -60,6 +64,9 @@ const ResponseTabWrapper = styled.div`
     opacity: 0.8;
     pointer-events: none;
   }
+  .response-run {
+    margin: 0 10px;
+  }
 `;
 
 const ResponseTabActionsList = styled.ul`
@@ -71,6 +78,7 @@ const ResponseTabActionsList = styled.ul`
   scrollbar-width: thin;
   overflow: auto;
   padding-bottom: 40px;
+  margin-top: 0;
 `;
 
 const ResponseTabAction = styled.li`
@@ -84,9 +92,10 @@ const ResponseTabAction = styled.li`
   .function-name {
     margin-left: 5px;
     display: inline-block;
+    flex: 1;
   }
   .run-button {
-    margin-left: auto;
+    margin-left: 10px;
     margin-right: 15px;
   }
   &.active {
@@ -207,7 +216,7 @@ function JSResponseView(props: Props) {
           </HelpSection>
           <ResponseTabWrapper className={errors.length ? "disable" : ""}>
             {sortedActionList && !sortedActionList?.length ? (
-              <NoResponseContainer>
+              <NoResponseContainer className="flex items-center">
                 {createMessage(EMPTY_JS_OBJECT)}
               </NoResponseContainer>
             ) : (
@@ -228,6 +237,11 @@ function JSResponseView(props: Props) {
                         >
                           <JSFunction />{" "}
                           <div className="function-name">{action.name}</div>
+                          {action.actionConfiguration.isAsync ? (
+                            <FlagBadge name={"ASYNC"} />
+                          ) : (
+                            ""
+                          )}
                           <RunFunction className="run-button" />
                         </ResponseTabAction>
                       );
@@ -240,8 +254,11 @@ function JSResponseView(props: Props) {
                     </LoadingOverlayScreen>
                   ) : !responses.hasOwnProperty(selectActionId) ? (
                     <NoResponseContainer className="empty">
-                      <Text type={TextType.P1}>
-                        Click <RunFunction /> to get response
+                      <Icon name="no-response" />
+                      <Text className="flex items-center" type={TextType.P1}>
+                        {EMPTY_RESPONSE_FIRST_HALF()}
+                        <RunFunction className="response-run" />
+                        {EMPTY_RESPONSE_LAST_HALF()}
                       </Text>
                     </NoResponseContainer>
                   ) : (

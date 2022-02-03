@@ -16,11 +16,18 @@ export enum PaginationType {
   URL = "URL",
 }
 
+export interface KeyValuePair {
+  key?: string;
+  value?: unknown;
+}
+
 export interface ActionConfig {
   timeoutInMillisecond?: number;
   paginationType?: PaginationType;
   formData?: Record<string, unknown>;
-  pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
+  pluginSpecifiedTemplates?: KeyValuePair[];
+  path?: string;
+  queryParameters?: KeyValuePair[];
 }
 
 export interface ActionProvider {
@@ -83,6 +90,7 @@ export interface BaseAction {
   cacheResponse: string;
   confirmBeforeExecute?: boolean;
   eventData?: any;
+  messages: string[];
 }
 
 interface BaseApiAction extends BaseAction {
@@ -147,3 +155,15 @@ export type SlashCommandPayload = {
   callback?: (binding: string) => void;
   args: any;
 };
+
+export function isAPIAction(action: Action): action is ApiAction {
+  return action.pluginType === PluginType.API;
+}
+
+export function isQueryAction(action: Action): action is QueryAction {
+  return action.pluginType === PluginType.DB;
+}
+
+export function isSaaSAction(action: Action): action is SaaSAction {
+  return action.pluginType === PluginType.SAAS;
+}

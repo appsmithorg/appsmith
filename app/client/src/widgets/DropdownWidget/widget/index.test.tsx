@@ -30,6 +30,12 @@ describe("<DropdownWidget />", () => {
       comments: {
         dragPointerOffset: null,
       },
+      editor: {
+        isPreviewMode: false,
+      },
+      widgetReflow: {
+        enableReflow: true,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };
@@ -71,6 +77,7 @@ describe("<DropdownWidget />", () => {
       selectedOptionLabel: "mock-label-1",
       serverSideFiltering: false,
       onFilterUpdate: "mock-update",
+      updateWidgetMetaProperty: jest.fn(),
     };
     renderDropdownWidget(mockDataWithEmptyOptions);
 

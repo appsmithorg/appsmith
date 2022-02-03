@@ -23,10 +23,10 @@ import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
 
 const DEFS: Def[] = [
-  GLOBAL_FUNCTIONS,
-  GLOBAL_DEFS,
   // @ts-ignore
   ecma,
+  GLOBAL_FUNCTIONS,
+  GLOBAL_DEFS,
   lodash,
   base64,
   moment,
@@ -151,7 +151,7 @@ class TernServer {
   ) {
     this.server.deleteDefs(name);
     // @ts-ignore: No types available
-    this.server.addDefs(def, true);
+    this.server.addDefs(def);
     if (entityInfo) this.defEntityInformation = entityInfo;
   }
 
@@ -193,14 +193,14 @@ class TernServer {
     const searchText = (bindings.jsSnippets[0] || "").trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
-      let className = this.typeToIcon(completion.type);
+      let className = this.typeToIcon(completion.type, completion.isKeyword);
       const dataType = this.getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
       if (dataType === "FUNCTION") {
         completionText = completionText + "()";
       }
-      completions.push({
+      const codeMirrorCompletion: Completion = {
         text: completionText,
         displayText: completionText,
         className: className,
@@ -208,7 +208,18 @@ class TernServer {
         origin: completion.origin,
         type: dataType,
         isHeader: false,
-      });
+      };
+      if (completion.isKeyword) {
+        codeMirrorCompletion.render = (
+          element: HTMLElement,
+          self: any,
+          data: any,
+        ) => {
+          element.setAttribute("keyword", data.displayText);
+          element.innerHTML = data.displayText;
+        };
+      }
+      completions.push(codeMirrorCompletion);
     }
 
     completions = this.sortAndFilterCompletions(
@@ -322,7 +333,8 @@ class TernServer {
             if (
               !entityType ||
               ENTITY_TYPE.ACTION === entityType ||
-              ENTITY_TYPE.JSACTION === entityType
+              ENTITY_TYPE.JSACTION === entityType ||
+              ENTITY_TYPE.WIDGET === entityType
             ) {
               completionType.MATCHING_TYPE.push(completion);
               completionType.DATA_TREE.push(completion);
@@ -441,9 +453,10 @@ class TernServer {
     else return AutocompleteDataType.OBJECT;
   }
 
-  typeToIcon(type: string) {
+  typeToIcon(type: string, isKeyword: boolean) {
     let suffix;
-    if (type === "?") suffix = "unknown";
+    if (isKeyword) suffix = "keyword";
+    else if (type === "?") suffix = "unknown";
     else if (type === "number" || type === "string" || type === "bool")
       suffix = type;
     else if (/^fn\(/.test(type)) suffix = "fn";

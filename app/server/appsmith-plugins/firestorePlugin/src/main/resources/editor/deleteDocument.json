@@ -1,0 +1,17 @@
+{
+  "identifier": "DELETE_DOCUMENT",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'DELETE_DOCUMENT'}}"
+  },
+  "children" : [
+    {
+      "label": "Collection/Document Path",
+      "configProperty": "actionConfiguration.path",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": ""
+    }
+  ]
+}

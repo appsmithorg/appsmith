@@ -23,20 +23,20 @@ You can run the server codebase in a docker container. This is the easiest way t
 ## Steps for setup
 
 1. Clone the Appsmith repository and `cd` into it
-```
+```console
 git clone https://github.com/appsmithorg/appsmith.git
 cd appsmith
 ```
 2. Change your directory to `app/server`
-```
+```console
 cd app/server
 ```
 3. Create a copy of the `envs/docker.env.example`
-```
+```console
 cp envs/docker.env.example envs/docker.env
 ```
 4. Start up the containers
-```
+```console
 docker-compose up -d
 ``` 
 5. Have fun!
@@ -60,7 +60,7 @@ This document doesn't provide instructions to install Java and Maven because the
 
 The following command will start a MongoDB docker instance locally:
 
-```sh
+```console
 docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo
 ```
 
@@ -74,7 +74,7 @@ MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 
 The following command will start a Redis docker instance locally:
 
-```sh
+```console
 docker run -p 127.0.0.1:6379:6379 --name appsmith-redis redis
 ```
 
@@ -88,7 +88,7 @@ With the prerequisites met, let's build the code.
 2. Change your directory to `app/server`.
 3. Run the following command: 
 
-```sh
+```console
 mvn clean compile
 ```  
 
@@ -96,7 +96,7 @@ This generates a bunch of classes required by IntelliJ for compiling the rest of
 
 4. Create a copy of the `envs/dev.env.example` 
 
-```sh
+```console
 cp envs/dev.env.example .env
 ```
 
@@ -106,7 +106,7 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 
 6. Run the following command to create the final JAR for the Appsmith server:
 
-```
+```console
 ./build.sh
 ```
 This command will create a `dist` folder which contains the final packaged jar along with multiple jars for plugins as well.
@@ -115,11 +115,11 @@ Note:
 - If you want to skip tests, you can pass `-DskipTests` flag to the build cmd.
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
 - On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
-```
+```console
 sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
 ```
 - If the volume containing docker's data root path (macOS: `~/Library/Containers/com.docker.docker/Data/vms/0/`, Ubuntu: `/var/lib/docker/`) has less than 2 GB of free space, then the script may fail with the following error: 
-```
+```console
 Check failed: Docker environment should have more than 2GB free disk space.
 ```
 There are two ways to resolve this issue: (1) free up more space (2) change docker's data root path.
@@ -127,7 +127,7 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
 
 7. Start the Java server by running
 
-```
+```console
 ./scripts/start-dev-server.sh
 ```
 
@@ -172,7 +172,7 @@ Happy hacking ✌️
 #### Note:
 In case the server doesn't work with the above config, please try re-compiling the code using the steps
 
-```sh
+```console
 mvn -B clean compile && ./build.sh -DskipTests
 ```
 ## Running Tests on Server
@@ -180,7 +180,7 @@ mvn -B clean compile && ./build.sh -DskipTests
 1. Ensure that you have Redis running on your local system.
 
 2. Run the command to execute tests
-```bash
+```console
   cd app/server
   mvn clean package
 ```

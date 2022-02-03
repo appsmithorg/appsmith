@@ -14,7 +14,7 @@ import {
 import { GridDefaults } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { flattenDeep, omit, remove } from "lodash";
+import { flattenDeep, omit } from "lodash";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -24,12 +24,18 @@ import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { WidgetProps } from "widgets/BaseWidget";
-import { clearEvalPropertyCacheOfWidget } from "./EvaluationsSaga";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
-import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
-import { getAllWidgetsInTree } from "./WidgetOperationUtils";
+import {
+  getAllWidgetsInTree,
+  updateListWidgetPropertiesOnChildDelete,
+} from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "utils/WidgetFactory";
+import {
+  inGuidedTour,
+  isExploringSelector,
+} from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -40,42 +46,6 @@ type WidgetDeleteTabChild = {
   widgetId: string;
 };
 
-/**
- * this saga clears out the enhancementMap, template and dynamicBindingPathList when a child
- * is deleted in list widget
- *
- * @param widgets
- * @param widgetId
- * @param widgetName
- * @param parentId
- */
-function* updateListWidgetPropertiesOnChildDelete(
-  widgets: CanvasWidgetsReduxState,
-  widgetId: string,
-  widgetName: string,
-) {
-  const clone = JSON.parse(JSON.stringify(widgets));
-
-  const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, clone);
-
-  if (parentWithEnhancementFn?.type === "LIST_WIDGET") {
-    const listWidget = parentWithEnhancementFn;
-
-    // delete widget in template of list
-    if (listWidget && widgetName in listWidget.template) {
-      listWidget.template[widgetName] = undefined;
-    }
-
-    // delete dynamic binding path if any
-    remove(listWidget?.dynamicBindingPathList || [], (path: any) =>
-      path.key.startsWith(`template.${widgetName}`),
-    );
-
-    return clone;
-  }
-
-  return clone;
-}
 function* deleteTabChildSaga(
   deleteChildTabAction: ReduxAction<WidgetDeleteTabChild>,
 ) {
@@ -123,6 +93,14 @@ function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
   const selectedWidget = yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  const guidedTourEnabled = yield select(inGuidedTour);
+  const isExploring = yield select(isExploringSelector);
+
+  if (guidedTourEnabled && !isExploring) {
+    yield put(toggleShowDeviationDialog(true));
+    return;
+  }
+
   if (selectedWidgets.length > 1) {
     yield put({
       type: WidgetReduxActionTypes.WIDGET_BULK_DELETE,
@@ -175,10 +153,7 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       widgetName = widget.tabName;
     }
 
-    yield call(clearEvalPropertyCacheOfWidget, widgetName);
-
-    let finalWidgets: CanvasWidgetsReduxState = yield call(
-      updateListWidgetPropertiesOnChildDelete,
+    let finalWidgets: CanvasWidgetsReduxState = updateListWidgetPropertiesOnChildDelete(
       widgets,
       widgetId,
       widgetName,
@@ -210,7 +185,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       );
       if (!selectedWidget) return;
 
-      // if widget is not deletable, don't don anything
+      // if widget is not deletable, don't do anything
       if (selectedWidget.isDeletable === false) return false;
 
       widgetId = selectedWidget.widgetId;
@@ -239,6 +214,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
+          yield put(selectWidgetInitAction(undefined));
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
       }
@@ -268,8 +244,8 @@ function* deleteAllSelectedWidgetsSaga(
         return call(getAllWidgetsInTree, eachId, widgets);
       }),
     );
-    const falttendedWidgets: any = flattenDeep(widgetsToBeDeleted);
-    const parentUpdatedWidgets = falttendedWidgets.reduce(
+    const flattenedWidgets: any = flattenDeep(widgetsToBeDeleted);
+    const parentUpdatedWidgets = flattenedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
         const { parentId, widgetId } = eachWidget;
         const stateParent: FlattenedWidgetProps = allWidgets[parentId];
@@ -287,7 +263,7 @@ function* deleteAllSelectedWidgetsSaga(
     );
     const finalWidgets: CanvasWidgetsReduxState = omit(
       parentUpdatedWidgets,
-      falttendedWidgets.map((widgets: any) => widgets.widgetId),
+      flattenedWidgets.map((widgets: any) => widgets.widgetId),
     );
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
@@ -302,7 +278,7 @@ function* deleteAllSelectedWidgetsSaga(
       yield put(closeTableFilterPane());
       showUndoRedoToast(`${selectedWidgets.length}`, true, false, true);
       if (bulkDeleteKey) {
-        falttendedWidgets.map((widget: any) => {
+        flattenedWidgets.map((widget: any) => {
           AppsmithConsole.info({
             logType: LOG_TYPE.ENTITY_DELETED,
             text: "Widget was deleted",
@@ -378,7 +354,7 @@ function resizeCanvasToLowestWidget(
   );
   const childIds = finalWidgets[parentId].children || [];
 
-  // find lowest row
+  // find the lowest row
   childIds.forEach((cId) => {
     const child = finalWidgets[cId];
 

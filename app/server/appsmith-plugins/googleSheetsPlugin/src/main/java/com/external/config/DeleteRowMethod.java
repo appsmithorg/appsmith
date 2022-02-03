@@ -123,7 +123,8 @@ public class DeleteRowMethod implements Method {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
-                        + ":batchUpdate");
+                        + ":batchUpdate",
+                true);
 
         final int rowIndex = Integer.parseInt(methodConfig.getTableHeaderIndex()) +
                 Integer.parseInt(methodConfig.getRowIndex());

@@ -52,6 +52,7 @@ export function SuperUserForm(props: UserFormProps) {
   return (
     <ActionContainer>
       <StyledButton
+        className="t--welcome-form-get-started"
         onClick={() => props.onGetStarted && props.onGetStarted()}
         text={createMessage(WELCOME_ACTION)}
       />

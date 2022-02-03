@@ -56,7 +56,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { forceOpenPropertyPane } from "actions/widgetActions";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -93,13 +92,20 @@ import {
   getBoundaryWidgetsFromCopiedGroups,
   createWidgetCopy,
   getNextWidgetName,
+  getParentWidgetIdForGrouping,
+  isCopiedModalWidget,
+  purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
+import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
+import { getReflow } from "selectors/widgetReflowSelectors";
+import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
+import { stopReflowAction } from "actions/reflowActions";
+import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -110,6 +116,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       leftColumn,
       parentId,
       rightColumn,
+      snapColumnSpace,
+      snapRowSpace,
       topRow,
       widgetId,
     } = resizeAction.payload;
@@ -120,21 +128,32 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
-    widgets[widgetId] = widget;
+    const movedWidgets: {
+      [widgetId: string]: FlattenedWidgetProps;
+    } = yield call(
+      reflowWidgets,
+      widgets,
+      widget,
+      snapColumnSpace,
+      snapRowSpace,
+    );
+
     const updatedCanvasBottomRow: number = yield call(
       getCanvasSizeAfterWidgetMove,
       parentId,
+      [widgetId],
       bottomRow,
     );
     if (updatedCanvasBottomRow) {
-      const canvasWidget = widgets[parentId];
-      widgets[parentId] = {
+      const canvasWidget = movedWidgets[parentId];
+      movedWidgets[parentId] = {
         ...canvasWidget,
         bottomRow: updatedCanvasBottomRow,
       };
     }
     log.debug("resize computations took", performance.now() - start, "ms");
-    yield put(updateAndSaveLayout(widgets));
+    yield put(stopReflowAction());
+    yield put(updateAndSaveLayout(movedWidgets));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -144,6 +163,60 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       },
     });
   }
+}
+
+export function* reflowWidgets(
+  widgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  },
+  widget: FlattenedWidgetProps,
+  snapColumnSpace: number,
+  snapRowSpace: number,
+) {
+  const reflowState: widgetReflowState = yield select(getReflow);
+
+  const currentWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = { ...widgets, [widget.widgetId]: { ...widget } };
+
+  if (!reflowState || !reflowState.isReflowing || !reflowState.reflowingWidgets)
+    return currentWidgets;
+
+  const reflowingWidgets = reflowState.reflowingWidgets;
+
+  const reflowWidgetKeys = Object.keys(reflowingWidgets || {});
+
+  if (reflowWidgetKeys.length <= 0) return widgets;
+
+  for (const reflowedWidgetId of reflowWidgetKeys) {
+    const reflowWidget = reflowingWidgets[reflowedWidgetId];
+    const canvasWidget = { ...currentWidgets[reflowedWidgetId] };
+    if (reflowWidget.X !== undefined && reflowWidget.width !== undefined) {
+      const leftColumn =
+        canvasWidget.leftColumn + reflowWidget.X / snapColumnSpace;
+      const rightColumn = leftColumn + reflowWidget.width / snapColumnSpace;
+      currentWidgets[reflowedWidgetId] = {
+        ...canvasWidget,
+        leftColumn,
+        rightColumn,
+      };
+    } else if (
+      reflowWidget.Y !== undefined &&
+      reflowWidget.height !== undefined
+    ) {
+      const topRow = canvasWidget.topRow + reflowWidget.Y / snapRowSpace;
+      const bottomRow = topRow + reflowWidget.height / snapRowSpace;
+      currentWidgets[reflowedWidgetId] = { ...canvasWidget, topRow, bottomRow };
+    }
+  }
+
+  if (
+    collisionCheckPostReflow(currentWidgets, reflowWidgetKeys, widget.parentId)
+  ) {
+    return currentWidgets;
+  }
+
+  return widgets;
 }
 
 enum DynamicPathUpdateEffectEnum {
@@ -230,19 +303,6 @@ function applyDynamicPathUpdates(
   }
   return currentList;
 }
-
-const isPropertyATriggerPath = (
-  widget: WidgetProps,
-  propertyPath: string,
-): boolean => {
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
-  const { triggerPaths } = getAllPathsFromPropertyConfig(
-    widget,
-    widgetConfig,
-    {},
-  );
-  return propertyPath in triggerPaths;
-};
 
 function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
@@ -332,6 +392,11 @@ function getPropertiesToUpdate(
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
 
+  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
+  const {
+    triggerPaths: triggerPathsFromPropertyConfig = {},
+  } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
+
   Object.keys(updatePaths).forEach((propertyPath) => {
     const propertyValue = _.get(updates, propertyPath);
     // only check if
@@ -339,11 +404,7 @@ function getPropertiesToUpdate(
       return;
     }
 
-    // Check if the path is a of a dynamic trigger property
-    let isTriggerProperty = isPropertyATriggerPath(
-      widgetWithUpdates,
-      propertyPath,
-    );
+    let isTriggerProperty = propertyPath in triggerPathsFromPropertyConfig;
 
     isTriggerProperty = doesTriggerPathsContainPropertyPath(
       isTriggerProperty,
@@ -418,7 +479,12 @@ export function* getPropertiesUpdatedWidget(
   if (Array.isArray(remove) && remove.length > 0) {
     widget = yield removeWidgetProperties(widget, remove);
   }
-  return widget;
+
+  // Note: This may not be the best place to do this.
+  // If there exists another spot in this workflow, where we are iterating over the dynamicTriggerPathList and dynamicBindingPathList, after
+  // performing all updates to the widget, we can piggy back on that iteration to purge orphaned paths
+  // I couldn't find it, so here it is.
+  return purgeOrphanedDynamicPaths(widget);
 }
 
 function* batchUpdateWidgetPropertySaga(
@@ -725,7 +791,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
-  const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
+  let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
     selectedWidget,
   );
@@ -739,6 +805,11 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   // if this is true, selected widgets will be grouped in container
   if (shouldGroup) {
     copiedWidgetGroups = yield createSelectedWidgetsAsCopiedWidgets();
+    pastingIntoWidgetId = yield getParentWidgetIdForGrouping(
+      widgets,
+      copiedWidgetGroups,
+      pastingIntoWidgetId,
+    );
     widgets = yield filterOutSelectedWidgets(
       copiedWidgetGroups[0].parentId,
       copiedWidgetGroups,
@@ -753,10 +824,16 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
       copiedWidgetGroups,
       pastingIntoWidgetId,
     );
+  } else if (isCopiedModalWidget(copiedWidgetGroups, widgets)) {
+    pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
 
-  // to avoid invoking old copied widgets
-  if (!Array.isArray(copiedWidgetGroups)) return;
+  if (
+    // to avoid invoking old way of copied widgets implementaion
+    !Array.isArray(copiedWidgetGroups) ||
+    !copiedWidgetGroups.length
+  )
+    return;
 
   const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
     copiedWidgetGroups,
@@ -1096,7 +1173,6 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       widgetId: newWidget.newWidgetId,
       applicationId,
     });
-    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
     log.error(error);
   }

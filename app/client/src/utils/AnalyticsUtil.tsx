@@ -1,7 +1,7 @@
 // Events
 import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
 import { sha256 } from "js-sha256";
@@ -11,7 +11,8 @@ export type EventLocation =
   | "API_PANE"
   | "QUERY_PANE"
   | "QUERY_TEMPLATE"
-  | "QUICK_COMMANDS";
+  | "QUICK_COMMANDS"
+  | "OMNIBAR";
 
 export type EventName =
   | "LOGIN_CLICK"
@@ -94,24 +95,9 @@ export type EventName =
   | "APPLICATIONS_PAGE_LOAD"
   | "EXECUTE_ACTION"
   | "WELCOME_TOUR_CLICK"
-  | "ONBOARDING_WELCOME"
-  | "ONBOARDING_START_BUILDING"
-  | "ONBOARDING_INTRODUCTION"
-  | "ONBOARDING_ADD_QUERY"
-  | "ONBOARDING_RUN_QUERY"
-  | "ONBOARDING_ADD_WIDGET_CLICK"
-  | "ONBOARDING_ADD_WIDGET_TABLE"
-  | "ONBOARDING_ADD_WIDGET_INPUT"
-  | "ONBOARDING_ONSUBMIT_SUCCESS"
-  | "ONBOARDING_BINDING_HINT"
-  | "ONBOARDING_CHEAT"
-  | "ONBOARDING_SUCCESSFUL_BINDING"
-  | "ONBOARDING_DEPLOY"
-  | "ONBOARDING_SKIP_NOW"
-  | "ONBOARDING_NEXT_MISSION"
-  | "ONBOARDING_GO_HOME"
-  | "END_ONBOARDING"
-  | "ONBOARDING_COMPLETE"
+  | "GUIDED_TOUR_RATING"
+  | "GUIDED_TOUR_REACHED_STEP"
+  | "END_GUIDED_TOUR_CLICK"
   | "OPEN_OMNIBAR"
   | "CLOSE_OMNIBAR"
   | "NAVIGATE_TO_ENTITY_FROM_OMNIBAR"
@@ -181,7 +167,35 @@ export type EventName =
   | "SIGNPOSTING_CONNECT_WIDGET_CLICK"
   | "SIGNPOSTING_PUBLISH_CLICK"
   | "SIGNPOSTING_BUILD_APP_CLICK"
-  | "SIGNPOSTING_WELCOME_TOUR_CLICK";
+  | "SIGNPOSTING_WELCOME_TOUR_CLICK"
+  | "GS_CONNECT_GIT_CLICK"
+  | "GS_DISCONNECT_GIT_CLICK"
+  | "GS_PULL_GIT_CLICK"
+  | "GS_DEPLOY_GIT_CLICK"
+  | "GS_DEPLOY_GIT_MODAL_TRIGGERED"
+  | "GS_MERGE_GIT_MODAL_TRIGGERED"
+  | "GS_REPO_LIMIT_ERROR_MODAL_TRIGGERED"
+  | "GS_GIT_DOCUMENTATION_LINK_CLICK"
+  | "GS_REPO_URL_EDIT"
+  | "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL"
+  | "GS_GENERATE_KEY_BUTTON_CLICK"
+  | "GS_COPY_SSH_KEY_BUTTON_CLICK"
+  | "GS_DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK"
+  | "GS_DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
+  | "GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK"
+  | "GS_IMPORT_VIA_GIT_CLICK"
+  | "GS_CONTACT_SALES_CLICK"
+  | "REFLOW_BETA_FLAG"
+  | "CONNECT_GIT_CLICK"
+  | "REPO_URL_EDIT"
+  | "GENERATE_KEY_BUTTON_CLICK"
+  | "COPY_SSH_KEY_BUTTON_CLICK"
+  | "LEARN_MORE_LINK_FOR_REMOTEURL_CLICK"
+  | "LEARN_MORE_LINK_FOR_SSH_CLICK"
+  | "DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK"
+  | "DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
+  | "CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK"
+  | "DATASOURCE_AUTH_COMPLETE";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -206,9 +220,7 @@ class AnalyticsUtil {
       const analytics = (window.analytics = window.analytics || []);
       if (!analytics.initialize) {
         if (analytics.invoked) {
-          window.console &&
-            console.error &&
-            console.error("Segment snippet included twice.");
+          log.error("Segment snippet included twice.");
         } else {
           analytics.invoked = !0;
           analytics.methods = [
@@ -269,7 +281,7 @@ class AnalyticsUtil {
     if (userData) {
       const { segment } = getAppsmithConfigs();
       let user: any = {};
-      if (segment.enabled && segment.apiKey) {
+      if (segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -302,7 +314,7 @@ class AnalyticsUtil {
   }
 
   static identifyUser(userData: User) {
-    const { segment, smartLook } = getAppsmithConfigs();
+    const { segment, sentry, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
     if (windowDoc.analytics) {
@@ -337,13 +349,16 @@ class AnalyticsUtil {
         );
       }
     }
-    Sentry.configureScope(function(scope) {
-      scope.setUser({
-        id: userId,
-        username: userData.username,
-        email: userData.email,
+
+    if (sentry.enabled) {
+      Sentry.configureScope(function(scope) {
+        scope.setUser({
+          id: userId,
+          username: userData.username,
+          email: userData.email,
+        });
       });
-    });
+    }
 
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });

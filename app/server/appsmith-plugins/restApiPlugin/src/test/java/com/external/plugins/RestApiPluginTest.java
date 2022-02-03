@@ -50,6 +50,7 @@ import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION
 import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
 import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -121,7 +122,11 @@ public class RestApiPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        actionConfig.setBodyFormData(List.of(new Property("key", "value"), new Property("key1", "value1")));
+        actionConfig.setBodyFormData(List.of(
+                new Property("key", "value"),
+                new Property("key1", "value1"),
+                new Property(null, "irrelevantValue")
+        ));
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
@@ -442,8 +447,11 @@ public class RestApiPluginTest {
         String requestBody = "{\"key1\":\"onlyValue\"}";
         final Property key1 = new Property("key1", "onlyValue");
         final Property key2 = new Property("key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
+        final Property key3 = new Property("key3", "[{\"name\":\"fileName2\", \"type\":\"application/json\", \"data\":{\"key2\":\"value2\"}}]");
+        final Property key4 = new Property(null, "irrelevantValue");
         key2.setType("FILE");
-        List<Property> formData = List.of(key1, key2);
+        key3.setType("FILE");
+        List<Property> formData = List.of(key1, key2, key3, key4);
         actionConfig.setBodyFormData(formData);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
@@ -452,13 +460,14 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(Map.of(
-                            "key1", "onlyValue",
-                            "key2", "<file>"),
+                                    "key1", "onlyValue",
+                                    "key2", "<file>",
+                                    "key3", "<file>"),
                             result.getRequest().getBody());
                     JsonNode formDataResponse = ((ObjectNode) result.getBody()).get("form");
                     assertEquals(requestBody, formDataResponse.toString());
                     JsonNode fileDataResponse = ((ObjectNode) result.getBody()).get("files");
-                    assertEquals("{\"key2\":\"{key=value}\"}", fileDataResponse.toString());
+                    assertEquals("{\"key2\":\"{key=value}\",\"key3\":\"{key2=value2}\"}", fileDataResponse.toString());
                 })
                 .verifyComplete();
     }
@@ -757,7 +766,7 @@ public class RestApiPluginTest {
      * This test case is only meant to test the actual hint statement i.e. how it is worded. It is not meant to test
      * the correctness of duplication finding flow - since it is done as part of the test case named
      * `testGetDuplicateHeadersAndParams`. A separate test is used instead of a single test because the list of
-     * duplicates is returned as a set, hence order cannot be ascertained beforehand. 
+     * duplicates is returned as a set, hence order cannot be ascertained beforehand.
      */
     @Test
     public void testHintMessageForDuplicateHeadersAndParamsWithDatasourceConfigOnly() {
@@ -921,4 +930,63 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testQueryParamsInDatasource() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "body";
+        actionConfig.setBody(requestBody);
+        actionConfig.setEncodeParamsToggle(true);
+
+        List<Property> queryParams = new ArrayList<>();
+        queryParams.add(new Property("query_key", "query val")); /* encoding changes 'query val' to 'query+val' */
+        dsConfig.setQueryParameters(queryParams);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
+                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
+                    assertEquals(expected_url, url.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDenyInstanceMetadataAws() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://169.254.169.254/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDenyInstanceMetadataGcp() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .verifyComplete();
+    }
+
 }

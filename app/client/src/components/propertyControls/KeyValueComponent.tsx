@@ -14,6 +14,7 @@ import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
 import { Category, Size } from "components/ads/Button";
 import { debounce } from "lodash";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -55,10 +56,12 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
   }
-`;
 
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 5px;
+  &&:hover {
+    svg path {
+      fill: ${(props) => props.theme.colors.propertyPane.title};
+    }
+  }
 `;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
@@ -146,9 +149,31 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
   function addPair() {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
-    pairs.push({ label: "", value: "" });
+    pairs.push({
+      label: getNextEntityName(
+        "Option",
+        pairs.map((pair: any) => pair.label),
+      ),
+      value: getNextEntityName(
+        "OPTION",
+        pairs.map((pair: any) => pair.value),
+      ),
+    });
     const updatedRenderPairs = renderPairs.slice();
-    updatedRenderPairs.push({ label: "", value: "", key: generateReactKey() });
+    updatedRenderPairs.push({
+      label: getNextEntityName(
+        "Option",
+        renderPairs.map((pair: any) => pair.label),
+      ),
+      value: getNextEntityName(
+        "OPTION",
+        renderPairs.map((pair: any) => pair.value),
+      ),
+      key: getNextEntityName(
+        "OPTION",
+        renderPairs.map((pair: any) => pair.value),
+      ),
+    });
 
     setRenderPairs(updatedRenderPairs);
     props.updatePairs(pairs);
@@ -167,7 +192,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
           <StyledOptionControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
-            <StyledOptionControlInputGroup
+            <StyledInputGroup
               dataType={"text"}
               onBlur={onInputBlur}
               onChange={(value: string) => {
@@ -189,11 +214,11 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               value={pair.value}
             />
             <StyledDeleteIcon
-              height={20}
+              height={24}
               onClick={() => {
                 deletePair(index);
               }}
-              width={20}
+              width={24}
             />
           </StyledOptionControlWrapper>
         );
@@ -201,6 +226,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
       <StyledPropertyPaneButton
         category={Category.tertiary}
+        className="t--property-control-options-add"
         icon="plus"
         onClick={addPair}
         size={Size.medium}

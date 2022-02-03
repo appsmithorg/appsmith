@@ -35,12 +35,10 @@ import {
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div<{ active: boolean }>`
-  position: relative;
   width: 100%;
   background-color: ${(props) =>
     props.active ? props.theme.colors.welcomeTourStickySidebarBackground : ""};
@@ -203,7 +201,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
-  const intiateOnboarding = useIntiateOnboarding();
   if (isGenerateAppPage) {
     return null;
   }
@@ -212,7 +209,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
     dispatch({
       type: ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
     });
-    intiateOnboarding();
   };
   if (percentage === 100 && !isFirstTimeUserOnboardingComplete) {
     dispatch({
@@ -232,6 +228,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   return (
     <Wrapper
       active={isChecklistPage}
+      className="sticky top-0 t--onboarding-statusbar"
       data-testid="statusbar-container"
       onClick={() => {
         history.push(getOnboardingCheckListUrl(applicationId, pageId));
@@ -250,7 +247,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       <TitleWrapper>
         {createMessage(ONBOARDING_STATUS_GET_STARTED)}
       </TitleWrapper>
-      <StatusText>
+      <StatusText className="mt-2">
         <span data-testid="statusbar-text">{content}</span>&nbsp;&nbsp;
         {!isChecklistPage && (
           <Icon

@@ -100,6 +100,11 @@ public class RestApiPlugin extends BasePlugin {
         // `WebClient` instance was loaded as an auto-wired bean.
         public ExchangeStrategies EXCHANGE_STRATEGIES;
 
+        private static final Set<String> DISALLOWED_HOSTS = Set.of(
+                "169.254.169.254",
+                "metadata.google.internal"
+        );
+
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
             this.dataUtils = DataUtils.getInstance();
@@ -229,9 +234,17 @@ public class RestApiPlugin extends BasePlugin {
             URI uri;
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-                uri = createFinalUriWithQueryParams(httpUrl,
-                        actionConfiguration.getQueryParameters(),
-                        encodeParamsToggle);
+
+                ArrayList<Property> allQueryParams = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(actionConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(actionConfiguration.getQueryParameters());
+                }
+
+                if (!CollectionUtils.isEmpty(datasourceConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(datasourceConfiguration.getQueryParameters());
+                }
+
+                uri = createFinalUriWithQueryParams(httpUrl, allQueryParams, encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
@@ -243,6 +256,12 @@ public class RestApiPlugin extends BasePlugin {
 
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
+
+            if (DISALLOWED_HOSTS.contains(uri.getHost())) {
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
+            }
 
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
@@ -467,7 +486,7 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             for (Property header : headers) {
-                if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                if (StringUtils.isNotEmpty(header.getKey()) && header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     try {
                         MediaType.valueOf((String) header.getValue());
                     } catch (InvalidMediaTypeException e) {
@@ -671,7 +690,7 @@ public class RestApiPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, null);
         }
 
         @Override

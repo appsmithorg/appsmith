@@ -44,7 +44,7 @@ public class MethodConfig {
         propertyList.stream().parallel().forEach(property -> {
             Object value = property.getValue();
             if (value != null) {
-                String propertyValue = String.valueOf(value);
+                String propertyValue = String.valueOf(value).trim();
                 switch (property.getKey()) {
                     case "sheetUrl":
                         this.spreadsheetUrl = propertyValue;

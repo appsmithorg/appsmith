@@ -104,7 +104,10 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.FETCH_APPLICATION_COMMENTS_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<CommentThread>,
+    action: ReduxAction<{
+      commentThreads: CommentThread[];
+      applicationId: string;
+    }>,
   ) => {
     return handleFetchApplicationCommentsSuccess(state, action);
   },

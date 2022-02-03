@@ -1,9 +1,10 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -31,6 +32,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       type: "TABLE_WIDGET",
       parentId: "0",
       isLoading: false,
+      isSortable: true,
       horizontalAlignment: "LEFT",
       parentColumnSpace: 74,
       version: 1,
@@ -122,7 +124,14 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        isSortable: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleDownload: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleFilters: EvaluationSubstitutionType.TEMPLATE,
+        isVisiblePagination: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleSearch: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
@@ -178,6 +187,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
+        animateLoading: {
+          type: "BOOLEAN",
+        },
         defaultSearchText: {
           type: "TEXT",
         },
@@ -197,10 +209,247 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: {
           type: "BOOLEAN",
         },
+        isSortable: {
+          type: "BOOLEAN",
+          params: {
+            default: true,
+          },
+        },
+        isVisibleDownload: {
+          type: "BOOLEAN",
+        },
+        isVisibleFilters: {
+          type: "BOOLEAN",
+        },
+        isVisiblePagination: {
+          type: "BOOLEAN",
+        },
+        isVisibleSearch: {
+          type: "BOOLEAN",
+        },
+        primaryColumnId: {
+          type: "TEXT",
+        },
         tableData: {
           type: "OBJECT_ARRAY",
           params: {
             default: [],
+          },
+        },
+        "primaryColumns.createdAt.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.name.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.status.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.status.isDisabled": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.createdAt.inputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.outputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
+        "primaryColumns.name.horizontalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            },
+          },
+        },
+        "primaryColumns.createdAt.horizontalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            },
+          },
+        },
+        "primaryColumns.name.textSize": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.textSize": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+          },
+        },
+        "primaryColumns.name.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+          },
+        },
+        "primaryColumns.createdAt.verticalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+          },
+        },
+        "primaryColumns.name.verticalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+          },
+        },
+        "primaryColumns.createdAt.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.name.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.createdAt.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.name.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.status.buttonColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.status.buttonLabelColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
           },
         },
       },
@@ -209,6 +458,7 @@ describe("getAllPathsFromPropertyConfig", () => {
     const result = getAllPathsFromPropertyConfig(widget, config, {
       selectedRow: true,
       selectedRows: true,
+      tableData: true,
     });
 
     // Note: Removing until we figure out how functions are represented here.
@@ -223,7 +473,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetName: "Chart1",
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
-      allowHorizontalScroll: false,
+      allowScroll: false,
       version: 1,
       chartData: {
         "random-id": {
@@ -261,6 +511,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
         setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
@@ -318,6 +569,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: {
           type: "BOOLEAN",
         },
+        animateLoading: {
+          type: "BOOLEAN",
+        },
         setAdaptiveYMin: {
           type: "BOOLEAN",
         },
@@ -330,7 +584,9 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
     };
 
-    const result = getAllPathsFromPropertyConfig(widget, config, {});
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      "chartData.random-id.data": true,
+    });
 
     expect(result).toStrictEqual(expected);
   });

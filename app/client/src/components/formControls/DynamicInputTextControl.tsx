@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
 import { formValueSelector } from "redux-form";
@@ -13,7 +12,9 @@ import {
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
+import _ from "lodash";
 import { Colors } from "constants/Colors";
+
 // Enum for the different types of input fields
 export enum INPUT_TEXT_INPUT_TYPES {
   TEXT = "TEXT",
@@ -26,7 +27,7 @@ const StyledDynamicTextField = styled(DynamicTextField)`
     background-color: ${Colors.WHITE};
   }
   .CodeEditorTarget .CodeMirror.CodeMirror-wrap:hover {
-    background-color: inherit;
+    background-color: ${Colors.ALABASTER_ALT};
   }
   &&& .t--code-editor-wrapper {
     border: none;
@@ -41,8 +42,10 @@ export function InputText(props: {
   name: string;
   actionName: string;
   inputType?: INPUT_TEXT_INPUT_TYPES;
+  customStyles?: any;
+  disabled?: boolean;
 }) {
-  const { actionName, inputType, isRequired, label, name, placeholder } = props;
+  const { actionName, inputType, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
   let editorProps = {};
 
@@ -54,13 +57,21 @@ export function InputText(props: {
     };
   }
 
+  let customStyle = { width: "20vw", minHeight: "38px" };
+  if (!!props.customStyles && _.isEmpty(props.customStyles) === false) {
+    customStyle = { ...props.customStyles };
+    if ("width" in props.customStyles) {
+      customStyle.width = props.customStyles.width;
+    }
+    if ("minHeight" in props.customStyles) {
+      customStyle.minHeight = props.customStyles.minHeight;
+    }
+  }
   return (
-    <div style={{ width: "50vh", minHeight: "55px" }}>
-      <FormLabel>
-        {label} {isRequired && "*"}
-      </FormLabel>
+    <div style={customStyle}>
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
+        disabled={props.disabled}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}
@@ -76,6 +87,8 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
     const {
       actionName,
       configProperty,
+      customStyles,
+      disabled,
       inputType,
       label,
       placeholderText,
@@ -89,6 +102,8 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
     return (
       <InputText
         actionName={actionName}
+        customStyles={customStyles}
+        disabled={disabled}
         inputType={inputTypeProp}
         label={label}
         name={configProperty}

@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _, { isString } from "lodash";
+import _, { isString, remove } from "lodash";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -26,9 +26,11 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getDynamicBindings,
   combineDynamicBindings,
+  DynamicPath,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
+import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -310,6 +312,19 @@ export const getParentWidgetIdForPasting = function*(
     }
   }
   return newWidgetParentId;
+};
+
+export const isCopiedModalWidget = function(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  widgets: CanvasWidgetsReduxState,
+) {
+  if (copiedWidgetGroups.length !== 1) return false;
+
+  const copiedWidget = widgets[copiedWidgetGroups[0].widgetId];
+
+  if (copiedWidget && copiedWidget.type === "MODAL_WIDGET") return true;
+
+  return false;
 };
 
 export const checkIfPastingIntoListWidget = function(
@@ -642,7 +657,7 @@ export const isSelectedWidgetsColliding = function*(
   copiedWidgetGroups: CopiedWidgetGroup[],
   pastingIntoWidgetId: string,
 ) {
-  if (!Array.isArray(copiedWidgetGroups)) return false;
+  if (!copiedWidgetGroups.length) return false;
 
   const {
     bottomMostWidget,
@@ -774,3 +789,108 @@ export const getParentBottomRowAfterAddingWidget = (
       )
     : stateParent.bottomRow;
 };
+
+/**
+ * sometimes, selected widgets contains the grouped widget,
+ * in those cases, we will just selected the main container as the
+ * pastingIntoWidget
+ *
+ * @param copiedWidgetGroups
+ * @param pastingIntoWidgetId
+ */
+export function* getParentWidgetIdForGrouping(
+  widgets: CanvasWidgetsReduxState,
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  pastingIntoWidgetId: string,
+) {
+  const widgetIds = copiedWidgetGroups.map(
+    (widgetGroup) => widgetGroup.widgetId,
+  );
+
+  // the pastingIntoWidgetId should parent of copiedWidgets
+  for (let i = 0; i < widgetIds.length; i++) {
+    const widgetId = widgetIds[i];
+    const widget = widgets[widgetId];
+
+    if (widget.parentId !== pastingIntoWidgetId) {
+      return MAIN_CONTAINER_WIDGET_ID;
+    }
+  }
+
+  return pastingIntoWidgetId;
+}
+
+/**
+ * this saga clears out the enhancementMap, template, dynamicBindingPathList and dynamicTriggerPathList when a child
+ * is deleted in list widget
+ *
+ * @param widgets
+ * @param widgetId
+ * @param widgetName
+ * @param parentId
+ */
+export function updateListWidgetPropertiesOnChildDelete(
+  widgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  widgetName: string,
+) {
+  const clone = JSON.parse(JSON.stringify(widgets));
+
+  const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, clone);
+
+  if (parentWithEnhancementFn?.type === "LIST_WIDGET") {
+    const listWidget = parentWithEnhancementFn;
+
+    // delete widget in template of list
+    if (listWidget && widgetName in listWidget.template) {
+      listWidget.template[widgetName] = undefined;
+    }
+
+    // delete dynamic binding path if any
+    remove(listWidget?.dynamicBindingPathList || [], (path: any) =>
+      path.key.startsWith(`template.${widgetName}`),
+    );
+
+    // delete dynamic trigger path if any
+    remove(listWidget?.dynamicTriggerPathList || [], (path: any) =>
+      path.key.startsWith(`template.${widgetName}`),
+    );
+
+    return clone;
+  }
+
+  return clone;
+}
+
+/**
+ * Purge all paths in a provided widgets' dynamicTriggerPathList and dynamicBindingPathList, which no longer exist in the widget
+ * I call these paths orphaned dynamic paths
+ *
+ * @param widget : WidgetProps
+ *
+ * returns the updated widget
+ */
+
+// Purge all paths in a provided widgets' dynamicTriggerPathList, which don't exist in the widget
+export function purgeOrphanedDynamicPaths(widget: WidgetProps) {
+  // Attempt to purge only if there are dynamicTriggerPaths in this widget
+  if (widget.dynamicTriggerPathList && widget.dynamicTriggerPathList.length) {
+    // Filter out all the paths from the dynamicTriggerPathList which don't exist in the widget
+    widget.dynamicTriggerPathList = widget.dynamicTriggerPathList.filter(
+      (path: DynamicPath) => {
+        // Use lodash _.has to check if the path exists in the widget
+        return _.has(widget, path.key);
+      },
+    );
+  }
+  if (widget.dynamicBindingPathList && widget.dynamicBindingPathList.length) {
+    // Filter out all the paths from the dynamicBindingPaths which don't exist in the widget
+    widget.dynamicBindingPathList = widget.dynamicBindingPathList.filter(
+      (path: DynamicPath) => {
+        // Use lodash _.has to check if the path exists in the widget
+        return _.has(widget, path.key);
+      },
+    );
+  }
+  return widget;
+}

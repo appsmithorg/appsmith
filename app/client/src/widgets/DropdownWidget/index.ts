@@ -1,16 +1,17 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Select",
   iconSVG: IconSVG,
   needsMeta: true,
+  hideCard: true,
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
-    label: "",
+    rows: 7,
+    columns: 20,
+    placeholderText: "Select option",
+    labelText: "Label",
     selectionType: "SINGLE_SELECT",
     options: [
       { label: "Blue", value: "BLUE" },
@@ -24,6 +25,7 @@ export const CONFIG = {
     isFilterable: false,
     isRequired: false,
     isDisabled: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
