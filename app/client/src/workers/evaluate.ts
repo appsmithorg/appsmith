@@ -148,6 +148,7 @@ export function sanitizeScript(js: string) {
 /** Define a context just for this script
  * thisContext will define it on the `this`
  * globalContext will define it globally
+ * requestId is used for completing promises
  */
 export type EvaluateContext = {
   thisContext?: Record<string, any>;

@@ -1580,7 +1580,7 @@ export default class DataTreeEvaluator {
     return bindings.map((binding) => {
       // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
       // also helps with dealing with IIFE which are normal functions (not arrow)
-      // because normal functions won't retain 'this' context (when execute elsewhere)
+      // because normal functions won't retain 'this' context (when executed elsewhere)
       const replacedBinding = binding.replace(
         EXECUTION_PARAM_REFERENCE_REGEX,
         EXECUTION_PARAM_KEY,
