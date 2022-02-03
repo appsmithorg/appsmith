@@ -2036,9 +2036,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .map(datasources -> {
                                     ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                                     applicationImportDTO.setApplication(application);
-                                    applicationImportDTO.setUnConfiguredDatasourceList(datasources);
                                     Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.FALSE)).count();
-                                    applicationImportDTO.setIsPartialImport(unConfiguredDatasource != 0);
+                                    if (unConfiguredDatasource != 0) {
+                                        applicationImportDTO.setIsPartialImport(true);
+                                        applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                                    } else {
+                                        applicationImportDTO.setIsPartialImport(false);
+                                    }
                                     return applicationImportDTO;
                                 })))
                 // Add analytics event

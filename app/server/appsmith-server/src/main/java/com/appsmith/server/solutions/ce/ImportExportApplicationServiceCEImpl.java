@@ -497,15 +497,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 // Add un-configured datasource to the list to response
                 .flatMap(application -> datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList()
-                        .flatMap(datasourceList -> findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
-                                .map(datasources -> {
-                                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                                    applicationImportDTO.setApplication(application);
-                                    applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                                    Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.FALSE)).count();
-                                    applicationImportDTO.setIsPartialImport(unConfiguredDatasource != 0);
-                                    return applicationImportDTO;
-                                })));
+                        .flatMap(datasourceList -> {
+                            return findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
+                                    .map(datasources -> {
+                                        ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                                        applicationImportDTO.setApplication(application);
+                                        Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.FALSE)).count();
+                                        if (unConfiguredDatasource != 0) {
+                                            applicationImportDTO.setIsPartialImport(true);
+                                            applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                                        } else {
+                                            applicationImportDTO.setIsPartialImport(false);
+                                        }
+                                        return applicationImportDTO;
+                                    });
+                        }));
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())

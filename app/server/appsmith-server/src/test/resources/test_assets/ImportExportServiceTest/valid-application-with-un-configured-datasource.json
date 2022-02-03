@@ -22,29 +22,6 @@
       "gitSyncId": "61e528ec3d0a7d7212c5cfb9_61f270935090aa7077cb8793",
       "name": "mongoDatasource",
       "pluginId": "mongo-plugin",
-      "datasourceConfiguration": {
-        "connection": {
-          "mode": "READ_WRITE",
-          "type": "DIRECT",
-          "ssl": {
-            "authType": "DEFAULT"
-          }
-        },
-        "endpoints": [],
-        "sshProxyEnabled": false,
-        "properties": [
-          {
-            "key": "Use Mongo Connection String URI",
-            "value": "No"
-          },
-          {
-            "key": "Connection String URI"
-          }
-        ]
-      },
-      "invalids": [
-        "Missing endpoint(s)."
-      ],
       "messages": [],
       "isValid": false,
       "new": true
@@ -58,12 +35,6 @@
       "gitSyncId": "61e528ec3d0a7d7212c5cfb9_61f2712a5090aa7077cb8797",
       "name": "postgresTest",
       "pluginId": "postgres-plugin",
-      "datasourceConfiguration": {},
-      "invalids": [
-        "Missing endpoint.",
-        "Missing username for authentication.",
-        "Missing password for authentication."
-      ],
       "messages": [],
       "isValid": false,
       "new": true
