@@ -478,7 +478,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelText={label}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
-        labelWidth={(labelWidth || 0) * parentColumnSpace}
+        labelWidth={(Number(labelWidth) || 0) * parentColumnSpace}
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}

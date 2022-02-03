@@ -409,7 +409,9 @@ class SingleSelectTreeWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={(this.props.labelWidth || 0) * this.props.parentColumnSpace}
+        labelWidth={
+          (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace
+        }
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         options={options}

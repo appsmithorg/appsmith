@@ -447,7 +447,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={(this.props.labelWidth ?? 0) * this.props.parentColumnSpace}
+        labelWidth={
+          (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace
+        }
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >

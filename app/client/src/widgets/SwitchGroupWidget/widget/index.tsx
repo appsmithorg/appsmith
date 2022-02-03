@@ -368,7 +368,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelText={labelText}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
-        labelWidth={(labelWidth || 0) * parentColumnSpace}
+        labelWidth={(Number(labelWidth) || 0) * parentColumnSpace}
         onChange={this.handleSwitchStateChange}
         options={options}
         required={isRequired}

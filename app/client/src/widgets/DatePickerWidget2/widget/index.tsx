@@ -472,7 +472,9 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         labelText={this.props.label}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={(this.props.labelWidth || 0) * this.props.parentColumnSpace}
+        labelWidth={
+          (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace
+        }
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
         onDateSelected={this.onDateSelected}

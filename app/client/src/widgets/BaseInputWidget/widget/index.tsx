@@ -412,7 +412,9 @@ class BaseInputWidget<
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={(this.props.labelWidth ?? 0) * this.props.parentColumnSpace}
+        labelWidth={
+          (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace
+        }
         maxChars={this.props.maxChars}
         multiline={this.props.multiline}
         onFocusChange={this.props.onFocusChange}
