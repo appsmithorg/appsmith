@@ -20,4 +20,6 @@ public class MergeStatusDTO {
 
     // Human readable message derived from the status
     String message;
+
+    String referenceDoc;
 }

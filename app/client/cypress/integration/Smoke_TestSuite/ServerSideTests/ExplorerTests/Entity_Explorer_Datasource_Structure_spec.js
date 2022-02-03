@@ -30,8 +30,9 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
-
-    cy.GlobalSearchEntity(datasourceName);
+    cy.get(".t--entity-name")
+      .contains(datasourceName)
+      .click({ force: true });
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -124,6 +125,11 @@ describe("Entity explorer datasource structure", function() {
       "response.body.responseMeta.status",
       200,
     );
+    // Expand datasource
+    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+      .find(explorer.collapse)
+      .first()
+      .click();
     cy.xpath("//div[text()='public." + tableName + "']").should("exist");
 
     // cy.get(explorer.refreshStructure).click({ force: true });

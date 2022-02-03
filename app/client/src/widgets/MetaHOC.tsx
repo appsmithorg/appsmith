@@ -1,8 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
-import { EditorContext } from "../components/editorComponents/EditorContextProvider";
-import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -116,17 +115,16 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       propertyValue: any,
     ): void => {
       const { updateWidgetMetaProperty } = this.context;
-      const { widgetId, widgetName } = this.props;
+      const { widgetId } = this.props;
       this.setState({
         [propertyName]: propertyValue,
       });
-      clearEvalPropertyCache(`${widgetName}.${propertyName}`);
       updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
     };
 
     handleUpdateWidgetMetaProperty() {
       const { executeAction, updateWidgetMetaProperty } = this.context;
-      const { widgetId, widgetName } = this.props;
+      const { widgetId } = this.props;
       const metaOptions = this.props.__metaOptions;
       /*
        We have kept a map of all updated properties. After debouncing we will
@@ -139,8 +137,6 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       [...this.updatedProperties.keys()].forEach((propertyName) => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
-
-          clearEvalPropertyCache(`${widgetName}.${propertyName}`);
           // step 6 - look at this.props.options, check for metaPropPath value
           // if they exist, then update the propertyName
           updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
