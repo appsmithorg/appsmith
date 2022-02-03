@@ -18,6 +18,8 @@ public class FieldName {
     public static final String SIGNED_URL = "signedUrl";
     public static final String UNSIGNED_URL = "unSignedUrl";
     public static final String WHERE = "where";
+    public static final String SORT = "sortBy";
+    public static final String PAGINATE = "pagination";
 
     public static final String CREATE_EXPIRY = CREATE + "." + EXPIRY;
     public static final String CREATE_DATATYPE = CREATE + "." + DATATYPE;
@@ -29,7 +31,7 @@ public class FieldName {
     public static final String LIST_UNSIGNED_URL = LIST + "." + UNSIGNED_URL;
     public static final String READ_USING_BASE64_ENCODING = READ + "." + USING_BASE64_ENCODING;
     public static final String LIST_WHERE = LIST + "." + WHERE;
-
-
+    public static final String LIST_SORT = LIST + "." + SORT;
+    public static final String LIST_PAGINATE = LIST + "." + PAGINATE;
 }
 
