@@ -1,12 +1,10 @@
 import React from "react";
 import {
   Popover,
-  Button,
   Menu,
   MenuItem,
   IMenuProps,
   IMenuItemProps,
-  IButtonProps,
 } from "@blueprintjs/core";
 
 type Props = {
