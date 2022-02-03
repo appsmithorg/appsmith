@@ -20,7 +20,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "background-color",
-      "rgb(80, 175, 108)",
+      "rgb(85, 61, 233)",
     );
 
     //Toggle to JS mode
@@ -45,10 +45,10 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "background-color",
-      "rgb(80, 175, 108)",
+      "rgb(3, 179, 101)",
     );
 
-    cy.EvaluateCurrentValue("#50AF6C");
+    cy.EvaluateCurrentValue("#03b365");
 
     //Check if the typed color transparent is reflecting in the background color and in the evaluated value
     cy.updateCodeInput(widgetsPage.cellBackground, "");

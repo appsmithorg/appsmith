@@ -2,11 +2,12 @@ import { transformDSL } from "./DSLMigrations";
 import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
+import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 
 describe("correctly migrate dsl", () => {
-  it("AddsPrivateWidgetsToAllListWidgets", () => {
-    const currentVersion = 49;
-    const nextVersion = LATEST_PAGE_VERSION;
+  it("transformDSL", () => {
+    const currentVersion = 49; // before adding privateWidgets to all List widgets
+    const nextVersion = LATEST_PAGE_VERSION; // It runs Two Migrations, Always Update as migration increases
     const currentDSL: ContainerWidgetProps<WidgetProps> = {
       backgroundColor: "none",
       bottomRow: 740,
@@ -1156,14 +1157,13 @@ describe("correctly migrate dsl", () => {
       snapRows: 125,
       topRow: 0,
       type: "CANVAS_WIDGET",
-      version: nextVersion,
       widgetId: "0",
       widgetName: "MainContainer",
       renderMode: RenderModes.CANVAS,
       isLoading: false,
     };
 
-    const actualNextDsl = transformDSL(currentDSL, false);
+    const actualNextDsl = transformDSL(currentDSL);
 
     expect(actualNextDsl).toEqual(expectedNextDSL);
   });

@@ -97,7 +97,7 @@ const addLogBlackListToAllListWidgetChildren = (
  * @param currentDSL
  * @returns
  */
-const addPrivateWidgetsToAllListWidgets = (
+export const addPrivateWidgetsToAllListWidgets = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -1042,11 +1042,6 @@ export const transformDSL = (
   if (currentDSL.version === 49) {
     currentDSL = addPrivateWidgetsToAllListWidgets(currentDSL);
     currentDSL.version = 50;
-  }
-
-  if (currentDSL.version === 50) {
-    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   if (currentDSL.version === 50) {

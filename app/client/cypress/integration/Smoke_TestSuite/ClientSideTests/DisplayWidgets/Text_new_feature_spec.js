@@ -74,29 +74,39 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(widgetsPage.textColor)
       .first()
       .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.selectColor("textcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
-    cy.readTextDataValidateCSS("color", "rgb(3, 179, 101)");
+    cy.readTextDataValidateCSS("color", "rgb(85, 61, 233)");
     cy.get(widgetsPage.textColor)
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
+
+    //Checks the cell background with color picker
     cy.get(`${widgetsPage.cellBackground} input`)
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.xpath(widgetsPage.greenColor)
-      .first()
-      .click();
+    cy.selectColor("cellbackgroundcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
-    cy.PublishtheApp();
-    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
+      "have.css",
+      "background-color",
+      "rgb(85, 61, 233)",
+    );
+
+    //Toggle JS check with cell background:
+    cy.get(widgetsPage.cellBackgroundToggle).click({ force: true });
+    cy.updateCodeInput(widgetsPage.cellBackground, "purple");
+
+    cy.wait("@updateLayout");
+    cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
   });
 
   it("Test to validate text alignment", function() {
@@ -128,20 +138,13 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
   it("Test border width, color and verity", function() {
     cy.testJsontext("borderwidth", "10");
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
-    )
-      .should("have.css", "border-width")
-      .and("eq", "10px");
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
+      "have.css",
+      "border-width",
+      "10px",
+    );
 
-    cy.get(widgetsPage.borderColorPickerNew)
-      .first()
-      .click({ force: true });
-    cy.xpath(widgetsPage.yellowColor).click();
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
-    )
-      .should("have.css", "border-color")
-      .and("eq", "rgb(255, 193, 61)");
+    cy.selectColor("bordercolor");
+    cy.readTextDataValidateCSS("border-color", "rgb(226, 232, 240)");
   });
 });
