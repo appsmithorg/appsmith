@@ -44,9 +44,10 @@ describe("useRegisterFieldInvalid", () => {
     }
 
     const fieldName = "array[0].first";
-    const { result } = renderHook(
+    const { rerender } = renderHook(
       () =>
         useRegisterFieldValidity({
+          isValid: false,
           fieldName,
           fieldType: FieldType.TEXT,
         }),
@@ -73,7 +74,11 @@ describe("useRegisterFieldInvalid", () => {
       },
     };
 
-    result.current.onFieldValidityChange(true);
+    rerender({
+      isValid: true,
+      fieldName,
+      fieldType: FieldType.TEXT,
+    });
 
     expect(mockSetFieldValidityState).toBeCalledTimes(1);
     const cbResult = mockSetFieldValidityState.mock.calls[0][0](
@@ -101,9 +106,10 @@ describe("useRegisterFieldInvalid", () => {
     }
 
     const fieldName = "array[0].first";
-    const { result } = renderHook(
+    const { rerender } = renderHook(
       () =>
         useRegisterFieldValidity({
+          isValid: false,
           fieldName,
           fieldType: FieldType.TEXT,
         }),
@@ -112,10 +118,18 @@ describe("useRegisterFieldInvalid", () => {
       },
     );
 
-    result.current.onFieldValidityChange(true);
+    rerender({
+      isValid: true,
+      fieldName,
+      fieldType: FieldType.TEXT,
+    });
 
     expect(mockSetFieldValidityState).toBeCalledTimes(1);
-    result.current.onFieldValidityChange(true);
+    rerender({
+      isValid: true,
+      fieldName,
+      fieldType: FieldType.TEXT,
+    });
     expect(mockSetFieldValidityState).toBeCalledTimes(1);
   });
 });

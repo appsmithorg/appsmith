@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useMemo } from "react";
 import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
-import NewField from "widgets/JSONFormWidget/component/NewField";
+import Field from "widgets/JSONFormWidget/component/Field";
 import useEvents from "./useEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { AlignWidget } from "widgets/constants";
@@ -59,7 +59,6 @@ function SwitchField({ fieldClassName, name, schemaItem }: SwitchFieldProps) {
     fieldName: name,
     fieldType: schemaItem.fieldType,
     isValid: isValueValid,
-    useNewLogic: true,
   });
 
   const onSwitchChange = useCallback(
@@ -96,7 +95,7 @@ function SwitchField({ fieldClassName, name, schemaItem }: SwitchFieldProps) {
   );
 
   return (
-    <NewField
+    <Field
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       inlineLabel
@@ -109,7 +108,7 @@ function SwitchField({ fieldClassName, name, schemaItem }: SwitchFieldProps) {
       tooltip={schemaItem.tooltip}
     >
       {fieldComponent}
-    </NewField>
+    </Field>
   );
 }
 

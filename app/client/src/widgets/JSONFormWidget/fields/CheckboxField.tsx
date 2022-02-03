@@ -1,9 +1,10 @@
 import React, { useCallback, useContext, useMemo } from "react";
+import styled from "styled-components";
 import { useController } from "react-hook-form";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import FormContext from "../FormContext";
-import NewField from "../component/NewField";
+import Field from "../component/Field";
 import useEvents from "./useEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { AlignWidget } from "widgets/constants";
@@ -21,6 +22,12 @@ type CheckboxComponentProps = FieldComponentBaseProps &
   };
 
 type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
+
+const StyledCheckboxWrapper = styled.div`
+  & label {
+    margin-bottom: 0;
+  }
+`;
 
 const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
   alignWidget: "LEFT",
@@ -67,7 +74,6 @@ function CheckboxField({
     fieldName: name,
     fieldType: schemaItem.fieldType,
     isValid: isValueValid,
-    useNewLogic: true,
   });
 
   const onCheckChange = useCallback(
@@ -89,29 +95,32 @@ function CheckboxField({
 
   const fieldComponent = useMemo(
     () => (
-      <CheckboxComponent
-        alignWidget={schemaItem.alignWidget}
-        inputRef={(e) => (inputRef.current = e)}
-        isChecked={value}
-        isDisabled={schemaItem.isDisabled}
-        isLoading={false}
-        isRequired={schemaItem.isRequired}
-        isValid={isDirty ? isValueValid : true}
-        label=""
-        noContainerPadding
-        onCheckChange={onCheckChange}
-        rowSpace={20}
-        widgetId=""
-      />
+      <StyledCheckboxWrapper>
+        <CheckboxComponent
+          inputRef={(e) => (inputRef.current = e)}
+          isChecked={value}
+          isDisabled={schemaItem.isDisabled}
+          isLoading={false}
+          isRequired={schemaItem.isRequired}
+          isValid={isDirty ? isValueValid : true}
+          label=""
+          noContainerPadding
+          onCheckChange={onCheckChange}
+          rowSpace={20}
+          widgetId=""
+        />
+      </StyledCheckboxWrapper>
     ),
     [schemaItem, inputRef, value, isDirty, isValueValid, onCheckChange],
   );
 
   return (
-    <NewField
+    <Field
+      alignField={schemaItem.alignWidget}
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       hideLabel={hideLabel}
+      inlineLabel
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
       labelStyle={schemaItem.labelStyle}
@@ -121,7 +130,7 @@ function CheckboxField({
       tooltip={schemaItem.tooltip}
     >
       {fieldComponent}
-    </NewField>
+    </Field>
   );
 }
 

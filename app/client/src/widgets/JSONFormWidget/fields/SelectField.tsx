@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useController } from "react-hook-form";
 
 import DropDownComponent from "widgets/DropdownWidget/component";
-import NewField from "widgets/JSONFormWidget/component/NewField";
+import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
@@ -70,7 +70,6 @@ function SelectField({
     isValid: isValueValid,
     fieldName: name,
     fieldType: schemaItem.fieldType,
-    useNewLogic: true,
   });
 
   const onFilterChange = (value: string) => {
@@ -136,7 +135,7 @@ function SelectField({
   );
 
   return (
-    <NewField
+    <Field
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
@@ -148,7 +147,7 @@ function SelectField({
       tooltip={schemaItem.tooltip}
     >
       {fieldComponent}
-    </NewField>
+    </Field>
   );
 }
 

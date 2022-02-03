@@ -15,7 +15,7 @@ import {
 import { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
-import NewField from "../component/NewField";
+import Field from "../component/Field";
 
 type MultiSelectComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -98,7 +98,6 @@ function MultiSelectField({
     isValid: isValueValid,
     fieldName: name,
     fieldType,
-    useNewLogic: true,
   });
 
   const onFilterChange = useCallback(
@@ -168,7 +167,7 @@ function MultiSelectField({
 
   return (
     <StyledMultiSelectWrapper>
-      <NewField
+      <Field
         defaultValue={schemaItem.defaultValue}
         defaultValueValidatorFn={defaultValueValidator}
         fieldClassName={fieldClassName}
@@ -181,7 +180,7 @@ function MultiSelectField({
         tooltip={schemaItem.tooltip}
       >
         {fieldComponent}
-      </NewField>
+      </Field>
     </StyledMultiSelectWrapper>
   );
 }

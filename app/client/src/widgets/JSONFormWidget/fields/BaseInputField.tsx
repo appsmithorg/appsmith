@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useMemo, useState } from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
 import { useController } from "react-hook-form";
 
+import Field from "../component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
@@ -23,7 +24,6 @@ import {
 import BaseInputComponent, {
   InputHTMLType,
 } from "widgets/BaseInputWidget/component";
-import NewField from "../component/NewField";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -147,7 +147,6 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   useRegisterFieldValidity({
     fieldName: name,
     fieldType: schemaItem.fieldType,
-    useNewLogic: true,
     isValid: isValueValid,
   });
 
@@ -286,7 +285,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   ]);
 
   return (
-    <NewField
+    <Field
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
@@ -298,7 +297,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       tooltip={schemaItem.tooltip}
     >
       {fieldComponent}
-    </NewField>
+    </Field>
   );
 }
 

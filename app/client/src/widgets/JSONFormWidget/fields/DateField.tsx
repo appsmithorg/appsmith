@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { useController } from "react-hook-form";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
-import NewField from "widgets/JSONFormWidget/component/NewField";
+import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
@@ -115,7 +115,6 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
     isValid: isValueValid,
     fieldName: name,
     fieldType,
-    useNewLogic: true,
   });
 
   const onDateSelected = useCallback(
@@ -197,7 +196,7 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
   ]);
 
   return (
-    <NewField
+    <Field
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
@@ -208,7 +207,7 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
       name={name}
     >
       {fieldComponent}
-    </NewField>
+    </Field>
   );
 }
 

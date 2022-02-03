@@ -11,6 +11,9 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
+import { AlignWidget } from "widgets/constants";
+
+type AlignField = AlignWidget;
 
 type StyledLabelTextProps = {
   color: string;
@@ -33,6 +36,7 @@ export type FieldLabelProps = PropsWithChildren<
     isRequiredField?: boolean;
     label: string;
     tooltip?: string;
+    alignField?: AlignField;
   }
 >;
 
@@ -50,7 +54,11 @@ const TOOLTIP_CLASSNAME = "tooltip-wrapper";
 // Default spacing between elements like label/tooltip etc
 const DEFAULT_GAP = 10;
 
+// align-items: flex-start is to keep fields like checkbox to always be
+// at the start even when the field label breaks to new line, otherwise
+// the checkbox might center align.
 const StyledLabel = styled.label<StyledLabelProps>`
+  align-items: flex-start;
   display: flex;
   flex-direction: ${({ direction }) => direction};
 `;
@@ -98,6 +106,7 @@ const StyledTooltip = styled(Tooltip)`
 `;
 
 function FieldLabel({
+  alignField = "RIGHT",
   children,
   direction = "column",
   isRequiredField = false,
@@ -121,8 +130,13 @@ function FieldLabel({
     };
   }, [labelStyle, labelTextColor, labelTextSize]);
 
+  // If field and label are to be displayed horizontally then we consider the alignField
+  // prop else we always want to have label then field in case of vertical alignment (direction === "column")
+  const align = direction === "row" ? alignField : "RIGHT";
+
   return (
     <StyledLabel direction={direction}>
+      {align === "LEFT" && children}
       <StyledLabelTextWrapper direction={direction}>
         <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>
           {label}
@@ -141,7 +155,7 @@ function FieldLabel({
           </StyledTooltip>
         )}
       </StyledLabelTextWrapper>
-      {children}
+      {align === "RIGHT" && children}
     </StyledLabel>
   );
 }

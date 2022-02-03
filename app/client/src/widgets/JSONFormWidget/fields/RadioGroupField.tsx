@@ -2,7 +2,7 @@ import React, { useCallback, useContext } from "react";
 import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
-import NewField from "widgets/JSONFormWidget/component/NewField";
+import Field from "widgets/JSONFormWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
@@ -53,7 +53,6 @@ function RadioGroupField({
     isValid: isValueValid,
     fieldName: name,
     fieldType: schemaItem.fieldType,
-    useNewLogic: true,
   });
 
   const onSelectionChange = useCallback(
@@ -74,7 +73,7 @@ function RadioGroupField({
   );
 
   return (
-    <NewField
+    <Field
       defaultValue={schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
@@ -94,7 +93,7 @@ function RadioGroupField({
         selectedOptionValue={value}
         widgetId=""
       />
-    </NewField>
+    </Field>
   );
 }
 
