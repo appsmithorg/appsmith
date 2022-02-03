@@ -9,7 +9,7 @@ import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { CurrentApplicationData } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
@@ -34,7 +34,6 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
 };
 
 const DatasourceHomePage = styled.div`
-  max-height: 95vh;
   .textBtn {
     justify-content: center;
     text-align: center;
@@ -110,7 +109,6 @@ const DatasourceContentWrapper = styled.div`
 
 interface DatasourceHomeScreenProps {
   pageId: string;
-  applicationId: string;
   location: {
     search: string;
   };
@@ -128,7 +126,7 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   plugins: Plugin[];
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   pluginImages: Record<string, string>;
   isSaving: boolean;
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
@@ -149,11 +147,6 @@ class DatasourceHomeScreen extends React.Component<Props> {
       showUnsupportedPluginDialog,
     } = this.props;
 
-    AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      appName: currentApplication?.name,
-      plugin: pluginName,
-    });
-
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
 
     /* When isGeneratePageMode is generate page (i.e., Navigating from generate-page) before creating datasource check is it supported datasource for generate template from db?
@@ -166,6 +159,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
         Whenever user click on "continue" in UnsupportedPluginDialog, this callback function is invoked.
     */
     if (isGeneratePageInitiator && !params?.skipValidPluginCheck) {
+      AnalyticsUtil.logEvent("GEN_CRUD_PAGE_DATA_SOURCE_CLICK", {
+        appName: currentApplication?.name,
+        plugin: pluginName,
+        packageName: params?.packageName,
+      });
       if (!generateCRUDSupportedPlugin[pluginId]) {
         // show modal informing user that this will break the generate flow.
         showUnsupportedPluginDialog(() => {
@@ -187,7 +185,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
   };
 
   render() {
-    const { pluginImages, plugins } = this.props;
+    const { currentApplication, pluginImages, plugins } = this.props;
 
     return (
       <DatasourceHomePage>
@@ -197,9 +195,16 @@ class DatasourceHomeScreen extends React.Component<Props> {
               <DatasourceCard
                 className="eachDatasourceCard"
                 key={`${plugin.id}_${idx}`}
-                onClick={() =>
-                  this.goToCreateDatasource(plugin.id, plugin.name)
-                }
+                onClick={() => {
+                  AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                    appName: currentApplication?.name,
+                    pluginName: plugin.name,
+                    pluginPackageName: plugin.packageName,
+                  });
+                  this.goToCreateDatasource(plugin.id, plugin.name, {
+                    packageName: plugin.packageName,
+                  });
+                }}
               >
                 <DatasourceContentWrapper>
                   <div className="dataSourceImageWrapper">

@@ -12,6 +12,7 @@ type RenderComponentProps = {
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (index: number) => void;
+  updateFocus?: (index: number, isFocused: boolean) => void;
 };
 
 interface DroppableComponentProps {
@@ -23,6 +24,7 @@ interface DroppableComponentProps {
   toggleVisibility?: (index: number) => void;
   updateItems: (items: Array<Record<string, unknown>>) => void;
   onEdit?: (index: number) => void;
+  updateFocus?: (index: number, isFocused: boolean) => void;
 }
 
 export class DroppableComponent extends React.Component<
@@ -33,9 +35,21 @@ export class DroppableComponent extends React.Component<
   }
 
   shouldComponentUpdate(prevProps: DroppableComponentProps) {
-    const presentOrder = this.props.items.map((each) => each.id);
-    const previousOrder = prevProps.items.map((each) => each.id);
+    const presentOrder = this.props.items.map(this.getVisibleObject);
+    const previousOrder = prevProps.items.map(this.getVisibleObject);
+
     return !isEqual(presentOrder, previousOrder);
+  }
+
+  getVisibleObject(item: Record<string, unknown>) {
+    if (!item) return {};
+
+    return {
+      id: item.id,
+      label: item.label,
+      isVisible: item.isVisible,
+      isDuplicateLabel: item.isDuplicateLabel,
+    };
   }
 
   onUpdate = (itemsOrder: number[]) => {
@@ -43,29 +57,35 @@ export class DroppableComponent extends React.Component<
     this.props.updateItems(newOrderedItems);
   };
 
-  render() {
+  renderItem = ({ index, item }: any) => {
     const {
       deleteOption,
       onEdit,
       renderComponent,
       toggleVisibility,
+      updateFocus,
       updateOption,
     } = this.props;
+
+    return renderComponent({
+      deleteOption,
+      updateFocus,
+      updateOption,
+      toggleVisibility,
+      onEdit,
+      item,
+      index,
+    });
+  };
+
+  render() {
     return (
       <DraggableList
-        ItemRenderer={({ index, item }: any) =>
-          renderComponent({
-            deleteOption,
-            updateOption,
-            toggleVisibility,
-            onEdit,
-            item,
-            index,
-          })
-        }
+        ItemRenderer={this.renderItem}
         itemHeight={45}
         items={this.props.items}
         onUpdate={this.onUpdate}
+        shouldReRender={false}
       />
     );
   }

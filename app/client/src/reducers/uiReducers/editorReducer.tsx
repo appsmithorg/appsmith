@@ -7,7 +7,6 @@ import {
 } from "constants/ReduxActionConstants";
 import moment from "moment";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
-import { CommentsReduxState } from "./commentsReducer/interfaces";
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -16,6 +15,7 @@ const initialState: EditorReduxState = {
     publishingError: false,
     saving: false,
     savingError: false,
+    savingEntity: false,
     loading: false,
     loadingError: false,
     pageSwitchingError: false,
@@ -28,6 +28,8 @@ const initialState: EditorReduxState = {
     updateWidgetNameError: false,
   },
   isSnipingMode: false,
+  isPreviewMode: false,
+  zoomLevel: 1,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -134,7 +136,7 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.cloningPageError = false;
     return { ...state };
   },
-  [ReduxActionTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
+  [ReduxActionErrorTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.cloningPageError = true;
     state.loadingStates.cloningPage = false;
     return { ...state };
@@ -175,7 +177,7 @@ const editorReducer = createReducer(initialState, {
     return { ...state };
   },
   [ReduxActionTypes.SET_SNIPING_MODE]: (
-    state: CommentsReduxState,
+    state: EditorReduxState,
     action: ReduxAction<boolean>,
   ) => {
     return {
@@ -183,6 +185,30 @@ const editorReducer = createReducer(initialState, {
       isSnipingMode: action.payload,
     };
   },
+  [ReduxActionTypes.SET_PREVIEW_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isPreviewMode: action.payload,
+    };
+  },
+  /* This action updates the status of the savingEntity for any entity of the application in the store */
+  [ReduxActionTypes.ENTITY_UPDATE_STARTED]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      savingEntity: true,
+    },
+  }),
+  [ReduxActionTypes.ENTITY_UPDATE_SUCCESS]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      savingEntity: false,
+    },
+  }),
 });
 
 export interface EditorReduxState {
@@ -194,9 +220,12 @@ export interface EditorReduxState {
   lastUpdatedTime?: number;
   pageActions?: PageAction[][];
   isSnipingMode: boolean;
+  isPreviewMode: boolean;
+  zoomLevel: number;
   loadingStates: {
     saving: boolean;
     savingError: boolean;
+    savingEntity: boolean;
     publishing: boolean;
     published?: string;
     publishingError: boolean;

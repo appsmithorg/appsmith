@@ -5,8 +5,12 @@ import { Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
-import { usePagination, useFilteredLogs } from "./hooks";
+import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
 import { createMessage, NO_LOGS } from "constants/messages";
+import { useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { bootIntercom } from "utils/helpers";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const LIST_HEADER_HEIGHT = "38px";
 
@@ -18,6 +22,7 @@ const ContainerWrapper = styled.div`
 const ListWrapper = styled.div`
   overflow: auto;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
+  ${thinScrollbar};
 `;
 
 type Props = {
@@ -45,6 +50,11 @@ function DebbuggerLogs(props: Props) {
     () => LOGS_FILTER_OPTIONS.find((option) => option.value === filter),
     [filter],
   );
+  const currentUser = useSelector(getCurrentUser);
+
+  useEffect(() => {
+    bootIntercom(currentUser);
+  }, [currentUser?.email]);
 
   const handleScroll = (e: Event) => {
     if ((e.target as HTMLDivElement).scrollTop === 0) {
@@ -91,7 +101,7 @@ function DebbuggerLogs(props: Props) {
 
             return (
               <LogItem
-                key={`debugger-${index}`}
+                key={`${e.timestamp}_${index}`}
                 {...logItemProps}
                 expand={index === paginatedData.length - 1}
               />

@@ -1,15 +1,28 @@
-import { XYCoord } from "react-dnd";
 import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 
 export type UIElementSize = { height: number; width: number };
 
 export const RESIZABLE_CONTAINER_BORDER_THEME_INDEX = 1;
 
+export type WidgetPosition = {
+  rightColumn: number;
+  leftColumn: number;
+  bottomRow: number;
+  topRow: number;
+  parentRowSpace: number;
+  parentColumnSpace: number;
+};
+
+export type WidgetExtendedPosition = WidgetPosition & {
+  paddingOffset: number;
+};
+
 export const computeRowCols = (
   delta: UIElementSize,
-  position: XYCoord,
-  props: WidgetProps,
+  position: XYCord,
+  props: WidgetPosition,
 ) => {
   return {
     leftColumn: Math.round(
@@ -51,7 +64,7 @@ export const hasRowColsChanged = (
 
 export const computeFinalRowCols = (
   delta: UIElementSize,
-  position: XYCoord,
+  position: XYCord,
   props: WidgetProps,
 ): WidgetRowCols | false => {
   const newRowCols = computeBoundedRowCols(

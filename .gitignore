@@ -4,5 +4,18 @@
 .env
 .vscode/*
 
+app/client/cypress.env.json
+
+# to ignore the node_modeules folder
+node_modules
+# to ignore the package-lock.json file
+package-lock.json
+
 # test coverage
 coverage-summary.json
+app/client/cypress/locators/Widgets.json
+deploy/ansible/appsmith_playbook/inventory
+
+# performance tests
+app/client/perf/traces/*
+.history

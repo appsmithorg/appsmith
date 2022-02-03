@@ -1,18 +1,18 @@
 package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.Property;
+import com.external.plugins.constants.FieldName;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
-import java.util.List;
+import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_KEY;
-import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
 
 @Getter
 @Setter
@@ -23,29 +23,24 @@ public class Distinct extends MongoCommand {
     public Distinct(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, DISTINCT_QUERY)) {
-            this.query = (String) pluginSpecifiedTemplates.get(DISTINCT_QUERY).getValue();
+        if (validConfigurationPresentInFormData(formData, DISTINCT_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, DISTINCT_QUERY);
         }
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, DISTINCT_KEY)) {
-            this.key = (String) pluginSpecifiedTemplates.get(DISTINCT_KEY).getValue();
+        if (validConfigurationPresentInFormData(formData, FieldName.DISTINCT_KEY)) {
+            this.key = (String) getValueSafelyFromFormData(formData, FieldName.DISTINCT_KEY);
         }
     }
 
     @Override
     public Boolean isValid() {
         if (super.isValid()) {
-            if (!StringUtils.isNullOrEmpty(query) && !StringUtils.isNullOrEmpty(key)) {
+            if (!StringUtils.isNullOrEmpty(key)) {
                 return Boolean.TRUE;
-            } else {
-                if (StringUtils.isNullOrEmpty(query)) {
-                    fieldNamesWithNoConfiguration.add("Query");
-                }
-                if (StringUtils.isNullOrEmpty(key)) {
+            } else if (StringUtils.isNullOrEmpty(key)) {
                     fieldNamesWithNoConfiguration.add("Key/Field");
-                }
             }
         }
 
@@ -57,6 +52,10 @@ public class Distinct extends MongoCommand {
         Document document = new Document();
 
         document.put("distinct", this.collection);
+
+        if (StringUtils.isNullOrEmpty(this.query)) {
+            this.query = "{}";
+        }
 
         document.put("query", parseSafely("Query", this.query));
 

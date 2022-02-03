@@ -2,6 +2,13 @@ import React from "react";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
+import Tooltip from "components/ads/Tooltip";
+import {
+  createMessage,
+  RESOLVE_THREAD,
+  RESOLVED_THREAD,
+} from "constants/messages";
+import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   display: flex;
@@ -15,20 +22,21 @@ type Props = {
 };
 
 const StyledResolveIcon = styled(Icon)<{
+  resolved: boolean;
   strokeColorCircle: string;
   strokeColorPath: string;
   fillColor: string;
 }>`
-  & circle {
-    stroke: ${(props) => props.strokeColorCircle};
-  }
-  && path {
-    stroke: ${(props) => props.strokeColorPath};
-    fill: transparent;
-  }
   && svg {
-    fill: ${(props) => props.fillColor};
+    fill: ${(props) => props.strokeColorCircle};
   }
+  ${(props) =>
+    !props.resolved &&
+    `
+  &:hover svg {
+    fill: ${Colors.CHARCOAL};
+  }
+  `}
 `;
 
 const ResolveCommentButton = withTheme(
@@ -52,14 +60,20 @@ const ResolveCommentButton = withTheme(
 
     return (
       <Container onClick={_handleClick}>
-        <StyledResolveIcon
-          fillColor={fillColor}
-          keepColors
-          name="oval-check"
-          size={IconSize.XXL}
-          strokeColorCircle={strokeColorCircle}
-          strokeColorPath={strokeColorPath}
-        />
+        <Tooltip
+          content={createMessage(resolved ? RESOLVED_THREAD : RESOLVE_THREAD)}
+          hoverOpenDelay={1000}
+        >
+          <StyledResolveIcon
+            fillColor={fillColor}
+            keepColors
+            name={resolved ? "oval-check-fill" : "oval-check"}
+            resolved={resolved}
+            size={IconSize.XXL}
+            strokeColorCircle={strokeColorCircle}
+            strokeColorPath={strokeColorPath}
+          />
+        </Tooltip>
       </Container>
     );
   },

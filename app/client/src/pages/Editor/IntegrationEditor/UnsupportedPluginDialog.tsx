@@ -1,19 +1,19 @@
 import React from "react";
-import Text, { TextType } from "../../../components/ads/Text";
+import Text, { TextType } from "components/ads/Text";
 import { HelpIcons } from "icons/HelpIcons";
 import { withTheme } from "styled-components";
 import styled from "styled-components";
-import { Color } from "../../../constants/Colors";
+import { Color } from "constants/Colors";
 import Dialog from "components/ads/DialogComponent";
 import Icon, { IconSize } from "components/ads/Icon";
-import { IconProps } from "../../../constants/IconConstants";
+import { IconProps } from "constants/IconConstants";
 import Button, { Category, Size } from "components/ads/Button";
-import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "../../../constants/messages";
+import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
-} from "../../../constants/messages";
+} from "constants/messages";
 
 type Props = {
   isModalOpen: boolean;
@@ -22,7 +22,6 @@ type Props = {
 };
 
 const HeaderContents = styled.div`
-  padding: ${(props) => props.theme.spaces[9]}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -120,7 +119,7 @@ const Header = withTheme(
           </CloseIconContainer>
         </HeaderRight>
       </HeaderContents>
-      <div style={{ padding: `0 ${theme.spaces[9]}px` }}>
+      <div>
         <StyledSeparator />
       </div>
     </>

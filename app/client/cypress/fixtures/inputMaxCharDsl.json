@@ -1,0 +1,43 @@
+{
+	"dsl": {
+	  "widgetName": "MainContainer",
+	  "backgroundColor": "none",
+	  "rightColumn": 1224,
+	  "snapColumns": 16,
+	  "detachFromLayout": true,
+	  "widgetId": "0",
+	  "topRow": 0,
+	  "bottomRow": 1280,
+	  "containerStyle": "none",
+	  "snapRows": 33,
+	  "parentRowSpace": 1,
+	  "type": "CANVAS_WIDGET",
+	  "canExtend": true,
+	  "dynamicBindingPathList": [],
+	  "version": 6,
+	  "minHeight": 1292,
+	  "parentColumnSpace": 1,
+	  "leftColumn": 0,
+	  "children": [
+		{
+		  "isVisible": true,
+		  "inputType": "TEXT",
+		  "label": "",
+		  "defaultText": "1234567",
+		  "maxChars": 5,
+		  "widgetName": "Input1",
+		  "type": "INPUT_WIDGET_V2",
+		  "isLoading": false,
+		  "parentColumnSpace": 74,
+		  "parentRowSpace": 40,
+		  "leftColumn": 2,
+		  "rightColumn": 7,
+		  "topRow": 0,
+		  "bottomRow": 1,
+		  "parentId": "0",
+		  "widgetId": "2lhsjdd5sg"
+		}
+	  ]
+	}
+  }
+  

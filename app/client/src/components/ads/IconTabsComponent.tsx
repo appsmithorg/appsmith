@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
+import { Colors } from "constants/Colors";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
   width: auto;
@@ -9,11 +10,18 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid transparent;
   background: ${(props) =>
     props.selected
-      ? props.theme.colors.propertyPane.activeButtonText
+      ? Colors.GREY_10
       : props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
   cursor: pointer;
+  & > div {
+    cursor: pointer;
+  }
+  &:hover {
+    border-color: var(--appsmith-input-focus-border-color);
+  }
   &&& svg {
     path {
       fill: ${(props) =>
@@ -25,7 +33,8 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
 `;
 
 const FlexWrapper = styled.div`
-  display: flex;
+  display: inline-flex;
+  border: 1px solid ${Colors.GREY_5};
 `;
 
 export interface IconTabOption {

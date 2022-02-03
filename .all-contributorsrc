@@ -352,6 +352,54 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "somangshu",
+      "name": "Somangshu Goswami",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11089579?v=4",
+      "profile": "http://appsmith.com",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "akshayrangasaid",
+      "name": "akshayrangasaid",
+      "avatar_url": "https://avatars.githubusercontent.com/u/76783810?v=4",
+      "profile": "https://github.com/akshayrangasaid",
+      "contributions": [
+        "content",
+        "ideas"
+      ]
+    },
+    {
+      "login": "marks0351",
+      "name": "Ashok Kumar M",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35134347?v=4",
+      "profile": "https://github.com/marks0351",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "rafaeelaudibert",
+      "name": "Rafael Baldasso Audibert",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32079912?v=4",
+      "profile": "https://www.rafaaudibert.dev",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "yaldram",
+      "name": "Arsalan Yaldram",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13429535?v=4",
+      "profile": "https://github.com/yaldram",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,

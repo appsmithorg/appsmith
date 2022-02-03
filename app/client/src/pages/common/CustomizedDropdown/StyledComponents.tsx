@@ -37,7 +37,9 @@ export const DropdownContent = styled.div<{ skin: Skin }>`
   }
   border: 0px;
   border-color: ${(props) => props.theme.dropdown[props.skin].border};
-  background: ${(props) => props.theme.dropdown[props.skin].inActiveBG};
+  background: ${(props) => props.theme.dropdown[props.skin].background};
+  max-height: 300px;
+  overflow-y: auto;
 `;
 
 export const DropdownContentSection = styled.div<{
@@ -45,7 +47,7 @@ export const DropdownContentSection = styled.div<{
   skin: Skin;
 }>`
   position: ${(props) => (props.stick ? "sticky" : "relative")};
-  background: ${(props) => props.theme.dropdown[props.skin].inActiveBG};
+  background: ${(props) => props.theme.dropdown[props.skin].background};
   z-index: ${(props) => (props.stick ? 1 : 0)};
   padding: 8px 0;
   &&&&& .bp3-icon {
@@ -96,7 +98,6 @@ export const Option = styled.div<{
     margin: 0;
   }
   cursor: pointer;
-  background: ${(props) => props.theme.dropdown[props.skin].inActiveBG};
   color: ${(props) => props.theme.dropdown[props.skin].inActiveText};
   &:hover {
     ${(props) => (!props.disabled ? highlightOption : ``)};

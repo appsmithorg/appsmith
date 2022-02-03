@@ -3,7 +3,7 @@ import { generateReactKey } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
 
 export const TextFactory = Factory.Sync.makeFactory<WidgetProps>({
-  widgetName: Factory.each((i) => `Text${(i+1)}`),
+  widgetName: Factory.each((i) => `Text${i + 1}`),
   rightColumn: 12,
   onClick: "",
   isDefaultClickDisabled: true,

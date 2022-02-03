@@ -334,5 +334,19 @@ describe("substituteDynamicBindingWithValues", () => {
 
       expect(result).toBe(expected);
     });
+
+    it("throws error when only binding is provided in parameter substitution", () => {
+      const binding = `{{ appsmith }}`;
+      const subBindings = ["{{appsmith}}"];
+      const subValues = [{ test: "object" }];
+      expect(() =>
+        substituteDynamicBindingWithValues(
+          binding,
+          subBindings,
+          subValues,
+          EvaluationSubstitutionType.PARAMETER,
+        ),
+      ).toThrowError();
+    });
   });
 });

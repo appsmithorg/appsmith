@@ -6,7 +6,7 @@ import StyledForm from "components/editorComponents/Form";
 import {
   AuthCardHeader,
   FormActions,
-  AuthCardNavLink,
+  BlackAuthCardNavLink,
   FormMessagesContainer,
 } from "./StyledComponents";
 import { withTheme } from "styled-components";
@@ -34,7 +34,7 @@ import {
   ForgotPasswordFormValues,
   forgotPasswordSubmitHandler,
 } from "./helpers";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -70,19 +70,19 @@ export const ForgotPassword = withTheme(
           <h1>{createMessage(FORGOT_PASSWORD_PAGE_TITLE)}</h1>
         </AuthCardHeader>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <AuthCardNavLink to={AUTH_LOGIN_URL}>
+          <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
             <Icon
               icon="arrow-left"
               style={{ marginRight: props.theme.spaces[3] }}
             />
             {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
-          </AuthCardNavLink>
+          </BlackAuthCardNavLink>
         </div>
         <FormMessagesContainer>
           {submitSucceeded && (
             <FormMessage
-              intent="success"
-              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)} 
+              intent="lightSuccess"
+              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)}
                 ${props.emailValue}`}
             />
           )}

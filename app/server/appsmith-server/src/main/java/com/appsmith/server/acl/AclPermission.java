@@ -5,7 +5,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
@@ -30,6 +30,9 @@ public enum AclPermission {
     USER_MANAGE_ORGANIZATIONS("manage:userOrganization", User.class),
     //Does the user have read organization permissions
     USER_READ_ORGANIZATIONS("read:userOrganization", User.class),
+
+    // Does this user have permission to access Instance Config UI?
+    MANAGE_INSTANCE_ENV("manage:instanceEnv", User.class),
 
     // TODO: Add these permissions to PolicyGenerator to assign them to the user when they sign up
     // The following should be applied to Organization and not User

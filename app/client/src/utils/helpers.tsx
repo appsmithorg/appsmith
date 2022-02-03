@@ -1,18 +1,33 @@
+import React from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
+import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
   JAVASCRIPT_KEYWORDS,
+  WINDOW_OBJECT_METHODS,
+  WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { set } from "lodash";
+import { get, set } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { User } from "constants/userConstants";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { sha256 } from "js-sha256";
+import moment from "moment";
+import log from "loglevel";
+import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { ApiResponse } from "api/ApiResponses";
+import { DSLWidget } from "widgets/constants";
+import * as Sentry from "@sentry/react";
+
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const snapToGrid = (
   columnWidth: number,
@@ -51,35 +66,77 @@ export const Directions: { [id: string]: string } = {
 };
 
 export type Direction = typeof Directions[keyof typeof Directions];
-const SCROLL_THESHOLD = 10;
+const SCROLL_THRESHOLD = 20;
 
 export const getScrollByPixels = function(
-  elem: Element,
+  elem: {
+    top: number;
+    height: number;
+  },
   scrollParent: Element,
-): number {
-  const bounding = elem.getBoundingClientRect();
+  child: Element,
+): {
+  scrollAmount: number;
+  speed: number;
+} {
   const scrollParentBounds = scrollParent.getBoundingClientRect();
+  const scrollChildBounds = child.getBoundingClientRect();
   const scrollAmount =
-    GridDefaults.CANVAS_EXTENSION_OFFSET * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-  if (
-    bounding.top > 0 &&
-    bounding.top - scrollParentBounds.top < SCROLL_THESHOLD
-  )
-    return -scrollAmount;
-  if (scrollParentBounds.bottom - bounding.bottom < SCROLL_THESHOLD)
-    return scrollAmount;
-  return 0;
+    2 *
+    GridDefaults.CANVAS_EXTENSION_OFFSET *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const topBuff =
+    elem.top + scrollChildBounds.top > 0
+      ? elem.top +
+        scrollChildBounds.top -
+        SCROLL_THRESHOLD -
+        scrollParentBounds.top
+      : 0;
+  const bottomBuff =
+    scrollParentBounds.bottom -
+    (elem.top + elem.height + scrollChildBounds.top + SCROLL_THRESHOLD);
+  if (topBuff < SCROLL_THRESHOLD) {
+    const speed = Math.max(
+      (SCROLL_THRESHOLD - topBuff) / (2 * SCROLL_THRESHOLD),
+      0.1,
+    );
+    return {
+      scrollAmount: 0 - scrollAmount,
+      speed,
+    };
+  }
+  if (bottomBuff < SCROLL_THRESHOLD) {
+    const speed = Math.max(
+      (SCROLL_THRESHOLD - bottomBuff) / (2 * SCROLL_THRESHOLD),
+      0.1,
+    );
+    return {
+      scrollAmount,
+      speed,
+    };
+  }
+  return {
+    scrollAmount: 0,
+    speed: 0,
+  };
 };
 
 export const scrollElementIntoParentCanvasView = (
-  el: Element | null,
+  el: {
+    top: number;
+    height: number;
+  } | null,
   parent: Element | null,
+  child: Element | null,
 ) => {
   if (el) {
     const scrollParent = parent;
-    if (scrollParent) {
-      const scrollBy: number = getScrollByPixels(el, scrollParent);
+    if (scrollParent && child) {
+      const { scrollAmount: scrollBy } = getScrollByPixels(
+        el,
+        scrollParent,
+        child,
+      );
       if (scrollBy < 0 && scrollParent.scrollTop > 0) {
         scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
       }
@@ -90,6 +147,20 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
+export function hasClass(ele: HTMLElement, cls: string) {
+  return ele.classList.contains(cls);
+}
+
+function addClass(ele: HTMLElement, cls: string) {
+  if (!hasClass(ele, cls)) ele.classList.add(cls);
+}
+
+function removeClass(ele: HTMLElement, cls: string) {
+  if (hasClass(ele, cls)) {
+    ele.classList.remove(cls);
+  }
+}
+
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
@@ -98,22 +169,53 @@ export const removeSpecialChars = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const flashElement = (el: HTMLElement) => {
-  el.style.backgroundColor = "#FFCB33";
+export const flashElement = (
+  el: HTMLElement,
+  flashTimeout = 1000,
+  flashClass = "flash",
+) => {
+  if (!el) return;
+  addClass(el, flashClass);
   setTimeout(() => {
-    el.style.backgroundColor = "transparent";
-  }, 1000);
+    removeClass(el, flashClass);
+  }, flashTimeout);
 };
 
-export const flashElementById = (id: string) => {
-  const el = document.getElementById(id);
-  el?.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-    inline: "center",
-  });
+/**
+ * flash elements with a background color
+ *
+ * @param id
+ * @param timeout
+ * @param flashTimeout
+ * @param flashColor
+ */
+export const flashElementsById = (
+  id: string | string[],
+  timeout = 0,
+  flashTimeout?: number,
+  flashClass?: string,
+) => {
+  let ids: string[] = [];
 
-  if (el) flashElement(el);
+  if (Array.isArray(id)) {
+    ids = ids.concat(id);
+  } else {
+    ids = ids.concat([id]);
+  }
+
+  ids.forEach((id) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+
+      el?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+
+      if (el) flashElement(el, flashTimeout, flashClass);
+    }, timeout);
+  });
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
@@ -200,6 +302,9 @@ export const isNameValid = (
     name in JAVASCRIPT_KEYWORDS ||
     name in DATA_TREE_KEYWORDS ||
     name in GLOBAL_FUNCTIONS ||
+    name in WINDOW_OBJECT_PROPERTIES ||
+    name in WINDOW_OBJECT_METHODS ||
+    name in extraLibrariesNames ||
     name in invalidNames
   );
 };
@@ -225,8 +330,31 @@ export const isString = (str: any) => {
   return typeof str === "string" || str instanceof String;
 };
 
+/**
+ * Returns substring between two set of strings
+ * eg ->
+ * getSubstringBetweenTwoWords("abcdefgh", "abc", "fgh") -> de
+ */
+
+export const getSubstringBetweenTwoWords = (
+  str: string,
+  startWord: string,
+  endWord: string,
+) => {
+  const endIndexOfStartWord = str.indexOf(startWord) + startWord.length;
+  const startIndexOfEndWord = str.lastIndexOf(endWord);
+
+  if (startIndexOfEndWord < endIndexOfStartWord) return "";
+
+  return str.substring(startIndexOfEndWord, endIndexOfStartWord);
+};
+
 export const playOnboardingAnimation = () => {
   playLottieAnimation("#root", confetti);
+};
+
+export const playWelcomeAnimation = (container: string) => {
+  playLottieAnimation(container, welcomeConfetti);
 };
 
 export const playOnboardingStepCompletionAnimation = () => {
@@ -338,11 +466,12 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
   return object;
 };
 
-export const getCanManage = (currentOrg: Org) => {
+// Can be used to check if the user has developer role access to org
+export const getCanCreateApplications = (currentOrg: Org) => {
   const userOrgPermissions = currentOrg.userPermissions || [];
   const canManage = isPermitted(
     userOrgPermissions,
-    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+    PERMISSION_TYPE.CREATE_APPLICATION,
   );
   return canManage;
 };
@@ -353,4 +482,216 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
   } catch (e) {
     return false;
   }
+};
+
+export function bootIntercom(user?: User) {
+  if (intercomAppID && window.Intercom) {
+    let { email, username } = user || {};
+    let name;
+    if (!cloudHosting) {
+      username = sha256(username || "");
+      // keep email undefined so that users are prompted to enter it when they reach out on intercom
+      email = undefined;
+    } else {
+      name = user?.name;
+    }
+
+    window.Intercom("boot", {
+      app_id: intercomAppID,
+      user_id: username,
+      email,
+      // keep name undefined instead of an empty string so that intercom auto assigns a name
+      name,
+    });
+  }
+}
+
+export const stopClickEventPropagation = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+) => {
+  e.stopPropagation();
+};
+
+/**
+ *
+ * Get text for how much time before an action happened
+ * Eg: 1 Month, 12 Seconds
+ *
+ * @param date 2021-09-08T14:14:12Z
+ *
+ */
+export const howMuchTimeBeforeText = (date: string) => {
+  if (!date || !moment.isMoment(moment(date))) {
+    return "";
+  }
+
+  const now = moment();
+  const checkDate = moment(date);
+  const years = now.diff(checkDate, "years");
+  const months = now.diff(checkDate, "months");
+  const days = now.diff(checkDate, "days");
+  const hours = now.diff(checkDate, "hours");
+  const minutes = now.diff(checkDate, "minutes");
+  const seconds = now.diff(checkDate, "seconds");
+  if (years > 0) return `${years} yr${years > 1 ? "s" : ""}`;
+  else if (months > 0) return `${months} mth${months > 1 ? "s" : ""}`;
+  else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
+  else if (hours > 0) return `${hours} hr${hours > 1 ? "s" : ""}`;
+  else if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""}`;
+  else return `${seconds} sec${seconds > 1 ? "s" : ""}`;
+};
+
+/**
+ *
+ * Truncate string and append given string in the end
+ * eg: Flint Lockwood Diatonic Super Mutating Dynamic Food Replicator
+ * -> Flint...
+ *
+ */
+export const truncateString = (
+  str: string,
+  limit: number,
+  appendStr = "...",
+) => {
+  if (str.length <= limit) return str;
+  let _subString = str.substring(0, limit);
+  _subString = _subString.trim() + appendStr;
+  return _subString;
+};
+
+/**
+ * returns the modText ( ctrl or command ) based on the user machine
+ *
+ * @returns
+ */
+export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+
+export const undoShortCut = () => <span>{modText()}+Z</span>;
+
+export const redoShortCut = () =>
+  isMac() ? (
+    <span>
+      {modText()}+<span>&#8682;</span>+Z
+    </span>
+  ) : (
+    <span>{modText()}+Y</span>
+  );
+
+/**
+ * @returns the original string after trimming the string past `?`
+ */
+export const trimQueryString = (value = "") => {
+  const index = value.indexOf("?");
+  if (index === -1) return value;
+  return value.slice(0, index);
+};
+
+/**
+ * returns the value in the query string for a key
+ */
+export const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return decodeURIComponent(params.get(key) || "");
+};
+
+/**
+ * get query params object
+ * ref: https://stackoverflow.com/a/8649003/1543567
+ */
+export const getQueryParamsObject = () => {
+  const search = window.location.search.substring(1);
+  if (!search) return {};
+  try {
+    return JSON.parse(
+      '{"' +
+        decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"') +
+        '"}',
+    );
+  } catch (e) {
+    log.error(e, "error parsing search string");
+    return {};
+  }
+};
+
+/*
+ * unfocus all window selection
+ *
+ * @param document
+ * @param window
+ */
+export function unFocus(document: Document, window: Window) {
+  if (document.getSelection()) {
+    document.getSelection()?.empty();
+  } else {
+    try {
+      window.getSelection()?.removeAllRanges();
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
+  }
+}
+
+export function getLogToSentryFromResponse(response?: ApiResponse) {
+  return response && response?.responseMeta?.status >= 500;
+}
+
+/*
+ *  Function to merge property pane config of a widget
+ *
+ */
+export const mergeWidgetConfig = (target: any, source: any) => {
+  const sectionMap: Record<string, any> = {};
+
+  target.forEach((section: { sectionName: string }) => {
+    sectionMap[section.sectionName] = section;
+  });
+
+  source.forEach((section: { sectionName: string; children: any[] }) => {
+    const targetSection = sectionMap[section.sectionName];
+
+    if (targetSection) {
+      Array.prototype.push.apply(targetSection.children, section.children);
+    } else {
+      target.push(section);
+    }
+  });
+
+  return target;
+};
+
+export const getLocale = () => {
+  return navigator.languages?.[0] || "en-US";
+};
+
+/**
+ * Function to check if the DynamicBindingPathList is valid
+ * @param currentDSL
+ * @returns
+ */
+export const captureInvalidDynamicBindingPath = (
+  currentDSL: Readonly<DSLWidget>,
+) => {
+  //Get the dynamicBindingPathList of the current DSL
+  const dynamicBindingPathList = get(currentDSL, "dynamicBindingPathList");
+  dynamicBindingPathList?.forEach((dBindingPath) => {
+    const pathValue = get(currentDSL, dBindingPath.key); //Gets the value for the given dynamic binding path
+    /**
+     * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
+     */
+    if (!isDynamicValue(pathValue)) {
+      Sentry.captureException(
+        new Error(
+          `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
+        ),
+      );
+      return;
+    }
+  });
+
+  if (currentDSL.children) {
+    currentDSL.children.map(captureInvalidDynamicBindingPath);
+  }
+  return currentDSL;
 };

@@ -10,26 +10,39 @@ import {
   markThreadAsReadRequest,
   resetVisibleThread,
   setCommentResolutionRequest,
+  updateThreadDraftComment,
 } from "actions/commentActions";
 
-import { shouldShowResolved as shouldShowResolvedSelector } from "selectors/commentsSelectors";
+import {
+  getDraftComments,
+  shouldShowResolved as shouldShowResolvedSelector,
+} from "selectors/commentsSelectors";
 
 import useIsScrolledToBottom from "utils/hooks/useIsScrolledToBottom";
 
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
-import { RawDraftContentState } from "draft-js";
+import { EditorState, RawDraftContentState } from "draft-js";
 
-import styled from "styled-components";
+import styled, { withTheme } from "styled-components";
 import { animated } from "react-spring";
 import { AppState } from "reducers";
 import { useEffect } from "react";
+import { Theme } from "constants/DefaultTheme";
 
-const ThreadContainer = styled(animated.div)<{
+import { getAppMode } from "selectors/applicationSelectors";
+import { getViewModePageList } from "selectors/editorSelectors";
+import { APP_MODE } from "entities/App";
+
+const ThreadContainer = styled(animated.div).withConfig({
+  shouldForwardProp: (prop) =>
+    !["visible", "inline", "maxHeight"].includes(prop),
+})<{
   visible?: boolean;
   inline?: boolean;
   pinned?: boolean;
+  maxHeight: string;
 }>`
-  width: 280px;
+  width: ${(props) => (props.inline ? "280px" : "100%")};
   max-width: 100%;
   background-color: ${(props) =>
     props.inline
@@ -39,8 +52,7 @@ const ThreadContainer = styled(animated.div)<{
       : props.visible
       ? props.theme.colors.comments.visibleThreadBackground
       : "transparent"};
-  max-height: ${(props) =>
-    props.inline ? `calc(100vh - ${props.theme.smallHeaderHeight})` : "unset"};
+  max-height: ${(props) => props.maxHeight};
   /* overflow: auto collapses the comment threads in the sidebar */
   overflow: ${(props) => (props.inline ? "auto" : "unset")};
 `;
@@ -53,12 +65,13 @@ const ChildComments = styled.div`
   flex: 1;
 `;
 
-function CommentThreadContainer({
+const CommentThreadContainer = withTheme(function CommentThreadContainer({
   commentThread,
   hideChildren,
   hideInput,
   inline,
   showSubheader,
+  theme,
 }: {
   commentThread: CommentThread;
   isOpen?: boolean;
@@ -66,6 +79,7 @@ function CommentThreadContainer({
   inline?: boolean;
   hideChildren?: boolean;
   showSubheader?: boolean;
+  theme: Theme;
 }) {
   const dispatch = useDispatch();
   const { comments, id: commentThreadId } = commentThread || {};
@@ -130,11 +144,30 @@ function CommentThreadContainer({
 
   const handleCancel = () => dispatch(resetVisibleThread(commentThreadId));
 
+  const appMode = useSelector(getAppMode);
+  const pages = useSelector(getViewModePageList) || [];
+
+  const inlineThreadHeightOffset =
+    appMode === APP_MODE.PUBLISHED && pages.length > 1
+      ? `calc(100vh - ${theme.smallHeaderHeight} - ${theme.smallHeaderHeight})` // to account for page tabs
+      : `calc(100vh - ${theme.smallHeaderHeight})`;
+
+  const maxHeight = inline ? inlineThreadHeightOffset : "unset";
+
+  const draftComment = useSelector(
+    (state: AppState) => getDraftComments(state)[commentThreadId],
+  );
+
+  const handleChange = (editorState: EditorState) => {
+    dispatch(updateThreadDraftComment(editorState, commentThreadId));
+  };
+
   if (!commentThread) return null;
 
   return isThreadVisible ? (
     <ThreadContainer
       inline={inline}
+      maxHeight={maxHeight}
       pinned={commentThread.pinnedState?.active}
       tabIndex={0}
       visible={isVisible}
@@ -149,11 +182,11 @@ function CommentThreadContainer({
               isParentComment
               key={parentComment.id}
               numberOfReplies={numberOfReplies}
-              resolved={!!commentThread.resolvedState?.active}
+              resolved={!!commentThread?.resolvedState?.active}
               showReplies={hideChildren}
               showSubheader={showSubheader}
               toggleResolved={resolveCommentThread}
-              unread={!commentThread.isViewed}
+              unread={!commentThread?.isViewed}
               visible={isVisible}
             />
           )}
@@ -177,10 +210,15 @@ function CommentThreadContainer({
         )}
       </div>
       {!hideInput && (
-        <AddCommentInput onCancel={handleCancel} onSave={addComment} />
+        <AddCommentInput
+          initialEditorState={draftComment}
+          onCancel={handleCancel}
+          onChange={handleChange}
+          onSave={addComment}
+        />
       )}
     </ThreadContainer>
   ) : null;
-}
+});
 
 export default CommentThreadContainer;

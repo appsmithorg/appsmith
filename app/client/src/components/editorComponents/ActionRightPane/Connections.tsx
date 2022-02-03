@@ -3,7 +3,7 @@ import { Collapsible } from ".";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
-import { useEntityLink } from "../Debugger/hooks";
+import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";

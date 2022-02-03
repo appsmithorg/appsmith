@@ -1,7 +1,6 @@
-import React, { useState, useRef, RefObject, useCallback } from "react";
-import { connect, useSelector } from "react-redux";
+import React, { useRef, RefObject, useCallback } from "react";
+import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
@@ -21,8 +20,8 @@ import {
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
 } from "constants/messages";
-import { TabComponent } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
+import { Text as BlueprintText } from "@blueprintjs/core";
 import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -34,7 +33,14 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
 import Button, { Size } from "components/ads/Button";
-import { getActionTabsInitialIndex } from "selectors/editorSelectors";
+import EntityBottomTabs from "./EntityBottomTabs";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import { setCurrentTab } from "actions/debuggerActions";
+
+type TextStyleProps = {
+  accent: "primary" | "secondary" | "error";
+};
+export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -72,8 +78,8 @@ const ResponseTabWrapper = styled.div`
   width: 100%;
 `;
 
-const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
-  height: calc(100% - 30px);
+const TabbedViewWrapper = styled.div`
+  height: 100%;
 
   &&& {
     ul.react-tabs__tab-list {
@@ -81,18 +87,11 @@ const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
     }
   }
 
-  ${(props) =>
-    props.isCentered
-      ? `
-    &&& {
-      .react-tabs__tab-panel {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+  & {
+    .react-tabs__tab-panel {
+      height: calc(100% - 32px);
     }
-    }
-  `
-      : null}
+  }
 `;
 
 const SectionDivider = styled.div`
@@ -112,7 +111,7 @@ const Flex = styled.div`
 `;
 
 const NoResponseContainer = styled.div`
-  height: 100%;
+  flex: 1;
   width: 100%;
   display: flex;
   align-items: center;
@@ -153,8 +152,8 @@ const InlineButton = styled(Button)`
 `;
 
 const HelpSection = styled.div`
-  margin-bottom: 5px;
-  margin-top: 10px;
+  padding-bottom: 5px;
+  padding-top: 10px;
 `;
 
 interface ReduxStateProps {
@@ -186,6 +185,24 @@ export const EMPTY_RESPONSE: ActionResponse = {
 const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${(props) =>
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
+  cursor: pointer;
+  width: 38px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &:hover {
+    width: 100%;
+  }
+`;
+
+const ResponseDataContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  & .CodeEditorTarget {
+    overflow: hidden;
+  }
 `;
 
 function ApiResponseView(props: Props) {
@@ -204,12 +221,13 @@ function ApiResponseView(props: Props) {
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const dispatch = useDispatch();
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
     });
-    setSelectedIndex(1);
+    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
   const onRunClick = () => {
@@ -219,16 +237,15 @@ function ApiResponseView(props: Props) {
     });
   };
 
-  const initialIndex = useSelector(getActionTabsInitialIndex);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const messages = response?.messages;
+
   const tabs = [
     {
       key: "body",
       title: "Response Body",
       panelComponent: (
         <ResponseTabWrapper>
-          {messages && (
+          {Array.isArray(messages) && messages.length > 0 && (
             <HelpSection>
               {messages.map((msg, i) => (
                 <Callout fill key={i} text={msg} variant={Variant.warning} />
@@ -250,66 +267,54 @@ function ApiResponseView(props: Props) {
               variant={Variant.danger}
             />
           )}
-          {_.isEmpty(response.statusCode) ? (
-            <NoResponseContainer>
-              <Icon name="no-response" />
-              <Text type={TextType.P1}>
-                {EMPTY_RESPONSE_FIRST_HALF()}
-                <InlineButton
-                  isLoading={isRunning}
-                  onClick={onRunClick}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
-                {EMPTY_RESPONSE_LAST_HALF()}
-              </Text>
-            </NoResponseContainer>
-          ) : (
-            <ReadOnlyEditor
-              folding
-              height={"100%"}
-              input={{
-                value: response.body
-                  ? JSON.stringify(response.body, null, 2)
-                  : "",
-              }}
-            />
-          )}
+          <ResponseDataContainer>
+            {_.isEmpty(response.statusCode) ? (
+              <NoResponseContainer>
+                <Icon name="no-response" />
+                <Text type={TextType.P1}>
+                  {EMPTY_RESPONSE_FIRST_HALF()}
+                  <InlineButton
+                    isLoading={isRunning}
+                    onClick={onRunClick}
+                    size={Size.medium}
+                    tag="button"
+                    text="Run"
+                    type="button"
+                  />
+                  {EMPTY_RESPONSE_LAST_HALF()}
+                </Text>
+              </NoResponseContainer>
+            ) : (
+              <ReadOnlyEditor
+                folding
+                height={"100%"}
+                input={{
+                  value: response.body
+                    ? JSON.stringify(response.body, null, 2)
+                    : "",
+                }}
+              />
+            )}
+          </ResponseDataContainer>
         </ResponseTabWrapper>
       ),
     },
     {
-      key: "ERROR",
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "LOGS",
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
     {
-      key: "ENTITY_DEPENDENCIES",
+      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
       title: createMessage(INSPECT_ENTITY),
       panelComponent: <EntityDeps />,
     },
   ];
-
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "LOGS"];
-    if (
-      debuggerTabKeys.includes(tabs[index].key) &&
-      debuggerTabKeys.includes(tabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: tabs[index].key,
-      });
-    }
-
-    setSelectedIndex(index);
-  };
 
   return (
     <ResponseContainer ref={panelRef}>
@@ -320,9 +325,7 @@ function ApiResponseView(props: Props) {
           Sending Request
         </LoadingOverlayScreen>
       )}
-      <TabbedViewWrapper
-        isCentered={_.isEmpty(response.body) && selectedIndex === 0}
-      >
+      <TabbedViewWrapper>
         {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
@@ -364,11 +367,7 @@ function ApiResponseView(props: Props) {
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
-        <TabComponent
-          onSelect={onTabSelect}
-          selectedIndex={selectedIndex}
-          tabs={tabs}
-        />
+        <EntityBottomTabs defaultIndex={0} tabs={tabs} />
       </TabbedViewWrapper>
     </ResponseContainer>
   );

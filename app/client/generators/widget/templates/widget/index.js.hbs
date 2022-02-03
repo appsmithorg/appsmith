@@ -1,0 +1,37 @@
+import React from "react";
+import styled from "styled-components";
+
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+
+import {{name}}Component from "../component";
+
+class {{suffixed name}} extends BaseWidget<{{suffixed name}}Props, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [];
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  getPageView() {
+    return <{{name}}Component />;
+  }
+
+  static getWidgetType(): string {
+    return "{{widgetTypeFormat name}}";
+  }
+}
+
+export interface {{suffixed name}}Props extends WidgetProps {}
+
+export default {{suffixed name}};

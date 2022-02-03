@@ -87,7 +87,7 @@ const Styles = styled.div`
 const HiddenArrow = styled(DownArrow)`
   visibility: hidden;
 `;
-interface TableProps {
+export interface TableProps {
   data: any[];
   columns: any[];
 }

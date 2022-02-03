@@ -1,1 +1,1 @@
-SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10;
+SELECT * FROM users ORDER BY id LIMIT 10;

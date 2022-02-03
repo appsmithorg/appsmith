@@ -1,13 +1,42 @@
 import { set, cloneDeep } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import isObject from "lodash/isObject";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  WidgetReduxActionTypes,
+} from "constants/ReduxActionConstants";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
 const initialState: MetaState = {};
 
 export const metaReducer = createReducer(initialState, {
+  [ReduxActionTypes.UPDATE_META_STATE]: (
+    state: MetaState,
+    action: ReduxAction<{
+      updatedWidgetMetaState: Record<string, DataTreeWidget>;
+    }>,
+  ) => {
+    // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
+    const newMetaState = cloneDeep(state);
+    const { updatedWidgetMetaState } = action.payload;
+
+    Object.entries(updatedWidgetMetaState).forEach(
+      ([entityWidgetId, entityMetaState]) => {
+        if (isObject(newMetaState[entityWidgetId])) {
+          Object.keys(newMetaState[entityWidgetId]).forEach((key) => {
+            if (key in entityMetaState) {
+              newMetaState[entityWidgetId][key] = entityMetaState[key];
+            }
+          });
+        }
+      },
+    );
+    return newMetaState;
+  },
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
@@ -43,7 +72,7 @@ export const metaReducer = createReducer(initialState, {
     next[action.payload.widgetId] = widgetMetaProps;
     return next;
   },
-  [ReduxActionTypes.WIDGET_DELETE]: (
+  [WidgetReduxActionTypes.WIDGET_DELETE]: (
     state: MetaState,
     action: ReduxAction<{ widgetId: string }>,
   ) => {
@@ -61,7 +90,7 @@ export const metaReducer = createReducer(initialState, {
         ...state[widgetId],
       };
       Object.keys(resetData).forEach((key: string) => {
-        resetData[key] = undefined;
+        delete resetData[key];
       });
       return { ...state, [widgetId]: { ...resetData } };
     }

@@ -1,25 +1,19 @@
 import React, { useMemo, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
+import { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
-
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import EntityProperties from "../Entity/EntityProperties";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
-const UNREGISTERED_WIDGETS: WidgetType[] = [WidgetTypes.ICON_WIDGET];
+const UNREGISTERED_WIDGETS: WidgetType[] = ["ICON_WIDGET"];
 
 const useWidget = (
   widgetId: string,
@@ -30,12 +24,8 @@ const useWidget = (
 ) => {
   const selectedWidgets = useSelector(getSelectedWidgets);
   const lastSelectedWidget = useSelector(getSelectedWidget);
-  const isWidgetSelected = useMemo(
-    () => selectedWidgets && selectedWidgets.includes(widgetId),
-    [selectedWidgets, widgetId],
-  );
-
-  const multipleWidgetsSelected = selectedWidgets && selectedWidgets.length > 1;
+  const isWidgetSelected = selectedWidgets.includes(widgetId);
+  const multipleWidgetsSelected = selectedWidgets.length > 1;
 
   const { navigateToWidget } = useNavigateToWidget();
 
@@ -87,12 +77,12 @@ export type WidgetEntityProps = {
 };
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
-  const { pageId } = useParams<ExplorerURLParams>();
   const widgetsToExpand = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestory,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
   );
-  let shouldExpand = false;
-  if (widgetsToExpand.includes(props.widgetId)) shouldExpand = true;
+
+  const shouldExpand = widgetsToExpand.includes(props.widgetId);
+
   const {
     isWidgetSelected,
     lastSelectedWidget,
@@ -126,7 +116,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     />
   );
 
-  const showContextMenu = props.pageId === pageId && !multipleWidgetsSelected;
+  const showContextMenu = !multipleWidgetsSelected;
   const widgetsInStep = props?.childWidgets
     ? props?.childWidgets?.map((child) => child.widgetId)
     : [];
@@ -145,11 +135,10 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }
-      key={props.widgetId}
       name={props.widgetName}
       searchKeyword={props.searchKeyword}
       step={props.step}
-      updateEntityName={props.pageId === pageId ? updateWidgetName : undefined}
+      updateEntityName={updateWidgetName}
     >
       {props.childWidgets &&
         props.childWidgets.length > 0 &&
@@ -167,34 +156,10 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
             widgetsInStep={widgetsInStep}
           />
         ))}
-      {!(props.childWidgets && props.childWidgets.length > 0) &&
-        pageId === props.pageId && (
-          <CurrentPageEntityProperties
-            entityName={props.widgetName}
-            entityType={ENTITY_TYPE.WIDGET}
-            key={props.widgetId}
-            step={props.step + 1}
-          />
-        )}
-      {!(props.childWidgets && props.childWidgets.length > 0) &&
-        pageId !== props.pageId && (
-          <EntityProperties
-            entityId={props.widgetId}
-            entityName={props.widgetName}
-            entityType={ENTITY_TYPE.WIDGET}
-            key={props.widgetId}
-            pageId={props.pageId}
-            step={props.step + 1}
-          />
-        )}
     </Entity>
   );
 });
 
 WidgetEntity.displayName = "WidgetEntity";
-
-(WidgetEntity as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default WidgetEntity;

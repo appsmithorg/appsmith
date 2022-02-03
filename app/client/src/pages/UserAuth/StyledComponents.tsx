@@ -35,6 +35,8 @@ export const AuthCard = styled(Card)`
   padding: ${(props) => props.theme.spaces[15]}px 64px;
   width: ${(props) => props.theme.authCard.width}px;
   border: none;
+  box-shadow: none;
+  border-radius: 0;
   h1 {
     text-align: center;
     padding: 0;
@@ -64,6 +66,7 @@ export const AuthCardHeader = styled.header`
     h1 {
       font-size: ${(props) => props.theme.fontSizes[6]}px;
       white-space: nowrap;
+      font-weight: 500;
     }
     h5 {
       font-size: ${(props) => props.theme.fontSizes[4]}px;
@@ -74,9 +77,11 @@ export const AuthCardHeader = styled.header`
 
 export const AuthCardNavLink = styled(Link)`
   border-bottom: 1px solid transparent;
+  color: ${(props) => props.theme.colors.auth.link};
   &:hover {
     border-bottom: 1px solid ${(props) => props.theme.colors.auth.link};
     text-decoration: none;
+    color: ${(props) => props.theme.colors.auth.link};
   }
 `;
 
@@ -138,4 +143,13 @@ export const ForgotPasswordLink = styled.div`
 export const FormMessagesContainer = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+export const BlackAuthCardNavLink = styled(AuthCardNavLink)`
+  color: #000;
+  border-bottom: 1px solid transparent;
+  &:hover {
+    color: #000;
+    border-bottom: 1px solid #000;
+  }
 `;

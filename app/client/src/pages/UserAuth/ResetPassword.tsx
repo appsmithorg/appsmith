@@ -21,7 +21,7 @@ import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
 import {
   AuthCardHeader,
-  AuthCardNavLink,
+  BlackAuthCardNavLink,
   FormActions,
 } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
@@ -57,12 +57,12 @@ const validate = (values: ResetPasswordFormValues) => {
 type ResetPasswordProps = InjectedFormProps<
   ResetPasswordFormValues,
   {
-    verifyToken: (token: string, email: string) => void;
+    verifyToken: (token: string) => void;
     isTokenValid: boolean;
     validatingToken: boolean;
   }
 > & {
-  verifyToken: (token: string, email: string) => void;
+  verifyToken: (token: string) => void;
   isTokenValid: boolean;
   validatingToken: boolean;
   theme: Theme;
@@ -83,11 +83,10 @@ export function ResetPassword(props: ResetPasswordProps) {
   } = props;
 
   useLayoutEffect(() => {
-    if (initialValues.token && initialValues.email)
-      verifyToken(initialValues.token, initialValues.email);
-  }, [initialValues.token, initialValues.email, verifyToken]);
+    if (initialValues.token) verifyToken(initialValues.token);
+  }, [initialValues.token, verifyToken]);
 
-  const showInvalidMessage = !initialValues.token || !initialValues.email;
+  const showInvalidMessage = !initialValues.token;
   const showExpiredMessage = !isTokenValid && !validatingToken;
   const showSuccessMessage = submitSucceeded && !pristine;
   const showFailureMessage = submitFailed && !!error;
@@ -143,7 +142,7 @@ export function ResetPassword(props: ResetPasswordProps) {
     intent:
       showInvalidMessage || showExpiredMessage || showFailureMessage
         ? "danger"
-        : "success",
+        : "lightSuccess",
     message,
     actions: messageActions,
   };
@@ -161,13 +160,13 @@ export function ResetPassword(props: ResetPasswordProps) {
         <h1>{createMessage(RESET_PASSWORD_PAGE_TITLE)}</h1>
       </AuthCardHeader>
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <AuthCardNavLink to={AUTH_LOGIN_URL}>
+        <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
           <Icon
             icon="arrow-left"
             style={{ marginRight: props.theme.spaces[3] }}
           />
           {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
-        </AuthCardNavLink>
+        </BlackAuthCardNavLink>
       </div>
       {(showSuccessMessage || showFailureMessage) && (
         <FormMessage {...messageTagProps} />
@@ -209,7 +208,6 @@ export default connect(
     const queryParams = new URLSearchParams(props.location.search);
     return {
       initialValues: {
-        email: queryParams.get("email") || undefined,
         token: queryParams.get("token") || undefined,
       },
       isTokenValid: getIsTokenValid(state),
@@ -217,17 +215,17 @@ export default connect(
     };
   },
   (dispatch: any) => ({
-    verifyToken: (token: string, email: string) =>
+    verifyToken: (token: string) =>
       dispatch({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_INIT,
-        payload: { token, email },
+        payload: { token },
       }),
   }),
 )(
   reduxForm<
     ResetPasswordFormValues,
     {
-      verifyToken: (token: string, email: string) => void;
+      verifyToken: (token: string) => void;
       validatingToken: boolean;
       isTokenValid: boolean;
     }

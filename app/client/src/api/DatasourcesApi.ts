@@ -1,4 +1,4 @@
-import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/ApiConstants";
+import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import API from "api/Api";
 import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
@@ -25,7 +25,7 @@ export interface EmbeddedRestDatasourceRequest {
   pluginId: string;
 }
 
-type executeQueryData = Array<{ key: string; value?: string }>;
+type executeQueryData = Array<{ key?: string; value?: string }>;
 
 export interface executeDatasourceQueryRequest {
   datasourceId: string;

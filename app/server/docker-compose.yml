@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   appsmith-internal-server:
-    image: appsmith/appsmith-server
+    image: appsmith/appsmith-server:release
     env_file: envs/docker.env
     environment:
       APPSMITH_REDIS_URL: "redis://redis:6379"
@@ -14,6 +14,8 @@ services:
       - redis
     networks:
       - appsmith
+    volumes:
+      - ./container-volumes/git-storage:/data/git-storage
 
   mongo:
     image: mongo:4.4.6

@@ -27,6 +27,7 @@ const IconContainer = styled.div`
   align-items: center;
   cursor: pointer;
   padding-left: 16px;
+  width: fit-content;
   /* background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg}; */
 `;
 
@@ -53,7 +54,10 @@ function CloseEditor() {
   // else go back to BUILDER_PAGE
   const redirectURL = isGeneratePageInitiator
     ? getGenerateTemplateFormURL(applicationId, pageId)
-    : BUILDER_PAGE_URL(applicationId, pageId);
+    : BUILDER_PAGE_URL({
+        applicationId,
+        pageId,
+      });
 
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(

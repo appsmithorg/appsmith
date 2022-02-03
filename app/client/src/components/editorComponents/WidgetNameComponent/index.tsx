@@ -4,19 +4,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import SettingsControl, { Activities } from "./SettingsControl";
-import {
-  useShowPropertyPane,
-  useShowTableFilterPane,
-} from "utils/hooks/dragResizeHooks";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import WidgetFactory from "utils/WidgetFactory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
+import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import { bindDataToWidget } from "../../../actions/propertyPaneActions";
+import { hideErrors } from "selectors/debuggerSelectors";
+import { commentModeSelector } from "../../../selectors/commentsSelectors";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -51,9 +56,10 @@ type WidgetNameComponentProps = {
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
-  const showPropertyPane = useShowPropertyPane();
   const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
   const showTableFilterPane = useShowTableFilterPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -76,6 +82,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+
+  const shouldHideErrors = useSelector(hideErrors);
 
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
 
@@ -103,14 +111,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
       selectWidget && selectWidget(props.widgetId);
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,
         widgetId: props.widgetId,
       });
-      showPropertyPane && showPropertyPane();
     }
 
     e.preventDefault();
@@ -120,16 +126,29 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidget === props.widgetId ||
     selectedWidgets.includes(props.widgetId);
 
+  const isMultiSelectedWidget =
+    selectedWidgets &&
+    selectedWidgets.length > 1 &&
+    selectedWidgets.includes(props.widgetId);
+  const shouldShowWidgetName = () => {
+    return (
+      !isCommentMode &&
+      !isPreviewMode &&
+      !isMultiSelectedWidget &&
+      (isSnipingMode
+        ? focusedWidget === props.widgetId
+        : props.showControls ||
+          ((focusedWidget === props.widgetId || showAsSelected) &&
+            !isDragging &&
+            !isResizing) ||
+          (!!props.errorCount && !shouldHideErrors))
+    );
+  };
+
   // in sniping mode we only show the widget name tag if it's focused.
   // in case of widget selection in sniping mode, if it's successful we bind the data else carry on
   // with sniping mode.
-  const showWidgetName = isSnipingMode
-    ? focusedWidget === props.widgetId
-    : props.showControls ||
-      ((focusedWidget === props.widgetId || showAsSelected) &&
-        !isDragging &&
-        !isResizing) ||
-      !!props.errorCount;
+  const showWidgetName = shouldShowWidgetName();
 
   let currentActivity =
     props.type === WidgetTypes.MODAL_WIDGET
@@ -154,7 +173,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       <ControlGroup>
         <SettingsControl
           activity={currentActivity}
-          errorCount={props.errorCount}
+          errorCount={shouldHideErrors ? 0 : props.errorCount}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
         />

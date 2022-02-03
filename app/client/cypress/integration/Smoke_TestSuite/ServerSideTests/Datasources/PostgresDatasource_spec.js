@@ -9,7 +9,7 @@ describe("Postgres datasource test cases", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create, test, save then delete a postgres datasource", function() {
+  it("1. Create, test, save then delete a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
@@ -20,8 +20,18 @@ describe("Postgres datasource test cases", function() {
     cy.testSaveDatasource();
   });
 
-  it("Create a new query from the datasource editor", function() {
-    cy.saveDatasource();
+  it("2. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function() {
+    cy.NavigateToDatasourceEditor();
+    cy.get(datasource.PostgreSQL).click();
+    cy.getPluginFormsAndCreateDatasource();
+    cy.fillPostgresDatasourceForm(true);
+    cy.get("@createDatasource").then((httpResponse) => {
+      datasourceName = httpResponse.response.body.data.name;
+    });
+    cy.testSaveDatasource();
+  });
+
+  it("3. Create a new query from the datasource editor", function() {
     // cy.get(datasource.createQuerty).click();
     cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
       .last()

@@ -17,6 +17,7 @@ import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
 import { CommonComponentProps } from "./common";
 import Icon, { IconSize } from "./Icon";
+import { UNFILLED_WIDTH } from "./EditableText";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -37,7 +38,8 @@ export type EditableTextSubComponentProps = CommonComponentProps & {
   defaultSavingState: SavingState;
   savingState: SavingState;
   setSavingState: typeof noop;
-  onBlur?: (value: string) => void;
+  onBlur?: (value: string) => void; // This `Blur` will be called only when there is a change in the value after we unfocus from the input field
+  onBlurEverytime?: (value: string) => void; // This `Blur` will be called everytime we unfocus from the input field
   onTextChanged?: (value: string) => void;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
@@ -60,7 +62,7 @@ export const EditableTextWrapper = styled.div<{
   ${(props) =>
     !props.filled
       ? `
-    width: 243px;
+    width: ${UNFILLED_WIDTH}px;
   `
       : `
     width: 100%;
@@ -100,16 +102,6 @@ const TextContainer = styled.div<{
     display: none;
   }
 
-  &&&
-    .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
-    &&&
-    .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
-    font-size: ${(props) => props.theme.typography.p1.fontSize}px;
-    line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
-    letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
-    font-weight: ${(props) => props.theme.typography.p1.fontWeight};
-  }
-
   &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT} {
     cursor: pointer;
     color: ${(props) => props.theme.colors.editableText.color};
@@ -118,6 +110,7 @@ const TextContainer = styled.div<{
     ${(props) => (props.isEditing ? "display: none" : "display: block")};
     width: fit-content !important;
     min-width: auto !important;
+    line-height: inherit !important;
   }
 
   &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT}:hover {
@@ -141,11 +134,8 @@ const TextContainer = styled.div<{
 
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     overflow: hidden;
-    height: ${(props) => props.theme.spaces[14] + 1}px;
-    padding: ${(props) => props.theme.spaces[4]}px
-      ${(props) => props.theme.spaces[5]}px;
-    width: calc(100% - 40px);
     background-color: ${(props) => props.bgColor};
+    width: calc(100% - 40px);
   }
 
   .icon-wrapper {
@@ -170,6 +160,7 @@ export function EditableTextSubComponent(props: EditableTextSubComponentProps) {
     isError,
     isInvalid,
     onBlur,
+    onBlurEverytime,
     onTextChanged,
     savingState,
     setIsEditing,
@@ -215,6 +206,7 @@ export function EditableTextSubComponent(props: EditableTextSubComponentProps) {
   const onConfirm = useCallback(
     (_value: string) => {
       const finalVal: string = _value.trim();
+      onBlurEverytime && onBlurEverytime(finalVal);
       if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
         setValue(lastValidValue);
         onBlur && onBlur(lastValidValue);

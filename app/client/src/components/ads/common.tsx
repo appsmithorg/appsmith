@@ -7,6 +7,7 @@ export interface CommonComponentProps {
   isLoading?: boolean; //default false
   cypressSelector?: string;
   className?: string;
+  name?: string;
   disabled?: boolean; //default false
 }
 
@@ -73,6 +74,13 @@ export enum Variant {
   info = "info",
   warning = "warning",
   danger = "danger",
+}
+
+export enum ToastTypeOptions {
+  success = "success",
+  info = "info",
+  warning = "warning",
+  error = "error",
 }
 
 export const ToastVariant = (type: any) => {

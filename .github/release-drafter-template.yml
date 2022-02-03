@@ -1,0 +1,51 @@
+name-template: "Release v$RESOLVED_VERSION 🌈"
+tag-template: "v$RESOLVED_VERSION"
+categories:
+  - title: "🚀 Features"
+    labels:
+      - "Enhancement"
+  - title: "🐛 Bug Fixes"
+    labels:
+      - "Bug"
+
+# Only include the following labels in the release notes. All other labels are ignored.
+exclude-labels:
+  - "skip-changelog"
+
+change-template: "- $TITLE (#$NUMBER)"
+
+change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+
+version-resolver:
+  major:
+    labels:
+      - "Major"
+  minor:
+    labels:
+      - "Minor"
+  patch:
+    labels:
+      - "Patch"
+  default: patch
+
+template: |
+  ## What's new?
+
+  $CHANGES
+
+# The below configurations will label our PRs automatically
+# autolabeler:
+#   - label: "Chore"
+#     title:
+#       - "/chore/i"
+#       - "/docs/i"
+#   - label: "Test"
+#     title:
+#       - "/test/i"
+#   - label: "Bug"
+#     title:
+#       - "/fix/i"
+#   - label: "Enhancement"
+#     title:
+#       - '/feature\/.+/'
+#       - "/feat/i"

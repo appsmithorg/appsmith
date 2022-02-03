@@ -1,0 +1,65 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1206.35,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 710,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 45,
+    "minHeight": 690,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+        {
+            "widgetName": "SwitchGroup1",
+            "isCanvas": false,
+            "displayName": "Switch Group",
+            "iconSVG": "/static/media/icon.086a7201.svg",
+            "topRow": 11,
+            "bottomRow": 17,
+            "parentRowSpace": 10,
+            "type": "SWITCH_GROUP_WIDGET",
+            "hideCard": false,
+            "parentColumnSpace": 18.66171875,
+            "leftColumn": 6,
+            "options": [
+                {
+                    "label": "Blue",
+                    "value": "BLUE"
+                },
+                {
+                    "label": "Green",
+                    "value": "GREEN"
+                },
+                {
+                    "label": "Red",
+                    "value": "RED"
+                }
+            ],
+            "isDisabled": false,
+            "key": "4dddg71qr8",
+            "isRequired": false,
+            "rightColumn": 24,
+            "defaultSelectedValues": [
+                "BLUE"
+            ],
+            "widgetId": "lexxd4wyb1",
+            "isVisible": true,
+            "version": 1,
+            "parentId": "0",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "isInline": true
+        }
+    ]
+}
+}

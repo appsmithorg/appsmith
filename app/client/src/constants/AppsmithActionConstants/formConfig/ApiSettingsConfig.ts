@@ -44,9 +44,9 @@ export default [
       {
         label: "API timeout (in milliseconds)",
         info: "Maximum time after which the API will return",
+        controlType: "INPUT_TEXT",
         configProperty: "actionConfiguration.timeoutInMillisecond",
-        controlType: "NUMBER_INPUT",
-        dataType: "number",
+        dataType: "NUMBER",
       },
     ],
   },

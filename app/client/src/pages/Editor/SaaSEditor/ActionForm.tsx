@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import history from "utils/history";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { Action, SaaSAction } from "entities/Action";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getPluginResponseTypes,
@@ -15,7 +15,11 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import { RouteComponentProps } from "react-router";
-import { deleteAction, runActionInit } from "actions/actionActions";
+import {
+  deleteAction,
+  runAction,
+  setActionProperty,
+} from "actions/pluginActionActions";
 import {
   EditorJSONtoForm,
   EditorJSONtoFormProps,
@@ -23,14 +27,17 @@ import {
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "../../../constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { diff, Diff } from "deep-diff";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { updateReplayEntity } from "actions/pageActions";
+import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
-type StateAndRouteProps = EditorJSONtoFormProps &
-  RouteComponentProps<{
-    applicationId: string;
+type StateAndRouteProps = EditorJSONtoFormProps & {
+  actionObjectDiff?: any;
+} & RouteComponentProps<{
     pageId: string;
     pluginPackageName: string;
     apiId: string;
@@ -42,8 +49,9 @@ function ActionForm(props: Props) {
   const {
     actionName,
     match: {
-      params: { apiId, applicationId, pageId },
+      params: { apiId, pageId },
     },
+    pluginId,
   } = props;
 
   const dispatch = useDispatch();
@@ -51,14 +59,51 @@ function ActionForm(props: Props) {
     dispatch(deleteAction({ id: apiId, name: actionName }));
   };
 
-  const onRunClick = () => {
-    dispatch(runActionInit(apiId));
+  useEffect(() => {
+    dispatch(
+      updateReplayEntity(
+        props.initialValues.id as string,
+        props.initialValues,
+        ENTITY_TYPE.ACTION,
+      ),
+    );
+  }, []);
+
+  const applicationId = useSelector(getCurrentApplicationId);
+
+  const { path = "", value = "" } = {
+    ...getPathAndValueFromActionDiffObject(props.actionObjectDiff),
   };
+  if (value && path) {
+    dispatch(
+      setActionProperty({
+        actionId: apiId,
+        propertyName: path,
+        value: value,
+      }),
+    );
+  }
+
+  const onRunClick = () => {
+    dispatch(runAction(apiId));
+  };
+
   const onCreateDatasourceClick = () => {
     history.push(
       INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
     );
   };
+
+  // custom function to return user to integrations page if action is not found
+  const goToDatasourcePage = () =>
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+    );
+
+  // if the action can not be found, generate a entity not found page
+  if (!pluginId && apiId) {
+    return <EntityNotFoundPane goBackFn={goToDatasourcePage} />;
+  }
 
   const childProps: any = {
     ...props,
@@ -72,6 +117,7 @@ function ActionForm(props: Props) {
 const mapStateToProps = (state: AppState, props: any) => {
   const { apiId } = props.match.params;
   const { runErrorMessage } = state.ui.queryPane;
+  const currentPageId = state.ui.editor.currentPageId;
   const { plugins } = state.entities;
   const { editorConfigs, settingConfigs } = plugins;
   const pluginImages = getPluginImages(state);
@@ -97,6 +143,14 @@ const mapStateToProps = (state: AppState, props: any) => {
   }
   merge(initialValues, getConfigInitialValues(settingConfig));
   merge(initialValues, action);
+  // initialValues contains merge of action, editorConfig, settingsConfig and will be passed to redux form
+  // getting diff between action and initialValues
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const actionObjectDiff: undefined | Diff<Action | undefined, Action>[] = diff(
+    action,
+    initialValues,
+  );
 
   const dataSources = getDatasourceByPluginId(state, pluginId);
   const DATASOURCES_OPTIONS = dataSources.map((dataSource: Datasource) => ({
@@ -112,6 +166,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     editorConfig,
     settingConfig,
     actionName,
+    currentPageId,
     pluginId,
     plugin,
     responseType: responseTypes[pluginId],
@@ -123,6 +178,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     executedQueryData: responses[apiId],
     runErrorMessage: runErrorMessage[apiId],
     formName: SAAS_EDITOR_FORM,
+    actionObjectDiff,
   };
 };
 

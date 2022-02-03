@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const pages = require("../../../../locators/Pages.json");
+const dayjs = require("dayjs");
 
 describe("DatePicker Widget Functionality", function() {
   before(() => {
@@ -34,7 +35,7 @@ describe("DatePicker Widget Functionality", function() {
      * @param2 --> user date formate
      */
     cy.setDate(1, "ddd MMM DD YYYY");
-    const nextDay = Cypress.moment()
+    const nextDay = dayjs()
       .add(1, "days")
       .format("DD/MM/YYYY");
     cy.log(nextDay);
@@ -51,7 +52,7 @@ describe("DatePicker Widget Functionality", function() {
   });
 
   it("Datepicker-Clear date validation", function() {
-    const today = Cypress.moment()
+    const today = dayjs()
       .add(0, "days")
       .format("DD/MM/YYYY");
     cy.get(formWidgetsPage.defaultDate).click();

@@ -16,12 +16,13 @@ import {
   OUTGOING_ENTITIES,
 } from "constants/messages";
 import { getDependenciesFromInverseDependencies } from "./helpers";
-import { useEntityLink, useGetEntityInfo, useSelectedEntity } from "./hooks";
+import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, thinScrollbar } from "constants/DefaultTheme";
 import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -89,6 +90,7 @@ const ConnectionFlow = styled.div`
 const Wrapper = styled.div`
   display: flex;
   height: 100%;
+  ${thinScrollbar};
   align-items: center;
   justify-content: center;
   padding: 0px 100px;

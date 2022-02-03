@@ -1,0 +1,53 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 260,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 30,
+        "minHeight": 270,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "inputType": "TEXT",
+                "label": "",
+                "widgetName": "Input1",
+                "version": 1,
+                "resetOnSubmit": true,
+                "isRequired": false,
+                "isDisabled": false,
+                "allowCurrencyChange": false,
+                "type": "INPUT_WIDGET_V2",
+                "isLoading": false,
+                "parentColumnSpace": 14.90625,
+                "parentRowSpace": 10,
+                "leftColumn": 13,
+                "rightColumn": 33,
+                "topRow": 12,
+                "bottomRow": 16,
+                "parentId": "0",
+                "widgetId": "bqgeyly6z5",
+                "defaultText": "params={{appsmith.URL.queryParams.paramName}}",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "defaultText"
+                    }
+                ],
+                "dynamicTriggerPathList": []
+            }
+        ],
+        "dynamicTriggerPathList": []
+    }
+}

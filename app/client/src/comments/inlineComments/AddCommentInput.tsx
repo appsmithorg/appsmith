@@ -44,11 +44,9 @@ import {
 } from "comments/tour/commentsTourSteps";
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
-import { getCanManage } from "utils/helpers";
+import { getCanCreateApplications } from "utils/helpers";
 
-import { getAppsmithConfigs } from "configs";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
@@ -134,24 +132,52 @@ const appsmithSupport = {
   isSupport: true,
 };
 
+const getSortIndex = (a: number, b: number) => {
+  if (a === -1 && b !== -1) return b;
+  if (b === -1 && a !== -1) return a;
+  return a - b;
+};
+
+const sortMentionData = (filter = "") => (a: MentionData, b: MentionData) => {
+  let sortIndex = 0;
+  const nameA = a.name?.toLowerCase() || "";
+  const nameB = b.name?.toLowerCase() || "";
+  const usernameA = a.user?.username?.toLowerCase() || "";
+  const usernameB = b.user?.username?.toLowerCase() || "";
+
+  if (filter) {
+    const nameIndexA = nameA.indexOf(filter);
+    const nameIndexB = nameB.indexOf(filter);
+    sortIndex = getSortIndex(nameIndexA, nameIndexB);
+    if (sortIndex) return sortIndex;
+
+    const usernameIndexA = usernameA.indexOf(filter);
+    const usernameIndexB = usernameB.indexOf(filter);
+    sortIndex = getSortIndex(usernameIndexA, usernameIndexB);
+    if (sortIndex) return sortIndex;
+  }
+
+  sortIndex = nameA.localeCompare(nameB);
+  if (sortIndex) return sortIndex;
+
+  return usernameA.localeCompare(usernameB);
+};
+
 const useUserSuggestions = (
   users: Array<OrgUser>,
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
-  currentUser?: User,
 ) => {
   const { id } = useSelector(getCurrentAppOrg) || {};
   const currentOrg = useOrg(id);
-  const canManage = getCanManage(currentOrg);
+  const canManage = getCanCreateApplications(currentOrg);
 
   useEffect(() => {
-    const result = [] as Array<MentionData>;
-    users.forEach((user) => {
-      if (user?.username !== currentUser?.username)
-        result.push({
-          name: user.name || user.username,
-          user,
-        });
-    });
+    const result: Array<MentionData> = users.map((user) => ({
+      name: user.name || user.username,
+      user,
+    }));
+
+    result.sort(sortMentionData());
 
     if (canManage) result.unshift(appsmithSupport);
 
@@ -162,13 +188,15 @@ const useUserSuggestions = (
 function AddCommentInput({
   initialEditorState,
   onCancel,
+  onChange,
   onSave,
   removePadding,
 }: {
   removePadding?: boolean;
-  initialEditorState?: EditorState;
+  initialEditorState?: EditorState | null;
   onSave: (state: RawDraftContentState) => void;
   onCancel?: () => void;
+  onChange?: (newEditorState: EditorState) => void;
 }) {
   const proceedToNextTourStep = useProceedToNextTourStep({
     [TourType.COMMENTS_TOUR_EDIT_MODE]:
@@ -181,14 +209,16 @@ function AddCommentInput({
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   const [trigger, setTrigger] = useState<Trigger>();
-  const currentUser = useSelector(getCurrentUser);
-  useUserSuggestions(users, setSuggestions, currentUser);
+  useUserSuggestions(users, setSuggestions);
   const [editorState, setEditorStateInState] = useState(
     initialEditorState || EditorState.createEmpty(),
   );
 
-  const setEditorState = useCallback((editorState: EditorState) => {
-    setEditorStateInState(editorState);
+  const setEditorState = useCallback((updatedEditorState: EditorState) => {
+    setEditorStateInState(updatedEditorState);
+    if (typeof onChange === "function") {
+      onChange(updatedEditorState);
+    }
   }, []);
 
   const [suggestionsQuery, setSuggestionsQuery] = useState("");
@@ -237,6 +267,7 @@ function AddCommentInput({
 
   const filteredSuggestions = useMemo(() => {
     let suggestionResults = suggestions;
+    let hasExactMatch = false;
     if (!suggestionsQuery) return suggestionResults;
     else {
       const filter = suggestionsQuery.toLowerCase();
@@ -244,35 +275,18 @@ function AddCommentInput({
         .filter((suggestion) => {
           const name = suggestion.name.toLowerCase();
           const username = suggestion.user?.username.toLowerCase() || "";
+          hasExactMatch = name === filter || username === filter;
           return name.indexOf(filter) !== -1 || username.indexOf(filter) !== -1;
         })
-        .sort((a: MentionData, b: MentionData) => {
-          const nameIndexA = a.name?.toLowerCase().indexOf(filter);
-          const nameIndexB = b.name?.toLowerCase().indexOf(filter);
-
-          const usernameIndexA = a.user?.username
-            ?.toLowerCase()
-            .indexOf(filter);
-          const usernameIndexB = b.user?.username
-            ?.toLowerCase()
-            .indexOf(filter);
-
-          const indexA =
-            nameIndexA < usernameIndexA && nameIndexA !== -1
-              ? nameIndexA
-              : usernameIndexA;
-          const indexB =
-            nameIndexB < usernameIndexB && nameIndexB !== -1
-              ? nameIndexB
-              : usernameIndexB;
-
-          return indexA - indexB;
-        });
+        .sort(sortMentionData(filter));
     }
-
-    if (suggestionResults.length !== 0) return suggestionResults;
-
-    return [{ name: suggestionsQuery, isInviteTrigger: true }];
+    const couldBeNewEmail = isEmail(suggestionsQuery);
+    const inviteNew = [{ name: suggestionsQuery, isInviteTrigger: true }];
+    // Show invite prompt only if there is no exact match and user has typed email.
+    return [
+      ...suggestionResults,
+      ...(couldBeNewEmail && !hasExactMatch ? inviteNew : []),
+    ];
   }, [suggestionsQuery, suggestions, trigger]);
 
   const onAddMention = (mention: MentionData) => {
@@ -323,9 +337,9 @@ function AddCommentInput({
             <Button
               category={Category.tertiary}
               className={"cancel-button"}
+              data-cy="add-comment-cancel"
               onClick={_onCancel}
               text={createMessage(CANCEL)}
-              type="button"
             />
             <Button
               category={Category.primary}
@@ -333,7 +347,6 @@ function AddCommentInput({
               disabled={!editorState.getCurrentContent().hasText()}
               onClick={handleSubmit}
               text={createMessage(POST)}
-              type="button"
             />
           </Row>
         </Row>

@@ -44,12 +44,14 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,13 +60,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
+import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -74,6 +78,8 @@ public class MySqlPlugin extends BasePlugin {
     private static final String DATE_COLUMN_TYPE_NAME = "date";
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
+    private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
+    private static final String IS_KEY = "is";
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -135,9 +141,8 @@ public class MySqlPlugin extends BasePlugin {
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
-
         private static final int PREPARED_STATEMENT_INDEX = 0;
+        private final Scheduler scheduler = Schedulers.elastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -165,11 +170,11 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                 // In case the prepared statement configuration is missing, default to true
+                // In case the prepared statement configuration is missing, default to true
                 isPreparedStatement = true;
-            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null) {
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
-                if (psValue instanceof  Boolean) {
+                if (psValue instanceof Boolean) {
                     isPreparedStatement = (Boolean) psValue;
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
@@ -180,7 +185,7 @@ public class MySqlPlugin extends BasePlugin {
                 isPreparedStatement = true;
             }
 
-            requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
+            requestData.put("preparedStatement", TRUE.equals(isPreparedStatement));
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
@@ -224,6 +229,23 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
 
+            /**
+             * - MySQL r2dbc driver is not able to substitute the `True/False` value properly after the IS keyword.
+             * Converting `True/False` to integer 1 or 0 also does not work in this case as MySQL syntax does not support
+             * integers with IS keyword.
+             * - I have raised an issue with r2dbc to track it: https://github.com/mirromutth/r2dbc-mysql/issues/200
+             */
+            if (preparedStatement && isIsOperatorUsed(query)) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "Appsmith currently does not support the IS keyword with the prepared statement " +
+                                        "setting turned ON. Please re-write your SQL query without the IS keyword or " +
+                                        "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab."
+                        )
+                );
+            }
+
             String finalQuery = QueryUtils.removeQueryComments(query);
 
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(finalQuery);
@@ -235,7 +257,10 @@ public class MySqlPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                     transformedQuery, null, null, psParams));
 
+            // TODO: need to write a JUnit TC for VALIDATION_CHECK_TIMEOUT
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                    .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
                     .flatMapMany(isValid -> {
                         if (isValid) {
                             return createAndExecuteQueryFromConnection(finalQuery,
@@ -316,6 +341,12 @@ public class MySqlPlugin extends BasePlugin {
 
         }
 
+        private boolean isIsOperatorUsed(String query) {
+            String queryKeyWordsOnly = query.replaceAll(MATCH_QUOTED_WORDS_REGEX, "");
+            return Arrays.stream(queryKeyWordsOnly.split("\\s"))
+                    .anyMatch(word -> IS_KEY.equalsIgnoreCase(word.trim()));
+        }
+
         private Flux<Result> createAndExecuteQueryFromConnection(String query,
                                                                  Connection connection,
                                                                  Boolean preparedStatement,
@@ -343,7 +374,7 @@ public class MySqlPlugin extends BasePlugin {
                 IntStream.range(0, parameters.size())
                         .forEachOrdered(i ->
                                 psParams.put(
-                                        getPSParamLabel(i+1),
+                                        getPSParamLabel(i + 1),
                                         new PsParameterDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
 
             } catch (AppsmithPluginException e) {
@@ -375,6 +406,14 @@ public class MySqlPlugin extends BasePlugin {
                 } catch (UnsupportedOperationException e) {
                     // Do nothing. Move on
                 }
+            } else if (DataType.INTEGER.equals(valueType)) {
+                /**
+                 * - NumberFormatException is NOT expected here since stringToKnownDataTypeConverter uses parseInt
+                 * method to detect INTEGER type.
+                 */
+                connectionStatement.bind((index - 1), Integer.parseInt(value));
+            } else if (DataType.BOOLEAN.equals(valueType)) {
+                connectionStatement.bind((index - 1), Boolean.parseBoolean(value) == TRUE ? 1 : 0);
             } else {
                 connectionStatement.bind((index - 1), value);
             }
@@ -596,8 +635,11 @@ public class MySqlPlugin extends BasePlugin {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(authentication.getPassword())) {
+                if (StringUtils.isEmpty(authentication.getPassword()) && StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing password for authentication.");
+                } else if (StringUtils.isEmpty(authentication.getPassword())) {
+                    // it is valid if it has the username but not the password
+                    authentication.setPassword("");
                 }
 
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
@@ -757,24 +799,27 @@ public class MySqlPlugin extends BasePlugin {
 
                     columnNames.add(name);
                     columnValues.add(value);
-                    setFragments.append("\n    ").append(name).append(" = ").append(value);
+                    setFragments.append("\n    ").append(name).append(" = ").append(value).append(",");
+                }
+
+                // Delete the last comma
+                if (setFragments.length() > 0) {
+                    setFragments.deleteCharAt(setFragments.length() - 1);
                 }
 
                 final String tableName = table.getName();
                 table.getTemplates().addAll(List.of(
-                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;", null),
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
                         new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
                                 + " (" + String.join(", ", columnNames) + ")\n"
-                                + "  VALUES (" + String.join(", ", columnValues) + ");", null),
+                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
-                                + setFragments.toString() + "\n"
-                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
+                                + setFragments + "\n"
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
-                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
                 ));
             }
-
-            return;
         }
 
         @Override
@@ -784,6 +829,8 @@ public class MySqlPlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
             return Mono.from(connection.validate(ValidationDepth.REMOTE))
+                    .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
                     .flatMapMany(isValid -> {
                         if (isValid) {
                             return connection.createStatement(COLUMNS_QUERY).execute();

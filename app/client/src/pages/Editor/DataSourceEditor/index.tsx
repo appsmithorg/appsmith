@@ -27,6 +27,9 @@ import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
+import { DatasourceComponentTypes } from "api/PluginApi";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -41,19 +44,22 @@ interface ReduxStateProps {
   pluginType: string;
   pluginDatasourceForm: string;
   pluginPackageName: string;
+  applicationId: string;
 }
 
 type Props = ReduxStateProps &
   DatasourcePaneFunctions &
   RouteComponentProps<{
     datasourceId: string;
-    applicationId: string;
     pageId: string;
   }>;
 
 class DataSourceEditor extends React.Component<Props> {
   componentDidUpdate(prevProps: Props) {
+    //Fix to prevent restapi datasource from being set in DatasourceDBForm in view mode
+    //TODO: Needs cleanup
     if (
+      this.props.pluginDatasourceForm !== "RestAPIDatasourceForm" &&
       this.props.match.params.datasourceId &&
       this.props.match.params.datasourceId !==
         prevProps.match.params.datasourceId
@@ -62,7 +68,12 @@ class DataSourceEditor extends React.Component<Props> {
     }
   }
   componentDidMount() {
-    if (this.props.match.params.datasourceId) {
+    //Fix to prevent restapi datasource from being set in DatasourceDBForm in datasource view mode
+    //TODO: Needs cleanup
+    if (
+      this.props.match.params.datasourceId &&
+      this.props.pluginDatasourceForm !== "RestAPIDatasourceForm"
+    ) {
       this.props.switchDatasource(this.props.match.params.datasourceId);
     }
   }
@@ -71,11 +82,11 @@ class DataSourceEditor extends React.Component<Props> {
   };
 
   handleSave = (formData: Datasource) => {
-    const { applicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
     this.props.updateDatasource(
       formData,
       this.props.redirectToNewIntegrations(
-        applicationId,
+        this.props.applicationId,
         pageId,
         getQueryParams(),
       ),
@@ -104,7 +115,7 @@ class DataSourceEditor extends React.Component<Props> {
 
     return (
       <DataSourceEditorForm
-        applicationId={this.props.match.params.applicationId}
+        applicationId={this.props.applicationId}
         datasourceId={datasourceId}
         formConfig={formConfig}
         formData={formData}
@@ -148,8 +159,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
       datasourcePane.newDatasource === props.match.params.datasourceId,
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
-    pluginDatasourceForm: plugin?.datasourceComponent ?? "AutoForm",
+    pluginDatasourceForm:
+      plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
@@ -200,7 +213,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
       isSaving,
       location,
       match: {
-        params: { applicationId, datasourceId, pageId },
+        params: { datasourceId, pageId },
       },
       pluginDatasourceForm,
       pluginId,
@@ -216,7 +229,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "RestAPIDatasourceForm" && !viewMode) {
       return (
         <RestAPIDatasourceForm
-          applicationId={this.props.match.params.applicationId}
+          applicationId={this.props.applicationId}
           datasourceId={datasourceId}
           isDeleting={isDeleting}
           isNewDatasource={isNewDatasource}
@@ -230,7 +243,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "DatasourceSaaSForm") {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          applicationId,
+          this.props.applicationId,
           pageId,
           pluginPackageName,
           datasourceId,

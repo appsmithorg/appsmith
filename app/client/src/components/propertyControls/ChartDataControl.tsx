@@ -5,7 +5,9 @@ import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -13,8 +15,9 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Size, Category } from "components/ads/Button";
-import { AllChartData, ChartData } from "widgets/ChartWidget";
+import { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>
@@ -91,15 +94,20 @@ type RenderComponentProps = {
   theme: EditorTheme;
 };
 
-const expectedSeriesName = { type: "string", example: "series1" };
-const expectedSeriesData = {
-  type: "Array<{ x: string, y: string | number }>",
+const expectedSeriesName: CodeEditorExpected = {
+  type: "string",
+  example: "series1",
+  autocompleteDataType: AutocompleteDataType.STRING,
+};
+const expectedSeriesData: CodeEditorExpected = {
+  type: "Array<{ x: string, y: number Required }>",
   example: [
     {
       x: "Mon",
       y: 10000,
     },
   ],
+  autocompleteDataType: AutocompleteDataType.ARRAY,
 };
 
 function DataControlComponent(props: RenderComponentProps) {

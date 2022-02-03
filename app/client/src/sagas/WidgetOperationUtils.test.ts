@@ -1,9 +1,12 @@
 import { get } from "lodash";
+import { WidgetProps } from "widgets/BaseWidget";
 import {
   handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
   doesTriggerPathsContainPropertyPath,
   checkIfPastingIntoListWidget,
+  updateListWidgetPropertiesOnChildDelete,
+  purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -27,7 +30,7 @@ describe("WidgetOperationSaga", () => {
     ).toBe(true);
   });
 
-  it("should returns widgets after executing handleIfParentIsListWidgetWhilePasting", async () => {
+  it("should return widgets after executing handleIfParentIsListWidgetWhilePasting", async () => {
     const result = handleIfParentIsListWidgetWhilePasting(
       {
         widgetId: "text1",
@@ -206,7 +209,7 @@ describe("WidgetOperationSaga", () => {
     );
   });
 
-  it("should returns correct close model reference name after executing handleSpecificCasesWhilePasting", async () => {
+  it("should return correct close modal reference name after executing handleSpecificCasesWhilePasting", async () => {
     const result = handleSpecificCasesWhilePasting(
       {
         widgetName: "Modal1Copy",
@@ -455,5 +458,168 @@ describe("WidgetOperationSaga", () => {
     );
 
     expect(result?.type).toStrictEqual("LIST_WIDGET");
+  });
+
+  it("should return widgets after executing updateListWidgetPropertiesOnChildDelete", () => {
+    const result = updateListWidgetPropertiesOnChildDelete(
+      {
+        list1: {
+          widgetId: "list1",
+          type: "LIST_WIDGET",
+          widgetName: "List1",
+          parentId: "0",
+          renderMode: "CANVAS",
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          isLoading: false,
+          listData: [],
+          version: 16,
+          disablePropertyPane: false,
+          template: {},
+          enhancements: {},
+          dynamicBindingPathList: [{ key: "template.ButtonWidget1.text" }],
+          dynamicTriggerPathList: [
+            {
+              key: "template.ButtonWidget1.onClick",
+            },
+          ],
+        },
+        buttonWidget1: {
+          type: "BUTTON_WIDGET",
+          widgetId: "buttonWidget1",
+          widgetName: "buttonWidget1",
+          version: 16,
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          renderMode: "CANVAS",
+          isLoading: false,
+          parentId: "list1",
+        },
+        0: {
+          type: "CANVAS_WIDGET",
+          widgetId: "0",
+          widgetName: "MainContainer",
+          version: 16,
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          renderMode: "CANVAS",
+          isLoading: false,
+          parentId: "list1",
+        },
+      },
+      "buttonWidget1",
+      "ButtonWidget1",
+    );
+
+    const expected = updateListWidgetPropertiesOnChildDelete(
+      {
+        list1: {
+          widgetId: "list1",
+          type: "LIST_WIDGET",
+          widgetName: "List1",
+          parentId: "0",
+          renderMode: "CANVAS",
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          isLoading: false,
+          listData: [],
+          version: 16,
+          disablePropertyPane: false,
+          template: {},
+          enhancements: {},
+          dynamicBindingPathList: [],
+          dynamicTriggerPathList: [],
+        },
+        buttonWidget1: {
+          type: "BUTTON_WIDGET",
+          widgetId: "buttonWidget1",
+          widgetName: "buttonWidget1",
+          version: 16,
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          renderMode: "CANVAS",
+          isLoading: false,
+          parentId: "list1",
+        },
+        0: {
+          type: "CANVAS_WIDGET",
+          widgetId: "0",
+          widgetName: "MainContainer",
+          version: 16,
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          renderMode: "CANVAS",
+          isLoading: false,
+          parentId: "list1",
+        },
+      },
+      "buttonWidget1",
+      "ButtonWidget1",
+    );
+
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("should purge orphaned dynamicTriggerPaths and dynamicBindingPaths from widget", () => {
+    const input = {
+      dynamicBindingPathList: [
+        { key: "primaryColumns.name.computedValue" },
+        { key: "primaryColumns.name.fontStyle" },
+        { key: "primaryColumns.name.nonExistentPath" },
+        { key: "nonExistentKey" },
+      ],
+      dynamicTriggerPathList: [
+        { key: "primaryColumns.name.onClick" },
+        { key: "primaryColumns.name.nonExistentPath" },
+        { key: "nonExistentKey" },
+      ],
+      primaryColumns: {
+        name: {
+          computedValue: "{{currentRow.something}}",
+          fontStyle: "bold",
+          onClick: "{{showAlert('message', 'error')}}",
+        },
+      },
+    };
+    const expected = {
+      dynamicBindingPathList: [
+        { key: "primaryColumns.name.computedValue" },
+        { key: "primaryColumns.name.fontStyle" },
+      ],
+      dynamicTriggerPathList: [{ key: "primaryColumns.name.onClick" }],
+      primaryColumns: {
+        name: {
+          computedValue: "{{currentRow.something}}",
+          fontStyle: "bold",
+          onClick: "{{showAlert('message', 'error')}}",
+        },
+      },
+    };
+    const result = purgeOrphanedDynamicPaths((input as any) as WidgetProps);
+    expect(result).toStrictEqual(expected);
   });
 });

@@ -86,6 +86,12 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
+    public Mono<T> findByIdAndBranchName(ID id, String branchName) {
+        // branchName will be ignored and this method is overridden for the services which are shared across branches
+        return this.findById(id);
+    }
+
+    @Override
     public Flux<T> findAll() {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())

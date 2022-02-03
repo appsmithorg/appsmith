@@ -35,9 +35,14 @@
     "react/jsx-sort-props": "error",
     "react/jsx-fragments": "error",
     "react/jsx-no-useless-fragment": "error",
-    "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}]
+    "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}],
+    "no-console": "warn",
+    "no-debugger": "warn"
   },
   "settings": {
+    "import/resolver": {
+      "babel-module": {}
+    },
     "react": {
       "pragma": "React",
       // Tells eslint-plugin-react to automatically detect the version of React to use

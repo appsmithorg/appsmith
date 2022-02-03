@@ -2,7 +2,8 @@
 import _ from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { batchActionSuccess } from "../actions/batchActions";
+import { batchActionSuccess } from "actions/batchActions";
+import * as log from "loglevel";
 
 const BATCH_PRIORITY = {
   [ReduxActionTypes.SET_META_PROP]: {
@@ -17,7 +18,7 @@ const BATCH_PRIORITY = {
     priority: 0,
     needsSaga: false,
   },
-  [ReduxActionTypes.EXECUTE_ACTION]: {
+  [ReduxActionTypes.EXECUTE_TRIGGER_REQUEST]: {
     priority: 1,
     needsSaga: true,
   },
@@ -45,7 +46,7 @@ function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
     _.set(batches, `[${priority}]`, currentPriorityBatch);
     yield put({ type: ReduxActionTypes.EXECUTE_BATCH });
   } catch (e) {
-    console.error(`${action.payload.type} action priority not set`);
+    log.error(`${action.payload.type} action priority not set`);
   }
 }
 

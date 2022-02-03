@@ -1,20 +1,21 @@
-import { updateApplicationLayout } from "actions/applicationActions";
-import Dropdown from "components/ads/Dropdown";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { Colors } from "constants/Colors";
-import React from "react";
+import classNames from "classnames";
 import { useDispatch } from "react-redux";
-import {
-  AppLayoutConfig,
-  SupportedLayouts,
-} from "reducers/entityReducers/pageListReducer";
+import React, { useMemo, useCallback } from "react";
+
 import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
 import { useSelector } from "store";
-import styled from "styled-components";
-import { noop } from "utils/AppsmithUtils";
+import { Colors } from "constants/Colors";
+import {
+  AppLayoutConfig,
+  SupportedLayouts,
+} from "reducers/entityReducers/pageListReducer";
+import TooltipComponent from "components/ads/Tooltip";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { updateApplicationLayout } from "actions/applicationActions";
+import { ReflowBetaCard } from "./ReflowBetaCard";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -23,13 +24,18 @@ interface AppsmithLayoutConfigOption {
 }
 
 export const AppsmithDefaultLayout: AppLayoutConfig = {
-  type: "DESKTOP",
+  type: "FLUID",
 };
 
 const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
   {
+    name: "Fluid Width",
+    type: "FLUID",
+    icon: "fluid",
+  },
+  {
     name: "Desktop",
-    ...AppsmithDefaultLayout,
+    type: "DESKTOP",
     icon: "desktop",
   },
   {
@@ -47,81 +53,78 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     type: "MOBILE",
     icon: "mobile",
   },
-  {
-    name: "Fluid Width",
-    type: "FLUID",
-    icon: "fluid",
-  },
 ];
 
-const LayoutControlWrapper = styled.div`
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  .bp3-popover-target {
-    pointer-events: none;
-  }
-  .layout-control {
-    pointer-events: all;
-    cursor: pointer;
-    font-size: 14px;
-    border: none;
-    box-shadow: none;
-  }
-`;
-
 export function MainContainerLayoutControl() {
+  const dispatch = useDispatch();
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const layoutOptions = AppsmithLayouts.map((each) => {
-    return {
-      ...each,
-      iconSize: IconSize.SMALL,
-      iconColor: Colors.BLACK,
-      value: each.name,
-      onSelect: () =>
-        updateAppLayout({
-          type: each.type,
-        }),
-    };
-  });
-  const selectedLayout = appLayout
-    ? layoutOptions.find((each) => each.type === appLayout.type)
-    : layoutOptions[0];
-  const dispatch = useDispatch();
 
-  const updateAppLayout = (layoutConfig: AppLayoutConfig) => {
-    const { type } = layoutConfig;
-    dispatch(
-      updateApplicationLayout(appId || "", {
-        appLayout: {
-          type,
-        },
-      }),
+  /**
+   * return selected layout. if there is no app
+   * layout, use the default one ( fluid )
+   */
+  const selectedLayout = useMemo(() => {
+    return AppsmithLayouts.find(
+      (each) => each.type === (appLayout?.type || AppsmithDefaultLayout.type),
     );
-  };
+  }, [appLayout]);
+
+  /**
+   * updates the app layout
+   *
+   * @param layoutConfig
+   */
+  const updateAppLayout = useCallback(
+    (layoutConfig: AppLayoutConfig) => {
+      const { type } = layoutConfig;
+
+      dispatch(
+        updateApplicationLayout(appId || "", {
+          appLayout: {
+            type,
+          },
+        }),
+      );
+    },
+    [dispatch, appLayout],
+  );
+
   return (
-    <LayoutControlWrapper>
-      <div className="layout-control t--layout-control-wrapper">
-        <Dropdown
-          SelectedValueNode={({ selected }) => {
-            return (
-              <Icon
-                fillColor={Colors.BLACK}
-                name={selected.icon}
-                size={selected.iconSize || IconSize.SMALL}
-              />
-            );
-          }}
-          className="layout-control"
-          onSelect={noop}
-          options={layoutOptions}
-          selected={selectedLayout || layoutOptions[0]}
-          showDropIcon={false}
-          width={"30px"}
-        />
+    <div className="px-3 space-y-2 t--layout-control-wrapper">
+      <p className="text-sm text-gray-700">Canvas Size</p>
+      <div className="flex justify-around">
+        {AppsmithLayouts.map((layoutOption: any, index: number) => {
+          return (
+            <TooltipComponent
+              className="flex-grow"
+              content={layoutOption.name}
+              key={layoutOption.name}
+              position={
+                index === AppsmithLayouts.length - 1 ? "bottom-right" : "bottom"
+              }
+            >
+              <button
+                className={classNames({
+                  "border-transparent border flex items-center justify-center p-2 flex-grow": true,
+                  "bg-white border-gray-300":
+                    selectedLayout?.name === layoutOption.name,
+                  "bg-gray-100 hover:bg-gray-200":
+                    selectedLayout?.name !== layoutOption.name,
+                })}
+                onClick={() => updateAppLayout(layoutOption)}
+              >
+                <Icon
+                  fillColor={Colors.BLACK}
+                  name={layoutOption.icon}
+                  size={layoutOption.iconSize || IconSize.MEDIUM}
+                />
+              </button>
+            </TooltipComponent>
+          );
+        })}
       </div>
-    </LayoutControlWrapper>
+      <ReflowBetaCard />
+    </div>
   );
 }

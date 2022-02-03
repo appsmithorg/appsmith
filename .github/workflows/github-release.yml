@@ -1,10 +1,10 @@
 name: Appsmith Github Release Workflow
 
-# This workflow builds Docker images for server and client, and then pushes them to Docher Hub.
-# The docker-tag with which this push happens in the release tag (e.g., v1.2.3 etc.).
+# This workflow builds Docker images for server and client, and then pushes them to Docker Hub.
+# The docker-tag with which this push happens is the release tag (e.g., v1.2.3 etc.).
 # In addition to the above tag, unless the git-tag matches `*beta*`, we also push to the `latest` docker-tag.
 # This workflow does NOT run tests.
-# This workflow is automatically triggered when a relese is created on GitHub.
+# This workflow is automatically triggered when a release is created on GitHub.
 
 on:
   # Ref: <https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release>.
@@ -40,7 +40,7 @@ jobs:
             echo "::set-output name=is_beta::false"
           fi
 
-  build-client:
+  buildClient:
     needs:
       - prelude
 
@@ -49,10 +49,13 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
 
     steps:
       # Checkout the code
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
@@ -72,53 +75,48 @@ jobs:
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
 
-        # Install all the dependencies
       - name: Install dependencies
         run: yarn install
 
       - name: Create the bundle
         env:
-          REACT_APP_ENVIRONMENT: 'PRODUCTION'
-          REACT_APP_FUSIONCHARTS_LICENSE_KEY: '${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}'
-          REACT_APP_SEGMENT_CE_KEY: '${{ secrets.APPSMITH_SEGMENT_CE_KEY }}'
-          REACT_APP_VERSION_ID: '${{ needs.prelude.outputs.tag }}'
-          REACT_APP_INTERCOM_APP_ID: '${{ secrets.APPSMITH_INTERCOM_ID }}'
+          REACT_APP_ENVIRONMENT: "PRODUCTION"
+          REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}"
+          REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
+          REACT_APP_VERSION_ID: "${{ needs.prelude.outputs.tag }}"
+          REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID }}"
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
             yarn build
+          ls -l build
 
-      # Build Docker image and push to Docker Hub
-      - name: Push production image to Docker Hub with commit tag
-        run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: client-build
+          path: app/client/build/
 
-          # Only build & tag with latest if the tag doesn't contain beta
-          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest .
-            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
-          fi
-
-  build-server:
+  buildServer:
     needs:
       - prelude
-
-    runs-on: ubuntu-latest
 
     defaults:
       run:
         working-directory: app/server
 
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-      # Setup Java
       - name: Set up JDK 1.11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.11
+          java-version: "11.0.10"
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
@@ -131,19 +129,138 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Build the code
-      - name: Build without running any tests
+      - name: Test and Build package
+        working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
             -DnewVersion=${{ needs.prelude.outputs.tag }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          mvn --batch-mode package -DskipTests
+          ./build.sh -DskipTests
+          ls -l dist
 
-      # Build Docker image and push to Docker Hub
-      - name: Push image to Docker Hub
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: server-build
+          path: app/server/dist/
+
+  buildRts:
+    needs:
+      - prelude
+
+    defaults:
+      run:
+        working-directory: app/rts
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      - name: Build
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          echo 'export const VERSION = "${{ needs.prelude.outputs.tag }}"' > src/version.js
+          ./build.sh
+          ls -l dist
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload RTS build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build
+          path: app/rts/dist/
+
+      - name: Upload RTS dependencies bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
+
+  package:
+    needs: [prelude, buildClient, buildServer, buildRts]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v2
+
+      - name: Download the client build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: client-build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: server-build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-build
+          path: app/rts/dist
+
+      - name: Download the rts dependencies artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
+
+      - name: Set up QEMU (needed for docker buildx)
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push client image
+        working-directory: app/client
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
+
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
+            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
+          fi
+
+      - name: Build and push fat image
+        run: |
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{needs.prelude.outputs.tag}}"
+
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
+            tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest"
+          fi
+
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --push \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            $tag_args \
+            .
+
+      - name: Build and push server image
+        working-directory: app/server
+        run: |
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}} .
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}}
 
@@ -153,3 +270,14 @@ jobs:
             docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest
           fi
 
+      - name: Build and push RTS image
+        working-directory: app/rts
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}}
+
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
+            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest
+          fi

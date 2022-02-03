@@ -1,0 +1,14 @@
+{
+    "runButton": ".run-button",
+    "editNameField": ".bp3-editable-text-input",
+    "outputConsole": ".CodeEditorTarget",
+    "jsObjectName": ".t--action-name-edit-field",
+    "jsPage": ".form-row-header",
+    "jsPageProperty": ".entity-context-menu",
+    "propertyList": ".t--entity-property",
+    "delete": ".single-select >div:contains('Delete')",
+    "popover": "//*[local-name()='g' and @id='Icon/Outline/more-vertical']"
+}
+
+
+

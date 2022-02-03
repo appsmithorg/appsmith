@@ -1,6 +1,7 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { ApiContentTypes } from "constants/ApiEditorConstants";
+import { SlashCommandPayload } from "entities/Action";
 
 export const changeApi = (
   id: string,
@@ -58,9 +59,14 @@ export const createNewApiAction = (
 export const createNewQueryAction = (
   pageId: string,
   from: EventLocation,
-): ReduxAction<{ pageId: string; from: EventLocation }> => ({
+  datasourceId: string,
+): ReduxAction<{
+  pageId: string;
+  from: EventLocation;
+  datasourceId: string;
+}> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
-  payload: { pageId, from },
+  payload: { pageId, from, datasourceId },
 });
 
 export const updateBodyContentType = (
@@ -75,7 +81,16 @@ export const redirectToNewIntegrations = (
   applicationId: string,
   pageId: string,
   params?: any,
-): ReduxAction<{ applicationId: string; pageId: string; params: any }> => ({
+): ReduxAction<{
+  applicationId: string;
+  pageId: string;
+  params: any;
+}> => ({
   type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
   payload: { applicationId, pageId, params },
+});
+
+export const executeCommandAction = (payload: SlashCommandPayload) => ({
+  type: ReduxActionTypes.EXECUTE_COMMAND,
+  payload: payload,
 });

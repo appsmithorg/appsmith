@@ -32,6 +32,7 @@ import {
 } from "actions/notificationActions";
 
 import { ReactComponent as EmptyState } from "assets/icons/comments/notifications-empty-state.svg";
+import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   width: 326px;
@@ -44,8 +45,9 @@ const StyledHeader = styled.div`
   padding: ${(props) => props.theme.spaces[4] + 1}px;
 
   & .title {
-    ${(props) => getTypographyByKey(props, "p1")};
-    color: ${(props) => props.theme.colors.notifications.listHeaderTitle};
+    color: ${Colors.BLACK};
+    font-size: 16px;
+    font-weight: 500;
   }
 `;
 
@@ -78,16 +80,17 @@ function NotificationsListHeader(props: { markAllAsReadDisabled: boolean }) {
   return (
     <StyledHeader>
       <div className="title">{createMessage(COMMENTS)}</div>
-      <Button
-        category={Category.primary}
-        className={"mark-all-as-read"}
-        disabled={props.markAllAsReadDisabled}
-        onClick={() => {
-          dispatch(markAllNotificationsAsReadRequest());
-        }}
-        text={createMessage(MARK_ALL_AS_READ)}
-        type="button"
-      />
+      {!props.markAllAsReadDisabled && (
+        <Button
+          category={Category.tertiary}
+          className={"mark-all-as-read"}
+          onClick={() => {
+            dispatch(markAllNotificationsAsReadRequest());
+          }}
+          text={createMessage(MARK_ALL_AS_READ)}
+          type="button"
+        />
+      )}
     </StyledHeader>
   );
 }

@@ -10,17 +10,40 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
 import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
-import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
+import {
+  WidgetReduxActionTypes,
+  ReplayReduxActionTypes,
+} from "../constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 
 export interface FetchPageListPayload {
   applicationId: string;
   mode: APP_MODE;
 }
 
+export interface ClonePageActionPayload {
+  id: string;
+  blockNavigation?: boolean;
+}
+
+export interface CreatePageActionPayload {
+  applicationId: string;
+  name: string;
+  layouts: Partial<PageLayout>[];
+  blockNavigation?: boolean;
+}
+
 export const fetchPageList = (
-  applicationId: string,
+  {
+    applicationId,
+  }: {
+    applicationId: string;
+  },
   mode: APP_MODE,
 ): ReduxAction<FetchPageListPayload> => {
   return {
@@ -112,10 +135,11 @@ export const deletePageSuccess = () => {
 export const updateAndSaveLayout = (
   widgets: CanvasWidgetsReduxState,
   isRetry?: boolean,
+  shouldReplay?: boolean,
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
-    payload: { widgets, isRetry },
+    payload: { widgets, isRetry, shouldReplay },
   };
 };
 
@@ -130,6 +154,7 @@ export const createPage = (
   applicationId: string,
   pageName: string,
   layouts: Partial<PageLayout>[],
+  blockNavigation?: boolean,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
@@ -140,15 +165,24 @@ export const createPage = (
       applicationId,
       name: pageName,
       layouts,
+      blockNavigation,
     },
   };
 };
 
-export const clonePageInit = (pageId: string) => {
+/**
+ * action to clone page
+ *
+ * @param pageId
+ * @param blockNavigation
+ * @returns
+ */
+export const clonePageInit = (pageId: string, blockNavigation?: boolean) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_INIT,
     payload: {
       id: pageId,
+      blockNavigation,
     },
   };
 };
@@ -194,19 +228,6 @@ export type WidgetAddChild = {
   props?: Record<string, any>;
 };
 
-export type WidgetMove = {
-  widgetId: string;
-  leftColumn: number;
-  topRow: number;
-  parentId: string;
-  /*
-    If newParentId is different from what we have in redux store,
-    then we have to delete this,
-    as it has been dropped in another container somewhere.
-  */
-  newParentId: string;
-};
-
 export type WidgetRemoveChild = {
   widgetId: string;
   childWidgetId: string;
@@ -227,10 +248,20 @@ export type MultipleWidgetDeletePayload = {
 
 export type WidgetResize = {
   widgetId: string;
+  parentId: string;
   leftColumn: number;
   rightColumn: number;
   topRow: number;
   bottomRow: number;
+  snapColumnSpace: number;
+  snapRowSpace: number;
+};
+
+export type ModalWidgetResize = {
+  height: number;
+  width: number;
+  widgetId: string;
+  canvasWidgetId: string;
 };
 
 export type WidgetAddChildren = {
@@ -261,14 +292,13 @@ export const updateWidget = (
   payload: any,
 ): ReduxAction<
   | WidgetAddChild
-  | WidgetMove
   | WidgetResize
   | WidgetDelete
   | WidgetAddChildren
   | WidgetUpdateProperty
 > => {
   return {
-    type: ReduxActionTypes["WIDGET_" + operation],
+    type: WidgetReduxActionTypes["WIDGET_" + operation],
     payload: { widgetId, ...payload },
   };
 };
@@ -309,25 +339,20 @@ export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
   extraParams: Record<any, any>;
 }
 
-export const generateTemplateSuccess = ({
-  isNewPage,
-  layoutId,
-  pageId,
-  pageName,
-}: {
-  layoutId: string;
-  pageId: string;
-  pageName: string;
+export type GenerateCRUDSuccess = {
+  page: {
+    layouts: Array<any>;
+    id: string;
+    name: string;
+    isDefault?: boolean;
+  };
   isNewPage: boolean;
-}) => {
+};
+
+export const generateTemplateSuccess = (payload: GenerateCRUDSuccess) => {
   return {
     type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS,
-    payload: {
-      layoutId,
-      pageId,
-      pageName,
-      isNewPage,
-    },
+    payload,
   };
 };
 
@@ -343,6 +368,7 @@ export const generateTemplateToUpdatePage = ({
   datasourceId,
   mode,
   pageId,
+  pluginSpecificParams,
   searchColumn,
   tableName,
 }: GenerateTemplatePageRequest): ReduxActionWithExtraParams<GenerateTemplatePageRequest> => {
@@ -355,9 +381,93 @@ export const generateTemplateToUpdatePage = ({
       applicationId,
       columns,
       searchColumn,
+      pluginSpecificParams,
     },
     extraParams: {
       mode,
+    },
+  };
+};
+
+export function updateReplayEntity(
+  entityId: string,
+  entity: Replayable,
+  entityType: ENTITY_TYPE,
+) {
+  return {
+    type: ReduxActionTypes.UPDATE_REPLAY_ENTITY,
+    payload: { entityId, entity, entityType },
+  };
+}
+
+export function undoAction() {
+  return {
+    type: ReduxActionTypes.UNDO_REDO_OPERATION,
+    payload: {
+      operation: ReplayReduxActionTypes.UNDO,
+    },
+  };
+}
+
+export function redoAction() {
+  return {
+    type: ReduxActionTypes.UNDO_REDO_OPERATION,
+    payload: {
+      operation: ReplayReduxActionTypes.REDO,
+    },
+  };
+}
+/**
+ * action for delete page
+ *
+ * @param pageId
+ * @param pageName
+ * @returns
+ */
+export const deletePage = (pageId: string) => {
+  return {
+    type: ReduxActionTypes.DELETE_PAGE_INIT,
+    payload: {
+      id: pageId,
+    },
+  };
+};
+
+/**
+ * action for set page as default
+ *
+ * @param pageId
+ * @param applicationId
+ * @returns
+ */
+export const setPageAsDefault = (pageId: string, applicationId?: string) => {
+  return {
+    type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
+    payload: {
+      id: pageId,
+      applicationId,
+    },
+  };
+};
+
+/**
+ * action for updating order of a page
+ *
+ * @param pageId
+ * @param applicationId
+ * @returns
+ */
+export const setPageOrder = (
+  applicationId: string,
+  pageId: string,
+  order: number,
+) => {
+  return {
+    type: ReduxActionTypes.SET_PAGE_ORDER_INIT,
+    payload: {
+      pageId: pageId,
+      order: order,
+      applicationId,
     },
   };
 };

@@ -1,5 +1,6 @@
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import * as log from "loglevel";
 import {
   LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE,
   LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE,
@@ -39,7 +40,7 @@ export const getLocalStorage = () => {
       message = LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE;
     } else if (e.name === "LOCAL_STORAGE_NOT_SUPPORTED") {
       // Fail silently
-      console.error(
+      log.error(
         createMessage(
           LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
         ),

@@ -1,13 +1,8 @@
-const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
 
-const pageid = "MyPage";
 before(() => {
   cy.addDsl(dsl);
 });
@@ -15,7 +10,6 @@ before(() => {
 describe("Test Suite to validate copy/paste table Widget", function() {
   it("Copy paste table widget and valdiate application status", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.get("body").type(`{${modifierKey}}c`);
@@ -37,17 +31,17 @@ describe("Test Suite to validate copy/paste table Widget", function() {
     cy.get('.t--widget-propertypane-toggle [name="warning"]').should(
       "not.exist",
     );
-    /*
-    cy.get(commonlocators.toastAction)
-      .contains("UNDO")
-      .click({ force: true });
-    */
     cy.GlobalSearchEntity("Table1Copy");
-    cy.get(".t--entity-collapse-toggle")
-      .last()
+    cy.get(".widgets")
+      .first()
       .click();
+    cy.get(".t--entity-name")
+      .contains("Table1Copy")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
+    cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(8);
+      expect($lis).to.have.length(12);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
     });

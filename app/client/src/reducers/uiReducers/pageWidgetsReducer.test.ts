@@ -1,6 +1,6 @@
 import reducer from "./pageWidgetsReducer";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getCurrentRowBinding } from "widgets/TableWidget/TableWidgetConstants";
+import { getCurrentRowBinding } from "widgets/TableWidget/constants";
 
 const pageWidgetUIInitialState = {
   "60783f9204a08773573ed1d2": {
@@ -141,7 +141,7 @@ const pageWidgetUIInitialState = {
       version: 1,
       resetOnSubmit: true,
       placeholderText: "Type your update and hit enter!",
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       isLoading: false,
       leftColumn: 5,
       rightColumn: 11,

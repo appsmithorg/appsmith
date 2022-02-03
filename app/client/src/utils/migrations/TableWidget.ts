@@ -1,29 +1,41 @@
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
 import {
-  WidgetTypes,
   FontStyleTypes,
   TextSizes,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
+import {
+  generateTableColumnId,
+  getAllTableColumnKeys,
+} from "widgets/TableWidget/component/TableHelpers";
 import {
   ColumnProperties,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
   ColumnTypes,
-} from "components/designSystems/appsmith/TableComponent/Constants";
+} from "widgets/TableWidget/component/Constants";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
+import { WidgetProps } from "widgets/BaseWidget";
+import { DSLWidget } from "widgets/constants";
+import { getSubstringBetweenTwoWords } from "utils/helpers";
 
-export const tableWidgetPropertyPaneMigrations = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
+export const isSortableMigration = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET" && !child.hasOwnProperty("isSortable")) {
+      child["isSortable"] = true;
+    } else if (child.children && child.children.length > 0) {
+      child = isSortableMigration(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
     let child = cloneDeep(_child);
     // If the current child is a TABLE_WIDGET
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       const hiddenColumns = child.hiddenColumns || [];
       const columnNameMap = child.columnNameMap;
       const columnSizeMap = child.columnSizeMap;
@@ -131,6 +143,7 @@ export const tableWidgetPropertyPaneMigrations = (
           label: action.label, // Revert back to "Actions"
           columnType: "button", // All actions are buttons
           isVisible: true,
+          isDisabled: false,
           isDerived: true,
           buttonLabel: action.label,
           buttonStyle: "rgb(3, 179, 101)",
@@ -175,11 +188,9 @@ const removeSpecialChars = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const migrateTablePrimaryColumnsBindings = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
+export const migrateTablePrimaryColumnsBindings = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (
         child.primaryColumns &&
         Object.keys(child.primaryColumns).length > 0
@@ -217,10 +228,10 @@ export const migrateTablePrimaryColumnsBindings = (
 };
 
 export const migrateTableWidgetParentRowSpaceProperty = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (child.parentRowSpace === 40) {
         child.parentRowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
       }
@@ -233,15 +244,14 @@ export const migrateTableWidgetParentRowSpaceProperty = (
 };
 
 export const migrateTableWidgetHeaderVisibilityProperties = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (!("isVisibleSearch" in child)) {
         child.isVisibleSearch = true;
         child.isVisibleFilters = true;
         child.isVisibleDownload = true;
-        child.isVisibleCompactMode = true;
         child.isVisiblePagination = true;
       }
     } else if (child.children && child.children.length > 0) {
@@ -252,11 +262,27 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
   return currentDSL;
 };
 
-export const migrateTablePrimaryColumnsComputedValue = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+export const migrateTableWidgetDelimiterProperties = (
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
+      if (!child.delimiter) {
+        child.delimiter = ",";
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetDelimiterProperties(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTablePrimaryColumnsComputedValue = (
+  currentDSL: DSLWidget,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
       if (
         child.primaryColumns &&
         Object.keys(child.primaryColumns).length > 0
@@ -288,6 +314,229 @@ export const migrateTablePrimaryColumnsComputedValue = (
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateTablePrimaryColumnsComputedValue(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+const getUpdatedColumns = (
+  widgetName: string,
+  columns: Record<string, ColumnProperties>,
+) => {
+  const updatedColumns: Record<string, ColumnProperties> = {};
+  if (columns && Object.keys(columns).length > 0) {
+    for (const [columnId, columnProps] of Object.entries(columns)) {
+      const sanitizedColumnId = removeSpecialChars(columnId, 200);
+      const selectedRowBindingValue = `${widgetName}.selectedRow`;
+      let newOnClickBindingValue = undefined;
+      if (
+        columnProps.onClick &&
+        columnProps.onClick.includes(selectedRowBindingValue)
+      ) {
+        newOnClickBindingValue = columnProps.onClick.replace(
+          selectedRowBindingValue,
+          "currentRow",
+        );
+      }
+      updatedColumns[sanitizedColumnId] = columnProps;
+      if (newOnClickBindingValue)
+        updatedColumns[sanitizedColumnId].onClick = newOnClickBindingValue;
+    }
+  }
+  return updatedColumns;
+};
+
+export const migrateTableWidgetSelectedRowBindings = (
+  currentDSL: DSLWidget,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      child.derivedColumns = getUpdatedColumns(
+        child.widgetName,
+        child.derivedColumns as Record<string, ColumnProperties>,
+      );
+      child.primaryColumns = getUpdatedColumns(
+        child.widgetName,
+        child.primaryColumns as Record<string, ColumnProperties>,
+      );
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetSelectedRowBindings(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+/**
+ * This migration sanitizes the following properties -
+ * primaryColumns object key, for the value of each key - id, computedValue are sanitized
+ * columnOrder
+ * dynamicBindingPathList
+ *
+ * This migration solves the following issue -
+ * https://github.com/appsmithorg/appsmith/issues/6897
+ */
+export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      const primaryColumnEntries: [string, ColumnProperties][] = Object.entries(
+        child.primaryColumns || {},
+      );
+
+      const newPrimaryColumns: Record<string, ColumnProperties> = {};
+      if (primaryColumnEntries.length) {
+        for (const [, primaryColumnEntry] of primaryColumnEntries.entries()) {
+          // Value is reassigned when its invalid(Faulty DSL  https://github.com/appsmithorg/appsmith/issues/8979)
+          const [key] = primaryColumnEntry;
+          let [, value] = primaryColumnEntry;
+          const sanitizedKey = removeSpecialChars(key, 200);
+          let id = "";
+          if (value.id) {
+            id = removeSpecialChars(value.id, 200);
+          }
+          // When id is undefined it's likely value isn't correct and needs fixing
+          else if (Object.keys(value)) {
+            const onlyKey = Object.keys(value)[0] as keyof ColumnProperties;
+            const obj: ColumnProperties = value[onlyKey] as any;
+            if (!obj.id && !obj.columnType) {
+              continue;
+            }
+            value = obj;
+            id = removeSpecialChars(value.id, 200);
+          }
+
+          // Sanitizes "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.$$$random_header))}}"
+          // to "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._random_header))}}"
+          const computedValue = (value?.computedValue || "").replace(
+            key,
+            sanitizedKey,
+          );
+
+          newPrimaryColumns[sanitizedKey] = {
+            ...value,
+            computedValue,
+            id,
+          };
+        }
+
+        child.primaryColumns = newPrimaryColumns;
+      }
+
+      // Sanitizes [ "id", "name", $$$random_header ]
+      // to [ "id", "name", _random_header ]
+      child.columnOrder = (child.columnOrder || []).map((co: string) =>
+        removeSpecialChars(co, 200),
+      );
+
+      // Sanitizes [ {key: primaryColumns.$random.header.computedValue }]
+      // to [ {key: primaryColumns._random_header.computedValue }]
+      child.dynamicBindingPathList = (child.dynamicBindingPathList || []).map(
+        (path) => {
+          const pathChunks = path.key.split("."); // primaryColumns.$random.header.computedValue -> [ "primaryColumns", "$random", "header", "computedValue"]
+
+          // tableData is a valid dynamicBindingPath and pathChunks would have just one entry
+          if (pathChunks.length < 2) {
+            return path;
+          }
+
+          const firstPart = pathChunks[0] + "."; // "primaryColumns."
+          const lastPart = "." + pathChunks[pathChunks.length - 1]; // ".computedValue"
+
+          const key = getSubstringBetweenTwoWords(
+            path.key,
+            firstPart,
+            lastPart,
+          ); // primaryColumns.$random.header.computedValue -> $random.header
+
+          const sanitizedPrimaryColumnKey = removeSpecialChars(key, 200);
+
+          return {
+            key: firstPart + sanitizedPrimaryColumnKey + lastPart,
+          };
+        },
+      );
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableSanitizeColumnKeys(child);
+    }
+
+    return child;
+  });
+
+  return currentDSL;
+};
+
+export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      const primaryColumns = child.primaryColumns as Record<
+        string,
+        ColumnProperties
+      >;
+      Object.keys(primaryColumns).forEach((accessor: string) => {
+        const primaryColumn = primaryColumns[accessor];
+
+        if (primaryColumn.columnType === "iconButton") {
+          if (!("buttonVariant" in primaryColumn)) {
+            primaryColumn.buttonVariant = "TERTIARY";
+          }
+        }
+      });
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetIconButtonVariant(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetNumericColumnName = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      child.columnOrder = (child.columnOrder || []).map((col: string) =>
+        generateTableColumnId(col),
+      );
+
+      const primaryColumns = { ...child.primaryColumns };
+      // clear old primaryColumns
+      child.primaryColumns = {};
+      for (const key in primaryColumns) {
+        if (Object.prototype.hasOwnProperty.call(primaryColumns, key)) {
+          const column = primaryColumns[key];
+          const columnId = generateTableColumnId(key);
+          const newComputedValue = `{{${child.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`;
+          // added column with old accessor
+          child.primaryColumns[columnId] = {
+            ...column,
+            id: columnId,
+            computedValue: newComputedValue,
+          };
+        }
+      }
+
+      child.dynamicBindingPathList = (child.dynamicBindingPathList || []).map(
+        (path) => {
+          const pathChunks = path.key.split(".");
+          // tableData is a valid dynamicBindingPath and pathChunks would have just one entry
+          if (pathChunks.length < 2) {
+            return path;
+          }
+          const firstPart = pathChunks[0] + "."; // "primaryColumns."
+          const lastPart = "." + pathChunks.pop(); // ".computedValue"
+          const key = getSubstringBetweenTwoWords(
+            path.key,
+            firstPart,
+            lastPart,
+          ); // primaryColumns.$random.header.computedValue -> $random.header
+
+          const sanitizedPrimaryColumnKey = generateTableColumnId(key);
+          return {
+            key: firstPart + sanitizedPrimaryColumnKey + lastPart,
+          };
+        },
+      );
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetNumericColumnName(child);
     }
     return child;
   });

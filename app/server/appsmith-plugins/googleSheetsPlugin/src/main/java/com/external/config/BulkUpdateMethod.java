@@ -16,6 +16,8 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,19 +40,19 @@ public class BulkUpdateMethod implements Method {
     @Override
     public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Url");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet name");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Sheet name");
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Unexpected value for table header index. Please use a number starting from 1");
                 }
             } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
         }
@@ -108,10 +110,10 @@ public class BulkUpdateMethod implements Method {
                     // Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
-                    if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
+                    if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                "Expected to receive a response body."));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody;
@@ -123,6 +125,18 @@ public class BulkUpdateMethod implements Method {
                                 new String(responseBody),
                                 e.getMessage()
                         ));
+                    }
+
+
+                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                        if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                        }
+
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Could not map request back to existing data"));
                     }
 
                     // This is the object with the original values in the referred row
@@ -187,7 +201,8 @@ public class BulkUpdateMethod implements Method {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + methodConfig.getSpreadsheetRange() /* spreadsheet Range */
+                        + URLEncoder.encode(methodConfig.getSpreadsheetRange(), StandardCharsets.UTF_8),
+                true
         );
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");

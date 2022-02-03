@@ -67,22 +67,6 @@ const propertyPaneReducer = createReducer(initialState, {
       return { ...state, isNew: action.payload.enable };
     return state;
   },
-  [ReduxActionTypes.OPEN_SUB_PANE]: (
-    state: PropertyPaneReduxState,
-    action: ReduxAction<{
-      widgetId: string;
-      propertyControlId: string;
-      widgetChildProperty: string;
-    }>,
-  ) => {
-    if (action.payload.widgetId === state.widgetId)
-      return {
-        ...state,
-        propertyControlId: action.payload.propertyControlId,
-        widgetChildProperty: action.payload.widgetChildProperty,
-      };
-    return state;
-  },
 });
 
 export interface PropertyPaneReduxState {

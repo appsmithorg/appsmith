@@ -5,7 +5,7 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { Action } from "entities/Action";
-import { UpdateActionPropertyActionPayload } from "actions/actionActions";
+import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 
 const initialState: ApiPaneReduxState = {
   isCreating: false,
@@ -87,6 +87,16 @@ const apiPaneReducer = createReducer(initialState, {
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
+    ...state,
+    isRunning: {
+      ...state.isRunning,
+      [action.payload.id]: false,
+    },
+  }),
+  [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ): ApiPaneReduxState => ({
     ...state,
     isRunning: {
       ...state.isRunning,

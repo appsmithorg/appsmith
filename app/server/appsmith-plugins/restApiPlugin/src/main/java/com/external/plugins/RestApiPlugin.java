@@ -48,13 +48,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -65,6 +68,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.external.helpers.HintMessageUtils.getActionHintMessages;
+import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
@@ -96,6 +101,11 @@ public class RestApiPlugin extends BasePlugin {
         // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
         // `WebClient` instance was loaded as an auto-wired bean.
         public ExchangeStrategies EXCHANGE_STRATEGIES;
+
+        private static final Set<String> DISALLOWED_HOSTS = Set.of(
+                "169.254.169.254",
+                "metadata.google.internal"
+        );
 
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
@@ -154,7 +164,7 @@ public class RestApiPlugin extends BasePlugin {
                     // First extract all the bindings in order
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                     // Replace all the bindings with a ? as expected in a prepared statement.
-                    String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
+                    String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(actionConfiguration.getBody(), mustacheKeysInOrder);
 
                     try {
                         updatedBody = (String) smartSubstitutionOfBindings(updatedBody,
@@ -226,14 +236,22 @@ public class RestApiPlugin extends BasePlugin {
             URI uri;
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-                uri = createFinalUriWithQueryParams(httpUrl,
-                        actionConfiguration.getQueryParameters(),
-                        encodeParamsToggle);
+
+                ArrayList<Property> allQueryParams = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(actionConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(actionConfiguration.getQueryParameters());
+                }
+
+                if (!CollectionUtils.isEmpty(datasourceConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(datasourceConfiguration.getQueryParameters());
+                }
+
+                uri = createFinalUriWithQueryParams(httpUrl, allQueryParams, encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
                 actionExecutionRequest.setUrl(url);
-                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage(e));
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage(e));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -241,8 +259,23 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
+            try {
+                final String host = uri.getHost();
+                if (StringUtils.isEmpty(host)
+                        || DISALLOWED_HOSTS.contains(host)
+                        || DISALLOWED_HOSTS.contains(InetAddress.getByName(host).getHostAddress())) {
+                    errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
+                    errorResult.setRequest(actionExecutionRequest);
+                    return Mono.just(errorResult);
+                }
+            } catch (UnknownHostException e) {
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Unknown host."));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
+            }
+
             if (httpMethod == null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("HTTPMethod must be set."));
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -264,7 +297,7 @@ public class RestApiPlugin extends BasePlugin {
             // Check for content type
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("Invalid value for Content-Type."));
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Invalid value for Content-Type."));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -464,7 +497,7 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             for (Property header : headers) {
-                if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                if (StringUtils.isNotEmpty(header.getKey()) && header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     try {
                         MediaType.valueOf((String) header.getValue());
                     } catch (InvalidMediaTypeException e) {
@@ -668,7 +701,7 @@ public class RestApiPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, null);
         }
 
         @Override
@@ -678,6 +711,12 @@ public class RestApiPlugin extends BasePlugin {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
-    }
 
+        @Override
+        public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                           DatasourceConfiguration datasourceConfiguration) {
+            return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
+                    Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
+        }
+    }
 }

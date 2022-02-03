@@ -1,5 +1,4 @@
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { WidgetTypes } from "../../constants/WidgetConstants";
 
 describe("EntityDefinitions", () => {
   it("it tests list widget selectRow", () => {
@@ -9,7 +8,7 @@ describe("EntityDefinitions", () => {
       parentId: "123",
       renderMode: "CANVAS",
       text: "yo",
-      type: WidgetTypes.INPUT_WIDGET,
+      type: "INPUT_WIDGET_V2",
       parentColumnSpace: 1,
       parentRowSpace: 2,
       leftColumn: 2,
@@ -44,6 +43,8 @@ describe("EntityDefinitions", () => {
       gridGap: "number",
       items: "?",
       listData: "?",
+      pageNo: "?",
+      pageSize: "?",
     };
 
     expect(listWidgetEntityDefinitions).toStrictEqual(output);

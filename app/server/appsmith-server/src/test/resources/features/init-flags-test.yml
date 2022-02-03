@@ -26,3 +26,12 @@ ff4j:
         param:
           - name: weight
             value: 1
+
+    - uid: TEST_FEATURE_3
+      enable: true
+      description: The test feature should only be visible to certain  users
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: test@example.com

@@ -9,7 +9,6 @@ import {
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { WidgetTypes } from "../../constants/WidgetConstants";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
@@ -19,7 +18,7 @@ describe("dataTreeTypeDefCreator", () => {
       parentId: "123",
       renderMode: "CANVAS",
       text: "yo",
-      type: WidgetTypes.INPUT_WIDGET,
+      type: "INPUT_WIDGET_V2",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       parentColumnSpace: 1,
       parentRowSpace: 2,
@@ -38,12 +37,18 @@ describe("dataTreeTypeDefCreator", () => {
       validationPaths: {},
       logBlackList: {},
     };
-    const { def } = dataTreeTypeDefCreator(dataTreeEntity, "Input1");
+    const { def, entityInfo } = dataTreeTypeDefCreator({
+      Input1: dataTreeEntity,
+    });
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
-    expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET);
+    expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET_V2);
     expect(def).toHaveProperty("Input1.isDisabled");
+    expect(entityInfo.get("Input1")).toStrictEqual({
+      type: ENTITY_TYPE.WIDGET,
+      subType: "INPUT_WIDGET_V2",
+    });
   });
 
   it("creates a correct def for an object", () => {

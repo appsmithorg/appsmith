@@ -11,12 +11,10 @@ export const fetchOrg = (orgId: string, skipValidation?: boolean) => {
   };
 };
 
-export const changeOrgName = (name: string) => {
+export const deleteOrg = (orgId: string) => {
   return {
-    type: ReduxActionTypes.UPDATE_ORG_NAME_INIT,
-    payload: {
-      name,
-    },
+    type: ReduxActionTypes.DELETE_ORG_INIT,
+    payload: orgId,
   };
 };
 

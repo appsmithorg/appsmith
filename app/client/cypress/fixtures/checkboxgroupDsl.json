@@ -1,0 +1,64 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1280,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 530,
+        "containerStyle": "none",
+        "snapRows": 129,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 39,
+        "minHeight": 590,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "widgetName": "CheckboxGroup1",
+                "displayName": "Checkbox Group",
+                "iconSVG": "/static/media/icon.ecb38479.svg",
+                "topRow": 8,
+                "bottomRow": 21,
+                "parentRowSpace": 10,
+                "type": "CHECKBOX_GROUP_WIDGET",
+                "hideCard": false,
+                "isSelectAll": true,
+                "parentColumnSpace": 18.66171875,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 5,
+                "dynamicBindingPathList": [],
+                "options": [
+                    {
+                        "label": "Blue",
+                        "value": "BLUE"
+                    },
+                    {
+                        "label": "Green",
+                        "value": "GREEN"
+                    },
+                    {
+                        "label": "Red",
+                        "value": "RED"
+                    }
+                ],
+                "isDisabled": false,
+                "key": "5xno62xw2y",
+                "isRequired": false,
+                "rightColumn": 12,
+                "defaultSelectedValues": "BLUE",
+                "widgetId": "u0xf5la5f2",
+                "isVisible": true,
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false
+            }
+        ]
+    }
+}

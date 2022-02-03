@@ -10,7 +10,7 @@
 	"keywords": [],
 	"author": "Appsmith",
 	"devDependencies": {
-		"axios": "^0.21.1",
+		"axios": "^0.21.2",
 		"axios-cookiejar-support": "^1.0.0",
 		"crypto-js": "^4.0.0",
 		"mongodb": "^3.5.8",

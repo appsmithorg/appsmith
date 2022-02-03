@@ -85,4 +85,18 @@ public class FeatureFlagServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testFeatureCheckForEmailStrategy() {
+        StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue("There should be a flag TEST_FEATURE_3",
+                            result.keySet().contains(FeatureFlagEnum.TEST_FEATURE_3.toString())
+                    );
+                    assertFalse(result.get(FeatureFlagEnum.TEST_FEATURE_3.toString()));
+                })
+                .verifyComplete();
+    }
+
 }

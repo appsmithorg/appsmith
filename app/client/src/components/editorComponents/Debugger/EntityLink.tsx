@@ -19,6 +19,7 @@ import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { JS_COLLECTION_ID_URL } from "constants/routes";
 
 function ActionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -39,6 +40,34 @@ function ActionLink(props: EntityLinkProps) {
 
         AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
           entityType: actionType,
+        });
+      }
+    }
+  }, []);
+
+  return (
+    <Link
+      entityType={props.type}
+      name={props.name}
+      onClick={onClick}
+      uiComponent={props.uiComponent}
+    />
+  );
+}
+
+function JSCollectionLink(props: EntityLinkProps) {
+  const applicationId = useSelector(getCurrentApplicationId);
+  // const action = useSelector((state: AppState) => getJSAction(state, props.id));
+  const pageId = useSelector(getCurrentPageId);
+  const onClick = useCallback(() => {
+    if (props.id) {
+      // const { id } = action;
+      const url = JS_COLLECTION_ID_URL(applicationId, pageId, props.id);
+
+      if (url) {
+        history.push(url);
+        AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+          entityType: "JSACTION",
         });
       }
     }
@@ -90,13 +119,13 @@ function DatasourceLink(props: EntityLinkProps) {
     getDatasource(state, props.id),
   );
   const pageId = useSelector(getCurrentPageId);
-  const appId = useSelector(getCurrentApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const onClick = () => {
     if (datasource) {
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          appId,
+          applicationId,
           pageId,
           datasource.id,
           getQueryParams(),
@@ -137,9 +166,13 @@ function Link(props: {
         </span>
       );
     case DebuggerLinkUI.ENTITY_NAME:
+      const link =
+        props.entityType === "JSACTION"
+          ? props.name
+          : props.name + "." + props.entityType.toLowerCase();
       return (
         <span className="debugger-entity-link" onClick={onClick}>
-          {props.name}.{props.entityType.toLowerCase()}
+          {link}
         </span>
       );
     default:
@@ -151,6 +184,7 @@ const entityTypeLinkMap = {
   [ENTITY_TYPE.WIDGET]: WidgetLink,
   [ENTITY_TYPE.ACTION]: ActionLink,
   [ENTITY_TYPE.DATASOURCE]: DatasourceLink,
+  [ENTITY_TYPE.JSACTION]: JSCollectionLink,
 };
 
 function EntityLink(props: EntityLinkProps) {

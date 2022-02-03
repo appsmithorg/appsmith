@@ -1,21 +1,23 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
+import { isString } from "utils/helpers";
 import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
-import { ExpectedValueExample } from "utils/validation/common";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -34,7 +36,7 @@ export function InputText(props: {
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   evaluatedValue?: any;
-  expected?: { type: string; example: ExpectedValueExample };
+  expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
   additionalDynamicData: Record<string, Record<string, unknown>>;
@@ -105,7 +107,10 @@ class ComputeTablePropertyControl extends BaseControl<
     Object.keys(columns).forEach((id: string) => {
       currentRow[id] = undefined;
     });
-
+    // Load default value in evaluated value
+    if (value && !propertyValue) {
+      this.onTextChange(value);
+    }
     return (
       <InputText
         additionalDynamicData={{
@@ -133,17 +138,20 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
+    if (stringToEvaluate === "") {
+      return stringToEvaluate;
+    }
     return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
     if (typeof event !== "string") {
-      value = event.target.value;
+      value = event.target?.value;
     } else {
       value = event;
     }
-    if (value) {
+    if (isString(value)) {
       const output = this.getComputedValue(
         value,
         this.props.widgetProperties.widgetName,

@@ -51,9 +51,13 @@
   "propertyList": ".t--entity-property",
   "actionlist": ".action div div",
   "settings": "li:contains('Settings')",
-  "onPageLoad": "[data-cy=executeOnLoad]",
+  "headers": "li:contains('Headers')",
+  "onPageLoad": "[name=executeOnLoad]",
   "renameEntity": ".single-select >div:contains('Edit Name')",
   "paramsTab": "//li//span[text()='Params']",
   "paramKey": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.key\\.0",
-  "paramValue": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\.0"
+  "paramValue": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\.0",
+  "multipartTypeDropdown": "button:contains('Type')",
+  "confirmBeforeExecute": "[name=confirmBeforeExecute]",
+  "runQueryButton": ".t--apiFormRunBtn"
 }

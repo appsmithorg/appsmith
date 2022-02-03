@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
+import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
@@ -10,7 +11,6 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
-import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
@@ -19,14 +19,11 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getIsPageSaving,
   getIsPublishingApplication,
-  getPageSavingError,
+  previewModeSelector,
 } from "selectors/editorSelectors";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { HeaderIcons } from "icons/HeaderIcons";
-import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
 import { updateApplication } from "actions/applicationActions";
@@ -37,66 +34,80 @@ import {
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import GlobalSearch from "components/editorComponents/GlobalSearch";
-import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
-import { IconWrapper } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleModeButton from "pages/Editor/ToggleModeButton";
-import TooltipComponent from "components/ads/Tooltip";
-import moment from "moment/moment";
+import { getTheme, ThemeMode } from "selectors/themeSelectors";
+import ToggleModeButton, {
+  useHideComments,
+} from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
+import { showConnectGitModal } from "actions/gitSyncActions";
+import RealtimeAppEditors from "./RealtimeAppEditors";
+import { EditorSaveIndicator } from "./EditorSaveIndicator";
+import getFeatureFlags from "utils/featureFlags";
 
-const HeaderWrapper = styled(StyledHeader)`
+import { retryPromise } from "utils/AppsmithUtils";
+import { fetchUsersForOrg } from "actions/orgActions";
+import { OrgUser } from "constants/orgConstants";
+
+import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core/lib/esnext/common";
+import {
+  CLOSE_ENTITY_EXPLORER_MESSAGE,
+  createMessage,
+  DEPLOY_BUTTON_TOOLTIP,
+  LOCK_ENTITY_EXPLORER_MESSAGE,
+  LOGO_TOOLTIP,
+  RENAME_APPLICATION_TOOLTIP,
+  SHARE_BUTTON_TOOLTIP,
+  SHARE_BUTTON_TOOLTIP_WITH_USER,
+} from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
+import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
+import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
+import { isMac } from "utils/helpers";
+import Boxed from "./GuidedTour/Boxed";
+import EndTour from "./GuidedTour/EndTour";
+import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
+
+const HeaderWrapper = styled.div`
   width: 100%;
-  padding-right: 0;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
+  display: flex;
+  align-items: center;
   background-color: ${(props) => props.theme.colors.header.background};
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
   & .editable-application-name {
     ${(props) => getTypographyByKey(props, "h4")}
     color: ${(props) => props.theme.colors.header.appName};
   }
-
-  & .header__application-share-btn {
-    background-color: ${(props) => props.theme.colors.header.background};
-    border-color: ${(props) => props.theme.colors.header.background};
-    // margin-right: ${(props) => props.theme.spaces[1]}px;
-  }
-
-  & .header__application-share-btn:hover {
-    color: ${(props) => props.theme.colors.header.shareBtnHighlight};
-    ${IconWrapper} path {
-      fill: ${(props) => props.theme.colors.header.shareBtnHighlight};
-    }
-  }
-
   & ${Profile} {
     width: 24px;
     height: 24px;
   }
 `;
 
-// looks offset by 1px even though, checking bounding rect values
 const HeaderSection = styled.div`
   position: relative;
-  top: -1px;
   display: flex;
   flex: 1;
   overflow: visible;
@@ -117,31 +128,36 @@ const HeaderSection = styled.div`
   }
 `;
 
-const AppsmithLogoImg = styled.img`
-  margin-right: ${(props) => props.theme.spaces[6]}px;
-  height: 24px;
+const AppsmithLink = styled((props) => {
+  // we are removing non input related props before passing them in the components
+  // eslint-disable @typescript-eslint/no-unused-vars
+  return <Link {...props} />;
+})`
+  height: 20px;
+  width: 20px;
+  display: inline-block;
+  img {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
-const SaveStatusContainer = styled.div`
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 const DeploySection = styled.div`
   display: flex;
 `;
 
-const ProfileDropdownContainer = styled.div`
-  margin: 0 ${(props) => props.theme.spaces[7]}px;
-`;
+const ProfileDropdownContainer = styled.div``;
 
-const StyledDeployButton = styled(Button)`
+const StyledInviteButton = styled(Button)`
+  margin-right: ${(props) => props.theme.spaces[9]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   ${(props) => getTypographyByKey(props, "btnLarge")}
   padding: ${(props) => props.theme.spaces[2]}px;
+`;
+
+const StyledDeployButton = styled(StyledInviteButton)`
+  margin-right: 0px;
+  height: 20px;
 `;
 
 const BindingBanner = styled.div`
@@ -153,7 +169,6 @@ const BindingBanner = styled.div`
   transform: translate(-50%, 0);
   text-align: center;
   background: ${Colors.DANUBE};
-
   color: ${Colors.WHITE};
   font-weight: 500;
   font-size: 15px;
@@ -162,9 +177,41 @@ const BindingBanner = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
   box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
   z-index: 9999;
+`;
+
+const StyledDeployIcon = styled(Icon)`
+  height: 20px;
+  width: 20px;
+  align-self: center;
+  background: ${(props) => props.theme.colors.header.shareBtnHighlight};
+  &:hover {
+    background: rgb(191, 65, 9);
+  }
+`;
+
+const ShareButton = styled.div`
+  cursor: pointer;
+`;
+
+const StyledShareText = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 4px;
+`;
+
+const StyledSharedIcon = styled(Icon)`
+  display: inline-block;
+`;
+
+const HamburgerContainer = styled.div`
+  height: 34px;
+  width: 34px;
+
+  :hover {
+    background-color: ${Colors.GEYSER_LIGHT};
+  }
 `;
 
 type EditorHeaderProps = {
@@ -175,35 +222,48 @@ type EditorHeaderProps = {
   publishedTime?: string;
   orgId: string;
   applicationId?: string;
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
-  darkTheme: any;
   lastUpdatedTime?: number;
+  inOnboarding: boolean;
+  sharedUserList: OrgUser[];
+  currentUser?: User;
 };
+
+const GlobalSearch = lazy(() => {
+  return retryPromise(() => import("components/editorComponents/GlobalSearch"));
+});
+
+export function ShareButtonComponent() {
+  return (
+    <ShareButton className="flex items-center t--application-share-btn header__application-share-btn">
+      <StyledSharedIcon name="share-line" />
+      <StyledShareText>SHARE</StyledShareText>
+    </ShareButton>
+  );
+}
 
 export function EditorHeader(props: EditorHeaderProps) {
   const {
     applicationId,
     currentApplication,
     isPublishing,
-    isSaving,
-    lastUpdatedTime,
     orgId,
     pageId,
-    pageSaveError,
     publishApplication,
   } = props;
   const location = useLocation();
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
+  const pinned = useSelector(getExplorerPinned);
+  const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
-  const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
-    "",
-  );
+  const shouldHideComments = useHideComments();
+  const isPreviewMode = useSelector(previewModeSelector);
 
   useEffect(() => {
     if (window.location.href) {
@@ -213,25 +273,6 @@ export function EditorHeader(props: EditorHeaderProps) {
       dispatch(setSnipingModeAction(updatedIsSnipingMode));
     }
   }, [location]);
-
-  const findLastUpdatedTimeMessage = () => {
-    setLastUpdatedTimeMessage(
-      lastUpdatedTime
-        ? `Saved ${moment(lastUpdatedTime * 1000).fromNow()}`
-        : "",
-    );
-  };
-
-  useEffect(() => {
-    findLastUpdatedTimeMessage();
-    const interval = setInterval(
-      findLastUpdatedTimeMessage,
-      (moment.relativeTimeThreshold("ss") as number) * 1000,
-    );
-    return () => {
-      clearInterval(interval);
-    };
-  }, [lastUpdatedTime]);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -247,33 +288,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     }
   };
 
-  let saveStatusIcon: React.ReactNode;
-  if (isSaving) {
-    saveStatusIcon = <ThreeDotLoading className="t--save-status-is-saving" />;
-  } else {
-    if (!pageSaveError) {
-      saveStatusIcon = (
-        <TooltipComponent content={lastUpdatedTimeMessage} hoverOpenDelay={200}>
-          <HeaderIcons.SAVE_SUCCESS
-            className="t--save-status-success"
-            color={"#36AB80"}
-            height={20}
-            width={20}
-          />
-        </TooltipComponent>
-      );
-    } else {
-      saveStatusIcon = (
-        <HeaderIcons.SAVE_FAILURE
-          className={"t--save-status-error"}
-          color={"#F69D2C"}
-          height={20}
-          width={20}
-        />
-      );
-    }
-  }
-
   const updateApplicationDispatch = (
     id: string,
     data: { name: string; currentApp: boolean },
@@ -285,30 +299,120 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
+  const handleClickDeploy = useCallback(
+    (fromDeploy?: boolean) => {
+      if (getFeatureFlags().GIT && isGitConnected) {
+        dispatch(showConnectGitModal());
+        AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
+          source: fromDeploy
+            ? "Deploy button"
+            : "Application name menu (top left)",
+        });
+      } else {
+        handlePublish();
+      }
+    },
+    [getFeatureFlags().GIT, dispatch, handlePublish],
+  );
+
+  /**
+   * on hovering the menu, make the explorer active
+   */
+  const onMenuHover = useCallback(() => {
+    dispatch(setExplorerActiveAction(true));
+  }, [setExplorerActiveAction]);
+
+  /**
+   * toggles the pinned state of sidebar
+   */
+  const onPin = useCallback(() => {
+    dispatch(setExplorerPinnedAction(!pinned));
+  }, [pinned, dispatch, setExplorerPinnedAction]);
+
+  //Fetch all users for the application to show the share button tooltip
+  useEffect(() => {
+    if (orgId) {
+      dispatch(fetchUsersForOrg(orgId));
+    }
+  }, [orgId]);
+  const filteredSharedUserList = props.sharedUserList.filter(
+    (user) => user.username !== props.currentUser?.username,
+  );
+
   return (
-    <ThemeProvider theme={props.darkTheme}>
-      <HeaderWrapper>
-        <HeaderSection>
-          <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
-            <AppsmithLogoImg
-              alt="Appsmith logo"
-              className="t--appsmith-logo"
-              src={AppsmithLogo}
-            />
-          </Link>
-          <Boxed step={OnboardingStep.FINISH}>
+    <ThemeProvider theme={theme}>
+      <HeaderWrapper className="pr-3">
+        <HeaderSection className="space-x-3">
+          <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
+            <TooltipComponent
+              content={
+                <div className="flex justify-between items-center">
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
+                  <span className="ml-4 text-xs text-gray-300">
+                    {isMac() ? "Cmd" : "Ctrl"} + /
+                  </span>
+                </div>
+              }
+              position="bottom-left"
+            >
+              <div
+                className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
+                onMouseEnter={onMenuHover}
+              >
+                <MenuIcon className="absolute w-4 h-4 transition-opacity fill-current cursor-pointer group-hover:opacity-0" />
+                {!pinned && (
+                  <UnpinIcon
+                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
+                {pinned && (
+                  <PinIcon
+                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
+              </div>
+            </TooltipComponent>
+          </HamburgerContainer>
+          <TooltipComponent
+            content={createMessage(LOGO_TOOLTIP)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM_LEFT}
+          >
+            <AppsmithLink to={APPLICATIONS_URL}>
+              <img
+                alt="Appsmith logo"
+                className="t--appsmith-logo"
+                src={AppsmithLogo}
+              />
+            </AppsmithLink>
+          </TooltipComponent>
+
+          <TooltipComponent
+            autoFocus={false}
+            content={createMessage(RENAME_APPLICATION_TOOLTIP)}
+            disabled={isPopoverOpen}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            openOnTargetFocus={false}
+            position={Position.BOTTOM}
+          >
             <EditorAppName
               applicationId={applicationId}
-              className="t--application-name editable-application-name"
-              currentDeployLink={getApplicationViewerPageURL(
-                applicationId,
+              className="t--application-name editable-application-name max-w-48"
+              currentDeployLink={getApplicationViewerPageURL({
+                applicationId: props.applicationId,
                 pageId,
-              )}
+              })}
               defaultSavingState={
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
               defaultValue={currentApplication?.name || ""}
-              deploy={handlePublish}
+              deploy={() => handleClickDeploy(false)}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}
@@ -325,22 +429,36 @@ export function EditorHeader(props: EditorHeaderProps) {
               }
               setIsPopoverOpen={setIsPopoverOpen}
             />
+          </TooltipComponent>
+          {!shouldHideComments && (
             <ToggleModeButton showSelectedMode={!isPopoverOpen} />
-          </Boxed>
+          )}
         </HeaderSection>
-        <HeaderSection>
+        <HeaderSection
+          className={classNames({
+            "-translate-y-full opacity-0": isPreviewMode,
+            "translate-y-0 opacity-100": !isPreviewMode,
+            "transition-all transform duration-400": true,
+          })}
+        >
           <HelpBar />
           <HelpButton />
         </HeaderSection>
-        <HeaderSection>
-          <Boxed step={OnboardingStep.FINISH}>
-            <SaveStatusContainer className={"t--save-status-container"}>
-              {saveStatusIcon}
-            </SaveStatusContainer>
+        <HeaderSection className="space-x-3">
+          <EditorSaveIndicator />
+          <Boxed
+            alternative={<EndTour />}
+            step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
+          >
+            <RealtimeAppEditors applicationId={applicationId} />
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}
               canOutsideClickClose
+              headerIcon={{
+                name: "right-arrow",
+                bgColor: "transparent",
+              }}
               isOpen={showAppInviteUsersDialog}
               orgId={orgId}
               title={
@@ -349,38 +467,50 @@ export function EditorHeader(props: EditorHeaderProps) {
                   : "Share Application"
               }
               trigger={
-                <Button
-                  className="t--application-share-btn header__application-share-btn"
-                  icon={"share"}
-                  size={Size.small}
-                  text={"Share"}
-                />
+                <TooltipComponent
+                  content={
+                    filteredSharedUserList.length
+                      ? createMessage(
+                          SHARE_BUTTON_TOOLTIP_WITH_USER(
+                            filteredSharedUserList.length,
+                          ),
+                        )
+                      : createMessage(SHARE_BUTTON_TOOLTIP)
+                  }
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM}
+                >
+                  <ShareButtonComponent />
+                </TooltipComponent>
               }
             />
-          </Boxed>
-          <Boxed
-            alternative={<EndOnboardingTour />}
-            step={OnboardingStep.DEPLOY}
-          >
             <DeploySection>
-              <OnboardingIndicator
-                hasButton={false}
-                step={OnboardingStep.DEPLOY}
-                width={75}
+              <TooltipComponent
+                content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                position={Position.BOTTOM_RIGHT}
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
+                  data-guided-tour-iid="deploy"
                   isLoading={isPublishing}
-                  onClick={handlePublish}
+                  onClick={() => handleClickDeploy(true)}
                   size={Size.small}
                   text={"Deploy"}
                 />
-              </OnboardingIndicator>
+              </TooltipComponent>
 
               <DeployLinkButtonDialog
-                link={getApplicationViewerPageURL(applicationId, pageId)}
+                link={getApplicationViewerPageURL({
+                  applicationId: props.applicationId,
+                  pageId,
+                })}
                 trigger={
-                  <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
+                  <StyledDeployIcon
+                    fillColor="#fff"
+                    name={"down-arrow"}
+                    size={IconSize.XXL}
+                  />
                 }
               />
             </DeploySection>
@@ -388,15 +518,16 @@ export function EditorHeader(props: EditorHeaderProps) {
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
-                hideThemeSwitch
                 name={user.name}
+                photoId={user?.photoId}
                 userName={user?.username || ""}
               />
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        <OnboardingHelper />
-        <GlobalSearch />
+        <Suspense fallback={<span />}>
+          <GlobalSearch />
+        </Suspense>
         {isSnipingMode && (
           <BindingBanner className="t--sniping-mode-banner">
             Select a widget to bind
@@ -407,17 +538,17 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 }
 
+const theme = getTheme(ThemeMode.LIGHT);
+
 const mapStateToProps = (state: AppState) => ({
-  lastUpdatedTime: state.ui.editor.lastUpdatedTime,
   pageName: state.ui.editor.currentPageName,
-  isSaving: getIsPageSaving(state),
-  pageSaveError: getPageSavingError(state),
   orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
-  darkTheme: getThemeDetails(state, ThemeMode.DARK),
+  sharedUserList: getAllUsers(state),
+  currentUser: getCurrentUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -430,5 +561,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     });
   },
 });
+
+EditorHeader.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);

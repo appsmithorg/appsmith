@@ -21,9 +21,8 @@ describe("Image Widget Functionality", function() {
       viewWidgetsPage.imageWidget,
       viewWidgetsPage.imagecontainer,
     );
-    cy.get(viewWidgetsPage.defaultImage)
-      .click({ force: true })
-      .type(this.data.defaultimage);
+    cy.testJsontext("defaultimage", this.data.defaultimage);
+    cy.wait(1000);
     /**
      * @param{URL} ImageUrl
      */
@@ -38,7 +37,7 @@ describe("Image Widget Functionality", function() {
     cy.openPropertyPane("imagewidget");
     //Zoom validation
     cy.changeZoomLevel("1x (No Zoom)");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("not.contain", "zoom-in");

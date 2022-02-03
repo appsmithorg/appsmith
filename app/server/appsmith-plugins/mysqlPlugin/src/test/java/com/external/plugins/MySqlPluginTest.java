@@ -66,10 +66,11 @@ public class MySqlPluginTest {
     @ClassRule
     public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer(
             DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
-            .withUsername("mysql")
-            .withPassword("password")
+            .withUsername("root")
+            .withPassword("")
             .withDatabaseName("test_db")
-            .withEnv("TZ", "PDT");
+            .withEnv("TZ", "PDT")
+            .withEnv("MYSQL_ROOT_HOST", "%");
 
     private static String address;
     private static Integer port;
@@ -130,14 +131,6 @@ public class MySqlPluginTest {
                                     " '15:45:30'," +
                                     " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
                                     ")"
-                            )
-                            .add("INSERT INTO users VALUES (" +
-                                    "3, 'MiniJackJill', 'jaji', 'jaji@exemplars.com', NULL, '2021-01-31'," +
-                                    " '15:45:30', '04:05:06 PST'," +
-                                    " TIMESTAMP '2021-01-31 23:59:59', TIMESTAMP WITH TIME ZONE '2021-01-31 23:59:59 CET'," +
-                                    " '0 years'," +
-                                    " '{1, 2, 3}', '{\"a\", \"b\"}'" +
-                                    ")"
                             );
                 })
                 .flatMap(batch -> Mono.from(batch.execute()))
@@ -183,19 +176,8 @@ public class MySqlPluginTest {
 
     @Test
     public void testConnectMySQLContainerWithInvalidTimezone() {
-        DBAuth authDTO = new DBAuth();
-        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
-        authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
-        authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
-        authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
 
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
-        endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
-
-        final DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.setAuthentication(authDTO);
-        dsConfig.setEndpoints(List.of(endpoint));
+        final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
         dsConfig.setProperties(List.of(
                 new Property("serverTimezone", "UTC")
         ));
@@ -228,6 +210,106 @@ public class MySqlPluginTest {
 
         /* Reset dsConfig */
         dsConfig = createDatasourceConfiguration();
+    }
+
+
+    public DatasourceConfiguration createDatasourceConfigForContainerWithInvalidTZ() {
+        final DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
+        authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
+        authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
+
+        final Endpoint endpoint = new Endpoint();
+        endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
+        endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
+
+        final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        /* set endpoint */
+        dsConfig.setAuthentication(authDTO);
+        dsConfig.setEndpoints(List.of(endpoint));
+
+        /* set ssl mode */
+
+        dsConfig.setConnection(new com.appsmith.external.models.Connection());
+        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
+        dsConfig.getConnection().setSsl(new SSLDetails());
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+
+        return dsConfig;
+    }
+
+    @Test
+    public void testDatasourceWithNullPassword() {
+        final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
+
+        // adding a user with empty password
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainerWithInvalidTimezone);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection -> connection.createBatch()
+                        // adding a new user called 'mysql' with empty password
+                        .add("CREATE USER 'mysql'@'%';\n" +
+                                "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;\n" +
+                                "FLUSH PRIVILEGES;")
+                        )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+
+
+        // change to ordinary user
+        DBAuth auth = ((DBAuth) dsConfig.getAuthentication());
+        auth.setPassword("");
+        auth.setUsername("mysql");
+
+        // check user pass
+        assertEquals("mysql", auth.getUsername());
+        assertEquals("", auth.getPassword());
+
+
+        // Validate datastore
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.isEmpty());
+        // test connect
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
+                .verifyComplete();
+
+        /* Expect no error */
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> assertEquals(0, datasourceTestResult.getInvalids().size()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDatasourceWithRootUserAndNullPassword() {
+
+        final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
+
+        // check user pass
+        assertEquals("root", mySQLContainerWithInvalidTimezone.getUsername());
+        assertEquals("", mySQLContainerWithInvalidTimezone.getPassword());
+
+
+        // Validate datastore
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.isEmpty());
+        // test connect
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
+                .verifyComplete();
+
+        /* Expect no error */
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> assertEquals(0, datasourceTestResult.getInvalids().size()))
+                .verifyComplete();
+
     }
 
     @Test
@@ -405,12 +487,18 @@ public class MySqlPluginTest {
     }
 
     @Test
-    public void testExecuteWithPreparedStatement() {
+    public void testPreparedStatementErrorWithIsKeyword() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("SELECT id FROM users WHERE id = {{binding1}};");
+        /**
+         * - MySQL r2dbc driver is not able to substitute the `True/False` value properly after the IS keyword.
+         * Converting `True/False` to integer 1 or 0 also does not work in this case as MySQL syntax does not support
+         * integers with IS keyword.
+         * - I have raised an issue with r2dbc to track it: https://github.com/mirromutth/r2dbc-mysql/issues/200
+         */
+        actionConfiguration.setBody("SELECT id FROM test_boolean_type WHERE c_boolean IS {{binding1}};");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
@@ -418,10 +506,175 @@ public class MySqlPluginTest {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
-        Param param = new Param();
-        param.setKey("binding1");
-        param.setValue("1");
-        params.add(param);
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("True");
+        params.add(param1);
+
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .verifyErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithPluginException);
+                    String expectedMessage = "Appsmith currently does not support the IS keyword with the prepared " +
+                            "statement setting turned ON. Please re-write your SQL query without the IS keyword or " +
+                            "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab.";
+                    assertTrue(expectedMessage.equals(error.getMessage()));
+                });
+    }
+
+    @Test
+    public void testPreparedStatementWithRealTypes() {
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection ->
+                        connection.createBatch()
+                            .add("create table test_real_types(id int, c_float float, c_double double, c_real real)")
+                            .add("insert into test_real_types values (1, 1.123, 3.123, 5.123)")
+                            .add("insert into test_real_types values (2, 11.123, 13.123, 15.123)")
+                )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        /**
+         * - For mysql float / double / real types the actual values that are stored in the db my differ by a very
+         * thin margin as long as they are approximately same. Hence adding comparison based check instead of direct
+         * equality.
+         * - Ref: https://dev.mysql.com/doc/refman/8.0/en/problems-with-float.html
+         */
+        actionConfiguration.setBody("SELECT id FROM test_real_types WHERE ABS(c_float - {{binding1}}) < 0.1 AND ABS" +
+                "(c_double - {{binding2}}) < 0.1 AND ABS(c_real - {{binding3}}) < 0.1;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("1.123");
+        params.add(param1);
+
+        Param param2 = new Param();
+        param2.setKey("binding2");
+        param2.setValue("3.123");
+        params.add(param2);
+
+        Param param3 = new Param();
+        param3.setKey("binding3");
+        param3.setValue("5.123");
+        params.add(param3);
+
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    final JsonNode node = ((ArrayNode) result.getBody());
+                    assertEquals(1, node.size());
+                    // Verify selected row id.
+                    assertEquals(1, node.get(0).get("id").asInt());
+                })
+                .verifyComplete();
+
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection ->
+                        connection.createBatch()
+                                .add("drop table test_real_types")
+                )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+    }
+
+    @Test
+    public void testPreparedStatementWithBooleanType() {
+        // Create a new table with boolean type
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection ->
+                        connection.createBatch()
+                            .add("create table test_boolean_type(id int, c_boolean boolean)")
+                            .add("insert into test_boolean_type values (1, True)")
+                            .add("insert into test_boolean_type values (2, True)")
+                            .add("insert into test_boolean_type values (3, False)")
+                )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id FROM test_boolean_type WHERE c_boolean={{binding1}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("True");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    final JsonNode node = ((ArrayNode) result.getBody());
+                    assertEquals(2, node.size());
+                    // Verify selected row id.
+                    assertEquals(1, node.get(0).get("id").asInt());
+                    assertEquals(2, node.get(1).get("id").asInt());
+                })
+                .verifyComplete();
+
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection ->
+                        connection.createBatch()
+                                .add("drop table test_boolean_type")
+                )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+    }
+
+    @Test
+    public void testExecuteWithPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id FROM users WHERE id = {{binding1}} limit 1 offset {{binding2}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("1");
+        params.add(param1);
+        Param param2 = new Param();
+        param2.setKey("binding2");
+        param2.setValue("0");
+        params.add(param2);
         executeActionDTO.setParams(params);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
@@ -440,23 +693,36 @@ public class MySqlPluginTest {
                                     .toArray()
                     );
 
+                    // Verify value
+                    assertEquals(1, node.get("id").asInt());
+
                     /*
                      * - Check if request params are sent back properly.
                      * - Not replicating the same to other tests as the overall flow remains the same w.r.t. request
                      *  params.
                      */
 
-                    // check if '?' is replaced by $i.
-                    assertEquals("SELECT id FROM users WHERE id = $1;",
+                    // Check if '?' is replaced by $i.
+                    assertEquals("SELECT id FROM users WHERE id = $1 limit 1 offset $2;",
                             ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
 
-                    PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
-                    PsParameterDTO returnedPsParam =
+                    // Check 1st prepared statement parameter
+                    PsParameterDTO expectedPsParam1 = new PsParameterDTO("1", "INTEGER");
+                    PsParameterDTO returnedPsParam1 =
                             (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
                     // Check if prepared stmt param value is correctly sent back.
-                    assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
-                    // check if prepared stmt param type is correctly sent back.
-                    assertEquals(expectedPsParam.getType(), returnedPsParam.getType());
+                    assertEquals(expectedPsParam1.getValue(), returnedPsParam1.getValue());
+                    // Check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam1.getType(), returnedPsParam1.getType());
+
+                    // Check 2nd prepared statement parameter
+                    PsParameterDTO expectedPsParam2 = new PsParameterDTO("0", "INTEGER");
+                    PsParameterDTO returnedPsParam2 =
+                            (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$2");
+                    // Check if prepared stmt param value is correctly sent back.
+                    assertEquals(expectedPsParam2.getValue(), returnedPsParam2.getValue());
+                    // Check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam2.getType(), returnedPsParam2.getType());
                 })
                 .verifyComplete();
 
@@ -639,18 +905,18 @@ public class MySqlPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM possessions LIMIT 10;", null),
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM possessions LIMIT 10;"),
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO possessions (id, title, user_id, username, email)\n" +
-                                            "  VALUES (1, '', 1, '', '');", null),
+                                            "  VALUES (1, '', 1, '', '');"),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE possessions SET\n" +
-                                            "    id = 1\n" +
-                                            "    title = ''\n" +
-                                            "    user_id = 1\n" +
-                                            "    username = ''\n" +
+                                            "    id = 1,\n" +
+                                            "    title = '',\n" +
+                                            "    user_id = 1,\n" +
+                                            "    username = '',\n" +
                                             "    email = ''\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM possessions\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             possessionsTable.getTemplates().toArray()
                     );
@@ -669,7 +935,7 @@ public class MySqlPluginTest {
                                     new DatasourceStructure.Column("yob", "year", null, false),
                                     new DatasourceStructure.Column("time1", "time", null, false),
                                     new DatasourceStructure.Column("created_on", "timestamp", null, false),
-                                    new DatasourceStructure.Column("updated_on", "datetime", null, false),
+                                    new DatasourceStructure.Column("updated_on", "datetime", null, false)
                             },
                             usersTable.getColumns().toArray()
                     );
@@ -682,23 +948,23 @@ public class MySqlPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM users LIMIT 10;", null),
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM users LIMIT 10;"),
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO users (id, username, password, email, spouse_dob, dob, yob, time1, created_on, updated_on)\n" +
-                                            "  VALUES (1, '', '', '', '2019-07-01', '2019-07-01', '', '', '2019-07-01 10:00:00', '2019-07-01 10:00:00');", null),
+                                            "  VALUES (1, '', '', '', '2019-07-01', '2019-07-01', '', '', '2019-07-01 10:00:00', '2019-07-01 10:00:00');"),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE users SET\n" +
-                                            "    id = 1\n" +
-                                            "    username = ''\n" +
-                                            "    password = ''\n" +
-                                            "    email = ''\n" +
-                                            "    spouse_dob = '2019-07-01'\n" +
-                                            "    dob = '2019-07-01'\n" +
-                                            "    yob = ''\n" +
-                                            "    time1 = ''\n" +
-                                            "    created_on = '2019-07-01 10:00:00'\n" +
+                                            "    id = 1,\n" +
+                                            "    username = '',\n" +
+                                            "    password = '',\n" +
+                                            "    email = '',\n" +
+                                            "    spouse_dob = '2019-07-01',\n" +
+                                            "    dob = '2019-07-01',\n" +
+                                            "    yob = '',\n" +
+                                            "    time1 = '',\n" +
+                                            "    created_on = '2019-07-01 10:00:00',\n" +
                                             "    updated_on = '2019-07-01 10:00:00'\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM users\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             usersTable.getTemplates().toArray()
                     );

@@ -1,14 +1,16 @@
 import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
-import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
-import { watchActionExecutionSagas } from "sagas/ActionExecutionSagas";
+import { watchJSActionSagas } from "./JSActionSagas";
+import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
+import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import applicationSagas from "./ApplicationSagas";
 import { watchDatasourcesSagas } from "./DatasourcesSagas";
 import initSagas from "./InitSagas";
 import apiPaneSagas from "./ApiPaneSagas";
+import jsPaneSagas from "./JSPaneSagas";
 import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
 import orgSagas from "./OrgSagas";
@@ -32,21 +34,30 @@ import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
-import selectionCanvasSagas from "./SelectionCanvasSagas";
+import replaySaga from "./ReplaySaga";
+import selectionCanvasSagas from "./CanvasSagas/SelectionCanvasSagas";
+import draggingCanvasSagas from "./CanvasSagas/DraggingCanvasSagas";
+import gitSyncSagas from "./GitSyncSagas";
+
 import log from "loglevel";
 import * as sentry from "@sentry/react";
+import formEvaluationChangeListener from "./FormEvaluationSaga";
+import SuperUserSagas from "./SuperUserSagas";
+import reflowSagas from "./ReflowSagas";
 
 const sagas = [
   initSagas,
   pageSagas,
-  fetchWidgetCardsSaga,
   watchActionSagas,
+  watchJSActionSagas,
   watchActionExecutionSagas,
+  watchPluginActionExecutionSagas,
   widgetOperationSagas,
   errorSagas,
   watchDatasourcesSagas,
   applicationSagas,
   apiPaneSagas,
+  jsPaneSagas,
   userSagas,
   pluginSagas,
   orgSagas,
@@ -61,6 +72,7 @@ const sagas = [
   evaluationsSaga,
   onboardingSagas,
   actionExecutionChangeListeners,
+  formEvaluationChangeListener,
   utilSagas,
   globalSearchSagas,
   recentEntitiesSagas,
@@ -71,6 +83,11 @@ const sagas = [
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,
+  replaySaga,
+  draggingCanvasSagas,
+  gitSyncSagas,
+  SuperUserSagas,
+  reflowSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

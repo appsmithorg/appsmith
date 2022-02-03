@@ -8,21 +8,47 @@ ff4j:
   audit: false
 
   features:
-
     - uid: JS_EDITOR
       enable: true
-      description: Should the JS Editor be visible?
+      description: Enable JS editor by email domain of the user
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: requiredKey
-            value: requiredValue
+          - name: weight
+            value: 1
 
-    - uid: COMMENT
-      enable: false
-      description: Enable this feature based on weight. It's randomized.
+    - uid: LINTING
+      enable: true
+      description: Enable linting feature by email domain of the user
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: requiredKey
-            value: requiredValue
+          - name: emailDomains
+            value: appsmith.com,moolya.com
+
+    - uid: MULTIPLAYER
+      enable: true
+      description: Enable collaboration by sharing mouse pointers of concurrent app editors
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
+
+    - uid: GIT
+      enable: true
+      description: Enable git for apps
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
+
+    - uid: GIT_IMPORT
+      enable: true
+      description: Enable git import for apps
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com

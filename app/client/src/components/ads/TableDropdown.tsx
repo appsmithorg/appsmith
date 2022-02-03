@@ -3,7 +3,7 @@ import {
   Popover,
   PopoverInteractionKind,
 } from "@blueprintjs/core/lib/esm/components/popover/popover";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Classes, CommonComponentProps } from "./common";
 import Icon, { IconSize } from "./Icon";
@@ -15,21 +15,24 @@ type DropdownOption = {
   desc: string;
 };
 
-type DropdownProps = CommonComponentProps & {
+export type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   onSelect: (selectedValue: DropdownOption) => void;
   selectedIndex: number;
   position?: Position;
+  selectedTextWidth?: string;
 };
 
-const SelectedItem = styled.div`
+const SelectedItem = styled.div<{
+  width?: string;
+}>`
   display: flex;
   align-items: center;
   cursor: pointer;
   user-select: none;
-
   .${Classes.TEXT} {
     margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+    width: ${(props) => props.width || "auto"};
   }
 `;
 
@@ -86,10 +89,22 @@ function TableDropdown(props: DropdownProps) {
     props.options[props.selectedIndex] || {},
   );
 
+  useEffect(() => {
+    if (props.selectedIndex !== selectedIndex) {
+      setSelectedIndex(props.selectedIndex);
+      setSelectedOption(props.options[props.selectedIndex]);
+    }
+  }, [props.selectedIndex]);
+
   const optionSelector = (index: number) => {
-    setSelectedIndex(index);
-    setSelectedOption(props.options[index]);
-    props.onSelect && props.onSelect(props.options[index]);
+    if (
+      props.options[index] &&
+      props.options[index].name !== selectedOption.name
+    ) {
+      setSelectedIndex(index);
+      setSelectedOption(props.options[index]);
+      props.onSelect && props.onSelect(props.options[index]);
+    }
     setIsDropdownOpen(false);
   };
 
@@ -105,9 +120,14 @@ function TableDropdown(props: DropdownProps) {
       usePortal={false}
     >
       <Content isLoading={props.isLoading}>
-        <SelectedItem className="selected-item">
+        <SelectedItem className="selected-item" width={props.selectedTextWidth}>
           <Text type={TextType.P1}>{selectedOption.name}</Text>
-          <Icon name="downArrow" size={IconSize.XXS} />
+          <Icon
+            fillColor="#A9A7A7"
+            hoverFillColor="#A9A7A7"
+            name="downArrow"
+            size={IconSize.XXXL}
+          />
         </SelectedItem>
       </Content>
       <OptionsWrapper>

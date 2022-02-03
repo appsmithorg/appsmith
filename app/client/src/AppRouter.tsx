@@ -3,14 +3,12 @@ import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
-  APP_VIEW_URL,
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
   BASE_LOGIN_URL,
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_URL,
-  getApplicationViewerPageURL,
   ORG_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
@@ -18,6 +16,11 @@ import {
   USERS_URL,
   PROFILE,
   UNSUBSCRIBE_EMAIL_URL,
+  SETUP,
+  VIEWER_URL,
+  ADMIN_SETTINGS_URL,
+  ADMIN_SETTINGS_CATEGORY_URL,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -41,6 +44,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { trimTrailingSlash } from "utils/helpers";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
+import { getCurrentUser } from "actions/authActions";
+import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import Setup from "pages/setup";
+import Settings from "pages/Settings";
+import SignupSuccess from "pages/setup/SignupSuccess";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -70,6 +78,7 @@ class AppRouter extends React.Component<any, any> {
       AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: location.pathname });
       changeAppBackground(this.props.currentTheme);
     });
+    this.props.getCurrentUser();
   }
 
   componentWillUnmount() {
@@ -77,10 +86,18 @@ class AppRouter extends React.Component<any, any> {
   }
 
   render() {
-    const { currentTheme, safeCrash, safeCrashCode } = this.props;
+    const {
+      currentTheme,
+      featureFlagsFetched,
+      safeCrash,
+      safeCrashCode,
+    } = this.props;
 
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
+
+    // Render the app once the feature flags have been fetched
+    if (!featureFlagsFetched) return null;
 
     return (
       <Router history={history}>
@@ -106,20 +123,28 @@ class AppRouter extends React.Component<any, any> {
                   path={APPLICATIONS_URL}
                 />
                 <SentryRoute
-                  component={ApplicationListLoader}
+                  component={SignupSuccess}
                   exact
                   path={SIGNUP_SUCCESS_URL}
                 />
-                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
-                <SentryRoute
-                  component={AppViewerLoader}
-                  path={getApplicationViewerPageURL()}
-                />
-                <SentryRoute component={UserProfile} exact path={PROFILE} />
-                <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
+
+                <SentryRoute component={UserProfile} path={PROFILE} />
                 <SentryRoute
                   component={UnsubscribeEmail}
                   path={UNSUBSCRIBE_EMAIL_URL}
+                />
+                <SentryRoute component={Setup} exact path={SETUP} />
+                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
+                <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
+                <Redirect
+                  exact
+                  from={ADMIN_SETTINGS_URL}
+                  to={ADMIN_SETTINGS_CATEGORY_DEFAULT_URL}
+                />
+                <SentryRoute
+                  component={Settings}
+                  exact
+                  path={ADMIN_SETTINGS_CATEGORY_URL}
                 />
                 <SentryRoute component={PageNotFound} />
               </Switch>
@@ -134,12 +159,14 @@ const mapStateToProps = (state: AppState) => ({
   currentTheme: getCurrentThemeDetails(state),
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
+  featureFlagsFetched: getFeatureFlagsFetched(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   setTheme: (mode: ThemeMode) => {
     dispatch(setThemeMode(mode));
   },
+  getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

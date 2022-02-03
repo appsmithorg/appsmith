@@ -9,6 +9,9 @@ curl-fail() {
 	code="$(curl --insecure --silent --show-error --output "$outfile" --write-out "%{http_code}" "$@")"
 	if [[ $code -lt 200 || $code -gt 302 ]] ; then
 		cat "$outfile" >&2
+		# Need below line because cURL doesn't print a final newline and that messes the logs in CloudWatch.
+		echo
+		cat "$CODEBUILD_SRC_DIR/logs/server.log"
 		return 22
 	fi
 	cat "$outfile"
@@ -111,11 +114,11 @@ fi
 # Create test users.
 # Note: The USERNAME values must be valid email addresses, or the signup API calls will fail.
 export CYPRESS_USERNAME=cy@example.com
-export CYPRESS_PASSWORD=cypas
+export CYPRESS_PASSWORD=cypress-password
 export CYPRESS_TESTUSERNAME1=cy1@example.com
-export CYPRESS_TESTPASSWORD1=cypas1
+export CYPRESS_TESTPASSWORD1=cypress-password1
 export CYPRESS_TESTUSERNAME2=cy2@example.com
-export CYPRESS_TESTPASSWORD2=cypas2
+export CYPRESS_TESTPASSWORD2=cypress-password2
 curl-fail -v -d "email=$CYPRESS_USERNAME" -d "password=$CYPRESS_PASSWORD" 'https://dev.appsmith.com/api/v1/users'
 curl-fail -v -d "email=$CYPRESS_TESTUSERNAME1" -d "password=$CYPRESS_TESTPASSWORD1" 'https://dev.appsmith.com/api/v1/users'
 curl-fail -v -d "email=$CYPRESS_TESTUSERNAME2" -d "password=$CYPRESS_TESTPASSWORD2" 'https://dev.appsmith.com/api/v1/users'

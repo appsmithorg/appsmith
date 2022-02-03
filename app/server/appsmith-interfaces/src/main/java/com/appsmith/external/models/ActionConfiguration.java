@@ -5,11 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
-import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
@@ -56,7 +57,11 @@ public class ActionConfiguration implements AppsmithDomain {
     // DB action fields
 
     // JS action fields
-    String jsFunction;
+    // Body, the raw class data, is shared with API type actions
+    // Represents the values that need to be
+    List<JSValue> jsArguments;
+    Boolean isAsync;
+    Boolean isValid;
 
     /*
      * Future plugins could require more fields that are not covered above.
@@ -65,11 +70,19 @@ public class ActionConfiguration implements AppsmithDomain {
      */
     List<Property> pluginSpecifiedTemplates;
 
+    /*
+     * After porting plugins to UQI, we should be able to use a map for referring to form data
+     * instead of a list of properties
+     */
+    Map<String, Object> formData;
+
+    @Transient
+    String templateName;
+
     public void setTimeoutInMillisecond(String timeoutInMillisecond) {
         try {
             this.timeoutInMillisecond = Integer.valueOf(timeoutInMillisecond);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             System.out.println("Failed to convert timeout request parameter to Integer. Setting it to max valid " +
                     "value.");
             this.timeoutInMillisecond = MAX_TIMEOUT_VALUE;

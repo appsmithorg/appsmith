@@ -1,23 +1,24 @@
 import * as generators from "../utils/generators";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import {
   migrateChartDataFromArrayToObject,
   migrateToNewLayout,
   migrateInitialValues,
-  extractCurrentDSL,
-} from "./WidgetPropsUtils";
+  migrateToNewMultiSelect,
+} from "./DSLMigrations";
 import {
   buildChildren,
   widgetCanvasFactory,
   buildDslWithChildren,
 } from "test/factories/WidgetFactoryUtils";
 import { cloneDeep } from "lodash";
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { extractCurrentDSL } from "./WidgetPropsUtils";
 
 describe("WidgetProps tests", () => {
   it("it checks if array to object migration functions for chart widget ", () => {
     const input = {
-      type: WidgetTypes.CANVAS_WIDGET,
+      type: "CANVAS_WIDGET",
       widgetId: "0",
       widgetName: "canvas",
       parentColumnSpace: 1,
@@ -42,7 +43,7 @@ describe("WidgetProps tests", () => {
           version: 17,
           isLoading: false,
           renderMode: RenderModes.CANVAS,
-          type: WidgetTypes.CHART_WIDGET,
+          type: "CHART_WIDGET",
           chartData: [
             {
               seriesName: "seris1",
@@ -60,7 +61,7 @@ describe("WidgetProps tests", () => {
     const result = migrateChartDataFromArrayToObject(input);
 
     const output = {
-      type: WidgetTypes.CANVAS_WIDGET,
+      type: "CANVAS_WIDGET",
       widgetId: "0",
       widgetName: "canvas",
       parentColumnSpace: 1,
@@ -85,7 +86,7 @@ describe("WidgetProps tests", () => {
           version: 17,
           isLoading: false,
           renderMode: RenderModes.CANVAS,
-          type: WidgetTypes.CHART_WIDGET,
+          type: "CHART_WIDGET",
           dynamicBindingPathList: [],
           chartData: {
             "some-random-key": {
@@ -174,7 +175,7 @@ describe("Initial value migration test", () => {
     snapRows: 33,
     isLoading: false,
     parentRowSpace: 1,
-    type: WidgetTypes.CANVAS_WIDGET,
+    type: "CANVAS_WIDGET",
     renderMode: RenderModes.CANVAS,
     canExtend: true,
     version: 18,
@@ -198,7 +199,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: WidgetTypes.INPUT_WIDGET,
+          type: "INPUT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -242,25 +243,27 @@ describe("Initial value migration test", () => {
     expect(migrateInitialValues(input)).toEqual(output);
   });
 
-  it("DROP_DOWN_WIDGET", () => {
+  it("SELECT_WIDGET", () => {
     const input = {
       ...containerWidget,
       children: [
         {
           widgetName: "Select1",
           rightColumn: 6,
+          selectionType: "SINGLE_SELECT",
           widgetId: "1e3ytl2pl9",
           topRow: 3,
           bottomRow: 4,
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: WidgetTypes.DROP_DOWN_WIDGET,
+          isRequired: false,
+          isDisabled: false,
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
           defaultOptionValue: "GREEN",
-          selectionType: "SINGLE_SELECT",
           parentColumnSpace: 67.375,
           renderMode: RenderModes.CANVAS,
           leftColumn: 1,
@@ -294,12 +297,12 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: WidgetTypes.DROP_DOWN_WIDGET,
+          selectionType: "SINGLE_SELECT",
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
           defaultOptionValue: "GREEN",
-          selectionType: "SINGLE_SELECT",
           parentColumnSpace: 67.375,
           renderMode: "CANVAS",
           leftColumn: 1,
@@ -317,7 +320,6 @@ describe("Initial value migration test", () => {
               value: "RED",
             },
           ],
-          // following properties get added
           isRequired: false,
           isDisabled: false,
         },
@@ -325,6 +327,92 @@ describe("Initial value migration test", () => {
     };
 
     expect(migrateInitialValues(input)).toEqual(output);
+  });
+
+  it("MULTI_SELECT_WIDGET", () => {
+    const input = {
+      ...containerWidget,
+      children: [
+        {
+          widgetName: "Select2",
+          rightColumn: 59,
+          isFilterable: true,
+          widgetId: "zvgz9h4fh4",
+          topRow: 10,
+          bottomRow: 14,
+          parentRowSpace: 10,
+          isVisible: true,
+          label: "",
+          type: "DROP_DOWN_WIDGET",
+          version: 1,
+          parentId: "0y8sg136kg",
+          isLoading: false,
+          defaultOptionValue: "GREEN",
+          selectionType: "MULTI_SELECT",
+          parentColumnSpace: 8.35546875,
+          dynamicTriggerPathList: [],
+          leftColumn: 39,
+          dynamicBindingPathList: [],
+          renderMode: RenderModes.CANVAS,
+          options: [
+            {
+              label: "Blue",
+              value: "BLUE",
+            },
+            {
+              label: "Green",
+              value: "GREEN",
+            },
+            {
+              label: "Red",
+              value: "RED",
+            },
+          ],
+        },
+      ],
+    };
+
+    const output = {
+      ...containerWidget,
+      children: [
+        {
+          renderMode: RenderModes.CANVAS,
+          type: "MULTI_SELECT_WIDGET",
+          widgetName: "Select2",
+          rightColumn: 59,
+          widgetId: "zvgz9h4fh4",
+          topRow: 10,
+          bottomRow: 14,
+          parentRowSpace: 10,
+          isVisible: true,
+          label: "",
+          version: 1,
+          parentId: "0y8sg136kg",
+          isLoading: false,
+          defaultOptionValue: "GREEN",
+          parentColumnSpace: 8.35546875,
+          dynamicTriggerPathList: [],
+          leftColumn: 39,
+          dynamicBindingPathList: [],
+          options: [
+            {
+              label: "Blue",
+              value: "BLUE",
+            },
+            {
+              label: "Green",
+              value: "GREEN",
+            },
+            {
+              label: "Red",
+              value: "RED",
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(migrateToNewMultiSelect(input)).toEqual(output);
   });
 
   it("DATE_PICKER_WIDGET2", () => {
@@ -343,7 +431,7 @@ describe("Initial value migration test", () => {
           isVisible: true,
           datePickerType: "DATE_PICKER",
           label: "",
-          type: WidgetTypes.DATE_PICKER_WIDGET2,
+          type: "DATE_PICKER_WIDGET2",
           renderMode: RenderModes.CANVAS,
           version: 2,
           parentId: "0",
@@ -370,7 +458,7 @@ describe("Initial value migration test", () => {
           isVisible: true,
           datePickerType: "DATE_PICKER",
           label: "",
-          type: WidgetTypes.DATE_PICKER_WIDGET2,
+          type: "DATE_PICKER_WIDGET2",
           renderMode: RenderModes.CANVAS,
           version: 2,
           parentId: "0",
@@ -402,7 +490,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "Label",
-          type: WidgetTypes.SWITCH_WIDGET,
+          type: "SWITCH_WIDGET",
           renderMode: RenderModes.CANVAS,
           defaultSwitchState: true,
           version: 1,
@@ -427,7 +515,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "Label",
-          type: WidgetTypes.SWITCH_WIDGET,
+          type: "SWITCH_WIDGET",
           renderMode: RenderModes.CANVAS,
           defaultSwitchState: true,
           version: 1,
@@ -458,11 +546,11 @@ describe("Initial value migration test", () => {
           bottomRow: 10,
           parentRowSpace: 40,
           isVisible: true,
-          type: WidgetTypes.VIDEO_WIDGET,
+          type: "VIDEO_WIDGET",
           renderMode: RenderModes.CANVAS,
           version: 1,
           onPlay: "",
-          url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+          url: "https://assets.appsmith.com/widgets/bird.mp4",
           parentId: "0",
           isLoading: false,
           parentColumnSpace: 67.375,
@@ -483,11 +571,11 @@ describe("Initial value migration test", () => {
           bottomRow: 10,
           parentRowSpace: 40,
           isVisible: true,
-          type: WidgetTypes.VIDEO_WIDGET,
+          type: "VIDEO_WIDGET",
           renderMode: RenderModes.CANVAS,
           version: 1,
           onPlay: "",
-          url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+          url: "https://assets.appsmith.com/widgets/bird.mp4",
           parentId: "0",
           isLoading: false,
           parentColumnSpace: 67.375,
@@ -516,7 +604,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "Label",
-          type: WidgetTypes.CHECKBOX_WIDGET,
+          type: "CHECKBOX_WIDGET",
           renderMode: RenderModes.CANVAS,
           version: 1,
           alignWidget: "LEFT",
@@ -540,7 +628,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "Label",
-          type: WidgetTypes.CHECKBOX_WIDGET,
+          type: "CHECKBOX_WIDGET",
           renderMode: RenderModes.CANVAS,
           version: 1,
           alignWidget: "LEFT",
@@ -572,7 +660,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: WidgetTypes.RADIO_GROUP_WIDGET,
+          type: "RADIO_GROUP_WIDGET",
           renderMode: RenderModes.CANVAS,
           version: 1,
           parentId: "0",
@@ -605,7 +693,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: WidgetTypes.RADIO_GROUP_WIDGET,
+          type: "RADIO_GROUP_WIDGET",
           renderMode: RenderModes.CANVAS,
           version: 1,
           parentId: "0",
@@ -648,7 +736,7 @@ describe("Initial value migration test", () => {
           isVisible: true,
           label: "Select Files",
           maxFileSize: 5,
-          type: WidgetTypes.FILE_PICKER_WIDGET,
+          type: "FILE_PICKER_WIDGET",
           renderMode: RenderModes.CANVAS,
           version: 1,
           fileDataType: "Base64",
@@ -676,7 +764,7 @@ describe("Initial value migration test", () => {
           isVisible: true,
           label: "Select Files",
           maxFileSize: 5,
-          type: WidgetTypes.FILE_PICKER_WIDGET,
+          type: "FILE_PICKER_WIDGET",
           renderMode: RenderModes.CANVAS,
           version: 1,
           fileDataType: "Base64",

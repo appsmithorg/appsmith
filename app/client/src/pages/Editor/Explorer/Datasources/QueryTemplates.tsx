@@ -2,23 +2,25 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { QueryAction } from "entities/Action";
 import { Classes } from "@blueprintjs/core";
 import history from "utils/history";
 import { Datasource, QueryTemplate } from "entities/Datasource";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.queryTemplate.bg};
   color: ${(props) => props.theme.colors.textOnDarkBG};
-  width: 250px;
+  min-width: 160px;
+  padding: 5px;
 `;
 
 const TemplateType = styled.div`
@@ -26,8 +28,7 @@ const TemplateType = styled.div`
   padding: 8px;
   &:hover {
     cursor: pointer;
-    color: ${Colors.WHITE};
-    background: ${Colors.TUNDORA};
+    background: ${Colors.Gallery};
   }
 `;
 
@@ -38,7 +39,7 @@ type QueryTemplatesProps = {
 
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
-  const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
@@ -51,6 +52,8 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         actionConfiguration: {
           body: template.body,
           pluginSpecifiedTemplates: template.pluginSpecifiedTemplates,
+          formData: template.configuration,
+          ...template.actionConfiguration,
         },
       };
 
@@ -71,7 +74,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       );
       history.push(
         INTEGRATION_EDITOR_URL(
-          params.applicationId,
+          applicationId,
           currentPageId,
           INTEGRATION_TABS.ACTIVE,
         ),
@@ -81,7 +84,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       dispatch,
       actions,
       currentPageId,
-      params.applicationId,
+      applicationId,
       props.datasourceId,
       dataSource,
     ],

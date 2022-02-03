@@ -5,7 +5,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import QueryImageOutline from "assets/images/query-image-outline.png";
 import styled from "styled-components";
 import {
   HTTP_METHODS,
@@ -13,13 +12,16 @@ import {
 } from "constants/ApiEditorConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
+import { ControlIcons } from "icons/ControlIcons";
+import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
+import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 
-const ENTITY_ICON_SIZE = 14;
+export const ENTITY_ICON_SIZE = 16;
 
 const PagesIcon = MenuIcons.PAGES_ICON;
 export const pageGroupIcon = (
   <PagesIcon
-    color={Colors.ALTO}
+    color={Colors.CHARCOAL}
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
@@ -28,56 +30,77 @@ export const pageGroupIcon = (
 const PageIcon = MenuIcons.PAGE_ICON;
 export const pageIcon = (
   <PageIcon
-    color={Colors.ALTO}
+    color={Colors.CHARCOAL}
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
 );
 
 export const homePageIcon = (
-  <Icon color={Colors.JUNGLE_GREEN} icon="home" iconSize={ENTITY_ICON_SIZE} />
+  <Icon color={Colors.CHARCOAL} icon="home" iconSize={ENTITY_ICON_SIZE} />
 );
 
+const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
+export const defaultPageIcon = (
+  <DefaultPageIcon
+    color={Colors.GREEN}
+    data-icon="home"
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
+);
+
+const HiddenPageIcon = MenuIcons.EYES_OFF_ICON;
 export const hiddenPageIcon = (
-  <Icon color={Colors.ALTO} icon="eye-off" iconSize={ENTITY_ICON_SIZE} />
+  <HiddenPageIcon
+    color={Colors.CHARCOAL}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
 );
 
-const WidgetIcon = MenuIcons.WIDGETS_COLORED_ICON;
+const WidgetIcon = MenuIcons.WIDGETS_ICON;
 export const widgetIcon = (
   <WidgetIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
-const ApiIcon = MenuIcons.APIS_COLORED_ICON;
-export const apiIcon = (
-  <ApiIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
-);
-
-const DBQueryIcon = MenuIcons.DATASOURCES_COLORED_ICON;
+const DBQueryIcon = MenuIcons.DATASOURCE_ICON_v2;
 export const dbQueryIcon = (
   <DBQueryIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
-const QueryIconWrapper = styled.div`
-  position: relative;
-  .inner-image {
-    position: absolute;
-    top: 5px;
-    left: 1.1px;
-    height: 11px;
-    width: 11px;
-  }
-  .outer-image {
-    height: 18px;
-    width: 14px;
-  }
-`;
+const JSIcon = MenuIcons.JS_ICON_V2;
+export const jsIcon = (
+  <JSIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
+);
 
-export function QueryIcon(props: { plugin: Plugin }) {
+const JSFileIcon = MenuIcons.JS_FILE_ICON;
+export const jsFileIcon = (
+  <JSFileIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
+);
+
+const JSFunctionIcon = MenuIcons.JS_FUNCTION_ICON;
+export const jsFunctionIcon = (
+  <JSFunctionIcon
+    height={ENTITY_ICON_SIZE}
+    keepColors
+    width={ENTITY_ICON_SIZE}
+  />
+);
+
+const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
+export const settingsIcon = (
+  <SettingsIcon color={Colors.CODE_GRAY} height={16} width={16} />
+);
+
+const QueryMainIcon = MenuIcons.QUERY_MAIN;
+export function QueryIcon() {
   return (
-    <QueryIconWrapper>
-      <img className="inner-image" src={props.plugin.iconLocation} />
-      <img className="outer-image" src={QueryImageOutline} />
-    </QueryIconWrapper>
+    <QueryMainIcon
+      color={Colors.CHARCOAL}
+      height={ENTITY_ICON_SIZE}
+      width={ENTITY_ICON_SIZE}
+    />
   );
 }
 
@@ -169,3 +192,136 @@ export function MethodTag(props: { type: typeof HTTP_METHODS[number] }) {
     </StyledTag>
   );
 }
+
+const CurrentPageIcon = MenuIcons.CURRENT_PAGE_ICON;
+export const currentPageIcon = (
+  <CurrentPageIcon
+    color={Colors.CHARCOAL}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
+);
+
+const SortIcon = MenuIcons.SORT_ICON;
+export const SortFileIcon = (
+  <SortIcon
+    color={Colors.CHARCOAL}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
+);
+
+/**
+ * Entity Icon components
+ */
+
+type EntityTextIconProps = {
+  children: React.ReactNode;
+  textColor?: string;
+};
+
+const EntityTextIconWrapper = styled.div<{ color?: string }>`
+  color: ${({ color }) => (color ? color : Colors.SCORPION)};
+  font-size: 56%;
+  font-weight: 900;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 2px;
+`;
+
+function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
+  return (
+    <EntityTextIconWrapper color={props.textColor}>
+      {props.children}
+    </EntityTextIconWrapper>
+  );
+}
+
+const EntityIconWrapper = styled.div<{
+  borderColor?: string;
+  width?: string;
+  height?: string;
+  noBorder?: boolean;
+  bgColor?: string;
+}>`
+  height: ${({ height }) => (height ? height : "18px")};
+  width: ${({ width }) => (width ? width : "18px")};
+  background: ${({ bgColor }) => bgColor ?? Colors.WHITE};
+  border: ${({ borderColor, noBorder }) =>
+    noBorder ? "none" : `1.5px solid ${borderColor ?? Colors.SCORPION}`};
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  svg,
+  img {
+    height: 12px !important;
+    width: 12px !important;
+  }
+`;
+
+type EntityIconType = {
+  children: React.ReactNode;
+  borderColor?: string;
+  width?: string;
+  height?: string;
+  noBorder?: boolean;
+  bgColor?: string;
+};
+
+function EntityIcon(props: EntityIconType): JSX.Element {
+  return (
+    <EntityIconWrapper
+      bgColor={props.bgColor}
+      borderColor={props.borderColor}
+      height={props.height}
+      noBorder={props.noBorder}
+      width={props.width}
+    >
+      {props.children}
+    </EntityIconWrapper>
+  );
+}
+
+EntityIcon.textIcon = EntityTextIcon;
+export { EntityIcon };
+
+/** ======= Entity Icon components ends ====== */
+
+export function ApiMethodIcon(props: { type: typeof HTTP_METHODS[number] }) {
+  return (
+    <EntityIcon borderColor={HTTP_METHOD_COLOR_MAP[props.type]} width={"36px"}>
+      <EntityIcon.textIcon textColor={HTTP_METHOD_COLOR_MAP[props.type]}>
+        {props.type}
+      </EntityIcon.textIcon>
+    </EntityIcon>
+  );
+}
+
+export function DefaultApiIcon() {
+  return (
+    <EntityIcon>
+      <ApiIcon />
+    </EntityIcon>
+  );
+}
+
+export function CurlIconV2() {
+  return (
+    <EntityIcon>
+      <CurlIcon />
+    </EntityIcon>
+  );
+}
+
+export const JsFileIconV2 = (
+  <EntityIcon>
+    <EntityIcon.textIcon>JS</EntityIcon.textIcon>
+  </EntityIcon>
+);

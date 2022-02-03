@@ -10,7 +10,7 @@ import NotFound from "pages/common/NotFound";
 import { AppState } from "reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { SaaSAction } from "entities/Action";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -20,7 +20,10 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import styled from "styled-components";
 import { Spinner, Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
 const IntegrationHomePage = styled.div`
@@ -29,7 +32,7 @@ const IntegrationHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  flex: 1;
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -60,6 +63,7 @@ interface StateProps {
   datasources: Datasource[];
   isCreating: boolean;
   isEditorInitialized: boolean;
+  applicationId: string;
 }
 
 interface DispatchFunctions {
@@ -68,7 +72,6 @@ interface DispatchFunctions {
 }
 
 type RouteProps = RouteComponentProps<{
-  applicationId: string;
   pageId: string;
   pluginPackageName: string;
 }>;
@@ -159,9 +162,10 @@ class ListView extends React.Component<Props> {
 
   renderNotFound() {
     const {
+      applicationId,
       history,
       match: {
-        params: { applicationId, pageId },
+        params: { pageId },
       },
     } = this.props;
     return (
@@ -199,6 +203,7 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
     datasources: datasources,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

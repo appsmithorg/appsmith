@@ -1,0 +1,60 @@
+{
+  "identifier": "UPDATE",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'UPDATE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Collection to Query",
+      "children": [
+        {
+          "label": "Collection",
+          "configProperty": "actionConfiguration.formData.collection",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE"
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description" : "Optional",
+      "children": [
+        {
+          "label": "Query",
+          "configProperty": "actionConfiguration.formData.updateMany.query",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText" : "{rating : {$gte : 9}}"
+        },
+        {
+          "label": "Update",
+          "configProperty": "actionConfiguration.formData.updateMany.update",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText" : "{ $inc: { score: 1 } }"
+        },
+        {
+          "label": "Limit",
+          "configProperty": "actionConfiguration.formData.updateMany.limit",
+          "controlType": "DROP_DOWN",
+          "initialValue": "SINGLE",
+          "options": [
+            {
+              "label": "Single Document",
+              "value": "SINGLE"
+            },
+            {
+              "label": "All Matching Documents",
+              "value": "ALL"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

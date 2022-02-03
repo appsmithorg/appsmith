@@ -24,6 +24,9 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.utils.MongoErrorUtils;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
@@ -63,26 +66,25 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.MongoPluginUtils.convertMongoFormInputToRawCommand;
-import static com.external.plugins.MongoPluginUtils.generateTemplatesAndStructureForACollection;
-import static com.external.plugins.MongoPluginUtils.getDatabaseName;
-import static com.external.plugins.MongoPluginUtils.isRawCommand;
-import static com.external.plugins.MongoPluginUtils.urlEncode;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
-import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
-import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
-import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_SORT;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_UPDATE;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_UPDATE;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
+import static com.external.plugins.constants.FieldName.COUNT_QUERY;
+import static com.external.plugins.constants.FieldName.DELETE_QUERY;
+import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
+import static com.external.plugins.constants.FieldName.FIND_PROJECTION;
+import static com.external.plugins.constants.FieldName.FIND_QUERY;
+import static com.external.plugins.constants.FieldName.FIND_SORT;
+import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
+import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
+import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -109,25 +111,40 @@ public class MongoPlugin extends BasePlugin {
 
     /*
      * - The regex matches the following two pattern types:
-     *   - mongodb+srv://user:pass@some-url/some-db....
-     *   - mongodb://user:pass@some-url:port,some-url:port,../some-db....
-     * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/(some-db....))
+     *   - mongodb+srv://user:pass@some-url/some-db...
+     *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
+     * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
      */
-    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))(@.+\\/(.+))$";
+    private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
+
+    /**
+     * This regex matches the following two patterns:
+     *   - "ObjectId(someId)"  // will not match without outer double quotes
+     *     - Group 1 = "ObjectId(someId)"
+     *     - Group 2 = ObjectId(someId) // no quotes
+     *   - 'ObjectId(someId)'  // will not match without outer single quotes
+     *      - Group 3 = 'ObjectId(someId)'
+     *      - Group 4 = ObjectId(someId) // not quotes
+     */
+    private static final String OBJECT_ID_INSIDE_QUOTES_REGEX = "(\\\"(ObjectId\\(.*?\\))\\\")|('(ObjectId\\(.*?\\))')";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
-    private static final int REGEX_GROUP_USERNAME = 4;
+    private static final int REGEX_GROUP_USERNAME = 2;
 
-    private static final int REGEX_GROUP_PASSWORD = 5;
+    private static final int REGEX_GROUP_PASSWORD = 3;
+
+    private static final int REGEX_HOST_PORT = 4;
+
+    private static final int REGEX_GROUP_DBNAME = 5;
 
     private static final int REGEX_GROUP_TAIL = 6;
-
-    private static final int REGEX_GROUP_DBNAME = 7;
 
     private static final String KEY_USERNAME = "username";
 
     private static final String KEY_PASSWORD = "password";
+
+    private static final String KEY_HOST_PORT = "hostPort";
 
     private static final String KEY_URI_HEAD = "uriHead";
 
@@ -143,7 +160,7 @@ public class MongoPlugin extends BasePlugin {
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<Integer> bsonFields = new HashSet<>(Arrays.asList(AGGREGATE_PIPELINE,
+    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(AGGREGATE_PIPELINE,
             COUNT_QUERY,
             DELETE_QUERY,
             DISTINCT_QUERY,
@@ -152,11 +169,10 @@ public class MongoPlugin extends BasePlugin {
             FIND_PROJECTION,
             INSERT_DOCUMENT,
             UPDATE_QUERY,
-            UPDATE_UPDATE,
-            UPDATE_ONE_QUERY,
-            UPDATE_ONE_SORT,
-            UPDATE_ONE_UPDATE
+            UPDATE_OPERATION
     ));
+
+    private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -186,37 +202,28 @@ public class MongoPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            Boolean smartBsonSubstitution;
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+
+            final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            // Default smart substitution to true
-            if (CollectionUtils.isEmpty(properties)) {
+            Boolean smartBsonSubstitution = TRUE;
 
-                smartBsonSubstitution = true;
-
-                // Since properties is not empty, we are guaranteed to find the first property.
-            } else if (properties.get(SMART_BSON_SUBSTITUTION) != null) {
-                Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION).getValue();
-                if (ssubValue instanceof Boolean) {
-                    smartBsonSubstitution = (Boolean) ssubValue;
-                } else if (ssubValue instanceof String) {
-                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
-                } else {
-                    smartBsonSubstitution = true;
-                }
-            } else {
-                smartBsonSubstitution = true;
+            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            if (smartSubstitutionObject instanceof Boolean) {
+                smartBsonSubstitution = (Boolean) smartSubstitutionObject;
+            } else if (smartSubstitutionObject instanceof String) {
+                // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
+                // directly. This is to ensure we are backward compatible
+                smartBsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
             if (TRUE.equals(smartBsonSubstitution)) {
 
                 // If not raw, then it must be form input.
-                if (!isRawCommand(actionConfiguration.getPluginSpecifiedTemplates())) {
-                    List<Property> updatedTemplates = smartSubstituteFormCommand(actionConfiguration.getPluginSpecifiedTemplates(),
+                if (!isRawCommand(formData)) {
+                    smartSubstituteFormCommand(formData,
                             executeActionDTO.getParams(), parameters);
-                    actionConfiguration.setPluginSpecifiedTemplates(updatedTemplates);
                 } else {
                     // For raw queries do smart replacements in BSON body
                     if (actionConfiguration.getBody() != null) {
@@ -287,6 +294,7 @@ public class MongoPlugin extends BasePlugin {
                     .onErrorMap(
                             MongoCommandException.class,
                             error -> new AppsmithPluginException(
+                                    error,
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
@@ -359,8 +367,17 @@ public class MongoPlugin extends BasePlugin {
                                  */
                                 if (outputJson.has(VALUES)) {
                                     JSONArray outputResult = (JSONArray) cleanUp(
-                                            outputJson.getJSONArray("values"));
-                                    result.setBody(objectMapper.readTree(outputResult.toString()));
+                                            outputJson.getJSONArray(VALUES));
+
+                                    ObjectNode resultNode = objectMapper.createObjectNode();
+
+                                    // Create a JSON structure with the results stored with a key to abide by the
+                                    // Server-Client contract of only sending array of objects in result.
+                                    resultNode
+                                            .putArray(VALUES)
+                                            .addAll((ArrayNode) objectMapper.readTree(outputResult.toString()));
+
+                                    result.setBody(objectMapper.readTree(resultNode.toString()));
                                 }
 
                                 /** TODO
@@ -385,7 +402,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        actionExecutionResult.setErrorInfo(error);
+                        actionExecutionResult.setErrorInfo(error, mongoErrorUtils);
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -404,6 +421,65 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        /**
+         * This method is part of the pre-processing of the replacement value before the final substitution that
+         * happens as part of smart substitution process.
+         *
+         * @param replacementValue - value to be substituted
+         * @return - updated replacement value
+         */
+        @Override
+        public String sanitizeReplacement(String replacementValue) {
+            replacementValue = removeQuotesAroundObjectId(replacementValue);
+
+            return replacementValue;
+        }
+
+        /**
+         * This method is meant to remove extra quotes around the `ObjectId(...)` string. E.g. if the input query is
+         * "... {$in: [\"ObjectId(\"123\")\"]}" then the output query will be "... {$in: [ObjectId(\"123\")]}".
+         *
+         * @param query - input query
+         * @return - query obtained after removing quotes around ObjectId string.
+         */
+        private String removeQuotesAroundObjectId(String query) {
+            Map<String, String> objectIdMap = new HashMap();
+
+            Pattern pattern = Pattern.compile(OBJECT_ID_INSIDE_QUOTES_REGEX);
+            Matcher matcher = pattern.matcher(query);
+            while (matcher.find()) {
+                String objectIdWithQuotes;
+                String objectIdWithoutQuotes;
+
+                /**
+                 * `If` branch will match when ObjectId is wrapped within double quotes e.g. "ObjectId(someId)"
+                 *   - Group 1 = "ObjectId(someId)"
+                 *   - Group 2 = ObjectId(someId) // no quotes
+                 * `Else` branch will match when ObjectId is wrapped within single quotes e.g. 'ObjectId(someId)'
+                 *   - Group 3 = 'ObjectId(someId)'
+                 *   - Group 4 = ObjectId(someId) // no quotes
+                 */
+                if (matcher.group(1) != null) {
+                    objectIdWithQuotes = matcher.group(1);
+                    objectIdWithoutQuotes = matcher.group(2);
+                }
+                else {
+                    objectIdWithQuotes = matcher.group(3);
+                    objectIdWithoutQuotes = matcher.group(4);
+                }
+
+                objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
+            }
+
+            for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
+                String objectIdWithQuotes = (entry).getKey();
+                String objectIdWithoutQuotes = (entry).getValue();
+                query = query.replace(objectIdWithQuotes, objectIdWithoutQuotes);
+            }
+
+            return query;
+        }
+
         private String smartSubstituteBSON(String rawQuery,
                                            List<Param> params,
                                            List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
@@ -411,7 +487,7 @@ public class MongoPlugin extends BasePlugin {
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
             // Replace all the bindings with a ? as expected in a prepared statement.
-            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(rawQuery, mustacheKeysInOrder);
+            String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(rawQuery, mustacheKeysInOrder);
 
             updatedQuery = (String) smartSubstitutionOfBindings(updatedQuery,
                     mustacheKeysInOrder,
@@ -421,19 +497,26 @@ public class MongoPlugin extends BasePlugin {
             return updatedQuery;
         }
 
-        private List<Property> smartSubstituteFormCommand(List<Property> templates,
-                                                          List<Param> params,
-                                                          List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
+        /**
+         * !!!WARNING!!! : formData gets updated as part of this flow (and hence is not being returned)
+         * This function replaces the mustache variables using smart substitution and updates the existing formData
+         * with the values post substitution
+         * @param formData
+         * @param params
+         * @param parameters
+         * @throws AppsmithPluginException
+         */
+        private void smartSubstituteFormCommand(Map<String, Object> formData,
+                                                List<Param> params,
+                                                List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
 
-            for (int i = 0; i < templates.size(); i++) {
-                if (validConfigurationPresent(templates, i) && bsonFields.contains(i)) {
-                    Property configuration = templates.get(i);
-                    // Do Smart Substitution for each BSON field
-                    configuration.setValue(smartSubstituteBSON((String) configuration.getValue(), params, parameters));
+            for (String bsonField : bsonFields) {
+                if (validConfigurationPresentInFormData(formData, bsonField)) {
+                    String preSmartSubValue = (String) getValueSafelyFromFormData(formData, bsonField);
+                    String postSmartSubValue = smartSubstituteBSON(preSmartSubValue, params, parameters);
+                    setValueSafelyInFormData(formData, bsonField, postSmartSubValue);
                 }
             }
-
-            return templates;
         }
 
         @Override
@@ -499,13 +582,12 @@ public class MongoPlugin extends BasePlugin {
                 Matcher matcher = pattern.matcher(uri);
                 if (matcher.find()) {
                     Map extractedInfoMap = new HashMap();
-                    String username = matcher.group(REGEX_GROUP_USERNAME);
-                    extractedInfoMap.put(KEY_USERNAME, username == null ? "" : username);
-                    String password = matcher.group(REGEX_GROUP_PASSWORD);
-                    extractedInfoMap.put(KEY_PASSWORD, password == null ? "" : password);
                     extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
+                    extractedInfoMap.put(KEY_USERNAME, matcher.group(REGEX_GROUP_USERNAME));
+                    extractedInfoMap.put(KEY_PASSWORD, matcher.group(REGEX_GROUP_PASSWORD));
+                    extractedInfoMap.put(KEY_HOST_PORT, matcher.group(REGEX_HOST_PORT));
+                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME));
                     extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
-                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME).split("\\?")[0]);
                     return extractedInfoMap;
                 }
             }
@@ -513,10 +595,34 @@ public class MongoPlugin extends BasePlugin {
             return null;
         }
 
-        private String buildURIfromExtractedInfo(Map extractedInfo, String password) {
-            return extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
-                    extractedInfo.get(KEY_USERNAME) + ":") + (password == null ? "" : password)
-                    + extractedInfo.get(KEY_URI_TAIL);
+        private String buildURIFromExtractedInfo(Map extractedInfo, String password) {
+            String userInfo = "";
+            if (extractedInfo.get(KEY_USERNAME) != null) {
+                userInfo += extractedInfo.get(KEY_USERNAME) + ":";
+                if (password != null) {
+                    userInfo += password;
+                }
+                userInfo += "@";
+            }
+
+            final String dbInfo = "/" + (extractedInfo.get(KEY_URI_DBNAME) == null ? "" : extractedInfo.get(KEY_URI_DBNAME));
+
+            String tailInfo = (String) (extractedInfo.get(KEY_URI_TAIL) == null ? "" : extractedInfo.get(KEY_URI_TAIL));
+            if (StringUtils.hasLength(tailInfo)) {
+                if (!tailInfo.contains("authSource")) {
+                    tailInfo = "?" + tailInfo + "&authSource=admin";
+                } else {
+                    tailInfo = "?" + tailInfo;
+                }
+            } else {
+                tailInfo = "?authSource=admin";
+            }
+
+            return extractedInfo.get(KEY_URI_HEAD)
+                    + userInfo
+                    + extractedInfo.get(KEY_HOST_PORT)
+                    + dbInfo
+                    + tailInfo;
         }
 
         public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -528,7 +634,7 @@ public class MongoPlugin extends BasePlugin {
                     Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
                     if (extractedInfo != null) {
                         String password = ((DBAuth) datasourceConfiguration.getAuthentication()).getPassword();
-                        return buildURIfromExtractedInfo(extractedInfo, password);
+                        return buildURIFromExtractedInfo(extractedInfo, password);
                     } else {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -692,7 +798,7 @@ public class MongoPlugin extends BasePlugin {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
                         } else if (!isAuthenticated(authentication, mongoUri)) {
-                            String mongoUriWithHiddenPassword = buildURIfromExtractedInfo(extractedInfo, "****");
+                            String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
                             authentication = (authentication == null) ? new DBAuth() : authentication;
                             authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
@@ -799,7 +905,7 @@ public class MongoPlugin extends BasePlugin {
                             return Mono.just(new DatasourceTestResult());
                         }
 
-                        return Mono.just(new DatasourceTestResult(error.getMessage()));
+                        return Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(error)));
                     })
                     .subscribeOn(scheduler);
         }
@@ -869,7 +975,7 @@ public class MongoPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, this);
         }
 
         @Override
@@ -894,7 +1000,7 @@ public class MongoPlugin extends BasePlugin {
 
             } else if (isSingleKey && "$date".equals(jsonObject.keys().next())) {
                 return DateTimeFormatter.ISO_INSTANT.format(
-                        Instant.ofEpochMilli(jsonObject.getLong("$date"))
+                        Instant.parse(jsonObject.getString("$date"))
                 );
 
             } else if (isSingleKey && "$numberDecimal".equals(jsonObject.keys().next())) {

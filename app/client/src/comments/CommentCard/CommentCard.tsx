@@ -30,8 +30,9 @@ import moment from "moment";
 import history from "utils/history";
 
 import { getAppMode } from "selectors/applicationSelectors";
+import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
-import { USER_PHOTO_URL } from "constants/userConstants";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 import { getCommentThreadURL } from "../utils";
 
@@ -55,7 +56,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
-import { getAllWidgetsMap } from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 
 const StyledContainer = styled.div`
@@ -71,6 +71,7 @@ const StyledContainer = styled.div`
 
 const CommentBodyContainer = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[4]}px;
+  color: ${(props) => props.theme.colors.comments.profileUserName};
 `;
 
 const CommentHeader = styled.div`
@@ -91,11 +92,13 @@ const UserName = styled.span`
   display: -webkit-box;
   -webkit-line-clamp: 1; /* number of lines to show */
   -webkit-box-orient: vertical;
+  word-break: break-word;
 `;
 
 const HeaderSection = styled.div`
   display: flex;
   align-items: center;
+  max-width: 100%;
 
   & ${Profile} {
     flex-shrink: 0;
@@ -276,7 +279,7 @@ function CommentCard({
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
-  const { authorName, authorUsername, body, id: commentId } = comment;
+  const { authorName, authorPhotoId, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
@@ -336,7 +339,9 @@ function CommentCard({
     setCardMode(CommentCardModes.VIEW);
   };
 
-  const widgetMap = useSelector(getAllWidgetsMap);
+  const widgetMap: Record<string, any> = useSelector(
+    widgetsMapWithParentModalId,
+  );
 
   const contextMenuProps = {
     switchToEditCommentMode,
@@ -359,10 +364,14 @@ function CommentCard({
   const handleCardClick = () => {
     if (inline) return;
     if (commentThread.widgetType) {
+      // for the view mode we use canvas widgets instead of widgets by page
+      // since we don't have the dsl for all the pages currently
       const widget = widgetMap[commentThread.refId];
-      // only needed for modal widgetMap
-      // TODO check if we can do something similar for tabs
-      if (widget.parentModalId) {
+
+      // 1. This is only needed for the modal widgetMap
+      // 2. TODO check if we can do something similar for tabs
+      // 3. getAllWidgetsMap doesn't exist for the view mode, so these won't work for the view mode
+      if (widget?.parentModalId) {
         navigateToWidget(
           commentThread.refId,
           commentThread.widgetType,
@@ -376,7 +385,8 @@ function CommentCard({
     history.push(
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
-    if (!commentThread.isViewed) {
+
+    if (!commentThread?.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
   };
@@ -400,11 +410,13 @@ function CommentCard({
   };
 
   const showOptions = visible || isHovered;
-
   const showResolveBtn =
     (showOptions || !!resolved) && isParentComment && toggleResolved;
 
   const hasReactions = !!reactions && Object.keys(reactions).length > 0;
+  const profilePhotoUrl = authorPhotoId
+    ? `/api/${USER_PHOTO_ASSET_URL}/${authorPhotoId}`
+    : "";
 
   return (
     <StyledContainer
@@ -422,7 +434,7 @@ function CommentCard({
           <Section className="pinned-by" onClick={pin}>
             {isPinned && (
               <>
-                <Icon className="pin" name="pin-3" />
+                <Icon className="pin" name="pin-3" size={IconSize.XXL} />
                 <span>Pinned By</span>
                 <strong>{` ${pinnedBy}`}</strong>
               </>
@@ -430,11 +442,11 @@ function CommentCard({
           </Section>
         </CommentSubheader>
       )}
-      <CommentHeader>
+      <CommentHeader data-cy="comments-card-header">
         <HeaderSection>
           <ProfileImage
             side={25}
-            source={`/api/${USER_PHOTO_URL}/${authorUsername}`}
+            source={profilePhotoUrl}
             userName={authorName || ""}
           />
           <UserName>{authorName}</UserName>

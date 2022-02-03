@@ -1,9 +1,11 @@
 import React from "react";
+import { Slide } from "react-toastify";
+
 import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { act, render, fireEvent } from "test/testUtils";
+import { act, render, fireEvent, waitFor } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
 import MainContainer from "./MainContainer";
 import { MemoryRouter } from "react-router-dom";
@@ -20,10 +22,14 @@ import {
 } from "test/testCommon";
 import { MockCanvas } from "test/testMockedWidgets";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-describe("Select all hotkey", () => {
+import { generateReactKey } from "utils/generators";
+import { redoAction, undoAction } from "actions/pageActions";
+import { StyledToastContainer } from "components/ads/Toast";
+import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
+
+describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
-  Element.prototype.scrollIntoView = jest.fn();
 
   function UpdatedMainContainer({ dsl }: any) {
     useMockDsl(dsl);
@@ -51,69 +57,51 @@ describe("Select all hotkey", () => {
     }));
   });
 
-  it("Cmd + A - select all widgets on canvas", () => {
-    const children: any = buildChildren([
-      { type: "TABS_WIDGET" },
-      { type: "SWITCH_WIDGET" },
-    ]);
-    const dsl: any = widgetCanvasFactory.build({
-      children,
-    });
-    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
-    mockGetIsFetchingPage.mockImplementation(() => false);
+  describe("Select all hotkey", () => {
+    it("Cmd + A - select all widgets on canvas", async () => {
+      const children: any = buildChildren([
+        { type: "TABS_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
+        { type: "SWITCH_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children,
+      });
+      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+      mockGetIsFetchingPage.mockImplementation(() => false);
 
-    const component = render(
-      <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
-      >
-        <MockApplication>
-          <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
-          </GlobalHotKeys>
-        </MockApplication>
-      </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
-    );
-    let propPane = component.queryByTestId("t--propertypane");
-    expect(propPane).toBeNull();
-    const canvasWidgets = component.queryAllByTestId("test-widget");
-    expect(canvasWidgets.length).toBe(2);
-    if (canvasWidgets[1].firstChild) {
-      fireEvent.mouseOver(canvasWidgets[1].firstChild);
-      fireEvent.click(canvasWidgets[1].firstChild);
-    }
-    propPane = component.queryByTestId("t--propertypane");
-    expect(propPane).not.toBeNull();
+      const component = render(
+        <MemoryRouter
+          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        >
+          <MockApplication>
+            <GlobalHotKeys>
+              <UpdatedMainContainer dsl={dsl} />
+            </GlobalHotKeys>
+          </MockApplication>
+        </MemoryRouter>,
+        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      );
+      let propPane = component.queryByTestId("t--propertypane");
+      expect(propPane).toBeNull();
+      const canvasWidgets = component.queryAllByTestId("test-widget");
+      expect(canvasWidgets.length).toBe(2);
+      act(() => {
+        if (canvasWidgets[0].firstChild) {
+          fireEvent.mouseOver(canvasWidgets[0].firstChild);
+          fireEvent.click(canvasWidgets[0].firstChild);
+        }
+      });
+      const tabsWidgetName: any = component.container.querySelector(
+        `span.t--widget-name`,
+      );
+      fireEvent.click(tabsWidgetName);
+      propPane = component.queryByTestId("t--propertypane");
+      expect(propPane).not.toBeNull();
 
-    const artBoard: any = component.queryByTestId("t--canvas-artboard");
-    // deselect all other widgets
-    fireEvent.click(artBoard);
+      const artBoard: any = component.queryByTestId("t--canvas-artboard");
+      // deselect all other widgets
+      fireEvent.click(artBoard);
 
-    dispatchTestKeyboardEventWithCode(
-      component.container,
-      "keydown",
-      "A",
-      65,
-      false,
-      true,
-    );
-    let selectedWidgets = component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
-    expect(selectedWidgets.length).toBe(2);
-    dispatchTestKeyboardEventWithCode(
-      component.container,
-      "keydown",
-      "escape",
-      27,
-      false,
-      false,
-    );
-    selectedWidgets = component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
-    expect(selectedWidgets.length).toBe(0);
-    act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,
         "keydown",
@@ -122,37 +110,246 @@ describe("Select all hotkey", () => {
         false,
         true,
       );
-    });
+      let selectedWidgets = component.queryAllByTestId("t--selected");
+      expect(selectedWidgets.length).toBe(2);
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "escape",
+        27,
+        false,
+        false,
+      );
+      selectedWidgets = component.queryAllByTestId("t--selected");
+      expect(selectedWidgets.length).toBe(0);
+      act(() => {
+        dispatchTestKeyboardEventWithCode(
+          component.container,
+          "keydown",
+          "A",
+          65,
+          false,
+          true,
+        );
+      });
 
-    selectedWidgets = component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
-    expect(selectedWidgets.length).toBe(2);
-    act(() => {
+      selectedWidgets = component.queryAllByTestId("t--selected");
+      expect(selectedWidgets.length).toBe(2);
+      act(() => {
+        dispatchTestKeyboardEventWithCode(
+          component.container,
+          "keydown",
+          "C",
+          67,
+          false,
+          true,
+        );
+      });
+      act(() => {
+        dispatchTestKeyboardEventWithCode(
+          component.container,
+          "keydown",
+          "V",
+          86,
+          false,
+          true,
+        );
+      });
+      selectedWidgets = component.queryAllByTestId("t--selected");
+      expect(selectedWidgets.length).toBe(2);
+    });
+    it("Cmd + A - select all widgets inside last selected container", async () => {
+      const containerId = generateReactKey();
+      const canvasId = generateReactKey();
+      const children: any = buildChildren([
+        { type: "CHECKBOX_WIDGET", parentId: canvasId },
+        { type: "SWITCH_WIDGET", parentId: canvasId },
+        { type: "BUTTON_WIDGET", parentId: canvasId },
+      ]);
+      const canvasWidget = buildChildren([
+        {
+          type: "CANVAS_WIDGET",
+          parentId: containerId,
+          children,
+          widgetId: canvasId,
+        },
+      ]);
+      const containerChildren: any = buildChildren([
+        {
+          type: "CONTAINER_WIDGET",
+          children: canvasWidget,
+          widgetId: containerId,
+          parentId: "0",
+        },
+        { type: "CHART_WIDGET", parentId: "0" },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children: containerChildren,
+      });
+      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+      mockGetIsFetchingPage.mockImplementation(() => false);
+
+      const component = render(
+        <MemoryRouter
+          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        >
+          <MockApplication>
+            <GlobalHotKeys>
+              <UpdatedMainContainer dsl={dsl} />
+            </GlobalHotKeys>
+          </MockApplication>
+        </MemoryRouter>,
+        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      );
+      const propPane = component.queryByTestId("t--propertypane");
+      expect(propPane).toBeNull();
+      const canvasWidgets = component.queryAllByTestId("test-widget");
+      expect(canvasWidgets.length).toBe(5);
+      if (canvasWidgets[0].firstChild) {
+        fireEvent.mouseOver(canvasWidgets[0].firstChild);
+        fireEvent.click(canvasWidgets[0].firstChild);
+      }
+
       dispatchTestKeyboardEventWithCode(
         component.container,
         "keydown",
-        "C",
-        67,
+        "A",
+        65,
         false,
         true,
       );
+      const selectedWidgets = component.queryAllByTestId("t--selected");
+      expect(selectedWidgets.length).toBe(children.length);
     });
-    act(() => {
+    it("Cmd + A - select all widgets inside a form", async () => {
+      const children: any = buildChildren([
+        { type: "FORM_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children,
+      });
+      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+      mockGetIsFetchingPage.mockImplementation(() => false);
+
+      const component = render(
+        <MemoryRouter
+          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        >
+          <MockApplication>
+            <GlobalHotKeys>
+              <UpdatedMainContainer dsl={dsl} />
+            </GlobalHotKeys>
+          </MockApplication>
+        </MemoryRouter>,
+        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      );
+      const propPane = component.queryByTestId("t--propertypane");
+      expect(propPane).toBeNull();
+      const canvasWidgets = component.queryAllByTestId("test-widget");
+      expect(canvasWidgets.length).toBe(4);
+      if (canvasWidgets[0].firstChild) {
+        fireEvent.mouseOver(canvasWidgets[0].firstChild);
+        fireEvent.click(canvasWidgets[0].firstChild);
+      }
+
       dispatchTestKeyboardEventWithCode(
         component.container,
         "keydown",
-        "V",
-        86,
+        "A",
+        65,
         false,
         true,
       );
+      const selectedWidgets = component.queryAllByTestId("t--selected");
+      expect(selectedWidgets.length).toBe(3);
     });
-    selectedWidgets = component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
-    expect(selectedWidgets.length).toBe(2);
+    it("Cmd + A - select all widgets inside a list", async () => {
+      const listId = generateReactKey();
+      const containerId = generateReactKey();
+      const canvasId = generateReactKey();
+      const listCanvasId = generateReactKey();
+      const children: any = buildChildren([
+        { type: "CHECKBOX_WIDGET", parentId: canvasId },
+        { type: "SWITCH_WIDGET", parentId: canvasId },
+        { type: "BUTTON_WIDGET", parentId: canvasId },
+      ]);
+      const canvasWidget = buildChildren([
+        {
+          type: "CANVAS_WIDGET",
+          parentId: containerId,
+          children,
+          widgetId: canvasId,
+          bottomRow: 20,
+        },
+      ]);
+      const containerChildren: any = buildChildren([
+        {
+          type: "CONTAINER_WIDGET",
+          children: canvasWidget,
+          widgetId: containerId,
+          parentId: listCanvasId,
+          dropDisabled: true,
+          bottomRow: 4,
+        },
+      ]);
+      const listCanvasChildren: any = buildChildren([
+        {
+          type: "CANVAS_WIDGET",
+          children: containerChildren,
+          widgetId: listCanvasId,
+          dropDisabled: true,
+          parentId: listId,
+          bottomRow: 20,
+        },
+      ]);
+      const listChildren: any = buildChildren([
+        {
+          type: "LIST_WIDGET",
+          children: listCanvasChildren,
+          widgetId: listId,
+          parentId: "0",
+        },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children: listChildren,
+      });
+      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+      mockGetIsFetchingPage.mockImplementation(() => false);
+
+      const component = render(
+        <MemoryRouter
+          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        >
+          <MockApplication>
+            <GlobalHotKeys>
+              <UpdatedMainContainer dsl={dsl} />
+            </GlobalHotKeys>
+          </MockApplication>
+        </MemoryRouter>,
+        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      );
+      const propPane = component.queryByTestId("t--propertypane");
+      expect(propPane).toBeNull();
+      const canvasWidgets = component.queryAllByTestId("test-widget");
+
+      if (canvasWidgets[0].firstChild) {
+        fireEvent.mouseOver(canvasWidgets[0].firstChild);
+        fireEvent.click(canvasWidgets[0].firstChild);
+      }
+
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "A",
+        65,
+        false,
+        true,
+      );
+      const selectedWidgets = component.queryAllByTestId("t--selected");
+      expect(selectedWidgets.length).toBe(3);
+    });
   });
+
   afterAll(() => jest.resetModules());
 });
 
@@ -165,6 +362,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         bottomRow: 30,
         leftColumn: 5,
         rightColumn: 30,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
       {
         type: "SWITCH_WIDGET",
@@ -172,6 +370,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         bottomRow: 10,
         leftColumn: 40,
         rightColumn: 48,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
@@ -198,9 +397,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
 
-    let selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    let selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
     act(() => {
       dispatchTestKeyboardEventWithCode(
@@ -222,7 +419,8 @@ describe("Cut/Copy/Paste hotkey", () => {
         true,
       );
     });
-    await component.findByText(children[0].widgetName + "Copy");
+    await component.findByTestId("t--selection-box");
+
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,
@@ -234,9 +432,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
 
-    selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(4);
   });
   it("Should cut and paste all selected widgets with hotkey cmd + x and cmd + v ", async () => {
@@ -282,9 +478,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
 
-    let selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    let selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
     act(() => {
       dispatchTestKeyboardEventWithCode(
@@ -296,10 +490,8 @@ describe("Cut/Copy/Paste hotkey", () => {
         true,
       );
     });
-    await component.findByTestId("canvas-0");
-    selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    await component.findByTestId("canvas-selection-0");
+    selectedWidgets = await component.queryAllByTestId("t--selected");
     //adding extra time to let cut cmd works
     jest.useFakeTimers();
     setTimeout(() => {
@@ -316,7 +508,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         true,
       );
     });
-    await component.findByText(children[0].widgetName);
+    await component.findByTestId("t--selection-box");
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,
@@ -328,9 +520,123 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
 
-    selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
+  });
+});
+
+describe("Undo/Redo hotkey", () => {
+  it("should dispatch undo Action on cmd + z", () => {
+    const dispatchSpy = jest.spyOn(store, "dispatch");
+    const component = render(
+      <MockPageDSL>
+        <GlobalHotKeys>
+          <MockCanvas />
+        </GlobalHotKeys>
+      </MockPageDSL>,
+    );
+
+    dispatchSpy.mockClear();
+
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "Z",
+        90,
+        false,
+        true,
+      );
+    });
+
+    expect(dispatchSpy).toBeCalledTimes(1);
+    expect(dispatchSpy).toBeCalledWith(undoAction());
+  });
+  it("should dispatch redo Action on cmd + shift + z", () => {
+    const dispatchSpy = jest.spyOn(store, "dispatch");
+    const component = render(
+      <MockPageDSL>
+        <GlobalHotKeys>
+          <MockCanvas />
+        </GlobalHotKeys>
+      </MockPageDSL>,
+    );
+
+    dispatchSpy.mockClear();
+
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "Z",
+        90,
+        true,
+        true,
+      );
+    });
+
+    expect(dispatchSpy).toBeCalledTimes(1);
+    expect(dispatchSpy).toBeCalledWith(redoAction());
+  });
+  it("should dispatch redo Action on ctrl + y", () => {
+    const dispatchSpy = jest.spyOn(store, "dispatch");
+    const component = render(
+      <MockPageDSL>
+        <GlobalHotKeys>
+          <MockCanvas />
+        </GlobalHotKeys>
+      </MockPageDSL>,
+    );
+
+    dispatchSpy.mockClear();
+
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "Y",
+        89,
+        false,
+        true,
+      );
+    });
+
+    expect(dispatchSpy).toBeCalledTimes(1);
+    expect(dispatchSpy).toBeCalledWith(redoAction());
+  });
+});
+
+describe("cmd + s hotkey", () => {
+  it("Should render toast message", async () => {
+    const component = render(
+      <>
+        <StyledToastContainer
+          autoClose={5000}
+          closeButton={false}
+          draggable={false}
+          hideProgressBar
+          pauseOnHover={false}
+          transition={Slide}
+        />
+        <GlobalHotKeys>
+          <div />
+        </GlobalHotKeys>
+      </>,
+    );
+
+    dispatchTestKeyboardEventWithCode(
+      component.container,
+      "keydown",
+      "s",
+      83,
+      false,
+      true,
+    );
+
+    await waitFor(() => {
+      expect(
+        component.getByText(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE)),
+      ).toBeDefined();
+    });
   });
 });

@@ -5,7 +5,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 describe("Export application as a JSON file", function() {
   let orgid;
   let appid;
-  let currentUrl;
   let newOrganizationName;
   let appname;
 
@@ -28,6 +27,17 @@ describe("Export application as a JSON file", function() {
       .click({ force: true });
     cy.get(homePage.exportAppFromMenu).click({ force: true });
     cy.get(homePage.toastMessage).should("contain", "Successfully exported");
+    // fetching the exported app file manually to be verified.
+    cy.get(`a[id=t--export-app-link]`).then((anchor) => {
+      const url = anchor.prop("href");
+      cy.request(url).then(({ headers }) => {
+        expect(headers).to.have.property("content-type", "application/json");
+        expect(headers).to.have.property(
+          "content-disposition",
+          `attachment; filename*=UTF-8''${appname}.json`,
+        );
+      });
+    });
     cy.LogOut();
   });
 
@@ -68,6 +78,15 @@ describe("Export application as a JSON file", function() {
         .first()
         .click({ force: true });
       cy.get(homePage.exportAppFromMenu).should("be.visible");
+      cy.get("body").click(50, 40);
+      cy.get(homePage.applicationCard)
+        .first()
+        .trigger("mouseover");
+      cy.get(homePage.appEditIcon)
+        .first()
+        .click({ force: true });
+      cy.get(homePage.applicationName).click({ force: true });
+      cy.contains("Export Application").should("be.visible");
     });
     cy.LogOut();
   });
@@ -109,6 +128,15 @@ describe("Export application as a JSON file", function() {
         .first()
         .click({ force: true });
       cy.get(homePage.exportAppFromMenu).should("not.exist");
+      cy.get("body").click(50, 40);
+      cy.get(homePage.applicationCard)
+        .first()
+        .trigger("mouseover");
+      cy.get(homePage.appEditIcon)
+        .first()
+        .click({ force: true });
+      cy.get(homePage.applicationName).click({ force: true });
+      cy.contains("Export Application").should("not.exist");
     });
     cy.LogOut();
   });

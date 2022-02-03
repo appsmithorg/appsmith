@@ -1,73 +1,140 @@
-import {
-  OnboardingHelperConfig,
-  OnboardingStep,
-} from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
+import { WidgetProps } from "widgets/BaseWidget";
 
-export const showIndicator = (payload: OnboardingStep) => {
+export const enableGuidedTour = (payload: boolean) => {
   return {
-    type: ReduxActionTypes.SHOW_ONBOARDING_INDICATOR,
+    type: ReduxActionTypes.ENABLE_GUIDED_TOUR,
     payload,
   };
 };
 
-export const endOnboarding = () => {
+export const toggleInOnboardingWidgetSelection = (payload: boolean) => {
   return {
-    type: ReduxActionTypes.END_ONBOARDING,
+    type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
+    payload,
   };
 };
 
-export const setCurrentStep = (payload: number) => {
+export const firstTimeUserOnboardingInit = (
+  applicationId: string,
+  pageId: string,
+) => {
+  return {
+    type: ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
+    payload: {
+      applicationId: applicationId,
+      pageId: pageId,
+    },
+  };
+};
+
+export const markStepComplete = () => {
+  return {
+    type: ReduxActionTypes.GUIDED_TOUR_MARK_STEP_COMPLETED,
+  };
+};
+
+export const tableWidgetWasSelected = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.TABLE_WIDGET_WAS_SELECTED,
+    payload,
+  };
+};
+
+export const setCurrentStepInit = (payload: GUIDED_TOUR_STEPS) => {
+  return {
+    type: ReduxActionTypes.SET_CURRENT_STEP_INIT,
+    payload,
+  };
+};
+
+export const setCurrentStep = (payload: GUIDED_TOUR_STEPS) => {
   return {
     type: ReduxActionTypes.SET_CURRENT_STEP,
     payload,
   };
 };
 
-export const setOnboardingState = (payload: boolean) => {
+export const addOnboardingWidget = (payload: Partial<WidgetProps>) => {
   return {
-    type: ReduxActionTypes.SET_ONBOARDING_STATE,
+    type: ReduxActionTypes.GUIDED_TOUR_ADD_WIDGET,
     payload,
   };
 };
 
-export const showOnboardingHelper = (payload: boolean) => {
+export const setUpTourApp = () => {
   return {
-    type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
+    type: ReduxActionTypes.SET_UP_TOUR_APP,
+  };
+};
+
+export const toggleLoader = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.GUIDED_TOUR_TOGGLE_LOADER,
     payload,
   };
 };
 
-export const setHelperConfig = (payload: OnboardingHelperConfig) => {
+export const toggleShowDeviationDialog = (payload: boolean) => {
   return {
-    type: ReduxActionTypes.SET_HELPER_CONFIG,
+    type: ReduxActionTypes.TOGGLE_DEVIATION_DIALOG,
     payload,
   };
 };
 
-export const setCurrentSubstep = (payload: number) => {
+export const toggleShowEndTourDialog = (payload: boolean) => {
   return {
-    type: ReduxActionTypes.SET_ONBOARDING_SUBSTEP,
+    type: ReduxActionTypes.TOGGLE_END_GUIDED_TOUR_DIALOG,
     payload,
   };
 };
 
-export const showWelcomeHelper = (payload: boolean) => {
+export const showPostCompletionMessage = (payload: boolean) => {
   return {
-    type: ReduxActionTypes.SHOW_ONBOARDING_WELCOME_HELPER,
+    type: ReduxActionTypes.TOGGLE_END_GUIDED_TOUR_DIALOG,
     payload,
   };
 };
 
-export const showOnboardingLoader = (payload: boolean) => {
+export const forceShowContent = (payload: GUIDED_TOUR_STEPS) => {
   return {
-    type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,
+    type: ReduxActionTypes.FORCE_SHOW_CONTENT,
     payload,
   };
 };
 
-export const showEndOnboardingHelper = () => {
+export const updateButtonWidgetText = () => {
   return {
-    type: ReduxActionTypes.SHOW_END_ONBOARDING_HELPER,
+    type: ReduxActionTypes.UPDATE_BUTTON_WIDGET_TEXT,
+  };
+};
+
+export const showInfoMessage = () => {
+  return {
+    type: ReduxActionTypes.SHOW_INFO_MESSAGE,
+  };
+};
+
+export const focusWidget = (widgetName: string, propertyName?: string) => {
+  return {
+    type: ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET,
+    payload: {
+      widgetName,
+      propertyName,
+    },
+  };
+};
+
+export const focusWidgetProperty = (widgetName: string) => {
+  return {
+    type: ReduxActionTypes.FOCUS_WIDGET_PROPERTY,
+    payload: widgetName,
+  };
+};
+
+export const onboardingCreateApplication = () => {
+  return {
+    type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
   };
 };

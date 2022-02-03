@@ -1,15 +1,15 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import Button, { Category } from "components/ads/Button";
-import React, { useCallback, useMemo, useState } from "react";
-import { isNil, keyBy } from "lodash";
+import React, { useCallback } from "react";
+import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
-  getQueryActionsForCurrentPage,
+  getActionsForCurrentPage,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -17,10 +17,12 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import {
+  DATA_SOURCES_EDITOR_ID_URL,
+  getGenerateTemplateFormURL,
+} from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { getGenerateTemplateFormURL } from "constants/routes";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import Menu from "components/ads/Menu";
 import { IconSize } from "../../../components/ads/Icon";
@@ -28,12 +30,14 @@ import Icon from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import { deleteDatasource } from "../../../actions/datasourceActions";
 import {
-  getIsDeletingDatasource,
   getGenerateCRUDEnabledPluginMap,
+  getIsDeletingDatasource,
 } from "../../../selectors/entitiesSelector";
 import TooltipComponent from "components/ads/Tooltip";
-import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import NewActionButton from "../DataSourceEditor/NewActionButton";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -63,25 +67,14 @@ const MenuWrapper = styled.div`
   margin: 8px 0px;
 `;
 
-const ActionButton = styled(Button)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
-    //max-width: 120px;
-    width: auto;
-  }
-  span > svg > path {
-    stroke: white;
-  }
-`;
-
 const DatasourceImage = styled.img`
   height: 24px;
   width: auto;
 `;
 
 const GenerateTemplateButton = styled(Button)`
-  padding: 10px 20px;
+  padding: 10px 10px;
+  font-size: 12px;
   &&&& {
     height: 36px;
     max-width: 200px;
@@ -138,23 +131,38 @@ const CollapseComponentWrapper = styled.div`
   width: fit-content;
 `;
 
+const RedMenuItem = styled(MenuItem)`
+  &&,
+  && .cs-text {
+    color: ${Colors.DANGER_SOLID};
+  }
+  &&,
+  &&:hover {
+    svg,
+    svg path {
+      fill: ${Colors.DANGER_SOLID};
+    }
+  }
+`;
+
 type DatasourceCardProps = {
   datasource: Datasource;
-  onCreateQuery: (datasource: Datasource, pluginType: PluginType) => void;
-  isCreating?: boolean;
+  plugin: Plugin;
 };
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
-  const [isSelected, setIsSelected] = useState(false);
   const pluginImages = useSelector(getPluginImages);
 
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
 
-  const params = useParams<{ applicationId: string; pageId: string }>();
-  const { datasource, isCreating } = props;
+  const params = useParams<{ pageId: string }>();
+
+  const applicationId = useSelector(getCurrentApplicationId);
+
+  const { datasource, plugin } = props;
   const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
     datasource.pluginId
   ];
@@ -162,7 +170,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
-  const queryActions = useSelector(getQueryActionsForCurrentPage);
+  const queryActions = useSelector(getActionsForCurrentPage);
   const queriesWithThisDatasource = queryActions.filter(
     (action) =>
       isStoredDatasource(action.config.datasource) &&
@@ -174,17 +182,13 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
-    const plugin = pluginGroups[datasource.pluginId];
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          params.applicationId,
+          applicationId,
           params.pageId,
           plugin.packageName,
           datasource.id,
@@ -198,7 +202,7 @@ function DatasourceCard(props: DatasourceCardProps) {
       dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          params.applicationId,
+          applicationId,
           params.pageId,
           datasource.id,
           {
@@ -208,14 +212,7 @@ function DatasourceCard(props: DatasourceCardProps) {
         ),
       );
     }
-  }, [datasource.id, params]);
-
-  const onCreateNewQuery = useCallback((e) => {
-    e?.stopPropagation();
-    setIsSelected(true);
-    const plugin = pluginGroups[datasource.pluginId];
-    props.onCreateQuery(datasource, plugin.type);
-  }, []);
+  }, [datasource.id, params, plugin]);
 
   const routeToGeneratePage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -225,10 +222,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
-      `${getGenerateTemplateFormURL(
-        params.applicationId,
-        params.pageId,
-      )}?datasourceId=${datasource.id}&new_page=true`,
+      getGenerateTemplateFormURL(applicationId, params.pageId, {
+        datasourceId: datasource.id,
+        new_page: true,
+      }),
     );
   };
 
@@ -254,7 +251,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               />
               <DatasourceName>{datasource.name}</DatasourceName>
             </DatasourceNameWrapper>
-            <Queries>
+            <Queries className={`t--queries-for-${plugin.type}`}>
               {queriesWithThisDatasource
                 ? `${queriesWithThisDatasource} ${QUERY} on this page`
                 : "No query is using this datasource"}
@@ -277,12 +274,10 @@ function DatasourceCard(props: DatasourceCardProps) {
               />
             </TooltipComponent>
 
-            <ActionButton
-              className="t--create-query"
-              icon="plus"
-              isLoading={isCreating && isSelected}
-              onClick={onCreateNewQuery}
-              text="New Query"
+            <NewActionButton
+              datasource={datasource}
+              eventFrom="active-datasources"
+              pluginType={plugin?.type}
             />
             <MenuWrapper
               className="t--datasource-menu-option"
@@ -303,7 +298,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   </MoreOptionsContainer>
                 }
               >
-                <MenuItem
+                <RedMenuItem
                   className="t--datasource-option-delete"
                   icon="delete"
                   isLoading={isDeletingDatasource}

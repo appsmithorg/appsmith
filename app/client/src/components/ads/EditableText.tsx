@@ -16,7 +16,8 @@ export type EditableTextProps = CommonComponentProps & {
   placeholder?: string;
   editInteractionKind: EditInteractionKind;
   savingState: SavingState;
-  onBlur?: (value: string) => void;
+  onBlur?: (value: string) => void; // This `Blur` will be called only when there is a change in the value after we unfocus from the input field
+  onBlurEverytime?: (value: string) => void; // This `Blur` will be called everytime we unfocus from the input field
   onTextChanged?: (value: string) => void;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
@@ -29,13 +30,16 @@ export type EditableTextProps = CommonComponentProps & {
   isError?: boolean;
 };
 
+// Width of the component when the `filled` prop is false
+export const UNFILLED_WIDTH = 243;
+
 export const EditableTextWrapper = styled.div<{
   filled: boolean;
 }>`
   ${(props) =>
     !props.filled
       ? `
-    width: 243px;
+    width: ${UNFILLED_WIDTH}px;
   `
       : `
     width: 100%;

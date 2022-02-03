@@ -4,7 +4,8 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ExpectedValueExample } from "utils/validation/common";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
@@ -40,6 +41,11 @@ export type PropertyPaneControlConfig = {
   dataTreePath?: string;
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
+  updateRelatedWidgetProperties?: (
+    propertyName: string,
+    propertyValue: any,
+    props: any,
+  ) => UpdateWidgetPropertyPayload[];
   updateHook?: (
     props: any,
     propertyName: string,
@@ -54,7 +60,8 @@ export type PropertyPaneControlConfig = {
     props: any,
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
-  expected?: { type: string; example: ExpectedValueExample };
+  dependencies?: string[];
+  expected?: CodeEditorExpected;
 };
 
 type ValidationConfigParams = {
@@ -62,8 +69,10 @@ type ValidationConfigParams = {
   max?: number; // max allowed for a number
   natural?: boolean; // is a positive integer
   default?: unknown; // default for any type
-  unique?: boolean; // unique in an array
+  unique?: boolean | string[]; // unique in an array (string if a particular path is unique)
   required?: boolean; // required type
+  // required is now used to check if value is an empty string.
+  requiredKey?: boolean; //required key
   regex?: RegExp; // validator regex for text type
   allowedKeys?: Array<{
     // Allowed keys in an object type
@@ -80,7 +89,11 @@ type ValidationConfigParams = {
     moment?: any,
   ) => ValidationResponse; // Function in a FUNCTION type
   fnString?: string; // AUTO GENERATED, SHOULD NOT BE SET BY WIDGET DEVELOPER
-  expected?: { type: string; example: ExpectedValueExample }; // FUNCTION type expected type and example
+  expected?: CodeEditorExpected; // FUNCTION type expected type and example
+  strict?: boolean; //for strict string validation of TEXT type
+  ignoreCase?: boolean; //to ignore the case of key
+  type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
+  params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
 };
 
 export type ValidationConfig = {
@@ -91,3 +104,7 @@ export type ValidationConfig = {
 export type PropertyPaneConfig =
   | PropertyPaneSectionConfig
   | PropertyPaneControlConfig;
+
+export interface ActionValidationConfigMap {
+  [configPropety: string]: ValidationConfig;
+}

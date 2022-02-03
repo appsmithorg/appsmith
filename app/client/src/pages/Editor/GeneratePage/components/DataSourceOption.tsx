@@ -1,7 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { RenderDropdownOptionType } from "components/ads/Dropdown";
+import {
+  DropdownOption,
+  RenderDropdownOptionType,
+} from "components/ads/Dropdown";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "../../../../selectors/entitiesSelector";
 import { Classes } from "../../../../components/ads/common";
@@ -16,7 +19,11 @@ export const CONNECT_NEW_DATASOURCE_OPTION_ID = _.uniqueId();
 
 //  ---------- Styles ----------
 
-const OptionWrapper = styled.div<{ disabled?: boolean; selected?: boolean }>`
+const OptionWrapper = styled.div<{
+  disabled?: boolean;
+  selected?: boolean;
+  width?: string;
+}>`
   padding: ${(props) =>
     props.selected
       ? `${props.theme.spaces[1]}px 0px`
@@ -25,6 +32,7 @@ const OptionWrapper = styled.div<{ disabled?: boolean; selected?: boolean }>`
   display: flex;
   align-items: center;
   user-select: none;
+  width: 100%;
 
   &&& svg {
     rect {
@@ -67,6 +75,7 @@ const OptionWrapper = styled.div<{ disabled?: boolean; selected?: boolean }>`
 
 const CreateIconWrapper = styled.div`
   margin: 0px 8px 0px 0px;
+  cursor: pointer;
 `;
 
 const ImageWrapper = styled.div`
@@ -84,6 +93,7 @@ const DatasourceImage = styled.img`
 
 interface DataSourceOptionType extends RenderDropdownOptionType {
   cypressSelector: string;
+  optionWidth: string;
 }
 
 function DataSourceOption({
@@ -92,14 +102,16 @@ function DataSourceOption({
   isSelectedNode,
   option: dropdownOption,
   optionClickHandler,
+  optionWidth,
 }: DataSourceOptionType) {
-  const { label } = dropdownOption;
+  const { label } = dropdownOption as DropdownOption;
   const { routeToCreateNewDatasource = () => null } = extraProps;
   const pluginImages = useSelector(getPluginImages);
   const isConnectNewDataSourceBtn =
-    CONNECT_NEW_DATASOURCE_OPTION_ID === dropdownOption.id;
+    CONNECT_NEW_DATASOURCE_OPTION_ID === (dropdownOption as DropdownOption).id;
 
-  const isSupportedForTemplate = dropdownOption.data.isSupportedForTemplate;
+  const isSupportedForTemplate = (dropdownOption as DropdownOption).data
+    .isSupportedForTemplate;
   const isNotSupportedDatasource =
     !isSupportedForTemplate && !isSelectedNode && !isConnectNewDataSourceBtn;
 
@@ -119,7 +131,7 @@ function DataSourceOption({
         className="t--dropdown-option"
         data-cy={optionCypressSelector}
         disabled={isNotSupportedDatasource}
-        key={dropdownOption.id}
+        key={(dropdownOption as DropdownOption).id}
         onClick={() => {
           if (isNotSupportedDatasource) {
             return;
@@ -127,10 +139,11 @@ function DataSourceOption({
           if (isConnectNewDataSourceBtn) {
             routeToCreateNewDatasource(dropdownOption);
           } else if (optionClickHandler) {
-            optionClickHandler(dropdownOption);
+            optionClickHandler(dropdownOption as DropdownOption);
           }
         }}
         selected={isSelectedNode}
+        width={optionWidth}
       >
         {isConnectNewDataSourceBtn ? (
           <CreateIconWrapper>
@@ -140,12 +153,14 @@ function DataSourceOption({
               width={20}
             />
           </CreateIconWrapper>
-        ) : pluginImages[dropdownOption.data.pluginId] ? (
+        ) : pluginImages[(dropdownOption as DropdownOption).data.pluginId] ? (
           <ImageWrapper>
             <DatasourceImage
               alt=""
               className="dataSourceImage"
-              src={pluginImages[dropdownOption.data.pluginId]}
+              src={
+                pluginImages[(dropdownOption as DropdownOption).data.pluginId]
+              }
             />
           </ImageWrapper>
         ) : null}

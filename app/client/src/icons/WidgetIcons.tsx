@@ -1,4 +1,7 @@
 import React, { JSXElementConstructor } from "react";
+import styled from "styled-components";
+
+import { Colors } from "constants/Colors";
 import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as SpinnerIcon } from "assets/icons/widget/alert.svg";
 import { ReactComponent as ButtonIcon } from "assets/icons/widget/button.svg";
@@ -8,6 +11,8 @@ import { ReactComponent as DatePickerIcon } from "assets/icons/widget/datepicker
 import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
 import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
+import { ReactComponent as MultiSelectIcon } from "assets/icons/widget/multiselect.svg";
+import { ReactComponent as MultiSelectV2Icon } from "assets/icons/widget/multiselect.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
 import { ReactComponent as InputIcon } from "assets/icons/widget/input.svg";
@@ -26,146 +31,252 @@ import { ReactComponent as RatingIcon } from "assets/icons/widget/rating.svg";
 import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
 import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
 import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
+import { ReactComponent as MultiTreeSelectIcon } from "assets/icons/widget/multi-tree-select.svg";
+import { ReactComponent as SingleTreeSelectIcon } from "assets/icons/widget/single-tree-select.svg";
+import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
+import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
+import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
+import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
+import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-group.svg";
+import { ReactComponent as ProgressBarIcon } from "assets/icons/widget/progressbar-icon.svg";
+import { ReactComponent as SwitchGroupIcon } from "assets/icons/widget/switch-group.svg";
+import { ReactComponent as CameraIcon } from "assets/icons/widget/camera.svg";
+import { ReactComponent as MapChartIcon } from "assets/icons/widget/map-chart.svg";
+import { ReactComponent as PhoneInput } from "assets/icons/widget/phoneInput.svg";
+import { ReactComponent as CurrencyInput } from "assets/icons/widget/currencyInput.svg";
 
 /* eslint-disable react/display-name */
+
+const StyledIconWrapper = styled(IconWrapper)`
+  svg {
+    path {
+      fill: ${Colors.CHARCOAL} !important;
+    }
+  }
+`;
 
 export const WidgetIcons: {
   [id: string]: JSXElementConstructor<IconProps>;
 } = {
   SPINNER_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <SpinnerIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   BUTTON_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <ButtonIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   CHECKBOX_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <CheckboxIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   COLLAPSE_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <CollapseIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   CONTAINER_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <ContainerIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   DATE_PICKER_WIDGET2: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <DatePickerIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   TABLE_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <TableIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   VIDEO_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <VideoIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   DROP_DOWN_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <DropDownIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
+  ),
+  MULTI_SELECT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MultiSelectIcon />
+    </StyledIconWrapper>
+  ),
+  SELECT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <DropDownIcon />
+    </StyledIconWrapper>
+  ),
+  MULTI_SELECT_WIDGET_V2: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MultiSelectV2Icon />
+    </StyledIconWrapper>
   ),
   RADIO_GROUP_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <RadioGroupIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   INPUT_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <InputIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
+  ),
+  INPUT_WIDGET_V2: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <InputIcon />
+    </StyledIconWrapper>
   ),
   RICH_TEXT_EDITOR_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <RichTextEditorIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   SWITCH_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <SwitchIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   TEXT_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <TextIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   IMAGE_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <ImageIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
-  FILE_PICKER_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+  FILE_PICKER_WIDGET_V2: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
       <FilePickerIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   TABS_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <TabsIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   CHART_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <ChartIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   FORM_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <FormIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   MAP_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <MapIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   MODAL_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <ModalIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   FORM_BUTTON_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <ButtonIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   LIST_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props} data-testid="list-widget-icon">
+    <StyledIconWrapper {...props} data-testid="list-widget-icon">
       <ListIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   RATE_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <RatingIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   IFRAME_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <EmbedIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   DIVIDER_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <DividerIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
   ),
   MENU_BUTTON_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <StyledIconWrapper {...props}>
       <MenuButtonIcon />
-    </IconWrapper>
+    </StyledIconWrapper>
+  ),
+  TREE_SINGLE_SELECT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <SingleTreeSelectIcon />
+    </StyledIconWrapper>
+  ),
+  TREE_MULTI_SELECT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MultiTreeSelectIcon />
+    </StyledIconWrapper>
+  ),
+  ICON_BUTTON_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <IconButtonIcon />
+    </StyledIconWrapper>
+  ),
+  STATBOX_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <StatboxIcon />
+    </StyledIconWrapper>
+  ),
+  CHECKBOX_GROUP_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CheckboxGroupIcon />
+    </StyledIconWrapper>
+  ),
+  AUDIO_RECORDER_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <AudioRecorderIcon />
+    </StyledIconWrapper>
+  ),
+  BUTTON_GROUP_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <ButtonGroupIcon />
+    </StyledIconWrapper>
+  ),
+  PROGRESSBAR_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <ProgressBarIcon />
+    </StyledIconWrapper>
+  ),
+  SWITCH_GROUP_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <SwitchGroupIcon />
+    </StyledIconWrapper>
+  ),
+  CAMERA_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CameraIcon />
+    </StyledIconWrapper>
+  ),
+  MAP_CHART_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MapChartIcon />
+    </StyledIconWrapper>
+  ),
+  PHONE_INPUT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <PhoneInput />
+    </StyledIconWrapper>
+  ),
+  CURRENCY_INPUT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CurrencyInput />
+    </StyledIconWrapper>
   ),
 };
 

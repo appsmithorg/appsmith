@@ -21,6 +21,8 @@ class DynamicTextField extends React.Component<
       hoverInteraction?: boolean;
       border?: CodeEditorBorder;
       showLightningMenu?: boolean;
+      height?: string;
+      disabled?: boolean;
     }
 > {
   render() {
@@ -30,6 +32,7 @@ class DynamicTextField extends React.Component<
       theme: this.props.theme || EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
     };
+
     return <Field component={CodeEditor} {...this.props} {...editorProps} />;
   }
 }
