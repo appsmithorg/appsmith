@@ -17,7 +17,7 @@ import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
-import _, { get, noop } from "lodash";
+import { get } from "lodash";
 import { Title } from "./components/StyledComponents";
 import {
   ADD_MISSING_DATASOURCES,
@@ -32,10 +32,8 @@ import {
 } from "constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import {
-  getDatasource,
   getDatasources,
   getIsReconnectingDatasourcesModalOpen,
-  getPlugin,
   getPluginImages,
   getPluginNames,
   getUnconfiguredDatasources,
@@ -47,27 +45,16 @@ import {
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "../DataSourceEditor/JSONtoForm";
 import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";
-import { DatasourcePaneFunctions } from "../DataSourceEditor";
-import { AppState } from "reducers";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import { getFormValues, initialize, submit } from "redux-form";
-import {
-  setUnconfiguredDatasourcesDuringImport,
-  testDatasource,
-  updateDatasource,
-} from "actions/datasourceActions";
-import { DatasourceComponentTypes } from "api/PluginApi";
-import { ReduxAction } from "constants/ReduxActionConstants";
-import { connect } from "react-redux";
-import DBForm from "../DataSourceEditor/DBForm";
-import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
+import { initialize } from "redux-form";
+import { setUnconfiguredDatasourcesDuringImport } from "actions/datasourceActions";
 import Collapsible from "../DataSourceEditor/Collapsible";
 import Link from "./components/Link";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { setOrgIdForImport } from "actions/applicationActions";
-import RestAPIDatasourceForm from "../DataSourceEditor/RestAPIDatasourceForm";
+import DatasourceForm from "../DataSourceEditor";
 
 const Container = styled.div`
   height: 804px;
@@ -270,128 +257,10 @@ const TooltipWrapper = styled.div`
   }
 `;
 
-interface ReduxStateProps {
-  formData: Datasource;
-  isDeleting: boolean;
-  isSaving: boolean;
-  isTesting: boolean;
-  formConfig: any[];
-  pluginImages: Record<string, string>;
-  pluginId: string;
-  pluginType: string;
-  pluginDatasourceForm: string;
-  pluginPackageName: string;
-  applicationId: string;
-}
-
 enum DSCollapseMenu {
   CONFIGURED = "CONFIGURED",
   UNCONFIGURED = "UNCONFIGURED",
 }
-
-type DSProps = ReduxStateProps &
-  DatasourcePaneFunctions & { datasourceId: string; pageId: string };
-
-const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
-  const { datasources, plugins } = state.entities;
-  const datasource = getDatasource(state, props.datasourceId);
-  const { formConfigs } = plugins;
-  const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
-  const pluginId = _.get(datasource, "pluginId", "");
-  const plugin = getPlugin(state, pluginId);
-  const newProps = {
-    pluginImages: getPluginImages(state),
-    formData,
-    pluginId,
-    isDeleting: datasources.isDeleting,
-    isSaving: datasources.loading,
-    isTesting: datasources.isTesting,
-    formConfig: formConfigs[pluginId] || [],
-    pluginType: plugin?.type ?? "",
-    pluginDatasourceForm:
-      plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
-    pluginPackageName: plugin?.packageName ?? "",
-    applicationId: props.applicationId || "",
-  };
-
-  return newProps;
-};
-
-const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
-  submitForm: (name: string) => dispatch(submit(name)),
-  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
-    dispatch(updateDatasource(formData, onSuccess));
-  },
-  redirectToNewIntegrations: noop,
-  testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
-  deleteDatasource: noop,
-  switchDatasource: noop,
-  setDatasourceEditorMode: noop,
-  openOmnibarReadMore: noop,
-});
-
-const DSForm = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)((props: DSProps) => {
-  const {
-    applicationId,
-    datasourceId,
-    formConfig,
-    formData,
-    isDeleting,
-    isSaving,
-    pageId,
-    pluginDatasourceForm,
-    pluginId,
-    pluginImages,
-    pluginPackageName,
-    pluginType,
-    setDatasourceEditorMode,
-  } = props;
-
-  if (pluginDatasourceForm === "RestAPIDatasourceForm") {
-    return (
-      <RestAPIDatasourceForm
-        applicationId={applicationId}
-        datasourceId={datasourceId}
-        hiddenHeader
-        isDeleting={isDeleting}
-        isSaving={isSaving}
-        location={location}
-        pageId={pageId}
-        pluginImage={pluginImages[pluginId]}
-        pluginPackageName={pluginPackageName}
-      />
-    );
-  }
-  if (pluginType === "SAAS") {
-    return (
-      <DatasourceSaasForm
-        datasourceId={datasourceId}
-        hiddenHeader
-        pageId={pageId}
-        pluginPackageName={pluginPackageName}
-      />
-    );
-  }
-  return (
-    <DBForm
-      applicationId={""}
-      datasourceId={datasourceId}
-      formConfig={formConfig}
-      formData={formData}
-      formName={DATASOURCE_DB_FORM}
-      hiddenHeader
-      pageId={pageId}
-      pluginImage={pluginImages[pluginId]}
-      pluginPackageName={pluginPackageName}
-      pluginType={pluginType}
-      setDatasourceEditorMode={setDatasourceEditorMode}
-      viewMode={false}
-    />
-  );
-});
 
 function ListItemWrapper(props: {
   ds: Datasource;
@@ -632,10 +501,15 @@ function ReconnectDatasourceModal() {
                 </Collapsible>
               </ListContainer>
               {isConfigFetched &&
-                collapsedMenu === DSCollapseMenu.UNCONFIGURED && (
-                  <DSForm datasourceId={selectedDatasourceId} pageId={pageId} />
+                collapsedMenu === DSCollapseMenu.CONFIGURED && (
+                  <DatasourceForm
+                    applicationId={importedApplication?.id}
+                    datasourceId={selectedDatasourceId}
+                    fromImporting
+                    pageId={pageId}
+                  />
                 )}
-              {collapsedMenu === DSCollapseMenu.CONFIGURED && (
+              {collapsedMenu === DSCollapseMenu.UNCONFIGURED && (
                 <Section className="t--message-container">
                   <Message>
                     {createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE1)}
