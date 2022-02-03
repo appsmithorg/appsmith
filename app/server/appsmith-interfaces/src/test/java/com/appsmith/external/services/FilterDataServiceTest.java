@@ -1500,8 +1500,8 @@ public class FilterDataServiceTest {
 
             List<Map<String, String>> sortBy = new ArrayList<>();
             Map<String, String> sortCondition = new HashMap<>();
-            sortCondition.put("column", "orderAmount");
-            sortCondition.put("order", "Descending");
+            sortCondition.put(SORT_BY_COLUMN_NAME_KEY, "orderAmount");
+            sortCondition.put(SORT_BY_TYPE_KEY, "Descending");
             sortBy.add(sortCondition);
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
@@ -1569,8 +1569,8 @@ public class FilterDataServiceTest {
             Condition condition = parseWhereClause(unparsedWhereClause);
 
             HashMap<String, String> paginateBy = new HashMap<>();
-            paginateBy.put("limit", "2");
-            paginateBy.put("offset", "1");
+            paginateBy.put(PAGINATE_LIMIT_KEY, "2");
+            paginateBy.put(PAGINATE_OFFSET_KEY, "1");
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
                     null, paginateBy));
