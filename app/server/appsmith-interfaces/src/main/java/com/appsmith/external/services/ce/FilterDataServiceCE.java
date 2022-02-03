@@ -39,13 +39,14 @@ import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
 import static com.appsmith.external.models.Condition.addValueDataType;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
 @Slf4j
 public class FilterDataServiceCE implements IFilterDataServiceCE {
 
-    public static final String SORT_BY_COLUMN_NAME_KEY = "columnName";
-    public static final String SORT_BY_TYPE_KEY = "type";
+    public static final String SORT_BY_COLUMN_NAME_KEY = "column";
+    public static final String SORT_BY_TYPE_KEY = "order";
     public static final String DATA_INFO_VALUE_KEY = "value";
     public static final String DATA_INFO_TYPE_KEY = "type";
     public static final String PAGINATE_LIMIT_KEY = "limit";
@@ -133,8 +134,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         Condition condition = uqiDataFilterParams.getCondition();
-        Condition updatedCondition = addValueDataType(condition);
-        uqiDataFilterParams.setCondition(updatedCondition);
+        if (condition != null) {
+            Condition updatedCondition = addValueDataType(condition);
+            uqiDataFilterParams.setCondition(updatedCondition);
+        }
 
         Map<String, DataType> schema = generateSchema(items);
         String tableName = generateTable(schema);
@@ -158,7 +161,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         Condition condition = uqiDataFilterParams.getCondition();
         List<String> projectionColumns = uqiDataFilterParams.getProjectionColumns();
-        List<Map<String, Object>> sortBy = uqiDataFilterParams.getSortBy();
+        List<Map<String, String>> sortBy = uqiDataFilterParams.getSortBy();
         Map<String, String> paginateBy = uqiDataFilterParams.getPaginateBy();
 
         Connection conn = checkAndGetConnection();
@@ -258,10 +261,16 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         // Set limit value and data type for prepared statement substitution
         String limit = paginateBy.get(PAGINATE_LIMIT_KEY);
+        if (isBlank(limit)) {
+            limit = "20";
+        }
         values.add(new PreparedStatementValueDTO(limit, DataType.INTEGER));
 
         // Set offset value and data type for prepared statement substitution
         String offset = paginateBy.get(PAGINATE_OFFSET_KEY);
+        if (isBlank(offset)) {
+            offset = "0";
+        }
         values.add(new PreparedStatementValueDTO(offset, DataType.INTEGER));
     }
 
@@ -300,18 +309,18 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @param sortBy - list of columns to sort by and sort type (ascending / descending)
      * @throws AppsmithPluginException
      */
-    private void addSortCondition(StringBuilder sb, List<Map<String, Object>> sortBy) throws AppsmithPluginException {
+    private void addSortCondition(StringBuilder sb, List<Map<String, String>> sortBy) throws AppsmithPluginException {
         if (CollectionUtils.isEmpty(sortBy)) {
             return;
         }
 
         sb.append(" ORDER BY");
         sortBy.stream()
-                .forEach(sortCondition -> {
-                    String columnName = (String) sortCondition.get(SORT_BY_COLUMN_NAME_KEY);
+                .forEachOrdered(sortCondition -> {
+                    String columnName = sortCondition.get(SORT_BY_COLUMN_NAME_KEY);
                     SortType sortType;
                     try {
-                        sortType = SortType.valueOf((String) sortCondition.get(SORT_BY_TYPE_KEY));
+                        sortType = SortType.valueOf(sortCondition.get(SORT_BY_TYPE_KEY).toUpperCase());
                     } catch (IllegalArgumentException e) {
                         throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Appsmith server failed " +
                                 "to parse the type of sort condition. Please reach out to Appsmith customer support " +
