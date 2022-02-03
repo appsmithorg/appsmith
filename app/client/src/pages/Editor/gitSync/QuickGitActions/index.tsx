@@ -17,6 +17,7 @@ import {
   DURING_ONBOARDING_TOUR,
   createMessage,
   GIT_SETTINGS,
+  CONNECT_GIT_BETA,
 } from "constants/messages";
 
 import Tooltip from "components/ads/Tooltip";
@@ -256,7 +257,7 @@ function ConnectGitPlaceholder() {
                 dispatch(showConnectGitModal());
               }}
               size={Size.small}
-              text={createMessage(CONNECT_GIT)}
+              text={createMessage(CONNECT_GIT_BETA)}
             />
           ) : (
             <PlaceholderButton>{createMessage(CONNECT_GIT)}</PlaceholderButton>

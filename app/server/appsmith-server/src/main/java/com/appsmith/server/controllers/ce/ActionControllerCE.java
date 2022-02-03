@@ -131,7 +131,7 @@ public class ActionControllerCE {
                                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get all actions with params: {}, branch: {}", params, branchName);
         // We handle JS actions as part of the collections request, so that all the contextual variables are also picked up
-        return newActionService.getUnpublishedActions(params, branchName)
+        return newActionService.getUnpublishedActionsExceptJs(params, branchName)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
