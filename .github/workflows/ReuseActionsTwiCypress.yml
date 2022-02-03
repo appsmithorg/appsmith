@@ -39,10 +39,11 @@ jobs:
       - name: Figure out the PR number
         run: echo ${{ github.event.pull_request.number }}
 
-      # Checkout the code
+      # Timestamp will be used to create cache key
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
 
+      # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         uses: actions/cache@v2
         with:
@@ -51,6 +52,8 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-
+
+      # Fetch prior run result
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
@@ -58,9 +61,11 @@ jobs:
       - uses: actions/checkout@v2
         if: steps.run_result.outputs.run_result != 'success'
 
+      # Incase of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
+      # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
       - name: Checkout the merged commit from PR and base branch
@@ -140,6 +145,7 @@ jobs:
             yarn build
           ls -l build
 
+      # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
         uses: actions/cache@v2
         with:
@@ -156,6 +162,7 @@ jobs:
           name: client-build
           path: app/client/build/
 
+      # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   buildServer:
@@ -190,10 +197,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      # Checkout the code
+
+      # Timestamp will be used to create cache key
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
 
+      # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         uses: actions/cache@v2
         with:
@@ -202,6 +211,8 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-
+
+      # Fetch prior run result
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
@@ -209,6 +220,7 @@ jobs:
       - uses: actions/checkout@v2
         if: steps.run_result.outputs.run_result != 'success'
 
+      # Incase of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
@@ -266,6 +278,7 @@ jobs:
           ./build.sh -DskipTests
           ls -l dist
 
+      # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
         uses: actions/cache@v2
         with:
@@ -302,10 +315,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      # Checkout the code
+
+      # Timestamp will be used to create cache key
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
 
+      # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         uses: actions/cache@v2
         with:
@@ -314,6 +329,8 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-
+
+      # Fetch prior run result
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
@@ -353,6 +370,26 @@ jobs:
           echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           ./build.sh
           ls -l dist
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/rts/dist/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/rts/node_modules/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
@@ -418,10 +455,11 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
 
-      # Checkout the code
+      # Timestamp will be used to create cache key
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
 
+      # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         uses: martijnhols/actions-cache@v3
         with:
@@ -431,10 +469,12 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
+      # Fetch prior run result
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
+      # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: martijnhols/actions-cache/restore@v3
@@ -445,17 +485,15 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
+      # failed_spec_env will contain list of all failed specs
+      # We are using evnironment variable instead of regular to support multiline
       - name: Get failed_spec
-        #id: failed_spec_var
-        #run: echo ::set-output name=failed_spec::$(cat ~/failed_spec)
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
           failed_spec_env=$(cat ~/combined_failed_spec)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-      #- name: cat failed_spec
-      #  run: echo ${{ env.failed_spec_env }}
 
       - uses: actions/checkout@v2
         if: steps.run_result.outputs.run_result != 'success'
@@ -609,6 +647,7 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
+      # Onyl ru the below step if its a frist attempt
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v2
@@ -634,13 +673,13 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          #spec: "cypress/integration/Smoke_TestSuite/testingreuse/**/*"
           spec: "cypress/integration/Smoke_TestSuite/ClientSideTests/ActionExecution/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
+      # Incase of second attemtp only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
@@ -666,32 +705,33 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          #spec: steps.failed_spec.outputs.failed_spec Not working
-          #spec: $(cat ~/failed_spec)
-          #spec: ${{ steps.failed_spec.outputs.failed_spec }}
-          #spec: echo ${{ steps.failed_spec.outputs.failed_spec }}
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
+      # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
         run: echo "::set-output name=run_result::failedtest" > ~/run_result
 
+      # Create a directory ~/failed_spec and add a dummy file
+      # This will ensure upload and download steps are successfull
       - name: Create direcotrs for failed tests
         if: always()
         run: |
           mkdir -p  ~/failed_spec
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
-      - name: Incse of test failures copy them to a file
+      # add list failed tests to a file
+      - name: Incase of test failures copy them to a file
         if: failure()
         run: |
           cd /home/runner/work/appsmith/appsmith/app/client/cypress/
           find screenshots -type d|grep spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec/failed_spec-${{ matrix.job }}
 
+      # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
         uses: actions/upload-artifact@v2
@@ -699,6 +739,7 @@ jobs:
           name: failed-spec
           path: ~/failed_spec
 
+      # Force store previous run result to cache
       - name: Store the previous run result
         if: failure()
         uses: martijnhols/actions-cache/save@v3
@@ -709,6 +750,7 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
+      # Force store previous failed test list to cache
       - name: Store the previous failed test result
         if: failure()
         uses: martijnhols/actions-cache/save@v3
@@ -749,6 +791,7 @@ jobs:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
 
+      # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test-result:
@@ -766,6 +809,7 @@ jobs:
     steps:
       - run: echo "All ui-test matrices completed"
 
+      # Download failed_spec list for all jobs
       - uses: actions/download-artifact@v2
         if: needs.ui-test.result
         id: download
@@ -773,16 +817,12 @@ jobs:
           name: failed-spec
           path: ~/failed_spec
 
-      - name: "Echo download path"
-        run: echo ${{steps.download.outputs}}
-
-      - name: "Echo all files"
-        run: echo ${{env.failed_spec_env}}
-
+      # Incase for any uti-test job failure, create combined failed spec
       - name: "combine all specs"
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
 
+      # Force save the failed spec list into a cache
       - name: Store the combined run result
         if: needs.ui-test.result
         uses: martijnhols/actions-cache/save@v3
@@ -793,6 +833,8 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
+      # Upload combined failed spec list to a file
+      # This is done for debugging.
       - name: upload combined failed spec
         if: needs.ui-test.result
         uses: actions/upload-artifact@v2
@@ -887,47 +929,48 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       # Build release Docker image and push to Docker Hub
-      - name: Push client release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: app/client
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
+      # Commenting push
+      #- name: Push client release image to Docker Hub
+      #  if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      #  working-directory: app/client
+      #  run: |
+      #    docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}} .
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
-      - name: Push client master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: app/client
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+      #- name: Push client master image to Docker Hub with commit tag
+      #  if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      #  working-directory: app/client
+      #  run: |
+      #    docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
+      #    docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
 
-      - name: Build and push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} \
-            $tag_args \
-            .
+      #- name: Build and push release image to Docker Hub
+      #  if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      #  working-directory: "."
+      #  run: |
+      #    tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
+      #    docker buildx build \
+      #      --platform linux/arm64,linux/amd64 \
+      #      --push \
+      #      --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} \
+      #      $tag_args \
+      #      .
 
-      - name: Build and push master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
-          tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            $tag_args \
-            .
+      #- name: Build and push master image to Docker Hub with commit tag
+      #  if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      #  working-directory: "."
+      #  run: |
+      #    tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
+      #    tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
+      #    docker buildx build \
+      #      --platform linux/arm64,linux/amd64 \
+      #      --push \
+      #      --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+      #      $tag_args \
+      #      .
 
       # - name: Check and push fat image to Docker Hub with commit tag
       #   if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -952,37 +995,37 @@ jobs:
       #     fi
 
       # Build release Docker image and push to Docker Hub
-      - name: Push server release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release'
-        working-directory: app/server
-        run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
+      #- name: Push server release image to Docker Hub
+      #  if: success() && github.ref == 'refs/heads/release'
+      #  working-directory: app/server
+      #  run: |
+      #    docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
-      - name: Push server master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master'
-        working-directory: app/server
-        run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+      #- name: Push server master image to Docker Hub with commit tag
+      #  if: success() && github.ref == 'refs/heads/master'
+      #  working-directory: app/server
+      #  run: |
+      #    docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
+      #    docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
       # Build release Docker image and push to Docker Hub
-      - name: Push RTS release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release'
-        working-directory: app/rts
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+      #- name: Push RTS release image to Docker Hub
+      #  if: success() && github.ref == 'refs/heads/release'
+      #  working-directory: app/rts
+      #  run: |
+      #    docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
-      - name: Push RTS master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master'
-        working-directory: app/rts
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
+      #- name: Push RTS master image to Docker Hub with commit tag
+      #  if: success() && github.ref == 'refs/heads/master'
+      #  working-directory: app/rts
+      #  run: |
+      #    docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
+      #    docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
+      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
