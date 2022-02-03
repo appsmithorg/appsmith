@@ -12,63 +12,7 @@
     "evaluationVersion": 2,
     "new": true
   },
-  "datasourceList": [
-    {
-      "userPermissions": [
-        "execute:datasources",
-        "manage:datasources",
-        "read:datasources"
-      ],
-      "gitSyncId": "61e528ec3d0a7d7212c5cfb9_61f270935090aa7077cb8793",
-      "name": "mongoDatasource",
-      "pluginId": "mongo-plugin",
-      "datasourceConfiguration": {
-        "connection": {
-          "mode": "READ_WRITE",
-          "type": "DIRECT",
-          "ssl": {
-            "authType": "DEFAULT"
-          }
-        },
-        "endpoints": [],
-        "sshProxyEnabled": false,
-        "properties": [
-          {
-            "key": "Use Mongo Connection String URI",
-            "value": "No"
-          },
-          {
-            "key": "Connection String URI"
-          }
-        ]
-      },
-      "invalids": [
-        "Missing endpoint(s)."
-      ],
-      "messages": [],
-      "isValid": false,
-      "new": true
-    },
-    {
-      "userPermissions": [
-        "execute:datasources",
-        "manage:datasources",
-        "read:datasources"
-      ],
-      "gitSyncId": "61e528ec3d0a7d7212c5cfb9_61f2712a5090aa7077cb8797",
-      "name": "postgresTest",
-      "pluginId": "postgres-plugin",
-      "datasourceConfiguration": {},
-      "invalids": [
-        "Missing endpoint.",
-        "Missing username for authentication.",
-        "Missing password for authentication."
-      ],
-      "messages": [],
-      "isValid": false,
-      "new": true
-    }
-  ],
+  "datasourceList": [],
   "pageList": [
     {
       "userPermissions": [
@@ -77,11 +21,11 @@
       ],
       "gitSyncId": "61f2706d5090aa7077cb878f_61f2706d5090aa7077cb8791",
       "unpublishedPage": {
-        "name": "Page1",
-        "slug": "page1",
+        "name": "importedPage",
+        "slug": "importedPage",
         "layouts": [
           {
-            "id": "Page1",
+            "id": "importedPage",
             "userPermissions": [],
             "dsl": {
               "widgetName": "MainContainer",
@@ -274,11 +218,11 @@
         "userPermissions": []
       },
       "publishedPage": {
-        "name": "Page1",
-        "slug": "page1",
+        "name": "importedPage",
+        "slug": "importedPage",
         "layouts": [
           {
-            "id": "Page1",
+            "id": "importedPage",
             "userPermissions": [],
             "dsl": {
               "widgetName": "MainContainer",
@@ -309,131 +253,9 @@
       "new": true
     }
   ],
-  "publishedDefaultPageName": "Page1",
-  "unpublishedDefaultPageName": "Page1",
-  "actionList": [
-    {
-      "id": "Page1_testQuery",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
-      "gitSyncId": "61f2706d5090aa7077cb878f_61f270a25090aa7077cb8795",
-      "pluginType": "DB",
-      "pluginId": "mongo-plugin",
-      "unpublishedAction": {
-        "name": "testQuery",
-        "datasource": {
-          "id": "mongoDatasource",
-          "userPermissions": [],
-          "pluginId": "mongo-plugin",
-          "messages": [],
-          "isValid": true,
-          "new": false
-        },
-        "pageId": "Page1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "formData": {
-            "command": "FIND",
-            "updateMany": {
-              "limit": "SINGLE"
-            },
-            "delete": {
-              "limit": "SINGLE"
-            },
-            "aggregate": {
-              "limit": "10"
-            },
-            "smartSubstitution": true,
-            "collection": "movies",
-            "find": {
-              "query": "{}"
-            }
-          }
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "testQuery"
-      },
-      "publishedAction": {
-        "datasource": {
-          "userPermissions": [],
-          "messages": [],
-          "isValid": true,
-          "new": true
-        },
-        "messages": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": []
-      },
-      "new": false
-    },
-    {
-      "id": "Page1_testQuery1",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
-      "gitSyncId": "61f2706d5090aa7077cb878f_61f271395090aa7077cb8799",
-      "pluginType": "DB",
-      "pluginId": "postgres-plugin",
-      "unpublishedAction": {
-        "name": "testQuery1",
-        "datasource": {
-          "id": "postgresTest",
-          "userPermissions": [],
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isValid": true,
-          "new": false
-        },
-        "pageId": "Page1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "SELECT * FROM users ORDER BY id LIMIT 10;",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": true
-            }
-          ]
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "testQuery1"
-      },
-      "publishedAction": {
-        "datasource": {
-          "userPermissions": [],
-          "messages": [],
-          "isValid": true,
-          "new": true
-        },
-        "messages": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": []
-      },
-      "new": false
-    }
-  ],
+  "publishedDefaultPageName": "importedPage",
+  "unpublishedDefaultPageName": "importedPage",
+  "actionList": [],
   "actionCollectionList": [],
   "decryptedFields": {},
   "editModeTheme": {

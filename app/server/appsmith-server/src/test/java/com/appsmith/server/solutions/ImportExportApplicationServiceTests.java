@@ -1096,7 +1096,7 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationIntoOrganization_pageRemovedInBranchApplication_Success() {
+    public void importApplicationIntoOrganization_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoOrganization_pageRemovedInBranchApplication_Success");
         testApplication.setOrganizationId(orgId);
@@ -1109,18 +1109,29 @@ public class ImportExportApplicationServiceTests {
         testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService.createApplication(testApplication, orgId).block();
+        String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
         PageDTO page = new PageDTO();
         page.setName("Page 2");
         page.setApplicationId(application.getId());
-        applicationPageService.createPage(page).block();
+        PageDTO savedPage = applicationPageService.createPage(page).block();
+
+        assert application.getId() != null;
+        Set<String> applicationPageIdsBeforeImport = Objects.requireNonNull(applicationRepository.findById(application.getId()).block())
+                .getPages()
+                .stream()
+                .map(ApplicationPage::getId)
+                .collect(Collectors.toSet());
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-removed.json").block();
+        applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
 
-        Application applicationMono = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
+        Application importedApplication = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
 
+        assert importedApplication != null;
         Mono<List<NewPage>> pageList = Flux.fromIterable(
-                applicationMono.getPages()
+                importedApplication
+                        .getPages()
                         .stream()
                         .map(ApplicationPage::getId)
                         .collect(Collectors.toList())
@@ -1129,10 +1140,16 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
                 .create(pageList)
                 .assertNext(newPages -> {
+                    // Check before import we had both the pages
+                    assertThat(applicationPageIdsBeforeImport).hasSize(2);
+                    assertThat(applicationPageIdsBeforeImport).contains(savedPage.getId());
+
                     assertThat(newPages.size()).isEqualTo(1);
-                    assertThat(applicationMono.getPages().size()).isEqualTo(1);
-                    assertThat(applicationMono.getPages().get(0).getId()).isEqualTo(newPages.get(0).getId());
-                    assertThat(newPages.get(0).getPublishedPage().getName()).isEqualTo("Page1");
+                    assertThat(importedApplication.getPages().size()).isEqualTo(1);
+                    assertThat(importedApplication.getPages().get(0).getId()).isEqualTo(newPages.get(0).getId());
+                    assertThat(newPages.get(0).getPublishedPage().getName()).isEqualTo("importedPage");
+                    assertThat(newPages.get(0).getGitSyncId()).isEqualTo(gitSyncIdBeforeImport);
+
                 })
                 .verifyComplete();
 
@@ -1154,12 +1171,24 @@ public class ImportExportApplicationServiceTests {
 
         Application application = applicationPageService.createApplication(testApplication, orgId).block();
 
+        String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
+
         PageDTO page = new PageDTO();
         page.setName("Page 2");
         page.setApplicationId(application.getId());
-        applicationPageService.createPage(page).block();
+        PageDTO savedPage = applicationPageService.createPage(page).block();
+
+        assert application.getId() != null;
+        Set<String> applicationPageIdsBeforeImport = Objects.requireNonNull(applicationRepository.findById(application.getId()).block())
+                .getPages()
+                .stream()
+                .map(ApplicationPage::getId)
+                .collect(Collectors.toSet());
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-added.json").block();
+        applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
+        applicationJson.getPageList().get(1).setGitSyncId(gitSyncIdBeforeImport);
+        applicationJson.getPageList().get(2).setGitSyncId(gitSyncIdBeforeImport);
 
         Application applicationMono = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
 
@@ -1173,11 +1202,16 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
                 .create(pageList)
                 .assertNext(newPages -> {
+                    // Check before import we had both the pages
+                    assertThat(applicationPageIdsBeforeImport).hasSize(2);
                     assertThat(newPages.size()).isEqualTo(3);
                     List<String> pageNames = newPages.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
                     assertThat(pageNames.contains("Page1"));
                     assertThat(pageNames.contains("Page2"));
                     assertThat(pageNames.contains("Page3"));
+                    for (NewPage newPage: newPages) {
+                        assertThat(newPage.getGitSyncId()).isEqualTo(gitSyncIdBeforeImport);
+                    }
                     assertThat(applicationMono.getPages().containsAll(pageNames));
                 })
                 .verifyComplete();
