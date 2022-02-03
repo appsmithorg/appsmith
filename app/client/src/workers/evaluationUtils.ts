@@ -362,7 +362,7 @@ export function validateActionProperty(
       parsed: value,
     };
   }
-  return validate(config, value, {});
+  return validate(config, value, {}, "");
 }
 
 export function getValidatedTree(tree: DataTree) {
