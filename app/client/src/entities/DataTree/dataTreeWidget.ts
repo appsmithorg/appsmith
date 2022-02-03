@@ -2,13 +2,26 @@ import WidgetFactory from "utils/WidgetFactory";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import _ from "lodash";
-import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { setOverridingProperty } from "./utils";
+import {
+  OverridingPropertyPaths,
+  PropertyOverrideDependency,
+  OverridingPropertyType,
+  DataTreeWidget,
+  ENTITY_TYPE,
+} from "./dataTreeFactory";
 
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
-  widgetMetaProps: Record<string, unknown>,
+  widgetMetaProps: Record<string, unknown> = {},
 ): DataTreeWidget => {
+  const derivedProps: any = {};
+  const blockedDerivedProps: Record<string, true> = {};
+  const unInitializedDefaultProps: Record<string, undefined> = {};
+  const propertyOverrideDependency: PropertyOverrideDependency = {};
+  const overridingPropertyPaths: OverridingPropertyPaths = {};
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   );
@@ -21,8 +34,8 @@ export const generateDataTreeWidget = (
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );
-  const derivedProps: any = {};
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
+  // Ensure all dynamic bindings are strings as they will be evaluated
   dynamicBindingPathList.forEach((dynamicPath) => {
     const propertyPath = dynamicPath.key;
     const propertyValue = _.get(widget, propertyPath);
@@ -31,26 +44,67 @@ export const generateDataTreeWidget = (
       _.set(widget, propertyPath, JSON.stringify(propertyValue));
     }
   });
+  // Derived props are stored in different maps for further treatment
   Object.keys(derivedPropertyMap).forEach((propertyName) => {
     // TODO regex is too greedy
+    // Replace the references to `this` with the widget name reference
+    // in the derived property bindings
     derivedProps[propertyName] = derivedPropertyMap[propertyName].replace(
       /this./g,
       `${widget.widgetName}.`,
     );
+    // Add these to the dynamicBindingPathList as well
     dynamicBindingPathList.push({
       key: propertyName,
     });
   });
-  const unInitializedDefaultProps: Record<string, undefined> = {};
-  Object.values(defaultProps).forEach((propertyName) => {
-    if (!(propertyName in widget)) {
-      unInitializedDefaultProps[propertyName] = undefined;
-    }
-  });
-  const blockedDerivedProps: Record<string, true> = {};
+
   Object.keys(derivedProps).forEach((propertyName) => {
+    // Do not log errors for the derived property bindings
     blockedDerivedProps[propertyName] = true;
   });
+
+  const overridingMetaPropsMap: Record<string, boolean> = {};
+
+  Object.entries(defaultProps).forEach(
+    ([propertyName, defaultPropertyName]) => {
+      // why default value is undefined ?
+      if (!(defaultPropertyName in widget)) {
+        unInitializedDefaultProps[defaultPropertyName] = undefined;
+      }
+      // defaultProperty on eval needs to override the widget's property eg: defaultText overrides text
+      setOverridingProperty({
+        propertyOverrideDependency,
+        overridingPropertyPaths,
+        value: defaultPropertyName,
+        key: propertyName,
+        type: OverridingPropertyType.DEFAULT,
+      });
+
+      if (propertyName in defaultMetaProps) {
+        // Overriding properties will override the values of a property when evaluated
+        setOverridingProperty({
+          propertyOverrideDependency,
+          overridingPropertyPaths,
+          value: `meta.${propertyName}`,
+          key: propertyName,
+          type: OverridingPropertyType.META,
+        });
+        overridingMetaPropsMap[propertyName] = true;
+      }
+    },
+  );
+
+  const overridingMetaProps: Record<string, unknown> = {};
+
+  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
+  Object.entries(defaultMetaProps).forEach(([key, value]) => {
+    if (overridingMetaPropsMap[key]) {
+      overridingMetaProps[key] =
+        key in widgetMetaProps ? widgetMetaProps[key] : value;
+    }
+  });
+
   const {
     bindingPaths,
     triggerPaths,
@@ -60,13 +114,15 @@ export const generateDataTreeWidget = (
     ...defaultMetaProps,
     ...unInitializedDefaultProps,
     ..._.keyBy(dynamicBindingPathList, "key"),
+    ...overridingPropertyPaths,
   });
+
   return {
     ...widget,
+    ...unInitializedDefaultProps,
     ...defaultMetaProps,
     ...widgetMetaProps,
     ...derivedProps,
-    ...unInitializedDefaultProps,
     defaultProps,
     defaultMetaProps: Object.keys(defaultMetaProps),
     dynamicBindingPathList,
@@ -74,6 +130,11 @@ export const generateDataTreeWidget = (
       ...widget.logBlackList,
       ...blockedDerivedProps,
     },
+    meta: {
+      ...overridingMetaProps,
+    },
+    propertyOverrideDependency,
+    overridingPropertyPaths,
     bindingPaths,
     triggerPaths,
     validationPaths,

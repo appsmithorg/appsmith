@@ -297,10 +297,13 @@
                 "topRow": 27,
                 "bottomRow": 34,
                 "parentRowSpace": 10,
-                "type": "DROP_DOWN_WIDGET",
+                "type": "SELECT_WIDGET",
                 "serverSideFiltering": false,
                 "hideCard": false,
-                "defaultOptionValue": "male",
+                "defaultOptionValue": {
+                    "label": "Male",
+                    "value": "male"
+                },
                 "selectionType": "SINGLE_SELECT",
                 "animateLoading": true,
                 "parentColumnSpace": 33.375,
@@ -329,10 +332,13 @@
                 "topRow": 12,
                 "bottomRow": 19,
                 "parentRowSpace": 10,
-                "type": "DROP_DOWN_WIDGET",
+                "type": "SELECT_WIDGET",
                 "serverSideFiltering": false,
                 "hideCard": false,
-                "defaultOptionValue": "BLUE",
+                "defaultOptionValue": {
+                    "label": "Blue",
+                    "value": "BLUE"
+                },
                 "selectionType": "SINGLE_SELECT",
                 "animateLoading": true,
                 "parentColumnSpace": 33.375,
