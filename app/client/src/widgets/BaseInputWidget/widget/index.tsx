@@ -304,7 +304,7 @@ class BaseInputWidget<
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   }
 
-  onSubmitSuccess(result: ExecutionResult) {
+  onSubmitSuccess = (result: ExecutionResult) => {
     if (result.success && this.props.resetOnSubmit) {
       this.props.updateWidgetMetaProperty("text", "", {
         triggerPropertyName: "onSubmit",
@@ -314,7 +314,7 @@ class BaseInputWidget<
         },
       });
     }
-  }
+  };
 
   handleKeyDown(
     e:
