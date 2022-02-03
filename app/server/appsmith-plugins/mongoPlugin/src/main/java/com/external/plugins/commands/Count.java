@@ -60,17 +60,12 @@ public class Count extends MongoCommand {
 
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "COUNT");
+        setValueSafelyInFormData(configMap, COUNT_QUERY, "{\"_id\": {\"$exists\": true}}");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"count\": \"" + collectionName + "\",\n" +
-                "  \"counts\": [\n" +
-                "    {\n" +
-                "      \"q\": {\n" +
-                "        \"_id\": \"id_of_document_to_count\"\n" +
-                "      },\n" +
-                "    }\n" +
-                "  ]\n" +
+                "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
                 "}\n";
 
         return Collections.singletonList(new DatasourceStructure.Template(

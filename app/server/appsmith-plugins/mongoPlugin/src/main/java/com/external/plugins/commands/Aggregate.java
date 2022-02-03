@@ -104,21 +104,21 @@ public class Aggregate extends MongoCommand {
     @Override
     public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
         String collectionName = (String) templateConfiguration.get("collectionName");
-        String aggregatePipeline = (String) templateConfiguration.get("aggregatePipeline");
 
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
-        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, aggregatePipeline); //TODO: Transform this pipeline to string values for the rawQuery
-        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
+        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, "[ {\"$sort\" : {\"_id\": 1} } ]");
+        // setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10"); according to Mongo docs Limit is not a key for the aggregate command.
+
 
         String rawQuery = "{\n" +
                 "  \"aggregate\": \"" + collectionName + "\",\n" +
-                "  \"aggregates\": " + aggregatePipeline + 
+                "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ]" + 
                 " ,\n" +
-                " \"limit\": 2\n" +
+                "  \"explain\": \"true\", \n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
                 "}\n";
 
         return Collections.singletonList(new DatasourceStructure.Template(
