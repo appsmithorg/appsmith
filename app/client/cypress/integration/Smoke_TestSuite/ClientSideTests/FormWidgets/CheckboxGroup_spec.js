@@ -8,7 +8,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("1. Checkbox Group Widget Functionality", function() {
+  it("1. Checkbox Group Functionality", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     /**
      * @param{Text} Random Text
@@ -20,35 +20,32 @@ describe("Checkbox Group Widget Functionality", function() {
       formWidgetsPage.checkboxGroupWidget,
       formWidgetsPage.checkboxGroupInput,
     );
-    /**
-     * @param{IndexValue} Provide Input Index Value
-     * @param{Text} Index Text Value.
-     *
-     */
-    cy.radioInput(0, this.data.radio1);
+
+    // Add a new option
+    const optionToAdd = {
+      label: "Yellow",
+      value: "YELLOW",
+    };
+    cy.get(".t--property-control-options .CodeMirror textarea")
+      .first()
+      .focus({ force: true })
+      .type("{ctrl}{end}", {
+        force: true,
+      })
+      .type("{ctrl}{uparrow}", { force: true })
+      .type("{end}", {
+        force: true,
+      })
+      .type(",{enter}")
+      .type(JSON.stringify(optionToAdd), {
+        parseSpecialCharSequences: false,
+      });
+    // Assert
     cy.get(formWidgetsPage.labelCheckboxGroup)
-      .eq(1)
-      .should("have.text", "test1");
-    cy.radioInput(1, "1");
-    cy.radioInput(2, this.data.radio2);
-    cy.get(formWidgetsPage.labelCheckboxGroup)
-      .eq(2)
-      .should("have.text", this.data.radio2);
-    cy.radioInput(3, "2");
-    cy.get(formWidgetsPage.radioAddButton).click({ force: true });
-    cy.radioInput(4, this.data.radio4);
-    cy.get(formWidgetsPage.deleteradiovalue)
-      .eq(2)
-      .click({ force: true });
-    cy.wait(200);
-    cy.get(formWidgetsPage.labelCheckboxGroup).should(
-      "not.have.value",
-      "test4",
-    );
-    cy.get(formWidgetsPage.deleteradiovalue)
-      .eq(2)
-      .click({ force: true });
-    cy.wait(200);
+      .should("have.length", 5)
+      .eq(4)
+      .contains("Yellow");
+
     /**
      * @param{Show Alert} Css for InputChange
      */
@@ -80,8 +77,8 @@ describe("Checkbox Group Widget Functionality", function() {
 
   it("4. Checkbox Group Functionality To Button Text", function() {
     cy.get(publish.checkboxGroupWidget + " " + "label")
-      .eq(2)
-      .should("have.text", "test2");
+      .eq(3)
+      .should("have.text", "Red");
     cy.get(publish.backToEditor).click();
   });
 
@@ -90,8 +87,8 @@ describe("Checkbox Group Widget Functionality", function() {
     const uncheckedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:not(:checked)`;
     // Deselect all
     cy.get(selectAllSelector).click();
-    // Should get 2 unchecked option inputs
-    cy.get(uncheckedOptionInputs).should("have.length", 2);
+    // Should get 4 unchecked option inputs
+    cy.get(uncheckedOptionInputs).should("have.length", 4);
   });
 
   it("handleSelectAllChange: checked", function() {
@@ -99,8 +96,8 @@ describe("Checkbox Group Widget Functionality", function() {
     const checkedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:checked`;
     // Select all
     cy.get(selectAllSelector).click();
-    // Should get 2 checked option inputs
-    cy.get(checkedOptionInputs).should("have.length", 2);
+    // Should get 4 checked option inputs
+    cy.get(checkedOptionInputs).should("have.length", 4);
   });
 
   it("Checkbox Group Functionality To alignment options", function() {
