@@ -140,7 +140,8 @@ export type EditorProps = EditorStyleProps &
     isInvalid?: boolean;
     isEditorHidden?: boolean;
     codeEditorVisibleOverflow?: boolean; // flag for determining the input overflow type for the code editor
-    embeddedDatasourceUrl?: boolean;
+    showCustomToolTipForHighlightedText?: boolean;
+    highlightedTextClassName?: string;
     handleMouseEnter?: (event: MouseEvent) => void;
     handleMouseLeave?: () => void;
   };
@@ -163,7 +164,7 @@ class CodeEditor extends Component<Props, State> {
     marking: [bindingMarker],
     hinting: [bindingHint, commandsHelper],
   };
-  // this is the higlighted element for the datasource url in the EmbeddedDatasourcePathField component
+  // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: any;
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
@@ -309,10 +310,13 @@ class CodeEditor extends Component<Props, State> {
       }
     });
 
-    // this code only runs when we are in the EmbeddedDatasourcePathField component
-    if (this.props.embeddedDatasourceUrl) {
+    // this code only runs when we want custom tool tip for any highlighted text inside codemirror instance
+    if (
+      this.props.showCustomToolTipForHighlightedText &&
+      this.props.highlightedTextClassName
+    ) {
       this.highlightedUrlElement = document.getElementsByClassName(
-        "datasource-highlight",
+        this.props.highlightedTextClassName, // the text class name is the classname used for the markText fn for highlighting the text.
       )[0];
       // if the highlighted element exists
       if (

@@ -466,7 +466,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       fill: true,
       expected: getExpectedValue({ type: ValidationTypes.SAFE_URL }),
       codeEditorVisibleOverflow,
-      embeddedDatasourceUrl: true,
+      showCustomToolTipForHighlightedText: true,
+      highlightedTextClassName: "datasource-highlight",
       handleMouseEnter: this.handleMouseEnter,
       handleMouseLeave: this.handleMouseLeave,
     };
