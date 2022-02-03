@@ -11,13 +11,19 @@ describe("DataTreeEvaluator", () => {
         [
           "(function() { return this.params.property })()",
           "(() => { return this.params.property })()",
-          'this.params.property || "1=1"',
+          'this.params.property || "default value"',
+          'this.params.property1 || "default value"',
         ],
         {
           property: "my value",
         },
       );
-      expect(result).toStrictEqual(["my value", "my value", "my value"]);
+      expect(result).toStrictEqual([
+        "my value",
+        "my value",
+        "my value",
+        "default value",
+      ]);
     });
 
     it("handles this?.params.property", () => {
@@ -25,13 +31,19 @@ describe("DataTreeEvaluator", () => {
         [
           "(() => { return this?.params.property })()",
           "(function() { return this?.params.property })()",
-          'this?.params.property || "1=1"',
+          'this?.params.property || "default value"',
+          'this?.params.property1 || "default value"',
         ],
         {
           property: "my value",
         },
       );
-      expect(result).toStrictEqual(["my value", "my value", "my value"]);
+      expect(result).toStrictEqual([
+        "my value",
+        "my value",
+        "my value",
+        "default value",
+      ]);
     });
 
     it("handles this?.params?.property", () => {
@@ -39,13 +51,19 @@ describe("DataTreeEvaluator", () => {
         [
           "(() => { return this?.params?.property })()",
           "(function() { return this?.params?.property })()",
-          'this?.params?.property || "1=1"',
+          'this?.params?.property || "default value"',
+          'this?.params?.property1 || "default value"',
         ],
         {
           property: "my value",
         },
       );
-      expect(result).toStrictEqual(["my value", "my value", "my value"]);
+      expect(result).toStrictEqual([
+        "my value",
+        "my value",
+        "my value",
+        "default value",
+      ]);
     });
 
     it("handles executionParams.property", () => {
@@ -53,13 +71,19 @@ describe("DataTreeEvaluator", () => {
         [
           "(function() { return executionParams.property })()",
           "(() => { return executionParams.property })()",
-          'executionParams.property || "1=1"',
+          'executionParams.property || "default value"',
+          'executionParams.property1 || "default value"',
         ],
         {
           property: "my value",
         },
       );
-      expect(result).toStrictEqual(["my value", "my value", "my value"]);
+      expect(result).toStrictEqual([
+        "my value",
+        "my value",
+        "my value",
+        "default value",
+      ]);
     });
 
     it("handles executionParams?.property", () => {
@@ -67,13 +91,19 @@ describe("DataTreeEvaluator", () => {
         [
           "(function() { return executionParams?.property })()",
           "(() => { return executionParams?.property })()",
-          'executionParams?.property || "1=1"',
+          'executionParams?.property || "default value"',
+          'executionParams?.property1 || "default value"',
         ],
         {
           property: "my value",
         },
       );
-      expect(result).toStrictEqual(["my value", "my value", "my value"]);
+      expect(result).toStrictEqual([
+        "my value",
+        "my value",
+        "my value",
+        "default value",
+      ]);
     });
   });
 });
