@@ -58,6 +58,7 @@ import { isMac } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
+import useAutoGrow from "utils/hooks/useAutoGrow";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -184,6 +185,8 @@ function Deploy() {
 
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
 
+  const autogrowHeight = useAutoGrow(commitMessageDisplay, 37);
+
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
@@ -202,12 +205,15 @@ function Deploy() {
           }}
         >
           <TextInput
+            $padding="8px 14px"
             autoFocus
             disabled={commitInputDisabled}
             fill
+            height={`${Math.min(autogrowHeight, 80)}px`}
             onChange={setCommitMessage}
             ref={commitInputRef}
             trimValue={false}
+            useTextArea
             value={commitMessageDisplay}
           />
         </SubmitWrapper>
