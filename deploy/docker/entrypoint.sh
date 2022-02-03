@@ -23,7 +23,12 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" > "$ENV_PATH"
+    AUTO_GEN_KEYCLOAK_PASSWORD=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+    
+    bash "$TEMPLATES_PATH/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" "$AUTO_GEN_KEYCLOAK_PASSWORD" > "$ENV_PATH"
   fi
 
   printenv | grep -E '^APPSMITH_|^MONGO_' > "$TEMPLATES_PATH/pre-define.env"
@@ -119,6 +124,14 @@ chmod-mongodb-key() {
   chmod 600 "$1"
 }
 
+init_keycloak() {
+  
+  /opt/keycloak/bin/add-user-keycloak.sh --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD"
+
+  # Make keycloak persistent across reboots
+  ln -s /appsmith-stacks/data/keycloak /opt/keycloak/standalone/data
+}
+
 # Keep Let's Encrypt directory persistent
 mount_letsencrypt_directory() {
   echo "Mounting Let's encrypt directory"
@@ -147,20 +160,24 @@ configure_supervisord() {
   if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
     cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
   fi
+
+  # copy keycloak configuration without any conditions.
+  cp "$SUPERVISORD_CONF_PATH/keycloak.conf" /etc/supervisor/conf.d/
 }
 
 # Main Section
 init_env_file
 unset_unused_variables
 init_mongodb
+init_keycloak
 mount_letsencrypt_directory
 configure_supervisord
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
-mkdir -p /appsmith-stacks/data/{backup,restore}
+mkdir -p /appsmith-stacks/data/{backup,restore,keycloak}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,keycloak}
 
 # Handle CMD command
 exec "$@"

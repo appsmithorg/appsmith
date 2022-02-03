@@ -9,6 +9,10 @@ WORKDIR /opt/appsmith
 ENV LANG C.UTF-8  
 ENV LC_ALL C.UTF-8 
 
+RUN mkdir -p /tmp/keycloak /opt/keycloak
+
+COPY ./app/keycloak-docker-config/launch.sh /tmp/keycloak/launch.sh
+
 # Update APT packages - Base Layer
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
   supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
@@ -20,14 +24,25 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+# Download MongoDB key and add to apt. Also download keycloak bundle from remote server
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - && \
+    wget -O /tmp/keycloak/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/16.1.1/keycloak-16.1.1.tar.gz
+
 # Install MongoDB v4.0.5, Redis, NodeJS - Service Layer
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
 RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get remove wget -y
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
   && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
+# Untar & install keycloak - Service Layer
+RUN cd /tmp/keycloak \
+    && tar -C /opt/keycloak -zxvf keycloak.tar.gz --strip-components 1 \
+    && mkdir -p /etc/keycloak \
+    && cp /tmp/keycloak/launch.sh /opt/keycloak/bin/ \
+    && chmod +x /opt/keycloak/bin/launch.sh \
+    && chmod +x /opt/keycloak/bin/standalone.sh
 
 # Clean up cache file - Service layer
 RUN rm -rf \
