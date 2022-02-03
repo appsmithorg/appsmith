@@ -13,8 +13,8 @@ describe("Form reset functionality", function() {
       .click()
       .should("have.class", "selected-row");
     // Select three options
-    cy.get(".t--draggable-multiselectwidget").click({ force: true });
-    cy.get(".t--draggable-multiselectwidget").type("Option");
+    cy.get(".t--draggable-multiselectwidgetv2").click({ force: true });
+    cy.get(".t--draggable-multiselectwidgetv2").type("Option");
     cy.dropdownMultiSelectDynamic("Option 1");
     cy.dropdownMultiSelectDynamic("Option 2");
     cy.dropdownMultiSelectDynamic("Option 3");
@@ -33,7 +33,7 @@ describe("Form reset functionality", function() {
       .eq(2)
       .should("not.have.class", "selected-row");
     // Verify dropdown does not have selected values
-    cy.get(".t-draggable-dropdownwidget .bp3-tag-input-values .bp3-tag").should(
+    cy.get(".t-draggable-selectwidget .bp3-tag-input-values .bp3-tag").should(
       ($span) => {
         expect($span).to.have.length(0);
       },

@@ -1,4 +1,5 @@
 import { Alignment, Classes, Switch } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
@@ -17,8 +18,12 @@ const SwitchComponentContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  .${Classes.CONTROL} {
+  &&& .${Classes.CONTROL} {
     margin: 0;
+    input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${Colors.GREEN};
+      border: 1px solid ${Colors.GREEN};
+    }
   }
   &.${Alignment.RIGHT} {
     justify-content: flex-end;

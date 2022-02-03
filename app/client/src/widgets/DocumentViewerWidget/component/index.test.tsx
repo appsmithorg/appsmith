@@ -36,7 +36,7 @@ describe("validate document viewer url", () => {
       {
         url:
           "https://roteemealplancover.s3.ap-south-1.amazonaws.com/sample/Project+proposal.pdf",
-        viewer: "pdf",
+        viewer: "url",
         errorMessage: "",
         renderer: Renderers.DOCUMENT_VIEWER,
       },
