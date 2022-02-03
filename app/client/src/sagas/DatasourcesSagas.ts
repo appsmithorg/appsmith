@@ -31,7 +31,6 @@ import {
 import {
   changeDatasource,
   createDatasourceFromForm,
-  expandDatasourceEntity,
   fetchDatasourceStructure,
   setDatsourceEditorMode,
   updateDatasourceSuccess,
@@ -109,9 +108,6 @@ function* fetchDatasourcesSaga() {
         type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
         payload: response.data,
       });
-      if (response.data.length) {
-        yield put(expandDatasourceEntity(response.data[0].id));
-      }
     }
   } catch (error) {
     yield put({
@@ -299,7 +295,7 @@ export function* deleteDatasourceSaga(
       text: error.message,
       source: {
         id: actionPayload.payload.id,
-        name: datasource.name,
+        name: datasource?.name ?? "Datasource name is not set",
         type: ENTITY_TYPE.DATASOURCE,
       },
     });

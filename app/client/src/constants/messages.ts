@@ -306,6 +306,8 @@ export const OMNIBAR_PLACEHOLDER = () =>
 export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
+export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
+  "Create a new Query, API or JSObject";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -581,6 +583,7 @@ export const IS_MERGING = () => "MERGING CHANGES...";
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
+export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "RETRY";
 export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
@@ -668,6 +671,8 @@ export const DOC_DESCRIPTION = () =>
   `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
+export const ACTION_OPERATION_DESCRIPTION = () =>
+  `Create a new Query, API or JS Object`;
 
 export const TRIGGER_ACTION_VALIDATION_ERROR = (
   functionName: string,
@@ -909,9 +914,12 @@ export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
+export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
+export const ADD_QUERY_JS_TOOLTIP = () => "Add a new Query, API or JS Object";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -986,3 +994,10 @@ export const END_TITLE = () => "What’s next? Start building your own apps.";
 export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "START BUILDING AN APP";
+
+export const CONTEXT_EDIT_NAME = () => "Edit Name";
+export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
+export const CONTEXT_MOVE = () => "Move to page";
+export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DELETE = () => "Delete";
+export const CONTEXT_NO_PAGE = () => "No pages";

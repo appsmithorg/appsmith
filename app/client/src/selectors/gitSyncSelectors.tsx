@@ -149,8 +149,14 @@ export const getRemoteUrlDocUrl = (state: AppState) =>
   "https://docs.appsmith.com/";
 
 // git deploy conflict doc url
-export const getConflictFoundDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+export const getConflictFoundDocUrlDeploy = (state: AppState) =>
+  state.ui.gitSync.pullError?.error?.referenceDoc ||
+  "https://docs.appsmith.com/";
+
+// git deploy conflict doc url
+export const getConflictFoundDocUrlMerge = (state: AppState) =>
+  state.ui.gitSync.mergeStatus?.referenceDoc ||
+  state.ui.gitSync.mergeError?.error?.referenceDoc ||
   "https://docs.appsmith.com/";
 
 // git disconnect learn more doc url
@@ -165,10 +171,10 @@ export const getRepoLimitedDocUrl = (state: AppState) =>
 
 // git disconnect learn more doc url
 export const getConnectingErrorDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  state.ui.gitSync.connectError?.error.referenceDoc ||
   "https://docs.appsmith.com/";
 
 // git disconnect learn more doc url
 export const getUpstreamErrorDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  state.ui.gitSync.commitAndPushError?.error?.referenceDoc ||
   "https://docs.appsmith.com/";

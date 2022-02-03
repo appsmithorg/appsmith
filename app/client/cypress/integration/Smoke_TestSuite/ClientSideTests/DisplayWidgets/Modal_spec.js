@@ -15,7 +15,9 @@ describe("Modal Widget Functionality", function() {
   });
 
   it("Open Existing Modal from created Widgets list", () => {
-    cy.get(".widgets").click();
+    cy.get(".t--entity-name")
+      .contains("WIDGETS")
+      .click();
     cy.get(".t--entity-name:contains(Modal1)").click();
     cy.get(".t--modal-widget").should("exist");
   });
@@ -48,8 +50,8 @@ describe("Modal Widget Functionality", function() {
 
     cy.get("body").type(`{${modifierKey}}v`);
 
-    cy.get('.bp3-collapse-body > [step="2"]')
-      .first()
+    cy.get('.bp3-collapse-body > [step="0"]')
+      .eq(1)
       .children()
       .should("have.length", 2);
   });

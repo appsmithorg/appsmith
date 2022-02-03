@@ -744,6 +744,14 @@ public class ImportExportApplicationServiceTests {
                 actionList.forEach(newAction -> {
                     ActionDTO actionDTO = newAction.getUnpublishedAction();
                     assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+                    if (StringUtils.equals(actionDTO.getName(), "api_wo_auth")) {
+                        ActionDTO publishedAction = newAction.getPublishedAction();
+                        assertThat(publishedAction).isNotNull();
+                        assertThat(publishedAction.getActionConfiguration()).isNotNull();
+                        // Test the fallback page ID from the unpublishedAction is copied to published version when
+                        // published version does not have pageId
+                        assertThat(actionDTO.getPageId()).isEqualTo(publishedAction.getPageId());
+                    }
                     if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
                         collectionIdInAction.add(actionDTO.getCollectionId());
                     }

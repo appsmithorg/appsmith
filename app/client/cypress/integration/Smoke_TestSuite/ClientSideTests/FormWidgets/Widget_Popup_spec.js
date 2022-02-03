@@ -8,26 +8,25 @@ describe("Dropdown Widget Functionality", function() {
   });
 
   it("Verify dropdown width of Select widgets and menu button", function() {
-    cy.wait(7000);
     // Select
-    cy.get(formWidgetsPage.dropdownWidget)
+    cy.get(formWidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .invoke("outerWidth")
-      .should("eq", 230.75);
-    cy.get(formWidgetsPage.dropdownWidget)
+      .should("eq", 147.1875);
+    cy.get(formWidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({
         force: true,
       });
     cy.get(".select-popover-wrapper")
       .invoke("outerWidth")
-      .should("eq", 230.75);
+      .should("eq", 180);
 
     // Menu Button
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
       .invoke("outerWidth")
-      .should("eq", 230.75);
+      .should("eq", 147.1875);
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
       .click({
@@ -35,27 +34,27 @@ describe("Dropdown Widget Functionality", function() {
       });
     cy.get(".menu-button-popover")
       .invoke("outerWidth")
-      .should("eq", 230.75);
+      .should("eq", 147.1875);
 
     // MultiSelect
-    cy.get(formWidgetsPage.multiselectWidget)
+    cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-multiple")
       .invoke("width")
-      .should("eq", 230.75);
-    cy.get(formWidgetsPage.multiselectWidget)
+      .should("eq", 147.1875);
+    cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-search-input")
       .first()
       .focus({ force: true })
       .type("{uparrow}", { force: true });
     cy.get(".multi-select-dropdown")
       .invoke("width")
-      .should("eq", 231);
+      .should("eq", 147);
 
     //Multi tree Select
     cy.get(formWidgetsPage.multiselecttreeWidget)
       .find(".rc-tree-select-multiple")
       .invoke("width")
-      .should("eq", 230.75);
+      .should("eq", 147.1875);
     cy.get(formWidgetsPage.multiselecttreeWidget)
       .find(".rc-tree-select-selection-search-input")
       .first()
@@ -63,13 +62,13 @@ describe("Dropdown Widget Functionality", function() {
       .type("{uparrow}", { force: true });
     cy.get(".tree-multiselect-dropdown")
       .invoke("outerWidth")
-      .should("eq", 231);
+      .should("eq", 147.1875);
 
     // Tree Select
     cy.get(formWidgetsPage.singleselecttreeWidget)
       .find(".rc-tree-select-single")
       .invoke("outerWidth")
-      .should("eq", 230.75);
+      .should("eq", 147.1875);
     cy.get(formWidgetsPage.singleselecttreeWidget)
       .find(".rc-tree-select-selection-search-input")
       .first()
@@ -77,6 +76,6 @@ describe("Dropdown Widget Functionality", function() {
       .type("{uparrow}", { force: true });
     cy.get(".single-tree-select-dropdown")
       .invoke("outerWidth")
-      .should("eq", 231);
+      .should("eq", 147.1875);
   });
 });
