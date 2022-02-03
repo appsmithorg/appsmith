@@ -1501,7 +1501,7 @@ public class FilterDataServiceTest {
             List<Map<String, String>> sortBy = new ArrayList<>();
             Map<String, String> sortCondition = new HashMap<>();
             sortCondition.put(SORT_BY_COLUMN_NAME_KEY, "orderAmount");
-            sortCondition.put(SORT_BY_TYPE_KEY, "Descending");
+            sortCondition.put(SORT_BY_TYPE_KEY, VALUE_DESCENDING);
             sortBy.add(sortCondition);
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
