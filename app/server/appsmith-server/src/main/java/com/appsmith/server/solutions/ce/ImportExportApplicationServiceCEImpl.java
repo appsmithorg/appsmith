@@ -792,18 +792,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
 
                                 // If pageId is missing in the actionDTO create a fallback pageId
-                                final String parentPageId = !StringUtils.isEmpty(unpublishedAction.getPageId())
-                                        ? unpublishedAction.getPageId()
-                                        : publishedAction != null && !StringUtils.isEmpty(publishedAction.getPageId())
-                                            ? publishedAction.getPageId()
-                                            : pageNameMap.keySet().stream().findAny().orElse(null);
+                                final String fallbackParentPageId = unpublishedAction.getPageId();
 
                                 // pageNameMap.get(action.getPageId())
                                 if (unpublishedAction.getName() != null) {
                                     unpublishedAction.setId(newAction.getId());
-                                    if (StringUtils.isEmpty(unpublishedAction.getPageId())) {
-                                        unpublishedAction.setPageId(parentPageId);
-                                    }
                                     parentPage = updatePageInAction(unpublishedAction, pageNameMap, actionIdMap);
                                     sanitizeDatasourceInActionDTO(unpublishedAction, datasourceMap, pluginMap, organizationId, false);
                                 }
@@ -811,7 +804,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 if (publishedAction != null && publishedAction.getName() != null) {
                                     publishedAction.setId(newAction.getId());
                                     if (StringUtils.isEmpty(publishedAction.getPageId())) {
-                                        publishedAction.setPageId(parentPageId);
+                                        publishedAction.setPageId(fallbackParentPageId);
                                     }
                                     NewPage publishedActionPage = updatePageInAction(publishedAction, pageNameMap, actionIdMap);
                                     parentPage = parentPage == null ? publishedActionPage : parentPage;
@@ -920,18 +913,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
 
                                 // If pageId is missing in the actionDTO create a fallback pageId
-                                final String parentPageId = !StringUtils.isEmpty(unpublishedCollection.getPageId())
-                                        ? unpublishedCollection.getPageId()
-                                        : publishedCollection != null && !StringUtils.isEmpty(publishedCollection.getPageId())
-                                        ? publishedCollection.getPageId()
-                                        : pageNameMap.keySet().stream().findAny().orElse(null);
+                                final String fallbackParentPageId = unpublishedCollection.getPageId();
 
                                 if (unpublishedCollection.getName() != null) {
                                     unpublishedCollection.setDefaultToBranchedActionIdsMap(unpublishedActionCollectionIdMap.get(importedActionCollectionId));
                                     unpublishedCollection.setPluginId(pluginMap.get(unpublishedCollection.getPluginId()));
-                                    if (StringUtils.isEmpty(unpublishedCollection.getPageId())) {
-                                        unpublishedCollection.setPageId(parentPageId);
-                                    }
                                     parentPage = updatePageInActionCollection(unpublishedCollection, pageNameMap);
                                 }
 
@@ -939,7 +925,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     publishedCollection.setDefaultToBranchedActionIdsMap(publishedActionCollectionIdMap.get(importedActionCollectionId));
                                     publishedCollection.setPluginId(pluginMap.get(publishedCollection.getPluginId()));
                                     if (StringUtils.isEmpty(publishedCollection.getPageId())) {
-                                        publishedCollection.setPageId(parentPageId);
+                                        publishedCollection.setPageId(fallbackParentPageId);
                                     }
                                     NewPage publishedCollectionPage = updatePageInActionCollection(publishedCollection, pageNameMap);
                                     parentPage = parentPage == null ? publishedCollectionPage : parentPage;
