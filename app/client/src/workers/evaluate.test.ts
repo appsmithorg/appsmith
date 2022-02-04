@@ -30,6 +30,9 @@ describe("evaluateSync", () => {
     triggerPaths: {},
     validationPaths: {},
     logBlackList: {},
+    overridingPropertyPaths: {},
+    privateWidgets: {},
+    propertyOverrideDependency: {},
   };
   const dataTree: DataTree = {
     Input1: widget,
@@ -75,7 +78,7 @@ describe("evaluateSync", () => {
     const result = wrongJS
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "wrongJS",
@@ -89,7 +92,7 @@ describe("evaluateSync", () => {
     const result = wrongJS
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "wrongJS",
@@ -108,7 +111,7 @@ describe("evaluateSync", () => {
     const result = {}.map()
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "{}.map()",
@@ -135,7 +138,7 @@ describe("evaluateSync", () => {
     const result = setTimeout(() => {}, 100)
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "setTimeout(() => {}, 100)",
@@ -151,7 +154,7 @@ describe("evaluateSync", () => {
   it("evaluates functions with callback data", () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = evaluate(js, dataTree, {}, callbackData);
+    const response = evaluate(js, dataTree, {}, {}, callbackData);
     expect(response.result).toBe("test1");
   });
   it("handles EXPRESSIONS with new lines", () => {
@@ -165,21 +168,37 @@ describe("evaluateSync", () => {
   });
   it("handles TRIGGERS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, undefined);
+    let response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, undefined);
+    response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("handles ANONYMOUS_FUNCTION with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, undefined);
+    let response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, undefined);
+    response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
+  });
+  it("has access to this context", () => {
+    const js = "this.contextVariable";
+    const thisContext = { contextVariable: "test" };
+    const response = evaluate(js, dataTree, {}, { thisContext });
+    expect(response.result).toBe("test");
+    // there should not be any error when accessing "this" variables
+    expect(response.errors).toHaveLength(0);
+  });
+
+  it("has access to additional global context", () => {
+    const js = "contextVariable";
+    const globalContext = { contextVariable: "test" };
+    const response = evaluate(js, dataTree, {}, { globalContext });
+    expect(response.result).toBe("test");
+    expect(response.errors).toHaveLength(0);
   });
 });
 
@@ -256,7 +275,7 @@ describe("isFunctionAsync", () => {
       if (typeof testFunc === "string") {
         testFunc = eval(testFunc);
       }
-      const actual = isFunctionAsync(testFunc, {});
+      const actual = isFunctionAsync(testFunc, {}, {});
       expect(actual).toBe(testCase.expected);
     }
   });
