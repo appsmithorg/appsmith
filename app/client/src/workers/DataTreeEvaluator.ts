@@ -1573,10 +1573,6 @@ export default class DataTreeEvaluator {
       );
     }
 
-    const dataTreeWithExecutionParams = Object.assign({}, this.evalTree, {
-      [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
-    });
-
     return bindings.map((binding) => {
       // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
       // also helps with dealing with IIFE which are normal functions (not arrow)
@@ -1587,7 +1583,7 @@ export default class DataTreeEvaluator {
       );
       return this.getDynamicValue(
         `{{${replacedBinding}}}`,
-        dataTreeWithExecutionParams,
+        this.evalTree,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"
