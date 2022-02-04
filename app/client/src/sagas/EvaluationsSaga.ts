@@ -140,7 +140,7 @@ function* evaluateTreeSaga(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
 
-  yield put(updateMetaState(updates, dataTree));
+  yield put(updateMetaState(dataTree));
 
   const updatedDataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });

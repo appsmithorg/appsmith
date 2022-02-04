@@ -805,11 +805,10 @@ export const overrideWidgetProperties = (
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
 
-    overridingPropertyPaths.forEach((overriddenPropertyPath) => {
-      const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
+    overridingPropertyPaths.forEach((overriddenPropertyKey) => {
       _.set(
         currentTree,
-        [entity.widgetName, ...overriddenPropertyPathArray],
+        `${entity.widgetName}.${overriddenPropertyKey}`,
         clonedValue,
       );
     });
@@ -825,10 +824,9 @@ export const overrideWidgetProperties = (
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
       const clonedDefaultValue = cloneDeep(defaultValue);
       if (defaultValue !== undefined) {
-        const propertyPathArray = propertyPath.split(".");
         _.set(
           currentTree,
-          [entity.widgetName, ...propertyPathArray],
+          `${entity.widgetName}.${propertyPath}`,
           clonedDefaultValue,
         );
         return {
