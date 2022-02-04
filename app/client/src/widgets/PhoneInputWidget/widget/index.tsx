@@ -120,7 +120,7 @@ class PhoneInputWidget extends BaseInputWidget<
             {
               propertyName: "allowFormatting",
               label: "Enable Formatting",
-              helpText: "Formats the phone number as you type",
+              helpText: "Formats the phone number as per the country selected",
               controlType: "SWITCH",
               isJSConvertible: true,
               isBindProperty: true,
