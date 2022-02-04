@@ -5,10 +5,11 @@ import DraggableList from "./DraggableList";
 export type BaseItemProps = {
   id: string;
   isVisible?: boolean;
-  label?: string;
+  label: string;
 };
 
 export type RenderComponentProps<TItem extends BaseItemProps> = {
+  focusedIndex: number | null | undefined;
   index: number;
   item: TItem;
   deleteOption: (index: number) => void;
@@ -16,9 +17,13 @@ export type RenderComponentProps<TItem extends BaseItemProps> = {
   toggleVisibility?: (index: number) => void;
   onEdit?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
+  isDragging: boolean;
+  isDelete?: boolean;
 };
 
 type DroppableComponentProps<TItem extends BaseItemProps> = {
+  fixedHeight?: number | boolean;
+  focusedIndex: number | null | undefined;
   items: TItem[];
   itemHeight: number;
   renderComponent: (props: RenderComponentProps<TItem>) => JSX.Element;
@@ -37,11 +42,21 @@ export class DroppableComponent<
     super(props);
   }
 
-  shouldComponentUpdate(prevProps: DroppableComponentProps<TItem>) {
+  public readonly state = {
+    isDragging: false,
+  };
+
+  shouldComponentUpdate(
+    prevProps: DroppableComponentProps<TItem>,
+    prevState: any,
+  ) {
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
-
-    return !isEqual(presentOrder, previousOrder);
+    return (
+      !isEqual(presentOrder, previousOrder) ||
+      this.props.focusedIndex !== prevProps.focusedIndex ||
+      prevState.isDragging !== this.state.isDragging
+    );
   }
 
   getVisibleObject(item: Record<string, unknown>) {
@@ -55,14 +70,26 @@ export class DroppableComponent<
     };
   }
 
-  onUpdate = (itemsOrder: number[]) => {
+  onUpdate = (
+    itemsOrder: number[],
+    originalIndex: number,
+    newIndex: number,
+  ) => {
     const newOrderedItems = itemsOrder.map((each) => this.props.items[each]);
     this.props.updateItems(newOrderedItems);
+    if (this.props.updateFocus && originalIndex !== newIndex) {
+      this.props.updateFocus(newIndex, true);
+    }
+  };
+
+  updateDragging = (isDragging: boolean) => {
+    this.setState({ isDragging });
   };
 
   renderItem = ({ index, item }: any) => {
     const {
       deleteOption,
+      focusedIndex,
       onEdit,
       renderComponent,
       toggleVisibility,
@@ -76,8 +103,10 @@ export class DroppableComponent<
       updateOption,
       toggleVisibility,
       onEdit,
+      focusedIndex,
       item,
       index,
+      isDragging: this.state.isDragging,
     });
   };
 
@@ -85,10 +114,13 @@ export class DroppableComponent<
     return (
       <DraggableList
         ItemRenderer={this.renderItem}
+        fixedHeight={this.props.fixedHeight}
+        focusedIndex={this.props.focusedIndex}
         itemHeight={45}
         items={this.props.items}
         onUpdate={this.onUpdate}
         shouldReRender={false}
+        updateDragging={this.updateDragging}
       />
     );
   }

@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { cloneDeep, debounce, isEmpty, maxBy, set, sortBy } from "lodash";
+import React from "react";
+import { cloneDeep, isEmpty, maxBy, set, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -12,17 +12,9 @@ import { Category, Size } from "components/ads/Button";
 import {
   BaseItemProps,
   DroppableComponent,
-  RenderComponentProps,
 } from "components/ads/DraggableListComponent";
-import {
-  StyledDeleteIcon,
-  StyledDragIcon,
-  StyledEditIcon,
-  StyledHiddenIcon,
-  StyledOptionControlInputGroup,
-  StyledPropertyPaneButton,
-  StyledVisibleIcon,
-} from "./StyledControls";
+import { DraggableListCard } from "components/ads/DraggableListCard";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 
@@ -31,16 +23,14 @@ type DroppableItem = BaseItemProps & {
   isCustomField: boolean;
 };
 
+type State = {
+  focusedIndex: number | null;
+};
+
 const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const ItemWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
 `;
 
 const AddFieldButton = styled(StyledPropertyPaneButton)`
@@ -55,103 +45,15 @@ const AddFieldButton = styled(StyledPropertyPaneButton)`
 
 const DEFAULT_FIELD_NAME = "customField";
 
-function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
-  const {
-    deleteOption,
-    index,
-    item,
-    onEdit,
-    toggleVisibility,
-    updateOption,
-  } = props;
-  const { id, isCustomField, isVisible, label = "" } = item;
-  const [value, setValue] = useState(label);
-  const [isEditing, setEditing] = useState(false);
+class FieldConfigurationControl extends BaseControl<ControlProps, State> {
+  constructor(props: ControlProps) {
+    super(props);
 
-  useEffect(() => {
-    if (!isEditing && label) {
-      setValue(label);
-    }
-  }, [label]);
+    this.state = {
+      focusedIndex: null,
+    };
+  }
 
-  const onFocus = () => setEditing(true);
-  const onBlur = () => setEditing(false);
-
-  const debouncedUpdate = debounce(updateOption, 1000);
-
-  const onLabelChange = useCallback(
-    (index: number, value: string) => {
-      setValue(value);
-      debouncedUpdate(index, value);
-    },
-    [updateOption],
-  );
-
-  const deleteIcon = (() => {
-    if (!isCustomField || id === ARRAY_ITEM_KEY) return null;
-
-    return (
-      <StyledDeleteIcon
-        className="t--delete-column-btn"
-        height={20}
-        onClick={() => {
-          deleteOption?.(index);
-        }}
-        width={20}
-      />
-    );
-  })();
-
-  const hideShowIcon = (() => {
-    if (isCustomField || id === ARRAY_ITEM_KEY) return null;
-
-    return isVisible ? (
-      <StyledVisibleIcon
-        className="t--show-column-btn"
-        height={20}
-        onClick={() => {
-          toggleVisibility?.(index);
-        }}
-        width={20}
-      />
-    ) : (
-      <StyledHiddenIcon
-        className="t--show-column-btn"
-        height={20}
-        onClick={() => {
-          toggleVisibility?.(index);
-        }}
-        width={20}
-      />
-    );
-  })();
-
-  return (
-    <ItemWrapper>
-      <StyledDragIcon height={20} width={20} />
-      <StyledOptionControlInputGroup
-        dataType="text"
-        onBlur={onBlur}
-        onChange={(value: string) => {
-          onLabelChange(index, value);
-        }}
-        onFocus={onFocus}
-        placeholder="Column Title"
-        value={value}
-      />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={() => onEdit?.(index)}
-        width={20}
-      />
-      {deleteIcon}
-      {hideShowIcon}
-    </ItemWrapper>
-  );
-}
-
-class FieldConfigurationControl extends BaseControl<ControlProps> {
   isArrayItem = () => {
     const schema: Schema = this.props.propertyValue;
     return Boolean(schema?.[ARRAY_ITEM_KEY]);
@@ -270,6 +172,10 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     this.updateProperty(propertyName, clonedSchema);
   };
 
+  updateFocus = (index: number, isFocused: boolean) => {
+    this.setState({ focusedIndex: isFocused ? index : null });
+  };
+
   render() {
     const { propertyValue = {}, panelConfig } = this.props;
     const schema: Schema = propertyValue;
@@ -341,11 +247,21 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
       <TabsWrapper>
         <DroppableComponent
           deleteOption={this.onDeleteOption}
+          focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={draggableComponentColumns}
           onEdit={this.onEdit}
-          renderComponent={DroppableRenderComponent}
+          renderComponent={(props) => {
+            const { id, isCustomField } = props.item;
+
+            return DraggableListCard({
+              ...props,
+              isDelete: isCustomField && id !== ARRAY_ITEM_KEY,
+              placeholder: "Field label",
+            });
+          }}
           toggleVisibility={this.toggleVisibility}
+          updateFocus={this.updateFocus}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />

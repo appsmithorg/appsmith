@@ -1,26 +1,14 @@
-import React, { useCallback, useEffect, useState, Component } from "react";
+import React, { Component } from "react";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
 import { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  StyledDragIcon,
-  StyledEditIcon,
-  StyledDeleteIcon,
-  StyledVisibleIcon,
-  StyledHiddenIcon,
-  StyledPropertyPaneButton,
-  StyledOptionControlInputGroup,
-} from "./StyledControls";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
-import {
-  BaseItemProps,
-  DroppableComponent,
-  RenderComponentProps,
-} from "components/ads/DraggableListComponent";
+import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { Size, Category } from "components/ads/Button";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -41,17 +29,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { Colors } from "constants/Colors";
-import { noop } from "utils/AppsmithUtils";
-
-const ItemWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  &.has-duplicate-label > div:nth-child(2) {
-    border: 1px solid ${Colors.DANGER_SOLID};
-  }
-`;
+import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -73,11 +51,6 @@ interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
 }
-
-type DroppableItem = BaseItemProps & {
-  isDerived?: boolean;
-  isDuplicateLabel?: boolean;
-};
 
 type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
   isFocused: boolean;
@@ -103,102 +76,6 @@ const getOriginalColumn = (
   ).find((column: ColumnProperties) => column.index === index);
   return column;
 };
-
-function ColumnControlComponent(props: RenderComponentProps<DroppableItem>) {
-  const [value, setValue] = useState(props.item.label);
-  const [isEditing, setEditing] = useState(false);
-
-  useEffect(() => {
-    if (!isEditing && props.item && props.item.label)
-      setValue(props.item.label);
-  }, [props.item?.label, isEditing]);
-
-  const {
-    deleteOption,
-    index,
-    item,
-    onEdit,
-    toggleVisibility,
-    updateFocus,
-    updateOption,
-  } = props;
-  const [visibility, setVisibility] = useState(item.isVisible);
-  const debouncedUpdate = _.debounce(updateOption, 1000);
-  const debouncedFocus = updateFocus ? _.debounce(updateFocus, 400) : noop;
-  const onChange = useCallback(
-    (index: number, value: string) => {
-      setValue(value);
-      debouncedUpdate(index, value);
-    },
-    [updateOption],
-  );
-
-  const onFocus = () => {
-    setEditing(false);
-    debouncedFocus(index, true);
-  };
-  const onBlur = () => {
-    setEditing(false);
-    debouncedFocus(index, false);
-  };
-
-  return (
-    <ItemWrapper
-      className={props.item.isDuplicateLabel ? "has-duplicate-label" : ""}
-    >
-      <StyledDragIcon height={20} width={20} />
-      <StyledOptionControlInputGroup
-        dataType="text"
-        onBlur={onBlur}
-        onChange={(value: string) => {
-          onChange(index, value);
-        }}
-        onFocus={onFocus}
-        placeholder="Column Title"
-        value={value}
-        width="100%"
-      />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={() => {
-          onEdit && onEdit(index);
-        }}
-        width={20}
-      />
-      {!!item.isDerived ? (
-        <StyledDeleteIcon
-          className="t--delete-column-btn"
-          height={20}
-          onClick={() => {
-            deleteOption && deleteOption(index);
-          }}
-          width={20}
-        />
-      ) : visibility ? (
-        <StyledVisibleIcon
-          className="t--show-column-btn"
-          height={20}
-          onClick={() => {
-            setVisibility(!visibility);
-            toggleVisibility && toggleVisibility(index);
-          }}
-          width={20}
-        />
-      ) : (
-        <StyledHiddenIcon
-          className="t--show-column-btn"
-          height={20}
-          onClick={() => {
-            setVisibility(!visibility);
-            toggleVisibility && toggleVisibility(index);
-          }}
-          width={20}
-        />
-      )}
-    </ItemWrapper>
-  );
-}
 
 type State = {
   focusedIndex: number | null;
@@ -230,6 +107,16 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     };
   }
 
+  componentDidUpdate(prevProps: ControlProps): void {
+    //on adding a new column last column should get focused
+    if (
+      Object.keys(prevProps.propertyValue).length + 1 ===
+      Object.keys(this.props.propertyValue).length
+    ) {
+      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+    }
+  }
+
   render() {
     // Get columns from widget properties
     const columns: Record<string, ColumnProperties> =
@@ -253,7 +140,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     const draggableComponentColumns = Object.values(reorderedColumns).map(
       (column: ColumnProperties) => {
         return {
-          label: column.label,
+          label: column.label || "",
           id: column.id,
           isVisible: column.isVisible,
           isDerived: column.isDerived,
@@ -280,10 +167,18 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
         <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
           <DroppableComponent
             deleteOption={this.deleteOption}
+            fixedHeight={370}
+            focusedIndex={this.state.focusedIndex}
             itemHeight={45}
             items={draggableComponentColumns}
             onEdit={this.onEdit}
-            renderComponent={ColumnControlComponent}
+            renderComponent={(props) =>
+              DraggableListCard({
+                ...props,
+                isDelete: false,
+                placeholder: "Column Title",
+              })
+            }
             toggleVisibility={this.toggleVisibility}
             updateFocus={this.updateFocus}
             updateItems={this.updateItems}
@@ -433,6 +328,8 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
   updateFocus = (index: number, isFocused: boolean) => {
     this.setState({ focusedIndex: isFocused ? index : null });
   };
+
+  // updateCurrentFocusedInput = (index: number | null) => {};
 
   static getControlType() {
     return "PRIMARY_COLUMNS";
