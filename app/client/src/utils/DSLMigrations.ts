@@ -1039,7 +1039,7 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 50) {
-    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
+    // We're skipping this to fix a bad table migration.
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
