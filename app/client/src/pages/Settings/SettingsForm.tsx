@@ -42,6 +42,10 @@ export const SettingsHeader = styled.h2`
   margin-bottom: 0;
 `;
 
+export const SettingsSubHeader = styled.div`
+  font-size: 12px;
+`;
+
 type FormProps = {
   settings: Record<string, string>;
   settingsConfig: Record<string, string | boolean>;
@@ -50,7 +54,11 @@ type FormProps = {
 };
 
 function getSettingLabel(name = "") {
-  return name.replace(/-/g, " ");
+  return name.replace(/-/g, "");
+}
+
+function getSettingDetail(category: string, subCategory: string) {
+  return AdminConfig.getCategoryDetails(category, subCategory);
 }
 
 function useSettings(category: string, subCategory?: string) {
@@ -63,6 +71,7 @@ export function SettingsForm(
   const params = useParams() as any;
   const { category, subCategory } = params;
   const settings = useSettings(category, subCategory);
+  const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
@@ -97,8 +106,11 @@ export function SettingsForm(
       <SettingsBreadcrumbs category={category} subCategory={subCategory} />
       <SettingsFormWrapper>
         <SettingsHeader>
-          {getSettingLabel(subCategory ?? category)} settings
+          {getSettingLabel(details?.title || (subCategory ?? category))}
         </SettingsHeader>
+        {details?.subText && (
+          <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+        )}
         <Group
           category={category}
           settings={settings}

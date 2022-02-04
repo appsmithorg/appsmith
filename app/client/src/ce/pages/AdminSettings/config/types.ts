@@ -49,6 +49,7 @@ export interface Setting {
 export interface Category {
   title: string;
   slug: string;
+  subText?: string;
   children?: Category[];
 }
 
@@ -68,6 +69,7 @@ export type AdminConfigType = {
   type: string;
   controlType: SettingTypes;
   title: string;
+  subText?: string;
   settings?: Setting[];
   component?: React.ElementType;
   children?: AdminConfigType[];

@@ -26,6 +26,7 @@ const Form_Auth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Form Login",
+  subText: "Enable your organization to sign in with Appsmith Form.",
   canSave: true,
   settings: [
     {
@@ -62,7 +63,8 @@ const Form_Auth: AdminConfigType = {
 const Google_Auth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Google Auth",
+  title: "Google Authentication",
+  subText: "Enable your organization to sign in with Google (OAuth).",
   canSave: true,
   settings: [
     {
@@ -104,7 +106,9 @@ const Google_Auth: AdminConfigType = {
 const Github_Auth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Github Auth",
+  title: "Github Authentication",
+  subText:
+    "Enable your organization to sign in with Github SAML single sign-on (SSO).",
   canSave: true,
   settings: [
     {
@@ -158,7 +162,8 @@ export const Github_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
-  subText: `Enable your organization to sign in with Github SAML single sign-on (SSO).`,
+  subText:
+    "Enable your organization to sign in with Github SAML single sign-on (SSO).",
   image: Github,
   type: "LINK",
   isConnected: enableGithubOAuth,

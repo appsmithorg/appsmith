@@ -4,7 +4,6 @@ import {
   Setting,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-
 export class ConfigFactory {
   static settingsMap: Record<string, Setting> = {};
   static settings: Setting[] = [];
@@ -36,6 +35,7 @@ export class ConfigFactory {
     return {
       title: config.title,
       slug: config.type,
+      subText: config.subText,
       children: config?.children?.map((child) =>
         ConfigFactory.getCategory(child),
       ),
@@ -66,5 +66,23 @@ export class ConfigFactory {
     });
 
     return ConfigFactory.settings;
+  }
+
+  static getCategoryDetails(
+    currentCategory: string,
+    currentSubCategory: string,
+  ) {
+    if (
+      currentSubCategory &&
+      ConfigFactory.wrapperCategories[currentCategory].children
+    ) {
+      return ConfigFactory.wrapperCategories[currentCategory].children?.find(
+        (category) => category.type === currentSubCategory,
+      );
+    } else {
+      return ConfigFactory.categories.find(
+        (category) => category.slug === currentCategory,
+      );
+    }
   }
 }
