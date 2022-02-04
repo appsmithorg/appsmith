@@ -45,6 +45,7 @@
   "datepickerFooter": ".bp3-datepicker-footer span",
   "datepickerFooterPublish": ".bp3-datepicker-footer span",
   "disableJs": ".t--property-control-disable input[type='checkbox']",
+  "requiredJs": ".t--property-control-required input[type='checkbox']",
   "switchWidget": ".t--draggable-switchwidget",
   "multiSelectWidget": ".t--draggable-multiselectwidget",
   "toggleJsDefaultDate": ".t--property-control-defaultdate .t--js-toggle",

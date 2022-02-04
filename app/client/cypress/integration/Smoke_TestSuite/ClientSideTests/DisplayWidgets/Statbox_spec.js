@@ -9,7 +9,9 @@ describe("Statbox Widget Functionality", function() {
   });
 
   it("Open Existing Statbox from created Widgets list", () => {
-    cy.get(".widgets").click();
+    cy.get(".widgets")
+      .first()
+      .click();
     cy.get(".t--entity .widget")
       .get(".entity-context-menu")
       .last()

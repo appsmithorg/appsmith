@@ -27,7 +27,9 @@ export function ContextMenuTrigger(props: {
   theme: Theme;
 }) {
   return (
-    <EntityTogglesWrapper className={props.className}>
+    <EntityTogglesWrapper
+      className={props.className + " entity-context-menu-icon"}
+    >
       <TooltipComponent
         boundary="viewport"
         content={createMessage(ENTITY_MORE_ACTIONS_TOOLTIP)}

@@ -44,6 +44,7 @@ import { isEllipsisActive } from "utils/helpers";
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 
 import SegmentHeader from "components/ads/ListSegmentHeader";
+import BetaTag from "./BetaTag";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -360,6 +361,9 @@ function Header({
             />
           </Tooltip>
         </span>
+        <div style={{ marginLeft: 6 }}>
+          <BetaTag />
+        </div>
       </div>
       <Icon
         fillColor={get(theme, "colors.gitSyncModal.closeIcon")}

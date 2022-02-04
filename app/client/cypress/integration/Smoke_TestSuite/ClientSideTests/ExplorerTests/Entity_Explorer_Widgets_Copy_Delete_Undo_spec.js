@@ -31,13 +31,23 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
   });
 
   it("Delete Widget from sidebar and Undo action validation", function() {
-    cy.GlobalSearchEntity("FormTest");
+    cy.GlobalSearchEntity("WIDGETS");
+    cy.get(".t--entity-name")
+      .contains("FormTest")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
+    cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");
     });
-    cy.DeleteWidgetFromSideBar();
+    cy.get(".t--entity-name")
+      .contains("FormTest")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
+    cy.selectAction("Delete");
+    //cy.DeleteWidgetFromSideBar();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(apiwidget.propertyList).should("not.exist");
@@ -55,6 +65,11 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
+    cy.get(".t--entity-name")
+      .contains("FormTest")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
+    cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

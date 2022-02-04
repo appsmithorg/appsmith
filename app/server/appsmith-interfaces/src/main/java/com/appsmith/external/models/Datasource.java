@@ -59,6 +59,14 @@ public class Datasource extends BaseDomain {
     @JsonIgnore
     DatasourceStructure structure;
 
+
+    /*
+     * This field is introduced as part of git sync feature, for the git import we will need to identify the datasource's
+     * which are not configured. This way user can configure those datasource, which may have been introduced as part of git import.
+     */
+    @Transient
+    Boolean isConfigured;
+
     /**
      * This method is here so that the JSON version of this class' instances have a `isValid` field, for backwards
      * compatibility. It may be removed, when sure that no API received is relying on this field.
