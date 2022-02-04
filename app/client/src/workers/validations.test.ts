@@ -1273,6 +1273,53 @@ describe("Validate Validators", () => {
     });
   });
 
+  it("correctly validates uniqueness of keys in array objects", () => {
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        children: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            allowedKeys: [
+              {
+                name: "label",
+                type: ValidationTypes.TEXT,
+                params: {
+                  default: "",
+                  required: true,
+                  unique: true,
+                },
+              },
+              {
+                name: "value",
+                type: ValidationTypes.TEXT,
+                params: {
+                  default: "",
+                  unique: true,
+                },
+              },
+            ],
+          },
+        },
+      },
+    };
+    const input = [
+      { label: "Blue", value: "" },
+      { label: "Green", value: "" },
+      { label: "Red", value: "red" },
+    ];
+    const expected = {
+      isValid: false,
+      parsed: [],
+      messages: [
+        "Duplicate values found for the following properties, in the array entries, that must be unique -- label,value.",
+      ],
+    };
+
+    const result = validate(config, input, DUMMY_WIDGET);
+    expect(result).toStrictEqual(expected);
+  });
+
   it("correctly validates TableProperty", () => {
     const inputs = [
       "a",

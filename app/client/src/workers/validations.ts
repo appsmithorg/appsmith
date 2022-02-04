@@ -184,12 +184,12 @@ function validateArray(
   if (shouldArrayValuesHaveUniqueValuesForKeys) {
     // Loop
     // Get only unique entries from the value array
-    const uniqueEntries = _.uniqBy(
+    const uniqueEntries = _.uniqWith(
       value as Array<Record<string, unknown>>,
-      (entry: Record<string, unknown>) =>
-        // create a simple string using the values of the entry which must be checked for uniqueness
-        // This will be used to verify if two values are different in the _.uniqBy function
-        uniqueKeys.reduce((prev, next) => `${prev}${entry[next]}`, ""),
+      (a: Record<string, unknown>, b: Record<string, unknown>) => {
+        // If any of the keys are the same, we fail the uniqueness test
+        return uniqueKeys.some((key) => a[key] === b[key]);
+      },
     );
 
     if (uniqueEntries.length !== value.length) {
