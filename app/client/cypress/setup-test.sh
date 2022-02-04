@@ -4,6 +4,7 @@
 # on our CI/CD system. Currently the script is geared towards Github Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
+echo "Testing Reuse"
 echo "Starting the setup the test framework"
 sudo echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
 serve -s build -p 3000 &
