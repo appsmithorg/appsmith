@@ -624,7 +624,7 @@ jobs:
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
       - name: Setting up the cypress tests
-        if: steps.run_result.outputs.run_result != 'success'  && steps.run_result.outputs.run_result != 'failedtest'
+        if: steps.run_result.outputs.run_result != 'success'
         shell: bash
         env:
           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
@@ -645,7 +645,7 @@ jobs:
           ./cypress/setup-test.sh
 
       - name: Run the cypress test
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
