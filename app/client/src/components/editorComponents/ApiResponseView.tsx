@@ -245,7 +245,7 @@ function ApiResponseView(props: Props) {
   if (response.headers) {
     responseHeaders = response.headers;
   } else {
-    responseHeaders = response.body;
+    responseHeaders = {}; // if the response headers is empty show an empty object.
   }
 
   const tabs = [
