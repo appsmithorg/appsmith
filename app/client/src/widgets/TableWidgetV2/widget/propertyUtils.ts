@@ -25,9 +25,11 @@ export function defaultSelectedRowValidation(
     if (props.multiRowSelection) {
       if (_.isString(value)) {
         const trimmed = (value as string).trim();
+
         try {
           const parsedArray = JSON.parse(trimmed);
-          if (Array.isArray(parsedArray)) {
+
+          if (_.isArray(parsedArray)) {
             const sanitized = parsedArray.filter((entry) => {
               return (
                 Number.isInteger(parseInt(entry, 10)) &&
@@ -52,23 +54,22 @@ export function defaultSelectedRowValidation(
           });
           return { isValid: true, parsed: result };
         }
-      }
-      if (Array.isArray(value)) {
+      } else if (Array.isArray(value)) {
         const sanitized = value.filter((entry) => {
           return (
             Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
           );
         });
         return { isValid: true, parsed: sanitized };
-      }
-      if (Number.isInteger(value) && (value as number) > -1) {
+      } else if (Number.isInteger(value) && (value as number) > -1) {
         return { isValid: true, parsed: [value] };
+      } else {
+        return {
+          isValid: false,
+          parsed: [],
+          message: `This value does not match type: number[]`,
+        };
       }
-      return {
-        isValid: false,
-        parsed: [],
-        message: `This value does not match type: number[]`,
-      };
     } else {
       try {
         const _value: string = value as string;
@@ -93,11 +94,12 @@ export function defaultSelectedRowValidation(
         };
       }
     }
+  } else {
+    return {
+      isValid: true,
+      parsed: value,
+    };
   }
-  return {
-    isValid: true,
-    parsed: value,
-  };
 }
 
 export function totalRecordsCountValidation(
