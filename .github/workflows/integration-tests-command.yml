@@ -403,7 +403,7 @@ jobs:
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - if: steps.run_result.outputs.run_result != 'success'
+      - if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: echo "Starting full run" && exit 0
 
       - if: steps.run_result.outputs.run_result == 'failedtest'
@@ -522,7 +522,7 @@ jobs:
           ./cypress/setup-test.sh
 
       - name: Run the cypress test
-        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        if: steps.run_result.outputs.run_result != 'success'  && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
