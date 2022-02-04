@@ -12,9 +12,11 @@ import {
   HORIZONTAL_RESIZE_LIMIT,
   ReflowDirection,
   ReflowedSpaceMap,
+  SpaceMap,
   VERTICAL_RESIZE_LIMIT,
 } from "./reflowTypes";
 import {
+  compareNumbers,
   getAccessor,
   getCollidingSpacesInDirection,
   getMaxX,
@@ -43,9 +45,20 @@ export function getMovementMap(
   gridProps: GridProps,
   delta = { X: 0, Y: 0 },
   shouldResize = true,
+  movingSpacesArray: OccupiedSpace[], //can be named changedSpace
+  globalDirection: ReflowDirection,
+  prevCollidingSpaces?: CollidingSpaceMap,
+  prevSpacesMap?: SpaceMap,
 ) {
   const movementMap: ReflowedSpaceMap = {};
-  const collisionTree = getCollisionTree(occupiedSpaces, collidingSpaces);
+  const collisionTree = getCollisionTree(
+    occupiedSpaces,
+    collidingSpaces,
+    globalDirection,
+    movingSpacesArray,
+    prevCollidingSpaces,
+    prevSpacesMap,
+  );
 
   if (!collisionTree || collisionTree.length <= 0) {
     return {};
@@ -59,13 +72,11 @@ export function getMovementMap(
     const childDirection = childNode.direction;
     const directionalAccessors = getAccessor(childDirection);
     //eslint-disable-next-line
-    const childCollisionSpace = collidingSpaceMap[childNode.id][
-      directionalAccessors.plane
-    ]!;
+    //const childCollisionSpace = collidingSpaceMap[childNode.id];
 
     const distanceBeforeCollision =
       childNode[directionalAccessors.oppositeDirection] -
-      childCollisionSpace.collidingValue;
+      childNode.collidingValue;
 
     const { depth, occupiedSpace } = getMovementMapHelper(
       childNode,
@@ -159,10 +170,14 @@ export function getMovementMap(
 function getCollisionTree(
   occupiedSpaces: OccupiedSpace[],
   collidingSpaces: CollidingSpace[],
+  globalDirection: ReflowDirection,
+  movingSpacesArray: OccupiedSpace[],
+  prevCollidingSpaces?: CollidingSpaceMap,
+  prevSpacesMap?: SpaceMap,
 ) {
   const collisionTree: CollisionTree[] = [];
 
-  sortCollidingSpacesByDistance(collidingSpaces, false);
+  //sortCollidingSpacesByDistance(collidingSpaces, false);
 
   const globalCompletedTree: { [key: string]: { [key: string]: boolean } } = {
     LEFT: {},
@@ -170,7 +185,8 @@ function getCollisionTree(
     TOP: {},
     BOTTOM: {},
   };
-  for (const collidingSpace of collidingSpaces) {
+  for (let i = 0; i < collidingSpaces.length; i++) {
+    const collidingSpace = collidingSpaces[i];
     const directionalAccessors = getAccessor(collidingSpace.direction);
 
     if (!globalCompletedTree[collidingSpace.direction][collidingSpace.id]) {
@@ -182,10 +198,20 @@ function getCollisionTree(
           collidingSpace.collidingValue,
         collidingSpace.direction,
         globalCompletedTree,
+        movingSpacesArray,
+        collidingSpace.collidingValue,
+        globalDirection,
+        i,
+        collidingSpaces,
+        prevCollidingSpaces,
+        prevSpacesMap,
       );
 
       if (currentCollisionTree) {
-        collisionTree.push({ ...currentCollisionTree });
+        collisionTree.push({
+          ...currentCollisionTree,
+          collidingValue: collidingSpace.collidingValue,
+        });
       }
     }
   }
@@ -200,6 +226,13 @@ function getCollisionTreeHelper(
   distanceBeforeCollision: number,
   direction: ReflowDirection,
   globalProcessedNodes: { [key: string]: { [key: string]: boolean } },
+  movingSpacesArray: OccupiedSpace[],
+  prevCollidingValue: number,
+  globalDirection: ReflowDirection,
+  insertionIndex: number,
+  globalCollidingSpaces: CollidingSpace[],
+  prevCollidingSpaces?: CollidingSpaceMap,
+  prevSpacesMap?: SpaceMap,
   emptySpaces = 0,
   processedNodes: { [key: string]: { [key: string]: boolean } } = {
     LEFT: {},
@@ -218,14 +251,34 @@ function getCollisionTreeHelper(
     accessors,
   );
 
+  const filteredMovingSpaces = movingSpacesArray.filter((a) =>
+    compareNumbers(
+      a[accessors.oppositeDirection],
+      prevCollidingValue,
+      accessors.directionIndicator > 0,
+      true,
+    ),
+  );
   const {
     collidingSpaces,
     occupiedSpacesInDirection,
+    skipCollisionTree,
   } = getCollidingSpacesInDirection(
     resizedDimensions,
+    collidingSpace,
     direction,
+    globalDirection,
+    filteredMovingSpaces,
+    globalCollidingSpaces,
+    prevCollidingValue,
+    insertionIndex,
+    globalProcessedNodes,
+    prevSpacesMap,
+    prevCollidingSpaces,
     occupiedSpaces,
   );
+
+  if (skipCollisionTree) return;
 
   sortCollidingSpacesByDistance(collidingSpaces);
 
@@ -246,6 +299,13 @@ function getCollisionTreeHelper(
         distanceBeforeCollision,
         direction,
         globalProcessedNodes,
+        movingSpacesArray,
+        resizedDimensions[accessors.direction],
+        globalDirection,
+        insertionIndex,
+        globalCollidingSpaces,
+        prevCollidingSpaces,
+        prevSpacesMap,
         nextEmptySpaces,
         currentProcessedNodes,
       );

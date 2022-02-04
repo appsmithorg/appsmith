@@ -11,10 +11,7 @@ import {
   ReflowDirection,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
-import {
-  flattenCollidingMapToArray,
-  getLimitedMovementMap,
-} from "reflow/reflowUtils";
+import { getLimitedMovementMap } from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 
@@ -23,10 +20,7 @@ type WidgetCollidingSpace = CollidingSpace & {
 };
 
 type WidgetCollidingSpaceMap = {
-  [key: string]: {
-    vertical?: WidgetCollidingSpace;
-    horizontal?: WidgetCollidingSpace;
-  };
+  [key: string]: WidgetCollidingSpace;
 };
 
 export interface ReflowInterface {
@@ -97,9 +91,9 @@ export const useReflow = (
         movementLimit,
       );
 
-    if (shouldSkipContainerReflow) {
-      const collidingSpaces = flattenCollidingMapToArray(
-        collidingSpaceMap || {},
+    if (shouldSkipContainerReflow && collidingSpaceMap) {
+      const collidingSpaces = Object.values(
+        collidingSpaceMap,
       ) as WidgetCollidingSpace[];
 
       for (const collidingSpace of collidingSpaces) {

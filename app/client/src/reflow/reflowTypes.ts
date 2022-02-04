@@ -52,17 +52,19 @@ export type Delta = {
   Y: number;
 };
 
+export type MovingSpace = OccupiedSpace & {
+  moving: true;
+};
+
 export type CollidingSpace = OccupiedSpace & {
   direction: ReflowDirection;
   collidingValue: number;
   collidingId: string;
+  order: number;
 };
 
 export type CollidingSpaceMap = {
-  [key: string]: {
-    vertical?: CollidingSpace;
-    horizontal?: CollidingSpace;
-  };
+  [key: string]: CollidingSpace;
 };
 
 export type CollisionTree = OccupiedSpace & {
@@ -70,6 +72,7 @@ export type CollisionTree = OccupiedSpace & {
   children?: {
     [key: string]: CollisionTree;
   };
+  collidingValue: number;
 };
 
 export type SpaceMovement = {
