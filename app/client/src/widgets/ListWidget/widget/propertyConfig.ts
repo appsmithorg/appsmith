@@ -173,6 +173,7 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "boxShadow",
@@ -183,6 +184,7 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
     ],
   },

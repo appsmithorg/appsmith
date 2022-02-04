@@ -79,6 +79,9 @@ export const StyledControlGroup = styled(ControlGroup)`
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 export const StyledSingleDropDown = styled(SingleDropDown)<{
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
   value: string;
   isValid: boolean;
   hasError?: boolean;
@@ -101,7 +104,10 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     align-items: center;
     justify-content: space-between;
     box-shadow: none;
-    background: white;
+    background: ${({ backgroundColor }) =>
+      `${backgroundColor || Colors.WHITE}`} !important;
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
     min-height: 36px;
     padding-left: 12px;
     border: 1.2px solid
@@ -156,6 +162,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
 
 export const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
+  borderRadius: string;
   dropDownWidth: number;
   id: string;
 }>`
@@ -171,7 +178,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-wrapper {
     width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-    border-radius: 0;
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
     background: white;
 
     & .${Classes.INPUT_GROUP} {
@@ -214,6 +221,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
         height: 36px;
         border: 1.2px solid ${Colors.GREY_3};
         color: ${Colors.GREY_10};
+        border-radius: ${({ borderRadius }) => borderRadius} !important;
         &:focus {
           border: 1.2px solid ${Colors.GREEN_SOLID};
           box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
