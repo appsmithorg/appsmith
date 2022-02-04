@@ -1536,22 +1536,44 @@ export default [
       },
       {
         helpText: "Selects row(s) by default",
-        propertyName: "defaultSelectedRow",
+        propertyName: "defaultSelectedRowIndices",
+        label: "Default Selected Row(s)",
+        controlType: "INPUT_TEXT",
+        placeholderText: "[0]",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.ARRAY,
+          params: {
+            children: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                min: 0,
+              },
+            },
+          },
+        },
+        hidden: (props: TableWidgetProps) => {
+          return !props.multiRowSelection;
+        },
+        dependencies: ["multiRowSelection"],
+      },
+      {
+        helpText: "Selects row by default",
+        propertyName: "defaultSelectedRowIndex",
         label: "Default Selected Row",
         controlType: "INPUT_TEXT",
         placeholderText: "0",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
-          type: ValidationTypes.FUNCTION,
+          type: ValidationTypes.NUMBER,
           params: {
-            fn: defaultSelectedRowValidation,
-            expected: {
-              type: "Index of row(s)",
-              example: "0 | [0, 1]",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
+            min: 0,
           },
+        },
+        hidden: (props: TableWidgetProps) => {
+          return props.multiRowSelection;
         },
         dependencies: ["multiRowSelection"],
       },

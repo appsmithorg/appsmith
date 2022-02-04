@@ -11,7 +11,7 @@ module.exports = {
     "^.+\\.(png|js|ts|tsx)$": "ts-jest",
   },
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
-  testRegex: "utilities1.test.ts",
+  testRegex: "propertyUtils1.test.ts",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [

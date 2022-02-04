@@ -49,11 +49,13 @@ export const getOriginalRowIndex = (
 export const getSelectRowIndex = (
   prevTableData: TableData,
   tableData: TableData,
-  defaultSelectedRow: string | number | number[] | undefined,
+  defaultSelectedRowIndex: string | number | number[] | undefined,
   selectedRowIndex: number | undefined,
   primaryColumnId: string | undefined,
 ) => {
-  let index = _.isNumber(defaultSelectedRow) ? defaultSelectedRow : -1;
+  let index = _.isNumber(defaultSelectedRowIndex)
+    ? defaultSelectedRowIndex
+    : -1;
 
   if (
     selectedRowIndex !== -1 &&
@@ -74,7 +76,7 @@ export const getSelectRowIndex = (
 export const getSelectRowIndices = (
   prevTableData: TableData,
   tableData: TableData,
-  defaultSelectedRow: string | number | number[] | undefined,
+  defaultSelectedRowIndices: string | number | number[] | undefined,
   selectedRowIndices: number[] | undefined,
   primaryColumnId: string | undefined,
 ) => {
@@ -82,8 +84,8 @@ export const getSelectRowIndices = (
 
   if (primaryColumnId && _.isArray(selectedRowIndices)) {
     indices = selectedRowIndices;
-  } else if (_.isArray(defaultSelectedRow)) {
-    indices = defaultSelectedRow;
+  } else if (_.isArray(defaultSelectedRowIndices)) {
+    indices = defaultSelectedRowIndices;
   } else {
     indices = [];
   }
