@@ -69,7 +69,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -714,12 +716,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Import and save pages, also update the pages related fields in saved application
                     assert importedNewPageList != null;
+
+                    // For git-sync this will not be empty
+                    Mono<List<NewPage>> existingPagesMono = newPageService
+                            .findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
+                            .collectList()
+                            .cache();
+
                     return importAndSavePages(
                             importedNewPageList,
                             importedApplication,
                             importedDoc.getPublishedLayoutmongoEscapedWidgets(),
                             importedDoc.getUnpublishedLayoutmongoEscapedWidgets(),
-                            branchName
+                            branchName,
+                            existingPagesMono
                     )
                             .map(newPage -> {
                                 ApplicationPage unpublishedAppPage = new ApplicationPage();
@@ -759,7 +769,34 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return applicationPages;
                             })
                             .then()
-                            .thenReturn(applicationPages);
+                            .thenReturn(applicationPages)
+                            .flatMap(unused -> {
+                                if (!StringUtils.isEmpty(applicationId)) {
+                                    Set<String> validPageIds = applicationPages.get(PublishType.UNPUBLISHED).stream()
+                                            .map(ApplicationPage::getId).collect(Collectors.toSet());
+
+                                    validPageIds.addAll(applicationPages.get(PublishType.PUBLISHED).stream()
+                                            .map(ApplicationPage::getId).collect(Collectors.toSet()));
+
+                                    return existingPagesMono
+                                            .flatMap(existingPagesList -> {
+                                                List<String> inValidIds = new ArrayList<>();
+                                                for (NewPage newPage : existingPagesList) {
+                                                    if(!validPageIds.contains(newPage.getId())) {
+                                                        inValidIds.add(newPage.getId());
+                                                    }
+                                                }
+
+                                                // Delete the pages which were removed during git merge operation
+                                                // This does not apply to the traditional import via file approach
+                                                return Flux.fromIterable(inValidIds)
+                                                        .flatMap(applicationPageService::deleteUnpublishedPage)
+                                                        .then()
+                                                        .thenReturn(applicationPages);
+                                            });
+                                }
+                                return Mono.just(applicationPages);
+                            });
                 })
                 .flatMap(applicationPageMap -> {
                     importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISHED));
@@ -1081,12 +1118,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                              Application application,
                                              Map<String, Set<String>> publishedMongoEscapedWidget,
                                              Map<String, Set<String>> unpublishedMongoEscapedWidget,
-                                             String branchName) {
-
-        // For git-sync this will not be empty
-        Mono<List<NewPage>> existingPages = newPageService
-                .findNewPagesByApplicationId(application.getId(), MANAGE_PAGES)
-                .collectList();
+                                             String branchName,
+                                             Mono<List<NewPage>> existingPages) {
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
