@@ -114,7 +114,7 @@ const CustomToolTip = styled.span<{ width?: number }>`
   margin-left: -60px;
 
   opacity: 0;
-  transition: opacity 0.01s 0.6s ease-in;
+  transition: opacity 0.01s 1s ease-in;
 
   &::after {
     content: "";
