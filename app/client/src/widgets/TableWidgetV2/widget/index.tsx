@@ -579,7 +579,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
         if (!!columnsIdsToDelete.length) {
           columnsIdsToDelete.forEach((id: string) => {
-            //Note: No need to check as new columnsIDs has derived columns ids as well.
             if (!primaryColumns[id].isDerived) {
               pathsToDelete.push(`primaryColumns.${id}`);
             }
@@ -1039,41 +1038,53 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  handleRowClick = (row: Record<string, unknown>, index: number) => {
-    const { multiRowSelection } = this.props;
-    if (this.props.multiRowSelection) {
-      const selectedRowIndices = Array.isArray(this.props.selectedRowIndices)
-        ? [...this.props.selectedRowIndices]
-        : [];
-      if (selectedRowIndices.includes(index)) {
-        const rowIndex = selectedRowIndices.indexOf(index);
-        selectedRowIndices.splice(rowIndex, 1);
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndices",
-          selectedRowIndices,
-        );
+  handleRowClick = (row: Record<string, unknown>, selectedIndex: number) => {
+    const {
+      multiRowSelection,
+      selectedRowIndex,
+      selectedRowIndices,
+    } = this.props;
+
+    if (multiRowSelection) {
+      let indices: Array<number>;
+
+      if (_.isArray(selectedRowIndices)) {
+        indices = [...selectedRowIndices];
       } else {
-        selectedRowIndices.push(index);
-        //trigger onRowSelected  on row selection
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndices",
-          selectedRowIndices,
-          {
-            triggerPropertyName: "onRowSelected",
-            dynamicString: this.props.onRowSelected,
-            event: {
-              type: EventType.ON_ROW_SELECTED,
-            },
+        indices = [];
+      }
+
+      /*
+       * Deselect if the index is already present
+       */
+      if (indices.includes(selectedIndex)) {
+        indices.splice(indices.indexOf(selectedIndex), 1);
+        this.props.updateWidgetMetaProperty("selectedRowIndices", indices);
+      } else {
+        /*
+         * select if the index is not present already
+         */
+        indices.push(selectedIndex);
+
+        this.props.updateWidgetMetaProperty("selectedRowIndices", indices, {
+          triggerPropertyName: "onRowSelected",
+          dynamicString: this.props.onRowSelected,
+          event: {
+            type: EventType.ON_ROW_SELECTED,
           },
-        );
+        });
       }
     } else {
-      const selectedRowIndex = isNumber(this.props.selectedRowIndex)
-        ? this.props.selectedRowIndex
-        : -1;
+      let index;
 
-      if (selectedRowIndex !== index) {
-        this.props.updateWidgetMetaProperty("selectedRowIndex", index, {
+      if (isNumber(selectedRowIndex)) {
+        index = selectedRowIndex;
+      } else {
+        index = -1;
+      }
+
+      if (index !== selectedIndex) {
+        this.props.updateWidgetMetaProperty("selectedRowIndex", selectedIndex, {
           triggerPropertyName: "onRowSelected",
           dynamicString: this.props.onRowSelected,
           event: {
@@ -1081,7 +1092,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         });
       } else {
-        //reset selected row
         this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
     }
@@ -1099,14 +1109,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } else {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
+
     if (this.props.onPageChange) {
       this.resetSelectedRowIndex();
     }
   };
 
   handleNextPageClick = () => {
-    let pageNo = this.props.pageNo || 1;
-    pageNo = pageNo + 1;
+    const pageNo = (this.props.pageNo || 1) + 1;
+
     this.props.updateWidgetMetaProperty("pageNo", pageNo, {
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
@@ -1114,31 +1125,41 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         type: EventType.ON_NEXT_PAGE,
       },
     });
+
     if (this.props.onPageChange) {
       this.resetSelectedRowIndex();
     }
   };
 
   resetSelectedRowIndex = () => {
-    if (!this.props.multiRowSelection) {
-      const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
-        ? this.props.defaultSelectedRow
-        : -1;
-      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+    const { defaultSelectedRow, multiRowSelection } = this.props;
+
+    if (multiRowSelection) {
+      let indices: Array<number>;
+
+      if (_.isArray(defaultSelectedRow)) {
+        indices = [...defaultSelectedRow];
+      } else {
+        indices = [];
+      }
+
+      this.props.updateWidgetMetaProperty("selectedRowIndices", indices);
     } else {
-      const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
-        ? this.props.defaultSelectedRow
-        : [];
-      this.props.updateWidgetMetaProperty(
-        "selectedRowIndices",
-        selectedRowIndices,
-      );
+      let index;
+
+      if (isNumber(defaultSelectedRow)) {
+        index = defaultSelectedRow;
+      } else {
+        index = -1;
+      }
+
+      this.props.updateWidgetMetaProperty("selectedRowIndex", index);
     }
   };
 
   handlePrevPageClick = () => {
-    let pageNo = this.props.pageNo || 1;
-    pageNo = pageNo - 1;
+    const pageNo = (this.props.pageNo || 1) - 1;
+
     if (pageNo >= 1) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
         triggerPropertyName: "onPageChange",
@@ -1147,6 +1168,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           type: EventType.ON_PREV_PAGE,
         },
       });
+
       if (this.props.onPageChange) {
         this.resetSelectedRowIndex();
       }
@@ -1154,7 +1176,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   static getWidgetType(): WidgetType {
-    return "TABLE_WIDGET";
+    return "TABLE_WIDGET_V2";
   }
 }
 
