@@ -116,8 +116,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       searchText: "defaultSearchText",
-      selectedRowIndex: "defaultSelectedRow",
-      selectedRowIndices: "defaultSelectedRow",
+      selectedRowIndex: "defaultSelectedRowIndex",
+      selectedRowIndices: "defaultSelectedRowIndices",
     };
   }
 
@@ -606,7 +606,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
-      defaultSelectedRow,
+      defaultSelectedRowIndex,
+      defaultSelectedRowIndices,
       multiRowSelection,
       onPageSizeChange,
       pageNo,
@@ -674,35 +675,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     /*
-     *  When multiRowSelection is toggled use selectedRowIndex or
-     *  defaultSelectedRow to populate selectedRowIndices
+     * When defaultSelectedRowIndex or defaultSelectedRowIndices
+     * is changed from property pane
      */
-    if (multiRowSelection !== prevProps.multiRowSelection) {
-      if (multiRowSelection) {
-        let selectedRowIndices: number[] = [];
-
-        if (!_.isNil(selectedRowIndex) && selectedRowIndex > -1) {
-          selectedRowIndices = [selectedRowIndex];
-        } else if (isNumber(defaultSelectedRow)) {
-          selectedRowIndices = [defaultSelectedRow];
-        } else if (_.isArray(defaultSelectedRow)) {
-          selectedRowIndices = defaultSelectedRow;
-        }
-
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndices",
-          selectedRowIndices,
-        );
-        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-      } else {
-        this.props.updateWidgetMetaProperty("selectedRowIndices", []);
-      }
-    }
-
-    /*
-     * When defaultSelectedRow is changed from property pane
-     */
-    if (!isEqual(defaultSelectedRow, prevProps.defaultSelectedRow)) {
+    if (
+      !isEqual(defaultSelectedRowIndex, prevProps.defaultSelectedRowIndex) ||
+      !isEqual(defaultSelectedRowIndices, prevProps.defaultSelectedRowIndices)
+    ) {
       this.updateSelectedRowIndex();
     }
 
@@ -740,37 +719,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   /*
-   * Function to update selectedRowIndices & selectedRowIndex
-   * from defaultSelectedRow
+   * Function to update selectedRowIndices & selectedRowIndex from
+   * defaultSelectedRowIndices & defaultSelectedRowIndex respectively
    */
   updateSelectedRowIndex = () => {
-    const { defaultSelectedRow, multiRowSelection } = this.props;
+    const {
+      defaultSelectedRowIndex,
+      defaultSelectedRowIndices,
+      multiRowSelection,
+    } = this.props;
 
     if (multiRowSelection) {
-      let selectedRowIndices: number[];
-
-      if (_.isArray(defaultSelectedRow)) {
-        selectedRowIndices = defaultSelectedRow;
-      } else if (_.isNumber(defaultSelectedRow)) {
-        selectedRowIndices = [defaultSelectedRow];
-      } else {
-        selectedRowIndices = [];
-      }
-
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
-        selectedRowIndices,
+        defaultSelectedRowIndices,
       );
     } else {
-      let selectedRowIndex: number;
-
-      if (isNumber(defaultSelectedRow)) {
-        selectedRowIndex = defaultSelectedRow;
-      } else {
-        selectedRowIndex = -1;
-      }
-
-      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndex",
+        defaultSelectedRowIndex,
+      );
     }
   };
 
@@ -782,7 +750,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     newTableData: Array<Record<string, unknown>>,
   ) => {
     const {
-      defaultSelectedRow,
+      defaultSelectedRowIndex,
+      defaultSelectedRowIndices,
       multiRowSelection,
       primaryColumnId,
       selectedRowIndex,
@@ -793,7 +762,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const indices = getSelectRowIndices(
         oldTableData,
         newTableData,
-        defaultSelectedRow,
+        defaultSelectedRowIndices,
         selectedRowIndices,
         primaryColumnId,
       );
@@ -803,7 +772,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const index = getSelectRowIndex(
         oldTableData,
         newTableData,
-        defaultSelectedRow,
+        defaultSelectedRowIndex,
         selectedRowIndex,
         primaryColumnId,
       );
@@ -1132,28 +1101,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   resetSelectedRowIndex = () => {
-    const { defaultSelectedRow, multiRowSelection } = this.props;
+    const {
+      defaultSelectedRowIndex,
+      defaultSelectedRowIndices,
+      multiRowSelection,
+    } = this.props;
 
     if (multiRowSelection) {
-      let indices: Array<number>;
-
-      if (_.isArray(defaultSelectedRow)) {
-        indices = [...defaultSelectedRow];
-      } else {
-        indices = [];
-      }
-
-      this.props.updateWidgetMetaProperty("selectedRowIndices", indices);
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        defaultSelectedRowIndices,
+      );
     } else {
-      let index;
-
-      if (isNumber(defaultSelectedRow)) {
-        index = defaultSelectedRow;
-      } else {
-        index = -1;
-      }
-
-      this.props.updateWidgetMetaProperty("selectedRowIndex", index);
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndex",
+        defaultSelectedRowIndex,
+      );
     }
   };
 

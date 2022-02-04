@@ -21,85 +21,106 @@ export function defaultSelectedRowValidation(
   props: TableWidgetProps,
   _: any,
 ) {
-  if (props) {
+  let isValid = true;
+  let parsed = value;
+  let message = "";
+
+  if (value === "" || _.isNil(value)) {
+    parsed = props.multiRowSelection ? [] : -1;
+  } else if (props) {
+    const isValidIndex = (index: any) => {
+      const parsed = parseInt(index, 10);
+      return _.isNumber(parsed) && parsed > -1;
+    };
+
     if (props.multiRowSelection) {
+      /*
+       * When value is a string, parse it using JSON.parse.
+       * if value is not a valid JSON, check if its a comma
+       * seperated values and then parse accordingly.
+       */
       if (_.isString(value)) {
-        const trimmed = (value as string).trim();
+        value = (value as string).trim();
 
         try {
-          const parsedArray = JSON.parse(trimmed);
-
-          if (_.isArray(parsedArray)) {
-            const sanitized = parsedArray.filter((entry) => {
-              return (
-                Number.isInteger(parseInt(entry, 10)) &&
-                parseInt(entry, 10) > -1
-              );
-            });
-            return { isValid: true, parsed: sanitized };
-          } else {
-            throw Error("Not a stringified array");
-          }
+          value = JSON.parse(value as string);
         } catch (e) {
-          // If cannot be parsed as an array
-          const arrayEntries = trimmed.split(",");
-          const result: number[] = [];
-          arrayEntries.forEach((entry: string) => {
-            if (
-              Number.isInteger(parseInt(entry, 10)) &&
-              parseInt(entry, 10) > -1
-            ) {
-              if (!_.isNil(entry)) result.push(parseInt(entry, 10));
-            }
-          });
-          return { isValid: true, parsed: result };
+          if ((value as string).indexOf(",") > -1) {
+            value = (value as string).split(",");
+          } else {
+            return {
+              value: [],
+              isValid: false,
+              message: "This value does not match type: number[]",
+            };
+          }
         }
-      } else if (Array.isArray(value)) {
-        const sanitized = value.filter((entry) => {
-          return (
-            Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
-          );
-        });
-        return { isValid: true, parsed: sanitized };
-      } else if (Number.isInteger(value) && (value as number) > -1) {
-        return { isValid: true, parsed: [value] };
+      }
+
+      if (_.isArray(value)) {
+        if ((value as number[]).every((v) => Number.isInteger(v))) {
+          if ((value as number[]).every((v) => v > -1)) {
+            isValid = true;
+            parsed = value;
+          } else {
+            isValid = false;
+            parsed = [];
+            message = "All values should be postive integers";
+          }
+        } else {
+          isValid = false;
+          parsed = [];
+          message = "This value does not match type: number[]";
+        }
+
+        parsed = (value as []).filter(isValidIndex).map(_.toNumber);
+      } else if (Number.isInteger(value)) {
+        if ((value as number) > -1) {
+          isValid = true;
+          parsed = [value];
+        } else {
+          isValid = false;
+          parsed = [];
+          message = "This value should be a postive integer";
+        }
       } else {
-        return {
-          isValid: false,
-          parsed: [],
-          message: `This value does not match type: number[]`,
-        };
+        isValid = false;
+        parsed = [];
+        message = "This value does not match type: number[]";
       }
     } else {
       try {
-        const _value: string = value as string;
-
-        if (_value === "") {
-          return {
-            isValid: true,
-            parsed: undefined,
-          };
+        if (_.isString(value)) {
+          value = _.toNumber(value);
         }
-        if (Number.isInteger(parseInt(_value, 10)) && parseInt(_value, 10) > -1)
-          return { isValid: true, parsed: parseInt(_value, 10) };
 
-        return {
-          isValid: true,
-          parsed: -1,
-        };
+        if (Number.isInteger(value)) {
+          if ((value as number) > -1) {
+            isValid = true;
+            parsed = value;
+          } else {
+            isValid = false;
+            parsed = -1;
+            message = "This value should be a postive integer";
+          }
+        } else {
+          isValid = false;
+          parsed = -1;
+          message = "This value does not match type: number";
+        }
       } catch (e) {
-        return {
-          isValid: true,
-          parsed: -1,
-        };
+        isValid = false;
+        parsed = -1;
+        message = "This value does not match type: number";
       }
     }
-  } else {
-    return {
-      isValid: true,
-      parsed: value,
-    };
   }
+
+  return {
+    isValid,
+    parsed,
+    message: [message],
+  };
 }
 
 export function totalRecordsCountValidation(
