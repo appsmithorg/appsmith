@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
 
-const ItemWrapper = styled.div<{ selected: boolean; focused: boolean }>`
+const ItemWrapper = styled.div<{ selected: boolean }>`
   width: 32px;
   height: 32px;
   display: flex;
@@ -11,7 +11,10 @@ const ItemWrapper = styled.div<{ selected: boolean; focused: boolean }>`
   justify-content: center;
   border: 1px solid
     ${(props) => (props.selected ? Colors.GREY_10 : Colors.GREY_5)};
-  background: ${(props) => (props.focused ? Colors.GREY_3 : Colors.WHITE)};
+
+  &.focused {
+    background: ${Colors.GREY_3};
+  }
 
   cursor: pointer;
   & {
@@ -84,6 +87,7 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
       onBlur={() => setFocusedIndex(-1)}
       onFocus={() => setFocusedIndex(firstValueIndex)}
       onKeyDown={handleKeyDown}
+      role="tablist"
       tabIndex={0}
     >
       {props.options.map((option: ButtonTabOption, index: number) => {
@@ -92,13 +96,16 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
         const isSelected = valueSet.has(option.value);
         return (
           <ItemWrapper
-            className={`t--button-tab-${option.value}`}
-            focused={index === focusedIndex}
+            aria-selected={isSelected}
+            className={`t--button-tab-${option.value} ${
+              index === focusedIndex ? "focused" : ""
+            }`}
             key={index}
             onClick={() => {
               props.selectButton(option.value);
               setFocusedIndex(index);
             }}
+            role="tab"
             selected={isSelected}
           >
             <ControlIcon height={24} width={24} />
