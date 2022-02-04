@@ -9,10 +9,6 @@ on:
 jobs:
   server-build:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'repository_dispatch' &&
-      github.event.client_payload.slash_command.sha != '' &&
-      contains(github.event.client_payload.pull_request.head.sha, github.event.client_payload.slash_command.sha)
     defaults:
       run:
         working-directory: app/server
@@ -128,9 +124,6 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    if: github.event_name == 'repository_dispatch' &&
-      github.event.client_payload.slash_command.sha != '' &&
-      contains(github.event.client_payload.pull_request.head.sha, github.event.client_payload.slash_command.sha)
     defaults:
       run:
         working-directory: app/client
