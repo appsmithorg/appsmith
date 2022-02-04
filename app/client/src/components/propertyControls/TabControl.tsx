@@ -117,6 +117,7 @@ function TabControlComponent(props: RenderComponentProps) {
         }}
         onFocus={onFocus}
         placeholder="Tab Title"
+        trimValue={false}
         value={value}
       />
       <StyledDeleteIcon

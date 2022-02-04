@@ -327,6 +327,15 @@ public class ResponseUtils {
                         }
                     });
         }
+        if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
+            application
+                    .getPublishedPages()
+                    .forEach(page -> {
+                        if (!StringUtils.isEmpty(page.getDefaultPageId())) {
+                            page.setId(page.getDefaultPageId());
+                        }
+                    });
+        }
         return application;
     }
 

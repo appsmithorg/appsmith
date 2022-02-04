@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Dialog from "components/ads/DialogComponent";
 import {
-  getRepoLimitedDocUrl,
+  getDisconnectDocUrl,
   getShowRepoLimitErrorModal,
 } from "selectors/gitSyncSelectors";
 import {
@@ -16,7 +16,7 @@ import { MENU_HEIGHT } from "./constants";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import {
-  CONTACT_SALES,
+  CONTACT_SUPPORT,
   CONTACT_SUPPORT_TO_UPGRADE,
   createMessage,
   DISCONNECT_CAUSE_APPLICATION_BREAK,
@@ -87,7 +87,7 @@ function RepoLimitExceededErrorModal() {
   const dispatch = useDispatch();
   const application = useSelector(getCurrentApplication);
   const userOrgs = useSelector(getUserApplicationsOrgs);
-  const repoLimitDocumentUrl = useSelector(getRepoLimitedDocUrl);
+  const docURL = useSelector(getDisconnectDocUrl);
   const [orgName, setOrgName] = useState("");
   const applications = useMemo(() => {
     if (userOrgs) {
@@ -201,7 +201,7 @@ function RepoLimitExceededErrorModal() {
               }}
               size={Size.large}
               tag="button"
-              text={createMessage(CONTACT_SALES)}
+              text={createMessage(CONTACT_SUPPORT)}
             />
           </ButtonContainer>
           <Text
@@ -230,7 +230,7 @@ function RepoLimitExceededErrorModal() {
               </Text>
               <Link
                 color={Colors.CRIMSON}
-                link={repoLimitDocumentUrl}
+                link={docURL}
                 text={createMessage(LEARN_MORE)}
               />
             </div>
