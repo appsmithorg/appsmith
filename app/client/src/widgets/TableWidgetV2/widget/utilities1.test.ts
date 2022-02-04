@@ -343,11 +343,11 @@ describe("selectRowIndex", () => {
       },
     ];
     const selectedRowIndexProp = 0;
-    const defaultSelectedRow = 0;
+    const defaultSelectedRowIndex = 0;
     const result = selectRowIndex(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndex,
       selectedRowIndexProp,
       "step",
     );
@@ -402,11 +402,11 @@ describe("selectRowIndex", () => {
       },
     ];
     const selectedRowIndexProp = 0;
-    const defaultSelectedRow = 0;
+    const defaultSelectedRowIndex = 0;
     const result = selectRowIndex(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndex,
       selectedRowIndexProp,
       "step",
     );
@@ -461,11 +461,11 @@ describe("selectRowIndex", () => {
       },
     ];
     const selectedRowIndexProp = -1;
-    const defaultSelectedRow = 0;
+    const defaultSelectedRowIndex = 0;
     const result = selectRowIndex(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndex,
       selectedRowIndexProp,
       undefined,
     );
@@ -520,11 +520,11 @@ describe("selectRowIndex", () => {
       },
     ];
     const selectedRowIndexProp = -1;
-    const defaultSelectedRow = 0;
+    const defaultSelectedRowIndex = 0;
     const result = selectRowIndex(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndex,
       selectedRowIndexProp,
       "step",
     );
@@ -579,11 +579,11 @@ describe("selectRowIndex", () => {
       },
     ];
     const selectedRowIndexProp = -1;
-    const defaultSelectedRow = -1;
+    const defaultSelectedRowIndex = -1;
     const result = selectRowIndex(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndex,
       selectedRowIndexProp,
       "step",
     );
@@ -639,11 +639,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "2",
       },
     ];
-    const defaultSelectedRow = [0];
+    const defaultSelectedRowIndices = [0];
     const result = selectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndices,
       [],
       undefined,
     );
@@ -697,11 +697,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "2",
       },
     ];
-    const defaultSelectedRow = undefined;
+    const defaultSelectedRowIndices = undefined;
     const result = selectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndices,
       [],
       undefined,
     );
@@ -755,11 +755,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "#3",
       },
     ];
-    const defaultSelectedRow = undefined;
+    const defaultSelectedRowIndices = undefined;
     const result = selectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndices,
       [0],
       undefined,
     );
@@ -813,11 +813,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "#3",
       },
     ];
-    const defaultSelectedRow = undefined;
+    const defaultSelectedRowIndices = undefined;
     const result = selectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndices,
       [0],
       "step",
     );
@@ -871,11 +871,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "#1",
       },
     ];
-    const defaultSelectedRow = undefined;
+    const defaultSelectedRowIndices = undefined;
     const result = selectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRow,
+      defaultSelectedRowIndices,
       [0, 2],
       "step",
     );
