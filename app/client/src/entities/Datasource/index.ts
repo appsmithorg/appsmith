@@ -61,6 +61,7 @@ interface BaseDatasource {
   name: string;
   organizationId: string;
   isValid: boolean;
+  isConfigured: boolean;
 }
 
 export const isEmbeddedRestDatasource = (
@@ -113,6 +114,7 @@ export const DEFAULT_DATASOURCE = (
   datasourceConfiguration: {
     url: "",
   },
+  isConfigured: true,
   invalids: [],
   isValid: true,
   pluginId,
