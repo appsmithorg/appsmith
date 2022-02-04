@@ -88,6 +88,7 @@ function GroupButtonComponent(props: RenderComponentProps) {
         }}
         onFocus={onFocus}
         placeholder="Button label"
+        trimValue={false}
         value={value}
       />
       <StyledDeleteIcon
