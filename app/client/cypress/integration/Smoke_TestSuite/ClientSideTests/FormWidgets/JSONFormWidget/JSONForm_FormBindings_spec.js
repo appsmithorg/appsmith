@@ -1,5 +1,5 @@
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-const widgetsLocators = require("../../../../../locators/Widgets.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
@@ -35,12 +35,10 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.closePropertyPane();
 
     // Validate initial form data
-    cy.get(".t--draggable-textwidget")
-      .find(".bp3-ui-text")
-      .then(($el) => {
-        const formData = JSON.parse($el.text());
-        cy.wrap(formData).should("deep.equal", expectedInitialFormData);
-      });
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
+      const formData = JSON.parse($el.text());
+      cy.wrap(formData).should("deep.equal", expectedInitialFormData);
+    });
 
     // Modify form field values
     cy.get(`${fieldPrefix}-name input`)
@@ -64,12 +62,10 @@ describe("JSON Form Widget Form Bindings", () => {
 
     cy.wait(1000);
     // Check if modified text updates formData
-    cy.get(widgetsLocators.textWidget)
-      .find(".bp3-ui-text")
-      .then(($el) => {
-        const formData = JSON.parse($el.text());
-        cy.wrap(formData).should("deep.equal", updatedFormData);
-      });
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
+      const formData = JSON.parse($el.text());
+      cy.wrap(formData).should("deep.equal", updatedFormData);
+    });
   });
 
   it("updates fieldState", () => {
@@ -206,12 +202,10 @@ describe("JSON Form Widget Form Bindings", () => {
 
     cy.wait(3000);
 
-    cy.get(".t--draggable-textwidget")
-      .find(".bp3-ui-text")
-      .then(($el) => {
-        const formData = JSON.parse($el.text());
-        cy.wrap(formData).should("deep.equal", expectedInitialFieldState);
-      });
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
+      const formData = JSON.parse($el.text());
+      cy.wrap(formData).should("deep.equal", expectedInitialFieldState);
+    });
 
     cy.openPropertyPane("jsonformwidget");
 
@@ -273,12 +267,10 @@ describe("JSON Form Widget Form Bindings", () => {
 
     cy.wait(3000);
 
-    cy.get(".t--draggable-textwidget")
-      .find(".bp3-ui-text")
-      .then(($el) => {
-        const formState = JSON.parse($el.text());
-        cy.wrap(formState).should("deep.equal", expectedUpdatedFieldState);
-      });
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
+      const formState = JSON.parse($el.text());
+      cy.wrap(formState).should("deep.equal", expectedUpdatedFieldState);
+    });
   });
 
   it("change field accessor should reflect in fieldState and formData", () => {
@@ -377,12 +369,10 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.wait(5000);
 
     // Verify if formState reflects accessor change
-    cy.get(".t--draggable-textwidget")
-      .find(".bp3-ui-text")
-      .then(($el) => {
-        const formState = JSON.parse($el.text());
-        cy.wrap(formState).should("deep.equal", expectedFieldStateChange);
-      });
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
+      const formState = JSON.parse($el.text());
+      cy.wrap(formState).should("deep.equal", expectedFieldStateChange);
+    });
 
     // Modify text widget binding to formData
     cy.openPropertyPane("textwidget");
@@ -391,11 +381,9 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.wait(1000);
 
     // Verify if formData reflects accessor change
-    cy.get(".t--draggable-textwidget")
-      .find(".bp3-ui-text")
-      .then(($el) => {
-        const formData = JSON.parse($el.text());
-        cy.wrap(formData).should("deep.equal", expectedFormDataChange);
-      });
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
+      const formData = JSON.parse($el.text());
+      cy.wrap(formData).should("deep.equal", expectedFormDataChange);
+    });
   });
 });
