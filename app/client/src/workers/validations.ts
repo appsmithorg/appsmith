@@ -25,6 +25,12 @@ import evaluate from "./evaluate";
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
 import { QueryActionConfig } from "entities/Action";
+import {
+  VALIDATION_ARRAY_DISALLOWED_VALUE,
+  VALIDATION_ARRAY_DUPLICATE_PROPERTY_VALUES,
+  VALIDATION_ARRAY_INVALID_ENTRY,
+  VALIDATION_ARRAY_UNIQUE,
+} from "constants/messages";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
 
@@ -145,7 +151,7 @@ function validateArray(
 
   // Should we validate against disallowed values in the value array?
   const shouldVerifyAllowedValues =
-    Array.isArray(allowedValues) && allowedValues.length;
+    Array.isArray(allowedValues) && !!allowedValues.length;
 
   // Do we have validation config for array children?
   const shouldValidateChildren = !!childrenValidationConfig;
@@ -153,8 +159,7 @@ function validateArray(
   // Should array values be unique? This should applies only to primitive values in array children
   // If we have to validate children with their own validation config, this should be false (Needs verification)
   // If this option is true, shouldArrayValuesHaveUniqueValuesForKeys will become false
-  const shouldArrayHaveUniqueEntries =
-    config.params?.unique === true && !shouldValidateChildren;
+  const shouldArrayHaveUniqueEntries = config.params?.unique === true;
 
   // Should we validate for unique values for properties in the array entries?
   const shouldArrayValuesHaveUniqueValuesForKeys =
@@ -171,7 +176,7 @@ function validateArray(
       return {
         isValid: false,
         parsed: config.params?.default || [],
-        messages: [`Array must be unique. Duplicate values found`],
+        messages: [VALIDATION_ARRAY_UNIQUE()],
       };
     }
   }
@@ -194,7 +199,7 @@ function validateArray(
         isValid: false,
         parsed: config.params?.default || [],
         messages: [
-          `Duplicate values found for the following properties, in the array entries, that must be unique -- ${uniqueKeys.join(
+          `${VALIDATION_ARRAY_DUPLICATE_PROPERTY_VALUES()} ${uniqueKeys.join(
             ",",
           )}.`,
         ],
@@ -206,7 +211,7 @@ function validateArray(
   value.every((entry, index) => {
     // Validate for allowed values
     if (shouldVerifyAllowedValues && !(allowedValues || []).includes(entry)) {
-      _messages.push(`Disallowed value: ${entry}`);
+      _messages.push(`${VALIDATION_ARRAY_DISALLOWED_VALUE()}: ${entry}`);
       _isValid = false;
     }
 
@@ -222,15 +227,17 @@ function validateArray(
       // If invalid, append to messages
       if (!childValidationResult.isValid) {
         _isValid = false;
-        childValidationResult.messages?.map((message) =>
-          _messages.push(`Invalid entry at index: ${index}. ${message}`),
+        childValidationResult.messages?.forEach((message) =>
+          _messages.push(
+            `${VALIDATION_ARRAY_INVALID_ENTRY()} ${index}. ${message}`,
+          ),
         );
       }
     }
 
     // Bail out, if the error count threshold has been overcome
     // This way, debugger will not have to render too many errors
-    if (_messages.length > VALIDATION_ERROR_COUNT_THRESHOLD && !_isValid) {
+    if (_messages.length >= VALIDATION_ERROR_COUNT_THRESHOLD && !_isValid) {
       return false;
     }
     return true;
@@ -248,7 +255,6 @@ export const validate = (
   value: unknown,
   props: Record<string, unknown>,
 ): ValidationResponse => {
-  const start = performance.now();
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,
     value,

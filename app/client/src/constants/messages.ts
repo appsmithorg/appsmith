@@ -1001,3 +1001,12 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+// Validations
+export const VALIDATION_ARRAY_UNIQUE = () =>
+  "Array must be unique. Duplicate values found";
+export const VALIDATION_ARRAY_DUPLICATE_PROPERTY_VALUES = () =>
+  "Duplicate values found for the following properties, in the array entries, that must be unique --";
+export const VALIDATION_ARRAY_DISALLOWED_VALUE = () =>
+  "Value is not allowed in this array";
+export const VALIDATION_ARRAY_INVALID_ENTRY = () => "Invalid entry at index:";
