@@ -4,11 +4,8 @@ import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
-import {
-  changeSelectedAppThemeAction,
-  updateSelectedAppThemeAction,
-} from "actions/appThemingActions";
 import {
   AppThemingMode,
   getAppThemingStack,
@@ -16,6 +13,7 @@ import {
 import { AppTheme } from "entities/AppTheming";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { changeSelectedAppThemeAction } from "actions/appThemingActions";
 
 /**
  * ----------------------------------------------------------------------------
@@ -27,8 +25,7 @@ interface ThemeCard {
   isSelected?: boolean;
   className?: string;
   selectable?: boolean;
-  editable?: boolean;
-  changeable?: boolean;
+  deletable?: boolean;
 }
 
 const MainContainer = styled.main<{ backgroundColor: string }>`
@@ -70,7 +67,7 @@ const ThemeColorButton = styled.main<{
  *-----------------------------------------------------------------------------
  */
 export function ThemeCard(props: ThemeCard) {
-  const { selectable, theme } = props;
+  const { deletable, selectable, theme } = props;
   const dispatch = useDispatch();
   const themingStack = useSelector(getAppThemingStack);
   const themingMode = last(themingStack);
@@ -109,9 +106,16 @@ export function ThemeCard(props: ThemeCard) {
   }, [changeSelectedAppThemeAction, theme]);
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 group">
       {selectable && (
-        <h3 className="text-base text-gray-600">{props.theme.name}</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm text-gray-600 ">{props.theme.name}</h3>
+          {deletable && (
+            <button className="p-1 opacity-0 group-hover:block hover:bg-gray-100 group-hover:opacity-100">
+              <DeleteIcon className="w-4 h-4 text-gray-600" />
+            </button>
+          )}
+        </div>
       )}
       <div
         className={classNames({

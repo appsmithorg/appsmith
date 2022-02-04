@@ -11,8 +11,12 @@ class AppThemingApi extends API {
    *
    * @returns
    */
-  static fetchThemes(): AxiosPromise<GenericApiResponse<AppTheme[]>> {
-    return API.get(`${AppThemingApi.baseUrl}/themes`);
+  static fetchThemes(
+    applicationId: string,
+  ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
+    return API.get(
+      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
+    );
   }
 
   /**
@@ -61,6 +65,23 @@ class AppThemingApi extends API {
     return API.patch(
       `${AppThemingApi.baseUrl}/applications/${applicationId}/themes/${theme.id}`,
       theme,
+    );
+  }
+
+  /**
+   * fires api for saving current theme
+   *
+   * @param applicationId
+   * @param theme
+   * @returns
+   */
+  static saveTheme(
+    applicationId: string,
+    payload: { name: string },
+  ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
+    return API.patch(
+      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
+      payload,
     );
   }
 }

@@ -82,7 +82,7 @@ function ThemeEditor() {
               </Dropdown>
             </div>
           </div>
-          <ThemeCard changeable theme={selectedTheme} />
+          <ThemeCard theme={selectedTheme} />
         </header>
         <div className="px-3 mt-4">
           <Button

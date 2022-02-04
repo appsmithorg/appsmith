@@ -1,13 +1,10 @@
 import React, { useState, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import Checkbox from "components/ads/Checkbox";
 import Dialog from "components/ads/DialogComponent";
 import CloseIcon from "remixicon-react/CloseLineIcon";
 import Button, { Category, Size } from "components/ads/Button";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
-import { saveSelectedThemeAction } from "actions/appThemingActions";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 interface SaveThemeModalProps {
   isOpen: boolean;
@@ -20,11 +17,9 @@ interface SaveThemeFormProps {
 
 function SaveThemeModal(props: SaveThemeModalProps) {
   const { isOpen, onClose } = props;
-  const dispatch = useDispatch();
-  const applicationId = useSelector(getCurrentApplicationId);
   const [name, setName] = useState("");
-  const onSubmit = () => {
-    dispatch(saveSelectedThemeAction({ applicationId, name }));
+  const onSubmit = (data: any) => {
+    //
   };
 
   return (
@@ -37,7 +32,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
           </button>
         </div>
 
-        <div className="py-6 pb-8 space-y-3">
+        <div className="py-6 pb-8 space-y-3 border-b">
           <p>
             You can save your custom themes to use across applications and use
             them when you need.
@@ -54,7 +49,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
             />
           </div>
         </div>
-        {/* <div className="py-6">
+        <div className="py-6">
           <p className="text-base">Want to share your customised theme?</p>
           <p className="mt-2 text-gray-600">
             You can submit your theme to Appsmith to be included in our as part
@@ -63,7 +58,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
           <div className="mt-3">
             <Checkbox label="Submit this theme to Appsmith" />
           </div>
-        </div> */}
+        </div>
 
         <div className="">
           <div className="flex items-center space-x-3">
@@ -75,7 +70,6 @@ function SaveThemeModal(props: SaveThemeModalProps) {
             <Button
               category={Category.primary}
               disabled={!name}
-              onClick={onSubmit}
               size={Size.medium}
               text="Save theme"
               type="submit"

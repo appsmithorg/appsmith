@@ -10,7 +10,7 @@ function ThemeList(props: ThemeListProps) {
   return (
     <>
       {props.themes.map((theme, index) => (
-        <ThemeCard key={index} selectable theme={theme} />
+        <ThemeCard deletable key={index} selectable theme={theme} />
       ))}
     </>
   );

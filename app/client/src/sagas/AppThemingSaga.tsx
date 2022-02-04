@@ -1,7 +1,9 @@
 import React from "react";
 import {
   ChangeSelectedAppThemeAction,
+  FetchAppThemesAction,
   FetchSelectedAppThemeAction,
+  SaveAppThemeAction,
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import {
@@ -997,10 +999,10 @@ const dummyThemes: AppTheme[] = [
  *
  * @param action
  */
-export function* fetchAppThemes() {
+export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
-    // eslint-disable-next-line
-    const response = yield ThemingApi.fetchThemes();
+    const { applicationId } = action.payload;
+    const response = yield ThemingApi.fetchThemes(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
@@ -1022,7 +1024,6 @@ export function* fetchAppThemes() {
 export function* fetchAppSelectedTheme(
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
-  // eslint-disable-next-line
   const { applicationId } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
 
@@ -1124,6 +1125,38 @@ export function* changeSelectedTheme(
   }
 }
 
+/**
+ * save and create new theme from  selcted theme
+ *
+ * @param action
+ */
+export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
+  const { applicationId, name } = action.payload;
+  const canvasWidgets = yield select(getCanvasWidgets);
+
+  try {
+    const response = yield ThemingApi.saveTheme(applicationId, { name });
+
+    yield put({
+      type: ReduxActionTypes.SAVE_APP_THEME_SUCCESS,
+    });
+
+    // shows toast
+    Toaster.show({
+      text: createMessage(CHANGE_APP_THEME, "hello"),
+      variant: Variant.success,
+      actionElement: (
+        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
+      ),
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_APP_THEME_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export default function* appThemingSaga() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_APP_THEMES_INIT, fetchAppThemes),
@@ -1139,5 +1172,6 @@ export default function* appThemingSaga() {
       ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
       changeSelectedTheme,
     ),
+    takeLatest(ReduxActionTypes.SAVE_APP_THEME_INIT, saveSelectedTheme),
   ]);
 }
