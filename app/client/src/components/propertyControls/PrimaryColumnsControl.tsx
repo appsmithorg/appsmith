@@ -128,7 +128,11 @@ function ColumnControlComponent(props: RenderComponentProps) {
     updateFocus,
     updateOption,
   } = props;
+
   const [visibility, setVisibility] = useState(item.isVisible);
+  useEffect(() => {
+    setVisibility(item.isVisible);
+  }, [item.isVisible]);
   const debouncedUpdate = _.debounce(updateOption, 1000);
   const debouncedFocus = updateFocus ? _.debounce(updateFocus, 400) : noop;
   const onChange = useCallback(
@@ -161,6 +165,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
         }}
         onFocus={onFocus}
         placeholder="Column Title"
+        trimValue={false}
         value={value}
         width="100%"
       />

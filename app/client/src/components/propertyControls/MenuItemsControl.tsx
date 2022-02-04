@@ -86,6 +86,7 @@ function MenuItemComponent(props: RenderComponentProps) {
         }}
         onFocus={onFocus}
         placeholder="Menu item label"
+        trimValue={false}
         value={value}
       />
       <StyledDeleteIcon

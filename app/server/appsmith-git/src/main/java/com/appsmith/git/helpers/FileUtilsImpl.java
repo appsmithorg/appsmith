@@ -237,10 +237,10 @@ public class FileUtilsImpl implements FileInterface {
      * @param branchName for which the application needs to be rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationGitReference> reconstructApplicationFromGitRepo(String organisationId,
-                                                                           String defaultApplicationId,
-                                                                           String repoName,
-                                                                           String branchName) {
+    public Mono<ApplicationGitReference> reconstructApplicationReferenceFromGitRepo(String organisationId,
+                                                                                    String defaultApplicationId,
+                                                                                    String repoName,
+                                                                                    String branchName) {
 
         Path baseRepoSuffix = Paths.get(organisationId, defaultApplicationId, repoName);
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
@@ -265,6 +265,9 @@ public class FileUtilsImpl implements FileInterface {
 
                     // Extract actions
                     applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson));
+
+                    // Extract actionCollections
+                    applicationGitReference.setActionsCollections(readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson));
 
                     // Extract pages
                     applicationGitReference.setPages(readFiles(baseRepoPath.resolve(PAGE_DIRECTORY), gson));
