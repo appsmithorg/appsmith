@@ -12,6 +12,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -30,6 +31,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -305,7 +307,10 @@ public class GitFileUtils {
         layout.setActionsUsedInDynamicBindings(null);
         layout.setMongoEscapedWidgetNames(null);
         if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
-            layout.getLayoutOnLoadActions().forEach(layoutAction -> layoutAction.forEach(actionDTO -> actionDTO.setDefaultActionId(null)));
+            layout.getLayoutOnLoadActions().forEach(layoutAction -> layoutAction
+                    .stream()
+                    .sorted(Comparator.comparing(DslActionDTO::getId))
+                    .forEach(actionDTO -> actionDTO.setDefaultActionId(null)));
         }
     }
 

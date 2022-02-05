@@ -5,6 +5,7 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.converters.GsonUnorderedToOrderedSetConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -93,7 +94,6 @@ public class FileUtilsImpl implements FileInterface {
                     // convert to Double
                     Gson gson = new GsonBuilder()
                             .registerTypeAdapter(Double.class,  new JsonSerializer<Double>() {
-
                                 @Override
                                 public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
                                     if(src == src.longValue())
@@ -101,6 +101,7 @@ public class FileUtilsImpl implements FileInterface {
                                     return new JsonPrimitive(src);
                                 }
                             })
+                            .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedSetConverter())
                             .disableHtmlEscaping()
                             .setPrettyPrinting()
                             .create();
