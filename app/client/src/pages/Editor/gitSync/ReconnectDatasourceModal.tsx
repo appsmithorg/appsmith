@@ -54,6 +54,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { setOrgIdForImport } from "actions/applicationActions";
 import DatasourceForm from "../DataSourceEditor";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   height: 804px;
@@ -365,6 +366,12 @@ function ReconnectDatasourceModal(props: Props) {
       setCollapsedMenu(
         isConfigured ? DSCollapseMenu.CONFIGURED : DSCollapseMenu.UNCONFIGURED,
       );
+      AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
+        id: ds.id,
+        name: ds.name,
+        pluginName: pluginNames[ds.id],
+        isConfigured: ds.isConfigured,
+      });
     },
     [],
   );
@@ -522,6 +529,9 @@ function ReconnectDatasourceModal(props: Props) {
                     hasIcon
                     link={DOCS_BASE_URL || ""}
                     onClick={() => {
+                      AnalyticsUtil.logEvent(
+                        "ADD_MISSING_DATASOURCE_LINK_CLICK",
+                      );
                       const ds = datasources[0];
                       if (ds) {
                         setSelectedDatasourceId(ds.id);
@@ -545,6 +555,12 @@ function ReconnectDatasourceModal(props: Props) {
                 category={Category.tertiary}
                 className="t--application-edit-link"
                 href={appURL}
+                onClick={() => {
+                  AnalyticsUtil.logEvent(
+                    "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
+                  );
+                  window.open(appURL, "_self");
+                }}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}
               />
