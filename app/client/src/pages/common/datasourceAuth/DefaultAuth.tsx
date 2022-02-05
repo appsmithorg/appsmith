@@ -13,6 +13,7 @@ import {
   testDatasource,
   deleteDatasource,
   updateDatasource,
+  createDatasourceFromForm,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
@@ -75,35 +76,54 @@ export default function DefaultAuth({
     });
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
-    dispatch(
-      updateDatasource(
-        getSanitizedFormData(),
-        !isGeneratePageInitiator
-          ? dispatch(
-              redirectToNewIntegrations(
-                applicationId,
-                pageId,
-                getQueryParams(),
-              ),
-            )
-          : undefined,
-      ),
-    );
+    if (datasource.id === "TEMP-ID-1") {
+      dispatch(
+        createDatasourceFromForm(
+          getSanitizedFormData(),
+          !isGeneratePageInitiator
+            ? dispatch(
+                redirectToNewIntegrations(
+                  applicationId,
+                  pageId,
+                  getQueryParams(),
+                ),
+              )
+            : undefined,
+        ),
+      );
+    } else {
+      dispatch(
+        updateDatasource(
+          getSanitizedFormData(),
+          !isGeneratePageInitiator
+            ? dispatch(
+                redirectToNewIntegrations(
+                  applicationId,
+                  pageId,
+                  getQueryParams(),
+                ),
+              )
+            : undefined,
+        ),
+      );
+    }
   };
 
   return (
     <>
       {shouldRender && (
         <SaveButtonContainer>
-          <ActionButton
-            buttonStyle="DANGER"
-            buttonVariant={ButtonVariantTypes.PRIMARY}
-            // accent="error"
-            className="t--delete-datasource"
-            loading={isDeleting}
-            onClick={handleDatasourceDelete}
-            text="Delete"
-          />
+          {datasource.id !== "TEMP-ID-1" && (
+            <ActionButton
+              buttonStyle="DANGER"
+              buttonVariant={ButtonVariantTypes.PRIMARY}
+              // accent="error"
+              className="t--delete-datasource"
+              loading={isDeleting}
+              onClick={handleDatasourceDelete}
+              text="Delete"
+            />
+          )}
 
           <ActionButton
             // accent="secondary"

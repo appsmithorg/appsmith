@@ -17,6 +17,8 @@ import {
   getOAuthAccessToken,
   redirectAuthorizationCode,
   updateDatasource,
+  createDatasourceFromForm,
+  removeTempDatasource,
 } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import {
@@ -81,16 +83,27 @@ function OAuth({
   const location = useLocation();
   const { pageId } = useParams<ExplorerURLParams>();
 
-  // Handles datasource saving
+  // Handles datasource saving and updating
   const handleDatasourceSave = () => {
-    dispatch(
-      updateDatasource(
-        getSanitizedFormData(),
-        pluginType
-          ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
-          : undefined,
-      ),
-    );
+    if (datasource.id === "TEMP-ID-1") {
+      dispatch(
+        createDatasourceFromForm(
+          getSanitizedFormData(),
+          pluginType
+            ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
+            : undefined,
+        ),
+      );
+    } else {
+      dispatch(
+        updateDatasource(
+          getSanitizedFormData(),
+          pluginType
+            ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
+            : undefined,
+        ),
+      );
+    }
   };
 
   // Handles datasource deletion
@@ -123,6 +136,10 @@ function OAuth({
         pageId,
       });
     }
+
+    return () => {
+      dispatch(removeTempDatasource());
+    };
   }, []);
 
   return (

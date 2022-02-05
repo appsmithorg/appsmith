@@ -9,10 +9,38 @@ import { PluginType } from "entities/Action";
 import { executeDatasourceQueryRequest } from "../api/DatasourcesApi";
 import { ResponseMeta } from "../api/ApiResponses";
 
-export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
+// export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
+//   return {
+//     type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
+//     payload,
+//   };
+// };
+
+export const createDatasourceFromForm = (
+  payload: CreateDatasourceConfig & Datasource,
+  onSuccess?: ReduxAction<unknown>,
+  onError?: ReduxAction<unknown>,
+): ReduxActionWithCallbacks<Datasource, unknown, unknown> => {
   return {
     type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
     payload,
+    onSuccess,
+    onError,
+  };
+};
+
+export const createTempDatasourceFromForm = (
+  payload: CreateDatasourceConfig,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS,
+    payload,
+  };
+};
+
+export const removeTempDatasource = () => {
+  return {
+    type: ReduxActionTypes.REMOVE_TEMP_DATASOURCE_SUCCESS,
   };
 };
 

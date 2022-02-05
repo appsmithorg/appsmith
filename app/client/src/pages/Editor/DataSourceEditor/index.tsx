@@ -14,6 +14,7 @@ import {
   deleteDatasource,
   switchDatasource,
   setDatsourceEditorMode,
+  removeTempDatasource,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DataSourceEditorForm from "./DBForm";
@@ -77,6 +78,7 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.switchDatasource(this.props.match.params.datasourceId);
     }
   }
+
   handleSubmit = () => {
     this.props.submitForm(DATASOURCE_DB_FORM);
   };
@@ -156,7 +158,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource:
-      datasourcePane.newDatasource === props.match.params.datasourceId,
+      datasourcePane.newDatasource === props.match.params.datasourceId ||
+      props.match.params.datasourceId === "TEMP-ID-1",
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm:
@@ -187,6 +190,7 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
     dispatch(setGlobalSearchQuery(text));
     dispatch(toggleShowGlobalSearchModal());
   },
+  discardTempDatasource: () => dispatch(removeTempDatasource()),
 });
 
 export interface DatasourcePaneFunctions {
@@ -202,9 +206,14 @@ export interface DatasourcePaneFunctions {
     pageId: string,
     params: any,
   ) => void;
+  discardTempDatasource: () => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props> {
+  componentWillUnmount() {
+    this.props.discardTempDatasource();
+  }
+
   render() {
     const {
       history,
@@ -221,7 +230,8 @@ class DatasourceEditorRouter extends React.Component<Props> {
       pluginPackageName,
       viewMode,
     } = this.props;
-    if (!pluginId && datasourceId) {
+
+    if (!pluginId && datasourceId && datasourceId !== "TEMP-ID-1") {
       return <EntityNotFoundPane />;
     }
 

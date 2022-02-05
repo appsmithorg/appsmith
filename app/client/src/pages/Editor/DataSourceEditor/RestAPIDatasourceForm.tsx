@@ -81,7 +81,10 @@ interface DatasourceRestApiEditorProps {
   actions: ActionDataState;
   formMeta: any;
   messages?: Array<string>;
-  createDatasource: (data: Datasource) => void;
+  createDatasource: (
+    data: Datasource,
+    onSuccess?: ReduxAction<unknown>,
+  ) => void;
   plugins: Plugin[];
 }
 
@@ -276,22 +279,23 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       this.props.datasource,
       this.props.formData,
     );
-    console.log("plugin", (plugin as any).id, normalizedValues);
 
-    // this.props.createDatasource({
-    //   ...normalizedValues,
-    //   pluginId: (plugin as any).id,
-    // });
+    AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
+      pageId: this.props.pageId,
+      appId: this.props.applicationId,
+    });
 
-    this.props.updateDatasource(normalizedValues, onSuccess);
+    if (this.props.datasource.id !== "TEMP-ID-1") {
+      return this.props.updateDatasource(normalizedValues, onSuccess);
+    }
 
-    // if(p)
-    // AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
-    //   pageId: this.props.pageId,
-    //   appId: this.props.applicationId,
-    // });
-
-    // this.props.createDatasource(normalizedValues);
+    this.props.createDatasource(
+      {
+        ...normalizedValues,
+        pluginId: (plugin as Plugin).id,
+      },
+      onSuccess,
+    );
   };
 
   createApiAction = () => {
@@ -1114,7 +1118,7 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
-    createDatasource: (formData: any) =>
+    createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(createDatasourceFromForm(formData)),
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
   };

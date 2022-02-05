@@ -229,6 +229,29 @@ const datasourceReducer = createReducer(initialState, {
       }),
     };
   },
+  [ReduxActionTypes.UPDATE_TEMP_DATASOURCE_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ): DatasourceDataState => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.map((datasource) => {
+        if (datasource.id === "TEMP-ID-1") return action.payload;
+
+        return datasource;
+      }),
+    };
+  },
+  [ReduxActionTypes.REMOVE_TEMP_DATASOURCE_SUCCESS]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      isDeleting: false,
+      list: state.list.filter((datasource) => datasource.id !== "TEMP-ID-1"),
+    };
+  },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,

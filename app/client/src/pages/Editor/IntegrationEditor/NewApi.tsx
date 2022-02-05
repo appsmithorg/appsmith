@@ -5,7 +5,10 @@ import {
   DATA_SOURCES_EDITOR_ID_URL,
   getCurlImportPageURL,
 } from "constants/routes";
-import { createDatasourceFromForm } from "actions/datasourceActions";
+import {
+  createDatasourceFromForm,
+  createTempDatasourceFromForm,
+} from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
@@ -139,6 +142,7 @@ type ApiHomeScreenProps = {
   pageId: string;
   plugins: Plugin[];
   createDatasourceFromForm: (data: any) => void;
+  createTempDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
 };
@@ -169,45 +173,17 @@ function NewApiScreen(props: Props) {
 
   const handleCreateAuthApiDatasource = useCallback(() => {
     if (authApiPlugin) {
-      // AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
-      //   pluginId: authApiPlugin.id,
-      // });
-      // AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      //   pluginName: authApiPlugin.name,
-      //   pluginPackageName: authApiPlugin.packageName,
-      // });
-      props.createDatasourceFromForm({
+      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
         pluginId: authApiPlugin.id,
       });
-
-      console.log(
-        "pppppppppp",
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, "", {
-          from: "datasources",
-          pluginId: authApiPlugin.id,
-          ...getQueryParams(),
-        }),
-      );
-
-      // history.push(
-      //   DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, "", {
-      //     from: "datasources",
-      //     pluginId: authApiPlugin.id,
-      //     ...getQueryParams(),
-      //   }),
-      // );
-
-      console.log("authApiPlugin", authApiPlugin);
-
-      // history.push(
-      //   SAAS_EDITOR_DATASOURCE_ID_URL(
-      //     applicationId,
-      //     pageId,
-      //     authApiPlugin?.packageName,
-      //     authApiPlugin?.id,
-      //     { from: "datasources" },
-      //   ),
-      // );
+      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+        pluginName: authApiPlugin.name,
+        pluginPackageName: authApiPlugin.packageName,
+      });
+      props.createTempDatasourceFromForm({
+        pluginId: authApiPlugin.id,
+        type: authApiPlugin.type,
+      });
     }
   }, [authApiPlugin, props.createDatasourceFromForm]);
 
@@ -260,8 +236,10 @@ function NewApiScreen(props: Props) {
         break;
       }
       case API_ACTION.CREATE_DATASOURCE_FORM: {
-        console.log("params", params);
-        props.createDatasourceFromForm({ pluginId: params.pluginId });
+        props.createTempDatasourceFromForm({
+          pluginId: params.pluginId,
+          type: params.type,
+        });
         break;
       }
       case API_ACTION.AUTH_API: {
@@ -369,6 +347,7 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = {
   createNewApiAction,
   createDatasourceFromForm,
+  createTempDatasourceFromForm,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewApiScreen);
