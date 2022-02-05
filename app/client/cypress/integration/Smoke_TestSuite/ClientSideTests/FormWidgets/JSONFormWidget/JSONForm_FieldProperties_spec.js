@@ -175,22 +175,21 @@ describe("Select Field Property Control", () => {
     );
   });
 
-  it("changes dropdown options", () => {
-    const options = [
-      { label: "Karnataka", value: "Karnataka" },
-      { label: "Delhi", value: "Delhi" },
-      { label: "Nagaland", value: "Nagaland" },
-      { label: "Mizoram", value: "Mizoram" },
-    ];
-    cy.testJsontext("options", "");
-    cy.testJsontext("options", JSON.stringify(options));
-    // click select field and check of select options match with options entered.
-    cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
-    cy.get(".bp3-menu-item").each(($el, index) => {
-      cy.wrap($el).contains(options[index].label);
-    });
-    cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
-  });
+  // it("changes dropdown options", () => {
+  //   const options = [
+  //     { label: "Karnataka", value: "Karnataka" },
+  //     { label: "Delhi", value: "Delhi" },
+  //     { label: "Nagaland", value: "Nagaland" },
+  //     { label: "Mizoram", value: "Mizoram" },
+  //   ];
+  //   cy.testJsontext("options", JSON.stringify(options));
+  //   // click select field and check of select options match with options entered.
+  //   cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
+  //   cy.get(".bp3-menu-item").each(($el, index) => {
+  //     cy.wrap($el).contains(options[index].label);
+  //   });
+  //   cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
+  // });
 
   // it("adds placeholder text", () => {
   //   cy.testJsontext("placeholder", "Select placeholder");
@@ -257,27 +256,26 @@ describe("Multi-Select Field Property Control", () => {
     );
   });
 
-  it("changes dropdown options", () => {
-    const options = [
-      { label: "Swimming", value: "Swimming" },
-      { label: "Hiking", value: "Hiking" },
-      { label: "Travelling", value: "Travelling" },
-    ];
-    cy.testJsontext("options", "");
-    cy.testJsontext("options", JSON.stringify(options));
+  // it("changes dropdown options", () => {
+  //   const options = [
+  //     { label: "Swimming", value: "Swimming" },
+  //     { label: "Hiking", value: "Hiking" },
+  //     { label: "Travelling", value: "Travelling" },
+  //   ];
+  //   cy.testJsontext("options", JSON.stringify(options));
 
-    cy.closePropertyPane();
+  //   cy.closePropertyPane();
 
-    // click multi-select field and check of select options match with options entered.
-    cy.get(`${fieldPrefix}-hobbies`)
-      .find(".rc-select-selection-search-input")
-      .first()
-      .focus({ force: true })
-      .type("{uparrow}", { force: true });
-    cy.get(".rc-select-item-option-content").each(($el, index) => {
-      cy.wrap($el).contains(options[index].label);
-    });
-  });
+  //   // click multi-select field and check of select options match with options entered.
+  //   cy.get(`${fieldPrefix}-hobbies`)
+  //     .find(".rc-select-selection-search-input")
+  //     .first()
+  //     .focus({ force: true })
+  //     .type("{uparrow}", { force: true });
+  //   cy.get(".rc-select-item-option-content").each(($el, index) => {
+  //     cy.wrap($el).contains(options[index].label);
+  //   });
+  // });
 
   it("adds placeholder text", () => {
     cy.openPropertyPane("jsonformwidget");

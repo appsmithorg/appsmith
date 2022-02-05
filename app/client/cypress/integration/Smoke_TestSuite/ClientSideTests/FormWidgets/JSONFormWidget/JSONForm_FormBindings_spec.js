@@ -197,6 +197,11 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("textwidget");
+    cy.get(".t--property-control-text .CodeMirror textarea")
+      .first()
+      .clear({
+        force: true,
+      });
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.fieldState)}}");
     cy.closePropertyPane();
 
@@ -347,6 +352,11 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("textwidget");
+    cy.get(".t--property-control-text .CodeMirror textarea")
+      .first()
+      .clear({
+        force: true,
+      });
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.fieldState)}}");
 
     cy.openPropertyPane("jsonformwidget");
@@ -376,6 +386,11 @@ describe("JSON Form Widget Form Bindings", () => {
 
     // Modify text widget binding to formData
     cy.openPropertyPane("textwidget");
+    cy.get(".t--property-control-text .CodeMirror textarea")
+      .first()
+      .clear({
+        force: true,
+      });
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
 
     cy.wait(1000);
