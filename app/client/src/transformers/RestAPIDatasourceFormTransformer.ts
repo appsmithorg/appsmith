@@ -89,6 +89,9 @@ const formToDatasourceAuthentication = (
       isTokenHeader: authentication.isTokenHeader,
       audience: authentication.audience,
       resource: authentication.resource,
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -173,6 +176,9 @@ const datasourceToFormAuthentication = (
       isTokenHeader: !!authentication.isTokenHeader,
       audience: authentication.audience || "",
       resource: authentication.resource || "",
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation || "",
     };
     if (isClientCredentials(authType, authentication)) {
       return {

@@ -235,6 +235,20 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         this.props.change("authentication.isAuthorizationHeader", true);
       }
     }
+
+    if (_.get(authentication, "sendScopeWithRefreshToken") === undefined) {
+      this.props.change("authentication.sendScopeWithRefreshToken", false);
+    }
+
+    if (
+      _.get(authentication, "refreshTokenClientCredentialsLocation") ===
+      undefined
+    ) {
+      this.props.change(
+        "authentication.refreshTokenClientCredentialsLocation",
+        "BODY",
+      );
+    }
   };
 
   disableSave = (): boolean => {
@@ -620,6 +634,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         {content}
+        <Collapsible defaultIsOpen title="Advanced Settings">
+          {this.renderOauth2AdvancedSettings()}
+        </Collapsible>
       </>
     );
   };
@@ -705,6 +722,57 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "TEXT",
             false,
             false,
+          )}
+        </FormInputContainer>
+      </>
+    );
+  };
+
+  renderOauth2AdvancedSettings = () => {
+    return (
+      <>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.sendScopeWithRefreshToken")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.sendScopeWithRefreshToken",
+            [
+              {
+                label: "Yes",
+                value: true,
+              },
+              {
+                label: "No",
+                value: false,
+              },
+            ],
+            "Send scope with refresh token",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa(
+            "authentication.refreshTokenClientCredentialsLocation",
+          )}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.refreshTokenClientCredentialsLocation",
+            [
+              {
+                label: "Body",
+                value: "BODY",
+              },
+              {
+                label: "Header",
+                value: "HEADER",
+              },
+            ],
+            "Send client credentials with",
+            "",
+            false,
+            "",
           )}
         </FormInputContainer>
       </>
