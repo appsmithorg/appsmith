@@ -15,7 +15,7 @@ import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
-import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
 import {
   isPermitted,
@@ -125,7 +125,7 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Rename",
+      text: "Edit Name",
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,

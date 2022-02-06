@@ -1,7 +1,6 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
-import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.helpers.FileUtilsImpl;
@@ -14,6 +13,8 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +31,20 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyProperties;
+import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
+import static com.appsmith.server.constants.FieldName.ACTION_LIST;
+import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
+import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
+import static com.appsmith.server.constants.FieldName.EXPORTED_APPLICATION;
+import static com.appsmith.server.constants.FieldName.PAGE_LIST;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,7 +56,7 @@ public class GitFileUtils {
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-        = Set.of("exportedApplication", "datasourceList", "pageList", "actionList", "decryptedFields");
+        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS);
 
     /**
      * This method will save the complete application in the local repo directory.
@@ -67,6 +76,9 @@ public class GitFileUtils {
             3. Save application to git repo
          */
         ApplicationGitReference applicationReference = new ApplicationGitReference();
+
+        Application application = applicationJson.getExportedApplication();
+        removeUnwantedFieldsFromApplication(application);
         // Pass application reference
         applicationReference.setApplication(applicationJson.getExportedApplication());
 
@@ -120,10 +132,8 @@ public class GitFileUtils {
         resourceMap.clear();
 
         // Send datasources
-        applicationJson.getDatasourceList().forEach(
-                datasource -> {
-                    datasource.setUpdatedAt(null);
-                    datasource.setCreatedAt(null);
+        applicationJson.getDatasourceList().forEach(datasource -> {
+                    removeUnwantedFieldsFromDatasource(datasource);
                     resourceMap.put(datasource.getName(), datasource);
                 }
         );
@@ -148,31 +158,23 @@ public class GitFileUtils {
      * @param branchName for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> reconstructApplicationFromGitRepo(String organisationId,
-                                                             String defaultApplicationId,
-                                                             String repoName,
-                                                             String branchName) throws GitAPIException, IOException {
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String organisationId,
+                                                                       String defaultApplicationId,
+                                                                       String repoName,
+                                                                       String branchName) {
 
-        ApplicationJson applicationJson = new ApplicationJson();
 
-        return fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
+        return fileUtils.reconstructApplicationReferenceFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
                 .map(applicationReference -> {
-
-                    // Extract application data from the json
-                    applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
 
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
-                    BeanCopyUtils.copyNestedNonNullProperties(metadata, applicationJson);
 
-                    // Extract actions
-                    applicationJson.setActionList(getApplicationResource(applicationReference.getActions(), NewAction.class));
-
-                    // Extract pages
-                    applicationJson.setPageList(getApplicationResource(applicationReference.getPages(), NewPage.class));
-
-                    // Extract datasources
-                    applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
+                    if (!isVersionCompatible(metadata)) {
+                        migrateToLatestVersion(applicationReference);
+                    }
+                    ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
+                    copyNestedNonNullProperties(metadata, applicationJson);
 
                     return applicationJson;
                 });
@@ -181,13 +183,18 @@ public class GitFileUtils {
     private <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {
 
         List<T> deserializedResources = new ArrayList<>();
-        for (Map.Entry<String, Object> resource : resources.entrySet()) {
-            deserializedResources.add(getApplicationResource(resource.getValue(), type));
+        if (!CollectionUtils.isNullOrEmpty(resources)) {
+            for (Map.Entry<String, Object> resource : resources.entrySet()) {
+                deserializedResources.add(getApplicationResource(resource.getValue(), type));
+            }
         }
         return deserializedResources;
     }
 
     private <T> T getApplicationResource(Object resource, Type type) {
+        if (resource == null) {
+            return null;
+        }
         Gson gson = new Gson();
         return gson.fromJson(gson.toJson(resource), type);
     }
@@ -207,7 +214,8 @@ public class GitFileUtils {
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
                                         String viewModeUrl,
                                         String editModeUrl) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl);
+        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl)
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
     /**
@@ -219,42 +227,54 @@ public class GitFileUtils {
         return fileUtils.detachRemote(baseRepoSuffix);
     }
 
-    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException { return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix); }
+    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
+        return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix)
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
+    }
 
     private void removeUnwantedFieldsFromPage(NewPage page) {
         page.setDefaultResources(null);
         page.setCreatedAt(null);
         page.setUpdatedAt(null);
+        // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO will
+        // be same, so we only commit unpublished PageDTO.
+        page.setPublishedPage(null);
+        page.setUserPermissions(null);
         PageDTO unpublishedPage = page.getUnpublishedPage();
-        PageDTO publishedPage = page.getPublishedPage();
         if (unpublishedPage != null) {
             unpublishedPage
                     .getLayouts()
                     .forEach(this::removeUnwantedFieldsFromLayout);
         }
-        if (publishedPage != null) {
-            publishedPage
-                    .getLayouts()
-                    .forEach(this::removeUnwantedFieldsFromLayout);
-        }
+    }
+
+    private void removeUnwantedFieldsFromApplication(Application application) {
+        // Don't commit application name as while importing we are using the repoName as application name
+        application.setName(null);
+        application.setPublishedPages(null);
+    }
+
+    private void removeUnwantedFieldsFromDatasource(Datasource datasource) {
+        datasource.setPolicies(new HashSet<>());
+        datasource.setStructure(null);
+        datasource.setUpdatedAt(null);
+        datasource.setCreatedAt(null);
+        datasource.setUserPermissions(null);
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {
         action.setDefaultResources(null);
         action.setCreatedAt(null);
         action.setUpdatedAt(null);
+        // As we are publishing the app and then committing to git we expect the published and unpublished ActionDTO will
+        // be same, so we only commit unpublished ActionDTO.
+        action.setPublishedAction(null);
+        action.setUserPermissions(null);
         ActionDTO unpublishedAction = action.getUnpublishedAction();
-        ActionDTO publishedAction = action.getPublishedAction();
         if (unpublishedAction != null) {
             unpublishedAction.setDefaultResources(null);
             if (unpublishedAction.getDatasource() != null) {
                 unpublishedAction.getDatasource().setCreatedAt(null);
-            }
-        }
-        if (publishedAction != null) {
-            publishedAction.setDefaultResources(null);
-            if (publishedAction.getDatasource() != null) {
-                publishedAction.getDatasource().setCreatedAt(null);
             }
         }
     }
@@ -263,14 +283,17 @@ public class GitFileUtils {
         actionCollection.setDefaultResources(null);
         actionCollection.setCreatedAt(null);
         actionCollection.setUpdatedAt(null);
+        // As we are publishing the app and then committing to git we expect the published and unpublished
+        // ActionCollectionDTO will be same, so we only commit unpublished ActionCollectionDTO.
+        actionCollection.setPublishedCollection(null);
+        actionCollection.setUserPermissions(null);
         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-        ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
         if (unpublishedCollection != null) {
             unpublishedCollection.setDefaultResources(null);
+            unpublishedCollection.setDefaultToBranchedActionIdsMap(null);
             unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(null);
-        }
-        if (publishedCollection != null) {
-            publishedCollection.setDefaultResources(null);
+            unpublishedCollection.setActionIds(null);
+            unpublishedCollection.setArchivedActionIds(null);
         }
     }
 
@@ -284,5 +307,66 @@ public class GitFileUtils {
         if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
             layout.getLayoutOnLoadActions().forEach(layoutAction -> layoutAction.forEach(actionDTO -> actionDTO.setDefaultActionId(null)));
         }
+    }
+
+    private ApplicationJson getApplicationJsonFromGitReference(ApplicationGitReference applicationReference) {
+        ApplicationJson applicationJson = new ApplicationJson();
+        // Extract application data from the json
+        applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
+
+        Gson gson = new Gson();
+        // Extract pages
+        List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
+        pages.forEach(newPage -> {
+            // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO
+            // will be same, so we create a deep copy for the published version for page from the unpublishedPageDTO
+            newPage.setPublishedPage(gson.fromJson(gson.toJson(newPage.getUnpublishedPage()), PageDTO.class));
+        });
+        applicationJson.setPageList(pages);
+
+        // Extract actions
+        if (CollectionUtils.isNullOrEmpty(applicationReference.getActions())) {
+            applicationJson.setActionList(new ArrayList<>());
+        } else {
+            List<NewAction> actions = getApplicationResource(applicationReference.getActions(), NewAction.class);
+            actions.forEach(newAction -> {
+                // As we are publishing the app and then committing to git we expect the published and unpublished
+                // actionDTO will be same, so we create a deep copy for the published version for action from
+                // unpublishedActionDTO
+                newAction.setPublishedAction(gson.fromJson(gson.toJson(newAction.getUnpublishedAction()), ActionDTO.class));
+            });
+            applicationJson.setActionList(actions);
+        }
+
+        // Extract actionCollection
+        if (CollectionUtils.isNullOrEmpty(applicationReference.getActionsCollections())) {
+            applicationJson.setActionCollectionList(new ArrayList<>());
+        } else {
+            List<ActionCollection> actionCollections = getApplicationResource(applicationReference.getActionsCollections(), ActionCollection.class);
+            actionCollections.forEach(actionCollection -> {
+                // As we are publishing the app and then committing to git we expect the published and unpublished
+                // actionCollectionDTO will be same, so we create a deep copy for the published version for
+                // actionCollection from unpublishedActionCollectionDTO
+                actionCollection.setPublishedCollection(gson.fromJson(gson.toJson(actionCollection.getUnpublishedCollection()), ActionCollectionDTO.class));
+            });
+            applicationJson.setActionCollectionList(actionCollections);
+        }
+
+        // Extract datasources
+        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
+
+        return applicationJson;
+    }
+
+    private ApplicationGitReference migrateToLatestVersion(ApplicationGitReference applicationReference) {
+        // Implement the incremental version upgrade for JSON files here
+        return applicationReference;
+    }
+
+    private boolean isVersionCompatible(ApplicationJson metadata) {
+        Integer importedFileFormatVersion = metadata == null ? null : metadata.getFileFormatVersion();
+        Integer currentFileFormatVersion = new ApplicationJson().getFileFormatVersion();
+
+        return (importedFileFormatVersion == null || importedFileFormatVersion.equals(currentFileFormatVersion));
     }
 }

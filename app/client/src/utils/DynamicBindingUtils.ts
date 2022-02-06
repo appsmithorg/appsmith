@@ -132,8 +132,6 @@ export enum EVAL_WORKER_ACTIONS {
   EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
   PROCESS_TRIGGER = "PROCESS_TRIGGER",
-  CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
-  CLEAR_PROPERTY_CACHE_OF_WIDGET = "CLEAR_PROPERTY_CACHE_OF_WIDGET",
   CLEAR_CACHE = "CLEAR_CACHE",
   VALIDATE_PROPERTY = "VALIDATE_PROPERTY",
   UNDO = "undo",
@@ -141,6 +139,7 @@ export enum EVAL_WORKER_ACTIONS {
   EVAL_EXPRESSION = "EVAL_EXPRESSION",
   UPDATE_REPLAY_OBJECT = "UPDATE_REPLAY_OBJECT",
   SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
+  INIT_FORM_EVAL = "INIT_FORM_EVAL",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
 }
 
@@ -396,6 +395,21 @@ export function getDynamicBindingsChangesSaga(
   const bindingField = field.replace("actionConfiguration.", "");
   let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
+  if (
+    action.datasource &&
+    "datasourceConfiguration" in action.datasource &&
+    field === "datasource"
+  ) {
+    // only the datasource.datasourceConfiguration.url can be a dynamic field
+    dynamicBindings = dynamicBindings.filter(
+      (binding) => binding.key !== "datasourceUrl",
+    );
+    const datasourceUrl = action.datasource.datasourceConfiguration.url;
+    isDynamicValue(datasourceUrl) &&
+      dynamicBindings.push({ key: "datasourceUrl" });
+    return dynamicBindings;
+  }
+
   // When a key-value pair is added or deleted from a fieldArray
   // Value is an Array representing the new fieldArray.
 
@@ -433,6 +447,5 @@ export function getDynamicBindingsChangesSaga(
       dynamicBindings.push({ key: bindingField });
     }
   }
-
   return dynamicBindings;
 }

@@ -33,7 +33,7 @@ Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-
 
 The fastest way to start with Appsmith is the cloud-hosted version. When you're ready, you can also host it yourself.
 
-- Start building apps _immediately_ with [Appsmith Cloud](https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website)
+- Start building apps _immediately_ with [Appsmith Cloud](https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website) _(Recommended)_
 - Install locally or on a private instance with [Docker](https://docs.appsmith.com/setup/docker?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) _(Recommended)_
 - Deploy on a [Kubernetes](https://docs.appsmith.com/setup/kubernetes?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) cluster
 - Deploy to [AWS with an AMI](https://docs.appsmith.com/setup/aws-ami?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) on the marketplace
@@ -192,6 +192,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
     <td align="center"><a href="https://github.com/akshayrangasaid"><img src="https://avatars.githubusercontent.com/u/76783810?v=4?s=100" width="100px;" alt=""/><br /><sub><b>akshayrangasaid</b></sub></a><br /><a href="#content-akshayrangasaid" title="Content">🖋</a> <a href="#ideas-akshayrangasaid" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/marks0351"><img src="https://avatars.githubusercontent.com/u/35134347?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ashok Kumar M</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=marks0351" title="Code">💻</a></td>
     <td align="center"><a href="https://www.rafaaudibert.dev"><img src="https://avatars.githubusercontent.com/u/32079912?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Rafael Baldasso Audibert</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=rafaeelaudibert" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/yaldram"><img src="https://avatars.githubusercontent.com/u/13429535?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Arsalan Yaldram</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=yaldram" title="Code">💻</a> <a href="#ideas-yaldram" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 

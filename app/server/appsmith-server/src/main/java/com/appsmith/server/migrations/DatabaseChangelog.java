@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
@@ -26,6 +27,8 @@ import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
@@ -52,6 +55,7 @@ import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTheme;
+import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Theme;
@@ -63,6 +67,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -148,6 +153,8 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 public class DatabaseChangelog {
 
     public static ObjectMapper objectMapper = new ObjectMapper();
+    private static final String AGGREGATE_LIMIT = "aggregate.limit";
+    private static final Object DEFAULT_BATCH_SIZE = "101";
     public static final String FIRESTORE_PLUGIN_NAME = "firestore-plugin";
     public static final String CONDITION_KEY = "condition";
     public static final String CHILDREN_KEY = "children";
@@ -4705,7 +4712,7 @@ public class DatabaseChangelog {
                 Datasource.class
         );
     }
-  
+
     /**
      * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
      * unexpected / bad older data.
@@ -4736,7 +4743,7 @@ public class DatabaseChangelog {
         // Update plugin data.
         mongockTemplate.save(firestorePlugin);
     }
-  
+
     @ChangeSet(order = "108", id = "create-system-themes", author = "")
     public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
         Index uniqueApplicationIdIndex = new Index()
@@ -4767,4 +4774,223 @@ public class DatabaseChangelog {
                 new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
         );
     }
+
+    /**
+     * This method sets the key formData.aggregate.limit to 101 for all Mongo plugin actions.
+     * It iterates over each action id one by one to avoid out of memory error.
+     * @param mongoActions
+     * @param mongockTemplate
+     */
+    private void updateLimitFieldForEachAction(List<NewAction> mongoActions, MongockTemplate mongockTemplate) {
+        mongoActions.stream()
+                .map(NewAction::getId) // iterate over one action id at a time
+                .map(actionId -> fetchActionUsingId(actionId, mongockTemplate)) // fetch action using id
+                .filter(this::hasUnpublishedActionConfiguration)
+                .forEachOrdered(mongoAction -> {
+                    /* set key for unpublished action */
+                    Map<String, Object> unpublishedFormData =
+                            mongoAction.getUnpublishedAction().getActionConfiguration().getFormData();
+                    setValueSafelyInFormData(unpublishedFormData, AGGREGATE_LIMIT, DEFAULT_BATCH_SIZE);
+
+                    /* set key for published action */
+                    if (hasPublishedActionConfiguration(mongoAction)) {
+                        Map<String, Object> publishedFormData =
+                                mongoAction.getPublishedAction().getActionConfiguration().getFormData();
+                        setValueSafelyInFormData(publishedFormData, AGGREGATE_LIMIT, DEFAULT_BATCH_SIZE);
+                    }
+
+                    mongockTemplate.save(mongoAction);
+                });
+    }
+
+    /**
+     * Returns true only if the action has non-null published actionConfiguration.
+     * @param action
+     * @return true / false
+     */
+    private boolean hasPublishedActionConfiguration(NewAction action) {
+        ActionDTO publishedAction = action.getPublishedAction();
+        if (publishedAction == null || publishedAction.getActionConfiguration() == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * This migration adds a new field to Mongo aggregate command to set batchSize: formData.aggregate.limit. Its value
+     * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
+     * Mongo database - this is the same value that would have been applied to the aggregate cmd so far by the
+     * database. However, for any new action, this field's initial value is 10.
+     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "109", id = "add-limit-field-data-to-mongo-aggregate-cmd", author = "")
+    public void addLimitFieldDataToMongoAggregateCommand(MongockTemplate mongockTemplate) {
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        /* Query to get all Mongo actions which are not deleted */
+        Query queryToGetActions = getQueryToFetchAllPluginActionsWhichAreNotDeleted(mongoPlugin);
+
+        /* Update the previous query to only include id field */
+        queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
+
+        /* Fetch Mongo actions using the previous query */
+        List<NewAction> mongoActions = mongockTemplate.find(queryToGetActions, NewAction.class);
+
+        /* insert key formData.aggregate.limit */
+        updateLimitFieldForEachAction(mongoActions, mongockTemplate);
+    }
+
+    /**
+     * Returns true only if the action has non-null un-published actionConfiguration.
+     * @param action
+     * @return true / false
+     */
+    private boolean hasUnpublishedActionConfiguration(NewAction action) {
+        ActionDTO unpublishedAction = action.getUnpublishedAction();
+        if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Fetch an action using id.
+     * @param actionId
+     * @param mongockTemplate
+     * @return action
+     */
+    private NewAction fetchActionUsingId(String actionId, MongockTemplate mongockTemplate) {
+        final NewAction action =
+                mongockTemplate.findOne(query(where(fieldName(QNewAction.newAction.id)).is(actionId)), NewAction.class);
+        return action;
+    }
+
+    /**
+     * Generate query to fetch all non-deleted actions defined for a given plugin.
+     * @param plugin
+     * @return query
+     */
+    private Query getQueryToFetchAllPluginActionsWhichAreNotDeleted(Plugin plugin) {
+        Criteria pluginIdIsMongoPluginId = where("pluginId").is(plugin.getId());
+        Criteria isNotDeleted = where("deleted").ne(true);
+        return query((new Criteria()).andOperator(pluginIdIsMongoPluginId, isNotDeleted));
+    }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection, newPage and application collection to take
+     * branchName param into consideration for optimising the find query for git connected applications
+     */
+    @ChangeSet(order = "110", id = "update-index-for-git", author = "")
+    public void updateGitIndexes(MongockTemplate mongockTemplate) {
+
+        // We can't set unique indexes for following as these requires the _id of the resource to be filled in for
+        // defaultResourceId if the app is not connected to git. This results in handling the _id creation for resources
+        // on our end instead of asking mongo driver to perform this operation
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex("defaultResources.actionId", "defaultResources.branchName", "deleted")
+                        .named("defaultActionId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
+                        .named("defaultCollectionId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewPage.class,
+                makeIndex("defaultResources.pageId", "defaultResources.branchName", "deleted")
+                        .named("defaultPageId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, Application.class,
+                makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
+                        .named("defaultApplicationId_branchName_deleted_compound_index")
+        );
+    }
+
+    @ChangeSet(order = "111", id = "update-mockdb-endpoint-2", author = "")
+    public void updateMockdbEndpoint2(MongockTemplate mongockTemplate) {
+        // Doing this again as another migration since it appears some new datasource were created with the old
+        // endpoint around 14-Dec-2021 to 16-Dec-2021.
+        updateMockdbEndpoint(mongockTemplate);
+    }
+
+    @ChangeSet(order = "111", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
+    public void migrateFromRSASha1ToECDSASha2Protocol(MongockTemplate mongockTemplate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("gitApplicationMetadata.gitAuth").exists(TRUE));
+        query.addCriteria(Criteria.where("deleted").is(FALSE));
+
+        for (Application application : mongockTemplate.find(query, Application.class)) {
+            if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
+                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+                GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                gitApplicationMetadata.setGitAuth(gitAuth);
+                application.setGitApplicationMetadata(gitApplicationMetadata);
+                mongockTemplate.save(application);
+            }
+        }
+    }
+
+    @ChangeSet(order = "113", id = "use-assets-cdn-for-plugin-icons", author = "")
+    public void useAssetsCDNForPluginIcons(MongockTemplate mongockTemplate) {
+        final Query query = query(new Criteria());
+        query.fields().include(fieldName(QPlugin.plugin.iconLocation));
+        List<Plugin> plugins = mongockTemplate.find(query, Plugin.class);
+        for (final Plugin plugin : plugins) {
+            if (plugin.getIconLocation() != null && plugin.getIconLocation().startsWith("https://s3.us-east-2.amazonaws.com/assets.appsmith.com")) {
+                final String cdnUrl = plugin.getIconLocation().replace("s3.us-east-2.amazonaws.com/", "");
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QPlugin.plugin.id)).is(plugin.getId())),
+                        update(fieldName(QPlugin.plugin.iconLocation), cdnUrl),
+                        Plugin.class
+                );
+            }
+        }
+    }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection and userData to improve the query performance
+     */
+    @ChangeSet(order = "114", id = "update-index-for-newAction-actionCollection-userData", author = "")
+    public void updateNewActionActionCollectionAndUserDataIndexes(MongockTemplate mongockTemplate) {
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(FieldName.APPLICATION_ID)
+                        .named("applicationId")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID)
+                        .named("unpublishedCollection_pageId")
+        );
+
+        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
+                        .named("defaultApplicationId_gitSyncId_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
+                        .named("defaultApplicationId_gitSyncId_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, UserData.class,
+                makeIndex(fieldName(QUserData.userData.userId))
+                        .unique()
+                        .named("userId")
+        );
+    }
+
+    @ChangeSet(order = "115", id = "mark-mssql-crud-unavailable", author = "")
+    public void markMSSQLCrudUnavailable(MongockTemplate mongockTemplate) {
+        Plugin plugin = mongockTemplate.findOne(query(where("packageName").is("mssql-plugin")), Plugin.class);
+        assert plugin != null;
+        plugin.setGenerateCRUDPageComponent(null);
+        mongockTemplate.save(plugin);
+    }
+
 }

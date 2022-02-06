@@ -20,8 +20,6 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
@@ -32,7 +30,6 @@ import AdsIcon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
@@ -74,7 +71,17 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import Guide from "pages/Editor/GuidedTour/Guide";
+import Boxed from "pages/Editor/GuidedTour/Boxed";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
+import Spinner from "components/ads/Spinner";
+import {
+  ConditionalOutput,
+  FormEvalOutput,
+  DynamicValues,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -309,6 +316,15 @@ const Container = styled.div`
   }
 `;
 
+const StyledSpinner = styled.div`
+  display: flex;
+  padding: 5px;
+  height: 2vw;
+  align-items: center;
+  justify-content: space-between;
+  width: 5vw;
+`;
+
 // const ActionButton = styled(BaseButton)`
 //   &&&& {
 //     min-width: 72px;
@@ -407,7 +423,7 @@ type ReduxProps = {
   plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
-  formEvaluationState: Record<string, any>;
+  formEvaluationState: FormEvalOutput;
 };
 
 export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
@@ -447,6 +463,7 @@ export function EditorJSONtoForm(props: Props) {
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -540,11 +557,27 @@ export function EditorJSONtoForm(props: Props) {
   const renderConfig = (editorConfig: any) => {
     try {
       // Selectively rendering form based on uiComponent prop
-      return uiComponent === UIComponentTypes.UQIDbEditorForm
-        ? editorConfig.map((config: any, idx: number) => {
+      if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+        // If the formEvaluation is not ready yet, just show loading state.
+        if (
+          props.hasOwnProperty("formEvaluationState") &&
+          !!props.formEvaluationState &&
+          Object.keys(props.formEvaluationState).length > 0
+        ) {
+          return editorConfig.map((config: any, idx: number) => {
             return renderEachConfigV2(formName, config, idx);
-          })
-        : editorConfig.map(renderEachConfig(formName));
+          });
+        } else {
+          return (
+            <StyledSpinner>
+              <Spinner size={IconSize.LARGE} />
+              <p>Loading..</p>
+            </StyledSpinner>
+          );
+        }
+      } else {
+        return editorConfig.map(renderEachConfig(formName));
+      }
     } catch (e) {
       log.error(e);
       Sentry.captureException(e);
@@ -565,35 +598,118 @@ export function EditorJSONtoForm(props: Props) {
     }
   };
 
-  // V2 call to make rendering more flexible, used for UQI forms
-  const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
+  const extractConditionalOutput = (section: any): ConditionalOutput => {
+    let conditionalOutput: ConditionalOutput = {};
     if (
-      !!section &&
-      props.hasOwnProperty("formEvaluationState") &&
-      !!props.formEvaluationState
+      section.hasOwnProperty("propertyName") &&
+      props.formEvaluationState.hasOwnProperty(section.propertyName)
     ) {
-      let allowToRender = true;
-      if (
-        section.hasOwnProperty("propertyName") &&
-        props.formEvaluationState.hasOwnProperty(section.propertyName)
-      ) {
-        allowToRender =
-          props?.formEvaluationState[section.propertyName].visible;
-      } else if (
-        section.hasOwnProperty("configProperty") &&
-        props.formEvaluationState.hasOwnProperty(section.configProperty)
-      ) {
-        allowToRender =
-          props?.formEvaluationState[section.configProperty].visible;
-      } else if (
-        section.hasOwnProperty("identifier") &&
-        !!section.identifier &&
-        props.formEvaluationState.hasOwnProperty(section.identifier)
-      ) {
-        allowToRender = props?.formEvaluationState[section.identifier].visible;
-      }
+      conditionalOutput = props?.formEvaluationState[section.propertyName];
+    } else if (
+      section.hasOwnProperty("configProperty") &&
+      props.formEvaluationState.hasOwnProperty(section.configProperty)
+    ) {
+      conditionalOutput = props?.formEvaluationState[section.configProperty];
+    } else if (
+      section.hasOwnProperty("identifier") &&
+      !!section.identifier &&
+      props.formEvaluationState.hasOwnProperty(section.identifier)
+    ) {
+      conditionalOutput = props?.formEvaluationState[section.identifier];
+    }
+    return conditionalOutput;
+  };
 
-      if (!allowToRender) return null;
+  // Function to check if the section config is allowed to render (Only for UQI forms)
+  const checkIfSectionCanRender = (conditionalOutput: ConditionalOutput) => {
+    // By default, allow the section to render. This is to allow for the case where no conditional is provided.
+    // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
+    let allowToRender = true;
+    if (
+      conditionalOutput.hasOwnProperty("visible") &&
+      typeof conditionalOutput.visible === "boolean"
+    ) {
+      allowToRender = conditionalOutput.visible;
+    }
+    return allowToRender;
+  };
+
+  // Function to check if the section config is enabled (Only for UQI forms)
+  const checkIfSectionIsEnabled = (conditionalOutput: ConditionalOutput) => {
+    // By default, the section is enabled. This is to allow for the case where no conditional is provided.
+    // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
+    let enabled = true;
+    if (
+      conditionalOutput.hasOwnProperty("enabled") &&
+      typeof conditionalOutput.enabled === "boolean"
+    ) {
+      enabled = conditionalOutput.enabled;
+    }
+    return enabled;
+  };
+
+  // Function to modify the section config based on the output of evaluations
+  const modifySectionConfig = (
+    section: any,
+    enabled: boolean,
+    dynamicFetchedValues: DynamicValues | undefined,
+  ): any => {
+    if (!enabled) {
+      section.disabled = true;
+    } else {
+      section.disabled = false;
+    }
+    if (!!dynamicFetchedValues) {
+      section.dynamicFetchedValues = dynamicFetchedValues;
+    }
+
+    return section;
+  };
+
+  // Function to extract the object for dynamicValues if it is there in the evaluation state
+  const extractDynamicValuesIfPresent = (
+    conditionalOutput: ConditionalOutput,
+  ) => {
+    // By default, the section is enabled. This is to allow for the case where no conditional is provided.
+    // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
+    let dynamicFetchedValues: DynamicValues | undefined;
+    if (conditionalOutput.hasOwnProperty("fetchDynamicValues")) {
+      dynamicFetchedValues = conditionalOutput.fetchDynamicValues;
+    }
+    return dynamicFetchedValues;
+  };
+
+  // Render function to render the V2 of form editor type (UQI)
+  // Section argument is a nested config object, this function recursively renders the UI based on the config
+  const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
+    let enabled = true;
+    let dynamicFetchedValues: DynamicValues | undefined;
+    if (!!section) {
+      if ("schema" in section && section.schema.length > 0) {
+        section.schema.forEach((subSection: any, index: number) => {
+          const configPropertyOfSubSection = `${
+            section.configProperty
+          }.column_${index + 1}`;
+          const conditionalOutput = extractConditionalOutput({
+            ...subSection,
+            configProperty: configPropertyOfSubSection,
+          });
+          enabled = checkIfSectionIsEnabled(conditionalOutput);
+          dynamicFetchedValues = extractDynamicValuesIfPresent(
+            conditionalOutput,
+          );
+          subSection = modifySectionConfig(
+            subSection,
+            enabled,
+            dynamicFetchedValues,
+          );
+        });
+      }
+      // If the component is not allowed to render, return null
+      const conditionalOutput = extractConditionalOutput(section);
+      if (!checkIfSectionCanRender(conditionalOutput)) return null;
+      enabled = checkIfSectionIsEnabled(conditionalOutput);
+      dynamicFetchedValues = extractDynamicValuesIfPresent(conditionalOutput);
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
@@ -607,9 +723,14 @@ export function EditorJSONtoForm(props: Props) {
       }
       try {
         const { configProperty } = section;
+        const modifiedSection = modifySectionConfig(
+          section,
+          enabled,
+          dynamicFetchedValues,
+        );
         return (
           <FieldWrapper key={`${configProperty}_${idx}`}>
-            <FormControl config={section} formName={formName} />
+            <FormControl config={modifiedSection} formName={formName} />
           </FieldWrapper>
         );
       } catch (e) {
@@ -757,7 +878,8 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      <CloseEditor />
+      {!guidedTourEnabled && <CloseEditor />}
+      {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>
@@ -786,20 +908,16 @@ export function EditorJSONtoForm(props: Props) {
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
             />
-            <OnboardingIndicator
-              step={OnboardingStep.EXAMPLE_DATABASE}
-              width={75}
-            >
-              <Button
-                className="t--run-query"
-                isLoading={isRunning}
-                onClick={onRunClick}
-                size={Size.medium}
-                tag="button"
-                text="Run"
-                type="button"
-              />
-            </OnboardingIndicator>
+            <Button
+              className="t--run-query"
+              data-guided-tour-iid="run-query"
+              isLoading={isRunning}
+              onClick={onRunClick}
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
+            />
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
@@ -889,15 +1007,15 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <TabbedViewContainer ref={panelRef}>
-              <Resizable
-                panelRef={panelRef}
-                setContainerDimensions={(height: number) =>
-                  setTableBodyHeightHeight(height)
-                }
-              />
-              {output && !!output.length && (
-                <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+            <Boxed step={GUIDED_TOUR_STEPS.RUN_QUERY}>
+              <TabbedViewContainer ref={panelRef}>
+                <Resizable
+                  panelRef={panelRef}
+                  setContainerDimensions={(height: number) =>
+                    setTableBodyHeightHeight(height)
+                  }
+                />
+                {output && !!output.length && (
                   <ResultsCount>
                     <Text type={TextType.P3}>
                       Result:
@@ -906,13 +1024,15 @@ export function EditorJSONtoForm(props: Props) {
                       }`}</Text>
                     </Text>
                   </ResultsCount>
-                </Boxed>
-              )}
+                )}
 
-              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
-            </TabbedViewContainer>
+                <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
+              </TabbedViewContainer>
+            </Boxed>
           </SecondaryWrapper>
-          <SidebarWrapper show={hasDependencies || !!output}>
+          <SidebarWrapper
+            show={(hasDependencies || !!output) && !guidedTourEnabled}
+          >
             <ActionRightPane
               actionName={actionName}
               entityDependencies={entityDependencies}

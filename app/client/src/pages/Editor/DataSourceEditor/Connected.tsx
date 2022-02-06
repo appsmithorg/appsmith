@@ -8,8 +8,6 @@ import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import { renderDatasourceSection } from "./DatasourceSection";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import NewActionButton from "./NewActionButton";
 
 const ConnectedText = styled.div`
@@ -67,13 +65,11 @@ function Connected() {
           <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
         </ConnectedText>
 
-        <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
-          <NewActionButton
-            datasource={datasource}
-            eventFrom="datasource-pane"
-            pluginType={plugin?.type}
-          />
-        </OnboardingIndicator>
+        <NewActionButton
+          datasource={datasource}
+          eventFrom="datasource-pane"
+          pluginType={plugin?.type}
+        />
       </Header>
       <div style={{ marginTop: "30px" }}>
         {!isNil(currentFormConfig) && !isNil(datasource)

@@ -134,32 +134,44 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput
-          combo="mod + k"
+          combo="mod + p"
           global
-          label="Show omnibar"
+          label="Navigate"
           onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
+        />
+        <Hotkey
+          allowInInput
+          combo="alt + shift + n"
+          global
+          label="Create New"
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
+          }
         />
         <Hotkey
           allowInInput
           combo="mod + j"
           global
-          label="Show omnibar"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS)
-          }
+          label="Lookup code snippets"
+          onKeyDown={(e) => {
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS);
+            AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
+              source: "HOTKEY_COMBO",
+            });
+          }}
         />
         <Hotkey
           allowInInput
           combo="mod + l"
           global
-          label="Show omnibar"
+          label="Search documentation"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
           }
         />
         <Hotkey
           allowInInput
-          combo="mod + p"
+          combo="mod + k"
           global
           label="Show omnibar"
           onKeyDown={(e) =>
@@ -367,7 +379,7 @@ class GlobalHotKeys extends React.Component<Props> {
         <Hotkey
           combo="mod + /"
           global
-          label="Preview Mode"
+          label="Pin/Unpin Entity Explorer"
           onKeyDown={() => {
             this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
           }}

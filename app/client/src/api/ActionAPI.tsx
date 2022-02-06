@@ -1,6 +1,6 @@
 import API, { HttpMethod } from "api/Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { Action, ActionViewMode } from "entities/Action";
 import { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";

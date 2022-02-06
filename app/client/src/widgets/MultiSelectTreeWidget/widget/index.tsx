@@ -102,7 +102,6 @@ class MultiSelectTreeWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                       {
@@ -127,7 +126,6 @@ class MultiSelectTreeWidget extends BaseWidget<
                                   type: ValidationTypes.TEXT,
                                   params: {
                                     default: "",
-                                    required: true,
                                   },
                                 },
                               ],
@@ -406,15 +404,8 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
+    this.props.updateWidgetMetaProperty("selectedOptionValueArr", value);
     this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
-
-    this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {

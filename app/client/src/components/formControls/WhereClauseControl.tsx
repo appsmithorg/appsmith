@@ -5,7 +5,6 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import _ from "lodash";
 import { useSelector } from "react-redux";
@@ -47,14 +46,18 @@ const logicalFieldConfig: any = {
   controlType: "DROP_DOWN",
   initialValue: "EQ",
   options: [],
-  customStyles: { width: "10vh", height: "30px" },
+  customStyles: { width: "5vw" },
 };
 
 // Component for the delete Icon
-const CenteredIcon = styled(Icon)`
+const CenteredIcon = styled(Icon)<{
+  alignSelf?: string;
+  marginBottom?: string;
+}>`
   margin-left: 5px;
-  align-self: end;
-  margin-bottom: 10px;
+  align-self: ${(props) => (props.alignSelf ? props.alignSelf : "end")};
+  margin-bottom: ${(props) =>
+    props.marginBottom ? props.marginBottom : "10px"};
   &.hide {
     opacity: 0;
     pointer-events: none;
@@ -64,7 +67,7 @@ const CenteredIcon = styled(Icon)`
 // Outer box that houses the whole component
 const PrimaryBox = styled.div`
   display: flex;
-  width: 105vh;
+  width: min-content;
   flex-direction: column;
   border: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding: 10px;
@@ -113,11 +116,9 @@ const AddMoreAction = styled.div`
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
 function ConditionComponent(props: any, index: number) {
   // Custom styles have to be passed as props, otherwise the UI will be disproportional
-  const customStyles = {
-    // 15 is subtracted because the width of the operator dropdown is 15px
-    width: `${(props.maxWidth - 15) / 3}vh`,
-    height: "30px",
-  };
+
+  // 5 is subtracted because the width of the operator dropdown is 5vw
+  const unitWidth = (props.maxWidth - 5) / 5;
 
   // Labels are only displayed if the condition is the first one
   let keyLabel = "";
@@ -135,7 +136,7 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...keyFieldConfig,
           label: keyLabel,
-          customStyles,
+          customStyles: { width: `${unitWidth * 2}vw` },
           configProperty: `${props.field}.key`,
         }}
         formName={props.formName}
@@ -145,7 +146,7 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...conditionFieldConfig,
           label: conditionLabel,
-          customStyles,
+          customStyles: { width: `${unitWidth * 1}vw` },
           configProperty: `${props.field}.condition`,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0].value,
@@ -157,19 +158,19 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...valueFieldConfig,
           label: valueLabel,
-          customStyles,
+          customStyles: { width: `${unitWidth * 2}vw` },
           configProperty: `${props.field}.value`,
         }}
         formName={props.formName}
       />
       {/* Component to render the delete icon */}
       <CenteredIcon
-        name="cross"
+        name="trash"
         onClick={(e) => {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
-        size={IconSize.SMALL}
+        size={IconSize.XL}
       />
     </ConditionBox>
   );
@@ -216,7 +217,7 @@ function ConditionBlock(props: any) {
     isDisabled = true;
   }
   return (
-    <PrimaryBox style={{ width: `${props.maxWidth}vh`, marginTop }}>
+    <PrimaryBox style={{ marginTop }}>
       <SecondaryBox>
         {/* Component to render the joining operator between multiple conditions */}
         <FormControl
@@ -236,6 +237,7 @@ function ConditionBlock(props: any) {
               const fieldValue: whereClauseValueType = props.fields.get(index);
               if (!!fieldValue && "children" in fieldValue) {
                 // If the value contains children in it, that means it is a ConditionBlock
+                const maxWidth = props.maxWidth - 7.5;
                 return (
                   <ConditionBox>
                     <FieldArray
@@ -243,7 +245,7 @@ function ConditionBlock(props: any) {
                       key={`${field}.children`}
                       name={`${field}.children`}
                       props={{
-                        maxWidth: props.maxWidth - 15,
+                        maxWidth,
                         configProperty: `${field}`,
                         formName: props.formName,
                         logicalTypes: props.logicalTypes,
@@ -256,12 +258,14 @@ function ConditionBlock(props: any) {
                       rerenderOnEveryChange={false}
                     />
                     <CenteredIcon
-                      name="cross"
+                      alignSelf={"center"}
+                      marginBottom={"-5px"}
+                      name="trash"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDeletePressed(index);
                       }}
-                      size={IconSize.SMALL}
+                      size={IconSize.XL}
                     />
                   </ConditionBox>
                 );
@@ -302,8 +306,6 @@ function ConditionBlock(props: any) {
                   },
                 ],
               });
-              // eslint-disable-next-line no-console
-              console.log("Ayush new field", props.fields.getAll());
             }}
           >
             {/*Hardcoded label to be removed */}
@@ -320,32 +322,28 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
     comparisonTypes, // All possible keys for the comparison
     configProperty, // JSON path for the where clause data
     formName, // Name of the form, used by redux-form lib to store the data in redux store
-    label, // Label for the where clause
     logicalTypes, // All possible keys for the logical operators joining multiple conditions
     nestedLevels, // Number of nested levels allowed
   } = props;
 
   // Max width is designed in a way that the proportion stays same even after nesting
-  const maxWidth = 105;
+  const maxWidth = 55;
   return (
-    <>
-      <FormLabel>{label}</FormLabel>
-      <FieldArray
-        component={ConditionBlock}
-        key={`${configProperty}.children`}
-        name={`${configProperty}.children`}
-        props={{
-          configProperty,
-          maxWidth,
-          formName,
-          logicalTypes,
-          comparisonTypes,
-          nestedLevels,
-          currentNestingLevel: 0,
-        }}
-        rerenderOnEveryChange={false}
-      />
-    </>
+    <FieldArray
+      component={ConditionBlock}
+      key={`${configProperty}.children`}
+      name={`${configProperty}.children`}
+      props={{
+        configProperty,
+        maxWidth,
+        formName,
+        logicalTypes,
+        comparisonTypes,
+        nestedLevels,
+        currentNestingLevel: 0,
+      }}
+      rerenderOnEveryChange={false}
+    />
   );
 }
 

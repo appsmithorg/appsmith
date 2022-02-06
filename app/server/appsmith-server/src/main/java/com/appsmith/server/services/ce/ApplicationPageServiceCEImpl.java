@@ -45,6 +45,7 @@ import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -55,7 +56,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -554,24 +554,63 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             unpublishedCollection.setPageId(newPageId);
                                             actionCollection.setApplicationId(clonedPage.getApplicationId());
 
-                                            // Replace all action Ids from map
-                                            final HashSet<String> newActionIds = new HashSet<>();
-                                            unpublishedCollection
-                                                    .getActionIds()
-                                                    .stream()
-                                                    .forEach(oldActionId -> newActionIds.add(actionIdsMap.get(oldActionId)));
-                                            unpublishedCollection.setActionIds(newActionIds);
+                                            DefaultResources defaultResourcesForCollection = new DefaultResources();
+                                            defaultResourcesForCollection.setApplicationId(clonedPageDefaultResources.getApplicationId());
+                                            actionCollection.setDefaultResources(defaultResourcesForCollection);
 
+                                            DefaultResources defaultResourcesForDTO = new DefaultResources();
+                                            defaultResourcesForDTO.setPageId(clonedPageDefaultResources.getPageId());
+                                            actionCollection.getUnpublishedCollection().setDefaultResources(defaultResourcesForDTO);
+
+                                            // Replace all action Ids from map
+                                            Map<String, String> updatedDefaultToBranchedActionId = new HashMap<>();
+                                            // Check if the application is connected with git and update defaultActionIds accordingly
+                                            //
+                                            // 1. If the app is connected with git keep the actionDefaultId as it is and
+                                            // update branchedActionId only
+                                            //
+                                            // 2. If app is not connected then both default and branchedActionId will be
+                                            // same as newly created action Id
+
+                                            if (StringUtils.isEmpty(clonedPageDefaultResources.getBranchName())) {
+                                                unpublishedCollection
+                                                        .getDefaultToBranchedActionIdsMap()
+                                                        .forEach((defaultId, oldActionId) ->
+                                                                updatedDefaultToBranchedActionId.put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId)));
+
+                                            } else {
+                                                unpublishedCollection
+                                                        .getDefaultToBranchedActionIdsMap()
+                                                        .forEach((defaultId, oldActionId) ->
+                                                                updatedDefaultToBranchedActionId.put(defaultId, actionIdsMap.get(oldActionId)));
+                                            }
+                                            unpublishedCollection.setDefaultToBranchedActionIdsMap(updatedDefaultToBranchedActionId);
+
+                                            // Set id as null, otherwise create (which is using under the hood save)
+                                            // will try to overwrite same resource instead of creating a new resource
+                                            actionCollection.setId(null);
+                                            // Set published version to null as the published version of the page does
+                                            // not exists when we clone the page.
+                                            actionCollection.setPublishedCollection(null);
                                             return actionCollectionService.create(actionCollection)
-                                                    .flatMap(newlyCreatedActionCollection -> {
-                                                        return Flux.fromIterable(newActionIds)
+                                                    .flatMap(savedActionCollection -> {
+                                                        if (StringUtils.isEmpty(savedActionCollection.getDefaultResources().getCollectionId())) {
+                                                            savedActionCollection.getDefaultResources().setCollectionId(savedActionCollection.getId());
+                                                            return actionCollectionService.update(savedActionCollection.getId(), savedActionCollection);
+                                                        }
+                                                        return Mono.just(savedActionCollection);
+                                                    })
+                                                    .flatMap(newlyCreatedActionCollection ->
+                                                            Flux.fromIterable(updatedDefaultToBranchedActionId.values())
                                                                 .flatMap(newActionService::findById)
                                                                 .flatMap(newlyCreatedAction -> {
                                                                     newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedActionCollection.getId());
+                                                                    newlyCreatedAction.getUnpublishedAction().getDefaultResources()
+                                                                            .setCollectionId(newlyCreatedActionCollection.getDefaultResources().getCollectionId());
                                                                     return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
                                                                 })
-                                                                .collectList();
-                                                    });
+                                                                .collectList()
+                                                    );
                                         })
                                         .collectList();
                             })
@@ -648,6 +687,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
                     newApplication.setLastEditedAt(Instant.now());
+                    newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
@@ -743,9 +783,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
                     /**
-                     *  Only delete unpublished action and not the entire action.
+                     *  Only delete unpublished action and not the entire action. Also filter actions embedded in
+                     *  actionCollection which will be deleted while deleting the collection, this will avoid the race
+                     *  condition for delete action
                      */
                     Mono<List<ActionDTO>> archivedActionsMono = newActionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                            .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
                                 return newActionService.deleteUnpublishedAction(action.getId());
@@ -969,6 +1012,37 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE, false));
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
+    }
+
+    /**
+     * This method will create a new suffixed application or update the existing application if there is name conflict
+     * @param application resource which needs to be created or updated
+     * @param name name which should be assigned to the application
+     * @param suffix extension to application name
+     * @return updated application with modified name if duplicate key exception is thrown
+     */
+    public Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getOrganizationId(), application);
+
+        return applicationWithPoliciesMono
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    // We can't use create or createApplication method here as we are expecting update operation if the
+                    // _id is available with application object
+                    return applicationService.save(application);
+                })
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null) {
+                        return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 
 
