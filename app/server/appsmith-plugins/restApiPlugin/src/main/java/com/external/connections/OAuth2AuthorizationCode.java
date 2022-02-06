@@ -199,7 +199,8 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                 .fromFormData(Authentication.GRANT_TYPE, Authentication.REFRESH_TOKEN)
                 .with(Authentication.REFRESH_TOKEN, oAuth2.getAuthenticationResponse().getRefreshToken());
 
-        if (BODY.equals(oAuth2.getRefreshTokenClientCredentialsLocation())) {
+        if (BODY.equals(oAuth2.getRefreshTokenClientCredentialsLocation())
+                || oAuth2.getRefreshTokenClientCredentialsLocation() == null) {
             body.with(Authentication.CLIENT_ID, oAuth2.getClientId())
                     .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
         }
@@ -213,7 +214,8 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
             body.with(Authentication.RESOURCE, oAuth2.getResource());
         }
         // Optionally add scope, if applicable
-        if (!CollectionUtils.isEmpty(oAuth2.getScope()) && Boolean.TRUE.equals(oAuth2.getSendScopeWithRefreshToken())) {
+        if (!CollectionUtils.isEmpty(oAuth2.getScope())
+                && (Boolean.TRUE.equals(oAuth2.getSendScopeWithRefreshToken()) || oAuth2.getSendScopeWithRefreshToken() == null)) {
             body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
         }
         return body;
