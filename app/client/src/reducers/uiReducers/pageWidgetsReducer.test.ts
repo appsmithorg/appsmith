@@ -1,5 +1,6 @@
 import reducer from "./pageWidgetsReducer";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { getCurrentRowBinding } from "widgets/TableWidget/constants";
 
 const pageWidgetUIInitialState = {
   "60783f9204a08773573ed1d2": {
@@ -46,8 +47,10 @@ const pageWidgetUIInitialState = {
           isVisible: true,
           isDerived: false,
           label: "avatar",
-          computedValue:
-            "{{Standup_Table.sanitizedTableData.map((currentRow) => { return currentRow.avatar})}}",
+          computedValue: getCurrentRowBinding(
+            "Standup_Table",
+            "currentRow.avatar",
+          ),
           outputFormat: "",
         },
         name: {
@@ -63,8 +66,10 @@ const pageWidgetUIInitialState = {
           isVisible: true,
           isDerived: false,
           label: "name",
-          computedValue:
-            "{{Standup_Table.sanitizedTableData.map((currentRow) => { return currentRow.name})}}",
+          computedValue: getCurrentRowBinding(
+            "Standup_Table",
+            "currentRow.name",
+          ),
         },
         notes: {
           index: 2,
@@ -79,8 +84,10 @@ const pageWidgetUIInitialState = {
           isVisible: true,
           isDerived: false,
           label: "notes",
-          computedValue:
-            "{{Standup_Table.sanitizedTableData.map((currentRow) => { return currentRow.notes})}}",
+          computedValue: getCurrentRowBinding(
+            "Standup_Table",
+            "currentRow.notes",
+          ),
         },
       },
       derivedColumns: {},
@@ -134,7 +141,7 @@ const pageWidgetUIInitialState = {
       version: 1,
       resetOnSubmit: true,
       placeholderText: "Type your update and hit enter!",
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       isLoading: false,
       leftColumn: 5,
       rightColumn: 11,

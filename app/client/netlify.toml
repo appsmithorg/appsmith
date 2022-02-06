@@ -21,23 +21,7 @@
     SENTRY_ORG = "appsmith"
     SENTRY_PROJECT = "appsmith"
     SENTRY_LOG_LEVEL = "info"
-
-[context.production]
-  [context.production.environment]
-    REACT_APP_ENVIRONMENT = "PRODUCTION"
-    REACT_APP_SENTRY_ENVIRONMENT = "Production"
-    REACT_APP_SMART_LOOK_ID = "c370af0df0edf38360adbefbdc47d2b42ea137c9"
-    REACT_APP_SEGMENT_KEY = "9OnZ6LnDztuZZo4zXfoutEEBB2wftHUH"
-    REACT_APP_BASE_URL = "https://api.appsmith.com"
-    APP_HOST = "app.appsmith.com"
-    REACT_APP_CLIENT_LOG_LEVEL = "error"
-
-[context.release]
-  [context.release.environment]
-    REACT_APP_ENVIRONMENT = "STAGING"
-    REACT_APP_SENTRY_ENVIRONMENT = "Staging"
-    REACT_APP_BASE_URL = "https://release.app.appsmith.com"
-    APP_HOST = "release.app.appsmith.com"
+    REACT_APP_CLOUD_SERVICES_BASE_URL = "https://release-cs.appsmith.com"
 
 [context.deploy-preview]
   [context.deploy-preview.environment]

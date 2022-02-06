@@ -29,7 +29,10 @@ import copy from "copy-to-clipboard";
 import moment from "moment";
 import history from "utils/history";
 
-import UserApi from "api/UserApi";
+import { getAppMode } from "selectors/applicationSelectors";
+import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
+
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 import { getCommentThreadURL } from "../utils";
 
@@ -49,10 +52,11 @@ import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
+
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -67,6 +71,7 @@ const StyledContainer = styled.div`
 
 const CommentBodyContainer = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[4]}px;
+  color: ${(props) => props.theme.colors.comments.profileUserName};
 `;
 
 const CommentHeader = styled.div`
@@ -85,13 +90,15 @@ const UserName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* number of lines to show */
+  -webkit-line-clamp: 1; /* number of lines to show */
   -webkit-box-orient: vertical;
+  word-break: break-word;
 `;
 
 const HeaderSection = styled.div`
   display: flex;
   align-items: center;
+  max-width: 100%;
 
   & ${Profile} {
     flex-shrink: 0;
@@ -203,17 +210,27 @@ const reduceReactions = (
     (Array.isArray(reactions) &&
       reactions.reduce(
         (res: Record<string, ComponentReaction>, reaction: Reaction) => {
-          const { byUsername, emoji } = reaction;
+          const { byName, byUsername, emoji } = reaction;
+          const sameAsCurrent = byUsername === username;
+          const name = byName || byUsername;
           if (res[reaction.emoji]) {
             res[reaction.emoji].count++;
+            if (!sameAsCurrent) {
+              res[reaction.emoji].users = [
+                ...(res[reaction.emoji].users || []),
+                name,
+              ];
+            }
           } else {
+            const users = !sameAsCurrent ? [name] : [];
             res[emoji] = {
               count: 1,
               reactionEmoji: emoji,
+              users,
             } as ComponentReaction;
           }
 
-          if (byUsername === username) {
+          if (sameAsCurrent) {
             res[reaction.emoji].active = true;
           }
 
@@ -255,10 +272,14 @@ function CommentCard({
   inline?: boolean;
   visible?: boolean;
 }) {
+  const proceedToNextTourStep = useProceedToNextTourStep({
+    [TourType.COMMENTS_TOUR_EDIT_MODE]: commentsTourStepsEditModeTypes.RESOLVE,
+  });
+
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
-  const { authorName, authorUsername, body, id: commentId } = comment;
+  const { authorName, authorPhotoId, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
@@ -270,18 +291,20 @@ function CommentCard({
   const pinnedByUsername = commentThread.pinnedState?.authorUsername;
   let pinnedBy = commentThread.pinnedState?.authorName;
 
+  const appMode = useSelector(getAppMode);
+
   if (currentUserUsername === pinnedByUsername) {
     pinnedBy = "You";
   }
 
-  const pageId = useSelector(getCurrentPageId);
   const applicationId = useSelector(getCurrentApplicationId);
 
   const commentThreadURL = getCommentThreadURL({
     applicationId,
     commentThreadId,
     isResolved: !!commentThread?.resolvedState?.active,
-    pageId,
+    pageId: commentThread?.pageId,
+    mode: appMode,
   });
 
   const copyCommentLink = () => {
@@ -316,6 +339,10 @@ function CommentCard({
     setCardMode(CommentCardModes.VIEW);
   };
 
+  const widgetMap: Record<string, any> = useSelector(
+    widgetsMapWithParentModalId,
+  );
+
   const contextMenuProps = {
     switchToEditCommentMode,
     pin,
@@ -330,13 +357,36 @@ function CommentCard({
   // TODO enable when comments links are enabled
   // useSelectCommentUsingQuery(comment.id);
 
+  const { navigateToWidget } = useNavigateToWidget();
+
   // Dont make inline cards clickable
+  // TODO check if type === widget
   const handleCardClick = () => {
     if (inline) return;
+    if (commentThread.widgetType) {
+      // for the view mode we use canvas widgets instead of widgets by page
+      // since we don't have the dsl for all the pages currently
+      const widget = widgetMap[commentThread.refId];
+
+      // 1. This is only needed for the modal widgetMap
+      // 2. TODO check if we can do something similar for tabs
+      // 3. getAllWidgetsMap doesn't exist for the view mode, so these won't work for the view mode
+      if (widget?.parentModalId) {
+        navigateToWidget(
+          commentThread.refId,
+          commentThread.widgetType,
+          widget.pageId,
+          false,
+          widget.parentModalId,
+        );
+      }
+    }
+
     history.push(
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
-    if (!commentThread.isViewed) {
+
+    if (!commentThread?.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
   };
@@ -360,11 +410,13 @@ function CommentCard({
   };
 
   const showOptions = visible || isHovered;
-
   const showResolveBtn =
     (showOptions || !!resolved) && isParentComment && toggleResolved;
 
   const hasReactions = !!reactions && Object.keys(reactions).length > 0;
+  const profilePhotoUrl = authorPhotoId
+    ? `/api/${USER_PHOTO_ASSET_URL}/${authorPhotoId}`
+    : "";
 
   return (
     <StyledContainer
@@ -382,7 +434,7 @@ function CommentCard({
           <Section className="pinned-by" onClick={pin}>
             {isPinned && (
               <>
-                <Icon className="pin" name="pin-3" />
+                <Icon className="pin" name="pin-3" size={IconSize.XXL} />
                 <span>Pinned By</span>
                 <strong>{` ${pinnedBy}`}</strong>
               </>
@@ -390,11 +442,11 @@ function CommentCard({
           </Section>
         </CommentSubheader>
       )}
-      <CommentHeader>
+      <CommentHeader data-cy="comments-card-header">
         <HeaderSection>
           <ProfileImage
             side={25}
-            source={`/api/${UserApi.photoURL}/${authorUsername}`}
+            source={profilePhotoUrl}
             userName={authorName || ""}
           />
           <UserName>{authorName}</UserName>
@@ -417,11 +469,16 @@ function CommentCard({
               <ResolveButtonContainer>
                 {inline ? (
                   <TourTooltipWrapper
-                    tourIndex={2}
-                    tourType={TourType.COMMENTS_TOUR}
+                    activeStepConfig={{
+                      [TourType.COMMENTS_TOUR_EDIT_MODE]:
+                        commentsTourStepsEditModeTypes.RESOLVE,
+                    }}
                   >
                     <ResolveCommentButton
-                      handleClick={toggleResolved as () => void}
+                      handleClick={() => {
+                        toggleResolved && toggleResolved();
+                        proceedToNextTourStep();
+                      }}
                       resolved={!!resolved}
                     />
                   </TourTooltipWrapper>

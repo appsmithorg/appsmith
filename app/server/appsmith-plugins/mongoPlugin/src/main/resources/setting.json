@@ -17,11 +17,11 @@
           "info": "Ask confirmation from the user each time before refreshing data"
         },
         {
-          "label": "[Beta] Smart BSON Substitution",
+          "label": "Smart BSON Substitution",
           "info": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "configProperty": "actionConfiguration.formData.smartSubstitution",
           "controlType": "SWITCH",
-          "initialValue": false
+          "initialValue": true
         },
         {
           "label": "Query timeout (in milliseconds)",

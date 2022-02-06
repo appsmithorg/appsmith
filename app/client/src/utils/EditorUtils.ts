@@ -1,8 +1,8 @@
-import WidgetBuilderRegistry from "./WidgetRegistry";
+import { registerWidgets } from "./WidgetRegistry";
 import PropertyControlRegistry from "./PropertyControlRegistry";
 
 export const editorInitializer = async () => {
-  WidgetBuilderRegistry.registerWidgetBuilders();
+  registerWidgets();
   PropertyControlRegistry.registerPropertyControlBuilders();
 
   const moment = await import("moment-timezone");

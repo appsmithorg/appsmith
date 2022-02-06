@@ -1,26 +1,47 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Collapse, Icon, IconName, Tooltip } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 import { extraLibraries } from "utils/DynamicBindingUtils";
+import CollapseToggle from "./Entity/CollapseToggle";
+import Collapse from "./Entity/Collapse";
+import Icon from "components/ads/AppIcon";
+import { Size } from "components/ads/Button";
 
 const Wrapper = styled.div`
-  font-size: 13px;
+  font-size: 14px;
 `;
 const ListItem = styled.li`
   list-style: none;
-  color: ${Colors.ALTO};
-  height: 30px;
+  color: ${Colors.GREY_8};
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: 0 20px 0 20px;
+  padding: 0 12px 0 20px;
+  position: relative;
   &:hover {
-    background: ${Colors.TUNDORA};
-    color: ${Colors.WHITE};
+    background: ${Colors.ALABASTER_ALT};
+
+    & .t--open-new-tab {
+      display: block;
+    }
+
+    & .t--package-version {
+      display: none;
+    }
+  }
+
+  & .t--open-new-tab {
+    position: absolute;
+    right: 8px;
+    display: none;
+  }
+
+  & .t--package-version {
+    display: block;
   }
 `;
 const Name = styled.span``;
@@ -29,23 +50,21 @@ const Title = styled.div`
   display: grid;
   grid-template-columns: 20px auto 20px;
   cursor: pointer;
-  height: 30px;
+  height: 36px;
   align-items: center;
+  padding-right: 4px;
+  padding-left: 0.25rem;
   &:hover {
-    background: ${Colors.TUNDORA};
-    color: ${Colors.WHITE};
+    background: ${Colors.ALABASTER_ALT};
+  }
+  & .t--help-icon {
+    svg {
+      position: relative;
+    }
   }
 `;
-const List = styled.ul`
-  padding: 0px;
-  margin: 0 0 0 0px;
-`;
-const Help = styled(Icon)`
-  &:hover svg {
-    fill: ${Colors.WHITE};
-  }
-`;
-export function JSDependencies() {
+
+function JSDependencies() {
   const [isOpen, setIsOpen] = useState(false);
   const openDocs = (name: string, url: string) => () => window.open(url, name);
   const dependencyList = extraLibraries.map((lib) => {
@@ -55,20 +74,24 @@ export function JSDependencies() {
         onClick={openDocs(lib.displayName, lib.docsURL)}
       >
         <Name>{lib.displayName}</Name>
-        <Version>{lib.version}</Version>
+        <Version className="t--package-version">{lib.version}</Version>
+        <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} />
       </ListItem>
     );
   });
-  const icon: IconName = isOpen ? IconNames.CARET_DOWN : IconNames.CARET_RIGHT;
-  const toggleDependencies = () => setIsOpen(!isOpen);
-  const showDocs = (e: any) => {
+
+  const toggleDependencies = React.useCallback(
+    () => setIsOpen((open) => !open),
+    [],
+  );
+  const showDocs = React.useCallback((e: any) => {
     window.open(
       "https://docs.appsmith.com/v/v1.2.1/core-concepts/writing-code/ext-libraries",
       "appsmith-docs:working-with-js-libraries",
     );
     e.stopPropagation();
     e.preventDefault();
-  };
+  }, []);
 
   const TooltipContent = (
     <div>
@@ -81,22 +104,28 @@ export function JSDependencies() {
   return (
     <Wrapper>
       <Title onClick={toggleDependencies}>
-        <Icon icon={icon} />
-        <span>JS libraries you can use</span>
-        <Tooltip boundary="viewport" content={TooltipContent} position="top">
-          <Help
-            color={Colors.DOVE_GRAY}
-            icon="help"
-            iconSize={12}
+        <CollapseToggle
+          className={""}
+          disabled={false}
+          isOpen={isOpen}
+          isVisible={!!dependencyList}
+          onClick={toggleDependencies}
+        />
+        <span className="text-gray-900 ml-1 font-medium">DEPENDENCIES</span>
+        <TooltipComponent content={TooltipContent} hoverOpenDelay={200}>
+          <Icon
+            className="t--help-icon"
+            name="help"
             onClick={showDocs}
+            size={Size.xxs}
           />
-        </Tooltip>
+        </TooltipComponent>
       </Title>
-      <Collapse isOpen={isOpen}>
-        <List>{dependencyList}</List>
+      <Collapse isOpen={isOpen} step={0}>
+        {dependencyList}
       </Collapse>
     </Wrapper>
   );
 }
 
-export default JSDependencies;
+export default React.memo(JSDependencies);

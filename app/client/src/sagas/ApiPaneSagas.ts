@@ -27,10 +27,10 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_ID_URL,
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -38,24 +38,15 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import {
-  createNewApiName,
-  getNextEntityName,
-  getQueryParams,
-} from "utils/AppsmithUtils";
+import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import {
-  getAction,
-  getActions,
-  getPlugins,
-  getDatasources,
-  getPlugin,
-} from "selectors/entitiesSelector";
+import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { createActionRequest, setActionProperty } from "actions/actionActions";
+import {
+  createActionRequest,
+  setActionProperty,
+} from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
-import { Plugin } from "api/PluginApi";
-import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { Action, ApiAction, PluginType } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
@@ -66,13 +57,13 @@ import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
-import { checkCurrentStep } from "./OnboardingSagas";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import {
   getIndextoUpdate,
   parseUrlForQueryParams,
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
+import { updateReplayEntity } from "actions/pageActions";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -121,6 +112,24 @@ function* syncApiParamsSaga(
   PerformanceTracker.stopTracking();
 }
 
+function* redirectToNewIntegrations(
+  action: ReduxAction<{
+    applicationId: string;
+    pageId: string;
+    params?: Record<string, string>;
+  }>,
+) {
+  history.push(
+    INTEGRATION_EDITOR_URL(
+      action.payload.applicationId,
+      action.payload.pageId,
+      INTEGRATION_TABS.ACTIVE,
+      INTEGRATION_EDITOR_MODES.AUTO,
+      action.payload.params,
+    ),
+  );
+}
+
 function* handleUpdateBodyContentType(
   action: ReduxAction<{ title: ApiContentTypes; apiId: string }>,
 ) {
@@ -167,7 +176,10 @@ function* handleUpdateBodyContentType(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
   );
 
-  if (displayFormatObject.value === POST_BODY_FORMATS[1]) {
+  if (
+    displayFormatObject.value === POST_BODY_FORMATS[1] ||
+    displayFormatObject.value === POST_BODY_FORMATS[2]
+  ) {
     if (!bodyFormData || bodyFormData.length === 0) {
       yield put(
         change(
@@ -193,17 +205,12 @@ function* initializeExtraFormDataSaga() {
 }
 
 function* changeApiSaga(
-  actionPayload: ReduxAction<{ id: string; isSaas: boolean }>,
+  actionPayload: ReduxAction<{ id: string; isSaas: boolean; action?: Action }>,
 ) {
-  // // Typescript says Element does not have blur function but it does;
-  // document.activeElement &&
-  //   "blur" in document.activeElement &&
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore: No types available
-  //   document.activeElement.blur();
   PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id, isSaas } = actionPayload.payload;
-  const action = yield select(getAction, id);
+  let { action } = actionPayload.payload;
+  if (!action) action = yield select(getAction, id);
   if (!action) return;
   if (isSaas) {
     yield put(initialize(SAAS_EDITOR_FORM, action));
@@ -231,7 +238,13 @@ function* changeApiSaga(
     }
   }
 
+  //Retrieve form data with synced query params to start tracking change history.
+  const { values: actionPostProcess } = yield select(
+    getFormData,
+    API_EDITOR_FORM_NAME,
+  );
   PerformanceTracker.stopTracking();
+  yield put(updateReplayEntity(id, actionPostProcess, ENTITY_TYPE.ACTION));
 }
 
 function* setHeaderFormat(apiId: string, headers?: Property[]) {
@@ -270,7 +283,7 @@ function* setHeaderFormat(apiId: string, headers?: Property[]) {
   });
 }
 
-function* updateFormFields(
+export function* updateFormFields(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
 ) {
   const field = actionPayload.meta.field;
@@ -351,11 +364,24 @@ function* formValueChangeSaga(
       }),
     );
   }
-
   yield all([
     call(syncApiParamsSaga, actionPayload, values.id),
     call(updateFormFields, actionPayload),
   ]);
+
+  // We need to refetch form values here since syncApuParams saga and updateFormFields directly update reform form values.
+  const { values: formValuesPostProcess } = yield select(
+    getFormData,
+    API_EDITOR_FORM_NAME,
+  );
+
+  yield put(
+    updateReplayEntity(
+      formValuesPostProcess.id,
+      formValuesPostProcess,
+      ENTITY_TYPE.ACTION,
+    ),
+  );
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
@@ -365,11 +391,12 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string = yield select(getCurrentPageId);
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
+        from: "datasources",
       }),
     );
   }
@@ -380,11 +407,19 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   // Only look at API plugins
   if (plugin.type !== PluginType.API) return;
 
-  const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
+  const applicationId = yield select(getCurrentApplicationId);
 
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+    DATA_SOURCES_EDITOR_ID_URL(
+      applicationId,
+      pageId,
+      actionPayload.payload.id,
+      {
+        from: "datasources",
+        ...getQueryParams(),
+      },
+    ),
   );
 }
 
@@ -396,7 +431,6 @@ function* handleCreateNewApiActionSaga(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
-  const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   if (pageId && pluginId) {
     const actions = yield select(getActions);
@@ -422,70 +456,6 @@ function* handleCreateNewApiActionSaga(
         pageId,
       } as ApiAction), // We don't have recursive partial in typescript for now.
     );
-    history.push(
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-    );
-  }
-}
-
-function* handleCreateNewQueryActionSaga(
-  action: ReduxAction<{ pageId: string; from: EventLocation }>,
-) {
-  const { pageId } = action.payload;
-  const applicationId = yield select(getCurrentApplicationId);
-  const actions = yield select(getActions);
-  const dataSources = yield select(getDatasources);
-  const plugins = yield select(getPlugins);
-  const pluginIds = plugins
-    .filter((plugin: Plugin) => PLUGIN_PACKAGE_DBS.includes(plugin.packageName))
-    .map((plugin: Plugin) => plugin.id);
-  const validDataSources: Array<Datasource> = [];
-  dataSources.forEach((dataSource: Datasource) => {
-    if (pluginIds?.includes(dataSource.pluginId)) {
-      validDataSources.push(dataSource);
-    }
-  });
-  if (validDataSources.length) {
-    const pageApiNames = actions
-      .filter((a: ActionData) => a.config.pageId === pageId)
-      .map((a: ActionData) => a.config.name);
-    const newQueryName = getNextEntityName("Query", pageApiNames);
-    const dataSourceId = validDataSources[0].id;
-    let createActionPayload = {
-      name: newQueryName,
-      pageId,
-      datasource: {
-        id: dataSourceId,
-      },
-      eventData: {
-        actionType: "Query",
-        from: action.payload.from,
-        dataSource: validDataSources[0].name,
-      },
-      actionConfiguration: {},
-    };
-
-    //For onboarding
-    const updateActionPayload = yield select(
-      checkCurrentStep,
-      OnboardingStep.ADD_INPUT_WIDGET,
-    );
-    if (updateActionPayload) {
-      createActionPayload = {
-        ...createActionPayload,
-        name: "add_standup_updates",
-        actionConfiguration: {
-          body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
-        },
-      };
-    }
-
-    yield put(createActionRequest(createActionPayload));
-    history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-    );
-  } else {
-    history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
   }
 }
 
@@ -556,12 +526,12 @@ export default function* root() {
       handleCreateNewApiActionSaga,
     ),
     takeEvery(
-      ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
-      handleCreateNewQueryActionSaga,
-    ),
-    takeEvery(
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
+    ),
+    takeEvery(
+      ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
+      redirectToNewIntegrations,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

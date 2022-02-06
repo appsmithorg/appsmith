@@ -1,19 +1,58 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.User;
-import lombok.Getter;
-import lombok.Setter;
+import com.appsmith.server.constants.CommentOnboardingState;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
-@Getter
-@Setter
+@Data
 public class UserProfileDTO {
 
-    User user;
+    String email;
 
-    Organization currentOrganization;
+    Set<String> organizationIds;
 
-    List<ApplicationNameIdDTO> applications;
+    String username;
+
+    String name;
+
+    String gender;
+
+    @JsonProperty(value = "isAnonymous")
+    boolean isAnonymous;
+
+    @JsonProperty(value = "isEnabled")
+    boolean isEnabled;
+
+    boolean isEmptyInstance = false;
+
+    @JsonProperty("isSuperUser")
+    boolean isSuperUser = false;
+
+    @JsonProperty("isConfigurable")
+    boolean isConfigurable = false;
+
+    CommentOnboardingState commentOnboardingState;
+
+    String photoId;
+
+    String role;
+
+    String useCase;
+
+    boolean enableTelemetry = false;
+
+    public boolean isAccountNonExpired() {
+        return this.isEnabled;
+    }
+
+    public boolean isAccountNonLocked() {
+        return this.isEnabled;
+    }
+
+    public boolean isCredentialsNonExpired() {
+        return this.isEnabled;
+    }
+
 }

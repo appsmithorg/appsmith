@@ -1,0 +1,72 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 470,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 30,
+        "minHeight": 270,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "label": "Data",
+                "widgetName": "Table1",
+                "searchKey": "",
+                "textSize": "PARAGRAPH",
+                "horizontalAlignment": "LEFT",
+                "verticalAlignment": "CENTER",
+                "totalRecordsCount": 0,
+                "defaultPageSize": 0,
+                "dynamicBindingPathList": [],
+                "primaryColumns": {},
+                "derivedColumns": {},
+                "tableData": "",
+                "columnSizeMap": {
+                    "task": 245,
+                    "step": 62,
+                    "status": 75
+                },
+                "isVisibleSearch": true,
+                "isVisibleFilters": true,
+                "isVisibleDownload": true,
+                "isVisibleCompactMode": true,
+                "isVisiblePagination": true,
+                "version": 1,
+                "type": "TABLE_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 14.90625,
+                "parentRowSpace": 10,
+                "leftColumn": 15,
+                "rightColumn": 51,
+                "topRow": 17,
+                "bottomRow": 45,
+                "parentId": "0",
+                "widgetId": "tsjcdyi1p8",
+                "dynamicTriggerPathList": [
+                    {
+                        "key": "onRowSelected"
+                    }
+                ],
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "onRowSelected"
+                    }
+                ],
+                "onRowSelected": "{{ navigateTo('MyPage',{\"paramName\": Table1.selectedRow.id},'SAME_WINDOW') }}"
+            }
+        ],
+        "dynamicTriggerPathList": []
+    }
+}

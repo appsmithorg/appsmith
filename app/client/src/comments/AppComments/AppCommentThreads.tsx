@@ -1,25 +1,29 @@
-import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 import {
-  getSortedAndFilteredAppCommentThreadIds,
-  applicationCommentsSelector,
   allCommentThreadsMap,
-  getAppCommentThreads,
-  shouldShowResolved as shouldShowResolvedSelector,
   appCommentsFilter as appCommentsFilterSelector,
+  applicationCommentsSelector,
+  getAppCommentThreads,
+  getCommentThreadsFetched,
+  getSortedAndFilteredAppCommentThreadIds,
+  shouldShowResolved as shouldShowResolvedSelector,
+  getLastUpdatedCommentThreadId,
 } from "selectors/commentsSelectors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 import CommentThread from "comments/CommentThread/connectedCommentThread";
 import AppCommentsPlaceholder from "./AppCommentsPlaceholder";
 import { getCurrentUser } from "selectors/usersSelectors";
 
 import { Virtuoso } from "react-virtuoso";
+import { setShouldShowResolvedComments } from "actions/commentActions";
+import { useSelectCommentThreadUsingQuery } from "../inlineComments/Comments";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import { COMMENT_HAS_BEEN_DELETED, createMessage } from "constants/messages";
 
 const Container = styled.div`
   display: flex;
@@ -28,40 +32,77 @@ const Container = styled.div`
   overflow: auto;
 `;
 
-function AppCommentThreads() {
-  const applicationId = useSelector(getCurrentApplicationId) as string;
-  const appCommentThreadsByRefMap = useSelector(
-    applicationCommentsSelector(applicationId),
-  );
-  const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
+export const useSortedCommentThreadIds = (
+  applicationId: string,
+  commentThreadIds: string[],
+) => {
   const commentThreadsMap = useSelector(allCommentThreadsMap);
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
   const appCommentsFilter = useSelector(appCommentsFilterSelector);
 
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
+  const lastUpdatedCommentThreadId = useSelector(
+    getLastUpdatedCommentThreadId(applicationId),
+  );
 
-  const currentPageId = useSelector(getCurrentPageId);
-
-  const commentThreadIds = useMemo(
+  return useMemo(
     () =>
       getSortedAndFilteredAppCommentThreadIds(
-        appCommentThreadIds,
+        commentThreadIds,
         commentThreadsMap,
         shouldShowResolved,
         appCommentsFilter,
         currentUsername,
-        currentPageId,
       ),
     [
-      appCommentThreadIds,
+      commentThreadIds,
       commentThreadsMap,
       shouldShowResolved,
       appCommentsFilter,
       currentUsername,
-      currentPageId,
+      lastUpdatedCommentThreadId,
     ],
   );
+};
+
+function AppCommentThreads() {
+  const dispatch = useDispatch();
+  const commentThreadIdFromUrl = useSelectCommentThreadUsingQuery();
+  const applicationId = useSelector(getCurrentApplicationId) as string;
+  const appCommentThreadsByRefMap = useSelector(
+    applicationCommentsSelector(applicationId),
+  );
+  const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
+
+  const commentThreadIds = useSortedCommentThreadIds(
+    applicationId,
+    appCommentThreadIds,
+  );
+
+  const commentThreadsMap = useSelector(allCommentThreadsMap);
+
+  // TODO (rishabh s) Update this when adding pagination to comments
+  const appCommentThreadsFetched = useSelector(getCommentThreadsFetched);
+
+  useEffect(() => {
+    // if user is visiting a comment thread link which is already resolved,
+    // we'll activate the resolved comments filter
+    if (commentThreadIdFromUrl && appCommentThreadsFetched) {
+      const commentInStore = commentThreadsMap[commentThreadIdFromUrl];
+
+      if (commentInStore) {
+        if (commentInStore.resolvedState?.active) {
+          dispatch(setShouldShowResolvedComments(true));
+        }
+      } else {
+        Toaster.show({
+          text: createMessage(COMMENT_HAS_BEEN_DELETED),
+          variant: Variant.warning,
+        });
+      }
+    }
+  }, [commentThreadIdFromUrl, appCommentThreadsFetched]);
 
   return (
     <Container>

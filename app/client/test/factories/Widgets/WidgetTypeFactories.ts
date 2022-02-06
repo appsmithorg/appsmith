@@ -22,13 +22,14 @@ import { FilepickerFactory } from "./FilepickerFactory";
 import { VideoFactory } from "./VideoFactory";
 import { SkeletonFactory } from "./SkeletonFactory";
 import { ListFactory } from "./ListFactory";
+import { DividerFactory } from "./DividerFactory";
 
-export const WidgetTypeFactories = {
+export const WidgetTypeFactories: Record<string, any> = {
   SWITCH_WIDGET: SwitchFactory,
   BUTTON_WIDGET: ButtonFactory,
   TEXT_WIDGET: TextFactory,
   IMAGE_WIDGET: ImageFactory,
-  INPUT_WIDGET: InputFactory,
+  INPUT_WIDGET_V2: InputFactory,
   CONTAINER_WIDGET: ContainerFactory,
   DATE_PICKER_WIDGET: OldDatepickerFactory,
   DATE_PICKER_WIDGET2: DatepickerFactory,
@@ -50,4 +51,5 @@ export const WidgetTypeFactories = {
   VIDEO_WIDGET: VideoFactory,
   SKELETON_WIDGET: SkeletonFactory,
   LIST_WIDGET: ListFactory,
+  DIVIDER_WIDGET: DividerFactory,
 };

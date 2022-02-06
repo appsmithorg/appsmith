@@ -1,14 +1,20 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.CommentAddedEvent;
 import com.appsmith.server.events.CommentThreadClosedEvent;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -24,15 +31,16 @@ import reactor.test.StepVerifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ComponentScan("com.appsmith.server.solutions")
 public class EmailEventHandlerTest {
 
     private static final String COMMENT_ADDED_EMAIL_TEMPLATE = "email/commentAddedTemplate.html";
-    private static final String USER_MENTIONED_EMAIL_TEMPLATE = "email/userTaggedInCommentTemplate.html";
-    private static final String THREAD_RESOLVED_EMAIL_TEMPLATE = "email/commentResolvedTemplate.html";
 
     @MockBean
     private ApplicationEventPublisher applicationEventPublisher;
@@ -42,8 +50,15 @@ public class EmailEventHandlerTest {
     private OrganizationRepository organizationRepository;
     @MockBean
     private ApplicationRepository applicationRepository;
+    @MockBean
+    private NewPageRepository newPageRepository;
+    @MockBean
+    private EmailConfig emailConfig;
+    @MockBean
+    private PolicyUtils policyUtils;
 
     EmailEventHandler emailEventHandler;
+
     private Application application;
     private Organization organization;
 
@@ -55,9 +70,10 @@ public class EmailEventHandlerTest {
 
     @Before
     public void setUp() {
-        emailEventHandler = new EmailEventHandler(
-                applicationEventPublisher, emailSender, organizationRepository, applicationRepository
-        );
+
+        emailEventHandler = new EmailEventHandlerImpl(applicationEventPublisher, emailSender, organizationRepository,
+                applicationRepository, newPageRepository, policyUtils, emailConfig);
+
         application = new Application();
         application.setName("Test application for comment");
         application.setOrganizationId(organizationId);
@@ -66,32 +82,78 @@ public class EmailEventHandlerTest {
         // add a role with email receiver username
         UserRole userRole = new UserRole();
         userRole.setUsername(emailReceiverUsername);
+        userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
         organization.setUserRoles(List.of(userRole));
 
         Mockito.when(applicationRepository.findById(applicationId)).thenReturn(Mono.just(application));
         Mockito.when(organizationRepository.findById(organizationId)).thenReturn(Mono.just(organization));
+
+        NewPage newPage = new NewPage();
+        newPage.setUnpublishedPage(new PageDTO());
+        newPage.getUnpublishedPage().setName("Page1");
+        Mockito.when(newPageRepository.findById(anyString())).thenReturn(Mono.just(newPage));
     }
 
     @Test
-    public void publish_WhenValidCommentProvided_ReturnsTrue() {
+    public void publish_CommentProvidedWithSubscriber_ReturnsTrue() {
         Comment comment = new Comment();
+        comment.setPageId("page-id");
+        Set<String> subscribers = Set.of("dummy-username1");
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, comment
+                organization, application, originHeader, comment, subscribers, "Page1"
         );
 
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentAddedEvent);
 
-        Mono<Boolean> booleanMono = emailEventHandler.publish(authorUserName, applicationId, comment, originHeader);
+        Mono<Boolean> booleanMono = emailEventHandler.publish(
+                authorUserName, applicationId, comment, originHeader, subscribers
+        );
         StepVerifier.create(booleanMono).assertNext(aBoolean -> {
             Assert.assertEquals(Boolean.TRUE, aBoolean);
         }).verifyComplete();
     }
 
     @Test
-    public void publish_WhenValidCommentThreadProvided_ReturnsTrue() {
+    public void publish_CommentProvidedSubscriberIsNull_ReturnsFalse() {
+        Mono<Boolean> booleanMono = emailEventHandler.publish(
+                authorUserName, applicationId, new Comment(), originHeader, null
+        );
+        StepVerifier.create(booleanMono).assertNext(aBoolean -> {
+            Assert.assertEquals(Boolean.FALSE, aBoolean);
+        }).verifyComplete();
+    }
+
+    @Test
+    public void publish_CommentProvidedSubscriberIsEmpty_ReturnsFalse() {
+        Mono<Boolean> booleanMono = emailEventHandler.publish(
+                authorUserName, applicationId, new Comment(), originHeader, Set.of()
+        );
+        StepVerifier.create(booleanMono).assertNext(aBoolean -> {
+            Assert.assertEquals(Boolean.FALSE, aBoolean);
+        }).verifyComplete();
+    }
+
+    @Test
+    public void publish_WhenCommentThreadHasNoPublishersProvided_ReturnsFalse() {
         CommentThread commentThread = new CommentThread();
         CommentThreadClosedEvent commentThreadClosedEvent = new CommentThreadClosedEvent(
-                authorUserName, organization, application, originHeader, commentThread
+                authorUserName, organization, application, originHeader, commentThread, "Page1"
+        );
+        Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentThreadClosedEvent);
+
+        Mono<Boolean> booleanMono = emailEventHandler.publish(authorUserName, applicationId, commentThread, originHeader);
+        StepVerifier.create(booleanMono).assertNext(aBoolean -> {
+            Assert.assertEquals(Boolean.FALSE, aBoolean);
+        }).verifyComplete();
+    }
+
+    @Test
+    public void publish_WhenCommentThreadHasPublishersProvided_ReturnsTrue() {
+        CommentThread commentThread = new CommentThread();
+        commentThread.setPageId("page-id");
+        commentThread.setSubscribers(Set.of("abc"));
+        CommentThreadClosedEvent commentThreadClosedEvent = new CommentThreadClosedEvent(
+                authorUserName, organization, application, originHeader, commentThread, "Page1"
         );
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentThreadClosedEvent);
 
@@ -102,14 +164,16 @@ public class EmailEventHandlerTest {
     }
 
     @Test
-    public void handle_WhenValidCommentAddedEvent_ReturnsTrue() {
+    public void handle_WhenValidCommentAddedEvent_SendEmailCalled() {
         Comment sampleComment = new Comment();
         sampleComment.setAuthorUsername(authorUserName);
         sampleComment.setAuthorName("Test Author");
+        sampleComment.setApplicationName(application.getName());
+        Set<String> subscribers = Set.of(emailReceiverUsername);
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, sampleComment
+                organization, application, originHeader, sampleComment, subscribers, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -119,6 +183,28 @@ public class EmailEventHandlerTest {
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
                 eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
+        );
+    }
+
+    @Test
+    public void handle_WhenSubscriberDoesNotMatch_SendEmailNotCalled() {
+        Comment sampleComment = new Comment();
+        sampleComment.setAuthorUsername(authorUserName);
+        sampleComment.setAuthorName("Test Author");
+        Set<String> subscribers = Set.of("test-subscriber-1");
+
+        // send the event
+        CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
+                organization, application, originHeader, sampleComment, subscribers, "Page1"
+        );
+        emailEventHandler.handle(commentAddedEvent);
+
+        String expectedEmailSubject = String.format(
+                "New comment from %s in %s", sampleComment.getAuthorName(), application.getName()
+        );
+        // check email sender was called with expected template and subject
+        Mockito.verify(emailSender, Mockito.times(0)).sendMail(
+                anyString(), anyString(), anyString(), Mockito.anyMap()
         );
     }
 
@@ -146,6 +232,10 @@ public class EmailEventHandlerTest {
         Comment sampleComment = new Comment();
         sampleComment.setAuthorUsername(authorUserName);
         sampleComment.setAuthorName("Test Author");
+        sampleComment.setApplicationId("test-app-id");
+        sampleComment.setPageId("test-page-id");
+        sampleComment.setThreadId("test-thread-id");
+        Set<String> subscribers = Set.of(emailReceiverUsername);
 
         // mention the emailReceiverUsername in the sample comment
         Map<String, Comment.Entity> entityMap = createEntityMapForUsers(List.of(emailReceiverUsername));
@@ -155,7 +245,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, sampleComment
+                organization, application, originHeader, sampleComment, subscribers, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -164,7 +254,7 @@ public class EmailEventHandlerTest {
 
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
-                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(USER_MENTIONED_EMAIL_TEMPLATE), Mockito.anyMap()
+                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
         );
     }
 
@@ -179,10 +269,12 @@ public class EmailEventHandlerTest {
 
         CommentThread commentThread = new CommentThread();
         commentThread.setResolvedState(resolveState);
+        commentThread.setSubscribers(Set.of(emailReceiverUsername));
+        commentThread.setApplicationName(application.getName());
 
         // send the event
         CommentThreadClosedEvent commentAddedEvent = new CommentThreadClosedEvent(
-                authorUserName, organization, application, originHeader, commentThread
+                authorUserName, organization, application, originHeader, commentThread, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -192,7 +284,7 @@ public class EmailEventHandlerTest {
         );
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
-                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(THREAD_RESOLVED_EMAIL_TEMPLATE), Mockito.anyMap()
+                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
         );
     }
 }

@@ -14,12 +14,8 @@ describe("Confirm run action", function() {
     });
   });
 
-  it("Confirm run action", () => {
-    cy.NavigateToQueryEditor();
-
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+  it("1. Confirm run action", () => {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -27,12 +23,12 @@ describe("Confirm run action", function() {
       .type("select * from configs");
     cy.get("li:contains('Settings')").click({ force: true });
     cy.get("[data-cy=confirmBeforeExecute]")
-      .find(".bp3-switch")
+      .find("span")
       .click();
 
-    cy.get(queryEditor.runQuery).click();
+    cy.onlyQueryRun();
     cy.get(".bp3-dialog")
-      .find(".bp3-button")
+      .find("button")
       .contains("Confirm")
       .click();
     cy.wait("@postExecute").should(
@@ -41,7 +37,8 @@ describe("Confirm run action", function() {
       200,
     );
 
-    cy.get(queryEditor.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",

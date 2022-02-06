@@ -12,6 +12,7 @@ export type ResponseMeta = {
 export type ApiResponse = {
   responseMeta: ResponseMeta;
   data: any;
+  code?: string;
 };
 
 export type GenericApiResponse<T> = {

@@ -3,6 +3,17 @@ import { handlers } from "./__mocks__/apiHandlers";
 export const server = setupServer(...handlers);
 
 window.scrollTo = jest.fn();
+Element.prototype.scrollIntoView = jest.fn();
+Element.prototype.scrollBy = jest.fn();
+const mockObserveFn = () => {
+  return {
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+  };
+};
+
+window.IntersectionObserver = jest.fn().mockImplementation(mockObserveFn);
 
 // establish API mocking before all tests
 beforeAll(() => server.listen());

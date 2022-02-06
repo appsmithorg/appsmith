@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Button from "components/ads/Button";
+import Button, { IconPositions } from "components/ads/Button";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { TriggerButton } from "pages/Applications/ForkModalStyles";
 import { Size } from "components/ads/Button";
@@ -12,7 +12,13 @@ import { getAllApplications } from "actions/applicationActions";
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
-  height: 100%;
+  height: 21px;
+  span > svg {
+    height: 10px;
+    path {
+      stroke: white;
+    }
+  }
 `;
 
 const ForkButton = styled(Cta)`
@@ -34,12 +40,15 @@ function GetAppViewerHeaderCTA(props: any) {
   let CTA = null;
   const dispatch = useDispatch();
 
+  const applicationId = currentApplicationDetails?.id;
+
   if (url && canEdit) {
     CTA = (
       <Cta
         className="t--back-to-editor"
         href={url}
-        icon="arrow-left"
+        icon="chevron-left"
+        iconPosition={IconPositions.left}
         text={createMessage(EDIT_APP)}
       />
     );
@@ -60,7 +69,7 @@ function GetAppViewerHeaderCTA(props: any) {
       CTA = (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
           <ForkApplicationModal
-            applicationId={currentApplicationDetails.id}
+            applicationId={applicationId}
             trigger={
               <TriggerButton
                 className="t--fork-app"

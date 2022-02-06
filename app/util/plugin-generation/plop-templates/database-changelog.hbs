@@ -1,0 +1,20 @@
+    
+    @ChangeSet(order = "1000", id = "add-{{pascalCase name}}-plugin", author = "")
+    public void add{{pascalCase name}}Plugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("{{pascalCase name}}");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("{{dashCase name}}");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://assets.appsmith.com/{{pascalCase name}}.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-{{dashCase name}}");
+        plugin.setDefaultInstall(false);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+    }
+}

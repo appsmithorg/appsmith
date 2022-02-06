@@ -230,6 +230,29 @@ public class DynamoPluginTest {
     }
 
     @Test
+    public void testQuery() {
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\", \n" +
+                "\t\"KeyConditionExpression\": \"Id=:v1\",\n" +
+                "\t\"ExpressionAttributeValues\": {\n" +
+                "        \":v1\": {\"S\": \"1\"}\n" +
+                "    },\n" +
+                "    \"ReturnConsumedCapacity\": \"TOTAL\"\n" +
+                "}";
+
+        StepVerifier.create(execute("Query", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
+                    Map<String, String> transformedItem = ((List<Map<String, String>>) resultBody.get("Items")).get(0);
+                    assertEquals("New Delhi", transformedItem.get("City"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testPutItem() {
         final String body = "{\n" +
                 "  \"TableName\": \"cities\",\n" +

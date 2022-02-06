@@ -1,35 +1,8 @@
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+import { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
+export type WidgetType = FactoryWidgetType;
 
-export enum WidgetTypes {
-  BUTTON_WIDGET = "BUTTON_WIDGET",
-  TEXT_WIDGET = "TEXT_WIDGET",
-  IMAGE_WIDGET = "IMAGE_WIDGET",
-  INPUT_WIDGET = "INPUT_WIDGET",
-  CONTAINER_WIDGET = "CONTAINER_WIDGET",
-  DATE_PICKER_WIDGET = "DATE_PICKER_WIDGET",
-  DATE_PICKER_WIDGET2 = "DATE_PICKER_WIDGET2",
-  TABLE_WIDGET = "TABLE_WIDGET",
-  DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET",
-  CHECKBOX_WIDGET = "CHECKBOX_WIDGET",
-  RADIO_GROUP_WIDGET = "RADIO_GROUP_WIDGET",
-  TABS_WIDGET = "TABS_WIDGET",
-  MODAL_WIDGET = "MODAL_WIDGET",
-  RICH_TEXT_EDITOR_WIDGET = "RICH_TEXT_EDITOR_WIDGET",
-  CHART_WIDGET = "CHART_WIDGET",
-  FORM_WIDGET = "FORM_WIDGET",
-  FORM_BUTTON_WIDGET = "FORM_BUTTON_WIDGET",
-  MAP_WIDGET = "MAP_WIDGET",
-  CANVAS_WIDGET = "CANVAS_WIDGET",
-  ICON_WIDGET = "ICON_WIDGET",
-  FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
-  VIDEO_WIDGET = "VIDEO_WIDGET",
-  SKELETON_WIDGET = "SKELETON_WIDGET",
-  LIST_WIDGET = "LIST_WIDGET",
-  SWITCH_WIDGET = "SWITCH_WIDGET",
-  TABS_MIGRATOR_WIDGET = "TABS_MIGRATOR_WIDGET",
-}
-
-export type WidgetType = keyof typeof WidgetTypes;
+export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
 
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL";
 
@@ -75,13 +48,13 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   RELATIVE_PARENT: "%",
 };
 
-interface LayoutConfig {
+export interface LayoutConfig {
   minWidth: number;
   maxWidth: number;
 }
 
 type LayoutConfigurations = Record<SupportedLayouts, LayoutConfig>;
-export const DefaultLayoutType: SupportedLayouts = "DESKTOP";
+export const DefaultLayoutType: SupportedLayouts = "FLUID";
 export const layoutConfigurations: LayoutConfigurations = {
   TABLET_LARGE: {
     minWidth: 960,
@@ -96,7 +69,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 23;
+export const LATEST_PAGE_VERSION = 51;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -107,18 +80,19 @@ export const GridDefaults = {
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
-// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
-export const CONTAINER_GRID_PADDING =
-  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
+// Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
+// which wud allow the user to place elements centered inside a container(columns are rendered proportionally so it take cares of itself).
 
-// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 0.5) * 0.2;
+export const CONTAINER_GRID_PADDING =
+  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.6;
+
 export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
-
-export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
+export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
+export const CANVAS_CLASSNAME = "appsmith_widget_0";
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
 
@@ -143,6 +117,24 @@ export const TEXT_SIZES = {
   HEADING3: "16px",
   PARAGRAPH: "14px",
   PARAGRAPH2: "12px",
+};
+
+export const WIDGET_STATIC_PROPS = {
+  leftColumn: true,
+  rightColumn: true,
+  topRow: true,
+  bottomRow: true,
+  minHeight: true,
+  parentColumnSpace: true,
+  parentRowSpace: true,
+  children: true,
+  type: true,
+  widgetId: true,
+  widgetName: true,
+  parentId: true,
+  renderMode: true,
+  detachFromLayout: true,
+  noContainerOffset: false,
 };
 
 export type TextSize = keyof typeof TextSizes;

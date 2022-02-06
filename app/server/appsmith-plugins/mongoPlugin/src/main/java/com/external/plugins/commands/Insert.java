@@ -6,14 +6,14 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.BsonArray;
 import org.bson.Document;
+import org.bson.json.JsonParseException;
 import org.pf4j.util.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
-import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.BSON;
-import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
-import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
-import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
-import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 
 @Getter
 @Setter
@@ -39,10 +39,10 @@ public class Insert extends MongoCommand {
     public Insert(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, INSERT_DOCUMENT)) {
-            this.documents = (String) pluginSpecifiedTemplates.get(INSERT_DOCUMENT).getValue();
+        if (validConfigurationPresentInFormData(formData, INSERT_DOCUMENT)) {
+            this.documents = (String) getValueSafelyFromFormData(formData, INSERT_DOCUMENT);
         }
     }
 
@@ -67,13 +67,13 @@ public class Insert extends MongoCommand {
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.documents);
         if (dataType.equals(DataType.ARRAY)) {
             try {
-                List arrayListFromInput = objectMapper.readValue(this.documents, List.class);
+                List arrayListFromInput = BsonArray.parse(this.documents);
                 if (arrayListFromInput.isEmpty()) {
                     commandDocument.put("documents", "[]");
                 } else {
                     commandDocument.put("documents", arrayListFromInput);
                 }
-            } catch (IOException e) {
+            } catch (JsonParseException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Documents" + " could not be parsed into expected JSON Array format.");
             }
         } else {
@@ -98,15 +98,12 @@ public class Insert extends MongoCommand {
                 .sorted()
                 .collect(Collectors.joining(""));
 
-        Map<Integer, Object> configMap = new HashMap<>();
+        Map<String, Object> configMap = new HashMap<>();
 
-        configMap.put(BSON, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "INSERT");
-        configMap.put(INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
-        configMap.put(COLLECTION, collectionName);
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
+        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"insert\": \"" + collectionName + "\",\n" +
@@ -120,7 +117,7 @@ public class Insert extends MongoCommand {
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Insert",
                 rawQuery,
-                pluginSpecifiedTemplates
+                configMap
         ));
     }
 }

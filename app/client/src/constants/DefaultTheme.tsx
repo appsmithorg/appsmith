@@ -6,6 +6,7 @@ import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
+import { typography, Typography, TypographyKeys } from "./typography";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -20,9 +21,10 @@ export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
   success: Colors.PURPLE,
   secondary: Colors.BLACK_PEARL,
-  danger: Colors.RED,
+  danger: Colors.ERROR_RED,
   none: Colors.GEYSER_LIGHT,
   warning: Colors.JAFFA,
+  successLight: Colors.GREEN,
 };
 
 export type Intent = typeof IntentColors[keyof typeof IntentColors];
@@ -41,15 +43,6 @@ export enum Skin {
   DARK,
 }
 
-export const hideScrollbar = css`
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-    -webkit-appearance: none;
-  }
-`;
-
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -57,7 +50,10 @@ export const truncateTextUsingEllipsis = css`
   display: block;
 `;
 
-export const getTypographyByKey = (props: Record<string, any>, key: string) => `
+export const getTypographyByKey = (
+  props: Record<string, any>,
+  key: TypographyKeys,
+) => `
   font-weight: ${props.theme.typography[key].fontWeight};
   font-size: ${props.theme.typography[key].fontSize}px;
   line-height: ${props.theme.typography[key].lineHeight}px;
@@ -66,67 +62,45 @@ export const getTypographyByKey = (props: Record<string, any>, key: string) => `
 
 export const BlueprintControlTransform = css`
   && {
+    .${Classes.CONTROL}.${Classes.DISABLED} {
+      color: ${Colors.GREY_8};
+    }
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
         background: ${(props) => props.theme.colors.primaryOld};
         box-shadow: none;
-        border: 2px solid ${(props) => props.theme.colors.primaryOld};
+        border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
-      & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      &:hover .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        background: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      &.${Classes.SWITCH}
-        input:checked:disabled
-        ~ .${Classes.CONTROL_INDICATOR} {
+      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
         opacity: 0.5;
       }
-    }
-
-    .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
-      border-radius: 0;
+      & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid ${Colors.GREY_5};
+      }
     }
 
     .${Classes.SWITCH} {
+      & .${Classes.CONTROL_INDICATOR} {
+        &::before {
+          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+        }
+      }
       input:checked ~ .${Classes.CONTROL_INDICATOR} {
         &::before {
           left: calc(105% - 1em);
         }
       }
-
-      & .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
-        border: 2px solid #d0d7dd;
-        &::before {
-          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
-        }
-      }
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${(props) => props.theme.colors.primaryOld};
-      }
-      &:hover .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
-        border: 2px solid #d0d7dd;
+      input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${Colors.GREY_3};
+        border: 1px solid ${Colors.GREY_5};
       }
     }
 
     .${Classes.CONTROL_INDICATOR} {
-      box-shadow: none;
-      background: none;
-      border: 2px solid ${Colors.SLATE_GRAY};
       &::before {
         position: absolute;
-        left: -2px;
-        top: -2px;
+        left: -1px;
+        top: -1px;
       }
     }
   }
@@ -135,6 +109,17 @@ export const BlueprintControlTransform = css`
 export const invisible = css`
   && > * {
     opacity: 0.6;
+  }
+`;
+
+export const disable = css`
+  & {
+    cursor: not-allowed;
+
+    & > * {
+      opacity: 0.5;
+      pointer-events: none;
+    }
   }
 `;
 
@@ -278,6 +263,20 @@ export const BlueprintInputTransform = css`
   }
 `;
 
+const iconSizes = {
+  XXS: 8,
+  XS: 10,
+  SMALL: 12,
+  MEDIUM: 14,
+  LARGE: 15,
+  XL: 16,
+  XXL: 18,
+  XXXL: 20,
+  XXXXL: 22,
+};
+
+type IconSizeType = typeof iconSizes;
+
 export type ThemeBorder = {
   thickness: number;
   style: "dashed" | "solid";
@@ -289,6 +288,7 @@ type PropertyPaneTheme = {
   height: number;
   dividerColor: Color;
   titleHeight: number;
+  connectionsHeight: number;
 };
 
 export type NestedObjectOrArray<T> =
@@ -302,7 +302,7 @@ export type Theme = {
   spaces: Array<number>;
   fontWeights: Array<number>;
   colors: any;
-  typography: any;
+  typography: Typography;
   lineHeights: Array<number>;
   fonts: {
     code: FontFamily;
@@ -316,9 +316,15 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  bottomBarHeight: string;
+  integrationsPageUnusableHeight: string;
+  backBanner: string;
   homePage: any;
   sidebarWidth: string;
-  canvasPadding: string;
+  canvasBottomPadding: number;
+  navbarMenuHeight: string;
+  navbarMenuLineHeight: string;
+  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -339,6 +345,8 @@ export type Theme = {
       hoverText: ShadeColor;
       inActiveBG: ShadeColor;
       inActiveText: ShadeColor;
+      border: Color;
+      background: Color;
     };
     [Skin.DARK]: {
       hoverBG: ShadeColor;
@@ -361,6 +369,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  tabPanelHeight: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
     [Skin.DARK]: {
@@ -401,17 +410,17 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
-};
-
-type IconSizeType = {
-  XXS: number;
-  XS: number;
-  SMALL: number;
-  MEDIUM: number;
-  LARGE: number;
-  XL: number;
-  XXL: number;
-  XXXL: number;
+  actionSidePane: {
+    width: number;
+  };
+  onboarding: {
+    statusBarHeight: number;
+  };
+  settings: {
+    footerHeight: number;
+    footerShadow: string;
+    linkBg: string;
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -437,6 +446,42 @@ export const labelStyle = css`
   font-weight: ${(props) => props.theme.fontWeights[3]};
 `;
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+  }
+`;
 // export const adsTheme: any = {
 //   space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
 // };
@@ -465,22 +510,24 @@ export const largeButton = css`
 `;
 
 export const appColors = [
-  "#6C4CF1",
-  "#4F70FD",
-  "#F56AF4",
-  "#B94CF1",
-  "#54A9FB",
-  "#5ED3DA",
-  "#5EDA82",
-  "#A8D76C",
-  "#E9C951",
-  "#FE9F44",
-  "#ED86A1",
-  "#EA6179",
-  "#C03C3C",
-  "#BC6DB2",
-  "#6C9DD0",
-  "#6CD0CF",
+  "#FFEFDB",
+  "#D9E7FF",
+  "#FFDEDE",
+  "#E3DEFF",
+  "#C7F3E3",
+  "#F1DEFF",
+  "#F4FFDE",
+  "#C7F3F0",
+  "#C2DAF0",
+  "#F5D1D1",
+  "#ECECEC",
+  "#CCCCCC",
+  "#F3F1C7",
+  "#E4D8CC",
+  "#EAEDFB",
+  "#D6D1F2",
+  "#FBF4ED",
+  "#FFEBFB",
 ] as const;
 
 export type AppColorCode = typeof appColors[number];
@@ -498,6 +545,7 @@ const darkShades = [
   "#FFFFFF",
   "#157A96",
   "#090707",
+  "#FFDEDE",
 ] as const;
 
 const lightShades = [
@@ -517,6 +565,9 @@ const lightShades = [
   "#E0DEDE",
   "#EBEBEB",
   "#858282",
+  "#000000",
+  "#F86A2B",
+  "#FFDEDE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -529,9 +580,87 @@ type buttonVariant = {
   darkest: string;
 };
 
+type ButtonVariantColor = {
+  primary: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  secondary: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  tertiary: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor?: Color;
+  };
+};
+
 type ColorType = {
+  overlayColor: string;
   button: {
     disabledText: ShadeColor;
+    boxShadow: {
+      default: {
+        variant1: Color;
+        variant2: Color;
+        variant3: Color;
+        variant4: Color;
+        variant5: Color;
+      };
+    };
+    disabled: {
+      bgColor: Color;
+      textColor: Color;
+    };
+    /**
+     * PRIMARY style
+     */
+    primary: ButtonVariantColor;
+
+    /**
+     * WARNING style
+     */
+    warning: ButtonVariantColor;
+    /**
+     * DANGER style
+     */
+    danger: ButtonVariantColor;
+    /**
+     * INFO style
+     */
+    info: ButtonVariantColor;
+    /**
+     * SECONDARY style
+     */
+    secondary: ButtonVariantColor;
+    /**
+     * CUSTOM style
+     */
+    custom: {
+      solid: {
+        dark: {
+          textColor: Color;
+        };
+        light: {
+          textColor: Color;
+        };
+      };
+    };
+    /**
+     * LINK button style
+     */
+    link: {
+      main: Color;
+      hover: Color;
+      active: Color;
+      disabled: Color;
+    };
   };
   tertiary: buttonVariant;
   info: buttonVariant;
@@ -575,6 +704,15 @@ type ColorType = {
       bg: string;
     };
   };
+  navigationMenu: {
+    contentActive: string;
+    backgroundActive: string;
+    contentInactive: string;
+    backgroundInactive: string;
+    label: string;
+    warning: string;
+    warningBackground: string;
+  };
   colorSelector: {
     shadow: ShadeColor;
     checkmark: ShadeColor;
@@ -590,15 +728,24 @@ type ColorType = {
     header: {
       text: ShadeColor;
       disabledText: ShadeColor;
+      defaultBg: ShadeColor;
       bg: ShadeColor;
       disabledBg: ShadeColor;
     };
-    menuBg: ShadeColor;
+    menu: {
+      border: ShadeColor;
+      bg: ShadeColor;
+      hover: ShadeColor;
+      text: ShadeColor;
+      hoverText: ShadeColor;
+      subText: ShadeColor;
+    };
     menuShadow: string;
     selected: {
       text: ShadeColor;
       bg: ShadeColor;
       icon: ShadeColor;
+      subtext?: ShadeColor;
     };
     hovered: {
       text: ShadeColor;
@@ -622,6 +769,7 @@ type ColorType = {
       off: ShadeColor;
     };
     spinner: ShadeColor;
+    spinnerBg: ShadeColor;
   };
   textInput: {
     disable: {
@@ -635,11 +783,17 @@ type ColorType = {
       border: ShadeColor;
     };
     placeholder: ShadeColor;
+    helper: ShadeColor;
+    icon: ShadeColor;
     readOnly: {
       bg: ShadeColor;
       border: ShadeColor;
       text: ShadeColor;
     };
+    hover: {
+      bg: ShadeColor;
+    };
+    caretColor: string;
   };
   menuBorder: ShadeColor;
   editableText: {
@@ -671,9 +825,11 @@ type ColorType = {
   };
   tabs: {
     normal: ShadeColor;
+    icon: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
     countBg: ShadeColor;
+    selected: string;
   };
   settingHeading: ShadeColor;
   table: {
@@ -699,6 +855,7 @@ type ColorType = {
       textColor: ShadeColor;
       orgColor: ShadeColor;
     };
+    cardMenuIcon: ShadeColor;
   };
   switch: {
     border: ShadeColor;
@@ -721,6 +878,7 @@ type ColorType = {
     bg: ShadeColor;
     headerText: ShadeColor;
     iconColor: string;
+    iconBg: ShadeColor;
     user: {
       textColor: ShadeColor;
     };
@@ -780,6 +938,7 @@ type ColorType = {
   };
   toast: {
     undo: string;
+    undoRedoColor: string;
     warningColor: string;
     dangerColor: string;
     textColor: string;
@@ -859,27 +1018,66 @@ type ColorType = {
     activeTabBorderBottom: string;
     activeTabText: string;
   };
+  guidedTour: {
+    runButton: string;
+    cancelButton: {
+      color: string;
+      borderColor: string;
+      hoverBackgroundColor: string;
+    };
+    endButton: {
+      backgroundColor: string;
+      borderColor: string;
+      hoverBackgroundColor: string;
+    };
+    endTourButton: {
+      color: string;
+      hoverColor: string;
+    };
+    card: {
+      borderBottom: string;
+      background: string;
+    };
+    stepCountBackground: string;
+  };
   globalSearch: {
     containerBackground: string;
     activeSearchItemBackground: string;
+    activeCategory: string;
     searchInputText: string;
     containerShadow: string;
     separator: string;
     searchItemHighlight: string;
+    searchItemAltText: string;
     searchItemText: string;
+    searchItemSubText: string;
     highlightedTextUnderline: string;
     documentationCtaBackground: string;
     documentationCtaText: string;
     emptyStateText: string;
     navigateUsingEnterSection: string;
     codeBackground: string;
+    documentationCodeBackground: string;
     documentLink: string;
+    helpBarText: string;
     helpBarBackground: string;
     helpButtonBackground: string;
     helpIcon: string;
-    helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
+    primaryBgColor: string;
+    primaryTextColor: string;
+    secondaryTextColor: string;
+    primaryBorderColor: string;
+    defaultIconsColor: string;
+    snippets: {
+      refinementPillsColor: string;
+      refinementPillsBg: string;
+      filterListBackground: string;
+      filterBtnText: string;
+      codeContainerBorder: string;
+    };
+    searchInputBorder: string;
   };
   gif: {
     overlay: string;
@@ -934,6 +1132,8 @@ type ColorType = {
     cardHoverBackground: string;
     introTitle: string;
     introContent: string;
+    modeIconCircleStroke: string;
+    activeModeIconCircleStroke: string;
   };
   mentionSuggestion: {
     nameText: string;
@@ -980,6 +1180,14 @@ type ColorType = {
     dropdownSelectBg: ShadeColor;
     multiDropdownBoxHoverBg: ShadeColor;
     iconColor: ShadeColor;
+    ctaTextColor: string;
+    ctaBackgroundColor: string;
+    ctaLearnMoreTextColor: string;
+    connections: {
+      error: string;
+      connectionsCount: ShadeColor;
+      optionBg: string;
+    };
   };
   scrollbar: string;
   scrollbarBG: string;
@@ -990,6 +1198,10 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    evalDebugButton: {
+      hover: string;
+      active: string;
+    };
     inspectElement: {
       color: string;
     };
@@ -999,6 +1211,7 @@ type ColorType = {
       shadow: string;
       errorCount: string;
       noErrorCount: string;
+      warningCount: string;
     };
     blankState: {
       shortcut: string;
@@ -1010,10 +1223,14 @@ type ColorType = {
     warning: {
       borderBottom: string;
       backgroundColor: string;
+      iconColor: string;
+      hoverIconColor: string;
     };
     error: {
       borderBottom: string;
       backgroundColor: string;
+      iconColor: string;
+      hoverIconColor: string;
     };
     jsonIcon: string;
     message: string;
@@ -1026,6 +1243,60 @@ type ColorType = {
   showcaseCarousel: Record<string, string>;
   displayImageUpload: Record<string, string>;
   notifications: Record<string, string>;
+  widgetGroupingContextMenu: {
+    border: string;
+    actionActiveBg: string;
+  };
+  actionSidePane: {
+    noConnections: string;
+    noConnectionsText: string;
+    connectionBorder: string;
+    connectionHover: string;
+    collapsibleIcon: string;
+  };
+  tabItemBackgroundFill: {
+    highlightBackground: string;
+    highlightTextColor: string;
+    textColor: string;
+  };
+  pagesEditor: {
+    iconColor: string;
+  };
+  numberedStep: {
+    line: string;
+  };
+  gitSyncModal: GitSyncModalColors;
+  editorBottomBar: {
+    background: string;
+    buttonBackgroundHover: string;
+    branchBtnText: string;
+  };
+  link: string;
+  welcomePage?: {
+    text: string;
+  };
+  settings: {
+    link: string;
+  };
+};
+
+const editorBottomBar = {
+  background: Colors.WHITE,
+  buttonBackgroundHover: Colors.Gallery,
+  branchBtnText: Colors.CHARCOAL,
+};
+
+const gitSyncModal = {
+  menuBackgroundColor: Colors.ALABASTER_ALT,
+  separator: Colors.ALTO2,
+  closeIcon: "rgba(29, 28, 29, 0.7);",
+};
+type GitSyncModalColors = typeof gitSyncModal;
+
+const tabItemBackgroundFill = {
+  highlightBackground: Colors.Gallery,
+  highlightTextColor: Colors.CODE_GRAY,
+  textColor: Colors.CHARCOAL,
 };
 
 const notifications = {
@@ -1035,6 +1306,7 @@ const notifications = {
   markAllAsReadButtonText: "#716E6E",
   unreadIndicator: "#F86A2B",
   bellIndicator: "#E22C2C",
+  label: "#858282",
 };
 
 const displayImageUpload = {
@@ -1059,6 +1331,10 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
 };
 
 const comments = {
@@ -1107,21 +1383,23 @@ const comments = {
   appCommentsPlaceholderText: lightShades[8],
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
-  cardHoverBackground: "#FAFAFA",
+  cardHoverBackground: "#FBEED0",
+  modeIconCircleStroke: "#222222",
+  activeModeIconCircleStroke: "#090707",
 };
 
-const auth: any = {
-  background: darkShades[1],
-  cardBackground: lightShades[10],
-  btnPrimary: "#F86A2B",
-  inputBackground: darkShades[1],
-  headingText: "#FFF",
-  link: "#106ba3",
-  text: darkShades[7],
-  placeholder: darkShades[5],
-  socialBtnText: darkShades[8],
-  socialBtnBorder: darkShades[8],
-  socialBtnHighlight: darkShades[1],
+const auth = {
+  background: lightShades[11],
+  cardBackground: lightShades[0],
+  btnPrimary: Colors.CRUSTA,
+  inputBackground: lightShades[11],
+  headingText: darkShades[11],
+  link: Colors.CRUSTA,
+  text: "#000",
+  placeholder: lightShades[8],
+  socialBtnText: "#000",
+  socialBtnBorder: lightShades[13],
+  socialBtnHighlight: lightShades[2],
 };
 
 const helpModal = {
@@ -1134,38 +1412,56 @@ const formMessage = {
     danger: "rgba(226,44,44,0.08)",
     success: "#172320",
     warning: "rgba(224, 179, 14, 0.08)",
+    lightSuccess: "#EFFFF4",
   },
   text: {
     danger: "#E22C2C",
     success: "#03B365",
     warning: "#E0B30E",
+    lightSuccess: "#00693B",
   },
 };
 
 const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
-  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
-  searchInputText: "#fff",
+  activeSearchItemBackground: "#EBEBEB",
+  activeCategory: "#090707",
+  searchInputText: "#090707",
+  searchInputBorder: "#F86A2B",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
-  searchItemText: "rgba(255, 255, 255, 0.6)",
+  searchItemAltText: "#fff",
+  searchItemText: "#090707",
+  searchItemSubText: "#4B4848;",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
-  emptyStateText: "#ABABAB",
-  navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#494949",
-  documentLink: "#54a9fb",
+  emptyStateText: "#A9A7A7",
+  navigateUsingEnterSection: "white",
+  codeBackground: "#ffffff",
+  documentationCodeBackground: "#f0f0f0",
+  documentLink: "#F86A2B",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
-  helpBarBorder: "#404040",
-  helpButtonBorder: "#404040",
-  sectionTitle: "#D4D4D4",
-  navigateToEntityEnterkey: "#3DA5D9",
+  sectionTitle: "#716E6E",
+  navigateToEntityEnterkey: "#090707",
+  primaryBgColor: "#ffffff",
+  primaryTextColor: "#090707",
+  secondaryTextColor: "#4b4848",
+  primaryBorderColor: "#E0DEDE",
+  defaultIconsColor: "#716e6e",
+  snippets: {
+    refinementPillsColor: "#4b4848",
+    refinementPillsBg: "white",
+    filterListBackground: lightShades[0],
+    filterBtnText: lightShades[8],
+    filterBtnBg: "#FAFAFA",
+    codeContainerBorder: "#E0DEDE",
+  },
 };
 
 const mentionsInput = {
@@ -1177,7 +1473,57 @@ const mentionsInput = {
   mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
+const actionSidePane = {
+  noConnections: "#f0f0f0",
+  noConnectionsText: "#e0dede",
+  connectionBorder: "rgba(0, 0, 0, 0.5)",
+  connectionHover: "#6a86ce",
+  collapsibleIcon: Colors.CODE_GRAY,
+};
+const navigationMenu = {
+  contentActive: "#F0F0F0",
+  backgroundActive: "#222222",
+  contentInactive: "#858282",
+  backgroundInactive: "#090707",
+  label: "#A9A7A7",
+  warning: "#EABB0C",
+  warningBackground: "#3A3628",
+};
+
+const guidedTour = {
+  runButton: "#f86a2b",
+  cancelButton: {
+    color: "#716e6e",
+    borderColor: "#716e6e",
+    hoverBackgroundColor: "#f1f1f1",
+  },
+  endButton: {
+    backgroundColor: "#f22b2b",
+    borderColor: "#f22b2b",
+    hoverBackgroundColor: "#f34040",
+  },
+  endTourButton: {
+    color: "#4b4848",
+    hoverColor: "#928f8f",
+  },
+  card: {
+    borderBottom: "#eeeeee",
+    background: "#ffefdb",
+  },
+  stepCountBackground: "#090707",
+};
+
+const numberedStep = {
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
+};
+
 export const dark: ColorType = {
+  editorBottomBar,
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
+  overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
   showcaseCarousel,
@@ -1187,6 +1533,7 @@ export const dark: ColorType = {
   helpModal,
   globalSearch,
   comments,
+  navigationMenu,
   selected: darkShades[10],
   header: {
     separator: darkShades[4],
@@ -1203,6 +1550,110 @@ export const dark: ColorType = {
   },
   button: {
     disabledText: darkShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
+    },
+    primary: {
+      primary: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      tertiary: {
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      primary: {
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
+      },
+      tertiary: {
+        hoverColor: Colors.WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      primary: {
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
+      },
+      tertiary: {
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      primary: {
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
+      },
+      tertiary: {
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      primary: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      tertiary: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        dark: {
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
+        light: {
+          textColor: Colors.WHITE,
+        },
+      },
+    },
+    link: {
+      main: "#D4D4D4",
+      hover: "#FFFFFF",
+      active: "#2B2B2B",
+      disabled: "#202021",
+    },
   },
   tertiary: {
     main: "#D4D4D4",
@@ -1290,10 +1741,18 @@ export const dark: ColorType = {
     header: {
       text: darkShades[7],
       disabledText: darkShades[6],
+      defaultBg: "#090707",
       bg: "#090707",
       disabledBg: darkShades[2],
     },
-    menuBg: darkShades[3],
+    menu: {
+      border: darkShades[3],
+      bg: darkShades[3],
+      text: darkShades[9],
+      hover: darkShades[4],
+      hoverText: darkShades[9],
+      subText: darkShades[9],
+    },
     menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: darkShades[9],
@@ -1322,6 +1781,7 @@ export const dark: ColorType = {
       off: darkShades[5],
     },
     spinner: darkShades[6],
+    spinnerBg: darkShades[4],
   },
   textInput: {
     disable: {
@@ -1335,11 +1795,17 @@ export const dark: ColorType = {
       text: darkShades[7],
     },
     placeholder: darkShades[5],
+    helper: darkShades[5],
+    icon: darkShades[7],
     readOnly: {
       bg: darkShades[0],
       border: darkShades[0],
       text: darkShades[7],
     },
+    hover: {
+      bg: darkShades[0],
+    },
+    caretColor: Colors.WHITE,
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -1371,9 +1837,11 @@ export const dark: ColorType = {
   },
   tabs: {
     normal: darkShades[6],
+    icon: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
     countBg: darkShades[4],
+    selected: Colors.CRUSTA,
   },
   settingHeading: darkShades[9],
   table: {
@@ -1399,6 +1867,7 @@ export const dark: ColorType = {
       textColor: darkShades[8],
       orgColor: darkShades[9],
     },
+    cardMenuIcon: darkShades[7],
   },
   switch: {
     border: darkShades[5],
@@ -1421,6 +1890,7 @@ export const dark: ColorType = {
     bg: darkShades[1],
     headerText: darkShades[9],
     iconColor: "#6D6D6D",
+    iconBg: darkShades[12],
     user: {
       textColor: darkShades[7],
     },
@@ -1442,7 +1912,7 @@ export const dark: ColorType = {
     },
     text: darkShades[9],
     placeholder: darkShades[5],
-    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+    shadow: "none",
   },
   callout: {
     info: {
@@ -1480,6 +1950,7 @@ export const dark: ColorType = {
   },
   toast: {
     undo: "#CB4810",
+    undoRedoColor: "#F8682B",
     warningColor: "#E0B30E",
     dangerColor: "#E22C2C",
     textColor: "#090707",
@@ -1547,6 +2018,7 @@ export const dark: ColorType = {
     tagBackground: "#e22c2c",
     backgroundColor: darkShades[3],
     iconColor: darkShades[6],
+    borderColor: darkShades[7],
   },
   auth,
   formMessage,
@@ -1590,6 +2062,14 @@ export const dark: ColorType = {
     dropdownSelectBg: darkShades[2],
     multiDropdownBoxHoverBg: darkShades[0],
     iconColor: darkShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
@@ -1602,12 +2082,17 @@ export const dark: ColorType = {
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
     message: "#D4D4D4",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#D4D4D4",
@@ -1620,26 +2105,74 @@ export const dark: ColorType = {
       borderBottom: "black",
     },
     warning: {
+      iconColor: "#f3cc3e",
+      hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
+      iconColor: "#f56060",
+      hoverIconColor: "#F22B2B",
       borderBottom: "black",
       backgroundColor: "#291B1D",
     },
   },
+  guidedTour,
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
+  actionSidePane,
+  pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const light: ColorType = {
+  editorBottomBar,
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
+  overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,
   reactionsComponent,
   mentionsInput,
-  helpModal,
-  globalSearch,
-  comments,
+  helpModal: {
+    itemHighlight: "#EBEBEB",
+    background: "#FFFFFF",
+  },
+  globalSearch: {
+    ...globalSearch,
+    helpBarBackground: "#F0F0F0",
+    helpBarText: "#A9A7A7",
+    helpButtonBackground: "#F0F0F0",
+    helpIcon: "#939090",
+  },
+  comments: {
+    ...comments,
+    activeModeBackground: "#EBEBEB",
+    activeModeIcon: "#4B4848",
+    modeIcon: "#858282",
+    modeIconCircleStroke: "#fff",
+    activeModeIconCircleStroke: "#EBEBEB",
+  },
+  navigationMenu: {
+    contentActive: "#090707",
+    backgroundActive: "#EBEBEB",
+    contentInactive: "#4B4848",
+    backgroundInactive: "#FFFFFF",
+    label: "#A9A7A7",
+    warning: "#F22B2B",
+    warningBackground: "#FFFFFF",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -1655,14 +2188,118 @@ export const light: ColorType = {
     activeTabText: "#000",
   },
   button: {
-    disabledText: lightShades[6],
+    disabledText: lightShades[15],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
+    },
+    primary: {
+      primary: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      tertiary: {
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      primary: {
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
+      },
+      tertiary: {
+        hoverColor: Colors.WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      primary: {
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
+      },
+      tertiary: {
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      primary: {
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
+      },
+      tertiary: {
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      primary: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      secondary: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      tertiary: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        dark: {
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
+        light: {
+          textColor: Colors.WHITE,
+        },
+      },
+    },
+    link: {
+      main: "#716E6E",
+      hover: "#090707",
+      active: "#4B4848",
+      disabled: "#858282",
+    },
   },
   tertiary: {
-    main: "#716E6E",
+    main: "#606065",
     light: "#090707",
-    dark: "#F7F7F7",
-    darker: "#E8E8E8",
-    darkest: "#939090",
+    dark: "#FAFAFA",
+    darker: "#EDEDED",
+    darkest: "#A9A7A7",
   },
   info: {
     main: "#F86A2B",
@@ -1675,24 +2312,24 @@ export const light: ColorType = {
     main: "#03B365",
     light: "#007340",
     dark: "#00693B",
-    darker: "#DEFFF0",
-    darkest: "#CBF4E2",
+    darker: "#CBF4E2",
+    darkest: "#D9FDED",
   },
   warning: {
-    main: "#FECB11",
-    light: "#D1A606",
-    dark: "#D9AC07",
-    darker: "#FFFBEF",
-    darkest: "#FECB11",
+    main: "#FEB811",
+    light: "#EFA903",
+    dark: "#EFA903",
+    darker: "#FBEED0",
+    darkest: "#FFFAE9",
   },
   danger: {
     main: "#F22B2B",
-    light: "#C60707",
-    dark: "#B90707",
-    darker: "#FFF0F0",
-    darkest: "#FDE4E4",
+    light: "#B90707",
+    dark: "#C60707",
+    darker: "#FDE4E4",
+    darkest: "#FFE9E9",
   },
-  homepageBackground: "#fafafa",
+  homepageBackground: "#ffffff",
   card: {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
@@ -1730,73 +2367,89 @@ export const light: ColorType = {
   },
   colorSelector: {
     shadow: lightShades[3],
-    checkmark: lightShades[11],
+    checkmark: lightShades[16],
   },
   checkbox: {
     disabled: lightShades[3],
-    unchecked: lightShades[4],
+    unchecked: lightShades[5],
     disabledCheck: lightShades[6],
     normalCheck: lightShades[11],
     labelColor: lightShades[9],
   },
   dropdown: {
     header: {
-      text: lightShades[9],
+      text: lightShades[8],
       disabledText: darkShades[6],
-      bg: lightShades[2],
+      defaultBg: lightShades[11],
+      bg: lightShades[14],
       disabledBg: lightShades[1],
     },
-    menuBg: lightShades[11],
-    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menu: {
+      border: lightShades[13],
+      bg: lightShades[0],
+      text: lightShades[8],
+      hover: lightShades[2],
+      hoverText: lightShades[10],
+      subText: lightShades[15],
+    },
+    menuShadow: "0px 6px 20px rgba(0, 0, 0, 0.15)",
     selected: {
-      text: lightShades[9],
-      bg: lightShades[2],
-      icon: lightShades[8],
+      text: lightShades[10],
+      bg: lightShades[14],
+      icon: lightShades[15],
+      subtext: lightShades[7],
     },
     hovered: {
-      text: lightShades[11],
-      bg: lightShades[12],
+      text: lightShades[10],
+      bg: lightShades[14],
       icon: lightShades[11],
     },
     icon: lightShades[7],
   },
   toggle: {
-    bg: lightShades[4],
+    bg: lightShades[13],
     hover: {
-      on: "#E4500E",
+      on: "#BF4109",
       off: lightShades[5],
     },
     disable: {
-      on: "#FDE0D2",
-      off: lightShades[3],
+      on: "#FEEDE5",
+      off: lightShades[13],
     },
     disabledSlider: {
       off: lightShades[11],
       on: lightShades[11],
     },
-    spinner: lightShades[6],
+    spinner: lightShades[5],
+    spinnerBg: lightShades[3],
   },
   textInput: {
     disable: {
-      bg: lightShades[1],
-      text: darkShades[6],
-      border: lightShades[1],
-    },
-    normal: {
       bg: lightShades[2],
-      text: lightShades[9],
+      text: darkShades[5],
       border: lightShades[2],
     },
-    placeholder: lightShades[7],
+    normal: {
+      bg: lightShades[11],
+      text: lightShades[10],
+      border: lightShades[13],
+    },
+    placeholder: lightShades[5],
+    helper: lightShades[15],
+    icon: lightShades[7],
     readOnly: {
       bg: lightShades[2],
       border: lightShades[2],
       text: lightShades[7],
     },
+    hover: {
+      bg: lightShades[0],
+    },
+    caretColor: Colors.BLACK,
   },
   menuBorder: lightShades[3],
   editableText: {
-    color: lightShades[10],
+    color: lightShades[8],
     bg: lightShades[2],
     dangerBg: "rgba(242, 43, 43, 0.06)",
   },
@@ -1808,11 +2461,11 @@ export const light: ColorType = {
   searchInput: {
     placeholder: lightShades[6],
     text: lightShades[10],
-    border: lightShades[3],
-    bg: lightShades[1],
+    border: lightShades[13],
+    bg: lightShades[11],
     icon: {
-      focused: lightShades[7],
-      normal: lightShades[5],
+      focused: lightShades[10],
+      normal: lightShades[7],
     },
   },
   spinner: lightShades[6],
@@ -1823,12 +2476,14 @@ export const light: ColorType = {
     shadow: "rgba(0, 0, 0, 0.32)",
   },
   tabs: {
-    normal: lightShades[6],
-    hover: lightShades[10],
+    normal: lightShades[15],
+    icon: lightShades[10],
+    hover: lightShades[8],
     border: lightShades[3],
     countBg: lightShades[3],
+    selected: Colors.CRUSTA,
   },
-  settingHeading: lightShades[9],
+  settingHeading: lightShades[16],
   table: {
     headerBg: lightShades[1],
     headerText: lightShades[6],
@@ -1852,6 +2507,7 @@ export const light: ColorType = {
       textColor: lightShades[8],
       orgColor: lightShades[9],
     },
+    cardMenuIcon: lightShades[17],
   },
   switch: {
     border: lightShades[5],
@@ -1863,8 +2519,8 @@ export const light: ColorType = {
     darkText: lightShades[6],
   },
   queryTemplate: {
-    bg: lightShades[3],
-    color: lightShades[7],
+    bg: lightShades[11],
+    color: lightShades[8],
   },
   profileDropdown: {
     name: lightShades[10],
@@ -1874,6 +2530,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     headerText: lightShades[10],
     iconColor: lightShades[5],
+    iconBg: lightShades[18],
     user: {
       textColor: lightShades[9],
     },
@@ -1889,13 +2546,13 @@ export const light: ColorType = {
     hoverState: lightShades[3],
   },
   tagInput: {
-    bg: lightShades[2],
+    bg: lightShades[11],
     tag: {
       text: lightShades[11],
     },
     text: lightShades[9],
     placeholder: darkShades[7],
-    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+    shadow: "none",
   },
   callout: {
     info: {
@@ -1933,6 +2590,7 @@ export const light: ColorType = {
   },
   toast: {
     undo: "#F86A2B",
+    undoRedoColor: "#F8682B",
     warningColor: "#DCAD00",
     dangerColor: "#F22B2B",
     textColor: "#F7F7F7",
@@ -1945,10 +2603,10 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[0],
+    bg: lightShades[11],
     tabBg: lightShades[11],
-    text: lightShades[15],
-    dividerBg: lightShades[3],
+    text: lightShades[16],
+    dividerBg: lightShades[13],
     iconHoverBg: lightShades[1],
     requestTree: {
       bg: lightShades[11],
@@ -1968,13 +2626,13 @@ export const light: ColorType = {
       bg: lightShades[11],
     },
     codeEditor: {
-      placeholderColor: lightShades[5],
+      placeholderColor: lightShades[15],
     },
     body: {
       text: "#A9A7A7",
     },
     settings: {
-      textColor: "#090707",
+      textColor: lightShades[10],
     },
     pagination: {
       label: lightShades[8],
@@ -1998,8 +2656,9 @@ export const light: ColorType = {
   },
   floatingBtn: {
     tagBackground: "#e22c2c",
-    backgroundColor: lightShades[3],
+    backgroundColor: lightShades[0],
     iconColor: lightShades[7],
+    borderColor: lightShades[14],
   },
   auth,
   formMessage,
@@ -2044,6 +2703,14 @@ export const light: ColorType = {
     dropdownSelectBg: lightShades[14],
     multiDropdownBoxHoverBg: lightShades[11],
     iconColor: lightShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",
@@ -2056,12 +2723,17 @@ export const light: ColorType = {
     entityLink: "#6d6d6d",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#090707",
@@ -2074,13 +2746,31 @@ export const light: ColorType = {
       borderBottom: "rgba(0, 0, 0, 0.05)",
     },
     warning: {
+      iconColor: "#f3cc3e",
+      hoverIconColor: "#e0b30e",
       borderBottom: "white",
       backgroundColor: "rgba(254, 184, 17, 0.1)",
     },
     error: {
+      iconColor: "#f56060",
+      hoverIconColor: "#F22B2B",
       borderBottom: "white",
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
+  },
+  guidedTour,
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
+  actionSidePane,
+  pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
   },
 };
 
@@ -2089,129 +2779,12 @@ export const theme: Theme = {
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36, 38, 40, 42, 44],
   fontWeights: [0, 400, 500, 700],
-  typography: {
-    h1: {
-      fontSize: 20,
-      lineHeight: 27,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h2: {
-      fontSize: 18,
-      lineHeight: 25,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h3: {
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h4: {
-      fontSize: 16,
-      lineHeight: 21,
-      letterSpacing: -0.24,
-      fontWeight: 500,
-    },
-    h5: {
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.24,
-      fontWeight: 500,
-    },
-    h6: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.8,
-      fontWeight: 500,
-    },
-    p1: {
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    p2: {
-      fontSize: 13,
-      lineHeight: 17,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    p3: {
-      fontSize: 12,
-      lineHeight: 16,
-      letterSpacing: -0.221538,
-      fontWeight: "normal",
-    },
-    btnLarge: {
-      fontSize: 13,
-      lineHeight: 15,
-      letterSpacing: 0.6,
-      fontWeight: 600,
-    },
-    btnMedium: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.6,
-      fontWeight: 600,
-    },
-    btnSmall: {
-      fontSize: 11,
-      lineHeight: 12,
-      letterSpacing: 0.4,
-      fontWeight: 600,
-    },
-    floatingBtn: {
-      fontSize: 14,
-      lineHeight: 17,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    releaseList: {
-      fontSize: 14,
-      lineHeight: 23,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    cardHeader: {
-      fontStyle: "normal",
-      fontWeight: 600,
-      fontSize: 25,
-      lineHeight: 20,
-    },
-    cardSubheader: {
-      fontStyle: "normal",
-      fontWeight: "normal",
-      fontSize: 15,
-      lineHeight: 20,
-    },
-    largeH1: {
-      fontStyle: "normal",
-      fontWeight: "bold",
-      fontSize: 28,
-      lineHeight: 36,
-    },
-    spacedOutP1: {
-      fontStyle: "normal",
-      fontWeight: "normal",
-      fontSize: 14,
-      lineHeight: 24,
-    },
-  },
-  iconSizes: {
-    XXS: 8,
-    XS: 10,
-    SMALL: 12,
-    MEDIUM: 14,
-    LARGE: 15,
-    XL: 16,
-    XXL: 18,
-    XXXL: 20,
-  },
+  typography: typography,
+  iconSizes: iconSizes,
   propertyPane: {
     width: 270,
     titleHeight: 40,
+    connectionsHeight: 30,
     height: 600,
     dividerColor: Colors.MAKO,
   },
@@ -2235,7 +2808,7 @@ export const theme: Theme = {
     secondary: Colors.GEYSER_LIGHT,
     secondaryDarker: Colors.CONCRETE,
     secondaryDarkest: Colors.MERCURY,
-    error: Colors.RED,
+    error: Colors.ERROR_RED,
     infoOld: Colors.SLATE_GRAY,
     errorMessage: Colors.ERROR_RED,
     hover: Colors.POLAR,
@@ -2243,6 +2816,8 @@ export const theme: Theme = {
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
+    textOnGreyBG: Colors.CHARCOAL,
+    textOnWhiteBG: Colors.CODE_GRAY,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -2259,7 +2834,9 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
+    widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
+    widgetLightBorder: Colors.WHITE_SMOKE,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
@@ -2282,6 +2859,10 @@ export const theme: Theme = {
     scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
     scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
     dropdownIconBg: Colors.ALTO2,
+    welcomeTourStickySidebarColor: Colors.WHITE,
+    welcomeTourStickySidebarBackground: "#F86A2B",
+    dropdownIconDarkBg: Colors.DARK_GRAY,
+    dropdownGreyBg: Colors.Gallery,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
@@ -2318,20 +2899,26 @@ export const theme: Theme = {
   ],
   sidebarWidth: "250px",
   homePage: {
-    header: 52,
+    header: 48,
     leftPane: {
       width: 240,
       leftPadding: 16,
-      rightMargin: 113,
+      rightMargin: 12,
     },
     search: {
       height: 68,
       paddingTop: 30,
     },
+    sidebar: 256,
   },
   headerHeight: "48px",
-  smallHeaderHeight: "35px",
-  canvasPadding: "0 0 200px 0",
+  smallHeaderHeight: "34px",
+  bottomBarHeight: "34px",
+  integrationsPageUnusableHeight: "182px",
+  backBanner: "30px",
+  canvasBottomPadding: 200,
+  navbarMenuHeight: "35px",
+  navbarMenuLineHeight: "25px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2341,8 +2928,8 @@ export const theme: Theme = {
     navItemHeight: 42,
   },
   card: {
-    minWidth: 150,
-    minHeight: 150,
+    minWidth: 228,
+    minHeight: 124,
     titleHeight: 48,
     divider: {
       thickness: 1,
@@ -2352,10 +2939,12 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: lightShades[12],
-      hoverText: lightShades[0],
-      inActiveBG: lightShades[3],
-      inActiveText: lightShades[8],
+      hoverBG: lightShades[2],
+      hoverText: lightShades[10],
+      inActiveBG: lightShades[2],
+      inActiveText: lightShades[10],
+      border: Colors.WHITE,
+      background: Colors.WHITE,
     },
     [Skin.DARK]: {
       hoverBG: darkShades[0],
@@ -2385,6 +2974,8 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  tabPanelHeight: 34,
+  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,
@@ -2393,7 +2984,7 @@ export const theme: Theme = {
       color: Colors.OCEAN_GREEN,
     },
     error: {
-      color: Colors.RED,
+      color: Colors.ERROR_RED,
     },
     warning: {
       color: Colors.BUTTER_CUP,
@@ -2436,6 +3027,17 @@ export const theme: Theme = {
         background: "transparent",
       },
     },
+  },
+  actionSidePane: {
+    width: 265,
+  },
+  onboarding: {
+    statusBarHeight: 83,
+  },
+  settings: {
+    footerHeight: 84,
+    footerShadow: "0px 0px 18px -6px rgb(0, 0, 0, 0.25)",
+    linkBg: lightShades[2],
   },
 };
 

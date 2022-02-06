@@ -5,7 +5,7 @@ import { reduxForm } from "redux-form";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 
-import FormDisplayImage from "./FormDisplayImage";
+import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
 
 import { createMessage, DISPLAY_NAME, EMAIL_ADDRESS } from "constants/messages";
 import styled from "styled-components";
@@ -24,7 +24,7 @@ const Container = styled.div`
 
 export const PROFILE_FORM = "PROFILE_FORM";
 
-const fieldNames = {
+export const fieldNames = {
   displayName: "displayName",
   emailAddress: "emailAddress",
 };
@@ -48,13 +48,14 @@ function ProfileForm(props: any) {
   return (
     <Container>
       <div style={{ marginBottom: 10 }}>
-        <FormDisplayImage />
+        <UserProfileImagePicker />
       </div>
       <FormGroup label={createMessage(DISPLAY_NAME)}>
         <FormTextField
+          autoFocus
           hideErrorMessage
           name={fieldNames.displayName}
-          placeholder={createMessage(DISPLAY_NAME)}
+          placeholder=""
         />
       </FormGroup>
       <FormGroup label={createMessage(EMAIL_ADDRESS)}>

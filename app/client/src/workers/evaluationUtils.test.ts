@@ -1,8 +1,108 @@
-import { addFunctions, getAllPaths } from "./evaluationUtils";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { PluginType } from "entities/Action";
+import { RenderModes } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  DataTreeWidget,
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+  PrivateWidgets,
+} from "entities/DataTree/dataTreeFactory";
+import {
+  getAllPaths,
+  getAllPrivateWidgetsInDataTree,
+  getDataTreeWithoutPrivateWidgets,
+  isPrivateEntityPath,
+} from "./evaluationUtils";
 
-describe("getAllPaths", () => {
+const BASE_WIDGET: DataTreeWidget = {
+  logBlackList: {},
+  widgetId: "randomID",
+  widgetName: "randomWidgetName",
+  bottomRow: 0,
+  isLoading: false,
+  leftColumn: 0,
+  parentColumnSpace: 0,
+  parentRowSpace: 0,
+  renderMode: RenderModes.CANVAS,
+  rightColumn: 0,
+  topRow: 0,
+  type: "SKELETON_WIDGET",
+  parentId: "0",
+  version: 1,
+  bindingPaths: {},
+  triggerPaths: {},
+  validationPaths: {},
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  privateWidgets: {},
+};
+
+const testDataTree: Record<string, DataTreeWidget> = {
+  Text1: {
+    ...BASE_WIDGET,
+    widgetName: "Text1",
+    text: "Label",
+    type: "TEXT_WIDGET",
+    bindingPaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  Text2: {
+    ...BASE_WIDGET,
+    widgetName: "Text2",
+    text: "{{Text1.text}}",
+    dynamicBindingPathList: [{ key: "text" }],
+    type: "TEXT_WIDGET",
+    bindingPaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  Text3: {
+    ...BASE_WIDGET,
+    widgetName: "Text3",
+    text: "{{Text1.text}}",
+    dynamicBindingPathList: [{ key: "text" }],
+    type: "TEXT_WIDGET",
+    bindingPaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  Text4: {
+    ...BASE_WIDGET,
+    widgetName: "Text4",
+    text: "{{Text1.text}}",
+    dynamicBindingPathList: [{ key: "text" }],
+    type: "TEXT_WIDGET",
+    bindingPaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+
+  List1: {
+    ...BASE_WIDGET,
+    privateWidgets: {
+      Text2: true,
+    },
+  },
+  List2: {
+    ...BASE_WIDGET,
+    privateWidgets: {
+      Text3: true,
+    },
+  },
+};
+
+describe("Correctly handle paths", () => {
   it("getsAllPaths", () => {
     const myTree = {
       WidgetName: {
@@ -42,178 +142,90 @@ describe("getAllPaths", () => {
   });
 });
 
-describe("Add functions", () => {
-  it("adds functions correctly", () => {
-    const dataTree: DataTree = {
-      action1: {
-        actionId: "123",
-        data: {},
-        config: {},
-        pluginType: PluginType.API,
-        dynamicBindingPathList: [],
-        name: "action1",
-        bindingPaths: {},
-        isLoading: false,
-        run: {},
-        responseMeta: { isExecutionSuccess: false },
-        ENTITY_TYPE: ENTITY_TYPE.ACTION,
-        dependencyMap: {},
+describe("privateWidgets", () => {
+  it("correctly checks if path is a PrivateEntityPath", () => {
+    const privateWidgets: PrivateWidgets = {
+      Button1: true,
+      Image1: true,
+      Button2: true,
+      Image2: true,
+    };
+
+    expect(
+      isPrivateEntityPath(privateWidgets, "List1.template.Button1.text"),
+    ).toBeFalsy();
+    expect(isPrivateEntityPath(privateWidgets, "Button1.text")).toBeTruthy();
+    expect(
+      isPrivateEntityPath(privateWidgets, "List2.template.Image2.data"),
+    ).toBeFalsy();
+    expect(isPrivateEntityPath(privateWidgets, "Image2.data")).toBeTruthy();
+  });
+
+  it("Returns list of all privateWidgets", () => {
+    const expectedPrivateWidgetsList = {
+      Text2: true,
+      Text3: true,
+    };
+
+    const actualPrivateWidgetsList = getAllPrivateWidgetsInDataTree(
+      testDataTree,
+    );
+
+    expect(expectedPrivateWidgetsList).toStrictEqual(actualPrivateWidgetsList);
+  });
+
+  it("Returns data tree without privateWidgets", () => {
+    const expectedDataTreeWithoutPrivateWidgets: Record<
+      string,
+      DataTreeWidget
+    > = {
+      Text1: {
+        ...BASE_WIDGET,
+        widgetName: "Text1",
+        text: "Label",
+        type: "TEXT_WIDGET",
+        bindingPaths: {
+          text: EvaluationSubstitutionType.TEMPLATE,
+        },
+        validationPaths: {
+          text: { type: ValidationTypes.TEXT },
+        },
+      },
+
+      Text4: {
+        ...BASE_WIDGET,
+        widgetName: "Text4",
+        text: "{{Text1.text}}",
+        dynamicBindingPathList: [{ key: "text" }],
+        type: "TEXT_WIDGET",
+        bindingPaths: {
+          text: EvaluationSubstitutionType.TEMPLATE,
+        },
+        validationPaths: {
+          text: { type: ValidationTypes.TEXT },
+        },
+      },
+
+      List1: {
+        ...BASE_WIDGET,
+        privateWidgets: {
+          Text2: true,
+        },
+      },
+      List2: {
+        ...BASE_WIDGET,
+        privateWidgets: {
+          Text3: true,
+        },
       },
     };
-    const dataTreeWithFunctions = addFunctions(dataTree);
-    expect(dataTreeWithFunctions.actionPaths).toStrictEqual([
-      "action1.run",
-      "navigateTo",
-      "showAlert",
-      "showModal",
-      "closeModal",
-      "storeValue",
-      "download",
-      "copyToClipboard",
-      "resetWidget",
-    ]);
 
-    // Action run
-    const onSuccess = "() => {successRun()}";
-    const onError = "() => {failureRun()}";
-    const actionParams = "{ param1: value1 }";
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const actionRunResponse = dataTreeWithFunctions.action1.run(
-      onSuccess,
-      onError,
-      actionParams,
+    const actualDataTreeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+      testDataTree,
     );
-    expect(actionRunResponse).toStrictEqual({
-      type: "RUN_ACTION",
-      payload: {
-        actionId: "123",
-        onSuccess: `{{${onSuccess}}}`,
-        onError: `{{${onError}}}`,
-        params: actionParams,
-      },
-    });
 
-    // Navigate To
-    const pageNameOrUrl = "www.google.com";
-    const params = "{ param1: value1 }";
-    const target = "NEW_WINDOW";
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const navigateToResponse = dataTreeWithFunctions.navigateTo(
-      pageNameOrUrl,
-      params,
-      target,
+    expect(expectedDataTreeWithoutPrivateWidgets).toStrictEqual(
+      actualDataTreeWithoutPrivateWidgets,
     );
-    expect(navigateToResponse).toStrictEqual({
-      type: "NAVIGATE_TO",
-      payload: {
-        pageNameOrUrl,
-        params,
-        target,
-      },
-    });
-
-    // Show alert
-    const message = "Alert message";
-    const style = "info";
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const showAlertResponse = dataTreeWithFunctions.showAlert(message, style);
-    expect(showAlertResponse).toStrictEqual({
-      type: "SHOW_ALERT",
-      payload: {
-        message,
-        style,
-      },
-    });
-
-    // Show Modal
-    const modalName = "Modal 1";
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const showModalResponse = dataTreeWithFunctions.showModal(modalName);
-    expect(showModalResponse).toStrictEqual({
-      type: "SHOW_MODAL_BY_NAME",
-      payload: {
-        modalName,
-      },
-    });
-
-    // Close Modal
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const closeModalResponse = dataTreeWithFunctions.closeModal(modalName);
-    expect(closeModalResponse).toStrictEqual({
-      type: "CLOSE_MODAL",
-      payload: {
-        modalName,
-      },
-    });
-
-    // Store value
-    const key = "some";
-    const value = "thing";
-    const persist = false;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const storeValueResponse = dataTreeWithFunctions.storeValue(
-      key,
-      value,
-      persist,
-    );
-    expect(storeValueResponse).toStrictEqual({
-      type: "STORE_VALUE",
-      payload: {
-        key,
-        value,
-        persist,
-      },
-    });
-
-    // Download
-    const data = "file";
-    const name = "downloadedFile.txt";
-    const type = "text";
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const downloadResponse = dataTreeWithFunctions.download(data, name, type);
-    expect(downloadResponse).toStrictEqual({
-      type: "DOWNLOAD",
-      payload: {
-        data,
-        name,
-        type,
-      },
-    });
-
-    // copy to clipboard
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const copyToClipboardResponse = dataTreeWithFunctions.copyToClipboard(data);
-    expect(copyToClipboardResponse).toStrictEqual({
-      type: "COPY_TO_CLIPBOARD",
-      payload: {
-        data,
-        options: { debug: undefined, format: undefined },
-      },
-    });
-
-    // reset widget
-    const widgetName = "widget1";
-    const resetChildren = true;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const resetWidgetResponse = dataTreeWithFunctions.resetWidget(
-      widgetName,
-      resetChildren,
-    );
-    expect(resetWidgetResponse).toStrictEqual({
-      type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
-      payload: {
-        widgetName,
-        resetChildren,
-      },
-    });
   });
 });

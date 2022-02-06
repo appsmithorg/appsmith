@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -8,7 +8,10 @@ import {
   Classes,
 } from "@blueprintjs/core";
 import { ReactComponent as CheckedIcon } from "assets/icons/control/checkmark.svg";
+import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce } from "lodash";
+import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const ColorIcon = styled.div<{ color: string }>`
   width: 24px;
@@ -16,9 +19,18 @@ const ColorIcon = styled.div<{ color: string }>`
   border: 3px solid ${(props) => props.theme.colors.propertyPane.bg};
   position: absolute;
   z-index: 1;
-  top: 3px;
-  left: 3px;
+  top: 6px;
+  left: 6px;
   background: ${(props) => (props.color ? props.color : "transparent")};
+`;
+
+const ColorPickerIconContainer = styled.div`
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  height: 24px;
+  width: 24px;
+  z-index: 1;
 `;
 
 const StyledInputGroup = styled(InputGroup)`
@@ -26,15 +38,20 @@ const StyledInputGroup = styled(InputGroup)`
     box-shadow: none;
     border-radius: 0;
     &:focus {
-      border: 1px solid ${(props) => props.theme.colors.info.main};
       box-shadow: none;
     }
   }
   &&& input {
     padding-left: 36px;
+    height: 36px;
+    border: 1px solid ${Colors.GREY_5};
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
+
+    &:focus {
+      border: 1px solid var(--appsmith-input-focus-border-color);
+    }
   }
 `;
 
@@ -64,14 +81,16 @@ const ColorTab = styled.div<{ color: string }>`
 `;
 
 const defaultColors: string[] = [
-  "rgb(3, 179, 101)",
+  "#03b365",
   "#FFC13D",
   "#38AFF4",
   "#DD4B34",
   "#3366FF",
   "#2E3D49",
   "#F6F7F8",
+  "#FFFFFF",
   "#231F20",
+  "#F86A2B",
 ];
 
 interface ColorBoardProps {
@@ -115,20 +134,6 @@ function ColorBoard(props: ColorBoardProps) {
   );
 }
 
-const NoColorIconWrapper = styled.div`
-  position: absolute;
-  z-index: 1;
-  top: 3px;
-  left: 3px;
-  width: 24px;
-  height: 24px;
-  .line {
-    left: 8px;
-    top: -4px;
-    height: 26px;
-  }
-`;
-
 const NoColorIcon = styled.div`
   width: 100%;
   height: 100%;
@@ -159,6 +164,15 @@ function ColorPickerComponent(props: ColorPickerProps) {
     debouncedOnChange(value);
     setColor(value);
   };
+
+  // if props.color changes and state color is different,
+  // sets the state color to props color
+  useEffect(() => {
+    if (props.color !== color) {
+      setColor(props.color);
+    }
+  }, [props.color]);
+
   return (
     <Popover
       enforceFocus={false}
@@ -173,20 +187,19 @@ function ColorPickerComponent(props: ColorPickerProps) {
       usePortal
     >
       <StyledInputGroup
+        className={replayHighlightClass}
         leftIcon={
           color ? (
             <ColorIcon color={color} />
           ) : (
-            <NoColorIconWrapper>
-              <NoColorIcon>
-                <div className="line" />
-              </NoColorIcon>
-            </NoColorIconWrapper>
+            <ColorPickerIconContainer>
+              <ColorPickerIcon />
+            </ColorPickerIconContainer>
           )
         }
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
-        value={color}
+        value={color || ""}
       />
       <ColorBoard
         selectColor={(color) => {

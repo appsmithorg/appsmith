@@ -16,6 +16,7 @@ interface Props {
   };
   height: string;
   folding: boolean;
+  showLineNumbers?: boolean;
 }
 
 function ReadOnlyEditor(props: Props) {
@@ -29,7 +30,9 @@ function ReadOnlyEditor(props: Props) {
     theme: EditorTheme.LIGHT,
     height: props.height,
     showLightningMenu: false,
-    showLineNumbers: true,
+    showLineNumbers: props.hasOwnProperty("showLineNumbers")
+      ? props.showLineNumbers
+      : true,
     borderLess: true,
     folding: props.folding,
   };

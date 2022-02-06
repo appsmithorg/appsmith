@@ -2,7 +2,6 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,15 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
-import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.BSON;
-import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
-import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
-import static com.external.plugins.constants.ConfigurationIndex.DELETE_LIMIT;
-import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
+import static com.external.plugins.constants.FieldName.DELETE_QUERY;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 
 @Getter
 @Setter
@@ -35,15 +34,14 @@ public class Delete extends MongoCommand {
     public Delete(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, DELETE_QUERY)) {
-            this.query = (String) pluginSpecifiedTemplates.get(DELETE_QUERY).getValue();
+        if (validConfigurationPresentInFormData(formData, DELETE_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, DELETE_QUERY);
         }
 
-        // Default for this is 1 to indicate deleting only one document at a time.
-        if (validConfigurationPresent(pluginSpecifiedTemplates, DELETE_LIMIT)) {
-            String limitOption = (String) pluginSpecifiedTemplates.get(DELETE_LIMIT).getValue();
+        if (validConfigurationPresentInFormData(formData, DELETE_LIMIT)) {
+            String limitOption = (String) getValueSafelyFromFormData(formData, DELETE_LIMIT);
             if ("ALL".equals(limitOption)) {
                 this.limit = 0;
             }
@@ -56,6 +54,7 @@ public class Delete extends MongoCommand {
             if (!StringUtils.isNullOrEmpty(query)) {
                 return Boolean.TRUE;
             } else {
+                // Not adding smart defaults for query due to data impact
                 fieldNamesWithNoConfiguration.add("Query");
             }
         }
@@ -86,16 +85,13 @@ public class Delete extends MongoCommand {
     public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
         String collectionName = (String) templateConfiguration.get("collectionName");
 
-        Map<Integer, Object> configMap = new HashMap<>();
+        Map<String, Object> configMap = new HashMap<>();
 
-        configMap.put(BSON, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "DELETE");
-        configMap.put(COLLECTION, collectionName);
-        configMap.put(DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-        configMap.put(DELETE_LIMIT, "SINGLE");
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+        setValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
 
         String rawQuery = "{\n" +
                 "  \"delete\": \"" + collectionName + "\",\n" +
@@ -112,7 +108,7 @@ public class Delete extends MongoCommand {
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Delete",
                 rawQuery,
-                pluginSpecifiedTemplates
+                configMap
         ));
     }
 }

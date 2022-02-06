@@ -1,13 +1,11 @@
-import React, { RefObject, useRef, useState } from "react";
+import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
-import { TabComponent } from "components/ads/Tabs";
 import Icon, { IconSize } from "components/ads/Icon";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import EntityDeps from "./EntityDependecies";
 import {
   createMessage,
@@ -15,16 +13,21 @@ import {
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
 } from "constants/messages";
+import { stopEventPropagation } from "utils/AppsmithUtils";
+import { DEBUGGER_TAB_KEYS } from "./helpers";
+import { Colors } from "constants/Colors";
+import EntityBottomTabs from "../EntityBottomTabs";
 
 const TABS_HEADER_HEIGHT = 36;
 
 const Container = styled.div`
   ${ResizerCSS}
-  position: fixed;
+  position: absolute;
   bottom: 0;
   height: 25%;
   min-height: ${TABS_HEADER_HEIGHT}px;
   background-color: ${(props) => props.theme.colors.debugger.background};
+  border-top: 1px solid ${Colors.ALTO};
 
   ul.react-tabs__tab-list {
     padding: 0px ${(props) => props.theme.spaces[12]}px;
@@ -47,45 +50,36 @@ type DebuggerTabsProps = {
 
 const DEBUGGER_TABS = [
   {
-    key: "ERROR",
+    key: DEBUGGER_TAB_KEYS.ERROR_TAB,
     title: createMessage(DEBUGGER_ERRORS),
     panelComponent: <Errors hasShortCut />,
   },
   {
-    key: "LOGS",
+    key: DEBUGGER_TAB_KEYS.LOGS_TAB,
     title: createMessage(DEBUGGER_LOGS),
     panelComponent: <DebuggerLogs hasShortCut />,
   },
   {
-    key: "INSPECT_ELEMENTS",
+    key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
     title: createMessage(INSPECT_ENTITY),
     panelComponent: <EntityDeps />,
   },
 ];
 
 function DebuggerTabs(props: DebuggerTabsProps) {
-  const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const onTabSelect = (index: number) => {
-    AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-      tabName: DEBUGGER_TABS[index].key,
-    });
-
-    setSelectedIndex(index);
-  };
   const onClose = () => dispatch(showDebugger(false));
 
   return (
-    <Container ref={panelRef}>
+    <Container onClick={stopEventPropagation} ref={panelRef}>
       <Resizer panelRef={panelRef} />
-      <TabComponent
-        onSelect={onTabSelect}
-        selectedIndex={selectedIndex}
+      <EntityBottomTabs
+        defaultIndex={props.defaultIndex}
         tabs={DEBUGGER_TABS}
       />
       <Icon
-        className="close-debugger"
+        className="close-debugger t--close-debugger"
         name="cross"
         onClick={onClose}
         size={IconSize.SMALL}

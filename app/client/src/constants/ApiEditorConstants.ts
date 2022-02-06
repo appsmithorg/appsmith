@@ -1,5 +1,5 @@
 import { ApiActionConfig } from "entities/Action";
-import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
+import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
 import { zipObject } from "lodash";
 
 export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
@@ -10,6 +10,15 @@ const HTTP_METHOD_COLORS = [
   "#E22C2C",
   "#6D6D6D",
 ];
+
+export enum API_EDITOR_TABS {
+  HEADERS = "HEADERS",
+  PARAMS = "PARAMS",
+  BODY = "BODY",
+  PAGINATION = "PAGINATION",
+  SETTINGS = "SETTINGS",
+  AUTHENTICATION = "AUTHENTICATION",
+}
 
 export const HTTP_METHOD_COLOR_MAP = zipObject(
   HTTP_METHODS,
@@ -37,7 +46,7 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   pluginSpecifiedTemplates: [
     {
       // JSON smart substitution
-      value: false,
+      value: true,
     },
   ],
 };
@@ -48,7 +57,7 @@ export const CONTENT_TYPE_HEADER_KEY = "content-type";
 export enum ApiContentTypes {
   JSON = "json",
   FORM_URLENCODED = "x-www-form-urlencoded",
-  MULTIPART_FORM_DATA = "form-data",
+  MULTIPART_FORM_DATA = "multi-part",
   RAW = "raw",
 }
 
@@ -74,3 +83,28 @@ export const POST_BODY_FORMAT_TITLES = POST_BODY_FORMAT_OPTIONS.map(
     return { title: option.label, key: option.value };
   },
 );
+
+export enum MultiPartOptionTypes {
+  TEXT = "Text",
+  FILE = "File",
+}
+
+export interface MULTI_PART_DROPDOWN_OPTION {
+  label: MultiPartOptionTypes;
+  value: string;
+}
+
+export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] = [
+  {
+    label: MultiPartOptionTypes.TEXT,
+    value: "TEXT",
+  },
+  {
+    label: MultiPartOptionTypes.FILE,
+    value: "FILE",
+  },
+];
+
+export const DEFAULT_MULTI_PART_DROPDOWN_WIDTH = "77px";
+export const DEFAULT_MULTI_PART_DROPDOWN_HEIGHT = "100%";
+export const DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER = "Type";

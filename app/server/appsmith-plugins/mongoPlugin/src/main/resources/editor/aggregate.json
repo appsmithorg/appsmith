@@ -1,0 +1,43 @@
+{
+  "identifier": "AGGREGATE",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'AGGREGATE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Collection to Query",
+      "children": [
+        {
+          "label": "Collection",
+          "configProperty": "actionConfiguration.formData.collection",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE"
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description" : "Optional",
+      "children": [
+        {
+          "label": "Array of Pipelines",
+          "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText" : "[{ $project: { tags: 1 } }, { $unwind: \"$tags\" }, { $group: { _id: \"$tags\", count: { $sum : 1 } } }  ]"
+        }
+      ]
+    },
+    {
+      "label": "Limit",
+      "configProperty": "actionConfiguration.formData.aggregate.limit",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "initialValue": "10"
+    }
+  ]
+}

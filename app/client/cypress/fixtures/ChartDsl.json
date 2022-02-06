@@ -24,7 +24,7 @@
         "widgetName": "Chart1",
         "chartType": "BAR_CHART",
         "chartName": "Sales on working days",
-        "allowHorizontalScroll": false,
+        "allowScroll": false,
         "version": 1,
         "chartData": [
           {
@@ -53,7 +53,7 @@
         "widgetName": "Input1",
         "version": 1,
         "resetOnSubmit": true,
-        "type": "INPUT_WIDGET",
+        "type": "INPUT_WIDGET_V2",
         "isLoading": false,
         "parentColumnSpace": 74,
         "parentRowSpace": 40,
@@ -63,6 +63,24 @@
         "bottomRow": 6,
         "parentId": "0",
         "widgetId": "y4gcv7cjg0"
+      },
+      {
+        "isVisible": true,
+        "inputType": "TEXT",
+        "label": "",
+        "widgetName": "Input2",
+        "version": 1,
+        "resetOnSubmit": true,
+        "type": "INPUT_WIDGET_V2",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 8,
+        "rightColumn": 13,
+        "topRow": 7,
+        "bottomRow": 7,
+        "parentId": "0",
+        "widgetId": "y4gcv7cjg1"
       }
     ]
   }

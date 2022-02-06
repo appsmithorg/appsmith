@@ -24,9 +24,7 @@ describe("Tab widget test", function() {
     cy.tabVerify(0, "Aditya");
     cy.tabVerify(1, "test");
     //Default  tab selection and validation
-    cy.get(Layoutpage.tabDefault)
-      .type(this.data.command)
-      .type("test");
+    cy.testJsontext("defaulttab", "test");
     cy.get(Layoutpage.tabWidget)
       .contains("test")
       .click({ force: true })
@@ -42,17 +40,13 @@ describe("Tab widget test", function() {
       .should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
-    cy.openPropertyPane("tabswidget");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
-    cy.togglebar(widgetsPage.Scrollbutton)
-      .check({ force: true })
-      .should("be.checked");
+    cy.togglebar(widgetsPage.Scrollbutton);
     cy.get(Layoutpage.tabContainer)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.get(commonlocators.crossbutton).click({ force: true });
     cy.PublishtheApp();
   });
   it("Tab Widget Functionality To Select Tabs", function() {
@@ -60,9 +54,9 @@ describe("Tab widget test", function() {
       .contains(this.data.tabName)
       .click({ force: true })
       .should("be.selected");
+    cy.get(publish.backToEditor).click();
   });
   it("Tab Widget Functionality To Unchecked Visible Widget", function() {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tabswidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -74,8 +68,88 @@ describe("Tab widget test", function() {
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.tabWidget).should("be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Tab Widget Functionality To Check tab invisiblity", function() {
+    cy.openPropertyPane("tabswidget");
+    cy.get(Layoutpage.tabEdit)
+      .eq(1)
+      .click({ force: true });
+    cy.get(Layoutpage.tabVisibility)
+      .first()
+      .click({ force: true });
+    cy.get(Layoutpage.tabWidget)
+      .contains("Tab 1")
+      .should("not.exist");
+    cy.PublishtheApp();
+    cy.get(publish.tabWidget)
+      .contains("Tab 1")
+      .should("not.exist");
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Tab Widget Functionality To Check tab visibility", function() {
+    cy.openPropertyPane("tabswidget");
+    cy.get(Layoutpage.tabEdit)
+      .eq(1)
+      .click({ force: true });
+    cy.get(Layoutpage.tabVisibility)
+      .first()
+      .click({ force: true });
+    cy.get(Layoutpage.tabWidget)
+      .contains("Tab 1")
+      .should("be.visible");
+    cy.PublishtheApp();
+    cy.get(publish.tabWidget)
+      .contains("Tab 1")
+      .should("be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+  /* Test to be revisted as the undo action is inconsistent in automation
+  it("Tab Widget Functionality To Check undo action after delete", function() {
+    cy.openPropertyPane("tabswidget");
+    cy.get(Layoutpage.tabDelete)
+      .eq(1)
+      .click({ force: true });
+    cy.wait(2000);
+    cy.wait("@updateLayout");
+    cy.get(publish.tabWidget)
+      .contains("Tab 1")
+      .should("not.exist");
+    cy.get(".undo-section:contains('UNDO')")
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait(2000);
+    cy.wait("@updateLayout");
+    cy.get(Layoutpage.tabWidget)
+      .contains("Tab 1")
+      .should("be.visible");
+    cy.PublishtheApp();
+    cy.get(publish.tabWidget)
+      .contains("Tab 1")
+      .should("be.visible");
+  });
+  */
+  it("Tabs widget should have navigation arrows if tabs don't fit", function() {
+    const rightNavButtonSelector =
+      Layoutpage.tabWidget + " button.scroll-nav-right-button";
+    const leftNavButtonSelector =
+      Layoutpage.tabWidget + " button.scroll-nav-left-button";
+
+    cy.openPropertyPane("tabswidget");
+    // Add a new tab
+    cy.get(Layoutpage.tabButton).click({ force: true });
+    cy.tabVerify(2, "Tab3-for-testing-scroll-navigation-controls");
+    // Should show off right navigation arrow
+    cy.get(rightNavButtonSelector).should("exist");
+    // Click on the right navigation arrow
+    cy.get(rightNavButtonSelector).click({ force: true });
+    // Should show off left navigation arrow
+    cy.get(leftNavButtonSelector).should("exist");
   });
 });
+
 afterEach(() => {
   // put your clean up code if any
 });

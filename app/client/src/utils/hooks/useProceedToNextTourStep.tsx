@@ -4,17 +4,28 @@ import { AppState } from "reducers";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { proceedToNextTourStep } from "actions/tourActions";
 
-const useProceedToNextTourStep = (tourType: TourType, tourIndex: number) => {
-  const dispatch = useDispatch();
+export const useIsTourStepActive = (
+  activeTourStepConfig: { [key in TourType]?: any },
+) => {
+  const activeTourType = useSelector(getActiveTourType);
+  const expectedActiveStep =
+    activeTourType &&
+    activeTourStepConfig &&
+    activeTourStepConfig[activeTourType];
 
   const isCurrentStepActive = useSelector(
-    (state: AppState) => getActiveTourIndex(state) === tourIndex,
-  );
-  const isCurrentTourActive = useSelector(
-    (state: AppState) => getActiveTourType(state) === tourType,
+    (state: AppState) => getActiveTourIndex(state) === expectedActiveStep,
   );
 
-  const isActive = isCurrentStepActive && isCurrentTourActive;
+  return isCurrentStepActive;
+};
+
+const useProceedToNextTourStep = (
+  activeTourStepConfig: { [key in TourType]?: any },
+) => {
+  const dispatch = useDispatch();
+
+  const isActive = useIsTourStepActive(activeTourStepConfig);
 
   return () => isActive && dispatch(proceedToNextTourStep());
 };

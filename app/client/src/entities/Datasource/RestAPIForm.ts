@@ -4,6 +4,13 @@ export enum AuthType {
   NONE = "NONE",
   OAuth2 = "oAuth2",
   basic = "basic",
+  apiKey = "apiKey",
+  bearerToken = "bearerToken",
+}
+
+export enum ApiKeyAuthType {
+  QueryParams = "queryParams",
+  Header = "header",
 }
 
 export enum GrantType {
@@ -11,7 +18,13 @@ export enum GrantType {
   AuthorizationCode = "authorization_code",
 }
 
-export type Authentication = ClientCredentials | AuthorizationCode | Basic;
+export type Authentication =
+  | ClientCredentials
+  | AuthorizationCode
+  | Basic
+  | ApiKey
+  | BearerToken;
+
 export interface ApiDatasourceForm {
   datasourceId: string;
   pluginId: string;
@@ -19,6 +32,7 @@ export interface ApiDatasourceForm {
   isValid: boolean;
   url: string;
   headers?: Property[];
+  queryParameters?: Property[];
   isSendSessionEnabled: boolean;
   sessionSignatureKey: string;
   authType: AuthType;
@@ -39,6 +53,7 @@ export interface Oauth2Common {
 
 export interface ClientCredentials extends Oauth2Common {
   grantType: GrantType.ClientCredentials;
+  customTokenParameters: Property[];
 }
 
 export interface AuthorizationCode extends Oauth2Common {
@@ -53,4 +68,17 @@ export interface Basic {
   authenticationType: AuthType.basic;
   username: string;
   password: string;
+}
+
+export interface ApiKey {
+  authenticationType: AuthType.apiKey;
+  label: string;
+  headerPrefix: string;
+  value: string;
+  addTo: string;
+}
+
+export interface BearerToken {
+  authenticationType: AuthType.bearerToken;
+  bearerToken: string;
 }

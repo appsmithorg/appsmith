@@ -9,6 +9,8 @@ import {
   GrantType,
   Oauth2Common,
   Basic,
+  ApiKey,
+  BearerToken,
 } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
@@ -34,6 +36,9 @@ export const datasourceToFormValues = (
     isValid: datasource.isValid,
     url: datasource.datasourceConfiguration.url,
     headers: cleanupProperties(datasource.datasourceConfiguration.headers),
+    queryParameters: cleanupProperties(
+      datasource.datasourceConfiguration.queryParameters,
+    ),
     isSendSessionEnabled: isSendSessionEnabled,
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
@@ -55,6 +60,7 @@ export const formValuesToDatasource = (
     datasourceConfiguration: {
       url: form.url,
       headers: cleanupProperties(form.headers),
+      queryParameters: cleanupProperties(form.queryParameters),
       properties: [
         {
           key: "isSendSessionEnabled",
@@ -91,6 +97,9 @@ const formToDatasourceAuthentication = (
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
+        customTokenParameters: cleanupProperties(
+          authentication.customTokenParameters,
+        ),
       };
     }
     if (isAuthorizationCode(authType, authentication)) {
@@ -107,12 +116,35 @@ const formToDatasourceAuthentication = (
     }
   }
   if (authType === AuthType.basic) {
-    const basic: Basic = {
-      authenticationType: AuthType.basic,
-      username: authentication.username,
-      password: authentication.password,
-    };
-    return basic;
+    if ("username" in authentication) {
+      const basic: Basic = {
+        authenticationType: AuthType.basic,
+        username: authentication.username,
+        password: authentication.password,
+      };
+      return basic;
+    }
+  }
+  if (authType === AuthType.apiKey) {
+    if ("label" in authentication) {
+      const apiKey: ApiKey = {
+        authenticationType: AuthType.apiKey,
+        label: authentication.label,
+        value: authentication.value,
+        headerPrefix: authentication.headerPrefix,
+        addTo: authentication.addTo,
+      };
+      return apiKey;
+    }
+  }
+  if (authType === AuthType.bearerToken) {
+    if ("bearerToken" in authentication) {
+      const bearerToken: BearerToken = {
+        authenticationType: AuthType.bearerToken,
+        bearerToken: authentication.bearerToken,
+      };
+      return bearerToken;
+    }
   }
   return null;
 };
@@ -149,6 +181,9 @@ const datasourceToFormAuthentication = (
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
+        customTokenParameters: cleanupProperties(
+          authentication.customTokenParameters,
+        ),
       };
     }
     if (isAuthorizationCode(authType, authentication)) {
@@ -174,6 +209,23 @@ const datasourceToFormAuthentication = (
       password: authentication.password || "",
     };
     return basic;
+  }
+  if (authType === AuthType.apiKey) {
+    const apiKey: ApiKey = {
+      authenticationType: AuthType.apiKey,
+      label: authentication.label || "",
+      value: authentication.value || "",
+      headerPrefix: authentication.headerPrefix || "",
+      addTo: authentication.addTo || "",
+    };
+    return apiKey;
+  }
+  if (authType === AuthType.bearerToken) {
+    const bearerToken: BearerToken = {
+      authenticationType: AuthType.bearerToken,
+      bearerToken: authentication.bearerToken || "",
+    };
+    return bearerToken;
   }
 };
 

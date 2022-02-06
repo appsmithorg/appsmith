@@ -1,0 +1,39 @@
+{{- if and .Values.storageClass.enabled .Values.persistence.localStorage }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.persistence.storageClass }}  
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+{{- else if .Values.storageClass.enabled }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.persistence.storageClass }}
+  {{- if or .Values.storageClass.annotations .Values.storageClass.defaultClass }}
+  annotations:
+  {{- end }}
+  {{- if .Values.storageClass.annotations }}
+  {{ toYaml .Values.storageClass.annotations | indent 4}}
+  {{- end }}
+  {{- if .Values.storageClass.defaultClass }}
+    storageclass.kubernetes.io/is-default-class: "true"
+  {{- end }}
+volumeBindingMode: {{ .Values.storageClass.bindingMode }}
+provisioner: {{ .Values.storageClass.provisioner }}
+allowVolumeExpansion: {{ .Values.storageClass.allowVolumeExpansion }}
+reclaimPolicy: {{ .Values.storageClass.reclaimPolicy }}
+{{- if .Values.storageClass.parameters }}
+parameters:
+{{- range $key, $value := .Values.storageClass.parameters }}
+  {{ $key }}: {{ $value }}
+  {{- end }}
+{{- end }}
+{{- if .Values.storageClass.mountOptions }}
+mountOptions:
+  {{- range .Values.storageClass.mountOptions }}
+  - {{ . }}
+  {{- end }}
+{{- end }}
+{{- end }}

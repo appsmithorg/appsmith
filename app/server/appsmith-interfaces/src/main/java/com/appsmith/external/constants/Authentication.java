@@ -6,6 +6,10 @@ public class Authentication {
     public static final String DB_AUTH = "dbAuth";
     public static final String OAUTH2 = "oAuth2";
     public static final String BASIC = "basic";
+    public static final String API_KEY = "apiKey";
+    public static final String API_KEY_AUTH_TYPE_QUERY_PARAMS = "queryParams";
+    public static final String API_KEY_AUTH_TYPE_HEADER = "header";
+    public static final String BEARER_TOKEN = "bearerToken";
 
     // Request parameter names
     public static final String CLIENT_ID = "client_id";
@@ -29,6 +33,13 @@ public class Authentication {
     // Request parameter values
     public static final String AUTHORIZATION_CODE = "authorization_code";
     public static final String CLIENT_CREDENTIALS = "client_credentials";
+
+    // Header names
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+
+    // Other constants
+    public static final String BEARER_HEADER_PREFIX = "Bearer";
+    public static final String BASIC_HEADER_PREFIX = "Basic ";
 
     // Response codes
     public static final String SUCCESS = "success";

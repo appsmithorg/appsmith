@@ -8,6 +8,8 @@ import handleNewCommentThreadEvent from "./handleNewCommentThreadEvent";
 import handleUpdateCommentThreadSuccess from "./handleUpdateCommentThreadSuccess";
 import handleUpdateCommentThreadEvent from "./handleUpdateCommentThreadEvent";
 import handleUpdateCommentEvent from "./handleUpdateCommentEvent";
+import handleDeleteCommentEvent from "./handleDeleteCommentEvent";
+import handleDeleteCommentThreadEvent from "./handleDeleteCommentThreadEvent";
 
 import { CommentsReduxState } from "./interfaces";
 import {
@@ -17,9 +19,13 @@ import {
   NewCommentEventPayload,
   NewCommentThreadPayload,
   Comment,
+  DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+import handleDragCommentThread from "./handleDragCommentThread";
+import { deleteCommentFromState, deleteCommentThreadFromState } from "./common";
+import { EditorState } from "draft-js";
 
 const initialState: CommentsReduxState = {
   commentThreadsMap: {},
@@ -30,15 +36,21 @@ const initialState: CommentsReduxState = {
   creatingNewThreadComment: false,
   appCommentsFilter: filterOptions[0].value,
   shouldShowResolvedAppCommentThreads: false,
-  showUnreadIndicator: false,
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
-  areCommentsEnabled: false,
+  unsubscribed: false,
+  draggingCommentThreadId: null,
+  dragPointerOffset: null,
+  draftComments: {},
+  unpublishedThreadDraftComment: null,
+  commentThreadsFetched: false,
+  lastUpdatedCommentThreadByAppId: {},
 };
 
 /**
  * Action constants with suffix as `EVENT` are a result of socket updates
  * They are handled separately
+ * TODO: look into merging `_EVENT` handlers (for socket events) and local actions
  */
 const commentsReducer = createReducer(initialState, {
   // Only one unpublished comment threads exists at a time
@@ -51,9 +63,13 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.REMOVE_UNPUBLISHED_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
+    action: ReduxAction<{ shouldPersistComment: boolean }>,
   ) => ({
     ...state,
     unpublishedCommentThreads: {},
+    unpublishedThreadDraftComment: action.payload.shouldPersistComment
+      ? state.unpublishedThreadDraftComment
+      : null,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
@@ -73,8 +89,6 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isCommentMode: action.payload,
-    showUnreadIndicator: false,
-    isIntroCarouselVisible: false,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
@@ -90,7 +104,10 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.FETCH_APPLICATION_COMMENTS_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<CommentThread>,
+    action: ReduxAction<{
+      commentThreads: CommentThread[];
+      applicationId: string;
+    }>,
   ) => {
     return handleFetchApplicationCommentsSuccess(state, action);
   },
@@ -100,6 +117,12 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleNewCommentThreadEvent(state, action);
   },
+  [ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    unsubscribed: true,
+  }),
   [ReduxActionTypes.NEW_COMMENT_EVENT]: (
     state: CommentsReduxState,
     action: ReduxAction<NewCommentEventPayload>,
@@ -116,9 +139,7 @@ const commentsReducer = createReducer(initialState, {
       ),
     };
 
-    const showUnreadIndicator = !state.isCommentMode;
-
-    return { ...state, showUnreadIndicator };
+    return { ...state };
   },
   [ReduxActionTypes.UPDATE_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
@@ -132,6 +153,12 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleUpdateCommentThreadEvent(state, action);
   },
+  [ReduxActionTypes.DRAG_COMMENT_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<DraggedCommentThread>,
+  ) => {
+    return handleDragCommentThread(state, action);
+  },
   [ReduxActionTypes.DELETE_COMMENT_SUCCESS]: (
     state: CommentsReduxState,
     action: ReduxAction<{
@@ -141,15 +168,9 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     const { commentId, threadId } = action.payload;
 
-    const commentThread = state.commentThreadsMap[threadId];
-    state.commentThreadsMap[threadId] = {
-      ...commentThread,
-      comments: commentThread.comments.filter(
-        (comment) => comment.id !== commentId,
-      ),
-    };
+    const updatedState = deleteCommentFromState(state, commentId, threadId);
 
-    return { ...state };
+    return { ...updatedState };
   },
   [ReduxActionTypes.SET_SHOULD_SHOW_RESOLVED_COMMENTS]: (
     state: CommentsReduxState,
@@ -160,18 +181,27 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.RESET_VISIBLE_THREAD]: (
     state: CommentsReduxState,
-    action: ReduxAction<string>,
-  ) => ({
-    ...state,
-    /**
-     * To solve race cond, explicitly hide a visible thread using it's id
-     * so that we don't accidently hide another thread
-     */
-    visibleCommentThreadId:
-      action.payload === state.visibleCommentThreadId
-        ? ""
-        : state.visibleCommentThreadId,
-  }),
+    action: ReduxAction<{ threadId: string; shouldPersistThread: string }>,
+  ) => {
+    const draftCommentsClone = { ...state.draftComments };
+    const { shouldPersistThread, threadId } = action.payload;
+    if (!shouldPersistThread) {
+      delete draftCommentsClone[threadId];
+    }
+
+    return {
+      ...state,
+      /**
+       * To solve race cond, explicitly hide a visible thread using it's id
+       * so that we don't accidently hide another thread
+       */
+      visibleCommentThreadId:
+        threadId === state.visibleCommentThreadId
+          ? ""
+          : state.visibleCommentThreadId,
+      draftComments: draftCommentsClone,
+    };
+  },
   [ReduxActionTypes.SET_VISIBLE_THREAD]: (
     state: CommentsReduxState,
     action: ReduxAction<string>,
@@ -214,26 +244,14 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<{ commentThreadId: string; appId: string }>,
   ) => {
     const { appId, commentThreadId } = action.payload;
-    if (!state.applicationCommentThreadsByRef[appId]) return false;
 
-    const { refId } = state.commentThreadsMap[commentThreadId];
+    const updatedState = deleteCommentThreadFromState(
+      state,
+      commentThreadId,
+      appId,
+    );
 
-    let refComments = state.applicationCommentThreadsByRef[appId][refId];
-    if (refComments) {
-      refComments = refComments.filter(
-        (threadId: string) => threadId !== commentThreadId,
-      );
-    }
-
-    delete state.commentThreadsMap[commentThreadId];
-
-    state.commentThreadsMap = { ...state.commentThreadsMap };
-
-    state.applicationCommentThreadsByRef[appId as string] = {
-      ...state.applicationCommentThreadsByRef[appId as string],
-    };
-
-    return { ...state };
+    return { ...updatedState };
   },
   [ReduxActionTypes.SHOW_COMMENTS_INTRO_CAROUSEL]: (
     state: CommentsReduxState,
@@ -247,19 +265,64 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     isIntroCarouselVisible: false,
   }),
-  [ReduxActionTypes.SET_ARE_COMMENTS_ENABLED]: (
-    state: CommentsReduxState,
-    action: ReduxAction<boolean>,
-  ) => ({
-    ...state,
-    areCommentsEnabled: action.payload,
-  }),
   [ReduxActionTypes.UPDATE_COMMENT_EVENT]: (
     state: CommentsReduxState,
     action: ReduxAction<Comment>,
   ) => {
     return handleUpdateCommentEvent(state, action);
   },
+  [ReduxActionTypes.DELETE_COMMENT_EVENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<Comment>,
+  ) => handleDeleteCommentEvent(state, action),
+  [ReduxActionTypes.DELETE_COMMENT_THREAD_EVENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<CommentThread>,
+  ) => handleDeleteCommentThreadEvent(state, action),
+  [ReduxActionTypes.SET_DRAGGING_COMMENT_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{
+      threadId: string;
+      offset: {
+        x: number;
+        y: number;
+      };
+    }>,
+  ) => ({
+    ...state,
+    draggingCommentThreadId: action.payload.threadId,
+    dragPointerOffset: action.payload.offset,
+  }),
+  [ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    draggingCommentThreadId: null,
+    dragPointerOffset: null,
+  }),
+  [ReduxActionTypes.UPDATE_UNPUBLISHED_THREAD_DRAFT_COMMENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<EditorState>,
+  ) => ({
+    ...state,
+    unpublishedThreadDraftComment: action.payload,
+  }),
+  [ReduxActionTypes.UPDATE_THREAD_DRAFT_COMMENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{ threadId: string; editorState: EditorState }>,
+  ) => ({
+    ...state,
+    draftComments: {
+      ...state.draftComments,
+      [action.payload.threadId]: action.payload.editorState,
+    },
+  }),
+  [ReduxActionTypes.FETCH_COMMENT_THREADS_INIT]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    commentThreadsFetched: false,
+  }),
 });
 
 export default commentsReducer;

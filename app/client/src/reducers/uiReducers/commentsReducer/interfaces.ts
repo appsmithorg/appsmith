@@ -1,5 +1,6 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+import { EditorState } from "draft-js";
 
 export interface CommentsReduxState {
   commentThreadsMap: Record<string, CommentThread>;
@@ -10,8 +11,16 @@ export interface CommentsReduxState {
   creatingNewThreadComment: boolean;
   appCommentsFilter: typeof filterOptions[number]["value"];
   shouldShowResolvedAppCommentThreads: boolean;
-  showUnreadIndicator: boolean;
   visibleCommentThreadId?: string;
   isIntroCarouselVisible?: boolean;
-  areCommentsEnabled?: boolean;
+  unsubscribed: boolean;
+  draggingCommentThreadId: string | null;
+  dragPointerOffset: {
+    x: number;
+    y: number;
+  } | null;
+  unpublishedThreadDraftComment: EditorState | null;
+  draftComments: Record<string, EditorState>;
+  commentThreadsFetched: boolean;
+  lastUpdatedCommentThreadByAppId: Record<string, string | null>;
 }

@@ -15,7 +15,12 @@ import UserApi, {
   UpdateUserRequest,
   LeaveOrgRequest,
 } from "api/UserApi";
-import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
+import {
+  APPLICATIONS_URL,
+  AUTH_LOGIN_URL,
+  BASE_URL,
+  SETUP,
+} from "constants/routes";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -30,14 +35,20 @@ import {
   verifyInviteError,
   invitedUserSignupError,
   invitedUserSignupSuccess,
+  fetchFeatureFlagsSuccess,
+  fetchFeatureFlagsError,
+  fetchFeatureFlagsInit,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { ERROR_CODES } from "constants/ApiConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import {
+  ANONYMOUS_USERNAME,
+  CommentsOnboardingState,
+} from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
 import { Toaster } from "components/ads/Toast";
@@ -45,6 +56,16 @@ import { Variant } from "components/ads/common";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  initAppLevelSocketConnection,
+  initPageLevelSocketConnection,
+} from "actions/websocketActions";
+import {
+  getEnableFirstTimeUserOnboarding,
+  getFirstTimeUserOnboardingApplicationId,
+  getFirstTimeUserOnboardingIntroModalVisibility,
+} from "utils/storage";
+import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -93,23 +114,36 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const { enableTelemetry } = response.data;
+      if (enableTelemetry) {
+        initializeAnalyticsAndTrackers();
+      }
+      yield put(initAppLevelSocketConnection());
+      yield put(initPageLevelSocketConnection());
       if (
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME
       ) {
-        AnalyticsUtil.identifyUser(response.data);
+        enableTelemetry && AnalyticsUtil.identifyUser(response.data);
+        // make fetch feature call only if logged in
+        yield put(fetchFeatureFlagsInit());
+      } else {
+        // reset the flagsFetched flag
+        yield put(fetchFeatureFlagsSuccess());
       }
-      if (window.location.pathname === BASE_URL) {
+      yield put({
+        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+        payload: response.data,
+      });
+      if (response.data.emptyInstance) {
+        history.replace(SETUP);
+      } else if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
         } else {
           history.replace(APPLICATIONS_URL);
         }
       }
-      yield put({
-        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-        payload: response.data,
-      });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,
       );
@@ -264,6 +298,16 @@ export function* inviteUsers(
         orgId: data.orgId,
       },
     });
+    yield put({
+      type: ReduxActionTypes.INVITED_USERS_TO_ORGANIZATION,
+      payload: {
+        orgId: data.orgId,
+        users: data.usernames.map((name: string) => ({
+          username: name,
+          roleName: data.roleName,
+        })),
+      },
+    });
     yield call(resolve);
     yield put(reset(INVITE_USERS_TO_ORG_FORM));
   } catch (error) {
@@ -279,10 +323,12 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, name } = action.payload;
+    const { email, name, role, useCase } = action.payload;
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
+      role,
+      useCase,
     });
     const isValidResponse = yield validateResponse(response);
 
@@ -310,9 +356,13 @@ export function* verifyResetPasswordTokenSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response.data) {
       yield put({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_SUCCESS,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
       });
     }
   } catch (error) {
@@ -344,7 +394,8 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AnalyticsUtil.reset();
-      yield put(logoutUserSuccess());
+      const currentUser = yield select(getCurrentUser);
+      yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
       localStorage.clear();
       yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }
@@ -361,21 +412,72 @@ export function* waitForFetchUserSuccess() {
   }
 }
 
-function* removePhoto(action: ReduxAction<{ callback: () => void }>) {
+function* removePhoto(action: ReduxAction<{ callback: (id: string) => void }>) {
   try {
-    yield call(UserApi.deletePhoto);
-    if (action.payload.callback) action.payload.callback();
+    const response: ApiResponse = yield call(UserApi.deletePhoto);
+    const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
+    if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
   }
 }
 
 function* updatePhoto(
-  action: ReduxAction<{ file: File; callback: () => void }>,
+  action: ReduxAction<{ file: File; callback: (id: string) => void }>,
 ) {
   try {
-    yield call(UserApi.uploadPhoto, { file: action.payload.file });
-    if (action.payload.callback) action.payload.callback();
+    const response: ApiResponse = yield call(UserApi.uploadPhoto, {
+      file: action.payload.file,
+    });
+    const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
+    if (action.payload.callback) action.payload.callback(photoId);
+  } catch (error) {
+    log.error(error);
+  }
+}
+
+function* fetchFeatureFlags() {
+  try {
+    const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      (window as any).FEATURE_FLAGS = response.data;
+      yield put(fetchFeatureFlagsSuccess());
+    }
+  } catch (error) {
+    log.error(error);
+    yield put(fetchFeatureFlagsError(error));
+  }
+}
+
+function* updateFirstTimeUserOnboardingSage() {
+  const enable = yield getEnableFirstTimeUserOnboarding();
+
+  if (enable) {
+    const applicationId = yield getFirstTimeUserOnboardingApplicationId() || "";
+    const introModalVisibility = yield getFirstTimeUserOnboardingIntroModalVisibility();
+    yield put({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+      payload: true,
+    });
+    yield put({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      payload: applicationId,
+    });
+    yield put({
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+      payload: introModalVisibility,
+    });
+  }
+}
+
+export function* updateUsersCommentsOnboardingState(
+  action: ReduxAction<CommentsOnboardingState>,
+) {
+  try {
+    yield call(UserApi.updateUsersCommentOnboardingState, {
+      commentOnboardingState: action.payload,
+    });
   } catch (error) {
     log.error(error);
   }
@@ -405,6 +507,15 @@ export default function* userSagas() {
     takeLatest(ReduxActionTypes.REMOVE_PROFILE_PHOTO, removePhoto),
     takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
     takeLatest(ReduxActionTypes.LEAVE_ORG_INIT, leaveOrgSaga),
+    takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
+    takeLatest(
+      ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+      updateFirstTimeUserOnboardingSage,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE,
+      updateUsersCommentsOnboardingState,
+    ),
   ]);
 }
 

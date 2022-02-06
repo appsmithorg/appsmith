@@ -9,7 +9,6 @@ describe("hint helpers", () => {
       const helper = bindingHint(MockCodemirrorEditor, {});
       expect(MockCodemirrorEditor.setOption).toBeCalled();
       expect(helper).toHaveProperty("showHint");
-      expect(helper).toHaveProperty("update");
     });
 
     it("opens hint correctly", () => {
@@ -42,6 +41,16 @@ describe("hint helpers", () => {
           value: `{\n\tname: "{{}}"\n}`,
           getLine: ["{", `\tname: "{{}}`, "}"],
           cursor: { ch: 10, line: 1 },
+          toCall: "showHint",
+        },
+        {
+          value: "{test(",
+          cursor: { ch: 1, line: 0 },
+          toCall: "closeHint",
+        },
+        {
+          value: "justanystring {{}}",
+          cursor: { ch: 16, line: 0 },
           toCall: "showHint",
         },
       ];

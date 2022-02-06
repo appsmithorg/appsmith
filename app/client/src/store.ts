@@ -16,7 +16,7 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   actionTransformer: (action) => {
     if (
       action.type === ReduxActionTypes.SET_EVALUATED_TREE ||
-      action.type === ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS
+      action.type === ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS
     ) {
       // Return null to not log the action to Sentry
       action.payload = null;

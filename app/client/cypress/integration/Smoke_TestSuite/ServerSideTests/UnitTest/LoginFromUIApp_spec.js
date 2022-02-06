@@ -1,5 +1,7 @@
 const homePage = require("../../../../locators/HomePage.json");
 const HelpLocators = require("../../../../locators/HelpLocators.json");
+const pages = require("../../../../locators/Pages.json");
+
 let pageid;
 let appId;
 
@@ -9,11 +11,18 @@ describe("Login from UI and check the functionality", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appname);
     cy.get("#loading").should("not.exist");
-
+    cy.wait(30000);
     cy.generateUUID().then((uid) => {
       pageid = uid;
       cy.Createpage(pageid);
-      cy.DeletepageFromSideBar();
+      cy.get(`.t--entity-name`)
+        .contains(pageid)
+        .trigger("mouseover");
+      cy.hoverAndClick();
+      cy.get(pages.deletePage)
+        .first()
+        .click({ force: true });
+      cy.wait(2000);
     });
     cy.wait("@deletePage");
     cy.get("@deletePage").should("have.property", "status", 200);
@@ -32,35 +41,5 @@ describe("Login from UI and check the functionality", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.url().should("include", "user/login");
-  });
-
-  it("Theme change test and validation", function() {
-    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.get(homePage.profileMenu).click();
-    cy.get(homePage.themeText).should("have.attr", "value", "true");
-    cy.get("span")
-      .contains("Light")
-      .click({ force: true });
-    cy.get(homePage.profileMenu).click();
-    cy.get(homePage.themeText).should("have.attr", "value", "false");
-    cy.get("span")
-      .contains("Dark")
-      .click({ force: true });
-    cy.get(homePage.profileMenu).click();
-    cy.get(homePage.themeText).should("have.attr", "value", "true");
-  });
-
-  it("Icon of fab button of help modal should change on open and close", function() {
-    cy.get(HelpLocators.HelpButton).click();
-    cy.get(`${HelpLocators.HelpButton} .bp3-icon-cross`).should(
-      "have.length",
-      1,
-    );
-
-    cy.get(HelpLocators.HelpButton).click();
-    cy.get(`${HelpLocators.HelpButton} .bp3-icon-cross`).should(
-      "have.length",
-      0,
-    );
   });
 });

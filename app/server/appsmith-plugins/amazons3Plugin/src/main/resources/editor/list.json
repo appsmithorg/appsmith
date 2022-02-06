@@ -1,0 +1,127 @@
+{
+  "identifier": "LIST",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'LIST'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Bucket to Query",
+      "children": [
+        {
+          "label": "Bucket Name",
+          "configProperty": "actionConfiguration.formData.bucket",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description" : "Optional",
+      "children": [
+        {
+          "label": "Prefix",
+          "configProperty": "actionConfiguration.formData.list.prefix",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": ""
+        },
+        {
+          "label": "Where",
+          "configProperty": "actionConfiguration.formData.list.where",
+          "nestedLevels": 3,
+          "controlType": "WHERE_CLAUSE",
+          "logicalTypes": [
+            {
+              "label": "AND",
+              "value": "AND"
+            },
+            {
+              "label": "OR",
+              "value": "OR"
+            }
+          ],
+          "comparisonTypes": [
+            {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
+              "label": "!=",
+              "value": "NOT_EQ"
+            },
+            {
+              "label": "in",
+              "value": "IN"
+            },
+            {
+              "label": "not in",
+              "value": "NOT_IN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Options",
+      "children": [
+        {
+          "label": "Generate Signed URL",
+          "configProperty": "actionConfiguration.formData.list.signedUrl",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NO",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ]
+        },
+        {
+          "label": "Expiry Duration of Signed URL (Minutes)",
+          "configProperty": "actionConfiguration.formData.list.expiry",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "5",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.list.signedUrl === 'YES'}}"
+          }
+        },
+        {
+          "label": "Generate Un-signed URL",
+          "configProperty": "actionConfiguration.formData.list.unSignedUrl",
+          "controlType": "DROP_DOWN",
+          "initialValue": "YES",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ]
+        },
+        {
+          "label": "Sort By",
+          "configProperty": "actionConfiguration.formData.list.sortBy",
+          "controlType": "SORTING"
+        },
+        {
+          "label": "Paginate By",
+          "configProperty": "actionConfiguration.formData.list.pagination",
+          "controlType": "PAGINATION"
+        }
+      ]
+    }
+  ]
+}

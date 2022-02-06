@@ -61,25 +61,23 @@
           ]
         },
         {
-          "label": "Spreadsheet Url Key",
+          "label": "Spreadsheet URL Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "sheetUrl"
         },
         {
-          "label": "Spreadsheet Url",
+          "label": "Spreadsheet URL",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "IN",
-            "value": [
-              "CREATE",
-              "LIST"
-            ]
+            "value": ["CREATE", "LIST"]
           },
-          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0",
+          "initialValue": ""
         },
         {
           "label": "Spreadsheet Name Key",
@@ -95,9 +93,7 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_IN",
-            "value": [
-              "CREATE"
-            ]
+            "value": ["CREATE"]
           },
           "initialValue": ""
         },
@@ -173,7 +169,7 @@
               }
             ]
           },
-          "initialValue": ""
+          "initialValue": "Sheet1"
         },
         {
           "label": "Table Header Index Key",
@@ -214,9 +210,7 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_IN",
-            "value": [
-              "GET"
-            ]
+            "value": ["GET"]
           },
           "initialValue": "ROWS",
           "options": [
@@ -286,9 +280,7 @@
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
-                "value": [
-                  "GET"
-                ]
+                "value": ["GET"]
               },
               {
                 "conditionType": "AND",
@@ -307,7 +299,7 @@
               }
             ]
           },
-          "initialValue": "",
+          "initialValue": "0",
           "placeholderText": "0"
         },
         {
@@ -324,11 +316,9 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_IN",
-            "value": [
-              "DELETE_ROW"
-            ]
+            "value": ["DELETE_ROW"]
           },
-          "initialValue": "",
+          "initialValue": "0",
           "placeholderText": "0"
         },
         {
@@ -339,7 +329,7 @@
           "initialValue": "rowLimit"
         },
         {
-          "label": "Row limit",
+          "label": "Row Limit",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
@@ -367,8 +357,76 @@
               }
             ]
           },
-          "initialValue": "",
+          "initialValue": "10",
           "placeholderText": "10"
+        },
+        {
+          "label": "Where Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "where"
+        },
+        {
+          "label": "Where Conditions",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].value",
+          "controlType": "ARRAY_FIELD",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET"
+          },
+          "initialValue": [],
+          "schema": [
+            {
+              "label": "Column Name",
+              "key": "path",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "name"
+            },
+            {
+              "label": "Operator",
+              "key": "operator",
+              "controlType": "DROP_DOWN",
+              "initialValue": "EQ",
+              "options": [
+                {
+                  "label": "<",
+                  "value": "LT"
+                },
+                {
+                  "label": "<=",
+                  "value": "LTE"
+                },
+                {
+                  "label": "==",
+                  "value": "EQ"
+                },
+                {
+                  "label": ">=",
+                  "value": "GTE"
+                },
+                {
+                  "label": ">",
+                  "value": "GT"
+                },
+                {
+                  "label": "in",
+                  "value": "IN"
+                },
+                {
+                  "label": "not in",
+                  "value": "NOT_IN"
+                }
+              ]
+            },
+            {
+              "label": "Value",
+              "key": "value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "Tobias"
+            }
+          ]
         },
         {
           "label": "Row Object Key",
@@ -381,12 +439,42 @@
           "label": "Row Object",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "APPEND",
-              "UPDATE"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["APPEND", "UPDATE"]
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            ]
+          },
+          "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
+        },
+        {
+          "label": "Row Object",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["APPEND", "UPDATE"]
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+                "comparison": "EQUALS",
+                "value": true
+              }
             ]
           },
           "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
@@ -402,16 +490,52 @@
           "label": "Row Objects",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "CREATE",
-              "BULK_APPEND",
-              "BULK_UPDATE"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["CREATE", "BULK_APPEND", "BULK_UPDATE"]
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+                "comparison": "EQUALS",
+                "value": false
+              }
             ]
           },
           "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        },
+        {
+          "label": "Row Objects",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["CREATE", "BULK_APPEND", "BULK_UPDATE"]
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+                "comparison": "EQUALS",
+                "value": true
+              }
+            ]
+          },
+          "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        },
+        {
+          "label": "Smart JSON Substitution Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].key",
+          "hidden": true,
+          "controlType": "INPUT_TEXT",
+          "initialValue": "smartSubstitution"
         }
       ]
     }

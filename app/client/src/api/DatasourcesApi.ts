@@ -1,4 +1,4 @@
-import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/ApiConstants";
+import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import API from "api/Api";
 import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
@@ -23,6 +23,13 @@ export interface EmbeddedRestDatasourceRequest {
   name: string;
   organizationId: string;
   pluginId: string;
+}
+
+type executeQueryData = Array<{ key?: string; value?: string }>;
+
+export interface executeDatasourceQueryRequest {
+  datasourceId: string;
+  data: executeQueryData;
 }
 
 class DatasourcesApi extends API {
@@ -61,6 +68,36 @@ class DatasourcesApi extends API {
   ): Promise<any> {
     return API.get(
       DatasourcesApi.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
+    );
+  }
+
+  static fetchMockDatasources(): AxiosPromise<
+    GenericApiResponse<Datasource[]>
+  > {
+    return API.get(DatasourcesApi.url + "/mocks");
+  }
+
+  static addMockDbToDatasources(
+    name: string,
+    organizationId: string,
+    pluginId: string,
+    packageName: string,
+  ): Promise<any> {
+    return API.post(DatasourcesApi.url + `/mocks`, {
+      name,
+      organizationId,
+      pluginId,
+      packageName,
+    });
+  }
+
+  static executeDatasourceQuery({
+    data,
+    datasourceId,
+  }: executeDatasourceQueryRequest) {
+    return API.put(
+      DatasourcesApi.url + `/datasource-query` + `/${datasourceId}`,
+      data,
     );
   }
 }

@@ -11,7 +11,10 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { ERROR_CODES, SERVER_ERROR_CODES } from "constants/ApiConstants";
+import {
+  ERROR_CODES,
+  SERVER_ERROR_CODES,
+} from "@appsmith/constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -23,6 +26,9 @@ import {
   DEFAULT_ERROR_MESSAGE,
   createMessage,
 } from "constants/messages";
+
+import * as Sentry from "@sentry/react";
+import { axiosConnectionAbortedCode } from "../api/ApiUtils";
 
 /**
  * making with error message with action name
@@ -64,10 +70,20 @@ export class IncorrectBindingError extends Error {}
  * @param response
  * @param show
  */
-export function* validateResponse(response: ApiResponse | any, show = true) {
+export function* validateResponse(
+  response: ApiResponse | any,
+  show = true,
+  logToSentry = false,
+) {
   if (!response) {
     throw Error("");
   }
+
+  // letting `apiFailureResponseInterceptor` handle it this case
+  if (response?.code === axiosConnectionAbortedCode) {
+    return false;
+  }
+
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }
@@ -76,23 +92,23 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
   }
   if (response.responseMeta.success) {
     return true;
-  } else {
-    if (
-      response.responseMeta.error.code ===
-      SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
-    ) {
-      throw new IncorrectBindingError(response.responseMeta.error.message);
-    } else {
-      yield put({
-        type: ReduxActionErrorTypes.API_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-          show,
-        },
-      });
-      throw Error(response.responseMeta.error.message);
-    }
   }
+  if (
+    response.responseMeta.error.code ===
+    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
+  ) {
+    throw new IncorrectBindingError(response.responseMeta.error.message);
+  }
+
+  yield put({
+    type: ReduxActionErrorTypes.API_ERROR,
+    payload: {
+      error: response.responseMeta.error,
+      logToSentry,
+      show,
+    },
+  });
+  throw Error(response.responseMeta.error.message);
 }
 
 export function getResponseErrorMessage(response: ApiResponse) {
@@ -135,18 +151,20 @@ enum ErrorEffectTypes {
   SHOW_ALERT = "SHOW_ALERT",
   SAFE_CRASH = "SAFE_CRASH",
   LOG_ERROR = "LOG_ERROR",
+  LOG_TO_SENTRY = "LOG_TO_SENTRY",
 }
 
 export interface ErrorActionPayload {
   error: ErrorPayloadType;
   show?: boolean;
   crash?: boolean;
+  logToSentry?: boolean;
 }
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_ERROR];
   const { payload, type } = errorAction;
-  const { error, show = true } = payload || {};
+  const { error, logToSentry, show = true } = payload || {};
   const message = getErrorMessageFromActionType(type, error);
 
   if (show) {
@@ -155,6 +173,10 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
 
   if (error && error.crash) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
+  }
+
+  if (error && logToSentry) {
+    effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
   }
 
   for (const effect of effects) {
@@ -169,6 +191,10 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
       }
       case ErrorEffectTypes.SAFE_CRASH: {
         yield call(crashAppSaga, error);
+        break;
+      }
+      case ErrorEffectTypes.LOG_TO_SENTRY: {
+        yield call(Sentry.captureException, error);
         break;
       }
     }

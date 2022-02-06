@@ -28,7 +28,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Button, { Size } from "components/ads/Button";
@@ -39,6 +39,7 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import UserApi from "api/UserApi";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -79,7 +80,7 @@ const StyledInviteFieldGroup = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-right: 5px;
+    margin-right: ${(props) => props.theme.spaces[3]}px;
     border-right: 0px;
   }
 `;
@@ -202,6 +203,8 @@ const validate = (values: any) => {
 
 const { mailEnabled } = getAppsmithConfigs();
 
+export const InviteButtonWidth = "88px";
+
 function OrgInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const userRef = React.createRef<HTMLDivElement>();
@@ -270,7 +273,7 @@ function OrgInviteUsersForm(props: any) {
         <>
           <Divider />
           <OrgInviteTitle>
-            <Text type={TextType.H5}>Invite Users to {currentOrg?.name} </Text>
+            <Text type={TextType.H5}>Invite users to {currentOrg?.name} </Text>
           </OrgInviteTitle>
         </>
       )}
@@ -312,6 +315,7 @@ function OrgInviteUsersForm(props: any) {
             tag="button"
             text="Invite"
             variant={Variant.info}
+            width={InviteButtonWidth}
           />
         </StyledInviteFieldGroup>
         {isLoading ? (
@@ -343,7 +347,10 @@ function OrgInviteUsersForm(props: any) {
                     <Fragment key={user.username}>
                       <User>
                         <UserInfo>
-                          <ProfileImage userName={user.initials} />
+                          <ProfileImage
+                            source={`/api/${UserApi.photoURL}/${user.username}`}
+                            userName={user.name || user.username}
+                          />
                           <UserName>
                             <Text type={TextType.H5}>{user.name}</Text>
                             <Text type={TextType.P2}>{user.username}</Text>

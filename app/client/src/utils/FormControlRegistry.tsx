@@ -13,10 +13,10 @@ import SwitchControl, {
   SwitchControlProps,
 } from "components/formControls/SwitchControl";
 import KeyValueArrayControl, {
-  KeyValueArrayProps,
+  KeyValueArrayControlProps,
 } from "components/formControls/KeyValueArrayControl";
 import KeyValueInputControl, {
-  KeyValueInputProps,
+  KeyValueInputControlProps,
 } from "components/formControls/KeyValueInputControl";
 import FilePickerControl, {
   FilePickerControlProps,
@@ -30,10 +30,24 @@ import CheckboxControl, {
 import DynamicInputTextControl, {
   DynamicInputControlProps,
 } from "components/formControls/DynamicInputTextControl";
-import InputNumberControl from "components/formControls/InputNumberControl";
 import FieldArrayControl, {
   FieldArrayControlProps,
 } from "components/formControls/FieldArrayControl";
+import WhereClauseControl, {
+  WhereClauseControlProps,
+} from "components/formControls/WhereClauseControl";
+import PaginationControl, {
+  PaginationControlProps,
+} from "components/formControls/PaginationControl";
+import SortingControl, {
+  SortingControlProps,
+} from "components/formControls/SortingControl";
+import EntitySelectorControl, {
+  EntitySelectorControlProps,
+} from "components/formControls/EntitySelectorControl";
+import ProjectionSelectorControl, {
+  ProjectionSelectorControlProps,
+} from "components/formControls/ProjectionSelectorControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -46,6 +60,7 @@ class FormControlRegistry {
       buildPropertyControl(
         controlProps: FixedKeyInputControlProps,
       ): JSX.Element {
+        //TODO: may not be in use
         return <FixedKeyInputControl {...controlProps} />;
       },
     });
@@ -60,17 +75,23 @@ class FormControlRegistry {
       },
     });
     FormControlFactory.registerControlBuilder("KEYVALUE_ARRAY", {
-      buildPropertyControl(controlProps: KeyValueArrayProps): JSX.Element {
+      buildPropertyControl(
+        controlProps: KeyValueArrayControlProps,
+      ): JSX.Element {
         return <KeyValueArrayControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("FILE_PICKER", {
       buildPropertyControl(controlProps: FilePickerControlProps): JSX.Element {
+        //used by redshift datasource
         return <FilePickerControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("KEY_VAL_INPUT", {
-      buildPropertyControl(controlProps: KeyValueInputProps): JSX.Element {
+      //TODO: may not be in use, replace it with KeyValueArrayControl
+      buildPropertyControl(
+        controlProps: KeyValueInputControlProps,
+      ): JSX.Element {
         return <KeyValueInputControl {...controlProps} />;
       },
     });
@@ -88,17 +109,48 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("CHECKBOX", {
       buildPropertyControl(controlProps: CheckboxControlProps): JSX.Element {
+        //used in API datasource form only
         return <CheckboxControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("NUMBER_INPUT", {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
-        return <InputNumberControl {...controlProps} />;
+        return <InputTextControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("ARRAY_FIELD", {
       buildPropertyControl(controlProps: FieldArrayControlProps): JSX.Element {
         return <FieldArrayControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("WHERE_CLAUSE", {
+      buildPropertyControl(controlProps: WhereClauseControlProps): JSX.Element {
+        return <WhereClauseControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("ENTITY_SELECTOR", {
+      buildPropertyControl(
+        controlProps: EntitySelectorControlProps,
+      ): JSX.Element {
+        return <EntitySelectorControl {...controlProps} />;
+      },
+    });
+
+    FormControlFactory.registerControlBuilder("PAGINATION", {
+      buildPropertyControl(controlProps: PaginationControlProps): JSX.Element {
+        return <PaginationControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("SORTING", {
+      buildPropertyControl(controlProps: SortingControlProps): JSX.Element {
+        return <SortingControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("PROJECTION", {
+      buildPropertyControl(
+        controlProps: ProjectionSelectorControlProps,
+      ): JSX.Element {
+        return <ProjectionSelectorControl {...controlProps} />;
       },
     });
   }

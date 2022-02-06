@@ -3,6 +3,7 @@ import { IconNames } from "@blueprintjs/icons";
 import { Direction, Directions } from "utils/helpers";
 import { PopoverPosition } from "@blueprintjs/core";
 import history from "utils/history";
+import log from "loglevel";
 
 export const DropdownOnSelectActions: { [id: string]: string } = {
   REDIRECT: "redirect",
@@ -26,7 +27,7 @@ export const getOnSelectAction = (
       }
       break;
     default:
-      console.log("No such action registered", type);
+      log.error("No such action registered", type);
   }
 };
 

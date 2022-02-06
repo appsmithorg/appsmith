@@ -1,0 +1,66 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1080,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 840,
+    "containerStyle": "none",
+    "snapRows": 129,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 42,
+    "minHeight": 820,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [{
+      "widgetName": "Button1",
+      "buttonColor": "#03B365",
+      "displayName": "Button",
+      "iconSVG": "/static/media/icon.cca02633.svg",
+      "topRow": 17,
+      "bottomRow": 21,
+      "parentRowSpace": 10,
+      "type": "BUTTON_WIDGET",
+      "hideCard": false,
+      "parentColumnSpace": 16.6875,
+      "dynamicTriggerPathList": [],
+      "leftColumn": 12,
+      "dynamicBindingPathList": [{
+          "key": "text"
+        },
+        {
+          "key": "isVisible"
+        },
+        {
+          "key": "isDisabled"
+        }
+      ],
+      "text": "{{Nodata}}",
+      "isDisabled": "{{lintError}}",
+      "key": "miv4p1z4sm",
+      "rightColumn": 28,
+      "isDefaultClickDisabled": true,
+      "widgetId": "nzf2tet2bn",
+      "recaptchaV2": false,
+      "isVisible": "{{error}}",
+      "version": 1,
+      "parentId": "0",
+      "renderMode": "CANVAS",
+      "isLoading": false,
+      "buttonVariant": "PRIMARY",
+      "dynamicPropertyPathList": [{
+          "key": "isDisabled"
+        },
+        {
+          "key": "isVisible"
+        }
+      ]
+    }]
+  }
+}

@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+
+  appsmith:
+    build:
+      context: ../../
+    container_name: appsmith
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9001:9001"
+    volumes:
+      - ./stacks:/appsmith-stacks
+
+  auto_update:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Update check every hour.
+    command: --schedule "0 0 * ? * *" --label-enable --cleanup

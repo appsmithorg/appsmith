@@ -1,19 +1,16 @@
-import { Severity } from "entities/AppsmithConsole";
+import { Log, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import {
-  createMessage,
-  NO_LOGS,
-  OPEN_THE_DEBUGGER,
-  PRESS,
-} from "constants/messages";
+import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
-  BUILDER_PAGE_URL,
+  matchBuilderPath,
+  matchApiPath,
+  matchQueryPath,
 } from "constants/routes";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { isMac } from "utils/helpers";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -30,32 +27,37 @@ const BlankStateWrapper = styled.div`
   }
 `;
 
-export function BlankState(props: { hasShortCut?: boolean }) {
+export function BlankState(props: {
+  placeholderText?: string;
+  hasShortCut?: boolean;
+}) {
+  const shortcut = isMac() ? "Cmd + D" : "Ctrl + D";
+
   return (
     <BlankStateWrapper>
       {props.hasShortCut ? (
         <span>
           {createMessage(PRESS)}
-          <span className="debugger-shortcut">Cmd + D</span>
+          <span className="debugger-shortcut">{shortcut}</span>
           {createMessage(OPEN_THE_DEBUGGER)}
         </span>
       ) : (
-        <span>{createMessage(NO_LOGS)}</span>
+        <span>{props.placeholderText}</span>
       )}
     </BlankStateWrapper>
   );
+}
+
+export enum DEBUGGER_TAB_KEYS {
+  ERROR_TAB = "ERROR",
+  LOGS_TAB = "LOGS_TAB",
+  INSPECT_TAB = "INSPECT_TAB",
 }
 
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
   [Severity.ERROR]: "error",
   [Severity.WARNING]: "warning",
-};
-
-export const SeverityIconColor: Record<Severity, string> = {
-  [Severity.INFO]: "#03B365",
-  [Severity.ERROR]: "#F22B2B",
-  [Severity.WARNING]: "rgb(224, 179, 14)",
 };
 
 export function getDependenciesFromInverseDependencies(
@@ -68,24 +70,15 @@ export function getDependenciesFromInverseDependencies(
   const inverseDependencies = new Set<string>();
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
+    const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
     (dependencies as any).map((dependency: any) => {
-      if (!dependant.includes(entityName) && dependency.includes(entityName)) {
-        const entity = dependant
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
+      const { entityName: entityDependency } = getEntityNameAndPropertyPath(
+        dependency,
+      );
+      if (entity !== entityName && entityDependency === entityName) {
         directDependencies.add(entity);
-      } else if (
-        dependant.includes(entityName) &&
-        !dependency.includes(entityName)
-      ) {
-        const entity = dependency
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
-        inverseDependencies.add(entity);
+      } else if (entity === entityName && entityDependency !== entityName) {
+        inverseDependencies.add(entityDependency);
       }
     });
   });
@@ -96,35 +89,48 @@ export function getDependenciesFromInverseDependencies(
   };
 }
 
-export const onApiEditor = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
+// Recursively find out dependency chain from
+// the inverse dependency map
+export function getDependencyChain(
+  propertyPath: string,
+  inverseMap: DependencyMap,
+) {
+  let currentChain: string[] = [];
+  const dependents = inverseMap[propertyPath];
+
+  if (!dependents) return currentChain;
+
+  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
+
+  dependents.map((e) => {
+    if (!e.includes(dependentInfo.entityName)) {
+      currentChain.push(e);
+    }
+
+    if (e !== dependentInfo.entityName) {
+      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    }
+  });
+  return currentChain;
+}
+
+export const doesEntityHaveErrors = (
+  entityId: string,
+  debuggerErrors: Record<string, Log>,
 ) => {
-  return (
-    window.location.pathname.indexOf(
-      API_EDITOR_URL(applicationId, currentPageId),
-    ) > -1
-  );
+  const ids = Object.keys(debuggerErrors);
+
+  return ids.some((e: string) => e.includes(entityId));
 };
 
-export const onQueryEditor = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      QUERIES_EDITOR_URL(applicationId, currentPageId),
-    ) > -1
-  );
+export const onApiEditor = () => {
+  return matchApiPath(window.location.pathname);
 };
 
-export const onCanvas = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      BUILDER_PAGE_URL(applicationId, currentPageId),
-    ) > -1
-  );
+export const onQueryEditor = () => {
+  return matchQueryPath(window.location.pathname);
+};
+
+export const onCanvas = () => {
+  return matchBuilderPath(window.location.pathname);
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
 
-type ColorSelectorProps = CommonComponentProps & {
+export type ColorSelectorProps = CommonComponentProps & {
   onSelect?: (hex: string) => void;
   colorPalette: string[];
   fill?: boolean;

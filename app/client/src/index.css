@@ -1,12 +1,15 @@
 @import "~normalize.css";
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+@import "theme/colors.css";
+@import "theme/defaultTheme.css";
 
 body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #FFF !important;
 }
 
 body.dragging *{
@@ -27,7 +30,12 @@ div.bp3-select-popover .bp3-popover-content {
 }
 
 span.bp3-popover-target {
-  display: block;
+  display: flex;
+  width: 100%;
+}
+
+span.bp3-popover-target > * {
+  flex-grow: 1;
 }
 
 div.bp3-popover-arrow {
@@ -45,6 +53,7 @@ div.bp3-popover-arrow {
 .Toastify__toast {
   padding: 0 !important;
   border-radius: 4px !important;
+  box-shadow: none !important;
 }
 .Toastify__toast-body {
   margin: 0 !important;
@@ -52,6 +61,10 @@ div.bp3-popover-arrow {
 
 .Toastify__progress-bar--default {
   background: rgb(3, 179, 101) !important;
+}
+
+.t--editor-appname-menu-portal {
+  z-index: 9 !important;
 }
 
 .bp3-popover .bp3-input {
@@ -75,6 +88,10 @@ div.bp3-popover-arrow {
   margin-top: 8px !important;
 }
 
+.bp3-popover.none-shadow-popover {
+  box-shadow: none;
+  border: 0px;
+}
 
 .bp3-datepicker {
   border-radius: 0 !important;
@@ -92,4 +109,13 @@ div.bp3-popover-arrow {
 .tox .tox-toolbar__primary {
   background: white !important;
   border-bottom: 1px solid #E7E7E7 !important;
+}
+/* making both the Modal layer and the Dropdown layer */
+.bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
+  z-index: 2 !important;
+}
+
+/* Portals on the Modal widget */
+.bp3-modal-widget .bp3-portal {
+  z-index: 21 !important;
 }

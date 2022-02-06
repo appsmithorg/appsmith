@@ -1,4 +1,4 @@
-import { CLICK_ON, createMessage, OPEN_THE_DEBUGGER } from "constants/messages";
+import { CLICK_ON, createMessage } from "constants/messages";
 import React from "react";
 import styled from "styled-components";
 import { DebugButton } from "./DebugCTA";
@@ -12,12 +12,17 @@ const Container = styled.div`
   color: ${(props) => props.theme.colors.debugger.messageTextColor};
 `;
 
-function DebuggerMessage(props: any) {
+type DebuggerMessageProps = {
+  onClick: () => void;
+  secondHalfText: string;
+};
+
+function DebuggerMessage(props: DebuggerMessageProps) {
   return (
     <Container>
       {createMessage(CLICK_ON)}
       <StyledButton className="message" onClick={props.onClick} />
-      {createMessage(OPEN_THE_DEBUGGER)}
+      {props.secondHalfText}
     </Container>
   );
 }

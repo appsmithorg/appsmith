@@ -1,16 +1,12 @@
-import React, { useState } from "react";
-import { useDrag, DragPreviewImage } from "react-dnd";
-import blankImage from "assets/images/blank.png";
+import React from "react";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
-import { WidgetIcons } from "icons/WidgetIcons";
-import {
-  useWidgetDragResize,
-  useWidgetSelection,
-} from "utils/hooks/dragResizeHooks";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { IconWrapper } from "constants/IconConstants";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -21,7 +17,7 @@ export const Wrapper = styled.div`
   border-radius: 0px;
   border: none;
   position: relative;
-  color: ${Colors.ALTO};
+  color: ${Colors.CHARCOAL};
   height: 72px;
   display: flex;
   align-items: center;
@@ -33,18 +29,8 @@ export const Wrapper = styled.div`
     justify-content: center;
   }
   &:hover {
-    color: ${Colors.WHITE};
-    background: ${Colors.TUNDORA};
+    background: ${Colors.Gallery};
     cursor: grab;
-    color: ${Colors.WHITE};
-    svg {
-      path {
-        fill: ${Colors.WHITE};
-      }
-      rect {
-        stroke: ${Colors.WHITE};
-      }
-    }
   }
   & i {
     font-family: ${(props) => props.theme.fonts.text};
@@ -64,6 +50,7 @@ export const BetaLabel = styled.div`
 `;
 
 export const IconLabel = styled.h5`
+  min-height: 32px;
   text-align: center;
   margin: 0;
   text-transform: uppercase;
@@ -77,49 +64,44 @@ export const IconLabel = styled.h5`
 `;
 
 function WidgetCard(props: CardProps) {
-  const { setIsDragging } = useWidgetDragResize();
+  const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
-  // Generate a new widgetId which can be used in the future for this widget.
-  const [widgetId, setWidgetId] = useState(generateReactKey());
-  const [, drag, preview] = useDrag({
-    item: { ...props.details, widgetId },
-    begin: () => {
-      AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
-        widgetType: props.details.type,
-        widgetName: props.details.widgetCardName,
-      });
-      setIsDragging && setIsDragging(true);
-      deselectAll();
-    },
-    end: (widget, monitor) => {
-      AnalyticsUtil.logEvent("WIDGET_CARD_DROP", {
-        widgetType: props.details.type,
-        widgetName: props.details.widgetCardName,
-        didDrop: monitor.didDrop(),
-      });
-      // We've finished dragging, generate a new widgetId to be used for next drag.
-      setWidgetId(generateReactKey());
-      setIsDragging && setIsDragging(false);
-    },
-  });
 
-  const iconType: string = props.details.type;
-  const Icon = WidgetIcons[iconType];
-  const className = `t--widget-card-draggable-${props.details.type
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deselectAll();
+    AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
+      widgetType: props.details.type,
+      widgetName: props.details.displayName,
+    });
+    setDraggingNewWidget &&
+      setDraggingNewWidget(true, {
+        ...props.details,
+        widgetId: generateReactKey(),
+      });
+  };
+
+  const type = `${props.details.type
     .split("_")
     .join("")
     .toLowerCase()}`;
+  const className = `t--widget-card-draggable-${type}`;
   return (
-    <>
-      <DragPreviewImage connect={preview} src={blankImage} />
-      <Wrapper className={className} ref={drag}>
-        <div>
-          <Icon />
-          <IconLabel>{props.details.widgetCardName}</IconLabel>
-          {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
-        </div>
-      </Wrapper>
-    </>
+    <Wrapper
+      className={className}
+      data-guided-tour-id={`widget-card-${type}`}
+      draggable
+      onDragStart={onDragStart}
+    >
+      <div>
+        <IconWrapper>
+          <img className="w-6 h-6" src={props.details.icon} />
+        </IconWrapper>
+        <IconLabel>{props.details.displayName}</IconLabel>
+        {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
+      </div>
+    </Wrapper>
   );
 }
 

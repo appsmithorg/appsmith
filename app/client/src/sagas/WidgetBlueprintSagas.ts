@@ -10,10 +10,10 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
 } from "constants/WidgetConstants";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { BlueprintOperationTypes } from "./WidgetBlueprintSagasEnums";
+import { BlueprintOperationTypes } from "widgets/constants";
+import * as log from "loglevel";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -32,7 +32,7 @@ function buildView(view: WidgetBlueprint["view"], widgetId: string) {
           props: template.props,
         });
       } catch (e) {
-        console.error(e);
+        log.error(e);
       }
     }
   }
@@ -191,9 +191,7 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
   let root = parent;
 
   while (root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    const parentConfig = {
-      ...(WidgetConfigResponse as any).config[root.type],
-    };
+    const parentConfig = WidgetFactory.widgetConfigMap.get(root.type);
 
     // find the blueprint with type CHILD_OPERATIONS
     const blueprintChildOperation = get(

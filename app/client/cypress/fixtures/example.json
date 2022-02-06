@@ -89,6 +89,7 @@
   "radioInputName": "Test Radio",
   "checkbocInputName": "value",
   "switchInputName": "Switch1",
+  "multiSelectName": "MultiSelect1",
   "defaultimage": "https://i0.wp.com/www.heyuguys.com/images/2016/04/The-Joker.png?fit=1920%2C960",
   "NewImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
   "base64image": {
@@ -103,8 +104,7 @@
   "body": "Fixtures are a great way to mock data for responses to routes",
   "ButtonLabel": "Test Button",
   "ButtonName": "Submitbutton",
-  "AlertModalName": "Alert_Modal",
-  "FormModalName": "Form_Modal",
+  "ModalName": "Modal",
   "TextLabelValue": "Test Text Label",
   "TextLabelValueScrollable": "Test Text Label to check scroll feature",
   "TextName": "TestTextBox",
@@ -201,50 +201,60 @@
       "orderAmount": 9.99
     }
   ],
-  "ChartCustomConfig": {"type": "area2d",
-    "dataSource": {
-      "chart": {
-        "caption": "Countries With Most Oil Reserves [2017-18]",
-        "subCaption": "In MMbbl = One Million barrels",
-        "xAxisName": "Country",
-        "yAxisName": "Reserves (MMbbl)",
-        "numberSuffix": "K"
-      },
-      "data": [
-        {
-          "label": "Venezuela",
-          "value": "290"
-        },
-        {
-          "label": "Saudi",
-          "value": "260"
-        },
-        {
-          "label": "Canada",
-          "value": "180"
-        },
-        {
-          "label": "Iran",
-          "value": "140"
-        },
-        {
-          "label": "Russia",
-          "value": "115"
-        },
-        {
-          "label": "UAE",
-          "value": "100"
-        },
-        {
-          "label": "US",
-          "value": "30"
-        },
-        {
-          "label": "China",
-          "value": "30"
-        }
-      ]
-    }},
+  "ChartCustomConfig": {
+      "type":"column2d",
+      "dataSource":{
+          "chart":{
+            "caption":"Monthly revenue for last year",
+            "subCaption":"Harry's SuperMart",
+            "xAxisName":"Month",
+            "yAxisName":"Revenues (In USD)",
+            "numberPrefix":"$",
+            "theme":"fusion"
+          },
+          "data":[
+            {
+                "label":"Jan",
+                "value":"420000"
+            },
+            {
+                "label":"Feb",
+                "value":"810000"
+            },
+            {
+                "label":"Mar",
+                "value":"720000"
+            },
+            {
+                "label":"Apr",
+                "value":"550000"
+            },
+            {
+                "label":"May",
+                "value":"910000"
+            },
+            {
+                "label":"Jun",
+                "value":"256000"
+            },
+            {
+                "label":"Jul",
+                "value":"512000"
+            }
+          ],
+          "trendlines":[
+            {
+                "line":[
+                  {
+                      "startvalue":"700000",
+                      "valueOnRight":"1",
+                      "displayvalue":"Monthly Target"
+                  }
+                ]
+            }
+          ]
+      }
+    },
   "TableInputWithNull": [
     {
       "id": 2381224,
@@ -260,5 +270,34 @@
       "productName": "Tuna Salad",
       "orderAmount": 9.99
     }
-  ]
+  ],
+  "ListItems": [
+    {
+      "id": 1,
+      "email": "michael.lawson@reqres.in",
+      "first_name": "Michael",
+      "last_name": "Lawson",
+      "avatar": "https://reqres.in/img/faces/7-image.jpg"
+    },
+    {
+      "id": 2,
+      "email": "lindsay.ferguson@reqres.in",
+      "first_name": "Lindsay",
+      "last_name": "Ferguson",
+      "avatar": "https://reqres.in/img/faces/8-image.jpg"
+    },
+   {
+      "id": 3,
+      "email": "brock.lesnar@reqres.in",
+      "first_name": "Brock",
+      "last_name": "Lesnar",
+      "avatar": "https://reqres.in/img/faces/8-image.jpg"
+    },
+    {
+      "id": 7,
+      "num": "007",
+      "name": "Charizard",
+      "img": "http://www.serebii.net/pokemongo/pokemon/006.png"
+    }
+  ]  
 }

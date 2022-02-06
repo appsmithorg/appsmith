@@ -23,6 +23,7 @@ export const getBindingPathsOfAction = (
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {
     data: EvaluationSubstitutionType.TEMPLATE,
     isLoading: EvaluationSubstitutionType.TEMPLATE,
+    datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
   };
   if (!formConfig) {
     return {
@@ -41,10 +42,10 @@ export const getBindingPathsOfAction = (
             formConfig.evaluationSubstitutionType,
           );
         }
-      }
-      if (formConfig.controlType === "ARRAY_FIELD") {
-        const actionValue = _.get(action, formConfig.configProperty);
+      } else if (formConfig.controlType === "ARRAY_FIELD") {
+        let actionValue = _.get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {
+          actionValue = actionValue.filter((val) => val);
           for (let i = 0; i < actionValue.length; i++) {
             formConfig.schema.forEach((schemaField: any) => {
               if (
@@ -60,6 +61,54 @@ export const getBindingPathsOfAction = (
               }
             });
           }
+        }
+      } else if (formConfig.controlType === "WHERE_CLAUSE") {
+        const recursiveFindBindingPathsForWhereClause = (
+          newConfigPath: string,
+          actionValue: any,
+        ) => {
+          if (
+            actionValue &&
+            actionValue.hasOwnProperty("children") &&
+            Array.isArray(actionValue.children)
+          ) {
+            actionValue.children.forEach((value: any, index: number) => {
+              recursiveFindBindingPathsForWhereClause(
+                `${newConfigPath}.children[${index}]`,
+                value,
+              );
+            });
+          } else {
+            if (actionValue.hasOwnProperty("key")) {
+              bindingPaths[
+                `${newConfigPath}.key`
+              ] = getCorrectEvaluationSubstitutionType(
+                formConfig.evaluationSubstitutionType,
+              );
+            }
+
+            if (actionValue.hasOwnProperty("value")) {
+              bindingPaths[
+                `${newConfigPath}.value`
+              ] = getCorrectEvaluationSubstitutionType(
+                formConfig.evaluationSubstitutionType,
+              );
+            }
+          }
+        };
+
+        const actionValue = _.get(action, formConfig.configProperty);
+        if (
+          actionValue &&
+          actionValue.hasOwnProperty("children") &&
+          Array.isArray(actionValue.children)
+        ) {
+          actionValue.children.forEach((value: any, index: number) => {
+            recursiveFindBindingPathsForWhereClause(
+              `${configPath}.children[${index}]`,
+              value,
+            );
+          });
         }
       }
     }

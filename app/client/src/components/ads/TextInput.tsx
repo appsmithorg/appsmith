@@ -1,5 +1,14 @@
-import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
+import React, {
+  EventHandler,
+  FocusEvent,
+  forwardRef,
+  Ref,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { Classes, CommonComponentProps, hexToRgba } from "./common";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import styled, { withTheme } from "styled-components";
 import Text, { TextType } from "./Text";
 import {
@@ -8,8 +17,12 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
-
+import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
+import _ from "lodash";
+import { replayHighlightClass } from "globalStyles/portals";
+
+export type InputType = "text" | "password" | "number" | "email" | "tel";
 
 export type Validator = (
   value: string,
@@ -38,14 +51,27 @@ export function notEmptyValidator(value: string) {
 }
 
 export type TextInputProps = CommonComponentProps & {
+  autoFocus?: boolean;
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
+  value?: string;
   validator?: (value: string) => { isValid: boolean; message: string };
   onChange?: (value: string) => void;
   readOnly?: boolean;
   dataType?: string;
   theme?: any;
+  leftIcon?: IconName;
+  helperText?: string;
+  rightSideComponent?: React.ReactNode;
+  width?: string;
+  height?: string;
+  noBorder?: boolean;
+  noCaret?: boolean;
+  onBlur?: EventHandler<FocusEvent<any>>;
+  onFocus?: EventHandler<FocusEvent<any>>;
+  errorMsg?: string;
+  trimValue?: boolean;
 };
 
 type boxReturnType = {
@@ -81,37 +107,86 @@ const boxStyles = (
   return { bgColor, color, borderColor };
 };
 
+const InputLoader = styled.div<{
+  $value?: string;
+  $noBorder?: boolean;
+  $isFocused?: boolean;
+  $isLoading?: boolean;
+  $height?: string;
+}>`
+  display: ${(props) => (props.$isLoading ? "static" : "none")};
+  border-radius: 0;
+  width: ${(props) =>
+    props.$value && !props.$noBorder && props.$isFocused
+      ? "calc(100% - 50px)"
+      : "100%"};
+
+  height: ${(props) => props.$height || "36px"};
+  border-radius: 0;
+`;
+
 const StyledInput = styled((props) => {
   // we are removing non input related props before passing them in the components
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { dataType, inputRef, inputStyle, theme, ...inputProps } = props;
+  // eslint-disable @typescript-eslint/no-unused-vars
+  const { dataType, inputRef, ...inputProps } = props;
+
+  const omitProps = [
+    "hasLeftIcon",
+    "inputStyle",
+    "rightSideComponentWidth",
+    "theme",
+    "validator",
+    "isValid",
+    "cypressSelector",
+    "leftIcon",
+    "helperText",
+    "rightSideComponent",
+    "noBorder",
+    "isLoading",
+    "noCaret",
+    "fill",
+    "errorMsg",
+  ];
+
   return props.asyncControl ? (
     <AsyncControllableInput
-      {...inputProps}
-      dataType={dataType}
+      {..._.omit(inputProps, omitProps)}
+      datatype={dataType}
       inputRef={inputRef}
     />
   ) : (
-    <input ref={inputRef} {...inputProps} />
+    <input ref={inputRef} {..._.omit(inputProps, omitProps)} />
   );
-})<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
-  width: ${(props) => (props.fill ? "100%" : "320px")};
+})<
+  TextInputProps & {
+    inputStyle: boxReturnType;
+    isValid: boolean;
+    rightSideComponentWidth: number;
+    hasLeftIcon: boolean;
+    $isLoading?: boolean;
+  }
+>`
+  display: ${(props) => (props.$isLoading ? "none" : "static")};
+  ${(props) => (props.noCaret ? "caret-color: white;" : null)};
+  color: ${(props) => props.inputStyle.color};
+  width: ${(props) =>
+    props.value && !props.noBorder && props.isFocused
+      ? "calc(100% - 50px)"
+      : "100%"};
   border-radius: 0;
   outline: 0;
   box-shadow: none;
-  border: 1px solid ${(props) => props.inputStyle.borderColor};
+  border: none;
   padding: 0px ${(props) => props.theme.spaces[6]}px;
-  height: 38px;
-  background-color: ${(props) => props.inputStyle.bgColor};
-  color: ${(props) => props.inputStyle.color};
-
-  &:-internal-autofill-selected,
-  &:-webkit-autofill,
-  &:-webkit-autofill:hover,
-  &:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px ${(props) => props.inputStyle.bgColor} inset !important;
-    -webkit-text-fill-color: ${(props) => props.inputStyle.color} !important;
-  }
+  padding-right: ${(props) =>
+    props.rightSideComponentWidth + props.theme.spaces[6]}px;
+  background-color: transparent;
+  font-size: ${(props) => props.theme.typography.p1.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.p1.fontWeight};
+  line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
+  text-overflow: ellipsis;
+  height: 100%;
 
   &::placeholder {
     color: ${(props) => props.theme.colors.textInput.placeholder};
@@ -119,56 +194,114 @@ const StyledInput = styled((props) => {
   &:disabled {
     cursor: not-allowed;
   }
-  ${(props) =>
-    !props.readOnly
-      ? `
-  &:focus {
-    border: 1px solid
-      ${
-        props.isValid
-          ? props.theme.colors.info.main
-          : props.theme.colors.danger.main
-      };
-    box-shadow: ${
-      props.isValid
-        ? "0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
-        : "0px 0px 4px 4px rgba(226, 44, 44, 0.18)"
-    };
-  }
-  `
-      : null};
 `;
 
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+const InputWrapper = styled.div<{
+  value?: string;
+  isFocused: boolean;
+  fill?: number;
+  noBorder?: boolean;
+  height?: string;
+  width?: string;
+  inputStyle: boxReturnType;
+  isValid?: boolean;
+  disabled?: boolean;
+  $isLoading?: boolean;
+}>`
   position: relative;
-  width: 100%;
+  display: flex;
+  align-items: center;  
+  width: ${(props) =>
+    props.fill ? "100%" : props.width ? props.width : "260px"};
+  height: ${(props) => props.height || "36px"};
+  border: 1.2px solid
+    ${(props) =>
+      props.noBorder ? "transparent" : props.inputStyle.borderColor};
+  background-color: ${(props) => props.inputStyle.bgColor};
+  color: ${(props) => props.inputStyle.color};
+  ${(props) =>
+    props.isFocused && !props.noBorder
+      ? `
+      border: 1.2px solid
+      ${
+        props.isValid
+          ? "var(--appsmith-input-focus-border-color)"
+          : props.theme.colors.danger.main
+      };
+      `
+      : null}
 
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};
   }
+  ​ .helper {
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.textInput.helper};
+    }
+  }
+  &:hover {
+    background-color: ${(props) =>
+      props.disabled
+        ? props.inputStyle.bgColor
+        : props.theme.colors.textInput.hover.bg};
+  }
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
 `;
 
-const ErrorWrapper = styled.div`
+const MsgWrapper = styled.div`
   position: absolute;
-  bottom: -17px;
+  bottom: -20px;
+  left: 0px;
+  &.helper {
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.textInput.helper};
+    }
+  }
 `;
+
+const RightSideContainer = styled.div`
+  position: absolute;
+  right: ${(props) => props.theme.spaces[6]}px;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+`;
+
+const IconWrapper = styled.div`
+  .${Classes.ICON} {
+    margin-right: ${(props) => props.theme.spaces[5]}px;
+  }
+`;
+
+const initialValidation = (props: TextInputProps) => {
+  let validationObj = { isValid: true, message: "" };
+  if (props.defaultValue && props.validator) {
+    validationObj = props.validator(props.defaultValue);
+  }
+  return validationObj;
+};
+
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
-    const initialValidation = () => {
-      let validationObj = { isValid: true, message: "" };
-      if (props.defaultValue && props.validator) {
-        validationObj = props.validator(props.defaultValue);
-      }
-      return validationObj;
-    };
-
+    //
     const [validation, setValidation] = useState<{
       isValid: boolean;
       message: string;
-    }>(initialValidation());
+    }>(initialValidation(props));
+
+    const [rightSideComponentWidth, setRightSideComponentWidth] = useState(0);
+    const [isFocused, setIsFocused] = useState(false);
+    const [inputValue, setInputValue] = useState(props.defaultValue);
+
+    const { trimValue = true } = props;
+
+    const setRightSideRef = useCallback((ref: HTMLDivElement) => {
+      if (ref) {
+        const { width } = ref.getBoundingClientRect();
+        setRightSideComponentWidth(width);
+      }
+    }, []);
 
     const inputStyle = useMemo(
       () => boxStyles(props, validation.isValid, props.theme),
@@ -177,29 +310,97 @@ const TextInput = forwardRef(
 
     const memoizedChangeHandler = useCallback(
       (el) => {
-        const inputValue = el.target.value.trim();
-        const validation = props.validator && props.validator(inputValue);
-        if (validation) {
-          props.validator && setValidation(validation);
+        const inputValue: string = trimValue
+          ? el.target.value.trim()
+          : el.target.value;
+        setInputValue(inputValue);
+        const inputValueValidation =
+          props.validator && props.validator(inputValue);
+        if (inputValueValidation && inputValueValidation.isValid) {
+          props.validator && setValidation(inputValueValidation);
           return (
-            validation.isValid && props.onChange && props.onChange(inputValue)
+            inputValueValidation.isValid &&
+            props.onChange &&
+            props.onChange(inputValue)
           );
         } else {
           return props.onChange && props.onChange(inputValue);
         }
       },
-      [props],
+      [props.onChange, setValidation, trimValue],
     );
+
+    const onBlurHandler = useCallback(
+      (e: React.FocusEvent<any>) => {
+        setIsFocused(false);
+        if (props.onBlur) props.onBlur(e);
+      },
+      [setIsFocused, props.onBlur],
+    );
+
+    const onFocusHandler = useCallback((e: React.FocusEvent<any>) => {
+      setIsFocused(true);
+      if (props.onFocus) props.onFocus(e);
+    }, []);
 
     const ErrorMessage = (
-      <ErrorWrapper>
-        <Text type={TextType.P3}>{validation.message}</Text>
-      </ErrorWrapper>
+      <MsgWrapper>
+        <Text type={TextType.P3}>
+          {props.errorMsg ? props.errorMsg : validation.message}
+        </Text>
+      </MsgWrapper>
     );
 
+    const HelperMessage = (
+      <MsgWrapper className="helper">
+        <Text type={TextType.P3}>* {props.helperText}</Text>
+      </MsgWrapper>
+    );
+
+    const iconColor = !validation.isValid
+      ? props.theme.colors.danger.main
+      : props.theme.colors.textInput.icon;
+
+    const hasLeftIcon = props.leftIcon
+      ? IconCollection.includes(props.leftIcon)
+      : false;
+
     return (
-      <InputWrapper>
+      <InputWrapper
+        $isLoading={props.isLoading}
+        className={replayHighlightClass}
+        disabled={props.disabled}
+        fill={props.fill ? 1 : 0}
+        height={props.height || undefined}
+        inputStyle={inputStyle}
+        isFocused={isFocused}
+        isValid={validation.isValid}
+        noBorder={props.noBorder}
+        value={inputValue}
+        width={props.width || undefined}
+      >
+        {props.leftIcon && (
+          <IconWrapper className="left-icon">
+            <Icon
+              fillColor={iconColor}
+              name={props.leftIcon}
+              size={IconSize.MEDIUM}
+            />
+          </IconWrapper>
+        )}
+
+        <InputLoader
+          $height={props.height}
+          $isFocused={isFocused}
+          $isLoading={props.isLoading}
+          $noBorder={props.noBorder}
+          $value={props.value}
+          className={BlueprintClasses.SKELETON}
+        />
+
         <StyledInput
+          $isLoading={props.isLoading}
+          autoFocus={props.autoFocus}
           defaultValue={props.defaultValue}
           inputStyle={inputStyle}
           isValid={validation.isValid}
@@ -207,12 +408,24 @@ const TextInput = forwardRef(
           type={props.dataType || "text"}
           {...props}
           data-cy={props.cypressSelector}
+          hasLeftIcon={hasLeftIcon}
           inputRef={ref}
+          name={props?.name}
+          onBlur={onBlurHandler}
           onChange={memoizedChangeHandler}
+          onFocus={onFocusHandler}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
+          rightSideComponentWidth={rightSideComponentWidth}
         />
+        {validation.isValid &&
+          props.helperText &&
+          props.helperText.length > 0 &&
+          HelperMessage}
         {ErrorMessage}
+        <RightSideContainer className="right-icon" ref={setRightSideRef}>
+          {props.rightSideComponent}
+        </RightSideContainer>
       </InputWrapper>
     );
   },
@@ -221,5 +434,3 @@ const TextInput = forwardRef(
 TextInput.displayName = "TextInput";
 
 export default withTheme(TextInput);
-
-export type InputType = "text" | "password" | "number" | "email" | "tel";

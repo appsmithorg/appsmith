@@ -30,7 +30,11 @@ export const useActions = () => {
     .map((action) => action.config);
 
   const saas: Action[] = actions
-    .filter((action) => action.config.pluginType === PluginType.SAAS)
+    .filter(
+      (action) =>
+        action.config.pluginType === PluginType.SAAS ||
+        action.config.pluginType === PluginType.REMOTE,
+    )
     .map((action) => action.config);
 
   return { apis, queries, saas };

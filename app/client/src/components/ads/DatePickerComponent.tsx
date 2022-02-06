@@ -2,6 +2,7 @@ import React from "react";
 import { DateInput, TimePrecision } from "@blueprintjs/datetime";
 import styled from "constants/DefaultTheme";
 import { Classes } from "./common";
+import { Colors } from "constants/Colors";
 
 const StyledDateInput = styled(DateInput)`
   & {
@@ -9,7 +10,7 @@ const StyledDateInput = styled(DateInput)`
       color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
       background-color: ${(props) =>
         props.theme.colors.propertyPane.buttonText};
-      border: 1px solid transparent;
+      border: 1px solid ${Colors.ALTO2};
       border-radius: 0;
       padding: 0px 8px;
       height: 32px;
@@ -97,7 +98,7 @@ interface DatePickerComponentProps {
   value: Date | null;
   onChange?: (selectedDate: Date, isUserChange: boolean) => void;
   formatDate?: (date: Date) => string;
-  parseDate?: (dateStr: string) => Date;
+  parseDate?: (dateStr: string) => Date | null;
 }
 
 function DatePickerComponent(props: DatePickerComponentProps) {

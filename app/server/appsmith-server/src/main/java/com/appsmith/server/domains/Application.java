@@ -15,8 +15,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Getter
 @Setter
@@ -46,6 +49,9 @@ public class Application extends BaseDomain {
     @Transient
     boolean appIsExample = false;
 
+    @Transient
+    long unreadCommentThreads;
+
     @JsonIgnore
     String clonedFromApplicationId;
 
@@ -53,13 +59,59 @@ public class Application extends BaseDomain {
 
     String icon;
 
+    private String slug;
+
     @JsonIgnore
     AppLayout unpublishedAppLayout;
 
     @JsonIgnore
     AppLayout publishedAppLayout;
 
+    GitApplicationMetadata gitApplicationMetadata;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Instant lastDeployedAt; // when this application was last deployed
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Integer evaluationVersion;
+
+    /*
+    Changing name, change in pages, widgets and datasources will set lastEditedAt.
+    Other activities e.g. changing policy will not change this property.
+    We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
+     */
+    @JsonIgnore
+    Instant lastEditedAt;
+
+    /**
+     * Earlier this was returning value of the updatedAt property in the base domain.
+     * As this property is modified by the framework when there is any change in domain,
+     * a new property lastEditedAt has been added to track the edit actions from users.
+     * This method exposes that property.
+     * @return updated time as a string
+     */
+    @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
+    public String getLastUpdateTime() {
+        if(lastEditedAt != null) {
+            return ISO_FORMATTER.format(lastEditedAt);
+        }
+        return null;
+    }
+
+    public String getLastDeployedAt() {
+        if(lastDeployedAt != null) {
+            return ISO_FORMATTER.format(lastDeployedAt);
+        }
+        return null;
+    }
+
     Boolean forkingEnabled;
+
+    @JsonIgnore
+    String publishedModeThemeId;
+
+    @JsonIgnore
+    String editModeThemeId;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
@@ -117,5 +169,4 @@ public class Application extends BaseDomain {
             FLUID,
         }
     }
-
 }

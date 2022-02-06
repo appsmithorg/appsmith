@@ -1,14 +1,10 @@
-import React, { useContext, useRef, memo } from "react";
-import { XYCoord } from "react-dnd";
-
+import React, { useContext, memo, useMemo } from "react";
 import {
   WidgetOperations,
   WidgetRowCols,
   WidgetProps,
 } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { generateClassName } from "utils/generators";
-import { DropTargetContext } from "./DropTargetComponent";
 import {
   UIElementSize,
   computeFinalRowCols,
@@ -16,13 +12,14 @@ import {
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
-  useWidgetSelection,
+  useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import Resizable from "resizable";
-import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
+import Resizable from "resizable/resizenreflow";
+import { omit, get } from "lodash";
+import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
   LeftHandleStyles,
@@ -35,10 +32,18 @@ import {
   BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { scrollElementIntoParentCanvasView } from "utils/helpers";
-import { getNearestParentCanvas } from "utils/generators";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { focusWidget } from "actions/widgetActions";
+import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
+import { GridDefaults } from "constants/WidgetConstants";
+import { DropTargetContext } from "./DropTargetComponent";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -47,18 +52,16 @@ export type ResizableComponentProps = WidgetProps & {
 export const ResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,
 ) {
-  const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  const occupiedSpaces = useSelector(getOccupiedSpaces);
-
-  const { persistDropTargetRows, updateDropTargetRows } = useContext(
-    DropTargetContext,
-  );
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
+  const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
@@ -77,13 +80,11 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
+  const parentWidgetToSelect = getParentToOpenIfAny(
+    props.widgetId,
+    canvasWidgets,
+  );
 
-  const occupiedSpacesBySiblingWidgets =
-    occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
-      ? occupiedSpaces[props.parentId]
-      : undefined;
-
-  // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
     focusedWidget === props.widgetId ||
     selectedWidget === props.widgetId ||
@@ -100,102 +101,56 @@ export const ResizableComponent = memo(function ResizableComponent(
       2 * props.paddingOffset,
   };
 
-  // Resize bound's className - defaults to body
-  // ResizableContainer accepts the className of the element,
-  // whose clientRect will act as the bounds for resizing.
-  // Note, if there are many containers with the same className
-  // the bounding container becomes the nearest parent with the className
-  const boundingElementClassName = generateClassName(props.parentId);
-  const possibleBoundingElements = document.getElementsByClassName(
-    boundingElementClassName,
-  );
-  const boundingElement =
-    possibleBoundingElements.length > 0
-      ? possibleBoundingElements[0]
-      : undefined;
-
   // onResize handler
-  // Checks if the current resize position has any collisions
-  // If yes, set isColliding flag to true.
-  // If no, set isColliding flag to false.
-  const isColliding = (newDimensions: UIElementSize, position: XYCoord) => {
-    // Moving the bounding element calculations inside
-    // to make this expensive operation only whne
-    const boundingElementClientRect = boundingElement
-      ? boundingElement.getBoundingClientRect()
-      : undefined;
-
-    const bottom =
-      props.topRow +
-      position.y / props.parentRowSpace +
-      newDimensions.height / props.parentRowSpace;
-    // Make sure to calculate collision IF we don't update the main container's rows
-    let updated = false;
-    if (updateDropTargetRows) {
-      updated = updateDropTargetRows(props.widgetId, bottom);
-      const el = resizableRef.current;
-      const scrollParent = getNearestParentCanvas(resizableRef.current);
-      scrollElementIntoParentCanvasView(el, scrollParent);
-    }
-
+  const getResizedPositions = (
+    newDimensions: UIElementSize,
+    position: XYCord,
+  ) => {
     const delta: UIElementSize = {
       height: newDimensions.height - dimensions.height,
       width: newDimensions.width - dimensions.width,
     };
-    const newRowCols: WidgetRowCols | false = computeRowCols(
-      delta,
-      position,
-      props,
-    );
+    const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
+    let canResizeHorizontally = true,
+      canResizeVertically = true;
 
-    if (newRowCols.rightColumn > getSnapColumns()) {
-      return true;
-    }
-
-    // Minimum row and columns to be set to a widget.
-    if (
-      newRowCols.rightColumn - newRowCols.leftColumn < 2 ||
-      newRowCols.bottomRow - newRowCols.topRow < 4
-    ) {
-      return true;
-    }
+    // this is required for list widget so that template have no collision
+    if (props.ignoreCollision)
+      return {
+        canResizeHorizontally,
+        canResizeVertically,
+      };
 
     if (
-      boundingElementClientRect &&
-      newRowCols.rightColumn * props.parentColumnSpace >
-        boundingElementClientRect.width
+      newRowCols &&
+      (newRowCols.rightColumn > getSnapColumns() ||
+        newRowCols.leftColumn < 0 ||
+        newRowCols.rightColumn - newRowCols.leftColumn < 2)
     ) {
-      return true;
+      canResizeHorizontally = false;
     }
 
-    if (newRowCols && newRowCols.leftColumn < 0) {
-      return true;
+    if (
+      newRowCols &&
+      (newRowCols.topRow < 0 || newRowCols.bottomRow - newRowCols.topRow < 4)
+    ) {
+      canResizeVertically = false;
     }
 
-    if (!updated) {
-      if (
-        boundingElementClientRect &&
-        newRowCols.bottomRow * props.parentRowSpace >
-          boundingElementClientRect.height
-      ) {
-        return true;
-      }
+    const resizedPositions = {
+      id: props.widgetId,
+      left: newRowCols.leftColumn,
+      top: newRowCols.topRow,
+      bottom: newRowCols.bottomRow,
+      right: newRowCols.rightColumn,
+    };
 
-      if (newRowCols && newRowCols.topRow < 0) {
-        return true;
-      }
-    }
     // Check if new row cols are occupied by sibling widgets
-    return isDropZoneOccupied(
-      {
-        left: newRowCols.leftColumn,
-        top: newRowCols.topRow,
-        bottom: newRowCols.bottomRow,
-        right: newRowCols.rightColumn,
-      },
-      props.widgetId,
-      occupiedSpacesBySiblingWidgets,
-    );
+    return {
+      canResizeHorizontally,
+      canResizeVertically,
+      resizedPositions,
+    };
   };
 
   // onResizeStop handler
@@ -203,7 +158,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   // 1) There is no collision
   // 2) There is a change in widget size
   // Update widget, if both of the above are true.
-  const updateSize = (newDimensions: UIElementSize, position: XYCoord) => {
+  const updateSize = (newDimensions: UIElementSize, position: XYCord) => {
     // Get the difference in size of the widget, before and after resizing.
     const delta: UIElementSize = {
       height: newDimensions.height - dimensions.height,
@@ -220,10 +175,13 @@ export const ResizableComponent = memo(function ResizableComponent(
     );
 
     if (newRowCols) {
-      persistDropTargetRows &&
-        persistDropTargetRows(props.widgetId, newRowCols.bottomRow);
       updateWidget &&
-        updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
+        updateWidget(WidgetOperations.RESIZE, props.widgetId, {
+          ...newRowCols,
+          parentId: props.parentId,
+          snapColumnSpace: props.parentColumnSpace,
+          snapRowSpace: props.parentRowSpace,
+        });
     }
     // Tell the Canvas that we've stopped resizing
     // Put it later in the stack so that other updates like click, are not propagated to the parent container
@@ -234,12 +192,21 @@ export const ResizableComponent = memo(function ResizableComponent(
     // By setting the focus, we enable the control buttons on the widget
     selectWidget &&
       selectedWidget !== props.widgetId &&
+      parentWidgetToSelect?.widgetId !== props.widgetId &&
       selectWidget(props.widgetId);
-    // Let the propertypane show.
-    // The propertypane decides whether to show itself, based on
-    // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
 
+    if (parentWidgetToSelect) {
+      selectWidget &&
+        selectedWidget !== parentWidgetToSelect.widgetId &&
+        selectWidget(parentWidgetToSelect.widgetId);
+      focusWidget(parentWidgetToSelect.widgetId);
+    } else {
+      selectWidget &&
+        selectedWidget !== props.widgetId &&
+        selectWidget(props.widgetId);
+    }
+    // Property pane closes after a resize/drag
+    showPropertyPane && showPropertyPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
       widgetName: props.widgetName,
       widgetType: props.type,
@@ -255,35 +222,80 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
+    // Make sure that this tableFilterPane should close
+    showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
       widgetName: props.widgetName,
       widgetType: props.type,
     });
   };
+  const handles = useMemo(() => {
+    const allHandles = {
+      left: LeftHandleStyles,
+      top: TopHandleStyles,
+      bottom: BottomHandleStyles,
+      right: RightHandleStyles,
+      bottomRight: BottomRightHandleStyles,
+      topLeft: TopLeftHandleStyles,
+      topRight: TopRightHandleStyles,
+      bottomLeft: BottomLeftHandleStyles,
+    };
+
+    return omit(allHandles, get(props, "disabledResizeHandles", []));
+  }, [props]);
 
   const isEnabled =
-    !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
+    !isDragging &&
+    isWidgetFocused &&
+    !props.resizeDisabled &&
+    !isCommentMode &&
+    !isSnipingMode &&
+    !isPreviewMode;
+  const isMultiSelectedWidget =
+    selectedWidgets &&
+    selectedWidgets.length > 1 &&
+    selectedWidgets.includes(props.widgetId);
+  const { updateDropTargetRows } = useContext(DropTargetContext);
+
+  const gridProps = {
+    parentColumnSpace: props.parentColumnSpace,
+    parentRowSpace: props.parentRowSpace,
+    paddingOffset: props.paddingOffset,
+    maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+  };
+
+  const originalPositions = {
+    id: props.widgetId,
+    left: props.leftColumn,
+    top: props.topRow,
+    bottom: props.bottomRow,
+    right: props.rightColumn,
+  };
+  const updateBottomRow = (bottom: number) => {
+    if (props.parentId) {
+      updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
+    }
+  };
 
   return (
     <Resizable
+      allowResize={!isMultiSelectedWidget}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       enable={isEnabled}
-      handles={{
-        left: LeftHandleStyles,
-        top: TopHandleStyles,
-        bottom: BottomHandleStyles,
-        right: RightHandleStyles,
-        bottomRight: BottomRightHandleStyles,
-        topLeft: TopLeftHandleStyles,
-        topRight: TopRightHandleStyles,
-        bottomLeft: BottomLeftHandleStyles,
-      }}
-      isColliding={isColliding}
+      getResizedPositions={getResizedPositions}
+      gridProps={gridProps}
+      handles={handles}
       onStart={handleResizeStart}
       onStop={updateSize}
-      ref={resizableRef}
+      originalPositions={originalPositions}
+      parentId={props.parentId}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      updateBottomRow={updateBottomRow}
+      widgetId={props.widgetId}
+      // Used only for performance tracking, can be removed after optimization.
+      zWidgetId={props.widgetId}
+      zWidgetType={props.type}
     >
       <VisibilityContainer
         padding={props.paddingOffset}
@@ -294,5 +306,4 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
-
 export default ResizableComponent;

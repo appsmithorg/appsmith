@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
@@ -12,14 +11,9 @@ import {
   InjectedFormProps,
   reduxForm,
 } from "redux-form";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import BackButton from "./BackButton";
-import InputTextControl, {
-  StyledInfo,
-} from "components/formControls/InputTextControl";
-import KeyValueInputControl from "components/formControls/KeyValueInputControl";
-import DropDownControl from "components/formControls/DropDownControl";
+import FormControl from "pages/Editor/FormControl";
+import { StyledInfo } from "components/formControls/InputTextControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -28,7 +22,7 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import {
   deleteDatasource,
   redirectAuthorizationCode,
@@ -41,6 +35,7 @@ import {
 } from "transformers/RestAPIDatasourceFormTransformer";
 import {
   ApiDatasourceForm,
+  ApiKeyAuthType,
   AuthType,
   GrantType,
 } from "entities/Datasource/RestAPIForm";
@@ -54,9 +49,15 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import Callout from "components/ads/Callout";
+import CloseEditor from "components/editorComponents/CloseEditor";
+import { ButtonVariantTypes } from "components/constants";
+import { updateReplayEntity } from "../../../actions/pageActions";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 interface DatasourceRestApiEditorProps {
+  initializeReplayEntity: (id: string, data: any) => void;
   updateDatasource: (
     formValues: Datasource,
     onSuccess?: ReduxAction<unknown>,
@@ -83,10 +84,10 @@ type Props = DatasourceRestApiEditorProps &
   InjectedFormProps<ApiDatasourceForm, DatasourceRestApiEditorProps>;
 
 const RestApiForm = styled.div`
+  flex: 1;
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -123,7 +124,6 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
 `;
 
 const SaveButtonContainer = styled.div`
@@ -136,15 +136,6 @@ const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 72px;
     margin-right: 9px;
-    min-height: 32px;
-  }
-`;
-
-const CreateApiButton = styled(BaseButton)`
-  &&& {
-    max-width: 120px;
-    margin-right: 9px;
-    align-self: center;
     min-height: 32px;
   }
 `;
@@ -162,18 +153,16 @@ const AuthorizeButton = styled(StyledButton)`
   }
 `;
 
-const COMMON_INPUT_PROPS: any = {
-  name: "",
-  formName: DATASOURCE_REST_API_FORM,
-  id: "",
-  isValid: false,
-  controlType: "",
-};
-
 class DatasourceRestAPIEditor extends React.Component<Props> {
-  componentDidMount = () => {
+  componentDidMount() {
     const search = new URLSearchParams(this.props.location.search);
     const status = search.get("response_status");
+
+    // set replay data
+    this.props.initializeReplayEntity(
+      this.props.datasource.id,
+      this.props.initialValues,
+    );
 
     if (status) {
       const display_message = search.get("display_message");
@@ -191,16 +180,35 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         variant,
       });
     }
-  };
+  }
 
   componentDidUpdate() {
-    this.ensureOAuthDefaultsAreCorrect();
+    if (!this.props.formData) return;
+
+    const { authType } = this.props.formData;
+
+    if (authType === AuthType.OAuth2) {
+      this.ensureOAuthDefaultsAreCorrect();
+    } else if (authType === AuthType.apiKey) {
+      this.ensureAPIKeyDefaultsAreCorrect();
+    }
   }
 
   isDirty(prop: any) {
     const { formMeta } = this.props;
     return _.get(formMeta, prop + ".visited", false);
   }
+
+  ensureAPIKeyDefaultsAreCorrect = () => {
+    if (!this.props.formData) return;
+    const { authentication } = this.props.formData;
+    if (!authentication || !_.get(authentication, "addTo")) {
+      this.props.change("authentication.addTo", ApiKeyAuthType.Header);
+    }
+    if (!authentication || !_.get(authentication, "headerPrefix")) {
+      this.props.change("authentication.headerPefix", "ApiKeyAuthType.Header");
+    }
+  };
 
   ensureOAuthDefaultsAreCorrect = () => {
     if (!this.props.formData) return;
@@ -211,27 +219,22 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         "authentication.grantType",
         GrantType.ClientCredentials,
       );
-      return false;
     }
     if (_.get(authentication, "isTokenHeader") === undefined) {
       this.props.change("authentication.isTokenHeader", true);
-      return false;
     }
     if (
       !this.isDirty("authentication.headerPrefix") &&
       _.get(authentication, "headerPrefix") === undefined
     ) {
       this.props.change("authentication.headerPrefix", "Bearer");
-      return false;
     }
 
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
-        return false;
       }
     }
-    return true;
   };
 
   disableSave = (): boolean => {
@@ -249,6 +252,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
+
     this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
@@ -263,14 +267,20 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         text: "Unable to create API. Try adding a url to the datasource",
         variant: Variant.danger,
       });
+      return;
     }
     const newApiName = createNewApiName(actions, pageId || "");
 
     const headers =
       this.props.datasource?.datasourceConfiguration?.headers ?? [];
+    const queryParameters =
+      this.props.datasource?.datasourceConfiguration?.queryParameters ?? [];
     const defaultApiActionConfig: ApiActionConfig = {
       ...DEFAULT_API_ACTION_CONFIG,
       headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
+      queryParameters: queryParameters.length
+        ? queryParameters
+        : DEFAULT_API_ACTION_CONFIG.queryParameters,
     };
 
     this.save(
@@ -292,44 +302,32 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   render = () => {
     return (
-      <RestApiForm>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          {this.renderHeader()}
-          {this.renderEditor()}
-          {this.renderSave()}
-        </form>
-      </RestApiForm>
+      <>
+        <CloseEditor />
+        <RestApiForm>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            {this.renderHeader()}
+            {this.renderEditor()}
+            {this.renderSave()}
+          </form>
+        </RestApiForm>
+      </>
     );
   };
 
   renderHeader = () => {
-    const { isNewDatasource, isSaving, pluginImage } = this.props;
+    const { isNewDatasource, pluginImage } = this.props;
     return (
-      <>
-        <BackButton onClick={history.goBack} />
-        <br />
-        <Header>
-          <FormTitleContainer>
-            <PluginImage alt="Datasource" src={pluginImage} />
-            <FormTitle focusOnMount={isNewDatasource} />
-          </FormTitleContainer>
-
-          <CreateApiButton
-            accent="primary"
-            className="t--create-query"
-            disabled={this.disableSave()}
-            filled
-            icon={"plus"}
-            loading={isSaving}
-            onClick={() => this.createApiAction()}
-            text="New API"
-          />
-        </Header>
-      </>
+      <Header>
+        <FormTitleContainer>
+          <PluginImage alt="Datasource" src={pluginImage} />
+          <FormTitle focusOnMount={isNewDatasource} />
+        </FormTitleContainer>
+      </Header>
     );
   };
 
@@ -338,7 +336,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <SaveButtonContainer>
         <ActionButton
-          accent="error"
+          // accent="error"
+          buttonStyle="DANGER"
+          buttonVariant={ButtonVariantTypes.PRIMARY}
           className="t--delete-datasource"
           loading={isDeleting}
           onClick={() => deleteDatasource(datasourceId)}
@@ -368,29 +368,36 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           messages.map((msg, i) => (
             <Callout fill key={i} text={msg} variant={Variant.warning} />
           ))}
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="url"
-            isRequired
-            label="URL"
-            placeholderText="https://example.com"
-          />
+        <FormInputContainer data-replay-id={btoa("url")}>
+          {this.renderInputTextControlViaFormControl(
+            "url",
+            "URL",
+            "https://example.com",
+            "TEXT",
+            false,
+            true,
+          )}
         </FormInputContainer>
-        <FormInputContainer>
-          <KeyValueInputControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="headers"
-            label="Headers"
-          />
+        <FormInputContainer data-replay-id={btoa("headers")}>
+          {this.renderKeyValueControlViaFormControl(
+            "headers",
+            "Headers",
+            "",
+            false,
+          )}
         </FormInputContainer>
-        <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="isSendSessionEnabled"
-            isRequired
-            label="Send Appsmith signature header"
-            options={[
+        <FormInputContainer data-replay-id={btoa("queryParameters")}>
+          {this.renderKeyValueControlViaFormControl(
+            "queryParameters",
+            "Query Parameters",
+            "",
+            false,
+          )}
+        </FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("isSendSessionEnabled")}>
+          {this.renderDropdownControlViaFormControl(
+            "isSendSessionEnabled",
+            [
               {
                 label: "Yes",
                 value: true,
@@ -399,28 +406,29 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "No",
                 value: false,
               },
-            ]}
-            placeholderText=""
-            propertyValue=""
-            subtitle="Header key: X-APPSMITH-SIGNATURE"
-          />
+            ],
+            "Send Appsmith signature header",
+            "",
+            true,
+            "Header key: X-APPSMITH-SIGNATURE",
+          )}
         </FormInputContainer>
         {formData.isSendSessionEnabled && (
-          <FormInputContainer>
-            <InputTextControl
-              {...COMMON_INPUT_PROPS}
-              configProperty="sessionSignatureKey"
-              label="Session Details Signature Key"
-              placeholderText=""
-            />
+          <FormInputContainer data-replay-id={btoa("sessionSignatureKey")}>
+            {this.renderInputTextControlViaFormControl(
+              "sessionSignatureKey",
+              "Session Details Signature Key",
+              "",
+              "TEXT",
+              false,
+              false,
+            )}
           </FormInputContainer>
         )}
-        <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authType"
-            label="Authentication Type"
-            options={[
+        <FormInputContainer data-replay-id={btoa("authType")}>
+          {this.renderDropdownControlViaFormControl(
+            "authType",
+            [
               {
                 label: "None",
                 value: AuthType.NONE,
@@ -433,10 +441,20 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "OAuth 2.0",
                 value: AuthType.OAuth2,
               },
-            ]}
-            placeholderText=""
-            propertyValue=""
-          />
+              {
+                label: "API Key",
+                value: AuthType.apiKey,
+              },
+              {
+                label: "Bearer Token",
+                value: AuthType.bearerToken,
+              },
+            ],
+            "Authentication Type",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {this.renderAuthFields()}
       </>
@@ -451,6 +469,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       content = this.renderOauth2();
     } else if (authType === AuthType.basic) {
       content = this.renderBasic();
+    } else if (authType === AuthType.apiKey) {
+      content = this.renderApiKey();
+    } else if (authType === AuthType.bearerToken) {
+      content = this.renderBearerToken();
     }
     if (content) {
       return (
@@ -461,26 +483,104 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
   };
 
+  renderApiKey = () => {
+    const { authentication } = this.props.formData;
+    return (
+      <>
+        <FormInputContainer data-replay-id={btoa("authentication.label")}>
+          {this.renderInputTextControlViaFormControl(
+            "authentication.label",
+            "Key",
+            "api_key",
+            "TEXT",
+            false,
+            false,
+          )}
+        </FormInputContainer>
+        <FormInputContainer>
+          {this.renderInputTextControlViaFormControl(
+            "authentication.value",
+            "Value",
+            "value",
+            "TEXT",
+            true,
+            false,
+          )}
+        </FormInputContainer>
+        <FormInputContainer>
+          {this.renderDropdownControlViaFormControl(
+            "authentication.addTo",
+            [
+              {
+                label: "Query Params",
+                value: ApiKeyAuthType.QueryParams,
+              },
+              {
+                label: "Header",
+                value: ApiKeyAuthType.Header,
+              },
+            ],
+            "Add To",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
+        {_.get(authentication, "addTo") == "header" && (
+          <FormInputContainer
+            data-replay-id={btoa("authentication.headerPrefix")}
+          >
+            {this.renderInputTextControlViaFormControl(
+              "authentication.headerPrefix",
+              "Header Prefix",
+              "eg: Bearer ",
+              "TEXT",
+              false,
+              false,
+            )}
+          </FormInputContainer>
+        )}
+      </>
+    );
+  };
+
+  renderBearerToken = () => {
+    return (
+      <FormInputContainer data-replay-id={btoa("authentication.bearerToken")}>
+        {this.renderInputTextControlViaFormControl(
+          "authentication.bearerToken",
+          "Bearer Token",
+          "Bearer Token",
+          "TEXT",
+          true,
+          false,
+        )}
+      </FormInputContainer>
+    );
+  };
+
   renderBasic = () => {
     return (
       <>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.username"
-            label="Username"
-            placeholderText="Username"
-          />
+        <FormInputContainer data-replay-id={btoa("authentication.username")}>
+          {this.renderInputTextControlViaFormControl(
+            "authentication.username",
+            "Username",
+            "Username",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.password"
-            dataType="PASSWORD"
-            encrypted
-            label="Password"
-            placeholderText="Password"
-          />
+        <FormInputContainer data-replay-id={btoa("authentication.password")}>
+          {this.renderInputTextControlViaFormControl(
+            "authentication.password",
+            "Password",
+            "Password",
+            "PASSWORD",
+            true,
+            false,
+          )}
         </FormInputContainer>
       </>
     );
@@ -501,12 +601,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
     return (
       <>
-        <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.grantType"
-            label="Grant Type"
-            options={[
+        <FormInputContainer data-replay-id={btoa("authentication.grantType")}>
+          {this.renderDropdownControlViaFormControl(
+            "authentication.grantType",
+            [
               {
                 label: "Client Credentials",
                 value: GrantType.ClientCredentials,
@@ -515,10 +613,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "Authorization Code",
                 value: GrantType.AuthorizationCode,
               },
-            ]}
-            placeholderText=""
-            propertyValue=""
-          />
+            ],
+            "Grant Type",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {content}
       </>
@@ -529,12 +629,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { formData } = this.props;
     return (
       <>
-        <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.isTokenHeader"
-            label="Add Access Token To"
-            options={[
+        <FormInputContainer
+          data-replay-id={btoa("authentication.isTokenHeader")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isTokenHeader",
+            [
               {
                 label: "Request Header",
                 value: true,
@@ -543,52 +643,70 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "Request URL",
                 value: false,
               },
-            ]}
-          />
+            ],
+            "Add Access Token To",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {_.get(formData.authentication, "isTokenHeader") && (
-          <FormInputContainer>
-            <InputTextControl
-              {...COMMON_INPUT_PROPS}
-              configProperty="authentication.headerPrefix"
-              label="Header Prefix"
-              placeholderText="eg: Bearer "
-            />
+          <FormInputContainer
+            data-replay-id={btoa("authentication.headerPrefix")}
+          >
+            {this.renderInputTextControlViaFormControl(
+              "authentication.headerPrefix",
+              "Header Prefix",
+              "eg: Bearer ",
+              "TEXT",
+              false,
+              false,
+            )}
           </FormInputContainer>
         )}
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.accessTokenUrl"
-            label="Access Token URL"
-            placeholderText="https://example.com/login/oauth/access_token"
-          />
+        <FormInputContainer
+          data-replay-id={btoa("authentication.accessTokenUrl")}
+        >
+          {this.renderInputTextControlViaFormControl(
+            "authentication.accessTokenUrl",
+            "Access Token URL",
+            "https://example.com/login/oauth/access_token",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.clientId"
-            label="Client ID"
-            placeholderText="Client ID"
-          />
+        <FormInputContainer data-replay-id={btoa("authentication.clientId")}>
+          {this.renderInputTextControlViaFormControl(
+            "authentication.clientId",
+            "Client ID",
+            "Client ID",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.clientSecret"
-            dataType="PASSWORD"
-            encrypted
-            label="Client Secret"
-            placeholderText="Client Secret"
-          />
+        <FormInputContainer
+          data-replay-id={btoa("authentication.clientSecret")}
+        >
+          {this.renderInputTextControlViaFormControl(
+            "authentication.clientSecret",
+            "Client Secret",
+            "Client Secret",
+            "PASSWORD",
+            true,
+            false,
+          )}
         </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.scopeString"
-            label="Scope(s)"
-            placeholderText="e.g. read, write"
-          />
+        <FormInputContainer data-replay-id={btoa("authentication.scopeString")}>
+          {this.renderInputTextControlViaFormControl(
+            "authentication.scopeString",
+            "Scope(s)",
+            "e.g. read, write",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
       </>
     );
@@ -597,21 +715,25 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderOauth2CommonAdvanced = () => {
     return (
       <>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.audience"
-            label="Audience"
-            placeholderText="https://example.com/oauth/audience"
-          />
+        <FormInputContainer data-replay-id={btoa("authentication.audience")}>
+          {this.renderInputTextControlViaFormControl(
+            "authentication.audience",
+            "Audience",
+            "https://example.com/oauth/audience",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.resource"
-            label="Resource"
-            placeholderText="https://example.com/oauth/resource"
-          />
+        <FormInputContainer data-replay-id={btoa("authentication.resource")}>
+          {this.renderInputTextControlViaFormControl(
+            "authentication.resource",
+            "Resource",
+            "https://example.com/oauth/resource",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
       </>
     );
@@ -638,16 +760,20 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <>
         {this.renderOauth2Common()}
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.authorizationUrl"
-            label="Authorization URL"
-            placeholderText="https://example.com/login/oauth/authorize"
-          />
+        <FormInputContainer
+          data-replay-id={btoa("authentication.authorizationUrl")}
+        >
+          {this.renderInputTextControlViaFormControl(
+            "authentication.authorizationUrl",
+            "Authorization URL",
+            "https://example.com/login/oauth/authorize",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <div style={{ width: "50vh" }}>
+          <div style={{ width: "20vw" }}>
             <FormLabel>
               Redirect URL
               <br />
@@ -658,19 +784,22 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             <CopyToClipBoard copyText={redirectURL} />
           </div>
         </FormInputContainer>
-        <FormInputContainer>
-          <KeyValueInputControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.customAuthenticationParameters"
-            label="Custom Authentication Parameters"
-          />
+        <FormInputContainer
+          data-replay-id={btoa("authentication.customAuthenticationParameters")}
+        >
+          {this.renderKeyValueControlViaFormControl(
+            "authentication.customAuthenticationParameters",
+            "Custom Authentication Parameters",
+            "",
+            false,
+          )}
         </FormInputContainer>
-        <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.isAuthorizationHeader"
-            label="Client Authentication"
-            options={[
+        <FormInputContainer
+          data-replay-id={btoa("authentication.isAuthorizationHeader")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isAuthorizationHeader",
+            [
               {
                 label: "Send as Basic Auth header",
                 value: true,
@@ -679,8 +808,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "Send client credentials in body",
                 value: false,
               },
-            ]}
-          />
+            ],
+            "Client Authentication",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
           this.renderOauth2CommonAdvanced()}
@@ -702,6 +835,96 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       </>
     );
   };
+
+  // All components in formControls must be rendered via FormControl.
+  // FormControl is the common wrapper for all formcontrol components and contains common elements i.e. label, subtitle, helpertext
+  renderInputTextControlViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    dataType: "TEXT" | "PASSWORD" | "NUMBER",
+    encrypted: boolean,
+    isRequired: boolean,
+  ) {
+    return (
+      <FormControl
+        config={{
+          id: "",
+          isValid: false,
+          isRequired: isRequired,
+          controlType: "INPUT_TEXT",
+          dataType: dataType,
+          configProperty: configProperty,
+          encrypted: encrypted,
+          label: label,
+          conditionals: {},
+          placeholderText: placeholderText,
+          formName: DATASOURCE_REST_API_FORM,
+        }}
+        formName={DATASOURCE_REST_API_FORM}
+        multipleConfig={[]}
+      />
+    );
+  }
+
+  renderDropdownControlViaFormControl(
+    configProperty: string,
+    options: {
+      label: string;
+      value: string | boolean;
+    }[],
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+    subtitle?: string,
+  ) {
+    const config = {
+      id: "",
+      isValid: false,
+      isRequired: isRequired,
+      controlType: "DROP_DOWN",
+      configProperty: configProperty,
+      options: options,
+      subtitle: subtitle,
+      label: label,
+      conditionals: {},
+      placeholderText: placeholderText,
+      formName: DATASOURCE_REST_API_FORM,
+    };
+    return (
+      <FormControl
+        config={config}
+        formName={DATASOURCE_REST_API_FORM}
+        multipleConfig={[]}
+      />
+    );
+  }
+
+  renderKeyValueControlViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+  ) {
+    const config = {
+      id: "",
+      configProperty: configProperty,
+      isValid: false,
+      controlType: "KEYVALUE_ARRAY",
+      placeholderText: placeholderText,
+      label: label,
+      conditionals: {},
+      formName: DATASOURCE_REST_API_FORM,
+      isRequired: isRequired,
+    };
+    return (
+      <FormControl
+        config={config}
+        formName={DATASOURCE_REST_API_FORM}
+        multipleConfig={[]}
+      />
+    );
+  }
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
@@ -725,6 +948,8 @@ const mapStateToProps = (state: AppState, props: any) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    initializeReplayEntity: (id: string, data: any) =>
+      dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),

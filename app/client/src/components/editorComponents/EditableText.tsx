@@ -5,11 +5,10 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
-import Edit from "assets/images/EditPen.svg";
 import ErrorTooltip from "./ErrorTooltip";
-import { Colors } from "constants/Colors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import Icon, { IconSize } from "components/ads/Icon";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -32,14 +31,9 @@ type EditableTextProps = {
   minimal?: boolean;
   onBlur?: (value?: string) => void;
   beforeUnmount?: (value?: string) => void;
+  errorTooltipClass?: string;
+  maxLength?: number;
 };
-
-const EditPen = styled.img`
-  width: 14px;
-  :hover {
-    cursor: pointer;
-  }
-`;
 
 const EditableTextWrapper = styled.div<{
   isEditing: boolean;
@@ -52,9 +46,9 @@ const EditableTextWrapper = styled.div<{
     align-items: flex-start;
     width: 100%;
     & .${Classes.EDITABLE_TEXT} {
-      border: ${(props) =>
+      background: ${(props) =>
         props.isEditing && !props.minimal
-          ? `1px solid ${Colors.HIT_GRAY}`
+          ? props.theme.colors.editableText.bg
           : "none"};
       cursor: pointer;
       padding: ${(props) => (!props.minimal ? "5px 5px" : "0px")};
@@ -78,11 +72,6 @@ const EditableTextWrapper = styled.div<{
 const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
-    ${(props) => (!props.minimal ? "border-radius: 3px;" : "")}
-    ${(props) =>
-      !props.minimal
-        ? `border-color: ${props.isValid ? Colors.HIT_GRAY : "red"}`
-        : ""};
     & .${Classes.EDITABLE_TEXT_CONTENT} {
       &:hover {
         text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
@@ -97,10 +86,12 @@ export function EditableText(props: EditableTextProps) {
     className,
     defaultValue,
     editInteractionKind,
+    errorTooltipClass,
     forceDefault,
     hideEditIcon,
     isEditingDefault,
     isInvalid,
+    maxLength,
     minimal,
     onBlur,
     onTextChanged,
@@ -184,12 +175,17 @@ export function EditableText(props: EditableTextProps) {
         editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
       }
     >
-      <ErrorTooltip isOpen={!!error} message={errorMessage as string}>
+      <ErrorTooltip
+        customClass={errorTooltipClass}
+        isOpen={!!error}
+        message={errorMessage as string}
+      >
         <TextContainer isValid={!error} minimal={!!minimal}>
           <BlueprintEditableText
             className={className}
             disabled={!isEditing}
             isEditing={isEditing}
+            maxLength={maxLength}
             onCancel={onBlur}
             onChange={onInputchange}
             onConfirm={onChange}
@@ -198,7 +194,7 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {!minimal && !hideEditIcon && !updating && !isEditing && (
-            <EditPen alt="Edit pen" src={Edit} />
+            <Icon fillColor="#939090" name="edit" size={IconSize.XXL} />
           )}
         </TextContainer>
       </ErrorTooltip>

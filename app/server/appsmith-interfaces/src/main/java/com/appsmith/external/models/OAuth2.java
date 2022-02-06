@@ -37,8 +37,10 @@ public class OAuth2 extends AuthenticationDTO {
 
     Type grantType;
 
+    // Send tokens as query params if false
     Boolean isTokenHeader = false;
 
+    // Send auth details in body if false
     Boolean isAuthorizationHeader = false;
 
     String clientId;
@@ -85,9 +87,7 @@ public class OAuth2 extends AuthenticationDTO {
     @Override
     public Mono<Boolean> hasExpired() {
         if (this.authenticationResponse == null) {
-            return Mono.error(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected datasource to have valid authentication tokens at this point"));
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
         }
 
         if (this.authenticationResponse.expiresAt == null) {

@@ -26,11 +26,15 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <StyledDropDownContainer>
         <StyledDropDown
+          dropdownHeight={this.props.dropdownHeight}
+          enableSearch={this.props.enableSearch}
+          hideSubText={this.props.hideSubText}
           onSelect={this.onItemSelect}
           optionWidth={
             this.props.optionWidth ? this.props.optionWidth : "231px"
           }
           options={this.props.options}
+          searchPlaceholder={this.props.placeholderText}
           selected={defaultSelected}
           showLabelOnly
           width="100%"
@@ -58,8 +62,11 @@ export interface DropDownControlProps extends ControlProps {
   options: any[];
   defaultValue?: string;
   placeholderText: string;
+  dropdownHeight?: string;
+  enableSearch?: boolean;
   propertyValue: string;
   optionWidth?: string;
+  hideSubText?: boolean;
 }
 
 export default DropDownControl;

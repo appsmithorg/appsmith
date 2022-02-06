@@ -1,6 +1,8 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.services.ApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +23,12 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
-    public static final String DEFAULT_REDIRECT_ORIGIN = "https://app.appsmith.com";
+    public static final String SIGNUP_SUCCESS_URL = "/signup-success";
+    public static final String APPLICATION_PAGE_URL = "/applications/%s/pages/%s/edit";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
-    private static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
+    public static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
+    public static final String FIRST_TIME_USER_EXPERIENCE_PARAM = "enableFirstTimeUserExperience";
 
     private final ApplicationService applicationService;
 
@@ -38,7 +42,6 @@ public class RedirectHelper {
      * @return Publishes the redirection url as a String.
      */
     public Mono<String> getRedirectUrl(ServerHttpRequest request) {
-
         MultiValueMap<String, String> queryParams = request.getQueryParams();
         HttpHeaders httpHeaders = request.getHeaders();
 
@@ -110,16 +113,21 @@ public class RedirectHelper {
         return redirectUrl;
     }
 
+    /**
+     * If redirectUrl is empty, it'll be set to DEFAULT_REDIRECT_URL.
+     * If the redirectUrl does not have the base url, it'll prepend that from header origin.
+     * @param redirectUrl
+     * @param httpHeaders
+     * @return
+     */
     private static String fulfillRedirectUrl(String redirectUrl, HttpHeaders httpHeaders) {
-        // If not, then try to get the redirect URL from Origin header.
-        // We append DEFAULT_REDIRECT_URL to the Origin header by default.
         if (!StringUtils.hasText(redirectUrl)) {
             redirectUrl = DEFAULT_REDIRECT_URL;
         }
 
         if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://"))
                 && !StringUtils.isEmpty(httpHeaders.getOrigin())) {
-            redirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
+            redirectUrl = httpHeaders.getOrigin() + redirectUrl;
         }
 
         return redirectUrl;
@@ -134,7 +142,7 @@ public class RedirectHelper {
      */
     public String getRedirectDomain(HttpHeaders httpHeaders) {
         // This is the failsafe for when nothing could be identified
-        String redirectOrigin = DEFAULT_REDIRECT_ORIGIN;
+        String redirectOrigin = Appsmith.DEFAULT_ORIGIN_HEADER;
 
         if (!StringUtils.isEmpty(httpHeaders.getOrigin())) {
             // For PUT/POST requests or CORS?
@@ -158,4 +166,12 @@ public class RedirectHelper {
         return redirectOrigin;
     }
 
+    public String buildApplicationUrl(Application application, HttpHeaders httpHeaders) {
+        String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
+        if(application != null && application.getPages() != null && application.getPages().size() > 0) {
+            ApplicationPage applicationPage = application.getPages().get(0);
+            redirectUrl = String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
+        }
+        return fulfillRedirectUrl(redirectUrl, httpHeaders);
+    }
 }

@@ -14,11 +14,8 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("PUT Action test API fetaure", function() {
-    cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
-    cy.log("Creation of FirstAPI Action successful");
     cy.SelectAction(testdata.putAction);
     cy.EnterSourceDetailsWithbody(
       testdata.baseUrl,
@@ -35,7 +32,12 @@ describe("API Panel Test Functionality", function() {
         .type(json, { force: true });
       cy.WaitAutoSave();
       cy.RunAPI();
-      cy.validateRequest(testdata.baseUrl, testdata.methodput, testdata.Put);
+      cy.validateRequest(
+        "FirstAPI",
+        testdata.baseUrl,
+        testdata.methodput,
+        testdata.Put,
+      );
     });
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
@@ -62,7 +64,12 @@ describe("API Panel Test Functionality", function() {
         .type(json, { force: true });
       cy.WaitAutoSave();
       cy.RunAPI();
-      cy.validateRequest(testdata.baseUrl, testdata.methodpost, testdata.Post);
+      cy.validateRequest(
+        "FirstAPI",
+        testdata.baseUrl,
+        testdata.methodpost,
+        testdata.Post,
+      );
     });
     cy.ResponseStatusCheck("201 CREATED");
     cy.log("Response code check successful");
@@ -90,6 +97,7 @@ describe("API Panel Test Functionality", function() {
       cy.WaitAutoSave();
       cy.RunAPI();
       cy.validateRequest(
+        "FirstAPI",
         testdata.baseUrl,
         testdata.methodpatch,
         testdata.Patch,
@@ -114,6 +122,7 @@ describe("API Panel Test Functionality", function() {
     cy.WaitAutoSave();
     cy.RunAPI();
     cy.validateRequest(
+      "FirstAPI",
       testdata.baseUrl,
       testdata.methoddelete,
       testdata.Delete,
@@ -129,7 +138,12 @@ describe("API Panel Test Functionality", function() {
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.WaitAutoSave();
     cy.RunAPI();
-    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get);
+    cy.validateRequest(
+      apiname,
+      testdata.baseUrl,
+      testdata.methods,
+      testdata.Get,
+    );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
     cy.ResponseCheck(testdata.responsetext);
@@ -139,6 +153,7 @@ describe("API Panel Test Functionality", function() {
     cy.enterUrl(apiname, apiwidget.panigationNextUrl, testdata.nextUrl);
     cy.clickTest(apiwidget.TestNextUrl);
     cy.validateRequest(
+      apiname,
       testdata.baseUrl,
       testdata.methods.concat(testdata.next),
       testdata.Get,
@@ -147,9 +162,11 @@ describe("API Panel Test Functionality", function() {
     cy.log("Response code check successful");
     cy.ResponseCheck("Josh M Krantz");
     cy.log("Response data check successful");
+    cy.switchToPaginationTab();
     cy.enterUrl(apiname, apiwidget.panigationPrevUrl, testdata.prevUrl);
     cy.clickTest(apiwidget.TestPreUrl);
     cy.validateRequest(
+      apiname,
       testdata.baseUrl,
       testdata.methods.concat(testdata.prev),
       testdata.Get,
@@ -166,7 +183,12 @@ describe("API Panel Test Functionality", function() {
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.queryAndValue);
     cy.WaitAutoSave();
     cy.RunAPI();
-    cy.validateRequest(testdata.baseUrl, testdata.queryAndValue, testdata.Get);
+    cy.validateRequest(
+      "ThirdAPI",
+      testdata.baseUrl,
+      testdata.queryAndValue,
+      testdata.Get,
+    );
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
     cy.ResponseCheck(testdata.responsetext3);
@@ -184,7 +206,13 @@ describe("API Panel Test Functionality", function() {
     );
     cy.WaitAutoSave();
     cy.RunAPI();
-    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get, true);
+    cy.validateRequest(
+      "FourthAPI",
+      testdata.baseUrl,
+      testdata.methods,
+      testdata.Get,
+      true,
+    );
     cy.ResponseStatusCheck("5000");
     cy.log("Response code check successful");
     cy.ResponseCheck("Invalid value for Content-Type");

@@ -1,0 +1,29 @@
+### https://github.com/actions/stale
+name: Mark stale issues and pull requests
+
+on:
+  schedule:
+  - cron: '32 16 * * *'
+
+jobs:
+  stale:
+
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+    - uses: actions/stale@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        days-before-pr-stale: 7
+        days-before-issue-stale: 7
+        stale-issue-message: 'This issue has not seen activity for a while. It will be closed in 7 days unless further activity is detected.'
+        stale-pr-message: 'This PR has not seen activitiy for a while. It will be closed in 7 days unless further activity is detected.'
+        close-issue-message: 'This issue has been closed because of inactivity.'
+        close-pr-message: 'This PR has been closed because of inactivity.'
+        only-issue-labels: 'Critical'
+        exempt-pr-labels: 'Dont merge,WIP'
+        
+        

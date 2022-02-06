@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.services.ApplicationPageService;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -51,6 +53,9 @@ public class ExampleApplicationsAreMarked {
     @MockBean
     private ConfigService configService;
 
+    @MockBean
+    private InstanceConfig instanceConfig;
+
     @Test
     @WithUserDetails(value = "api_user")
     public void exampleApplicationsAreMarked() {
@@ -66,7 +71,9 @@ public class ExampleApplicationsAreMarked {
 
                     assert organization.getId() != null;
                     Mockito.when(configService.getTemplateOrganizationId()).thenReturn(Mono.just(organization.getId()));
-
+                    Mockito.doNothing().when(instanceConfig).onApplicationEvent(
+                            Mockito.any(ApplicationReadyEvent.class)
+                    );
                     // Create 4 applications inside the example organization but only mark three applications as example
                     final Application app1 = new Application();
                     app1.setName("first application");

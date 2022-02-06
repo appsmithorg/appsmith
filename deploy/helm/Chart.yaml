@@ -1,0 +1,15 @@
+annotations:
+  category: Application
+apiVersion: v2
+appVersion: "1.16.0"
+name: appsmith
+type: application
+description: Appsmith is an open source framework to build admin panels, CRUD apps and workflows. Build everything you need, 10x faster.
+maintainers:
+  - email: tech@appsmith.com
+    name: Appsmith
+sources:
+  - https://github.com/appsmithorg/appsmith
+home: https://www.appsmith.com/
+icon: https://assets.appsmith.com/appsmith-icon.png
+version: 1.5.0

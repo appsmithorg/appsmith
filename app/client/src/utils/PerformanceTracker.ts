@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { Span, SpanStatus } from "@sentry/tracing";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import _ from "lodash";
 import * as log from "loglevel";
 
@@ -33,8 +33,13 @@ export enum PerformanceTransactionName {
   LOGIN_CLICK = "LOGIN_CLICK",
   INIT_EDIT_APP = "INIT_EDIT_APP",
   INIT_VIEW_APP = "INIT_VIEW_APP",
+  SHOW_RESIZE_HANDLES = "SHOW_RESIZE_HANDLES",
 }
 
+export type PerfTag = {
+  name: string;
+  value: string;
+};
 export interface PerfLog {
   sentrySpan: Span;
   skipLog?: boolean;
@@ -51,6 +56,7 @@ class PerformanceTracker {
     eventName: PerformanceTransactionName,
     data?: any,
     skipLog = false,
+    tags: Array<PerfTag> = [],
   ) => {
     if (appsmithConfigs.sentry.enabled) {
       const currentTransaction = Sentry.getCurrentHub()
@@ -78,6 +84,11 @@ class PerformanceTracker {
           );
         }
         const newTransaction = Sentry.startTransaction({ name: eventName });
+
+        tags.forEach(({ name: tagName, value }) => {
+          newTransaction.setTag(tagName, value);
+        });
+
         newTransaction.setData("startData", data);
         Sentry.getCurrentHub().configureScope((scope) =>
           scope.setSpan(newTransaction),

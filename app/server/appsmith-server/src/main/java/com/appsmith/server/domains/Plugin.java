@@ -30,6 +30,8 @@ public class Plugin extends BaseDomain {
 
     String packageName;
 
+    String pluginName;
+
     String jarLocation;
 
     String iconLocation;
@@ -57,12 +59,25 @@ public class Plugin extends BaseDomain {
     // Static metadata to indicate what type of form to use in the action creation page
     String actionComponent;
 
+    // Static metadata to indicate if the plugin is suitable for generating CRUD page from DB table if yes then page
+    // name will be specified by this field which will be referenced from template application
+    // CRUD-DB-Table-Template-Application.json
+    String generateCRUDPageComponent;
+
     // Marking it as JsonIgnore because we don't want other users to be able to set this property. Only admins
     // must be able to mark a plugin for defaultInstall on all organization creations
     @JsonIgnore
     Boolean defaultInstall;
 
     Boolean allowUserDatasources = true;
+
+    boolean isRemotePlugin = false;
+
+    // Stores the equivalent of editor.json for remote plugins
+    Map actionUiConfig;
+
+    // Stores the equivalent of form.json for remote plugins
+    Map datasourceUiConfig;
 
     @Transient
     Map<String, String> templates;

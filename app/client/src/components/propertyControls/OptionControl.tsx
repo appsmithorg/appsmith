@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { KeyValueComponent } from "./KeyValueComponent";
 
 export type DropDownOptionWithKey = DropdownOption & {

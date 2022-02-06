@@ -15,6 +15,7 @@ const initialState: EditorReduxState = {
     publishingError: false,
     saving: false,
     savingError: false,
+    savingEntity: false,
     loading: false,
     loadingError: false,
     pageSwitchingError: false,
@@ -26,6 +27,9 @@ const initialState: EditorReduxState = {
     updatingWidgetName: false,
     updateWidgetNameError: false,
   },
+  isSnipingMode: false,
+  isPreviewMode: false,
+  zoomLevel: 1,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -97,6 +101,12 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.savingError = true;
     return { ...state };
   },
+  [ReduxActionTypes.SET_LAST_UPDATED_TIME]: (
+    state: EditorReduxState,
+    actions: ReduxAction<number>,
+  ) => {
+    return { ...state, lastUpdatedTime: actions.payload };
+  },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: EditorReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
@@ -126,7 +136,7 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.cloningPageError = false;
     return { ...state };
   },
-  [ReduxActionTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
+  [ReduxActionErrorTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.cloningPageError = true;
     state.loadingStates.cloningPage = false;
     return { ...state };
@@ -166,6 +176,39 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.updateWidgetNameError = true;
     return { ...state };
   },
+  [ReduxActionTypes.SET_SNIPING_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isSnipingMode: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_PREVIEW_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isPreviewMode: action.payload,
+    };
+  },
+  /* This action updates the status of the savingEntity for any entity of the application in the store */
+  [ReduxActionTypes.ENTITY_UPDATE_STARTED]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      savingEntity: true,
+    },
+  }),
+  [ReduxActionTypes.ENTITY_UPDATE_SUCCESS]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      savingEntity: false,
+    },
+  }),
 });
 
 export interface EditorReduxState {
@@ -174,10 +217,15 @@ export interface EditorReduxState {
   currentLayoutId?: string;
   currentPageName?: string;
   currentPageId?: string;
+  lastUpdatedTime?: number;
   pageActions?: PageAction[][];
+  isSnipingMode: boolean;
+  isPreviewMode: boolean;
+  zoomLevel: number;
   loadingStates: {
     saving: boolean;
     savingError: boolean;
+    savingEntity: boolean;
     publishing: boolean;
     published?: string;
     publishingError: boolean;

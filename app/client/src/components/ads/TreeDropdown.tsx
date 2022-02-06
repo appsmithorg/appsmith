@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { find, noop } from "lodash";
-import { DropdownOption } from "widgets/DropdownWidget";
 import {
   PopoverInteractionKind,
   PopoverPosition,
@@ -10,15 +9,21 @@ import {
   Menu,
   Button,
   Classes,
+  Position,
 } from "@blueprintjs/core";
 import styled from "styled-components";
-import { IconNames } from "@blueprintjs/icons";
+import { Colors } from "constants/Colors";
+import { DropdownOption } from "components/constants";
+import Icon, { IconSize } from "components/ads/Icon";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
   children?: TreeDropdownOption[];
   className?: string;
   type?: string;
+  icon?: React.ReactNode;
+  args?: Array<any>;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -38,9 +43,13 @@ type TreeDropdownProps = {
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
   onMenuToggle?: (isOpen: boolean) => void;
+  position?: Position;
 };
 
 const StyledMenu = styled(Menu)`
+  max-height: ${(props) =>
+    `calc(100vh - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight})`};
+  overflow: auto;
   min-width: 220px;
   padding: 0px;
   border-radius: 0px;
@@ -51,11 +60,13 @@ const StyledMenu = styled(Menu)`
     border-radius: 0px;
     background-color: ${(props) =>
       props.theme.colors.treeDropdown.menuBg.normal};
+    max-height: 90vh;
+    overflow-y: scroll;
   }
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
     font-size: 14px;
-    line-height: 14px;
+    line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
     display: flex;
     align-items: center;
     height: 30px;
@@ -65,18 +76,31 @@ const StyledMenu = styled(Menu)`
       fill: #9f9f9f;
     }
 
-    &:hover {
-      background-color: ${(props) =>
-        props.theme.colors.treeDropdown.menuBg.hover};
-      color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+    &.t--apiFormDeleteBtn {
+      color: ${Colors.DANGER_SOLID};
+      .${Classes.ICON} svg {
+        fill: ${Colors.DANGER_SOLID};
+      }
+    }
+
+    &.t--apiFormDeleteBtn:hover {
+      background-color: ${Colors.GREY_3};
+      color: ${Colors.DANGER_SOLID};
+      .${Classes.ICON} svg {
+        fill: ${Colors.DANGER_SOLID};
+      }
+    }
+
+    &:hover:not(.t--apiFormDeleteBtn) {
+      background-color: ${Colors.GREY_3};
+      color: ${Colors.GREY_10};
       .${Classes.ICON} > svg:not([fill]) {
-        fill: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+        fill: ${Colors.GREY_10};
       }
     }
 
     &.${Classes.ACTIVE} {
-      background-color: ${(props) =>
-        props.theme.colors.treeDropdown.menuBg.selected};
+      background-color: ${Colors.GREY_3};
       color: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
       .${Classes.ICON} > svg:not([fill]) {
         fill: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
@@ -86,9 +110,7 @@ const StyledMenu = styled(Menu)`
   .${Classes.MENU_SUBMENU}
     .${Classes.POPOVER_TARGET}.${Classes.POPOVER_OPEN}
     > .${Classes.MENU_ITEM} {
-    background-color: ${(props) =>
-      props.theme.colors.treeDropdown.menuBg.hover};
-    color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+    background-color: ${Colors.GREY_3};
   }
 `;
 
@@ -97,12 +119,19 @@ const DropdownTarget = styled.div`
     width: 100%;
     box-shadow: none;
     border-radius: 0px;
+    border: 1px solid ${Colors.GREY_5};
+    min-height: 36px;
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
     background-image: none;
     display: flex;
     justify-content: space-between;
     padding: 5px 12px;
+
+    &:active,
+    &:focus {
+      border-color: var(--appsmith-input-focus-border-color);
+    }
   }
   &&&& .${Classes.ICON} {
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
@@ -187,7 +216,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
-          position: PopoverPosition.LEFT,
+          position: PopoverPosition.RIGHT_TOP,
           targetProps: { onClick: (e: any) => e.stopPropagation() },
         }}
         text={option.label}
@@ -203,9 +232,11 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     <DropdownTarget>
       <Button
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
-          selectedLabelModifier ? "code-highlight" : ""
+          selectedLabelModifier
+            ? "code-highlight " + replayHighlightClass
+            : replayHighlightClass
         }`}
-        rightIcon={IconNames.CHEVRON_DOWN}
+        rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={
           selectedLabelModifier
             ? selectedLabelModifier(selectedOption, displayValue)
@@ -225,7 +256,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         setIsOpen(false);
         props.onMenuToggle && props.onMenuToggle(false);
       }}
-      position={PopoverPosition.LEFT}
+      position={props.position || PopoverPosition.LEFT}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

@@ -1,19 +1,16 @@
-import React, { useCallback } from "react";
+import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  StyledInputGroup,
-  StyledPropertyPaneButton,
-  StyledDragIcon,
-  StyledDeleteIcon,
-  StyledEditIcon,
-} from "./StyledControls";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import _, { debounce } from "lodash";
+import { getNextEntityName, noop } from "utils/AppsmithUtils";
+import _, { orderBy } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -22,88 +19,96 @@ const StyledPropertyPaneButtonWrapper = styled.div`
   margin-top: 10px;
 `;
 
-const ItemWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-`;
-
 const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
 `;
 
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
-  margin-bottom: 2px;
-  width: 100%;
-  padding-left: 30px;
-  &&& {
-    input {
-      border: none;
-      color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
-      background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-      &:focus {
-        border: none;
-        color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
-      }
-    }
-  }
-`;
-
 type RenderComponentProps = {
+  focusedIndex: number | null | undefined;
   index: number;
+  isDragging: boolean;
   item: {
     label: string;
     isVisible?: boolean;
   };
   deleteOption: (index: number) => void;
+  updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (props: any) => void;
 };
 
-function TabControlComponent(props: RenderComponentProps) {
-  const { deleteOption, index, item, updateOption } = props;
-  const debouncedUpdate = debounce(updateOption, 1000);
-  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
-    index,
-  ]);
+function AddTabButtonComponent({ widgetId }: any) {
+  const dispatch = useDispatch();
+  const addOption = () => {
+    dispatch({
+      type: ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD,
+      payload: {
+        widgetId,
+      },
+    });
+  };
   return (
-    <ItemWrapper>
-      <StyledDragIcon height={20} width={20} />
-      <StyledOptionControlInputGroup
-        dataType="text"
-        defaultValue={item.label}
-        onChange={(value: string) => {
-          debouncedUpdate(index, value);
-        }}
-        placeholder="Tab Title"
+    <StyledPropertyPaneButtonWrapper>
+      <StyledPropertyPaneButton
+        category={Category.tertiary}
+        icon="plus"
+        onClick={addOption}
+        size={Size.medium}
+        tag="button"
+        text="Add a Tab"
+        type="button"
       />
-      <StyledDeleteIcon
-        className="t--delete-tab-btn"
-        height={20}
-        marginRight={12}
-        onClick={() => {
-          deleteOption(index);
-        }}
-        width={20}
-      />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={handleChange}
-        width={20}
-      />
-    </ItemWrapper>
+    </StyledPropertyPaneButtonWrapper>
   );
 }
 
-class TabControl extends BaseControl<ControlProps> {
+function TabControlComponent(props: RenderComponentProps) {
+  const { index, item } = props;
+  const dispatch = useDispatch();
+  const deleteOption = () => {
+    dispatch({
+      type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
+      payload: { ...item, index },
+    });
+  };
+
+  return (
+    <DraggableListCard
+      {...props}
+      deleteOption={deleteOption}
+      isDelete
+      placeholder="Tab Title"
+    />
+  );
+}
+
+type State = {
+  focusedIndex: number | null;
+};
+
+class TabControl extends BaseControl<ControlProps, State> {
+  constructor(props: ControlProps) {
+    super(props);
+
+    this.state = {
+      focusedIndex: null,
+    };
+  }
   componentDidMount() {
     this.migrateTabData(this.props.propertyValue);
+  }
+
+  componentDidUpdate(prevProps: ControlProps): void {
+    //on adding a new column last column should get focused
+    if (
+      Object.keys(prevProps.propertyValue).length + 1 ===
+      Object.keys(this.props.propertyValue).length
+    ) {
+      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+    }
   }
 
   migrateTabData(
@@ -156,7 +161,6 @@ class TabControl extends BaseControl<ControlProps> {
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
-
   render() {
     const tabs: Array<{
       id: string;
@@ -164,29 +168,25 @@ class TabControl extends BaseControl<ControlProps> {
     }> = _.isString(this.props.propertyValue)
       ? []
       : Object.values(this.props.propertyValue);
+
     return (
       <TabsWrapper>
         <DroppableComponent
-          deleteOption={this.deleteOption}
+          deleteOption={noop}
+          fixedHeight={370}
+          focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={tabs}
+          items={orderBy(tabs, ["index"], ["asc"])}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
+          updateFocus={this.updateFocus}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
-        <StyledPropertyPaneButtonWrapper>
-          <StyledPropertyPaneButton
-            category={Category.tertiary}
-            icon="plus"
-            onClick={this.addOption}
-            size={Size.medium}
-            tag="button"
-            text="Add a Tab"
-            type="button"
-          />
-        </StyledPropertyPaneButtonWrapper>
+        <AddTabButtonComponent
+          widgetId={this.props.widgetProperties.widgetId}
+        />
       </TabsWrapper>
     );
   }
@@ -211,30 +211,9 @@ class TabControl extends BaseControl<ControlProps> {
     this.updateProperty(this.props.propertyName, updatedTabs);
   };
 
-  deleteOption = (index: number) => {
-    const tabsArray: any = Object.values(this.props.propertyValue);
-    const itemId = tabsArray[index].id;
-    if (tabsArray && tabsArray.length === 1) return;
-    const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
-      return i !== index;
-    });
-    const updatedObj = updatedArray.reduce(
-      (obj: any, each: any, index: number) => {
-        obj[each.id] = {
-          ...each,
-          index,
-        };
-        return obj;
-      },
-      {},
-    );
-    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
-    this.updateProperty(this.props.propertyName, updatedObj);
-  };
-
   updateOption = (index: number, updatedLabel: string) => {
     const tabsArray: any = Object.values(this.props.propertyValue);
-    const itemId = tabsArray[index].id;
+    const { id: itemId } = tabsArray[index];
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
@@ -260,6 +239,10 @@ class TabControl extends BaseControl<ControlProps> {
     };
 
     this.updateProperty(this.props.propertyName, tabs);
+  };
+
+  updateFocus = (index: number, isFocused: boolean) => {
+    this.setState({ focusedIndex: isFocused ? index : null });
   };
 
   static getControlType() {

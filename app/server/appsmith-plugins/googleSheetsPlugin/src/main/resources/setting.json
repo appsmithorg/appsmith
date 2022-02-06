@@ -1,0 +1,36 @@
+{
+  "setting": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Run query on page load",
+          "configProperty": "executeOnLoad",
+          "controlType": "SWITCH",
+          "info": "Will refresh data each time the page is loaded"
+        },
+        {
+          "label": "Request confirmation before running query",
+          "configProperty": "confirmBeforeExecute",
+          "controlType": "SWITCH",
+          "info": "Ask confirmation from the user each time before refreshing data"
+        },
+        {
+          "label": "Smart JSON Substitution",
+          "info": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+          "controlType": "SWITCH",
+          "initialValue": true
+        },
+        {
+          "label": "Query timeout (in milliseconds)",
+          "info": "Maximum time after which the query will return",
+          "configProperty": "actionConfiguration.timeoutInMillisecond",
+          "controlType": "INPUT_TEXT",
+          "dataType": "NUMBER"
+        }
+      ]
+    }
+  ]
+}

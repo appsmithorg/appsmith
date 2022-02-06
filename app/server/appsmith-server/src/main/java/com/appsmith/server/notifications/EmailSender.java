@@ -1,9 +1,7 @@
 package com.appsmith.server.notifications;
 
 import com.appsmith.server.configurations.EmailConfig;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
+import com.appsmith.server.helpers.TemplateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,7 +15,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
@@ -31,16 +28,17 @@ public class EmailSender {
 
     private final EmailConfig emailConfig;
 
-    private final InternetAddress MAIL_FROM;
-
     private final InternetAddress REPLY_TO;
 
     public EmailSender(JavaMailSender javaMailSender, EmailConfig emailConfig) {
         this.javaMailSender = javaMailSender;
         this.emailConfig = emailConfig;
 
-        MAIL_FROM = makeFromAddress();
         REPLY_TO = makeReplyTo();
+    }
+
+    public Mono<Boolean> sendMail(String to, String subject, String text) {
+        return sendMail(to, subject, text, null);
     }
 
     public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
@@ -54,7 +52,7 @@ public class EmailSender {
          */
         Mono.fromCallable(() -> {
                     try {
-                        return replaceEmailTemplate(text, params);
+                        return params == null ? text : TemplateUtils.parseTemplate(text, params);
                     } catch (IOException e) {
                         throw Exceptions.propagate(e);
                     }
@@ -95,8 +93,8 @@ public class EmailSender {
 
         try {
             helper.setTo(to);
-            if (MAIL_FROM != null) {
-                helper.setFrom(MAIL_FROM);
+            if (emailConfig.getMailFrom() != null) {
+                helper.setFrom(emailConfig.getMailFrom());
             }
             if (REPLY_TO != null) {
                 helper.setReplyTo(REPLY_TO);
@@ -110,32 +108,6 @@ public class EmailSender {
             log.error("Unable to create the mime message while sending an email to {} with subject: {}. Cause: ", to, subject, e);
         } catch (MailException e) {
             log.error("Unable to send email. Cause: ", e);
-        }
-    }
-
-    /**
-     * This function replaces the variables in an email template to actual values. It uses the Mustache SDK.
-     *
-     * @param template The name of the template where the HTML text can be found
-     * @param params   A Map of key-value pairs with the key being the variable in the template & value being the actual
-     *                 value with which it must be replaced.
-     * @return Template string with Mustache replacements applied.
-     * @throws IOException bubbled from Mustache renderer.
-     */
-    private String replaceEmailTemplate(String template, Map<String, ? extends Object> params) throws IOException {
-        MustacheFactory mf = new DefaultMustacheFactory();
-        StringWriter stringWriter = new StringWriter();
-        Mustache mustache = mf.compile(template);
-        mustache.execute(stringWriter, params).flush();
-        return stringWriter.toString();
-    }
-
-    private InternetAddress makeFromAddress() {
-        try {
-            return new InternetAddress(this.emailConfig.getMailFrom(), "Appsmith");
-        } catch (UnsupportedEncodingException e) {
-            log.error("Encoding error creating Appsmith mail from address.", e);
-            return null;
         }
     }
 

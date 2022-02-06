@@ -1,0 +1,66 @@
+{
+  "identifier": "FIND",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'FIND'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Collection to Query",
+      "children": [
+        {
+          "label": "Collection",
+          "configProperty": "actionConfiguration.formData.collection",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE"
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description" : "Optional",
+      "children": [
+        {
+          "label": "Query",
+          "configProperty": "actionConfiguration.formData.find.query",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{rating : {$gte : 9}}"
+        },
+        {
+          "label": "Sort",
+          "configProperty": "actionConfiguration.formData.find.sort",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{name : 1}"
+        },
+        {
+          "label": "Projection",
+          "configProperty": "actionConfiguration.formData.find.projection",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{name : 1}"
+        },
+        {
+          "label": "Limit",
+          "configProperty": "actionConfiguration.formData.find.limit",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "10"
+        },
+        {
+          "label": "Skip",
+          "configProperty": "actionConfiguration.formData.find.skip",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "0"
+        }
+      ]
+    }
+  ]
+}

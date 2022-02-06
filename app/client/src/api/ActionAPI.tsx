@@ -1,9 +1,10 @@
 import API, { HttpMethod } from "api/Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { Action, ActionViewMode } from "entities/Action";
 import { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -63,16 +64,22 @@ export interface ActionApiResponseReq {
 export interface ActionExecutionResponse {
   responseMeta: ResponseMeta;
   data: {
-    body: Record<string, unknown>;
+    body: Record<string, unknown> | string;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
     request: ActionApiResponseReq;
+    errorType?: string;
   };
   clientMeta: {
     duration: string;
     size: string;
   };
+}
+
+export interface SuggestedWidget {
+  type: WidgetType;
+  bindingQuery: string;
 }
 
 export interface ActionResponse {
@@ -83,6 +90,10 @@ export interface ActionResponse {
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
+  suggestedWidgets?: SuggestedWidget[];
+  messages?: Array<string>;
+  errorType?: string;
+  readableError?: string;
 }
 
 export interface MoveActionRequest {
@@ -102,7 +113,6 @@ export interface UpdateActionNameRequest {
   newName: string;
   oldName: string;
 }
-
 class ActionAPI extends API {
   static url = "v1/actions";
   static apiUpdateCancelTokenSource: CancelTokenSource;

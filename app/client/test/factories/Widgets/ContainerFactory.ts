@@ -4,7 +4,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 
 export const ContainerFactory = Factory.Sync.makeFactory<WidgetProps>({
   backgroundColor: "#FFFFFF",
-  widgetName: Factory.each((i) => `Container${(i+1)}` ),
+  widgetName: Factory.each((i) => `Container${i + 1}`),
   type: "CONTAINER_WIDGET",
   containerStyle: "card",
   isVisible: true,

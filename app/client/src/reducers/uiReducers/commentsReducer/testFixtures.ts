@@ -18,8 +18,8 @@ export const commentThreadsMapInitial = {
     id: "605c436591dea93f0eaf91bb",
     userPermissions: [],
     position: {
-      top: 7,
-      left: 13,
+      topPercent: 7,
+      leftPercent: 13,
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
@@ -45,13 +45,14 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c444c91dea93f0eaf91bd": {
     id: "605c444c91dea93f0eaf91bd",
     userPermissions: [],
     position: {
-      top: 9,
-      left: 7,
+      topPercent: 9,
+      leftPercent: 7,
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
@@ -77,13 +78,14 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c519391dea93f0eaf91bf": {
     id: "605c519391dea93f0eaf91bf",
     userPermissions: [],
     position: {
-      top: 2,
-      left: 18,
+      topPercent: 2,
+      leftPercent: 18,
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
@@ -109,13 +111,14 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c519c91dea93f0eaf91c1": {
     id: "605c519c91dea93f0eaf91c1",
     userPermissions: [],
     position: {
-      top: 1,
-      left: 23,
+      topPercent: 1,
+      leftPercent: 23,
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
@@ -160,13 +163,14 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c51e891dea93f0eaf91c4": {
     id: "605c51e891dea93f0eaf91c4",
     userPermissions: [],
     position: {
-      top: 2,
-      left: 28,
+      topPercent: 2,
+      leftPercent: 28,
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
@@ -192,13 +196,14 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c53b491dea93f0eaf91c6": {
     id: "605c53b491dea93f0eaf91c6",
     userPermissions: [],
     position: {
-      top: 2,
-      left: 33,
+      topPercent: 2,
+      leftPercent: 33,
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
@@ -224,13 +229,14 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605cb30c91dea93f0eaf91cb": {
     id: "605cb30c91dea93f0eaf91cb",
     userPermissions: [],
     position: {
-      top: 1,
-      left: 3,
+      topPercent: 1,
+      leftPercent: 3,
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
@@ -256,13 +262,14 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "6060c45e91dea93f0eaf91ce": {
     id: "6060c45e91dea93f0eaf91ce",
     userPermissions: [],
     position: {
-      top: 5,
-      left: 41,
+      topPercent: 5,
+      leftPercent: 41,
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
@@ -288,6 +295,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
 };
 
@@ -295,8 +303,8 @@ export const unpublishedCommentPayload = {
   "0": {
     refId: "0",
     position: {
-      left: 69,
-      top: 3,
+      leftPercent: 69,
+      topPercent: 3,
     },
     id: "UNPUBLISHED",
   },
@@ -306,8 +314,8 @@ export const createCommentThreadSuccessPayload = {
   id: "606acdfac7a35467ac887f66",
   userPermissions: [],
   position: {
-    top: 1,
-    left: 72,
+    topPercent: 1,
+    leftPercent: 72,
   },
   refId: "0",
   applicationId: "605c435a91dea93f0eaf91b8",
@@ -368,8 +376,8 @@ export const updateCommentThreadPayload = {
     "manage:commentThreads",
   ],
   position: {
-    top: 3,
-    left: 6,
+    topPercent: 3,
+    leftPercent: 6,
   },
   refId: "0",
   resolved: true,
@@ -378,22 +386,20 @@ export const updateCommentThreadPayload = {
 };
 
 export const newCommentThreadEventPayload = {
-  thread: {
-    _id: "606bf995c7a35467ac887f99",
-    position: {
-      top: 4,
-      left: 28,
-    },
-    refId: "0",
-    applicationId: "605c435a91dea93f0eaf91b8",
+  _id: "606bf995c7a35467ac887f99",
+  position: {
+    topPercent: 4,
+    leftPercent: 28,
   },
+  refId: "0",
+  applicationId: "605c435a91dea93f0eaf91b8",
 };
 
 export const updateCommentThreadEventPayload = {
   _id: "605c436591dea93f0eaf91bb",
   position: {
-    top: 11,
-    left: 28,
+    topPercent: 11,
+    leftPercent: 28,
   },
   refId: "0",
   applicationId: "605c435a91dea93f0eaf91b8",

@@ -35,47 +35,58 @@ sudo docker run --network host --name postgres -d -p 5432:5432 \
  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
  postgres:latest &
 
+sudo docker run -p 127.0.0.1:3306:3306  --name mariadb -e MARIADB_ROOT_PASSWORD=root123 -d mariadb
+
+echo "Sleeping for 30 seconds to let the MySQL start"
+sleep 30
+
+sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-mysql-dump-for-test.sql
+
+
 echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
 
+sudo docker run -d -p 127.0.0.1:28017:27017 --name Cypress-mongodb -e MONGO_INITDB_DATABASE=appsmith -v `pwd`/cypress/mongodb:/data/db mongo
+echo "Sleeping for 30 seconds to let the servers start"
+sleep 30
+
+sudo docker cp `pwd`/cypress/sample_airbnb Cypress-mongodb:/sample_airbnb
+
+sudo docker exec -i Cypress-mongodb /usr/bin/mongorestore --db sample_airbnb /sample_airbnb/sample_airbnb
+
+sleep 10
+
 echo "Checking if the containers have started"
-sudo docker ps -a 
+sudo docker ps -a
+for fcid in $(sudo docker ps -a | awk '/Exited/ { print $1 }'); do
+  echo "Logs for container '$fcid'."
+  docker logs "$fcid"
+done
+if sudo docker ps -a | grep -q Exited; then
+  echo "One or more containers failed to start." >&2
+  exit 1
+fi
 
-# Create the test user 
-curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"name" : "'"$CYPRESS_USERNAME"'",
-	"email" : "'"$CYPRESS_USERNAME"'",
-	"source" : "FORM",
-	"state" : "ACTIVATED",
-	"isEnabled" : "true",
-	"password": "'"$CYPRESS_PASSWORD"'"
-}'
+echo "Checking if the server has started"
+status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
 
-#Create another testUser1
-curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"name" : "'"$CYPRESS_TESTUSERNAME1"'",
-	"email" : "'"$CYPRESS_TESTUSERNAME1"'",
-	"source" : "FORM",
-	"state" : "ACTIVATED",
-	"isEnabled" : "true",
-	"password": "'"$CYPRESS_TESTPASSWORD1"'"
-}'
+retry_count=1
 
-#Create another testUser2
-curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"name" : "'"$CYPRESS_TESTUSERNAME2"'",
-	"email" : "'"$CYPRESS_TESTUSERNAME2"'",
-	"source" : "FORM",
-	"state" : "ACTIVATED",
-	"isEnabled" : "true",
-	"password": "'"$CYPRESS_TESTPASSWORD2"'"
-}'
+while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
+	echo "Hit 502.Server not started retrying..."
+	retry_count=$((1 + $retry_count))
+	sleep 30
+	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+done
+
+echo "Checking if client and server have started"
+ps -ef |grep java 2>&1
+ps -ef |grep  serve 2>&1
+
+if [ "$status_code" -eq "502" ]; then
+  echo "Unable to connect to server"
+  exit 1
+fi
 
 # DEBUG=cypress:* $(npm bin)/cypress version
 # sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml

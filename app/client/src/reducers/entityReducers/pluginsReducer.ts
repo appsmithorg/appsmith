@@ -8,16 +8,22 @@ import { Plugin } from "api/PluginApi";
 import {
   PluginFormPayloadWithId,
   PluginFormsPayload,
+  GetPluginFormConfigRequest,
 } from "actions/pluginActions";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  FormEditorConfigs,
+  FormSettingsConfigs,
+  FormDependencyConfigs,
+} from "utils/DynamicBindingUtils";
 
 export interface PluginDataState {
   list: Plugin[];
   loading: boolean;
   formConfigs: Record<string, any[]>;
-  editorConfigs: Record<string, any[]>;
-  settingConfigs: Record<string, any[]>;
-  dependencies: Record<string, DependencyMap>;
+  editorConfigs: FormEditorConfigs;
+  settingConfigs: FormSettingsConfigs;
+  dependencies: FormDependencyConfigs;
+  fetchingSinglePluginForm: Record<string, boolean>;
 }
 
 const initialState: PluginDataState = {
@@ -27,6 +33,7 @@ const initialState: PluginDataState = {
   editorConfigs: {},
   settingConfigs: {},
   dependencies: {},
+  fetchingSinglePluginForm: {},
 };
 
 const pluginsReducer = createReducer(initialState, {
@@ -58,12 +65,28 @@ const pluginsReducer = createReducer(initialState, {
       ...action.payload,
     };
   },
+  [ReduxActionTypes.GET_PLUGIN_FORM_CONFIG_INIT]: (
+    state: PluginDataState,
+    action: ReduxAction<GetPluginFormConfigRequest>,
+  ) => {
+    return {
+      ...state,
+      fetchingSinglePluginForm: {
+        ...state.fetchingSinglePluginForm,
+        [action.payload.id]: true,
+      },
+    };
+  },
   [ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS]: (
     state: PluginDataState,
     action: ReduxAction<PluginFormPayloadWithId>,
   ) => {
     return {
       ...state,
+      fetchingSinglePluginForm: {
+        ...state.fetchingSinglePluginForm,
+        [action.payload.id]: false,
+      },
       formConfigs: {
         ...state.formConfigs,
         [action.payload.id]: action.payload.form,
@@ -75,6 +98,18 @@ const pluginsReducer = createReducer(initialState, {
       settingConfigs: {
         ...state.settingConfigs,
         [action.payload.id]: action.payload.setting,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR]: (
+    state: PluginDataState,
+    action: ReduxAction<GetPluginFormConfigRequest>,
+  ) => {
+    return {
+      ...state,
+      fetchingSinglePluginForm: {
+        ...state.fetchingSinglePluginForm,
+        [action.payload.id]: false,
       },
     };
   },

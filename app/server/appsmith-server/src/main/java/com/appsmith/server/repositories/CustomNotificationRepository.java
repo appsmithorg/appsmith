@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Notification;
+import com.appsmith.server.repositories.ce.CustomNotificationRepositoryCE;
 
-public interface CustomNotificationRepository extends AppsmithRepository<Notification> {
+public interface CustomNotificationRepository extends CustomNotificationRepositoryCE {
+
 }

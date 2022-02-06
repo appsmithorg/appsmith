@@ -20,6 +20,7 @@ import { uniqueId } from "lodash";
 let container: any = null;
 describe("Comment threads", () => {
   beforeEach(async () => {
+    (window as any).isCommentModeForced = true;
     // setup a DOM element as a render target
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -38,7 +39,7 @@ describe("Comment threads", () => {
     // follows a approach waiting for the element to appear on screen
     // instead of waiting for the api execution
     const { findAllByDataCy } = render(
-      <OverlayCommentsWrapper refId="0">
+      <OverlayCommentsWrapper refId="0" widgetType={"BUTTON_WIDGET"}>
         <div style={{ height: 100, width: 100 }} />
       </OverlayCommentsWrapper>,
       container,
@@ -50,7 +51,7 @@ describe("Comment threads", () => {
 
   it("can be created", async (done) => {
     const { findByDataCy, findByText, getAllByDataCy, getByDataCy } = render(
-      <OverlayCommentsWrapper refId="0">
+      <OverlayCommentsWrapper refId="0" widgetType={"BUTTON_WIDGET"}>
         <div style={{ height: 100, width: 100 }} />
       </OverlayCommentsWrapper>,
       container,
@@ -88,7 +89,7 @@ describe("Comment threads", () => {
   });
   it("accept replies", async (done) => {
     const { findByDataCy, findByText, getByDataCy } = render(
-      <OverlayCommentsWrapper refId="0">
+      <OverlayCommentsWrapper refId="0" widgetType={"BUTTON_WIDGET"}>
         <div style={{ height: 100, width: 100 }} />
       </OverlayCommentsWrapper>,
       container,
@@ -132,5 +133,6 @@ describe("Comment threads", () => {
     store.dispatch(resetEditorSuccess());
     // close any open comment thread popovers
     userEvent.keyboard("{esc}");
+    (window as any).isCommentModeForced = false;
   });
 });

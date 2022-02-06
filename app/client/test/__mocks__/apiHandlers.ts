@@ -7,6 +7,11 @@ import {
 import CreateOrganisationMockResponse from "mockResponses/CreateOrganisationMockResponse.json";
 import ApplicationsNewMockResponse from "mockResponses/ApplicationsNewMockResponse.json";
 
+const mockSuccessRes = {
+  responseMeta: { status: 200, success: true },
+  data: {},
+};
+
 export const handlers = [
   // mock apis here
   rest.post("/api/v1/organizations", (req, res, ctx) => {
@@ -27,5 +32,20 @@ export const handlers = [
   // add comment to thread
   rest.post("/api/v1/comments", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(addCommentToThreadMockResponse));
+  }),
+  rest.put(/.*/, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(mockSuccessRes));
+  }),
+  rest.post(/.*/, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(mockSuccessRes));
+  }),
+  rest.get(/.*/, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(mockSuccessRes));
+  }),
+  rest.patch(/.*/, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(mockSuccessRes));
+  }),
+  rest.delete(/.*/, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(mockSuccessRes));
   }),
 ];

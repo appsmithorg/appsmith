@@ -4,7 +4,11 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { Datasource, DatasourceStructure } from "entities/Datasource";
+import {
+  Datasource,
+  DatasourceStructure,
+  MockDatasource,
+} from "entities/Datasource";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -14,6 +18,9 @@ export interface DatasourceDataState {
   fetchingDatasourceStructure: boolean;
   isRefreshingStructure: boolean;
   structure: Record<string, DatasourceStructure>;
+  isFetchingMockDataSource: false;
+  mockDatasourceList: any[];
+  executingDatasourceQuery: boolean;
 }
 
 const initialState: DatasourceDataState = {
@@ -24,9 +31,49 @@ const initialState: DatasourceDataState = {
   fetchingDatasourceStructure: false,
   isRefreshingStructure: false,
   structure: {},
+  isFetchingMockDataSource: false,
+  mockDatasourceList: [],
+  executingDatasourceQuery: false,
 };
 
 const datasourceReducer = createReducer(initialState, {
+  [ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, isFetchingMockDataSource: true };
+  },
+  [ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<any>,
+  ) => {
+    const mockDatasourceList = action.payload as MockDatasource[];
+    return { ...state, isFetchingMockDataSource: false, mockDatasourceList };
+  },
+  [ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, isFetchingMockDataSource: false };
+  },
+  [ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, loading: true };
+  },
+  [ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ) => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.concat(action.payload),
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, loading: false };
+  },
   [ReduxActionTypes.FETCH_DATASOURCES_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
   },
@@ -51,6 +98,16 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
   ) => {
     return { ...state, isRefreshingStructure: true };
+  },
+  [ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, executingDatasourceQuery: true };
+  },
+  [ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_SUCCESS]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, executingDatasourceQuery: false };
   },
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: (
     state: DatasourceDataState,
@@ -92,16 +149,6 @@ const datasourceReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.FETCH_DATASOURCES_SUCCESS]: (
-    state: DatasourceDataState,
-    action: ReduxAction<Datasource[]>,
-  ) => {
-    return {
-      ...state,
-      loading: false,
-      list: action.payload,
-    };
-  },
-  [ReduxActionTypes.PREFILL_DATASOURCE]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource[]>,
   ) => {
@@ -242,6 +289,14 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       isRefreshingStructure: false,
+    };
+  },
+  [ReduxActionErrorTypes.EXECUTE_DATASOURCE_QUERY_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      executingDatasourceQuery: false,
     };
   },
 });

@@ -1,5 +1,7 @@
 import { COMMENT_EVENTS } from "constants/CommentConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { RawDraftContentState } from "draft-js";
+import { APP_MODE } from "entities/App";
 
 // export enum CommentThreadParentTypes {
 //   widget = "widget",
@@ -15,6 +17,7 @@ import { RawDraftContentState } from "draft-js";
 
 export type CreateCommentRequest = {
   body: RawDraftContentState;
+  mode?: APP_MODE;
 };
 
 export type CreateCommentThreadRequest = {
@@ -22,7 +25,12 @@ export type CreateCommentThreadRequest = {
   pageId: string;
   refId: string; // could be an id to refer any parent based on parent type
   tabId?: string;
-  position: { top: number; left: number }; // used as a percentage value
+  position: {
+    top?: number;
+    left?: number;
+    leftPercent: number;
+    topPercent: number;
+  };
   comments: Array<CreateCommentRequest>;
   resolvedState?: {
     active: boolean;
@@ -37,6 +45,8 @@ export type CreateCommentThreadRequest = {
     };
   };
   isViewed?: boolean;
+  mode?: APP_MODE;
+  widgetType?: WidgetType;
 };
 
 export type Reaction = {
@@ -49,11 +59,12 @@ export type Reaction = {
 export type Comment = CreateCommentRequest & {
   id: string;
   authorName?: string;
+  authorPhotoId?: string;
   authorUsername?: string;
   updationTime?: string;
   creationTime?: string;
   reactions?: Array<Reaction>;
-  threadId?: string;
+  threadId: string;
 } & { _id: string };
 
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
@@ -64,6 +75,22 @@ export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   sequenceId?: string;
   updationTime?: string;
   creationTime?: string;
+  viewedByUsers?: Array<string>;
+} & { _id: string };
+
+export type DraggedCommentThread = {
+  dragPosition: {
+    x: number;
+    y: number;
+  };
+  containerSizePosition: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  refId: string;
+  widgetType?: WidgetType;
 };
 
 export type CommentEventPayload = {

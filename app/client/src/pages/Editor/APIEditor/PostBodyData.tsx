@@ -13,6 +13,7 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import { AppState } from "reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -20,10 +21,12 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import MultiSwitch from "components/ads/MultiSwitch";
 import { updateBodyContentType } from "actions/apiPaneActions";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
-  background-color: ${(props) => props.theme.colors.apiPane.bg};
+  background-color: ${(props) => props.theme.colors.apiPane.tabBg};
   height: 100%;
 `;
 
@@ -46,6 +49,12 @@ interface PostDataProps {
 
 type Props = PostDataProps;
 
+const expectedPostBody: CodeEditorExpected = {
+  type: FIELD_VALUES.API_ACTION.body,
+  example: '{\n  "color":"blue",\n  "isVisible": true \n}',
+  autocompleteDataType: AutocompleteDataType.OBJECT,
+};
+
 function PostBodyData(props: Props) {
   const {
     apiId,
@@ -55,6 +64,68 @@ function PostBodyData(props: Props) {
     updateBodyContentType,
   } = props;
 
+  const tabComponentsMap = (
+    key: string,
+    contentType: ApiContentTypes,
+  ): JSX.Element => {
+    return {
+      [ApiContentTypes.JSON]: (
+        <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
+          <DynamicTextField
+            border={CodeEditorBorder.ALL_SIDE}
+            dataTreePath={`${dataTreePath}.body`}
+            expected={expectedPostBody}
+            mode={EditorModes.JSON_WITH_BINDING}
+            name="actionConfiguration.body"
+            placeholder={
+              '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
+            }
+            showLineNumbers
+            size={EditorSize.EXTENDED}
+            tabBehaviour={TabBehaviour.INDENT}
+            theme={theme}
+          />
+        </JSONEditorFieldWrapper>
+      ),
+      [ApiContentTypes.FORM_URLENCODED]: (
+        <KeyValueFieldArray
+          dataTreePath={`${dataTreePath}.bodyFormData`}
+          key={key}
+          label=""
+          name="actionConfiguration.bodyFormData"
+          // pushFields
+          theme={theme}
+        />
+      ),
+
+      [ApiContentTypes.MULTIPART_FORM_DATA]: (
+        <KeyValueFieldArray
+          dataTreePath={`${dataTreePath}.bodyFormData`}
+          hasType
+          key={key}
+          label=""
+          name="actionConfiguration.bodyFormData"
+          // pushFields
+          theme={theme}
+        />
+      ),
+
+      [ApiContentTypes.RAW]: (
+        <JSONEditorFieldWrapper key={key}>
+          <DynamicTextField
+            border={CodeEditorBorder.ALL_SIDE}
+            dataTreePath={`${dataTreePath}.body`}
+            mode={EditorModes.TEXT_WITH_BINDING}
+            name="actionConfiguration.body"
+            size={EditorSize.EXTENDED}
+            tabBehaviour={TabBehaviour.INDENT}
+            theme={theme}
+          />
+        </JSONEditorFieldWrapper>
+      ),
+    }[contentType];
+  };
+
   return (
     <PostBodyContainer>
       <MultiSwitch
@@ -63,54 +134,11 @@ function PostBodyData(props: Props) {
         }
         selected={displayFormat}
         tabs={POST_BODY_FORMAT_TITLES.map((el) => {
-          let component = (
-            <JSONEditorFieldWrapper
-              className={"t--apiFormPostBody"}
-              key={el.key}
-            >
-              <DynamicTextField
-                dataTreePath={`${dataTreePath}.body`}
-                expected={FIELD_VALUES.API_ACTION.body}
-                mode={EditorModes.JSON_WITH_BINDING}
-                name="actionConfiguration.body"
-                placeholder={
-                  '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
-                }
-                showLineNumbers
-                size={EditorSize.EXTENDED}
-                tabBehaviour={TabBehaviour.INDENT}
-                theme={theme}
-              />
-            </JSONEditorFieldWrapper>
-          );
-          if (
-            el.title === ApiContentTypes.FORM_URLENCODED ||
-            el.title === ApiContentTypes.MULTIPART_FORM_DATA
-          ) {
-            component = (
-              <KeyValueFieldArray
-                dataTreePath={`${dataTreePath}.bodyFormData`}
-                key={el.key}
-                label=""
-                name="actionConfiguration.bodyFormData"
-                theme={theme}
-              />
-            );
-          } else if (el.title === ApiContentTypes.RAW) {
-            component = (
-              <JSONEditorFieldWrapper key={el.key}>
-                <DynamicTextField
-                  dataTreePath={`${dataTreePath}.body`}
-                  mode={EditorModes.TEXT_WITH_BINDING}
-                  name="actionConfiguration.body"
-                  size={EditorSize.EXTENDED}
-                  tabBehaviour={TabBehaviour.INDENT}
-                  theme={theme}
-                />
-              </JSONEditorFieldWrapper>
-            );
-          }
-          return { key: el.key, title: el.title, panelComponent: component };
+          return {
+            key: el.key,
+            title: el.title,
+            panelComponent: tabComponentsMap(el.key, el.title),
+          };
         })}
       />
     </PostBodyContainer>

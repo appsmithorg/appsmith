@@ -5,7 +5,6 @@ import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField, BodyFormData, Property } from "api/ActionAPI";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -18,6 +17,7 @@ import Pagination from "./Pagination";
 import { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { NameWrapper } from "./Form";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -163,14 +163,13 @@ function RapidApiEditorForm(props: Props) {
 
           <ActionButtons>
             <ActionButton
-              accent="error"
+              buttonStyle="DANGER"
               loading={isDeleting}
               onClick={onDeleteClick}
               text="Delete"
             />
             <ActionButton
-              accent="primary"
-              filled
+              buttonStyle="PRIMARY"
               loading={isRunning}
               onClick={() => {
                 onRunClick();
@@ -185,14 +184,12 @@ function RapidApiEditorForm(props: Props) {
             leftImage={providerImage}
             name="provider.name"
             placeholder="Provider name"
-            showLightningMenu={false}
           />
           <DynamicTextField
             disabled
             leftIcon={FormIcons.SLASH_ICON}
             name="actionConfiguration.path"
             placeholder="v1/method"
-            showLightningMenu={false}
           />
         </FormRow>
         {/* Display How to get Credentials info if it is present */}
@@ -261,7 +258,7 @@ function RapidApiEditorForm(props: Props) {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView apiName={props.apiName} />
+        <ApiResponseView apiName={props.apiName} onRunClick={onRunClick} />
       </SecondaryWrapper>
     </Form>
   );

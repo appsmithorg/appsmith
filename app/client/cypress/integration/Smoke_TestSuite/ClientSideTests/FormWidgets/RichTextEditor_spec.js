@@ -9,6 +9,7 @@ describe("RichTextEditor Widget Functionality", function() {
   });
 
   beforeEach(() => {
+    cy.wait(7000);
     cy.openPropertyPane("richtexteditorwidget");
   });
 
@@ -29,17 +30,6 @@ describe("RichTextEditor Widget Functionality", function() {
       "h1",
       "This is a Heading",
     );
-
-    // validate after reload
-    cy.reload(true);
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.validateHTMLText(
-      formWidgetsPage.richTextEditorWidget,
-      "h1",
-      "This is a Heading",
-    );
-
     cy.PublishtheApp();
     cy.validateHTMLText(
       publishPage.richTextEditorWidget,
@@ -92,7 +82,53 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(publishPage.richTextEditorWidget).should("be.visible");
   });
 
+  it("RichTextEditor-check Hide toolbar field validation", function() {
+    // Check the Hide toolbar checkbox
+    cy.CheckWidgetProperties(commonlocators.hideToolbarCheckbox);
+    cy.validateToolbarHidden(
+      formWidgetsPage.richTextEditorWidget,
+      commonlocators.rteToolbar,
+    );
+    cy.PublishtheApp();
+    cy.validateToolbarHidden(
+      publishPage.richTextEditorWidget,
+      commonlocators.rteToolbar,
+    );
+  });
+
+  it("RichTextEditor-uncheck Hide toolbar field validation", function() {
+    // Uncheck the Hide toolbar checkbox
+    cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
+    cy.validateToolbarVisible(
+      formWidgetsPage.richTextEditorWidget,
+      commonlocators.rteToolbar,
+    );
+    cy.PublishtheApp();
+    cy.validateToolbarVisible(
+      publishPage.richTextEditorWidget,
+      commonlocators.rteToolbar,
+    );
+  });
+
+  it("Reset RichTextEditor", function() {
+    cy.setTinyMceContent("rte-6h8j08u7ea", "<h1>content</h1>");
+
+    cy.validateHTMLText(formWidgetsPage.richTextEditorWidget, "h1", "content");
+    cy.openPropertyPane("buttonwidget");
+    cy.get(".t--property-control-onclick")
+      .find(".t--js-toggle")
+      .click({ force: true });
+    cy.testJsontext("onclick", '{{resetWidget("RichtextEditor")}}');
+    cy.get(".t--widget-buttonwidget .bp3-button").click({ force: true });
+    cy.wait(500);
+    cy.validateHTMLText(
+      formWidgetsPage.richTextEditorWidget,
+      "h1",
+      "This is a Heading",
+    );
+  });
+
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.goToEditFromPublish();
   });
 });

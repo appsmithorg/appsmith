@@ -79,6 +79,12 @@ import { ReactComponent as UkPoundsIcon } from "assets/icons/ads/app-icons/uk-po
 import { ReactComponent as WebsiteIcon } from "assets/icons/ads/app-icons/website.svg";
 import { ReactComponent as YenIcon } from "assets/icons/ads/app-icons/yen.svg";
 import { ReactComponent as SteamBowlIcon } from "assets/icons/ads/app-icons/steam-bowl.svg";
+import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
+import ArrowUpIcon from "remixicon-react/ArrowUpSLineIcon";
+import ArrowLeftIcon from "remixicon-react/ArrowLeftSLineIcon";
+import ArrowRightIcon from "remixicon-react/ArrowRightSLineIcon";
+import HelpIcon from "remixicon-react/QuestionLineIcon";
+import OpenNewTabIcon from "remixicon-react/ShareBoxLineIcon";
 
 import styled from "styled-components";
 import { Size } from "./Button";
@@ -165,6 +171,12 @@ export const AppIconCollection = [
   "website",
   "yen",
   "airplane",
+  "arrow-down",
+  "arrow-up",
+  "arrow-left",
+  "arrow-right",
+  "help",
+  "open-new-tab",
 ] as const;
 
 export type AppIconName = typeof AppIconCollection[number];
@@ -221,6 +233,7 @@ const IconWrapper = styled.a<AppIconProps & { styledProps: cssAttributes }>`
 export type AppIconProps = CommonComponentProps & {
   size?: Size;
   name: AppIconName;
+  onClick?: (e: any) => void;
 };
 
 function AppIcon(props: AppIconProps) {
@@ -470,6 +483,24 @@ function AppIcon(props: AppIconProps) {
     case "yen":
       returnIcon = <YenIcon />;
       break;
+    case "arrow-down":
+      returnIcon = <ArrowDownIcon />;
+      break;
+    case "arrow-up":
+      returnIcon = <ArrowUpIcon />;
+      break;
+    case "arrow-left":
+      returnIcon = <ArrowLeftIcon />;
+      break;
+    case "arrow-right":
+      returnIcon = <ArrowRightIcon />;
+      break;
+    case "help":
+      returnIcon = <HelpIcon />;
+      break;
+    case "open-new-tab":
+      returnIcon = <OpenNewTabIcon />;
+      break;
     default:
       returnIcon = null;
       break;
@@ -478,7 +509,7 @@ function AppIcon(props: AppIconProps) {
     <IconWrapper
       data-cy={props.cypressSelector}
       {...props}
-      className={Classes.APP_ICON}
+      className={[Classes.APP_ICON, props.className].join(" ")}
       styledProps={styledProps}
     >
       {returnIcon}

@@ -3,7 +3,6 @@ import { formValueSelector, change } from "redux-form";
 import { connect } from "react-redux";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import {
   EditorSize,
@@ -25,7 +24,7 @@ import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const Wrapper = styled.div`
-  width: 60%;
+  width: 75%;
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;
@@ -64,7 +63,6 @@ class DynamicTextControl extends BaseControl<
       actionName,
       configProperty,
       evaluationSubstitutionType,
-      label,
       placeholderText,
       responseType,
     } = this.props;
@@ -81,7 +79,6 @@ class DynamicTextControl extends BaseControl<
 
     return (
       <Wrapper>
-        <FormLabel>{label}</FormLabel>
         {showTemplate ? (
           <TemplateMenu
             createTemplate={(templateString) => {
@@ -102,6 +99,7 @@ class DynamicTextControl extends BaseControl<
           <DynamicTextField
             className="dynamic-text-field"
             dataTreePath={dataTreePath}
+            disabled={this.props.disabled}
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
             name={this.props.configProperty}
@@ -122,6 +120,7 @@ export interface DynamicTextFieldProps extends ControlProps {
   responseType: string;
   placeholderText?: string;
   evaluationSubstitutionType: EvaluationSubstitutionType;
+  mutedHinting?: boolean;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
