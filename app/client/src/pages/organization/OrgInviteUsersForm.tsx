@@ -1,9 +1,8 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
-import styled, { ThemeContext } from "styled-components";
+import styled, { css, ThemeContext } from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
-import Divider from "components/editorComponents/Divider";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -40,9 +39,22 @@ import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import UserApi from "api/UserApi";
+import { Colors } from "constants/Colors";
+
+const CommonTitleTextStyle = css`
+  color: ${Colors.CHARCOAL};
+  font-weight: normal;
+`;
+
+const OrgInviteWrapper = styled.div`
+  margin-top: 14px;
+`;
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
+  & > span[type="h5"] {
+    ${CommonTitleTextStyle}
+  }
 `;
 
 const StyledForm = styled.form`
@@ -268,14 +280,11 @@ function OrgInviteUsersForm(props: any) {
   );
 
   return (
-    <>
+    <OrgInviteWrapper>
       {isApplicationInvite && (
-        <>
-          <Divider />
-          <OrgInviteTitle>
-            <Text type={TextType.H5}>Invite users to {currentOrg?.name} </Text>
-          </OrgInviteTitle>
-        </>
+        <OrgInviteTitle>
+          <Text type={TextType.H5}>Invite users to {currentOrg?.name} </Text>
+        </OrgInviteTitle>
       )}
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
@@ -388,7 +397,7 @@ function OrgInviteUsersForm(props: any) {
         </ErrorBox>
         {canManage && <ManageUsers orgId={props.orgId} />}
       </StyledForm>
-    </>
+    </OrgInviteWrapper>
   );
 }
 
