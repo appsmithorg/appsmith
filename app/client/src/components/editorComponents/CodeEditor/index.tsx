@@ -71,6 +71,8 @@ import {
   isActionEntity,
   isWidgetEntity,
   removeNewLineChars,
+  addEventToHighlightedElement,
+  removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
@@ -309,45 +311,44 @@ class CodeEditor extends Component<Props, State> {
         }
       }
     });
+  }
 
+  handleMouseMove = () => {
     // this code only runs when we want custom tool tip for any highlighted text inside codemirror instance
     if (
       this.props.showCustomToolTipForHighlightedText &&
       this.props.highlightedTextClassName
     ) {
-      this.highlightedUrlElement = document.getElementsByClassName(
-        this.props.highlightedTextClassName, // the text class name is the classname used for the markText fn for highlighting the text.
-      )[0];
-      // if the highlighted element exists
-      if (
-        this.highlightedUrlElement &&
-        !!this.props.handleMouseEnter &&
-        !!this.props.handleMouseLeave
-      ) {
-        this.highlightedUrlElement.addEventListener(
-          "mouseenter",
-          this.props.handleMouseEnter,
-        );
-
-        this.highlightedUrlElement.addEventListener(
-          "mouseleave",
-          this.props.handleMouseLeave,
-        );
-      }
+      addEventToHighlightedElement(
+        this.highlightedUrlElement,
+        this.props.highlightedTextClassName,
+        [
+          {
+            eventType: "mouseenter",
+            eventHandlerFn: this.props.handleMouseEnter,
+          },
+          {
+            eventType: "mouseleave",
+            eventHandlerFn: this.props.handleMouseLeave,
+          },
+        ],
+      );
     }
-  }
+  };
 
   componentWillUnmount() {
     // if the highlighted element exists, remove the event listeners to prevent memory leaks
     if (this.highlightedUrlElement) {
-      this.highlightedUrlElement.removeEventListener(
-        "mouseenter",
-        this.props.handleMouseEnter,
-      );
-      this.highlightedUrlElement.removeEventListener(
-        "mouseleave",
-        this.props.handleMouseLeave,
-      );
+      removeEventFromHighlightedElement(this.highlightedUrlElement, [
+        {
+          eventType: "mouseenter",
+          eventHandlerFn: this.props.handleMouseEnter,
+        },
+        {
+          eventType: "mouseleave",
+          eventHandlerFn: this.props.handleMouseLeave,
+        },
+      ]);
     }
 
     // return if component unmounts before editor is created
@@ -733,6 +734,9 @@ class CodeEditor extends Component<Props, State> {
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
+            onMouseOver={this.handleMouseMove}
+            // onMouseEnter={this.handleMouseEnter}
+            // onMouseLeave={this.handleMouseLeave}
             ref={this.editorWrapperRef}
             size={size}
           >
