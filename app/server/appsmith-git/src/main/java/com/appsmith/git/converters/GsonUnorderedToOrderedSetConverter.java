@@ -20,7 +20,10 @@ public class GsonUnorderedToOrderedSetConverter implements JsonSerializer<Set> {
     }
 
     /**
-     * Sort the primitive datatype objects and string so that we will have predictable output
+     * Sort the primitive datatype objects and string so that we will have predictable sorted output
+     * e.g. Input => ["abcd", "abc", "abcd1", "1abcd","xyz", "1xyz", "0xyz"]
+     * Output => ["0xyz","1abcd","1xyz","abc","abcd","abcd1","xyz"]
+     *
      * @param objects set of objects which needs to be sorted before serialisation
      * @param <T>
      * @return sorted collection
