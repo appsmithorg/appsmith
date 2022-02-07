@@ -21,12 +21,7 @@ import ThemeFontControl from "./controls/ThemeFontControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import Button, { Category, Size } from "components/ads/Button";
 import MoreIcon from "remixicon-react/MoreFillIcon";
-import DownloadIcon from "remixicon-react/DownloadLineIcon";
 import SaveThemeModal from "./SaveThemeModal";
-import { Popover, Position } from "@blueprintjs/core";
-import { Popover2 } from "@blueprintjs/popover2";
-import Menu from "components/ads/Menu";
-import MenuItem from "components/ads/MenuItem";
 import {
   Dropdown,
   DropdownList,

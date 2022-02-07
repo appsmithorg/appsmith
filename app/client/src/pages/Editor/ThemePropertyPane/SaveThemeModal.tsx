@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 
 import Checkbox from "components/ads/Checkbox";
 import Dialog from "components/ads/DialogComponent";
@@ -11,16 +11,9 @@ interface SaveThemeModalProps {
   onClose(): void;
 }
 
-interface SaveThemeFormProps {
-  name: string;
-}
-
 function SaveThemeModal(props: SaveThemeModalProps) {
   const { isOpen, onClose } = props;
   const [name, setName] = useState("");
-  const onSubmit = (data: any) => {
-    //
-  };
 
   return (
     <Dialog canOutsideClickClose isOpen={isOpen} onClose={onClose}>

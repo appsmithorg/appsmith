@@ -1,5 +1,4 @@
 import { Alignment, Classes, Switch } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
