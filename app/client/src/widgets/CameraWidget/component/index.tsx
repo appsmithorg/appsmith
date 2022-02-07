@@ -63,7 +63,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  ${({ disabled }) => disabled && `background: ${Colors.GREY_3}`};
+  background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};
 
   .fullscreen {
     position: relative;
@@ -106,10 +106,15 @@ const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
 const PhotoViewer = styled.img`
   ${overlayerMixin}
   height: 100%;
+  object-fit: contain;
 `;
 
 const VideoPlayer = styled.video`
   ${overlayerMixin}
+  object-fit: contain;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 const ControlPanelContainer = styled.div`
@@ -193,7 +198,8 @@ export interface ControlPanelProps {
   status: MediaCaptureStatus;
   appLayoutType?: SupportedLayouts;
   fullScreenHandle: FullScreenHandle;
-  onCaptureImage: () => void;
+  onImageCapture: () => void;
+  onImageSave: () => void;
   onError: (errorMessage: string) => void;
   onMediaInputChange: (mediaDeviceInfo: MediaDeviceInfo) => void;
   onRecordingStart: () => void;
@@ -204,6 +210,7 @@ export interface ControlPanelProps {
   onToggleVideo: (isMute: boolean) => void;
   onVideoPlay: () => void;
   onVideoPause: () => void;
+  onVideoSave: () => void;
 }
 
 function ControlPanel(props: ControlPanelProps) {
@@ -213,8 +220,9 @@ function ControlPanel(props: ControlPanelProps) {
     audioMuted,
     fullScreenHandle,
     mode,
-    onCaptureImage,
     onError,
+    onImageCapture,
+    onImageSave,
     onMediaInputChange,
     onRecordingStart,
     onRecordingStop,
@@ -224,6 +232,7 @@ function ControlPanel(props: ControlPanelProps) {
     onToggleVideo,
     onVideoPause,
     onVideoPlay,
+    onVideoSave,
     status,
     videoInputs,
     videoMuted,
@@ -237,7 +246,7 @@ function ControlPanel(props: ControlPanelProps) {
           navigator.mediaDevices
             .getUserMedia({ video: true, audio: false })
             .then(() => {
-              onCaptureImage();
+              onImageCapture();
               onStatusChange(MediaCaptureStatusTypes.IMAGE_CAPTURED);
             })
             .catch((err) => {
@@ -246,7 +255,9 @@ function ControlPanel(props: ControlPanelProps) {
 
           break;
         case MediaCaptureActionTypes.IMAGE_SAVE:
+          onImageSave();
           onStatusChange(MediaCaptureStatusTypes.IMAGE_SAVED);
+
           break;
         case MediaCaptureActionTypes.IMAGE_DISCARD:
           onResetMedia();
@@ -279,6 +290,7 @@ function ControlPanel(props: ControlPanelProps) {
           onStatusChange(MediaCaptureStatusTypes.VIDEO_DEFAULT);
           break;
         case MediaCaptureActionTypes.RECORDING_SAVE:
+          onVideoSave();
           onStatusChange(MediaCaptureStatusTypes.VIDEO_SAVED);
           break;
         case MediaCaptureActionTypes.VIDEO_PLAY:
@@ -853,8 +865,10 @@ function CameraComponent(props: CameraComponentProps) {
     mirrored,
     mode,
     onImageCapture,
+    onImageSave,
     onRecordingStart,
     onRecordingStop,
+    onVideoSave,
     videoBlobURL,
     width,
   } = props;
@@ -1169,8 +1183,9 @@ function CameraComponent(props: CameraComponentProps) {
           audioMuted={isAudioMuted}
           fullScreenHandle={fullScreenHandle}
           mode={mode}
-          onCaptureImage={captureImage}
           onError={setError}
+          onImageCapture={captureImage}
+          onImageSave={onImageSave}
           onMediaInputChange={handleMediaDeviceChange}
           onRecordingStart={handleRecordingStart}
           onRecordingStop={handleRecordingStop}
@@ -1180,6 +1195,7 @@ function CameraComponent(props: CameraComponentProps) {
           onToggleVideo={setIsVideoMuted}
           onVideoPause={handleVideoPause}
           onVideoPlay={handleVideoPlay}
+          onVideoSave={onVideoSave}
           status={mediaCaptureStatus}
           videoInputs={videoInputs}
           videoMuted={isVideoMuted}
@@ -1203,8 +1219,10 @@ export interface CameraComponentProps {
   mirrored: boolean;
   mode: CameraMode;
   onImageCapture: (image?: string | null) => void;
+  onImageSave: () => void;
   onRecordingStart: () => void;
   onRecordingStop: (video: Blob | null) => void;
+  onVideoSave: () => void;
   videoBlobURL?: string;
   width: number;
 }
