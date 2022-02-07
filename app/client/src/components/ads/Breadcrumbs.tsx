@@ -18,7 +18,7 @@ export const StyledBreadcrumbList = styled.ol`
   list-style: none;
   display: flex;
   align-items: center;
-  font-size: 12px;
+  font-size: 16px;
   color: #716e6e;
   margin-bottom: 23px;
 
@@ -31,7 +31,7 @@ export const StyledBreadcrumbList = styled.ol`
   .t--breadcrumb-item {
     &.active {
       color: ${Colors.COD_GRAY};
-      font-size: 14px;
+      font-size: 20px;
     }
   }
 `;
