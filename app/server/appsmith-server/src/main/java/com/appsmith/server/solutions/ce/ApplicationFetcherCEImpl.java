@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ReleaseNode;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -50,6 +51,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final OrganizationService organizationService;
     private final ApplicationRepository applicationRepository;
     private final ReleaseNotesService releaseNotesService;
+    private final ResponseUtils responseUtils;
 
     /**
      * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
@@ -100,7 +102,9 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     Flux<Application> applicationFlux = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             .filter(application -> application.getGitApplicationMetadata() == null
-                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId())));
+                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId()))
+                            )
+                            .map(responseUtils::updateApplicationWithDefaultResources);
 
                     // sort the list of applications if user has recent applications
                     if(!CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())) {
@@ -140,11 +144,6 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                                         final List<Application> applicationList = new ArrayList<>();
                                         if (!CollectionUtils.isEmpty(applicationCollection)) {
                                             applicationList.addAll(applicationCollection);
-                                            long gitConnectedAppsCount = applicationCollection
-                                                    .stream()
-                                                    .filter(application -> application.getGitApplicationMetadata() != null)
-                                                    .count();
-                                            organization.setGitConnectedApplications(gitConnectedAppsCount);
                                         }
 
                                         OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
