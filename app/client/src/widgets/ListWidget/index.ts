@@ -318,9 +318,9 @@ export const CONFIG = {
             const logBlackList: { [key: string]: boolean } = {};
 
             /*
-             * Only widgets that doesn't have derived or meta properties
-             * work well inside the currecnt version of List widget.
-             * Widgets like Input, Select maintain the state on meta properties
+             * Only widgets that don't have derived or meta properties
+             * work well inside the current version of List widget.
+             * Widgets like Input, Select maintain the state on meta properties,
              * which won't be available in List.selectedItem object. Hence we're
              * restricting them from being placed inside the List widget.
              */
