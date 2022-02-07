@@ -3457,7 +3457,7 @@ Cypress.Commands.add("clearPropertyValue", (value) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is empty");
       cy.get(".CodeMirror textarea")
         .eq(value)
@@ -3544,7 +3544,7 @@ Cypress.Commands.add(
       .click({ force: true })
       .wait(500);
 
-    if (action == "Delete")
+    if (action === "Delete")
       cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
         "not.exist",
       );
