@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { setHeaderMeta } from "actions/themeActions";
 import { APPLICATIONS_URL, TEMPLATES_URL } from "constants/routes";
 import history from "utils/history";
+import Templates from "pages/Templates";
 
 const TabsWrapper = styled.div`
   position: fixed;
@@ -42,9 +43,9 @@ const HomeTabs = [
   {
     key: HomePageTabsKeys.TEMPLATES,
     title: "Templates",
-    panelComponent: <div>Templates</div>,
+    panelComponent: <Templates />,
     path: TEMPLATES_URL,
-    leftPane: <div>test</div>,
+    leftPane: <ApplicationsLeftPane />,
   },
 ];
 
