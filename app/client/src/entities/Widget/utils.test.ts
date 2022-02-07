@@ -122,6 +122,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
         tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
@@ -196,6 +197,15 @@ describe("getAllPathsFromPropertyConfig", () => {
         animateLoading: {
           type: "BOOLEAN",
         },
+        borderRadius: {
+          type: "TEXT",
+        },
+        boxShadow: {
+          type: "TEXT",
+        },
+        cellBackground: {
+          type: "TEXT",
+        },
         defaultSearchText: {
           type: "TEXT",
         },
@@ -241,6 +251,15 @@ describe("getAllPathsFromPropertyConfig", () => {
           params: {
             default: [],
           },
+        },
+        textColor: {
+          type: "TEXT",
+        },
+        "primaryColumns.status.borderRadius": {
+          type: "TEXT",
+        },
+        "primaryColumns.status.boxShadow": {
+          type: "TEXT",
         },
         "primaryColumns.createdAt.isCellVisible": {
           type: ValidationTypes.TABLE_PROPERTY,
@@ -587,6 +606,12 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "TEXT",
         },
         yAxisName: {
+          type: "TEXT",
+        },
+        borderRadius: {
+          type: "TEXT",
+        },
+        boxShadow: {
           type: "TEXT",
         },
       },
