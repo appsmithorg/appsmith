@@ -25,7 +25,6 @@ import {
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
-  migrateTableWidgetNumericColumnName,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -1040,12 +1039,17 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 50) {
-    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
+    /*
+     * We're skipping this to fix a bad table migration - migrateTableWidgetNumericColumnName
+     * it overwrites the computedValue of the table columns
+     */
+
     currentDSL.version = 51;
   }
 
   if (currentDSL.version === 51) {
     currentDSL = migrateInlineAndAlignmentProperties(currentDSL);
+
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

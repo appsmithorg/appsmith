@@ -310,12 +310,19 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @throws AppsmithPluginException
      */
     private void addSortCondition(StringBuilder sb, List<Map<String, String>> sortBy) throws AppsmithPluginException {
-        if (CollectionUtils.isEmpty(sortBy)) {
+
+        /**
+         * Checks if:
+         *  o `sortBy` condition list is null or empty
+         *  o all column names in the sortBy list are empty
+         */
+        if (isSortConditionEmpty(sortBy)) {
             return;
         }
 
         sb.append(" ORDER BY");
         sortBy.stream()
+                .filter(sortCondition -> !isBlank(sortCondition.get(SORT_BY_COLUMN_NAME_KEY)))
                 .forEachOrdered(sortCondition -> {
                     String columnName = sortCondition.get(SORT_BY_COLUMN_NAME_KEY);
                     SortType sortType;
@@ -330,6 +337,20 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 });
 
         sb.setLength(sb.length() - 1);
+    }
+
+    /**
+     * Checks if:
+     *  o `sortBy` condition list is null or empty
+     *  o all column names in the sortBy list are empty
+     */
+    private boolean isSortConditionEmpty(List<Map<String, String>> sortBy) {
+        if (CollectionUtils.isEmpty(sortBy)) {
+            return true;
+        }
+
+        return sortBy.stream()
+                .allMatch(sortCondition -> isBlank(sortCondition.get(SORT_BY_COLUMN_NAME_KEY)));
     }
 
 

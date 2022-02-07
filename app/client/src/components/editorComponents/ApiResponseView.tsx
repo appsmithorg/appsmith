@@ -199,6 +199,7 @@ const ResponseDataContainer = styled.div`
   flex: 1;
   overflow: auto;
   display: flex;
+  margin-bottom: 10px;
   flex-direction: column;
   & .CodeEditorTarget {
     overflow: hidden;
@@ -238,11 +239,19 @@ function ApiResponseView(props: Props) {
   };
 
   const messages = response?.messages;
+  let responseHeaders;
+
+  // if no headers are present in the response, use the default body text.
+  if (response.headers) {
+    responseHeaders = response.headers;
+  } else {
+    responseHeaders = {}; // if the response headers is empty show an empty object.
+  }
 
   const tabs = [
     {
       key: "body",
-      title: "Response Body",
+      title: "Body",
       panelComponent: (
         <ResponseTabWrapper>
           {Array.isArray(messages) && messages.length > 0 && (
@@ -291,6 +300,58 @@ function ApiResponseView(props: Props) {
                 input={{
                   value: response.body
                     ? JSON.stringify(response.body, null, 2)
+                    : "",
+                }}
+              />
+            )}
+          </ResponseDataContainer>
+        </ResponseTabWrapper>
+      ),
+    },
+    {
+      key: "headers",
+      title: "Headers",
+      panelComponent: (
+        <ResponseTabWrapper>
+          {hasFailed && !isRunning && (
+            <StyledCallout
+              fill
+              label={
+                <FailedMessage>
+                  <DebugButton
+                    className="api-debugcta"
+                    onClick={onDebugClick}
+                  />
+                </FailedMessage>
+              }
+              text={createMessage(CHECK_REQUEST_BODY)}
+              variant={Variant.danger}
+            />
+          )}
+          <ResponseDataContainer>
+            {_.isEmpty(response.statusCode) ? (
+              <NoResponseContainer>
+                <Icon name="no-response" />
+                <Text type={TextType.P1}>
+                  {EMPTY_RESPONSE_FIRST_HALF()}
+                  <InlineButton
+                    isLoading={isRunning}
+                    onClick={onRunClick}
+                    size={Size.medium}
+                    tag="button"
+                    text="Run"
+                    type="button"
+                  />
+                  {EMPTY_RESPONSE_LAST_HALF()}
+                </Text>
+              </NoResponseContainer>
+            ) : (
+              <ReadOnlyEditor
+                folding
+                height={"100%"}
+                input={{
+                  value: response.body
+                    ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
               />
