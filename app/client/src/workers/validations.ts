@@ -117,8 +117,9 @@ function validateArray(
   let _isValid = true; // Let's first assume that this is valid
   const _messages: string[] = []; // Initialise messages array
 
-  // Values allowed in the array
-  const allowedValues = config.params?.allowedValues;
+  // Values allowed in the array, converted into a set of unique values
+  // or an empty set
+  const allowedValues = new Set(config.params?.allowedValues || []);
 
   // Keys whose values are supposed to be unique across all values in all objects in the array
   let uniqueKeys: Array<string> = [];
@@ -150,8 +151,7 @@ function validateArray(
   const childrenValidationConfig = config.params?.children;
 
   // Should we validate against disallowed values in the value array?
-  const shouldVerifyAllowedValues =
-    Array.isArray(allowedValues) && !!allowedValues.length;
+  const shouldVerifyAllowedValues = !!allowedValues.size; // allowedValues is a set
 
   // Do we have validation config for array children?
   const shouldValidateChildren = !!childrenValidationConfig;
@@ -167,10 +167,11 @@ function validateArray(
 
   // Verify if all values are unique
   if (shouldArrayHaveUniqueEntries) {
+    // Converting to a Set will remove all duplicate values
+    // Optimization credits to: @aswathkk and @SatishGandham on Github
+    const _value = new Set(value);
     // Loop
-    if (
-      uniq(value.map((entry) => JSON.stringify(entry))).length !== value.length
-    ) {
+    if (_value.size !== value.length) {
       // Bail out early
       // Because, we don't want to re-iterate, if this validation fails
       return {
@@ -210,7 +211,7 @@ function validateArray(
   // Loop
   value.every((entry, index) => {
     // Validate for allowed values
-    if (shouldVerifyAllowedValues && !(allowedValues || []).includes(entry)) {
+    if (shouldVerifyAllowedValues && !allowedValues.has(entry)) {
       _messages.push(`${VALIDATION_ARRAY_DISALLOWED_VALUE()}: ${entry}`);
       _isValid = false;
     }
