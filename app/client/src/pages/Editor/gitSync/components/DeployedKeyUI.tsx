@@ -29,16 +29,18 @@ const Icon = styled.span<{
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: ${(props) => `${props.theme.spaces[1]}px`};
   padding: ${(props) => `${props.theme.spaces[props.marginOffset || 0]}px`};
   cursor: pointer;
+
   svg {
     width: ${(props) => props.size};
     height: ${(props) => props.size};
+
     path {
       fill: ${(props) => props.color};
     }
   }
+
   &:hover {
     svg {
       path {
@@ -80,6 +82,7 @@ const LintText = styled.a`
   :hover {
     color: ${Colors.CRUSTA};
   }
+
   color: ${Colors.CRUSTA};
   cursor: pointer;
   font-weight: 500;
@@ -92,6 +95,27 @@ type DeployedKeyUIProps = {
   showCopied: boolean;
   SSHKeyPair: string;
 };
+
+function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {
+  return showCopied ? (
+    <Icon color={Colors.GREEN} hoverColor={Colors.GREEN} size="16px">
+      <TickSvg />
+    </Icon>
+  ) : (
+    <TooltipWrapper>
+      <TooltipComponent content="Copy Key">
+        <Icon
+          color={Colors.DARK_GRAY}
+          hoverColor={Colors.GRAY2}
+          onClick={copyToClipboard}
+          size="22px"
+        >
+          <CopySvg />
+        </Icon>
+      </TooltipComponent>
+    </TooltipWrapper>
+  );
+}
 
 function DeployedKeyUI(props: DeployedKeyUIProps) {
   const { copyToClipboard, deployKeyDocUrl, showCopied, SSHKeyPair } = props;
@@ -117,32 +141,9 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
               style={{ marginTop: -1, marginRight: 4 }}
             />
             <KeyText>{SSHKeyPair}</KeyText>
+            {CopySSHKey(showCopied, copyToClipboard)}
           </FlexRow>
         </DeployedKeyContainer>
-        {showCopied ? (
-          <Icon
-            color={Colors.GREEN}
-            hoverColor={Colors.GREEN}
-            marginOffset={4}
-            size="16px"
-          >
-            <TickSvg />
-          </Icon>
-        ) : (
-          <TooltipWrapper>
-            <TooltipComponent content="Copy Key">
-              <Icon
-                color={Colors.DARK_GRAY}
-                hoverColor={Colors.GRAY2}
-                marginOffset={3}
-                onClick={copyToClipboard}
-                size="22px"
-              >
-                <CopySvg />
-              </Icon>
-            </TooltipComponent>
-          </TooltipWrapper>
-        )}
       </FlexRow>
     </>
   );
