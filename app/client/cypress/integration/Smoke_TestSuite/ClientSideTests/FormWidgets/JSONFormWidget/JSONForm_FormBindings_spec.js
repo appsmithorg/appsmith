@@ -6,7 +6,7 @@ const propertyControlPrefix = ".t--property-control";
 const backBtn = ".t--property-pane-back-btn";
 
 describe("JSON Form Widget Form Bindings", () => {
-  before(() => {
+  beforeEach(() => {
     cy.addDsl(dslWithSchema);
   });
 
@@ -278,16 +278,16 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("change field accessor should reflect in fieldState and formData", () => {
+  it("change field accessor should reflect in fieldState", () => {
     const expectedFieldStateChange = {
       firstName: {
         isDisabled: false,
         isVisible: true,
-        isRequired: true,
+        isRequired: false,
         isValid: true,
       },
       age: {
-        isDisabled: true,
+        isDisabled: false,
         isVisible: true,
         isRequired: false,
         isValid: true,
@@ -300,7 +300,7 @@ describe("JSON Form Widget Form Bindings", () => {
       },
       migrant: {
         isDisabled: false,
-        isVisible: false,
+        isVisible: true,
         isRequired: false,
         isValid: true,
       },
@@ -308,8 +308,8 @@ describe("JSON Form Widget Form Bindings", () => {
         street: {
           isDisabled: false,
           isVisible: true,
-          isRequired: true,
-          isValid: false,
+          isRequired: false,
+          isValid: true,
         },
         city: {
           isDisabled: false,
@@ -323,12 +323,12 @@ describe("JSON Form Widget Form Bindings", () => {
           graduatingCollege: {
             isDisabled: false,
             isVisible: true,
-            isRequired: true,
+            isRequired: false,
             isValid: true,
           },
           year: {
             isDisabled: false,
-            isVisible: false,
+            isVisible: true,
             isRequired: false,
             isValid: true,
           },
@@ -340,15 +340,6 @@ describe("JSON Form Widget Form Bindings", () => {
         isRequired: false,
         isValid: true,
       },
-    };
-
-    const expectedFormDataChange = {
-      age: 40,
-      dob: "10/12/1992",
-      address: { street: "", city: "" },
-      hobbies: ["travelling"],
-      education: [{ graduatingCollege: "MIT", year: "20/10/2014" }],
-      firstName: "John",
     };
 
     cy.openPropertyPane("textwidget");
@@ -383,14 +374,39 @@ describe("JSON Form Widget Form Bindings", () => {
       const formState = JSON.parse($el.text());
       cy.wrap(formState).should("deep.equal", expectedFieldStateChange);
     });
+  });
 
-    // Modify text widget binding to formData
+  it("change field accessor should reflect in formData", () => {
+    const expectedFormDataChange = {
+      age: 30,
+      dob: "10/12/1992",
+      migrant: false,
+      address: { street: "Koramangala", city: "Bangalore" },
+      hobbies: ["travelling", "swimming"],
+      education: [{ graduatingCollege: "MIT", year: "20/10/2014" }],
+      firstName: "John",
+    };
+
+    cy.openPropertyPane("jsonformwidget");
+
+    // Change accessor name -> firstName
+    cy.openFieldConfiguration("name");
+    cy.testJsontext("accessor", "firstName");
+    cy.wait(1000);
+
+    cy.get(backBtn)
+      .click({ force: true })
+      .wait(500);
+
+    // Change accessor education -> college to education -> graduatingCollege
+    cy.openFieldConfiguration("education");
+    cy.openFieldConfiguration("__array_item__");
+    cy.openFieldConfiguration("college");
+    cy.testJsontext("accessor", "graduatingCollege");
+
+    cy.wait(5000);
+
     cy.openPropertyPane("textwidget");
-    cy.get(".t--property-control-text .CodeMirror textarea")
-      .first()
-      .clear({
-        force: true,
-      });
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
 
     cy.wait(1000);

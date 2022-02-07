@@ -33,7 +33,12 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
 const isValid = (value: boolean, schemaItem: SwitchFieldProps["schemaItem"]) =>
   schemaItem.isRequired ? Boolean(value) : true;
 
-function SwitchField({ fieldClassName, name, schemaItem }: SwitchFieldProps) {
+function SwitchField({
+  fieldClassName,
+  name,
+  passedDefaultValue,
+  schemaItem,
+}: SwitchFieldProps) {
   const {
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
@@ -96,7 +101,7 @@ function SwitchField({ fieldClassName, name, schemaItem }: SwitchFieldProps) {
 
   return (
     <Field
-      defaultValue={schemaItem.defaultValue}
+      defaultValue={schemaItem.defaultValue ?? passedDefaultValue}
       fieldClassName={fieldClassName}
       inlineLabel
       isRequiredField={schemaItem.isRequired}

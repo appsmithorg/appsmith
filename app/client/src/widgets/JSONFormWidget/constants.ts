@@ -70,6 +70,7 @@ export type BaseFieldComponentProps<TProps = any> = {
   fieldClassName: string;
   name: ControllerRenderProps["name"];
   propertyPath: string;
+  passedDefaultValue?: unknown;
   schemaItem: SchemaItem & TProps;
 };
 

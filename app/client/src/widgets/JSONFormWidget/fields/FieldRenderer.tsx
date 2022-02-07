@@ -8,11 +8,13 @@ type FieldRendererProps = {
   schemaItem: SchemaItem;
   propertyPath: string;
   options?: Record<string, any>;
+  passedDefaultValue?: unknown;
 };
 
 function FieldRenderer({
   fieldName,
   options,
+  passedDefaultValue,
   propertyPath,
   schemaItem,
 }: FieldRendererProps) {
@@ -28,8 +30,9 @@ function FieldRenderer({
 
   return (
     <FieldComponent
-      fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")} // replace [,],. with -
-      name={fieldName}
+      fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")}
+      name={fieldName} // replace [,],. with -
+      passedDefaultValue={passedDefaultValue}
       propertyPath={propertyPath}
       schemaItem={schemaItem}
       {...options}

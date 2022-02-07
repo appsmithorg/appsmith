@@ -242,7 +242,7 @@ describe("Select Field Property Control", () => {
 describe("Multi-Select Field Property Control", () => {
   before(() => {
     const schema = {
-      hobbies: ["Swimming"],
+      hobbies: [],
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
@@ -254,6 +254,7 @@ describe("Multi-Select Field Property Control", () => {
     cy.get(".t--property-control-defaultvalue").contains(
       "{{sourceData.hobbies}}",
     );
+    cy.closePropertyPane();
   });
 
   // it("changes dropdown options", () => {
@@ -282,9 +283,6 @@ describe("Multi-Select Field Property Control", () => {
     cy.openFieldConfiguration("hobbies");
 
     cy.testJsontext("placeholder", "Select placeholder");
-    cy.wait(500);
-    cy.testJsontext("defaultvalue", "");
-    cy.wait(500);
 
     cy.get(`.rc-select-selection-placeholder`).contains("Select placeholder");
   });
@@ -328,18 +326,18 @@ describe("Radio group Field Property Control", () => {
     cy.get(`${fieldPrefix}-radio input`).should("have.value", "Y");
   });
 
-  it("changes radio group options", () => {
-    const options = [
-      { label: "Yes", value: "Y" },
-      { label: "No", value: "N" },
-      { label: "Both", value: "B" },
-    ];
-    cy.testJsontext("options", JSON.stringify(options));
+  // it("changes radio group options", () => {
+  //   const options = [
+  //     { label: "Yes", value: "Y" },
+  //     { label: "No", value: "N" },
+  //     { label: "Both", value: "B" },
+  //   ];
+  //   cy.testJsontext("options", JSON.stringify(options));
 
-    cy.get(`${fieldPrefix}-radio .bp3-control.bp3-radio`).each(($el, index) => {
-      cy.wrap($el).contains(options[index].label);
-    });
-  });
+  //   cy.get(`${fieldPrefix}-radio .bp3-control.bp3-radio`).each(($el, index) => {
+  //     cy.wrap($el).contains(options[index].label);
+  //   });
+  // });
 
   it("hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);

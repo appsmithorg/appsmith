@@ -88,7 +88,12 @@ export const isValidType = (value: string) =>
 const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
   schemaItem.isRequired ? Boolean(value?.trim()) : true;
 
-function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
+function DateField({
+  fieldClassName,
+  name,
+  passedDefaultValue,
+  schemaItem,
+}: DateFieldProps) {
   const {
     fieldType,
     onBlur: onBlurDynamicString,
@@ -110,6 +115,7 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
   });
 
   const isValueValid = isValid(schemaItem, value);
+  const defaultDateValue = schemaItem.defaultValue || passedDefaultValue;
 
   useRegisterFieldValidity({
     isValid: isValueValid,
@@ -205,7 +211,7 @@ function DateField({ fieldClassName, name, schemaItem }: DateFieldProps) {
 
   return (
     <Field
-      defaultValue={schemaItem.defaultValue}
+      defaultValue={defaultDateValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

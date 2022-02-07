@@ -102,6 +102,7 @@ function ISDCodeDropdownComponent({
 function PhoneInputField({
   fieldClassName,
   name,
+  passedDefaultValue,
   propertyPath,
   schemaItem,
 }: PhoneInputFieldProps) {
@@ -121,6 +122,7 @@ function PhoneInputField({
       isValid={isValid}
       leftIcon={leftIcon}
       name={name}
+      passedDefaultValue={passedDefaultValue}
       propertyPath={propertyPath}
       schemaItem={schemaItem}
       transformValue={transformValue}

@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 import { ControllerRenderProps, useFormContext } from "react-hook-form";
-import { Icon } from "@blueprintjs/core";
 import { cloneDeep, get, set } from "lodash";
+import { Icon } from "@blueprintjs/core";
 
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
@@ -16,6 +16,7 @@ import {
   FieldComponent,
   FieldComponentBaseProps,
   FieldState,
+  SchemaItem,
 } from "../constants";
 import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
@@ -86,6 +87,12 @@ const deleteIcon = (
   />
 );
 
+const getDefaultValue = (schemaItem: SchemaItem) => {
+  return !Array.isArray(schemaItem.defaultValue)
+    ? []
+    : (schemaItemDefaultValue(schemaItem) as any[]);
+};
+
 function ArrayField({
   fieldClassName,
   name,
@@ -94,15 +101,14 @@ function ArrayField({
 }: ArrayFieldProps) {
   const { getValues, setValue } = useFormContext();
   const [keys, setKeys] = useState<string[]>([]);
+  const defaultValue = getDefaultValue(schemaItem);
+  const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
+    defaultValue,
+  );
+
   const { setFieldValidityState } = useContext(FormContext);
 
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
-
-  const defaultValue = (() => {
-    return !Array.isArray(schemaItem.defaultValue)
-      ? []
-      : (schemaItemDefaultValue(schemaItem) as any[]);
-  })();
 
   const add = () => {
     setKeys((prevKeys) => [...prevKeys, generateReactKey()]);
@@ -115,6 +121,21 @@ function ArrayField({
 
       if (values === undefined) {
         return;
+      }
+
+      // If the array has some default value passed from the sourceData
+      // and the default array item is removed then we need to remove the
+      // same index data from the default value in order to avoid that
+      // data to get populated when add button is clicked as we use
+      // cachedDefaultValue[index] in the FieldRenderer
+      if (removedIndex < cachedDefaultValue.length) {
+        setCachedDefaultValue((prevDefaultValue) => {
+          const clonedValue = cloneDeep(prevDefaultValue);
+
+          clonedValue.splice(removedIndex, 1);
+
+          return clonedValue;
+        });
       }
 
       // Manually remove from the values and re-insert to maintain the position of the
@@ -132,15 +153,30 @@ function ArrayField({
     [keys, setKeys, setValue, getValues],
   );
 
-  const reset = (values: any[]) => {
-    const newKeys = values?.map(generateReactKey);
-
-    setKeys(newKeys);
-    setValue(name, cloneDeep(values));
-  };
-
+  // When the default value changes, the ArrayField
+  // need to generate the correct number of items
+  // So we we check if the there are more number of items (keys) than
+  // the default value, then we remove extra else we add if more is required
   useDeepEffect(() => {
-    reset(defaultValue);
+    if (defaultValue.length > keys.length) {
+      const diff = defaultValue.length - keys.length;
+
+      const newKeys = Array(diff)
+        .fill(0)
+        .map(generateReactKey);
+
+      setKeys((prevKeys) => [...prevKeys, ...newKeys]);
+    } else if (defaultValue.length < keys.length) {
+      const diff = keys.length - defaultValue.length;
+
+      setKeys((prevKeys) => {
+        const clonedPrevKeys = [...prevKeys];
+        clonedPrevKeys.splice(-1 * diff);
+
+        return clonedPrevKeys;
+      });
+    }
+    setCachedDefaultValue(defaultValue);
   }, [defaultValue]);
 
   /**
@@ -193,6 +229,7 @@ function ArrayField({
             <FieldRenderer
               fieldName={fieldName}
               options={DEFAULT_FIELD_RENDERER_OPTIONS}
+              passedDefaultValue={cachedDefaultValue[index]}
               propertyPath={fieldPropertyPath}
               schemaItem={arrayItemSchema}
             />
@@ -208,7 +245,15 @@ function ArrayField({
         </Accordion>
       );
     });
-  }, [schemaItem, basePropertyPath, name, remove, keys, fieldClassName]);
+  }, [
+    schemaItem,
+    basePropertyPath,
+    name,
+    remove,
+    keys,
+    fieldClassName,
+    cachedDefaultValue,
+  ]);
 
   if (!schemaItem.isVisible) {
     return null;

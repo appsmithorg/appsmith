@@ -46,6 +46,7 @@ function CheckboxField({
   fieldClassName,
   hideLabel,
   name,
+  passedDefaultValue,
   schemaItem,
 }: CheckboxFieldProps) {
   const {
@@ -117,7 +118,7 @@ function CheckboxField({
   return (
     <Field
       alignField={schemaItem.alignWidget}
-      defaultValue={schemaItem.defaultValue}
+      defaultValue={schemaItem.defaultValue ?? passedDefaultValue}
       fieldClassName={fieldClassName}
       hideLabel={hideLabel}
       inlineLabel

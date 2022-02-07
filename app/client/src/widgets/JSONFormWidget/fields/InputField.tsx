@@ -126,6 +126,7 @@ function isValidType(value: string, options?: IsValidOptions) {
 function InputField({
   fieldClassName,
   name,
+  passedDefaultValue,
   propertyPath,
   schemaItem,
 }: InputFieldProps) {
@@ -172,6 +173,7 @@ function InputField({
       inputHTMLType={getInputHTMLType(schemaItem.fieldType)}
       isValid={isValid}
       name={name}
+      passedDefaultValue={passedDefaultValue}
       propertyPath={propertyPath}
       schemaItem={schemaItem}
       transformValue={transformValue}

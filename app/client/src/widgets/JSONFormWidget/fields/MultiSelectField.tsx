@@ -68,6 +68,7 @@ const DEFAULT_VALUE = [""];
 function MultiSelectField({
   fieldClassName,
   name,
+  passedDefaultValue,
   propertyPath,
   schemaItem,
 }: MultiSelectFieldProps) {
@@ -169,7 +170,7 @@ function MultiSelectField({
 
   return (
     <Field
-      defaultValue={schemaItem.defaultValue}
+      defaultValue={schemaItem.defaultValue || passedDefaultValue}
       defaultValueValidatorFn={defaultValueValidator}
       fieldClassName={fieldClassName}
       isRequiredField={isRequired}

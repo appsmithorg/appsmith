@@ -3,7 +3,7 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form Widget Field Render", () => {
-  before(() => {
+  beforeEach(() => {
     cy.addDsl(dslWithoutSchema);
   });
 

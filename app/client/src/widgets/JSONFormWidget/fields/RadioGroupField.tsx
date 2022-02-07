@@ -37,6 +37,7 @@ const isValid = (
 function RadioGroupField({
   fieldClassName,
   name,
+  passedDefaultValue,
   schemaItem,
 }: RadioGroupFieldProps) {
   const { executeAction } = useContext(FormContext);
@@ -74,7 +75,7 @@ function RadioGroupField({
 
   return (
     <Field
-      defaultValue={schemaItem.defaultValue}
+      defaultValue={schemaItem.defaultValue || passedDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

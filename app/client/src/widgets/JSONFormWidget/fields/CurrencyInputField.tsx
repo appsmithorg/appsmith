@@ -112,6 +112,7 @@ function CurrencyTypeDropdownComponent({
 function CurrencyInputField({
   fieldClassName,
   name,
+  passedDefaultValue,
   propertyPath,
   schemaItem,
 }: CurrencyInputFieldProps) {
@@ -156,6 +157,7 @@ function CurrencyInputField({
       isValid={isValid}
       leftIcon={leftIcon}
       name={name}
+      passedDefaultValue={passedDefaultValue}
       propertyPath={propertyPath}
       schemaItem={schemaItem}
       transformValue={transformValue}

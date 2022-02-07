@@ -51,6 +51,7 @@ const isValid = (schemaItem: SelectFieldProps["schemaItem"], value?: string) =>
 function SelectField({
   fieldClassName,
   name,
+  passedDefaultValue,
   propertyPath,
   schemaItem,
 }: SelectFieldProps) {
@@ -136,7 +137,7 @@ function SelectField({
 
   return (
     <Field
-      defaultValue={schemaItem.defaultValue}
+      defaultValue={schemaItem.defaultValue || passedDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

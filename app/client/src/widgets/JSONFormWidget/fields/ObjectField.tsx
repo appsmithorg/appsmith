@@ -9,9 +9,9 @@ import FieldRenderer from "./FieldRenderer";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import {
+  BaseFieldComponentProps,
   FieldComponent,
   FieldComponentBaseProps,
-  SchemaItem,
 } from "../constants";
 
 type ObjectComponentProps = FieldComponentBaseProps & {
@@ -21,14 +21,12 @@ type ObjectComponentProps = FieldComponentBaseProps & {
 };
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
-type ObjectFieldProps = {
-  fieldClassName: string;
+type ObjectFieldProps = Omit<
+  BaseFieldComponentProps<ObjectComponentProps>,
+  "name"
+> & {
   hideAccordion?: boolean;
-  hideLabel?: boolean;
-  isRootField?: boolean;
   name: string;
-  propertyPath: string;
-  schemaItem: SchemaItem & ObjectComponentProps;
 };
 
 type StyledWrapperProps = {
@@ -58,6 +56,7 @@ function ObjectField({
   hideLabel,
   isRootField = false,
   name,
+  passedDefaultValue,
   propertyPath,
   schemaItem,
 }: ObjectFieldProps) {
@@ -65,10 +64,15 @@ function ObjectField({
     backgroundColor,
     cellBackgroundColor,
     cellBorderColor,
+    defaultValue,
     isVisible = true,
     label,
     tooltip,
   } = schemaItem;
+
+  const objectDefaultValue = (defaultValue ||
+    passedDefaultValue ||
+    {}) as Record<string, unknown>;
 
   const fields = useMemo(() => {
     const children = Object.values(schemaItem.children);
@@ -82,12 +86,19 @@ function ObjectField({
         <FieldRenderer
           fieldName={fieldName as ControllerRenderProps["name"]}
           key={fieldName}
+          passedDefaultValue={objectDefaultValue[schemaItem.name]}
           propertyPath={fieldPropertyPath}
           schemaItem={schemaItem}
         />
       );
     });
-  }, [schemaItem, name, schemaItem.identifier, propertyPath]);
+  }, [
+    schemaItem,
+    name,
+    schemaItem.identifier,
+    propertyPath,
+    objectDefaultValue,
+  ]);
 
   if (!isVisible) {
     return null;

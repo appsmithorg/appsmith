@@ -127,10 +127,12 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   isValid,
   leftIcon,
   name,
+  passedDefaultValue,
   schemaItem,
   transformValue,
 }: BaseInputFieldProps<TSchemaItem>) {
   const { executeAction } = useContext(FormContext);
+  const inputDefaultValue = schemaItem.defaultValue || passedDefaultValue;
 
   const [isFocused, setIsFocused] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
@@ -225,7 +227,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   );
 
   const conditionalProps = useMemo(() => {
-    const { defaultValue, errorMessage, isRequired, maxChars } = schemaItem;
+    const { errorMessage, isRequired, maxChars } = schemaItem;
 
     const isInvalid = !isValueValid; // valid property in property pane
     const props = {
@@ -245,8 +247,9 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     if (
       inputType === "TEXT" &&
       maxChars &&
-      defaultValue &&
-      defaultValue?.toString()?.length > maxChars
+      inputDefaultValue &&
+      typeof inputDefaultValue === "string" &&
+      inputDefaultValue?.toString()?.length > maxChars
     ) {
       props.isInvalid = true;
       props.errorMessage = createMessage(INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR);
@@ -300,7 +303,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
 
   return (
     <Field
-      defaultValue={schemaItem.defaultValue}
+      defaultValue={inputDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
