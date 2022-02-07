@@ -109,18 +109,6 @@ export class AggregateHelper {
             .click({ multiple: true }).wait(500);
     }
 
-    public ActionContextMenuByEntityName(entityNameinLeftSidebar: string, action = "Delete", subAction = "") {
-        this.Sleep()
-        cy.xpath(locator._contextMenu(entityNameinLeftSidebar)).first().click({ force: true });
-        cy.xpath(locator._contextMenuItem(action)).click({ force: true }).wait(500);
-        if (subAction)
-            cy.xpath(locator._contextMenuItem(subAction)).click({ force: true }).wait(500);
-
-        if (action == "Delete")
-            cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
-                "not.exist");
-    }
-
     public AddNewPage() {
         cy.get(locator._newPage)
             .first()
@@ -273,5 +261,43 @@ export class AggregateHelper {
     public Sleep(timeout = 1000) {
         cy.wait(timeout)
     }
-}
 
+    public NavigateToHome() {
+        cy.get(locator._homeIcon).click({ force: true });
+        this.Sleep(3000);
+        cy.wait("@applications");
+        cy.get(locator._homePageAppCreateBtn)
+            .should("be.visible")
+            .should("be.enabled");
+        //cy.get(this._homePageAppCreateBtn);
+    }
+
+    public CreateNewApplication() {
+        cy.get(locator._homePageAppCreateBtn).click({ force: true });
+        cy.wait("@createNewApplication").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            201,
+        );
+    }
+    public ActionContextMenuByEntityName(
+        entityNameinLeftSidebar: string,
+        action = "Delete",
+        subAction = "") {
+        this.Sleep();
+        cy.xpath(locator._contextMenu(entityNameinLeftSidebar))
+            .first()
+            .click({ force: true });
+        cy.xpath(locator._contextMenuItem(action))
+            .click({ force: true })
+            .wait(500);
+        if (subAction)
+            cy.xpath(locator._contextMenuItem(subAction))
+                .click({ force: true })
+                .wait(500);
+    }
+
+    public ValidateEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
+        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar)).should('not.exist');
+    }
+}

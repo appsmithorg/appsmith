@@ -145,10 +145,10 @@ public class CreateMethod implements Method {
             }
         }
 
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL, "");
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL, "", true);
 
         return webClient.method(HttpMethod.POST)
-                .uri(uriBuilder.build(false).toUri())
+                .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(spreadsheet));
     }
 }

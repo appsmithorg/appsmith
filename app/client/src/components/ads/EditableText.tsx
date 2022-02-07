@@ -16,7 +16,8 @@ export type EditableTextProps = CommonComponentProps & {
   placeholder?: string;
   editInteractionKind: EditInteractionKind;
   savingState: SavingState;
-  onBlur?: (value: string) => void;
+  onBlur?: (value: string) => void; // This `Blur` will be called only when there is a change in the value after we unfocus from the input field
+  onBlurEverytime?: (value: string) => void; // This `Blur` will be called everytime we unfocus from the input field
   onTextChanged?: (value: string) => void;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
