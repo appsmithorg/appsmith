@@ -281,7 +281,10 @@ class IconSelectControl extends BaseControl<
       }
     } else if (
       this.iconSelectTargetRef.current === document.activeElement &&
-      (e.key === "ArrowUp" || e.key === "ArrowDown")
+      (e.key === "ArrowUp" ||
+        e.key === "Up" ||
+        e.key === "ArrowDown" ||
+        e.key === "Down")
     ) {
       this.setState({ isOpen: true }, this.handleButtonClick);
     }
