@@ -5,12 +5,10 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.converters.GsonDoubleToLongConverter;
+import com.appsmith.git.converters.GsonUnorderedToOrderedSetConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.gson.stream.JsonReader;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +27,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
@@ -89,18 +86,12 @@ public class FileUtilsImpl implements FileInterface {
 
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
 
-                    // Gson to pretty format JSON file and keep Integer type as is by default GSON have behavior to
-                    // convert to Double
+                    // Gson to pretty format JSON file
+                    // Keep Long type as is by default GSON have behavior to convert to Double
+                    // Convert unordered set to ordered one
                     Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Double.class,  new JsonSerializer<Double>() {
-
-                                @Override
-                                public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
-                                    if(src == src.longValue())
-                                        return new JsonPrimitive(src.longValue());
-                                    return new JsonPrimitive(src);
-                                }
-                            })
+                            .registerTypeAdapter(Double.class,  new GsonDoubleToLongConverter())
+                            .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedSetConverter())
                             .disableHtmlEscaping()
                             .setPrettyPrinting()
                             .create();
