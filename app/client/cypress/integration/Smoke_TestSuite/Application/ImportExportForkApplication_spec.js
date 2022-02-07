@@ -5,7 +5,7 @@ describe("Import, Export and Fork application and validate data binding", functi
   let orgid;
   let appid;
   let newOrganizationName;
-  it("Import application and validate data on pageload", function() {
+  it("Import application from json and validate data on pageload", function() {
     // import application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon)
@@ -14,12 +14,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(homePage.orgImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
-    cy.get(homePage.orgImportAppButton).click({ force: true });
     cy.wait("@importNewApplication").then((interception) => {
-      let appId = interception.response.body.data.id;
-      let defaultPage = interception.response.body.data.pages.find(
-        (eachPage) => !!eachPage.isDefault,
-      );
       cy.get(homePage.toastMessage).should(
         "contain",
         "Application imported successfully",
@@ -35,7 +30,6 @@ describe("Import, Export and Fork application and validate data binding", functi
       // validating data binding for the imported application
       cy.xpath("//input[@value='Submit']").should("be.visible");
       cy.xpath("//div[text()='schema_name']").should("be.visible");
-      cy.xpath("//div[text()='information_schema']").should("be.visible");
       cy.xpath("//div[text()='title']").should("be.visible");
       cy.xpath("//div[text()='Recusan']").should("be.visible");
     });
@@ -105,8 +99,9 @@ describe("Import, Export and Fork application and validate data binding", functi
             // import exported application in new organization
             cy.get(homePage.orgImportAppButton).click({ force: true });
             cy.wait("@importNewApplication").then((interception) => {
-              let appId = interception.response.body.data.id;
-              let defaultPage = interception.response.body.data.pages.find(
+              const importedApp = interception.response.body.data.application;
+              let appId = importedApp.id;
+              let defaultPage = importedApp.pages.find(
                 (eachPage) => !!eachPage.isDefault,
               );
               cy.get(homePage.toastMessage).should(
@@ -116,9 +111,9 @@ describe("Import, Export and Fork application and validate data binding", functi
               // validating data binding for imported application
               cy.xpath("//input[@value='Submit']").should("be.visible");
               cy.xpath("//div[text()='schema_name']").should("be.visible");
-              cy.xpath("//div[text()='information_schema']").should(
-                "be.visible",
-              );
+              // cy.xpath("//div[text()='information_schema']").should(
+              //   "be.visible",
+              // );
               cy.xpath("//div[text()='title']").should("be.visible");
               cy.xpath("//div[text()='Recusan']").should("be.visible");
 
