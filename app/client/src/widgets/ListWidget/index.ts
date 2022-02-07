@@ -317,15 +317,34 @@ export const CONFIG = {
             const parent = { ...widgets[parentId] };
             const logBlackList: { [key: string]: boolean } = {};
 
-            const disallowedWidgets = [
-              "TABLE_WIDGET",
-              "LIST_WIDGET",
-              "TABS_WIDGET",
-              "FORM_WIDGET",
-              "CONTAINER_WIDGET",
+            /*
+             * Only widgets that doesn't have derived or meta properties
+             * work well inside the currecnt version of List widget.
+             * Widgets like Input, Select maintain the state on meta properties
+             * which won't be available in List.selectedItem object. Hence we're
+             * restricting them from being placed inside the List widget.
+             */
+            const allowedWidgets = [
+              "AUDIO_WIDGET",
+              "BUTTON_GROUP_WIDGET",
+              "BUTTON_WIDGET",
+              "CHART_WIDGET",
+              "CIRCULAR_PROGRESS_WIDGET",
+              "DIVIDER_WIDGET",
+              "ICON_BUTTON_WIDGET",
+              "ICON_WIDGET",
+              "IFRAME_WIDGET",
+              "IMAGE_WIDGET",
+              "MAP_CHART_WIDGET",
+              "MAP_WIDGET",
+              "MENU_BUTTON_WIDGET",
+              "PROGRESSBAR_WIDGET",
+              "STATBOX_WIDGET",
+              "TEXT_WIDGET",
+              "VIDEO_WIDGET",
             ];
 
-            if (indexOf(disallowedWidgets, widget.type) > -1) {
+            if (indexOf(allowedWidgets, widget.type) === -1) {
               const widget = widgets[widgetId];
               if (widget.children && widget.children.length > 0) {
                 widget.children.forEach((childId: string) => {
