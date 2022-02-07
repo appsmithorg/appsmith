@@ -80,9 +80,9 @@ init_mongodb() {
     mkdir -p "$MONGO_DB_PATH"
     touch "$MONGO_LOG_PATH"
 
-		if [[ -f "$MONGO_DB_KEY" ]]; then
-			chmod-mongodb-key "$MONGO_DB_KEY"
-		fi
+    if [[ -f "$MONGO_DB_KEY" ]]; then
+      chmod-mongodb-key "$MONGO_DB_KEY"
+    fi
   fi
 }
 
