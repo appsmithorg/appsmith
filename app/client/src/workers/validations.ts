@@ -31,6 +31,7 @@ import {
   VALIDATION_ARRAY_INVALID_ENTRY,
   VALIDATION_ARRAY_UNIQUE,
 } from "constants/messages";
+import { findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
 
@@ -167,17 +168,15 @@ function validateArray(
 
   // Verify if all values are unique
   if (shouldArrayHaveUniqueEntries) {
-    // Converting to a Set will remove all duplicate values
-    // Optimization credits to: @aswathkk and @SatishGandham on Github
-    const _value = new Set(value);
-    // Loop
-    if (_value.size !== value.length) {
+    // Find the index of a duplicate value in array
+    const duplicateIndex = findDuplicateIndex(value);
+    if (duplicateIndex !== -1) {
       // Bail out early
       // Because, we don't want to re-iterate, if this validation fails
       return {
         isValid: false,
         parsed: config.params?.default || [],
-        messages: [VALIDATION_ARRAY_UNIQUE()],
+        messages: [`${VALIDATION_ARRAY_UNIQUE()} at index: ${duplicateIndex}`],
       };
     }
   }

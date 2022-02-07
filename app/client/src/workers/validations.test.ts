@@ -809,7 +809,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [],
-        messages: ["Array must be unique. Duplicate values found"],
+        messages: ["Array must be unique. Duplicate values found at index: 2"],
       },
       {
         isValid: false,
