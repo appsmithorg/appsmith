@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -31,9 +30,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
-
-import static com.appsmith.external.models.OAuth2.RefreshTokenClientCredentialsLocation.BODY;
-import static com.appsmith.external.models.OAuth2.RefreshTokenClientCredentialsLocation.HEADER;
 
 @Setter
 @Getter
@@ -82,21 +78,13 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
 
     private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
         // Webclient
-        WebClient.Builder webClientBuilder = WebClient.builder()
+        WebClient webClient = WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
-                        .build());
-
-        if (HEADER.equals(oAuth2.getRefreshTokenClientCredentialsLocation())) {
-            byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-            final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
-            webClientBuilder.defaultHeader("Authorization", authorizationHeader);
-        }
-
-        // Webclient
-        WebClient webClient = webClientBuilder.build();
+                        .build())
+                .build();
 
         // Send oauth2 generic request
         return webClient
@@ -174,13 +162,9 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
 
     private BodyInserters.FormInserter<String> clientCredentialsTokenBody(OAuth2 oAuth2) {
         BodyInserters.FormInserter<String> body = BodyInserters
-                .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS);
-
-        if (BODY.equals(oAuth2.getRefreshTokenClientCredentialsLocation())
-                || oAuth2.getRefreshTokenClientCredentialsLocation() == null) {
-            body.with(Authentication.CLIENT_ID, oAuth2.getClientId())
-                    .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
-        }
+                .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS)
+                .with(Authentication.CLIENT_ID, oAuth2.getClientId())
+                .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
 
         // Adding optional audience parameter
         if (!StringUtils.isEmpty(oAuth2.getAudience())) {
@@ -191,8 +175,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
             body.with(Authentication.RESOURCE, oAuth2.getResource());
         }
         // Optionally add scope, if applicable
-        if (!CollectionUtils.isEmpty(oAuth2.getScope())
-                && (Boolean.TRUE.equals(oAuth2.getSendScopeWithRefreshToken()) || oAuth2.getSendScopeWithRefreshToken() == null)) {
+        if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
             body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
         }
         //Custom Token Parameters
