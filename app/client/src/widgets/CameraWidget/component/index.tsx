@@ -45,8 +45,10 @@ import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera
 const overlayerMixin = css`
   position: absolute;
   width: 100%;
-  left: 0;
-  top: 0;
+  object-fit: contain;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,7 +56,6 @@ const overlayerMixin = css`
 
 export interface CameraContainerProps {
   disabled: boolean;
-  scaleAxis: "x" | "y";
 }
 
 const CameraContainer = styled.div<CameraContainerProps>`
@@ -80,8 +81,8 @@ const CameraContainer = styled.div<CameraContainerProps>`
   }
 
   video {
-    max-width: none;
-    ${({ scaleAxis }) => (scaleAxis === "x" ? `width: 100%` : `height: 100%`)};
+    width: 100%;
+    object-fit: contain;
   }
 
   .fullscreen-enabled {
@@ -105,16 +106,10 @@ const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
 
 const PhotoViewer = styled.img`
   ${overlayerMixin}
-  height: 100%;
-  object-fit: contain;
 `;
 
 const VideoPlayer = styled.video`
   ${overlayerMixin}
-  object-fit: contain;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 `;
 
 const ControlPanelContainer = styled.div`
@@ -861,7 +856,6 @@ function DevicePopover(props: DevicePopoverProps) {
 function CameraComponent(props: CameraComponentProps) {
   const {
     disabled,
-    height,
     mirrored,
     mode,
     onImageCapture,
@@ -870,14 +864,12 @@ function CameraComponent(props: CameraComponentProps) {
     onRecordingStop,
     onVideoSave,
     videoBlobURL,
-    width,
   } = props;
 
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder>();
   const videoElementRef = useRef<HTMLVideoElement>(null);
 
-  const [scaleAxis, setScaleAxis] = useState<"x" | "y">("x");
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
   const [audioConstraints, setAudioConstraints] = useState<
@@ -910,14 +902,6 @@ function CameraComponent(props: CameraComponentProps) {
       updateMediaTracksEnabled(webcamRef.current.stream);
     }
   }, [isAudioMuted, isVideoMuted]);
-
-  useEffect(() => {
-    if (width > height) {
-      setScaleAxis("x");
-      return;
-    }
-    setScaleAxis("y");
-  }, [height, width]);
 
   useEffect(() => {
     setIsReadyPlayerTimer(false);
@@ -1208,7 +1192,7 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   return (
-    <CameraContainer disabled={!!error || disabled} scaleAxis={scaleAxis}>
+    <CameraContainer disabled={!!error || disabled}>
       <FullScreen handle={fullScreenHandle}>{renderComponent()}</FullScreen>
     </CameraContainer>
   );
