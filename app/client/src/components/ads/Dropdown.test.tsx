@@ -44,7 +44,7 @@ describe("<Dropdown />", () => {
   });
 
   // Tests various ways to open dropdown
-  it.each(["{Enter}", " ", "{ArrowDown}", "{ArrowUp}"])(
+  it.each(["{Enter}", "{ArrowDown}", "{ArrowUp}"])(
     "Once focused, pressing '%s' should open dropdown",
     async (key) => {
       render(getTestComponent());
@@ -122,7 +122,7 @@ describe("<Dropdown />", () => {
     });
   });
 
-  it("After selecting an option using arrow, {enter} or ' ' should trigger optionClick", () => {
+  it("After selecting an option using arrow, {enter}  should trigger optionClick", () => {
     const handleOnSelect = jest.fn();
     render(getTestComponent(handleOnSelect));
     userEvent.tab();
@@ -135,7 +135,6 @@ describe("<Dropdown />", () => {
     );
     userEvent.keyboard("{Enter}");
     userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       props.options[2].value,
       props.options[2],

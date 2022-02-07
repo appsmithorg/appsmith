@@ -871,7 +871,6 @@ export default function Dropdown(props: DropdownProps) {
             e.nativeEvent.stopImmediatePropagation();
           }
           break;
-        case " ":
         case "Enter":
           e.preventDefault();
           if (isOpen && !("length" in selected)) optionClickHandler(selected);
