@@ -117,7 +117,19 @@ public class MongoPlugin extends BasePlugin {
      */
     private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
 
+    private static final String[] MONGODB_SPECIAL_TYPES=new String[]{
+            "ObjectId",
+            "ISODate",
+            "NumberLong",
+            "NumberDecimal",
+            "Timestamp",
+            // Not sure about the BinData
+//            "BinData",
+    } ;
+
     /**
+     * For some MongoDB special types we use the following regex for example for `ObjectId`
+     * We will replace the character 'E' in the regex template with special types.
      * This regex matches the following two patterns:
      *   - "ObjectId(someId)"  // will not match without outer double quotes
      *     - Group 1 = "ObjectId(someId)"
@@ -126,7 +138,7 @@ public class MongoPlugin extends BasePlugin {
      *      - Group 3 = 'ObjectId(someId)'
      *      - Group 4 = ObjectId(someId) // not quotes
      */
-    private static final String OBJECT_ID_INSIDE_QUOTES_REGEX = "(\\\"(ObjectId\\(.*?\\))\\\")|('(ObjectId\\(.*?\\))')";
+    private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\(.*?\\))\\\")|('(E\\(.*?\\))')";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
@@ -430,53 +442,57 @@ public class MongoPlugin extends BasePlugin {
          */
         @Override
         public String sanitizeReplacement(String replacementValue) {
-            replacementValue = removeQuotesAroundObjectId(replacementValue);
+            replacementValue = removeQuotesAroundMongoDBSpecialTypes(replacementValue);
 
             return replacementValue;
         }
 
         /**
-         * This method is meant to remove extra quotes around the `ObjectId(...)` string. E.g. if the input query is
+         * This method is meant to remove extra quotes around the MongoDB special types like `ObjectId(...)` string. E.g. if the input query is
          * "... {$in: [\"ObjectId(\"123\")\"]}" then the output query will be "... {$in: [ObjectId(\"123\")]}".
          *
          * @param query - input query
-         * @return - query obtained after removing quotes around ObjectId string.
+         * @return - query obtained after removing quotes around MongoDB special types string.
          */
-        private String removeQuotesAroundObjectId(String query) {
-            Map<String, String> objectIdMap = new HashMap();
+        private String removeQuotesAroundMongoDBSpecialTypes(String query) {
+            // Iterating over MongoDB types and creating a regex for every one of them
+            for (String specialType : MONGODB_SPECIAL_TYPES) {
+                final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType);
 
-            Pattern pattern = Pattern.compile(OBJECT_ID_INSIDE_QUOTES_REGEX);
-            Matcher matcher = pattern.matcher(query);
-            while (matcher.find()) {
-                String objectIdWithQuotes;
-                String objectIdWithoutQuotes;
+                Map<String, String> objectIdMap = new HashMap<>();
 
-                /**
-                 * `If` branch will match when ObjectId is wrapped within double quotes e.g. "ObjectId(someId)"
-                 *   - Group 1 = "ObjectId(someId)"
-                 *   - Group 2 = ObjectId(someId) // no quotes
-                 * `Else` branch will match when ObjectId is wrapped within single quotes e.g. 'ObjectId(someId)'
-                 *   - Group 3 = 'ObjectId(someId)'
-                 *   - Group 4 = ObjectId(someId) // no quotes
-                 */
-                if (matcher.group(1) != null) {
-                    objectIdWithQuotes = matcher.group(1);
-                    objectIdWithoutQuotes = matcher.group(2);
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(query);
+                while (matcher.find()) {
+                    String objectIdWithQuotes;
+                    String objectIdWithoutQuotes;
+
+                    /*
+                     *
+                     * `If` branch will match when ObjectId is wrapped within double quotes e.g. "ObjectId(someId)"
+                     *   - Group 1 = "ObjectId(someId)"
+                     *   - Group 2 = ObjectId(someId) // no quotes
+                     * `Else` branch will match when ObjectId is wrapped within single quotes e.g. 'ObjectId(someId)'
+                     *   - Group 3 = 'ObjectId(someId)'
+                     *   - Group 4 = ObjectId(someId) // no quotes
+                     */
+                    if (matcher.group(1) != null) {
+                        objectIdWithQuotes = matcher.group(1);
+                        objectIdWithoutQuotes = matcher.group(2);
+                    } else {
+                        objectIdWithQuotes = matcher.group(3);
+                        objectIdWithoutQuotes = matcher.group(4);
+                    }
+
+                    objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
                 }
-                else {
-                    objectIdWithQuotes = matcher.group(3);
-                    objectIdWithoutQuotes = matcher.group(4);
+
+                for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
+                    String objectIdWithQuotes = (entry).getKey();
+                    String objectIdWithoutQuotes = (entry).getValue();
+                    query = query.replace(objectIdWithQuotes, objectIdWithoutQuotes);
                 }
-
-                objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
             }
-
-            for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
-                String objectIdWithQuotes = (entry).getKey();
-                String objectIdWithoutQuotes = (entry).getValue();
-                query = query.replace(objectIdWithQuotes, objectIdWithoutQuotes);
-            }
-
             return query;
         }
 

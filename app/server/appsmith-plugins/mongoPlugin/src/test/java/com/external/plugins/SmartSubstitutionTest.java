@@ -1,12 +1,21 @@
 package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import org.bson.Document;
+import org.bson.types.BSONTimestamp;
+import org.bson.types.Decimal128;
+import org.bson.types.ObjectId;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -15,7 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,13 +61,15 @@ public class SmartSubstitutionTest {
                                 "users");
                         Mono.from(usersCollection.insertMany(List.of(
                                 new Document(Map.of(
+                                        "_id", new ObjectId("6200fdea5c4142fa578cd971"),
                                         "name", "Cierra Vega",
                                         "gender", "F",
                                         "age", 20,
-                                        "luckyNumber", 987654321L,
-                                        "dob", LocalDate.of(2018, 12, 31),
-                                        "netWorth", new BigDecimal("123456.789012"),
-                                        "updatedByCommand", false
+                                        "dob", new Date(0),
+                                        "netWorth",  Decimal128.parse("123456.789012"),
+                                        "updatedByCommand", false,
+                                        "aLong", 9_000_000_000_000_000_000L,
+                                        "ts",new BSONTimestamp(1421006159, 4)
                                 )),
                                 new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
                                 new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
@@ -103,9 +114,13 @@ public class SmartSubstitutionTest {
         String findQuery = "{\n" +
                 "   \"find\": \"users\",\n" +
                 "   \"filter\": {\n" +
+                // TODO 1 the working one
                 "           \"_id\": {\n" +
                 "               $in: {{Input1.text}}\n" +
                 "            }\n" +
+//                "           \"_id\": {{Input1.text}}\n"+
+                // TODO 2 not working
+//                "           \"_id\": ObjectId(\"6200fdea5c4142fa578cd971\")\n"+
                 "    }\n" +
                 "}";
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -114,6 +129,8 @@ public class SmartSubstitutionTest {
         StringBuilder sb = new StringBuilder();
         documentIds.stream()
                 .forEach(id -> sb.append(" \"ObjectId(\\\"" + id + "\\\")\","));
+        System.out.println("Doc Ids:");
+        documentIds.forEach(System.out::println);
         sb.setLength(sb.length() - 1);
         String objectIdsAsArray = "[" + sb + "]";
 
@@ -126,7 +143,10 @@ public class SmartSubstitutionTest {
         List<Param> params = new ArrayList<>();
         Param param1 = new Param();
         param1.setKey("Input1.text");
+        // TODO 1 the working one
         param1.setValue(objectIdsAsArray);
+        // TODO 2 not working
+//        param1.setValue("\"ObjectId(\\\"6200fdea5c4142fa578cd971\\\")\"");
         params.add(param1);
         executeActionDTO.setParams(params);
 
@@ -147,35 +167,50 @@ public class SmartSubstitutionTest {
     @Test
     public void testSmartSubstitutionWithISODateInDoubleQuotes() {
         final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
-        List<String> dobs = new ArrayList<>();
-        Flux.from(usersCollection.find())
-                .filter(doc -> doc.get("dob") != null)
-                .map(doc -> dobs.add(doc.get("dob").toString()))
-                .collectList()
-                .block();
-
-        // todo remove
-        dobs.forEach(System.out::println);
 
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
-        String findQuery = "{\n" +
+//        Map<String, String> kvs = Map.of(
+//                "dob", "ISODate(\"1970-01-01T00:00:00.000Z\")",
+//                "netWorth", "NumberDecimal(\"123456.789012\")",
+//                "aLong", "NumberLong(9000000000000000000)",
+//                "ts", "Timestamp(1421006159, 4)"
+//        );
+//
+//        final StringBuilder findQuery = new StringBuilder();
+//        findQuery.append("{\n" +
+//                "   \"find\": \"users\",\n" +
+//                "   \"filter\": {\n");
+//
+//        kvs.forEach((k, v) -> findQuery.append(k).append(": {{Input1.").append(k).append("}},\n"));
+//        findQuery.setLength(findQuery.length() - 2);
+//        findQuery.append("    }\n" +
+//                "}");
+
+        final String findQuery = "" +
+                "{\n" +
                 "   \"find\": \"users\",\n" +
                 "   \"filter\": {\n" +
-                "           \"dob\": {\n" +
-                "               $in: {{Input1.text}}\n" +
-                "            }\n" +
-                "    }\n" +
+//                "netWorth: {{Input1.netWorth}},\n" +
+//                "aLong: {{Input1.aLong}},\n" +
+//                "dob: {{Input1.dob}},\n" +
+                "_id: {{Input1._id}},\n" +
+//                "dob: ISODate(\"1970-01-01T00:00:00.000Z\"),\n" +
+//                "ts: {{Input1.ts}}" +
+                "    },\n" +
                 "}";
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody(findQuery);
+//        final String findQuery = buildQueryForEverySpecialType(false);
 
-        StringBuilder sb = new StringBuilder();
-        dobs.forEach(id -> sb.append(" \"ISODate(\\\"").append(id).append("\\\")\","));
-        sb.setLength(sb.length() - 1);
-        String objectIdsAsArray = "[" + sb + "]";
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(findQuery.toString());
+
+
+
+
+
+
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
@@ -183,12 +218,10 @@ public class SmartSubstitutionTest {
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        List<Param> params = new ArrayList<>();
-        Param param1 = new Param();
-        param1.setKey("Input1.text");
-        param1.setValue(objectIdsAsArray);
-        params.add(param1);
+        List<Param> params = createParams(false);
         executeActionDTO.setParams(params);
+
+        executeActionDTO.toString();
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -198,10 +231,58 @@ public class SmartSubstitutionTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    assertEquals(3, ((ArrayNode) result.getBody()).size());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
                 })
                 .verifyComplete();
 
+    }
+
+
+    private String buildQueryForEverySpecialType(boolean useDoubleQuote) {
+        final char quote = useDoubleQuote ? '"' : '\'';
+
+        Map<String, String> kvs = Map.of(
+                "_id","ObjectId(\"6200fdea5c4142fa578cd971\")",
+                "dob", "ISODate(\"1970-01-01T00:00:00.000Z\")",
+                "netWorth", "NumberDecimal(\"123456.789012\")",
+                "aLong", "NumberLong(9000000000000000000)",
+                "ts", "Timestamp(1421006159, 4)"
+        );
+
+        StringBuilder findQuery = new StringBuilder();
+        findQuery.append("{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n");
+
+//        kvs.forEach((k, v) -> findQuery.append(k).append(": ").append(quote).append(v).append(quote).append(",\n"));
+        kvs.forEach((k, v) -> findQuery.append(k).append(": {{Input1.").append(k).append("}},\n"));
+        findQuery.setLength(findQuery.length() - 2);
+        findQuery.append("    }\n" +
+                "}");
+
+       return findQuery.toString();
+    }
+
+
+    private List<Param> createParams(boolean useDoubleQuote) {
+        final char quote = useDoubleQuote ? '"' : '\'';
+
+        Map<String, String> kvs = Map.of(
+                "_id","ObjectId(\"6200fdea5c4142fa578cd971\")",
+                "dob", "ISODate(\"1970-01-01T00:00:00.000Z\")",
+                "netWorth", "NumberDecimal(\"123456.789012\")",
+                "aLong", "NumberLong(9000000000000000000)",
+                "ts", "Timestamp(1421006159, 4)"
+        );
+        final List<Param> params = new ArrayList<>();
+        final StringBuilder sb = new StringBuilder();
+        kvs.forEach((k, v) ->{
+            sb.setLength(0);
+            final String paramKey = "Input1." + k;
+            final String paramValue = sb.append(quote).append(v).append(quote).toString();
+            params.add(new Param(paramKey, paramValue));
+        } );
+        return params;
     }
 
 }
