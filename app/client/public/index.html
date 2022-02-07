@@ -41,19 +41,10 @@
       return result;
     }
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
-
-    // Initialize plausible
-    if (CLOUD_HOSTING) {
-      const script = document.createElement('script');
-      script.defer = true;
-      script.dataset.domain = location.hostname;
-      script.src = "https://plausible.io/js/plausible.js";
-      document.getElementsByTagName('head')[0].appendChild(script);
-    }
   </script>
 </head>
 
-<body>
+<body class="appsmith-light-theme">
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=%REACT_APP_GOOGLE_ANALYTICS_ID%"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -189,6 +180,7 @@
       },
       enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__"),
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
+      disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),

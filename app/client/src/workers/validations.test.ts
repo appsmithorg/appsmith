@@ -990,20 +990,21 @@ describe("Validate Validators", () => {
       type: ValidationTypes.DATE_ISO_STRING,
       params: {
         required: false,
-        default: defaultDate,
+        default: "",
       },
     };
 
     const expected = [
       {
         isValid: true,
-        parsed: defaultDate,
+        parsed: "",
       },
     ];
 
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
+      expect(result).not.toStrictEqual(defaultDate);
     });
   });
 

@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 const ListItem = styled.li`
   list-style: none;
   color: ${Colors.GREY_8};
-  height: 30px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -50,22 +50,21 @@ const Title = styled.div`
   display: grid;
   grid-template-columns: 20px auto 20px;
   cursor: pointer;
-  height: 30px;
+  height: 36px;
   align-items: center;
-  padding-right: 8px;
-  padding-right: 6px;
+  padding-right: 4px;
+  padding-left: 0.25rem;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
   }
   & .t--help-icon {
     svg {
       position: relative;
-      top: 4px;
     }
   }
 `;
 
-export function JSDependencies() {
+function JSDependencies() {
   const [isOpen, setIsOpen] = useState(false);
   const openDocs = (name: string, url: string) => () => window.open(url, name);
   const dependencyList = extraLibraries.map((lib) => {
@@ -76,20 +75,23 @@ export function JSDependencies() {
       >
         <Name>{lib.displayName}</Name>
         <Version className="t--package-version">{lib.version}</Version>
-        <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xs} />
+        <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} />
       </ListItem>
     );
   });
 
-  const toggleDependencies = () => setIsOpen(!isOpen);
-  const showDocs = (e: any) => {
+  const toggleDependencies = React.useCallback(
+    () => setIsOpen((open) => !open),
+    [],
+  );
+  const showDocs = React.useCallback((e: any) => {
     window.open(
       "https://docs.appsmith.com/v/v1.2.1/core-concepts/writing-code/ext-libraries",
       "appsmith-docs:working-with-js-libraries",
     );
     e.stopPropagation();
     e.preventDefault();
-  };
+  }, []);
 
   const TooltipContent = (
     <div>
@@ -109,13 +111,13 @@ export function JSDependencies() {
           isVisible={!!dependencyList}
           onClick={toggleDependencies}
         />
-        <span className="text-gray-900">Dependencies</span>
+        <span className="text-gray-900 ml-1 font-medium">DEPENDENCIES</span>
         <TooltipComponent content={TooltipContent} hoverOpenDelay={200}>
           <Icon
             className="t--help-icon"
             name="help"
             onClick={showDocs}
-            size={Size.xs}
+            size={Size.xxs}
           />
         </TooltipComponent>
       </Title>
@@ -126,4 +128,4 @@ export function JSDependencies() {
   );
 }
 
-export default JSDependencies;
+export default React.memo(JSDependencies);

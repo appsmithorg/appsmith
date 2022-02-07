@@ -13,7 +13,7 @@ import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
 
-import { useScript, ScriptStatus } from "utils/hooks/useScript";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
@@ -32,6 +32,8 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariant,
   ButtonVariantTypes,
+  RecaptchaType,
+  RecaptchaTypes,
   ButtonPlacement,
 } from "components/constants";
 import {
@@ -268,7 +270,7 @@ interface RecaptchaProps {
   googleRecaptchaKey?: string;
   clickWithRecaptcha: (token: string) => void;
   handleRecaptchaV2Loading?: (isLoading: boolean) => void;
-  recaptchaV2?: boolean;
+  recaptchaType?: RecaptchaType;
 }
 
 interface ButtonComponentProps extends ComponentProps {
@@ -294,7 +296,7 @@ function RecaptchaV2Component(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-    recaptchaV2?: boolean;
+    recaptchaType?: RecaptchaType;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -343,7 +345,7 @@ function RecaptchaV3Component(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-    recaptchaV2?: boolean;
+    recaptchaType?: RecaptchaType;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -387,6 +389,7 @@ function RecaptchaV3Component(
   }
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
+    AddScriptTo.HEAD,
   );
   return <div onClick={handleBtnClick}>{props.children}</div>;
 }
@@ -410,7 +413,7 @@ function BtnWrapper(
       });
       props.onClick && props.onClick(event);
     };
-    if (props.recaptchaV2) {
+    if (props.recaptchaType === RecaptchaTypes.V2) {
       return <RecaptchaV2Component {...props} handleError={handleError} />;
     } else {
       return <RecaptchaV3Component {...props} handleError={handleError} />;
@@ -426,7 +429,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       googleRecaptchaKey={props.googleRecaptchaKey}
       handleRecaptchaV2Loading={props.handleRecaptchaV2Loading}
       onClick={props.onClick}
-      recaptchaV2={props.recaptchaV2}
+      recaptchaType={props.recaptchaType}
     >
       <ButtonContainer disabled={props.isDisabled}>
         <BaseButton

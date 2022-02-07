@@ -38,7 +38,6 @@ import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
   generateSSHKeyPairSuccess,
-  generateSSHKeyPairError,
   getSSHKeyPairSuccess,
   getSSHKeyPairError,
   GenerateSSHKeyPairReduxAction,
@@ -47,7 +46,6 @@ import {
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  APPLICATION_NAME_UPDATE,
   createMessage,
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
@@ -62,9 +60,11 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { showCompletionDialog } from "./OnboardingSagas";
 
-import { deleteRecentAppEntities } from "utils/storage";
+import {
+  deleteRecentAppEntities,
+  setPostWelcomeTourState,
+} from "utils/storage";
 import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
@@ -73,9 +73,13 @@ import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 
 import {
+  getCurrentStep,
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
 } from "selectors/onboardingSelectors";
+import { handleRepoLimitReachedError } from "./GitSyncSagas";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -109,19 +113,15 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
-
+      const guidedTour = yield select(inGuidedTour);
+      const currentStep = yield select(getCurrentStep);
       let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationId,
         pageId: currentPageId,
       });
-
-      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
-      if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl = getApplicationViewerPageURL({
-          applicationId,
-          pageId: currentPageId,
-          params: { onboardingComplete: "true" },
-        });
+      if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
+        appicationViewPageUrl += "?&guidedTourComplete=true";
+        yield call(setPostWelcomeTourState, true);
       }
 
       yield put({
@@ -296,12 +296,6 @@ export function* updateApplicationSaga(
       yield put({
         type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
         payload: action.payload,
-      });
-    }
-    if (isValidResponse && request && request.name) {
-      Toaster.show({
-        text: createMessage(APPLICATION_NAME_UPDATE),
-        variant: Variant.success,
       });
     }
     if (isValidResponse && request.currentApp) {
@@ -604,6 +598,10 @@ export function* importApplicationSaga(
           pageId: defaultPage[0].id,
         });
         history.push(pageURL);
+        const guidedTour = yield select(inGuidedTour);
+
+        if (guidedTour) return;
+
         Toaster.show({
           text: "Application imported successfully",
           variant: Variant.success,
@@ -643,24 +641,26 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
 }
 
 export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
+  let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.generateSSHKeyPair,
-      applicationId,
+    response = yield call(ApplicationApi.generateSSHKeyPair, applicationId);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      true,
+      response?.responseMeta?.status === 500,
     );
-    const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(generateSSHKeyPairSuccess(response.data));
+      yield put(generateSSHKeyPairSuccess(response?.data));
       if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
+        action.onSuccessCallback(response as ApiResponse);
       }
     }
   } catch (error) {
-    yield put(generateSSHKeyPairError(error));
     if (action.onErrorCallback) {
       action.onErrorCallback(error);
     }
+    yield call(handleRepoLimitReachedError, response);
   }
 }
 

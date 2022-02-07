@@ -3,10 +3,6 @@ import styled from "styled-components";
 
 import BranchButton from "./BranchButton";
 
-import { ReactComponent as DownArrow } from "assets/icons/ads/down-arrow.svg";
-import { ReactComponent as Plus } from "assets/icons/ads/plus.svg";
-import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
-
 import {
   COMMIT_CHANGES,
   PULL_CHANGES,
@@ -20,6 +16,8 @@ import {
   CONNECTING_TO_REPO_DISABLED,
   DURING_ONBOARDING_TOUR,
   createMessage,
+  GIT_SETTINGS,
+  CONNECT_GIT_BETA,
 } from "constants/messages";
 
 import Tooltip from "components/ads/Tooltip";
@@ -28,7 +26,11 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import Button, { Category, Size } from "components/ads/Button";
-import { gitPullInit, setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import {
+  gitPullInit,
+  setIsGitSyncModalOpen,
+  showConnectGitModal,
+} from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
 import {
@@ -40,12 +42,14 @@ import {
   getCountOfChangesToCommit,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
-import { inOnboarding } from "sagas/OnboardingSagas";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
   count?: number;
   disabled?: boolean;
-  icon: React.ReactNode;
+  icon: IconName;
   loading?: boolean;
   onClick: () => void;
   tooltipText: string;
@@ -83,14 +87,14 @@ const capitalizeFirstLetter = (string = " ") => {
   return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
 };
 
-const SpinnerContainer = styled.div`
-  margin-left: ${(props) => props.theme.spaces[2]}px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 29px;
-  height: 26px;
-`;
+// const SpinnerContainer = styled.div`
+//   margin-left: ${(props) => props.theme.spaces[2]}px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   width: 29px;
+//   height: 26px;
+// `;
 
 function QuickActionButton({
   count = 0,
@@ -102,18 +106,18 @@ function QuickActionButton({
 }: QuickActionButtonProps) {
   return (
     <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
-      {loading ? (
-        <SpinnerContainer>
+      <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
+        {loading ? (
           <SpinnerLoader height="16px" width="16px" />
-        </SpinnerContainer>
-      ) : (
-        <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
-          {icon}
-          {count > 0 && (
-            <span className="count">{count > 9 ? `${9}+` : count}</span>
-          )}
-        </QuickActionButtonContainer>
-      )}
+        ) : (
+          <div>
+            <Icon name={icon} size={IconSize.XL} />
+            {count > 0 && (
+              <span className="count">{count > 9 ? `${9}+` : count}</span>
+            )}
+          </div>
+        )}
+      </QuickActionButtonContainer>
     </Tooltip>
   );
 }
@@ -140,6 +144,7 @@ const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
 const getQuickActionButtons = ({
   changesToCommit,
   commit,
+  connect,
   gitStatus,
   isFetchingGitStatus,
   merge,
@@ -150,6 +155,7 @@ const getQuickActionButtons = ({
 }: {
   changesToCommit: number;
   commit: () => void;
+  connect: () => void;
   pull: () => void;
   merge: () => void;
   gitStatus: any;
@@ -161,23 +167,28 @@ const getQuickActionButtons = ({
   return [
     {
       count: changesToCommit,
-      icon: <Plus />,
+      icon: "plus" as IconName,
       loading: isFetchingGitStatus,
       onClick: commit,
       tooltipText: createMessage(COMMIT_CHANGES),
     },
     {
       count: gitStatus?.behindCount,
-      icon: <DownArrow />,
+      icon: "down-arrow-2" as IconName,
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
       disabled: pullDisabled,
       loading: showPullLoadingState,
     },
     {
-      icon: <GitBranch />,
+      icon: "fork" as IconName,
       onClick: merge,
       tooltipText: createMessage(MERGE),
+    },
+    {
+      icon: "settings-2-line" as IconName,
+      onClick: connect,
+      tooltipText: createMessage(GIT_SETTINGS),
     },
   ];
 };
@@ -209,7 +220,7 @@ const PlaceholderButton = styled.div`
 
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
-  const isInOnboarding = useSelector(inOnboarding);
+  const isInOnboarding = useSelector(inGuidedTour);
 
   const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
   const tooltipContent = !isInOnboarding ? (
@@ -240,10 +251,13 @@ function ConnectGitPlaceholder() {
             <Button
               category={Category.tertiary}
               onClick={() => {
-                dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+                AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+                  source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
+                });
+                dispatch(showConnectGitModal());
               }}
               size={Size.small}
-              text={createMessage(CONNECT_GIT)}
+              text={createMessage(CONNECT_GIT_BETA)}
             />
           ) : (
             <PlaceholderButton>{createMessage(CONNECT_GIT)}</PlaceholderButton>
@@ -278,9 +292,31 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.DEPLOY,
         }),
       );
+      AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {
+        source: "BOTTOM_BAR_GIT_COMMIT_BUTTON",
+      });
     },
-    pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
+    connect: () => {
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.GIT_CONNECTION,
+        }),
+      );
+      AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+        source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
+      });
+    },
+    pull: () => {
+      AnalyticsUtil.logEvent("GS_PULL_GIT_CLICK", {
+        source: "BOTTOM_BAR_GIT_PULL_BUTTON",
+      });
+      dispatch(gitPullInit({ triggeredFromBottomBar: true }));
+    },
     merge: () => {
+      AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
+        source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
+      });
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: true,

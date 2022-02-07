@@ -15,13 +15,13 @@ describe("Unique react keys", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
 
-    cy.dragAndDropToCanvas("dropdownwidget", { x: 200, y: 600 });
-    cy.dragAndDropToCanvas("dropdownwidget", { x: 200, y: 700 });
+    cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
+    cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 700 });
 
     cy.openPropertyPane("chartwidget");
     cy.deleteWidget(widgetsPage.chartWidget);
 
-    cy.get(widgetsPage.dropdownwidget).should("have.length", 2);
+    cy.get(widgetsPage.selectwidget).should("have.length", 2);
   });
 
   it("Should not create duplicate versions of widget on widget copy", function() {
@@ -29,9 +29,9 @@ describe("Unique react keys", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
 
-    cy.dragAndDropToCanvas("dropdownwidget", { x: 200, y: 600 });
+    cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
     //copy and paste
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("selectwidget");
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -43,11 +43,11 @@ describe("Unique react keys", function() {
       200,
     );
 
-    cy.get(widgetsPage.dropdownwidget).should("have.length", 2);
+    cy.get(widgetsPage.selectwidget).should("have.length", 2);
 
     cy.openPropertyPane("chartwidget");
     cy.deleteWidget(widgetsPage.chartWidget);
 
-    cy.get(widgetsPage.dropdownwidget).should("have.length", 2);
+    cy.get(widgetsPage.selectwidget).should("have.length", 2);
   });
 });

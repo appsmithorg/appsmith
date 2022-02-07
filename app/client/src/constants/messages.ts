@@ -287,12 +287,12 @@ export const REST_API_AUTHORIZATION_FAILED = () =>
 export const REST_API_AUTHORIZATION_APPSMITH_ERROR = () =>
   "Something went wrong.";
 
-export const SAAS_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
-export const SAAS_AUTHORIZATION_FAILED =
+export const OAUTH_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
+export const OAUTH_AUTHORIZATION_FAILED =
   "Authorization failed. Please check your details or try again.";
 // Todo: improve this for appsmith_error error message
-export const SAAS_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
-export const SAAS_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
+export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
+export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -306,6 +306,8 @@ export const OMNIBAR_PLACEHOLDER = () =>
 export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
+export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
+  "Create a new Query, API or JSObject";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -539,6 +541,7 @@ export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
+export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, make commits, add deploy your application";
@@ -580,6 +583,7 @@ export const IS_MERGING = () => "MERGING CHANGES...";
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
+export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "RETRY";
 export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
@@ -609,6 +613,30 @@ export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit before proceeding to merge";
 
+export const DISCONNECT_EXISTING_REPOSITORIES = () =>
+  "Disconnect existing Repositories";
+export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+  "To make space for newer repositories you can remove existing repositories.";
+export const CONTACT_SUPPORT = () => "Contact Support";
+export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (orgName: string) =>
+  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${orgName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
+export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
+export const REPOSITORY_LIMIT_REACHED_INFO = () =>
+  "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
+export const NONE_REVERSIBLE_MESSAGE = () =>
+  "This action is non reversible. Proceed with caution";
+export const CONTACT_SUPPORT_TO_UPGRADE = () =>
+  "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
+export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
+  "Disconnect might cause the application to break.";
+export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT = () => "DISCONNECT";
+export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
+export const DISCONNECT_FROM_GIT = (name: string) =>
+  `Disconnect ${name} from Git`;
+export const TYPE_PROMO_CODE = (name: string) =>
+  `Type “${name}” in the input box to disconnect.`;
+export const APPLICATION_NAME = () => "Application Name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
@@ -634,6 +662,7 @@ export const COMING_SOON = () => "Coming Soon!";
 export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
+export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -642,8 +671,16 @@ export const DOC_DESCRIPTION = () =>
   `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
+export const ACTION_OPERATION_DESCRIPTION = () =>
+  `Create a new Query, API or JS Object`;
 
-export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+export const TRIGGER_ACTION_VALIDATION_ERROR = (
+  functionName: string,
+  argumentName: string,
+  expectedType: string,
+  received: string,
+) =>
+  `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
 export const MORE_OPTIONS = () => "More Options";
@@ -709,17 +746,25 @@ export const ONBOARDING_CHECKLIST_FOOTER = () =>
   "Not sure where to start? Take the welcome tour";
 
 //Introduction modal
-export const HOW_APPSMITH_WORKS = () => "Here’s how Appsmith works";
+export const HOW_APPSMITH_WORKS = () =>
+  "Here’s a quick overview of how Appsmith works. ";
 export const ONBOARDING_INTRO_CONNECT_YOUR_DATABASE = () =>
-  "Connect your database or API";
-export const ONBOARDING_INTRO_CONNECT_DATA_WIDGET = () =>
-  "Connect queried data to pre-built widgets and customise with Javascript.";
+  "Connect to your database or APIs";
+export const DRAG_AND_DROP = () =>
+  "Drag and drop pre-built widgets to build UI";
+export const CUSTOMIZE_WIDGET_STYLING = () =>
+  "Customise the styling of every widget. Then bind your data to the widget and use JS to write any logic.";
 export const ONBOARDING_INTRO_PUBLISH = () =>
-  "Instantly publish and share your apps";
-export const BUILD_MY_FIRST_APP = () => "Build my first app";
+  "Publish & Share with permissions";
+export const CHOOSE_ACCESS_CONTROL_ROLES = () =>
+  "Instantly publish & share your apps with users. Choose from pre-defined access control roles.";
+export const BUILD_MY_FIRST_APP = () => "Build on my own";
 export const ONBOARDING_INTRO_FOOTER = () =>
-  "Want more help getting started, let’s";
-export const BUILD_APP_TOGETHER = () => "build an app together.";
+  "Let’s start building your first application";
+export const START_TUTORIAL = () => "START TUTORIAL";
+export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
+export const QUERY_YOUR_DATABASE = () =>
+  "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
 
 //Statusbar
 export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a datasource";
@@ -848,7 +893,16 @@ export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
-
+//Reflow Beta Screen
+export const REFLOW_BETA_CHECKBOX_LABEL = () =>
+  "Turn on new drag & drop experience";
+export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
+export const REFLOW_INFO_CARD_CONTENT_1 = () =>
+  "When dropping a new widget, other widgets now automatically move out of the way.";
+export const REFLOW_INFO_CARD_CONTENT_2 = () =>
+  "Widgets next to the canvas edge will shrink to make space for the new widget.";
+export const REFLOW_LEARN_MORE = () => "LEARN MORE";
+//
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
@@ -860,6 +914,90 @@ export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
+export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
+export const ADD_QUERY_JS_TOOLTIP = () => "Add a new Query, API or JS Object";
+
+// Add datasource
+export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
+export const GENERATE_APPLICATION_DESCRIPTION = () =>
+  "Quickly generate a page to perform CRUD operations on your database tables";
+
+export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
+
+// Guided tour
+// -- STEPS ---
+export const STEP_ONE_TITLE = () =>
+  "First step is querying the database. Here we are querying a Postgres database populated with customers data.";
+export const STEP_ONE_SUCCESS_TEXT = () =>
+  "Excellent! You successfully queried the database and you can see the response of the query below. ";
+export const STEP_ONE_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_TWO_TITLE = () =>
+  "Let’s display this response in a table. Select the table widget we’ve added for you.";
+export const STEP_THREE_TITLE = () =>
+  "Display the response of the query in a table.";
+export const STEP_THREE_SUCCESS_TEXT = () =>
+  "Great job! The table is now displaying the response of a query. You can use {{ }} in any input field to bind data to widgets.";
+export const STEP_THREE_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_FOUR_TITLE = () =>
+  "Let’s build a form to update a customer record ";
+export const STEP_FOUR_HINT_BUTTON_TEXT = () => "PROCEED";
+export const STEP_FOUR_SUCCESS_TEXT = () =>
+  "Awesome! You connected the input widget to table’s selected row. The input will always show the data from the selected row.";
+export const STEP_FOUR_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_FIVE_TITLE = () =>
+  "Connect all input fields in the Customer Update Form with the table";
+export const STEP_FIVE_HINT_TEXT = () =>
+  `Now let's connect rest of widgets in the container to Table's selected row`;
+export const STEP_FIVE_SUCCESS_TEXT = () =>
+  "Great work! All inputs are now connected to the  table’s selected row";
+export const STEP_FIVE_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_SIX_TITLE = () =>
+  "Add an update button to trigger an update query";
+export const STEP_SIX_SUCCESS_TEXT = () =>
+  "Perfect! Your update button is ready to trigger an update query.";
+export const STEP_SIX_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_SEVEN_TITLE = () =>
+  "Trigger updateCustomerInfo query by binding to the button widget";
+export const STEP_EIGHT_TITLE = () =>
+  "After successfully triggering the update query, fetch the updated customer data. ";
+export const STEP_EIGHT_SUCCESS_TEXT = () =>
+  "Exceptional work! You’ve now built a way to see customer data and update it.";
+export const STEP_NINE_TITLE = () => "Final step: Test & deploy your app";
+export const CONTINUE = () => "CONTINUE";
+export const PROCEED_TO_NEXT_STEP = () => "PROCEED TO NEXT STEP";
+export const PROCEED = () => "PROCEED";
+export const COMPLETE = () => "COMPLETE";
+// -- Modal --
+export const DEVIATION = () => "You are deviating from the tutorial";
+export const END_CONFIRMATION = () => "Are you sure you want to end?";
+export const CANCEL_DIALOG = () => "CANCEL";
+// -- End Tutorial --
+export const END_TUTORIAL = () => "END TUTORIAL";
+// -- Intro content --
+export const TITLE = () =>
+  "In this tutorial we’ll build a tool to display customer information";
+export const DESCRIPTION = () =>
+  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building this.";
+export const BUTTON_TEXT = () => "Start Building";
+// -- Rating --
+export const RATING_TITLE = () =>
+  "Congratulations! You just built your first app in Appsmith.";
+export const RATING_DESCRIPTION = () =>
+  "You can now invite others to this application.";
+export const RATING_TEXT = () => "Rate your experience";
+// -- End Message --
+export const END_TITLE = () => "What’s next? Start building your own apps.";
+export const END_DESCRIPTION = () =>
+  "Inspect properties of queries, components, etc.";
+export const END_BUTTON_TEXT = () => "START BUILDING AN APP";
+
+export const CONTEXT_EDIT_NAME = () => "Edit Name";
+export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
+export const CONTEXT_MOVE = () => "Move to page";
+export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DELETE = () => "Delete";
+export const CONTEXT_NO_PAGE = () => "No pages";

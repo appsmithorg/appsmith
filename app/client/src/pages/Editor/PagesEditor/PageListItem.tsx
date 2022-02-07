@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
-import React, { useCallback } from "react";
+import React, { useCallback, DragEvent } from "react";
 
 import {
   updatePage,
@@ -83,6 +83,15 @@ export interface PageListItemProps {
   item: Page;
 }
 
+const disableDrag = {
+  // Draggable true is required to invoke onDragStart
+  draggable: true,
+  onDragStart: (e: DragEvent<HTMLDivElement>) => {
+    // Stop drag event propagation to prevent click events
+    e.stopPropagation();
+  },
+};
+
 function PageListItem(props: PageListItemProps) {
   const theme = useTheme();
   const { item } = props;
@@ -96,7 +105,7 @@ function PageListItem(props: PageListItemProps) {
    */
   const clonePageCallback = useCallback((): void => {
     dispatch(clonePageInit(item.pageId, true));
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   /**
    * delete the page
@@ -109,7 +118,7 @@ function PageListItem(props: PageListItemProps) {
     AnalyticsUtil.logEvent("DELETE_PAGE", {
       pageName: item.pageName,
     });
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   /**
    * sets the page as default
@@ -118,7 +127,7 @@ function PageListItem(props: PageListItemProps) {
    */
   const setPageAsDefaultCallback = useCallback((): void => {
     dispatch(setPageAsDefault(item.pageId, applicationId));
-  }, [dispatch]);
+  }, [dispatch, item, applicationId]);
 
   /**
    * sets the page hidden
@@ -127,7 +136,7 @@ function PageListItem(props: PageListItemProps) {
    */
   const setPageHidden = useCallback(() => {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   return (
     <Container>
@@ -139,7 +148,10 @@ function PageListItem(props: PageListItemProps) {
           width={20}
         />
         <EditName page={item} />
-        <Actions>
+        {/* Disabling drag on action items as attempting to drag also invokes the click event.
+         Clicks events in child elements could be disabled once we upgrade react-use-gesture to
+         the latest version */}
+        <Actions {...disableDrag}>
           {item.isDefault && (
             <TooltipComponent
               content={createMessage(DEFAULT_PAGE_TOOLTIP)}

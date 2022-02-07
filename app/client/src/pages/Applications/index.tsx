@@ -1,5 +1,6 @@
 import React, {
   Component,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -53,6 +54,7 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
+import { onboardingCreateApplication } from "actions/onboardingActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -67,16 +69,13 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import { notEmptyValidator } from "components/ads/TextInput";
-import { saveOrg } from "actions/orgActions";
+import { deleteOrg, saveOrg } from "actions/orgActions";
 import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
@@ -96,7 +95,8 @@ import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -411,8 +411,6 @@ function LeftPane() {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
-  const initiateOnboarding = useIntiateOnboarding();
-
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -477,8 +475,7 @@ function LeftPane() {
               icon="guide"
               onSelect={() => {
                 AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-
-                initiateOnboarding();
+                dispatch(onboardingCreateApplication());
               }}
               text={createMessage(WELCOME_TOUR)}
             />
@@ -555,6 +552,7 @@ function ApplicationsSection(props: any) {
     }
   };
   const [warnLeavingOrganization, setWarnLeavingOrganization] = useState(false);
+  const [warnDeleteOrg, setWarnDeleteOrg] = useState(false);
   const [orgToOpenMenu, setOrgToOpenMenu] = useState<string | null>(null);
   const updateApplicationDispatch = (
     id: string,
@@ -579,6 +577,15 @@ function ApplicationsSection(props: any) {
     setOrgToOpenMenu(null);
     dispatch(leaveOrganization(orgId));
   };
+
+  const handleDeleteOrg = useCallback(
+    (orgId: string) => {
+      setWarnDeleteOrg(false);
+      setOrgToOpenMenu(null);
+      dispatch(deleteOrg(orgId));
+    },
+    [dispatch],
+  );
 
   const OrgNameChange = (newName: string, orgId: string) => {
     dispatch(
@@ -761,6 +768,7 @@ function ApplicationsSection(props: any) {
                         }}
                         onClosing={() => {
                           setWarnLeavingOrganization(false);
+                          setWarnDeleteOrg(false);
                         }}
                         position={Position.BOTTOM_RIGHT}
                         target={
@@ -826,14 +834,17 @@ function ApplicationsSection(props: any) {
                               <MenuItem
                                 cypressSelector="t--org-import-app-git"
                                 icon="upload"
-                                onSelect={() =>
+                                onSelect={() => {
+                                  AnalyticsUtil.logEvent(
+                                    "GS_IMPORT_VIA_GIT_CLICK",
+                                  );
                                   dispatch(
                                     setIsImportAppViaGitModalOpen({
                                       isOpen: true,
                                       organizationId: organization.id,
                                     }),
-                                  )
-                                }
+                                  );
+                                }}
                                 text="Import Via GIT"
                               />
                             )}
@@ -872,6 +883,22 @@ function ApplicationsSection(props: any) {
                             !warnLeavingOrganization ? undefined : "warning"
                           }
                         />
+                        {applications.length === 0 && hasManageOrgPermissions && (
+                          <MenuItem
+                            icon="trash"
+                            onSelect={() => {
+                              warnDeleteOrg
+                                ? handleDeleteOrg(organization.id)
+                                : setWarnDeleteOrg(true);
+                            }}
+                            text={
+                              !warnDeleteOrg
+                                ? "Delete Organization"
+                                : "Are you sure?"
+                            }
+                            type={!warnDeleteOrg ? undefined : "warning"}
+                          />
+                        )}
                       </Menu>
                     )}
                   </OrgShareUsers>
@@ -935,7 +962,6 @@ function ApplicationsSection(props: any) {
   return (
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
-      <WelcomeHelper />
       {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );

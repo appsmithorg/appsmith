@@ -38,10 +38,29 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            propertyName: "shouldTruncate",
+            label: "Truncate Text",
+            helpText: "Set truncate text",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "isVisible",
             helpText: "Controls the visibility of the widget",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -64,7 +83,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "backgroundColor",
-            label: "Cell Background",
+            label: "Cell Background Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -96,10 +115,28 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             },
           },
           {
+            propertyName: "truncateButtonColor",
+            label: "Truncate Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+            dependencies: ["shouldTruncate"],
+            hidden: (props: TextWidgetProps) => {
+              return !props.shouldTruncate;
+            },
+          },
+          {
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "borderColor",
-            label: "Border Colour",
+            label: "Border Color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -228,15 +265,21 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       >
         <TextComponent
           backgroundColor={this.props.backgroundColor}
+          bottomRow={this.props.bottomRow}
           disableLink={this.props.disableLink || false}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
+          leftColumn={this.props.leftColumn}
+          rightColumn={this.props.rightColumn}
           shouldScroll={this.props.shouldScroll}
+          shouldTruncate={this.props.shouldTruncate}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
+          topRow={this.props.topRow}
+          truncateButtonColor={this.props.truncateButtonColor}
           widgetId={this.props.widgetId}
         />
       </WidgetStyleContainer>
@@ -260,6 +303,7 @@ export interface TextStyles {
   fontStyle?: string;
   fontSize?: TextSize;
   textAlign?: TextAlign;
+  truncateButtonColor?: string;
 }
 
 export interface TextWidgetProps
@@ -269,6 +313,7 @@ export interface TextWidgetProps
   text?: string;
   isLoading: boolean;
   shouldScroll: boolean;
+  shouldTruncate: boolean;
   disableLink: boolean;
 }
 
