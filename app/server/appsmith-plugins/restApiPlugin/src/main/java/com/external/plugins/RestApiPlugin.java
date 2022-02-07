@@ -52,10 +52,12 @@ import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -99,6 +101,11 @@ public class RestApiPlugin extends BasePlugin {
         // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
         // `WebClient` instance was loaded as an auto-wired bean.
         public ExchangeStrategies EXCHANGE_STRATEGIES;
+
+        private static final Set<String> DISALLOWED_HOSTS = Set.of(
+                "169.254.169.254",
+                "metadata.google.internal"
+        );
 
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
@@ -229,9 +236,17 @@ public class RestApiPlugin extends BasePlugin {
             URI uri;
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-                uri = createFinalUriWithQueryParams(httpUrl,
-                        actionConfiguration.getQueryParameters(),
-                        encodeParamsToggle);
+
+                ArrayList<Property> allQueryParams = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(actionConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(actionConfiguration.getQueryParameters());
+                }
+
+                if (!CollectionUtils.isEmpty(datasourceConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(datasourceConfiguration.getQueryParameters());
+                }
+
+                uri = createFinalUriWithQueryParams(httpUrl, allQueryParams, encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
@@ -243,6 +258,21 @@ public class RestApiPlugin extends BasePlugin {
 
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
+
+            try {
+                final String host = uri.getHost();
+                if (StringUtils.isEmpty(host)
+                        || DISALLOWED_HOSTS.contains(host)
+                        || DISALLOWED_HOSTS.contains(InetAddress.getByName(host).getHostAddress())) {
+                    errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
+                    errorResult.setRequest(actionExecutionRequest);
+                    return Mono.just(errorResult);
+                }
+            } catch (UnknownHostException e) {
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Unknown host."));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
+            }
 
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));

@@ -14,6 +14,7 @@ import _, {
   isString,
   toString,
   uniq,
+  __,
 } from "lodash";
 
 import moment from "moment";
@@ -22,6 +23,7 @@ import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
+import { QueryActionConfig } from "entities/Action";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 
 const flat = (array: Record<string, any>[], uniqueParam: string) => {
@@ -76,7 +78,7 @@ function validatePlainObject(
               );
             });
         }
-      } else if (entry.params?.required) {
+      } else if (entry.params?.required || entry.params?.requiredKey) {
         _valid = false;
         _messages.push(`Missing required key: ${entryName}`);
       }
@@ -210,12 +212,12 @@ function validateArray(
     messages: _messages,
   };
 }
-
+//TODO: parameter props may not be in use
 export const validate = (
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
-) => {
+): ValidationResponse => {
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,
     value,
@@ -747,7 +749,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
-      parsed: config.params?.default || moment().toISOString(true),
+      parsed: config.params?.default,
       messages: [`Value does not match: ${getExpectedType(config)}`],
     };
     if (value === undefined || value === null || !isString(value)) {
@@ -763,8 +765,10 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (value === "" && !config.params?.required) {
         return {
           isValid: true,
-          parsed: config.params?.default || moment().toISOString(true),
+          parsed: config.params?.default,
         };
+      } else if (value === "" && config.params?.required) {
+        return invalidResponse;
       }
 
       if (!moment(value).isValid()) return invalidResponse;

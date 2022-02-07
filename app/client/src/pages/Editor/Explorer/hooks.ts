@@ -15,6 +15,15 @@ import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { getActions, getDatasources } from "selectors/entitiesSelector";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { matchPath, useLocation } from "react-router";
+import {
+  API_EDITOR_ID_PATH,
+  JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_ID_PATH,
+} from "constants/routes";
+import { SAAS_EDITOR_API_ID_PATH } from "../SaaSEditor/constants";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -39,25 +48,23 @@ const findDataSources = (dataSources: Datasource[], keyword: string) => {
   );
 };
 
-export const useFilteredDatasources = (searchKeyword?: string) => {
+export const useDatasourcesPageMapInCurrentApplication = () => {
+  const actions = useActions();
   const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
-  const actions = useActions();
-  const pageIds = usePageIds(searchKeyword);
-
-  const datasources = useMemo(() => {
+  return useMemo(() => {
     const datasourcesPageMap: Record<string, Datasource[]> = {};
     for (const [key, value] of Object.entries(actions)) {
-      const datasourceIds = new Set();
-      value.forEach((action) => {
+      const datasourceIds = value.reduce((acc, action) => {
         if (
           isStoredDatasource(action.config.datasource) &&
           action.config.datasource.id
         ) {
-          datasourceIds.add(action.config.datasource.id);
+          acc.add(action.config.datasource.id);
         }
-      });
+        return acc;
+      }, new Set());
       const activeDatasources = reducerDatasources.filter((datasource) =>
         datasourceIds.has(datasource.id),
       );
@@ -66,7 +73,38 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
 
     return datasourcesPageMap;
   }, [actions, reducerDatasources]);
+};
 
+export const useAppWideAndOtherDatasource = () => {
+  const actions = useSelector(getActions);
+  const allDatasources = useSelector(getDatasources);
+  const appWideDatasourcesIds = actions.reduce((acc, action: ActionData) => {
+    if (
+      isStoredDatasource(action.config.datasource) &&
+      action.config.datasource.id
+    ) {
+      acc.add(action.config.datasource.id);
+    }
+    return acc;
+  }, new Set());
+  return allDatasources
+    .sort((ds1, ds2) => ds1.name?.localeCompare(ds2.name))
+    .reduce(
+      (acc: any, ds) => {
+        if (appWideDatasourcesIds.has(ds.id)) {
+          acc.appWideDS = acc.appWideDS.concat(ds);
+        } else {
+          acc.otherDS = acc.otherDS.concat(ds);
+        }
+        return acc;
+      },
+      { appWideDS: [], otherDS: [] },
+    );
+};
+
+export const useFilteredDatasources = (searchKeyword?: string) => {
+  const pageIds = usePageIds(searchKeyword);
+  const datasources = useDatasourcesPageMapInCurrentApplication();
   return useMemo(() => {
     if (searchKeyword) {
       const start = performance.now();
@@ -278,3 +316,34 @@ export const useEntityEditState = (entityId: string) => {
       get(state, "ui.explorer.entity.editingEntityName") === entityId,
   );
 };
+
+export function useActiveAction() {
+  const location = useLocation();
+  const apiMatch = matchPath<{ apiId: string }>(location.pathname, {
+    path: API_EDITOR_ID_PATH,
+  });
+  if (apiMatch?.params?.apiId) {
+    return apiMatch.params.apiId;
+  }
+  const queryMatch = matchPath<{ queryId: string }>(window.location.pathname, {
+    path: QUERIES_EDITOR_ID_PATH,
+  });
+  if (queryMatch?.params?.queryId) {
+    return queryMatch.params.queryId;
+  }
+  const jsMatch = matchPath<{ collectionId: string }>(
+    window.location.pathname,
+    {
+      path: JS_COLLECTION_ID_PATH,
+    },
+  );
+  if (jsMatch?.params?.collectionId) {
+    return jsMatch.params.collectionId;
+  }
+  const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
+    path: SAAS_EDITOR_API_ID_PATH,
+  });
+  if (saasMatch?.params?.apiId) {
+    return saasMatch.params.apiId;
+  }
+}

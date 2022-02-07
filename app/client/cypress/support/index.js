@@ -13,15 +13,17 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 /// <reference types="Cypress" />
-require("cypress-xpath");
+
 import "cypress-real-events/support";
-let pageid;
+import "cypress-xpath";
+/// <reference types="cypress-xpath" />
+
 let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
-import * as MESSAGES from "../../../client/src/constants/messages.ts";
+import * as MESSAGES from "../../../client/src/constants/messages";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from

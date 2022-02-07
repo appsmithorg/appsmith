@@ -9,7 +9,6 @@ import {
   LEARN_MORE,
   OPEN_REPO,
 } from "constants/messages";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { Theme } from "constants/DefaultTheme";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector } from "store";
@@ -28,41 +27,13 @@ const OpenRepoButton = styled(Button)`
 
 type CIPropType = {
   isConflicting?: boolean;
+  learnMoreLink: string;
 };
 
 export default function ConflictInfo(props: CIPropType) {
   const { isConflicting } = props;
   const theme = useTheme() as Theme;
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const originUrl = gitMetaData?.remoteUrl;
-
-  /**
-   * Converting ssh url to https url for opening the repo on browser
-   * Github :
-   *    SSH: git@github.com:user/repo.git
-   *    HTTPS: https://github.com/user/repo.git
-   * Gitlab:
-   *    SSH: git@gitlab.com:abhijeet25/first_project.git
-   *    HTTPS: https://gitlab.com/abhijeet25/first_project.git
-   * Bitbucket
-   *    SSH: git@bitbucket.org:abhvsn/onec2_firstapp.git
-   *    HTTPS: https://abhvsn@bitbucket.org/abhvsn/onec2_firstapp.git
-   */
-  let remoteUrl = originUrl;
-  if (originUrl && new RegExp("git@*").test(originUrl)) {
-    remoteUrl = remoteUrl?.replace(":", "/");
-    remoteUrl = remoteUrl?.replace(/git@/, "https://");
-    // bitbucket repo
-    if (new RegExp("bitbucket.org").test(originUrl)) {
-      const match = remoteUrl?.match(/\/\w+/g);
-      if (match && match.length > 2) {
-        remoteUrl = remoteUrl?.replace(
-          /bitbucket.org/,
-          match[1].substr(1) + "@bitbucket.org",
-        );
-      }
-    }
-  }
   return isConflicting ? (
     <>
       <InfoWrapper isError>
@@ -77,7 +48,7 @@ export default function ConflictInfo(props: CIPropType) {
           </Text>
           <Link
             color={Colors.CRIMSON}
-            link={DOCS_BASE_URL}
+            link={props.learnMoreLink as string}
             text={createMessage(LEARN_MORE)}
           />
         </div>
@@ -86,7 +57,7 @@ export default function ConflictInfo(props: CIPropType) {
         <OpenRepoButton
           category={Category.tertiary}
           className="t--commit-button"
-          href={remoteUrl}
+          href={gitMetaData?.browserSupportedRemoteUrl}
           size={Size.large}
           tag="a"
           target="_blank"

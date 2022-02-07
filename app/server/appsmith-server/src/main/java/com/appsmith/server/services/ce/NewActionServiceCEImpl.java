@@ -210,7 +210,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             if (newAction.getPublishedAction() != null) {
                 action = newAction.getPublishedAction();
             } else {
-                // We are trying to fetch published action but it doesnt exist because the action hasn't been published yet
+                // We are trying to fetch published action but it doesn't exist because the action hasn't been published yet
                 return Mono.empty();
             }
         } else {
@@ -1198,7 +1198,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return applicationService
                     .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
                     .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
-                    .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
@@ -1235,6 +1234,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params) {
         return this.getUnpublishedActions(params)
+                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
+        return this.getUnpublishedActions(params, branchName)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
@@ -1330,7 +1335,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.just(FALSE);
                     }
 
-                    // Extract names of existing pageload actions and new page load actions for quick lookup.
+                    // Extract names of existing page load actions and new page load actions for quick lookup.
                     Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions
                             .stream()
                             .map(ActionDTO::getValidName)

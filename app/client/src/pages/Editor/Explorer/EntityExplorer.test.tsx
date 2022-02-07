@@ -19,7 +19,7 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets", {
+    const widgetsTree: any = component.queryByText("WIDGETS", {
       selector: "div.t--entity-name",
     });
     act(() => {
@@ -40,7 +40,7 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets", {
+    const widgetsTree: any = component.queryByText("WIDGETS", {
       selector: "div.t--entity-name",
     });
     act(() => {
@@ -71,7 +71,7 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets", {
+    const widgetsTree: any = component.queryByText("WIDGETS", {
       selector: "div.t--entity-name",
     });
     act(() => {
@@ -113,7 +113,7 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets", {
+    const widgetsTree: any = component.queryByText("WIDGETS", {
       selector: "div.t--entity-name",
     });
     act(() => {
@@ -169,7 +169,7 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets", {
+    const widgetsTree: any = component.queryByText("WIDGETS", {
       selector: "div.t--entity-name",
     });
     act(() => {

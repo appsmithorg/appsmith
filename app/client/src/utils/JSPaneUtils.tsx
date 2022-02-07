@@ -8,6 +8,7 @@ export type ParsedJSSubAction = {
   name: string;
   body: string;
   arguments: Array<Variable>;
+  isAsync: boolean;
 };
 
 export type ParsedBody = {
@@ -43,6 +44,7 @@ export const getDifferenceInJSCollection = (
               ...preExisted.actionConfiguration,
               body: action.body,
               jsArguments: action.arguments,
+              isAsync: action.isAsync,
             },
           });
         }
@@ -180,7 +182,7 @@ export const createDummyJSCollectionActions = (
   organizationId: string,
 ) => {
   const body =
-    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: () => {\n\t\t//write code here\n\t}\n}";
+    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//do async stuff here or use JS promises\n\t}\n}";
 
   const actions = [
     {

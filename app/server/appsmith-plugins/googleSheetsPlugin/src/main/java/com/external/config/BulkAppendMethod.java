@@ -18,6 +18,8 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,10 +120,10 @@ public class BulkAppendMethod implements Method {
                 .map(response -> {// Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
-                    if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
+                    if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                "Expected to receive a response body."));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody;
@@ -134,6 +136,18 @@ public class BulkAppendMethod implements Method {
                                 e.getMessage()
                         ));
                     }
+
+                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                        if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                        }
+
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Could not map request back to existing data"));
+                    }
+
                     if (jsonNodeBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
@@ -194,11 +208,13 @@ public class BulkAppendMethod implements Method {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + range
-                        + ":append");
+                        + URLEncoder.encode(range, StandardCharsets.UTF_8)
+                        + ":append",
+                true);
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
+        uriBuilder.queryParam("insertDataOption", "INSERT_ROWS");
 
         final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
         List<List<Object>> collect = body1.stream()

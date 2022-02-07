@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.springframework.data.mongodb.core.query.Query;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -50,8 +51,10 @@ import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
@@ -63,10 +66,9 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
-import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -77,6 +79,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 /**
  * Unit tests for MongoPlugin
@@ -1415,7 +1419,8 @@ public class MongoPluginTest {
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
         setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
         setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}, {$count: \"userCount\"} ]");
+        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}]");
+        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1426,8 +1431,8 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    JsonNode value = ((ArrayNode) result.getBody()).get(0).get("userCount");
-                    assertEquals(value.asInt(), 3);
+                    int numOfOutputResults = ((ArrayNode) result.getBody()).size();
+                    assertEquals(numOfOutputResults, 2); // This would be 3 if `AGGREGATE_LIMIT` was not set to 2.
                 })
                 .verifyComplete();
     }
@@ -1928,5 +1933,58 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    public void testBuildClientURI_withoutUserInfoAndAuthSource() {
+
+        final String testUri = "mongodb://host:port/db?param";
+        final String resultUri = "mongodb://host:port/db?param&authSource=admin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testBuildClientURI_withUserInfoAndAuthSource() {
+
+        final String testUri = "mongodb://user:pass@host:port/db?param&authSource=notAdmin";
+        final String resultUri = "mongodb://user:newPass@host:port/db?param&authSource=notAdmin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("newPass");
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testBuildClientURI_withoutDbInfoAndPortsAndParams() {
+
+        final String testUri = "mongodb://user:pass@host";
+        final String resultUri = "mongodb://user:newPass@host/?authSource=admin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("newPass");
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
     }
 }

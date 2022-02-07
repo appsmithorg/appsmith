@@ -55,8 +55,8 @@ services:
     image: containrrr/watchtower:latest-dev
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # Update check interval in seconds.
-    command: --interval 300 --label-enable --cleanup
+    # Update check every hour.
+    command: --schedule "0 0 * ? * *" --label-enable --cleanup
 ```
 
 After saving this file, `cd` to the folder that contains this file and run the following command to start Appsmith:

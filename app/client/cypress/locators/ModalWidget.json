@@ -4,6 +4,6 @@
     "controlModalType": ".t--property-control-modaltype .bp3-popover-target",
     "modalWidget": ".t--modal-widget",
     "modalName": ".t--modal-widget span.t--widget-name",
-    "modelTextField": ".t--modal-widget  .t--widget-textwidget"
-
+    "modelTextField": ".t--modal-widget  .t--widget-textwidget",
+    "closeButton": ".t--widget-iconwidget"
 }

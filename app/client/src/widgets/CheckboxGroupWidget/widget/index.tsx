@@ -9,11 +9,12 @@ import { WidgetType } from "constants/WidgetConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { CheckboxGroupAlignmentTypes } from "components/constants";
 
-import CheckboxGroupComponent, { OptionProps } from "../component";
+import CheckboxGroupComponent from "../component";
+import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -84,7 +85,6 @@ class CheckboxGroupWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                     ],
@@ -113,18 +113,6 @@ class CheckboxGroupWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
-            },
-          },
-          {
-            propertyName: "isInline",
-            label: "Inline",
-            controlType: "SWITCH",
-            helpText: "Displays the checkboxes horizontally",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
             },
           },
           {
@@ -164,6 +152,30 @@ class CheckboxGroupWidget extends BaseWidget<
             },
           },
           {
+            propertyName: "isInline",
+            label: "Inline",
+            controlType: "SWITCH",
+            helpText: "Displays the checkboxes horizontally",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
+            propertyName: "isSelectAll",
+            label: "Select All Options",
+            controlType: "SWITCH",
+            helpText: "Controls whether select all option is shown",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
             propertyName: "animateLoading",
             label: "Animate Loading",
             controlType: "SWITCH",
@@ -173,6 +185,59 @@ class CheckboxGroupWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "optionAlignment",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            helpText: "Sets alignment between options.",
+            options: [
+              {
+                label: "None",
+                value: CheckboxGroupAlignmentTypes.NONE,
+              },
+              {
+                label: "Start",
+                value: CheckboxGroupAlignmentTypes.START,
+              },
+              {
+                label: "End",
+                value: CheckboxGroupAlignmentTypes.END,
+              },
+              {
+                label: "Center",
+                value: CheckboxGroupAlignmentTypes.CENTER,
+              },
+              {
+                label: "Between",
+                value: CheckboxGroupAlignmentTypes.SPACE_BETWEEN,
+              },
+              {
+                label: "Around",
+                value: CheckboxGroupAlignmentTypes.SPACE_AROUND,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  CheckboxGroupAlignmentTypes.NONE,
+                  CheckboxGroupAlignmentTypes.START,
+                  CheckboxGroupAlignmentTypes.END,
+                  CheckboxGroupAlignmentTypes.CENTER,
+                  CheckboxGroupAlignmentTypes.SPACE_BETWEEN,
+                  CheckboxGroupAlignmentTypes.SPACE_AROUND,
+                ],
+              },
+            },
           },
         ],
       },
@@ -251,9 +316,12 @@ class CheckboxGroupWidget extends BaseWidget<
         isDisabled={this.props.isDisabled}
         isInline={this.props.isInline}
         isRequired={this.props.isRequired}
+        isSelectAll={this.props.isSelectAll}
         isValid={this.props.isValid}
         key={this.props.widgetId}
         onChange={this.handleCheckboxChange}
+        onSelectAllChange={this.handleSelectAllChange}
+        optionAlignment={this.props.optionAlignment}
         options={compact(this.props.options)}
         rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
@@ -287,15 +355,41 @@ class CheckboxGroupWidget extends BaseWidget<
       });
     };
   };
+
+  private handleSelectAllChange = (state: SelectAllState) => {
+    return () => {
+      let { selectedValues } = this.props;
+
+      switch (state) {
+        case SelectAllStates.UNCHECKED:
+          selectedValues = this.props.options.map((option) => option.value);
+          break;
+
+        default:
+          selectedValues = [];
+          break;
+      }
+
+      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+        triggerPropertyName: "onSelectionChange",
+        dynamicString: this.props.onSelectionChange,
+        event: {
+          type: EventType.ON_CHECKBOX_GROUP_SELECTION_CHANGE,
+        },
+      });
+    };
+  };
 }
 
 export interface CheckboxGroupWidgetProps extends WidgetProps {
   options: OptionProps[];
   isInline: boolean;
+  isSelectAll?: boolean;
   isRequired?: boolean;
   isDisabled?: boolean;
   isValid?: boolean;
   onCheckChanged?: string;
+  optionAlignment?: string;
 }
 
 export default CheckboxGroupWidget;

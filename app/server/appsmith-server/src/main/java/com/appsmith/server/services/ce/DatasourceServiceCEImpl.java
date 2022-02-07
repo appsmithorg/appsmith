@@ -43,6 +43,7 @@ import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -97,11 +98,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        if (StringUtils.isEmpty(datasource.getGitSyncId())) {
+        if (!StringUtils.hasLength(datasource.getGitSyncId())) {
             datasource.setGitSyncId(datasource.getOrganizationId() + "_" + new ObjectId());
         }
         Mono<Datasource> datasourceMono = Mono.just(datasource);
-        if (StringUtils.isEmpty(datasource.getName())) {
+        if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
                     .getNextAsSuffix(Datasource.class, " for organization with _id : " + orgId)
                     .zipWith(datasourceMono, (sequenceNumber, datasource1) -> {
@@ -366,7 +367,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
+            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES)
+                    .map(datasource -> {
+                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                        return datasource;
+                    });
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
