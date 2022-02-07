@@ -235,6 +235,29 @@ export const FIELD_SUPPORTING_FOCUS_EVENTS = [
   FieldType.TEXT,
 ];
 
+// These are the fields who's defaultValue property control's JS
+// mode would be enabled by default.
+export const AUTO_JS_ENABLED_FIELDS: Record<
+  FieldType,
+  (keyof SchemaItem)[] | null
+> = {
+  [FieldType.DATE]: ["defaultValue"],
+  [FieldType.SWITCH]: ["defaultValue"],
+  [FieldType.ARRAY]: null,
+  [FieldType.CHECKBOX]: null,
+  [FieldType.CURRENCY]: null,
+  [FieldType.EMAIL]: null,
+  [FieldType.MULTI_SELECT]: null,
+  [FieldType.MULTILINE]: null,
+  [FieldType.NUMBER]: null,
+  [FieldType.OBJECT]: null,
+  [FieldType.PASSWORD]: null,
+  [FieldType.PHONE_NUMBER]: null,
+  [FieldType.RADIO_GROUP]: null,
+  [FieldType.SELECT]: null,
+  [FieldType.TEXT]: null,
+};
+
 export const getBindingTemplate = (widgetName: string) => {
   const startTemplate = `{{((sourceData, formData, fieldState) => (`;
   const endTemplate = `))(${widgetName}.sourceData, ${widgetName}.formData, ${widgetName}.fieldState)}}`;

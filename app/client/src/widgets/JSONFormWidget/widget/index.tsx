@@ -2,7 +2,7 @@ import React from "react";
 import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import { connect } from "react-redux";
-import { debounce, isEmpty } from "lodash";
+import { debounce, difference, isEmpty } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
@@ -15,7 +15,10 @@ import {
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { FieldState, Schema } from "../constants";
-import { generateFieldState } from "./helper";
+import {
+  dynamicPropertyPathListFromSchema,
+  generateFieldState,
+} from "./helper";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 
@@ -94,6 +97,17 @@ class JSONFormWidget extends BaseWidget<
     this.debouncedParseAndSaveFieldState();
   }
 
+  computeDynamicPropertyPathList = (schema: Schema) => {
+    const pathListFromSchema = dynamicPropertyPathListFromSchema(schema);
+    const pathListFromProps = (this.props.dynamicPropertyPathList || []).map(
+      ({ key }) => key,
+    );
+
+    const newPaths = difference(pathListFromSchema, pathListFromProps);
+
+    return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
+  };
+
   constructAndSaveSchemaIfRequired = (prevProps?: JSONFormWidgetProps) => {
     const prevSourceData = prevProps?.sourceData;
     const currSourceData = this.props?.sourceData;
@@ -116,13 +130,17 @@ class JSONFormWidget extends BaseWidget<
       widget.schema,
     );
 
+    const dynamicPropertyPathList = this.computeDynamicPropertyPathList(schema);
+
     log.debug(
       "JSONForm widget schema parsing took",
       performance.now() - start,
       "ms",
     );
 
-    this.updateWidgetProperty("schema", schema);
+    this.batchUpdateWidgetProperty({
+      modify: { schema, dynamicPropertyPathList },
+    });
   };
 
   updateFormData = (values: any) => {

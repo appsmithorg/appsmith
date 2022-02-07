@@ -1,3 +1,4 @@
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { FieldValidityState } from ".";
 import {
   ARRAY_ITEM_KEY,
@@ -5,6 +6,7 @@ import {
   FieldState,
   Schema,
   SchemaItem,
+  AUTO_JS_ENABLED_FIELDS,
 } from "../constants";
 
 type FieldMetaState = FieldState<{
@@ -153,4 +155,33 @@ export const generateFieldState = (
   }
 
   return fieldState;
+};
+
+// Extracts property paths that should have JS mode enabled in the property pane
+export const dynamicPropertyPathListFromSchema = (
+  schema: Schema,
+  basePath = "schema",
+) => {
+  const paths: string[] = [];
+  Object.values(schema).forEach((schemaItem) => {
+    const properties = AUTO_JS_ENABLED_FIELDS[schemaItem.fieldType];
+    if (properties) {
+      properties.forEach((property) => {
+        const propertyValue = schemaItem[property];
+        if (isDynamicValue(propertyValue)) {
+          paths.push(`${basePath}.${schemaItem.identifier}.${property}`);
+        }
+      });
+    }
+
+    if (schemaItem.children) {
+      const nestedPaths = dynamicPropertyPathListFromSchema(
+        schemaItem.children,
+        `${basePath}.${schemaItem.identifier}.children`,
+      );
+      paths.push(...nestedPaths);
+    }
+  });
+
+  return paths;
 };

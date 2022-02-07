@@ -1,5 +1,4 @@
 import React from "react";
-import { get } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import moment from "moment-timezone";
 import styled from "styled-components";
@@ -56,17 +55,8 @@ class DatePickerControl extends BaseControl<
 
   constructor(props: DatePickerControlProps) {
     super(props);
-
-    // We are using the evaluated value as the JSONForm widget might
-    // pass a binding as propertyValue which might lead to out of range error.
-    const evaluatedValue = get(
-      props.widgetProperties.__evaluation__?.evaluatedValues || {},
-      props.propertyName,
-      "",
-    ) as string;
-
     this.state = {
-      selectedDate: evaluatedValue,
+      selectedDate: props.propertyValue,
     };
   }
 
@@ -80,10 +70,10 @@ class DatePickerControl extends BaseControl<
       ? this.validateDate(moment(this.state.selectedDate, dateFormat).toDate())
       : true;
     const value =
-      this.state.selectedDate && isValid
+      this.props.propertyValue && isValid
         ? version === 2
-          ? new Date(this.state.selectedDate)
-          : this.parseDate(this.state.selectedDate)
+          ? new Date(this.props.propertyValue)
+          : this.parseDate(this.props.propertyValue)
         : null;
     return (
       <DatePickerControlWrapper isValid>

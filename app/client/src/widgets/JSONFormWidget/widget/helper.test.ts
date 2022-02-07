@@ -1,6 +1,13 @@
-import { DataType, FieldType } from "../constants";
+import {
+  ARRAY_ITEM_KEY,
+  DataType,
+  FieldType,
+  ROOT_SCHEMA_KEY,
+  Schema,
+} from "../constants";
 import schemaTestData from "../schemaTestData";
 import {
+  dynamicPropertyPathListFromSchema,
   generateFieldState,
   getGrandParentPropertyPath,
   getParentPropertyPath,
@@ -370,5 +377,80 @@ describe(".generateFieldState", () => {
       const result = generateFieldState(schema, fieldValidityState);
       expect(result).toEqual(expectedOutput);
     });
+  });
+});
+
+describe(".dynamicPropertyPathListFromSchema", () => {
+  it("returns valid auto JS enabled propertyPaths", () => {
+    const schema = ({
+      [ROOT_SCHEMA_KEY]: {
+        identifier: ROOT_SCHEMA_KEY,
+        fieldType: FieldType.OBJECT,
+        children: {
+          name: {
+            fieldType: FieldType.TEXT,
+            identifier: "name",
+            defaultValue: "{{sourceData.name}}",
+          },
+          dob: {
+            fieldType: FieldType.DATE,
+            identifier: "dob",
+            defaultValue: "{{sourceData.{dob}}",
+          },
+          obj: {
+            fieldType: FieldType.OBJECT,
+            identifier: "obj",
+            defaultValue: "{{sourceData.{obj}}",
+            children: {
+              agree: {
+                fieldType: FieldType.SWITCH,
+                identifier: "agree",
+                defaultValue: "{{sourceData.agree}}",
+              },
+            },
+          },
+          array: {
+            fieldType: FieldType.ARRAY,
+            identifier: "array",
+            defaultValue: "{{sourceData.array}}",
+            children: {
+              [ARRAY_ITEM_KEY]: {
+                fieldType: FieldType.OBJECT,
+                identifier: ARRAY_ITEM_KEY,
+                defaultValue: "",
+                children: {
+                  field1: {
+                    fieldType: FieldType.SWITCH,
+                    identifier: "field1",
+                    defaultValue: "{{sourceData.field1}}",
+                  },
+                  field2: {
+                    fieldType: FieldType.DATE,
+                    identifier: "field2",
+                    defaultValue: "{{sourceData.field2}}",
+                  },
+                  field3: {
+                    fieldType: FieldType.DATE,
+                    identifier: "field3",
+                    defaultValue: "10/12/2021",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as unknown) as Schema;
+
+    const expectedPathList = [
+      `schema.${ROOT_SCHEMA_KEY}.children.dob.defaultValue`,
+      `schema.${ROOT_SCHEMA_KEY}.children.obj.children.agree.defaultValue`,
+      `schema.${ROOT_SCHEMA_KEY}.children.array.children.${ARRAY_ITEM_KEY}.children.field1.defaultValue`,
+      `schema.${ROOT_SCHEMA_KEY}.children.array.children.${ARRAY_ITEM_KEY}.children.field2.defaultValue`,
+    ];
+
+    const result = dynamicPropertyPathListFromSchema(schema);
+
+    expect(result).toEqual(expectedPathList);
   });
 });

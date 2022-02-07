@@ -351,6 +351,11 @@ class SchemaParser {
       sanitizedKey: "",
     });
 
+    rootSchemaItem.identifier = ROOT_SCHEMA_KEY;
+    rootSchemaItem.name = ROOT_SCHEMA_KEY;
+    rootSchemaItem.originalIdentifier = ROOT_SCHEMA_KEY;
+    rootSchemaItem.accessor = ROOT_SCHEMA_KEY;
+
     return {
       [ROOT_SCHEMA_KEY]: rootSchemaItem,
     };
