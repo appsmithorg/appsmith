@@ -87,21 +87,31 @@ const deleteIcon = (
   />
 );
 
-const getDefaultValue = (schemaItem: SchemaItem) => {
-  return !Array.isArray(schemaItem.defaultValue)
-    ? []
-    : (schemaItemDefaultValue(schemaItem) as any[]);
+const getDefaultValue = (
+  schemaItem: SchemaItem,
+  passedDefaultValue?: unknown,
+) => {
+  if (Array.isArray(schemaItem.defaultValue)) {
+    return schemaItemDefaultValue(schemaItem) as unknown[];
+  }
+
+  if (Array.isArray(passedDefaultValue)) {
+    return passedDefaultValue;
+  }
+
+  return [];
 };
 
 function ArrayField({
   fieldClassName,
   name,
+  passedDefaultValue,
   propertyPath,
   schemaItem,
 }: ArrayFieldProps) {
   const { getValues, setValue } = useFormContext();
   const [keys, setKeys] = useState<string[]>([]);
-  const defaultValue = getDefaultValue(schemaItem);
+  const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
   const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
     defaultValue,
   );
