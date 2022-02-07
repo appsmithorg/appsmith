@@ -237,7 +237,11 @@ export class JSONtoForm<
   renderMainSection = (section: any, index: number) => {
     if (isHidden(this.props.formData, section.hidden)) return null;
     return (
-      <Collapsible defaultIsOpen={index === 0} title={section.sectionName}>
+      <Collapsible
+        defaultIsOpen={index === 0}
+        key={index}
+        title={section.sectionName}
+      >
         {this.renderEachConfig(section)}
       </Collapsible>
     );

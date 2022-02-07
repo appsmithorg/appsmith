@@ -1249,7 +1249,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     return applicationService.save(srcApplication)
                             .flatMap(application1 ->
-                                    fileUtils.reconstructApplicationFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
+                                    fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(application1))
                             );
                 })
@@ -1384,7 +1384,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //3. Hydrate from file system to db
                     Application branchedApplication = objects.getT2();
                     MergeStatusDTO pullStatus = objects.getT1();
-                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationJsonFromGitRepo(
                             branchedApplication.getOrganizationId(),
                             branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                             branchedApplication.getGitApplicationMetadata().getRepoName(),
@@ -1707,7 +1707,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String mergeStatus = mergeStatusTuple.getT1();
 
                     //3. rehydrate from file system to db
-                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationJsonFromGitRepo(
                             defaultApplication.getOrganizationId(),
                             defaultApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                             defaultApplication.getGitApplicationMetadata().getRepoName(),
@@ -1998,7 +1998,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
                     Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
                     Mono<ApplicationJson> applicationJsonMono = fileUtils
-                            .reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
+                            .reconstructApplicationJsonFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
                             .onErrorResume(error -> {
                                 log.error("Error while constructing application from git repo", error);
                                 return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())

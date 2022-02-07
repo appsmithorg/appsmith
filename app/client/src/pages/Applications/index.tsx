@@ -52,6 +52,8 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,
+  setIsReconnectingDatasourcesModalOpen,
+  setOrgIdForImport,
   updateApplication,
 } from "actions/applicationActions";
 import { onboardingCreateApplication } from "actions/onboardingActions";
@@ -533,6 +535,13 @@ const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
 
+// A custom hook that builds on useLocation to parse
+// the query string.
+function useQuery() {
+  const { search } = useLocation();
+  return React.useMemo(() => new URLSearchParams(search), [search]);
+}
+
 function ApplicationsSection(props: any) {
   const enableImportExport = true;
   const dispatch = useDispatch();
@@ -951,11 +960,41 @@ function ApplicationsSection(props: any) {
     );
   }
 
+  const queryParams = useQuery();
+  const queryAppId = queryParams.get("appId");
+  const queryPageId = queryParams.get("pageId");
+  const queryDatasourceId = queryParams.get("datasourceId");
+  // const queryResponseStatus = queryParams.get("response_status");
+  // const queryDisplayMessage = queryParams.get("display_message");
+  const queryIsImport = JSON.parse(queryParams.get("isImport") ?? "false");
+
+  // should open reconnect datasource modal
+  useEffect(() => {
+    if (userOrgs && queryIsImport && queryDatasourceId) {
+      if (queryAppId) {
+        for (const org of userOrgs) {
+          const { applications, organization } = org;
+          if (applications.find((app: any) => app.id === queryAppId)) {
+            dispatch(setOrgIdForImport(organization.id));
+            dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+            break;
+          }
+        }
+      }
+    }
+  }, [userOrgs]);
+
   return (
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
       {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
-      {getFeatureFlags().GIT_IMPORT && <ReconnectDatasourceModal />}
+      {getFeatureFlags().GIT_IMPORT && (
+        <ReconnectDatasourceModal
+          defaultAppId={queryAppId ?? undefined}
+          defaultDatasourceId={queryDatasourceId ?? undefined}
+          defaultPageId={queryPageId ?? undefined}
+        />
+      )}
     </ApplicationContainer>
   );
 }
