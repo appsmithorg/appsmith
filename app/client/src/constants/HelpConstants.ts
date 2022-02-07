@@ -27,6 +27,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/input",
     searchKey: "Input",
   },
+  INPUT_WIDGET_V2: {
+    path: "/widget-reference/input",
+    searchKey: "Input",
+  },
   DATE_PICKER_WIDGET: {
     path: "/widget-reference/datepicker",
     searchKey: "DatePicker",
@@ -44,6 +48,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     searchKey: "Video",
   },
   DROP_DOWN_WIDGET: {
+    path: "/widget-reference/dropdown",
+    searchKey: "Select",
+  },
+  SELECT_WIDGET: {
     path: "/widget-reference/dropdown",
     searchKey: "Select",
   },
@@ -124,6 +132,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     searchKey: "Switch",
   },
   MULTI_SELECT_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
+  MULTI_SELECT_WIDGET_V2: {
     path: "",
     searchKey: "",
   },

@@ -146,6 +146,11 @@ const NoEntityFoundWrapper = styled.div`
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);
+  const queryParamters = get(
+    datasource,
+    "datasourceConfiguration.queryParameters",
+    [],
+  );
   const authType = get(
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
@@ -153,6 +158,12 @@ export const getDatasourceInfo = (datasource: any): string => {
   ).toUpperCase();
   if (headers.length)
     info.push(`${headers.length} HEADER${headers.length > 1 ? "S" : ""}`);
+  if (queryParamters.length)
+    info.push(
+      `${queryParamters.length} QUERY PARAMETER${
+        queryParamters.length > 1 ? "S" : ""
+      }`,
+    );
   if (authType.length) info.push(authType);
   return info.join(" | ");
 };
