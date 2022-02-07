@@ -22,6 +22,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.external.plugins.constants.AmazonS3Action;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -294,10 +295,10 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayNode node = (ArrayNode) result.getBody();
                     ArrayList<String> resultFilenamesArray = new ArrayList<>();
-                    resultFilenamesArray.add(node.get(0).get("fileName"));
-                    resultFilenamesArray.add(node.get(1).get("fileName"));
+                    resultFilenamesArray.add(node.get(0).get("fileName").asText());
+                    resultFilenamesArray.add(node.get(1).get("fileName").asText());
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
@@ -793,10 +794,10 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayNode node = (ArrayNode) result.getBody();
                     ArrayList<String> resultFilenamesArray = new ArrayList<>();
-                    resultFilenamesArray.add(node.get(0).get("fileName"));
-                    resultFilenamesArray.add(node.get(1).get("fileName"));
+                    resultFilenamesArray.add(node.get(0).get("fileName").asText());
+                    resultFilenamesArray.add(node.get(1).get("fileName").asText());
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
@@ -861,10 +862,10 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayNode node = (ArrayNode) result.getBody();
                     ArrayList<String> resultFilenamesArray = new ArrayList<>();
-                    resultFilenamesArray.add(node.get(0).get("fileName"));
-                    resultFilenamesArray.add(node.get(1).get("fileName"));
+                    resultFilenamesArray.add(node.get(0).get("fileName").asText());
+                    resultFilenamesArray.add(node.get(1).get("fileName").asText());
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
@@ -874,8 +875,8 @@ public class AmazonS3PluginTest {
                     );
 
                     ArrayList<String> resultUrlArray = new ArrayList<>();
-                    resultUrlArray.add(node.get(0).get("url"));
-                    resultUrlArray.add(node.get(1).get("url"));
+                    resultUrlArray.add(node.get(0).get("url").asText());
+                    resultUrlArray.add(node.get(1).get("url").asText());
                     assertArrayEquals(
                             new String[]{
                                     dummyUrl1.toString(),
@@ -940,10 +941,10 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayNode node = (ArrayNode) result.getBody();
                     ArrayList<String> resultFilenamesArray = new ArrayList<>();
-                    resultFilenamesArray.add(node.get(0).get("fileName"));
-                    resultFilenamesArray.add(node.get(1).get("fileName"));
+                    resultFilenamesArray.add(node.get(0).get("fileName").asText());
+                    resultFilenamesArray.add(node.get(1).get("fileName").asText());
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
@@ -953,8 +954,8 @@ public class AmazonS3PluginTest {
                     );
 
                     ArrayList<String> resultUrlArray = new ArrayList<>();
-                    resultUrlArray.add(node.get(0).get("signedUrl"));
-                    resultUrlArray.add(node.get(1).get("signedUrl"));
+                    resultUrlArray.add(node.get(0).get("signedUrl").asText());
+                    resultUrlArray.add(node.get(1).get("signedUrl").asText());
                     assertArrayEquals(
                             new String[]{
                                     dummyUrl1.toString(),
@@ -1021,10 +1022,10 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayNode node = (ArrayNode) result.getBody();
                     ArrayList<String> resultFilenamesArray = new ArrayList<>();
-                    resultFilenamesArray.add(node.get(0).get("fileName"));
-                    resultFilenamesArray.add(node.get(1).get("fileName"));
+                    resultFilenamesArray.add(node.get(0).get("fileName").asText());
+                    resultFilenamesArray.add(node.get(1).get("fileName").asText());
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
@@ -1034,8 +1035,8 @@ public class AmazonS3PluginTest {
                     );
 
                     ArrayList<String> resultUrlArray = new ArrayList<>();
-                    resultUrlArray.add(node.get(0).get("signedUrl"));
-                    resultUrlArray.add(node.get(1).get("signedUrl"));
+                    resultUrlArray.add(node.get(0).get("signedUrl").asText());
+                    resultUrlArray.add(node.get(1).get("signedUrl").asText());
                     assertArrayEquals(
                             new String[]{
                                     dummyUrl1.toString(),

@@ -131,8 +131,8 @@ public enum AppsmithError {
     GIT_FILE_SYSTEM_ERROR(503, 5013, "Error while accessing the file system. {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, ErrorReferenceDocUrl.FILE_PATH_NOT_SET),
     GIT_EXECUTION_TIMEOUT(504, 5014, "Git command execution exceeded the maximum allowed time, please contact Appsmith support for more details", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR, null),
     INCOMPATIBLE_IMPORTED_JSON(400, 4045, "Provided file is incompatible, please upgrade your instance to resolve this conflict.", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
-    GIT_MERGE_CONFLICTS(400, 4046, "Merge conflicts found: {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_MERGE_CONFLICT),
-    GIT_PULL_CONFLICTS(400, 4047, "Merge conflicts found during the pull operation: {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_MERGE_CONFLICT),
+    GIT_MERGE_CONFLICTS(400, 4046, "Merge conflicts found: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_MERGE_CONFLICT),
+    GIT_PULL_CONFLICTS(400, 4047, "Merge conflicts found during the pull operation: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_PULL_CONFLICT),
     SSH_KEY_GENERATION_ERROR(500, 5015, "Failed to generate SSH keys, please contact Appsmith support for more details", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     GIT_UPSTREAM_CHANGES(400, 4048, "Looks like there are pending upstream changes. To prevent you from losing history, we will pull the changes and push them to your repo.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_UPSTREAM_CHANGES),
     ;
