@@ -2,11 +2,17 @@ import React from "react";
 import styled from "styled-components";
 import Button, { Size } from "components/ads/Button";
 import TemplateSampleImage from "./template-test.png";
+import { TemplateProps } from "./index";
 
 const TemplateWrapper = styled.div`
   border: 1px solid #e7e7e7;
   flex: 1;
   max-width: 50%;
+  transition: all 1s ease-out;
+  &:hover {
+    box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
+      0px 8px 8px -4px rgba(16, 24, 40, 0.04);
+  }
 `;
 
 const ImageWrapper = styled.div`
@@ -77,7 +83,7 @@ const StyledButton = styled(Button)`
   width: 38px;
 `;
 
-function Template() {
+function LargeTemplate(props: TemplateProps) {
   return (
     <TemplateWrapper>
       <ImageWrapper>
@@ -86,12 +92,7 @@ function Template() {
       <TemplateContent>
         <div className="title">Job Application Tracker</div>
         <div className="categories">Customer Support • DevOps</div>
-        <div className="description">
-          An admin panel for reading from and writing to your customer data,
-          built on PostgreSQL. This app lets you look through, edit, and add
-          users, orders, and products. An admin panel for reading from and
-          writing to your customer data, built on PostgreSQL.
-        </div>
+        <div className="description">{props.template.description}</div>
         <TemplateContentFooter>
           <DatasourceChip>
             <img
@@ -107,4 +108,4 @@ function Template() {
   );
 }
 
-export default Template;
+export default LargeTemplate;
