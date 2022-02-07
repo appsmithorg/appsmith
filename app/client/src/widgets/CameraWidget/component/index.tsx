@@ -906,19 +906,6 @@ function CameraComponent(props: CameraComponentProps) {
   const fullScreenHandle = useFullScreenHandle();
 
   useEffect(() => {
-    try {
-      navigator.mediaDevices
-        .enumerateDevices()
-        .then(handleDeviceInputs)
-        .catch((err) => {
-          setError(err.message);
-        });
-    } catch (e) {
-      log.debug("Error in calling enumerateDevices");
-    }
-  }, []);
-
-  useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {
       updateMediaTracksEnabled(webcamRef.current.stream);
     }
@@ -995,6 +982,19 @@ function CameraComponent(props: CameraComponentProps) {
     },
     [setAudioInputs, setVideoInputs],
   );
+
+  const updateDeviceInputs = useCallback(() => {
+    try {
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then(handleDeviceInputs)
+        .catch((err) => {
+          setError(err.message);
+        });
+    } catch (e) {
+      log.debug("Error in calling enumerateDevices");
+    }
+  }, [handleDeviceInputs]);
 
   const handleMediaDeviceChange = useCallback(
     (mediaDeviceInfo: MediaDeviceInfo) => {
@@ -1108,6 +1108,7 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   const handleUserMedia = (stream: MediaStream) => {
+    updateDeviceInputs();
     updateMediaTracksEnabled(stream);
   };
 
