@@ -4,7 +4,7 @@ import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ThemeProp } from "components/ads/common";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { replayHighlightClass } from "globalStyles/portals";
 
 const StyledButtonGroup = styled(ButtonGroup)`
@@ -54,7 +54,7 @@ class LabelPositionOptionsControl extends BaseControl<
       <StyledButtonGroup className={replayHighlightClass} fill>
         {options.map((option: LabelPosition) => {
           const active =
-            option === LabelPositionTypes.Auto
+            option === LabelPosition.Auto
               ? propertyValue === option || propertyValue === undefined
               : propertyValue === option;
 

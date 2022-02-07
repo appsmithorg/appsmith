@@ -14,7 +14,7 @@ import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import MultiTreeSelectComponent from "../component";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
@@ -255,9 +255,9 @@ class MultiSelectTreeWidget extends BaseWidget<
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -272,7 +272,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: MultiSelectTreeWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -290,7 +290,7 @@ class MultiSelectTreeWidget extends BaseWidget<
               },
             },
             hidden: (props: MultiSelectTreeWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],

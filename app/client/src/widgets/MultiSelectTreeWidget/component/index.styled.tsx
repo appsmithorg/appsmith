@@ -10,11 +10,7 @@ import {
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import Tooltip from "components/ads/Tooltip";
-import {
-  LabelPosition,
-  LabelPositionTypes,
-  LABEL_MAX_WIDTH_RATE,
-} from "components/constants";
+import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -38,12 +34,12 @@ export const TextLabelWrapper = styled.div<{
   display: flex;
   ${({ alignment, compactMode, position, width }) => `
     ${
-      position !== LabelPositionTypes.Top &&
-      (position === LabelPositionTypes.Left || compactMode)
+      position !== LabelPosition.Top &&
+      (position === LabelPosition.Left || compactMode)
         ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
-    ${position === LabelPositionTypes.Left &&
+    ${position === LabelPosition.Left &&
       `
       ${!width && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
@@ -127,7 +123,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
 .rc-tree-select-item-option {
 	position: relative;
 	display: flex;
-  
+
 	flex-direction: row-reverse;
 	.rc-tree-select-item-option-state {
 		pointer-events: all;
@@ -210,15 +206,15 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-leave.rc-tree-select-dropdown-slide-up-leave-active.rc-tree-select-dropdown-placement-bottomLeft {
-	animation-name: ${rcSelectDropdownSlideUpOut}; 
+	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-enter.rc-tree-select-dropdown-slide-up-enter-active.rc-tree-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-appear.rc-tree-select-dropdown-slide-up-appear-active.rc-tree-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-leave.rc-tree-select-dropdown-slide-up-leave-active.rc-tree-select-dropdown-placement-topLeft {
@@ -284,7 +280,7 @@ border: 1px solid #E8E8E8;
        opacity: 1;
     content: " ";
         border-radius: 100%;
-    
+
     }
   }
 
@@ -626,26 +622,26 @@ export const TreeSelectContainer = styled.div<{
 }>`
   display: flex;
   flex-direction: ${(props) =>
-    props.labelPosition === LabelPositionTypes.Left
+    props.labelPosition === LabelPosition.Left
       ? "row"
-      : props.labelPosition === LabelPositionTypes.Top
+      : props.labelPosition === LabelPosition.Top
       ? "column"
       : props.compactMode
       ? "row"
       : "column"};
   align-items: ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPositionTypes.Top
+    labelPosition === LabelPosition.Top
       ? `flex-start`
-      : compactMode || labelPosition === LabelPositionTypes.Left
+      : compactMode || labelPosition === LabelPosition.Left
       ? `center`
       : `flex-start`};
   overflow-x: hidden;
 
   label.multitree-select-label {
     ${({ compactMode, labelPosition }) =>
-      labelPosition === LabelPositionTypes.Top
+      labelPosition === LabelPosition.Top
         ? `margin-bottom: 5px; margin-right: 0px`
-        : compactMode || labelPosition === LabelPositionTypes.Left
+        : compactMode || labelPosition === LabelPosition.Left
         ? `margin-bottom: 0px; margin-right: 5px`
         : `margin-bottom: 5px; margin-right: 0px`};
   }
@@ -657,7 +653,7 @@ export const TreeSelectContainer = styled.div<{
     cursor: pointer;
 
     ${({ compactMode, labelPosition }) =>
-      labelPosition !== LabelPositionTypes.Top &&
+      labelPosition !== LabelPosition.Top &&
       compactMode &&
       `height: 100%; overflow: hidden`};
 
@@ -997,9 +993,9 @@ export const InputContainer = styled.div<{
 }>`
   display: flex;
   align-items: ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPositionTypes.Top
+    labelPosition === LabelPosition.Top
       ? `flex-start`
-      : labelPosition === LabelPositionTypes.Left
+      : labelPosition === LabelPosition.Left
       ? `center`
       : compactMode
       ? `center`
@@ -1007,7 +1003,5 @@ export const InputContainer = styled.div<{
   width: 100%;
   height: 100%;
   ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPositionTypes.Top &&
-    compactMode &&
-    `overflow-x: hidden`};
+    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
 `;

@@ -11,7 +11,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -199,9 +199,9 @@ class BaseInputWidget<
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -216,7 +216,7 @@ class BaseInputWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: BaseInputWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -234,7 +234,7 @@ class BaseInputWidget<
               },
             },
             hidden: (props: BaseInputWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],

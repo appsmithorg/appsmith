@@ -9,7 +9,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 4,
-    columns: 9,
+    columns: 11,
     animateLoading: true,
     label: "",
     options: [

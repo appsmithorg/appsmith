@@ -14,7 +14,7 @@ import { isString } from "../../../utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
@@ -219,9 +219,9 @@ class SingleSelectTreeWidget extends BaseWidget<
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -236,7 +236,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: SingleSelectTreeWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -254,7 +254,7 @@ class SingleSelectTreeWidget extends BaseWidget<
               },
             },
             hidden: (props: SingleSelectTreeWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],

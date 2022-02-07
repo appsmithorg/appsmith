@@ -6,11 +6,7 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
-import {
-  LabelPosition,
-  LabelPositionTypes,
-  LABEL_MAX_WIDTH_RATE,
-} from "components/constants";
+import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import Tooltip from "components/ads/Tooltip";
 
 export const TextLabelWrapper = styled.div<{
@@ -23,12 +19,12 @@ export const TextLabelWrapper = styled.div<{
 
   ${({ alignment, compactMode, position, width }) => `
     ${
-      position !== LabelPositionTypes.Top &&
-      (position === LabelPositionTypes.Left || compactMode)
+      position !== LabelPosition.Top &&
+      (position === LabelPosition.Left || compactMode)
         ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
-    ${position === LabelPositionTypes.Left &&
+    ${position === LabelPosition.Left &&
       `
       ${!width && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};

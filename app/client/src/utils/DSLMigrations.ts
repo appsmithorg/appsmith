@@ -45,7 +45,7 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import { migrateInlineAndAlignmentProperties } from "./migrations/RadioGroupWidget";
+import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1048,7 +1048,7 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 51) {
-    currentDSL = migrateInlineAndAlignmentProperties(currentDSL);
+    currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
 
     currentDSL.version = LATEST_PAGE_VERSION;
   }

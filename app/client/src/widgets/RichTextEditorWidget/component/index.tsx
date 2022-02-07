@@ -1,11 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
-import {
-  LabelPosition,
-  LabelPositionTypes,
-  LABEL_MAX_WIDTH_RATE,
-} from "components/constants";
+import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
 import {
   FontStyleTypes,
@@ -41,30 +37,30 @@ const StyledRTEditor = styled.div<{
 
   display: flex;
   flex-direction: ${(props) =>
-    props.labelPosition === LabelPositionTypes.Left
+    props.labelPosition === LabelPosition.Left
       ? "row"
-      : props.labelPosition === LabelPositionTypes.Top
+      : props.labelPosition === LabelPosition.Top
       ? "column"
       : props.compactMode
       ? "row"
       : "column"};
   align-items: ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPositionTypes.Top
+    labelPosition === LabelPosition.Top
       ? `flex-start`
       : compactMode
       ? `center`
       : `flex-start`};
 
   ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
-      labelPosition === LabelPositionTypes.Top) &&
+    ((labelPosition !== LabelPosition.Left && !compactMode) ||
+      labelPosition === LabelPosition.Top) &&
     `overflow-x: hidden; overflow-y: auto;`}
 
   label.rich-text-editor-label {
     ${({ compactMode, labelPosition }) =>
-      labelPosition === LabelPositionTypes.Top
+      labelPosition === LabelPosition.Top
         ? `margin-bottom: 5px; margin-right: 0px`
-        : compactMode || labelPosition === LabelPositionTypes.Left
+        : compactMode || labelPosition === LabelPosition.Left
         ? `margin-bottom: 0px; margin-right: 5px`
         : `margin-bottom: 5px; margin-right: 0px`};
   }
@@ -79,12 +75,12 @@ export const TextLabelWrapper = styled.div<{
   display: flex;
   ${({ alignment, compactMode, position, width }) => `
     ${
-      position !== LabelPositionTypes.Top &&
-      (position === LabelPositionTypes.Left || compactMode)
+      position !== LabelPosition.Top &&
+      (position === LabelPosition.Left || compactMode)
         ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
-    ${position === LabelPositionTypes.Left &&
+    ${position === LabelPosition.Left &&
       `
       ${!width && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};

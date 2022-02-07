@@ -12,7 +12,7 @@ import {
 } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 
 class MultiSelectWidget extends BaseWidget<
@@ -211,9 +211,9 @@ class MultiSelectWidget extends BaseWidget<
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -228,7 +228,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: MultiSelectWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -246,7 +246,7 @@ class MultiSelectWidget extends BaseWidget<
               },
             },
             hidden: (props: MultiSelectWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],

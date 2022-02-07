@@ -8,7 +8,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import SwitchGroupComponent, { OptionProps } from "../component";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
@@ -173,9 +173,9 @@ class SwitchGroupWidget extends BaseWidget<
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -190,7 +190,7 @@ class SwitchGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: SwitchGroupWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -208,7 +208,7 @@ class SwitchGroupWidget extends BaseWidget<
               },
             },
             hidden: (props: SwitchGroupWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],

@@ -5,11 +5,7 @@ import { Alignment, Classes, Label, Position, Switch } from "@blueprintjs/core";
 import { ThemeProp } from "components/ads/common";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import {
-  LabelPosition,
-  LabelPositionTypes,
-  LABEL_MAX_WIDTH_RATE,
-} from "components/constants";
+import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import {
   FontStyleTypes,
   TextSize,
@@ -26,18 +22,18 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
   display: flex;
   ${({ compactMode, labelPosition }) => `
     flex-direction: ${
-      labelPosition === LabelPositionTypes.Left
+      labelPosition === LabelPosition.Left
         ? "row"
-        : labelPosition === LabelPositionTypes.Top
+        : labelPosition === LabelPosition.Top
         ? "column"
         : compactMode
         ? "row"
         : "column"
     };
     align-items: ${
-      labelPosition === LabelPositionTypes.Top
+      labelPosition === LabelPosition.Top
         ? `flex-start`
-        : compactMode || labelPosition === LabelPositionTypes.Left
+        : compactMode || labelPosition === LabelPosition.Left
         ? `center`
         : `flex-start`
     };
@@ -46,9 +42,9 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
 
     label.switchgroup-label {
       ${
-        labelPosition === LabelPositionTypes.Top
+        labelPosition === LabelPosition.Top
           ? `margin-bottom: 5px; margin-right: 0px`
-          : compactMode || labelPosition === LabelPositionTypes.Left
+          : compactMode || labelPosition === LabelPosition.Left
           ? `margin-bottom: 0px; margin-right: 5px`
           : `margin-bottom: 5px; margin-right: 0px`
       };
@@ -136,12 +132,12 @@ export const LabelContainer = styled.div<LabelContainerProps>`
   display: flex;
   ${({ alignment, compactMode, inline, optionCount, position, width }) => `
     ${
-      position !== LabelPositionTypes.Top &&
-      (position === LabelPositionTypes.Left || compactMode)
+      position !== LabelPosition.Top &&
+      (position === LabelPosition.Left || compactMode)
         ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
-    ${position === LabelPositionTypes.Left &&
+    ${position === LabelPosition.Left &&
       `
       ${!width && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};

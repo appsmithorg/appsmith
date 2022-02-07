@@ -13,7 +13,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { RadioOption } from "../constants";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 import RadioGroupComponent from "../component";
 
 /**
@@ -290,9 +290,9 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -307,7 +307,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: RadioGroupWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -325,7 +325,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               },
             },
             hidden: (props: RadioGroupWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],
@@ -470,7 +470,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
         disabled={isDisabled}
         height={componentHeight}
-        inline={isInline}
+        inline={Boolean(isInline)}
         key={widgetId}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
@@ -517,7 +517,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   defaultOptionValue: string;
   isRequired?: boolean;
   isDisabled: boolean;
-  isInline: boolean;
+  isInline?: boolean;
   alignment: Alignment;
   label: string;
   labelPosition?: LabelPosition;

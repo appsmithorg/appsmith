@@ -15,7 +15,6 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
-  LabelPositionTypes,
 } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
@@ -214,9 +213,9 @@ class CheckboxGroupWidget extends BaseWidget<
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -231,7 +230,7 @@ class CheckboxGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: CheckboxGroupWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -249,7 +248,7 @@ class CheckboxGroupWidget extends BaseWidget<
               },
             },
             hidden: (props: CheckboxGroupWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],

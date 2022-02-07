@@ -22,7 +22,7 @@ import { StyledLabel, StyledTooltip, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -115,9 +115,7 @@ const StyledControlGroup = styled(ControlGroup)<{
   labelPosition?: LabelPosition;
 }>`
   ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPositionTypes.Top &&
-    compactMode &&
-    `overflow-x: hidden`};
+    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
   &&& > {
     span {
       height: 100%;
@@ -237,29 +235,29 @@ const DropdownContainer = styled.div<{
   ${BlueprintCSSTransform}
   display: flex;
   flex-direction: ${(props) =>
-    props.labelPosition === LabelPositionTypes.Left
+    props.labelPosition === LabelPosition.Left
       ? "row"
-      : props.labelPosition === LabelPositionTypes.Top
+      : props.labelPosition === LabelPosition.Top
       ? "column"
       : props.compactMode
       ? "row"
       : "column"};
   align-items: ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPositionTypes.Top
+    labelPosition === LabelPosition.Top
       ? `flex-start`
-      : compactMode || labelPosition === LabelPositionTypes.Left
+      : compactMode || labelPosition === LabelPosition.Left
       ? `center`
       : `flex-start`};
   ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
-      labelPosition === LabelPositionTypes.Top) &&
+    ((labelPosition !== LabelPosition.Left && !compactMode) ||
+      labelPosition === LabelPosition.Top) &&
     `overflow-x: hidden; overflow-y: auto;`}
 
   label.select-label {
     ${({ compactMode, labelPosition }) =>
-      labelPosition === LabelPositionTypes.Top
+      labelPosition === LabelPosition.Top
         ? `margin-bottom: 5px; margin-right: 0px`
-        : compactMode || labelPosition === LabelPositionTypes.Left
+        : compactMode || labelPosition === LabelPosition.Left
         ? `margin-bottom: 0px; margin-right: 5px`
         : `margin-bottom: 5px; margin-right: 0px`};
   }

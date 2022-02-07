@@ -36,11 +36,7 @@ import { InputTypes } from "../constants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
-import {
-  LabelPosition,
-  LabelPositionTypes,
-  LABEL_MAX_WIDTH_RATE,
-} from "components/constants";
+import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 
 /**
  * All design system component specific logic goes here.
@@ -76,16 +72,16 @@ const InputComponentWrapper = styled((props) => (
   labelPosition: LabelPosition;
 }>`
   flex-direction: ${(props) =>
-    props.labelPosition === LabelPositionTypes.Left
+    props.labelPosition === LabelPosition.Left
       ? "row"
-      : props.labelPosition === LabelPositionTypes.Top
+      : props.labelPosition === LabelPosition.Top
       ? "column"
       : props.compactMode
       ? "row"
       : "column"};
   ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
-      labelPosition === LabelPositionTypes.Top) &&
+    ((labelPosition !== LabelPosition.Left && !compactMode) ||
+      labelPosition === LabelPosition.Top) &&
     `overflow-y: auto;`}
 
   &&&& {
@@ -201,11 +197,11 @@ const InputComponentWrapper = styled((props) => (
     }
     height: 100%;
     align-items: ${({ compactMode, inputType, labelPosition }) =>
-      labelPosition === LabelPositionTypes.Top
+      labelPosition === LabelPosition.Top
         ? `flex-start`
         : compactMode
         ? `center`
-        : labelPosition === LabelPositionTypes.Left
+        : labelPosition === LabelPosition.Left
         ? inputType === InputTypes.TEXT
           ? `stretch`
           : `center`
@@ -213,9 +209,9 @@ const InputComponentWrapper = styled((props) => (
     label {
       ${labelStyle}
       ${({ compactMode, labelPosition }) =>
-        labelPosition === LabelPositionTypes.Top
+        labelPosition === LabelPosition.Top
           ? `margin-bottom: 5px; margin-right: 0px`
-          : compactMode || labelPosition === LabelPositionTypes.Left
+          : compactMode || labelPosition === LabelPosition.Left
           ? `margin-bottom: 0px; margin-right: 5px`
           : `margin-bottom: 5px; margin-right: 0px`};
 
@@ -334,13 +330,13 @@ const TextLabelWrapper = styled.div<{
 
   ${({ alignment, compactMode, position, width }) => `
     ${
-      position !== LabelPositionTypes.Top &&
-      (position === LabelPositionTypes.Left || compactMode)
+      position !== LabelPosition.Top &&
+      (position === LabelPosition.Left || compactMode)
         ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
 
-    ${position === LabelPositionTypes.Left &&
+    ${position === LabelPosition.Left &&
       `
       ${!width && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};

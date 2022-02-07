@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import styled from "styled-components";
 import {
   Alignment,
@@ -42,10 +42,6 @@ export interface LabelAlignmentOptionsControlProps extends ControlProps {
 class LabelAlignmentOptionsControl extends BaseControl<
   LabelAlignmentOptionsControlProps
 > {
-  constructor(props: LabelAlignmentOptionsControlProps) {
-    super(props);
-  }
-
   static getControlType() {
     return "LABEL_ALIGNMENT_OPTIONS";
   }
@@ -60,20 +56,22 @@ class LabelAlignmentOptionsControl extends BaseControl<
             propertyValue === Alignment.LEFT || propertyValue === undefined
           }
           icon={<ControlIcons.LEFT_ALIGN color="#979797" />}
-          onClick={() => this.handleAlign(Alignment.LEFT)}
+          onClick={this.handleAlign(Alignment.LEFT)}
         />
         <StyledButton
           active={propertyValue === Alignment.RIGHT}
           icon={<ControlIcons.RIGHT_ALIGN color="#979797" />}
-          onClick={() => this.handleAlign(Alignment.RIGHT)}
+          onClick={this.handleAlign(Alignment.RIGHT)}
         />
       </StyledButtonGroup>
     );
   }
 
-  private handleAlign = (align: Alignment) => {
-    this.updateProperty(this.props.propertyName, align);
-  };
+  private handleAlign(align: Alignment) {
+    return () => {
+      this.updateProperty(this.props.propertyName, align);
+    };
+  }
 }
 
 export default LabelAlignmentOptionsControl;

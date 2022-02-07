@@ -11,7 +11,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import moment from "moment";
 import derivedProperties from "./parseDerivedProperties";
 import { DatePickerType, TimePrecision } from "../constants";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
@@ -300,9 +300,9 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -317,7 +317,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: DatePickerWidget2Props) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -335,7 +335,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
               },
             },
             hidden: (props: DatePickerWidget2Props) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],

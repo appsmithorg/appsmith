@@ -88,12 +88,12 @@ export enum ButtonPlacementTypes {
 }
 export type ButtonPlacement = keyof typeof ButtonPlacementTypes;
 
-export enum LabelPositionTypes {
+export enum LabelPosition {
   Auto = "Auto",
   Top = "Top",
   Left = "Left",
 }
-
-export type LabelPosition = keyof typeof LabelPositionTypes;
-
+/**
+ * Max width of the label, specified in percentage(%)
+ */
 export const LABEL_MAX_WIDTH_RATE = 70;

@@ -28,7 +28,7 @@ import {
   getDecimalSeparator,
   getLocale,
 } from "../component/utilities";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import { LabelPosition } from "components/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -401,9 +401,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Position",
             controlType: "LABEL_POSITION_OPTIONS",
             options: [
-              LabelPositionTypes.Auto,
-              LabelPositionTypes.Top,
-              LabelPositionTypes.Left,
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -418,7 +418,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: InputWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -436,7 +436,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               },
             },
             hidden: (props: InputWidgetProps) =>
-              props.labelPosition !== LabelPositionTypes.Left,
+              props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],

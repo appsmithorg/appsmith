@@ -7,11 +7,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
-import {
-  LabelPosition,
-  LabelPositionTypes,
-  LABEL_MAX_WIDTH_RATE,
-} from "components/constants";
+import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import {
   FontStyleTypes,
   TextSize,
@@ -83,12 +79,12 @@ export const LabelContainer = styled.div<LabelContainerProps>`
 
   ${({ alignment, compactMode, inline, optionCount, position, width }) => `
     ${
-      position !== LabelPositionTypes.Top &&
-      (position === LabelPositionTypes.Left || compactMode)
+      position !== LabelPosition.Top &&
+      (position === LabelPosition.Left || compactMode)
         ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
-    ${position === LabelPositionTypes.Left &&
+    ${position === LabelPosition.Left &&
       `
       ${!width && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
@@ -139,18 +135,18 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   display: flex;
   ${({ compactMode, labelPosition }) => `
     flex-direction: ${
-      labelPosition === LabelPositionTypes.Left
+      labelPosition === LabelPosition.Left
         ? "row"
-        : labelPosition === LabelPositionTypes.Top
+        : labelPosition === LabelPosition.Top
         ? "column"
         : compactMode
         ? "row"
         : "column"
     };
     align-items: ${
-      labelPosition === LabelPositionTypes.Top
+      labelPosition === LabelPosition.Top
         ? `flex-start`
-        : compactMode || labelPosition === LabelPositionTypes.Left
+        : compactMode || labelPosition === LabelPosition.Left
         ? `center`
         : `flex-start`
     };
@@ -159,9 +155,9 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
 
     label.checkboxgroup-label {
       ${
-        labelPosition === LabelPositionTypes.Top
+        labelPosition === LabelPosition.Top
           ? `margin-bottom: 5px; margin-right: 0px`
-          : compactMode || labelPosition === LabelPositionTypes.Left
+          : compactMode || labelPosition === LabelPosition.Left
           ? `margin-bottom: 0px; margin-right: 5px`
           : `margin-bottom: 5px; margin-right: 0px`
       };
