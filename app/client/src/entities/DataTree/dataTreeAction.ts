@@ -43,6 +43,7 @@ export const generateDataTreeAction = (
     clear: {},
     actionId: action.config.id,
     name: action.config.name,
+    pluginId: action.config.pluginId,
     pluginType: action.config.pluginType,
     config: action.config.actionConfiguration,
     dynamicBindingPathList,

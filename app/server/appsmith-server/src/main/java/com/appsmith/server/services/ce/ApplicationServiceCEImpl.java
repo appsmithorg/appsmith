@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
@@ -29,9 +28,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.KeyPair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -487,7 +483,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
                 );
     }
 

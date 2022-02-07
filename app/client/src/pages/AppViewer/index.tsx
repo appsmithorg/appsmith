@@ -40,22 +40,37 @@ import GlobalHotKeys from "./GlobalHotKeys";
 
 import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
+import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppViewerBody = styled.section<{ hasPages: boolean; isEmbeded: boolean }>`
+const AppViewerBody = styled.section<{
+  hasPages: boolean;
+  showGuidedTourMessage: boolean;
+  isEmbeded: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  ${(props) =>
-    props.isEmbeded
-      ? // embeded page will not have top header
-        "height: 100vh"
-      : `height: calc(
-        100vh -
-          ${!props.hasPages ? `${props.theme.smallHeaderHeight} - 1px` : "72px"}
-      );`}
+  height: ${(props) => {
+    // embeded page will not have top header
+    if (props.isEmbeded) return "100vh;";
+
+    let offsetHeight = "";
+
+    if (!props.hasPages) {
+      offsetHeight = `${props.theme.smallHeaderHeight} - 1px`;
+    } else {
+      offsetHeight = "72px";
+    }
+
+    if (props.showGuidedTourMessage) {
+      offsetHeight += " - 100px";
+    }
+
+    return `calc(100vh - ${offsetHeight});`;
+  }};
 `;
 
 const ContainerWithComments = styled.div`
@@ -78,6 +93,7 @@ export type AppViewerProps = {
     branch?: string;
   }) => void;
   isInitialized: boolean;
+  showGuidedTourMessage: boolean;
   isInitializeError: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   updateWidgetProperty: (
@@ -171,6 +187,7 @@ class AppViewer extends Component<Props> {
                 <AppViewerBody
                   hasPages={this.props.pages.length > 1}
                   isEmbeded={isEmbeded}
+                  showGuidedTourMessage={this.props.showGuidedTourMessage}
                 >
                   {isInitialized && this.state.registered && (
                     <Switch>
@@ -202,6 +219,7 @@ const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  showGuidedTourMessage: showPostCompletionMessage(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

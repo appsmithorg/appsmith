@@ -170,7 +170,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.currentStatusField)
       .scrollIntoView()
       .clear()
-      .click()
+      .wait(500)
       .type("APPROVED");
     cy.get(generatePage.updateBtn)
       .closest("button")

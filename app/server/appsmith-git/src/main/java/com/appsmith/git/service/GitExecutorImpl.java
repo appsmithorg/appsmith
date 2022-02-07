@@ -1,5 +1,6 @@
 package com.appsmith.git.service;
 
+import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -27,6 +28,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -485,7 +487,7 @@ public class GitExecutorImpl implements GitExecutor {
                     //checkout the branch on which the merge command is run
                     git.checkout().setName(destinationBranch).setCreateBranch(false).call();
 
-                    MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
+                    MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setStrategy(MergeStrategy.RECURSIVE).call();
                     return mergeResult.getMergeStatus().name();
                 } catch (GitAPIException e) {
                     //On merge conflicts abort the merge => git merge --abort
@@ -573,6 +575,7 @@ public class GitExecutorImpl implements GitExecutor {
                     }
                     errorMessage.append(" while merging branch: ").append(destinationBranch).append(" <= ").append(sourceBranch);
                     mergeStatus.setMessage(errorMessage.toString());
+                    mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
                 }
                 mergeStatus.setStatus(mergeResult.getMergeStatus().name());
                 return mergeStatus;
