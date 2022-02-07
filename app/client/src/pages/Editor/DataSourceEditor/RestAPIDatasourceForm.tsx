@@ -634,9 +634,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         {content}
-        <Collapsible defaultIsOpen title="Advanced Settings">
-          {this.renderOauth2AdvancedSettings()}
-        </Collapsible>
       </>
     );
   };
@@ -882,8 +879,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
           )}
         </FormInputContainer>
+
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
           this.renderOauth2CommonAdvanced()}
+        <Collapsible title="Advanced Settings">
+          {this.renderOauth2AdvancedSettings()}
+        </Collapsible>
         <FormInputContainer>
           <AuthorizeButton
             disabled={this.disableSave()}
