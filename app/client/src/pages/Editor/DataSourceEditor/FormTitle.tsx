@@ -10,7 +10,10 @@ import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";
-import { saveDatasourceName } from "actions/datasourceActions";
+import {
+  updateDatasourceName,
+  saveDatasourceName,
+} from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
@@ -82,7 +85,14 @@ function FormTitle(props: FormTitleProps) {
         currentDatasource &&
         currentDatasource.name !== name
       ) {
-        dispatch(saveDatasourceName({ id: currentDatasource?.id ?? "", name }));
+        if (currentDatasource.id === "TEMP-ID-1") {
+          return dispatch(
+            saveDatasourceName({ id: currentDatasource?.id ?? "", name }),
+          );
+        }
+        dispatch(
+          updateDatasourceName({ id: currentDatasource?.id ?? "", name }),
+        );
       }
     },
     [dispatch, isInvalidDatasourceName, currentDatasource],

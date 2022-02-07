@@ -252,7 +252,7 @@ const datasourceReducer = createReducer(initialState, {
       list: state.list.filter((datasource) => datasource.id !== "TEMP-ID-1"),
     };
   },
-  [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_DATASOURCE_NAME_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
   ): DatasourceDataState => {

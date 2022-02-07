@@ -121,6 +121,14 @@ export const saveDatasourceName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
+export const updateDatasourceName = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.UPDATE_DATASOURCE_NAME,
+  payload: payload,
+});
+
 export const changeDatasource = (payload: { datasource?: Datasource }) => {
   return {
     type: ReduxActionTypes.CHANGE_DATASOURCE,
