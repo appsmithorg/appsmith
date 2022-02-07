@@ -41,10 +41,10 @@ public interface FileInterface {
      * @param repoName git repo name to access file system
      * @return application reference from which entire application can be rehydrated
      */
-    Mono<ApplicationGitReference> reconstructApplicationFromGitRepo(String organisationId,
-                                                                    String defaultApplicationId,
-                                                                    String repoName,
-                                                                    String branchName);
+    Mono<ApplicationGitReference> reconstructApplicationReferenceFromGitRepo(String organisationId,
+                                                                             String defaultApplicationId,
+                                                                             String repoName,
+                                                                             String branchName);
 
     /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -
