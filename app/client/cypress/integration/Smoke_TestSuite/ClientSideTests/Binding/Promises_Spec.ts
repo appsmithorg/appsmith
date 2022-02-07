@@ -171,7 +171,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
-        agHelper.SelectEntityByName("Widgets")//to expand widgets
+        agHelper.SelectEntityByName("WIDGETS")//to expand widgets
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{(function(){
             let agifyy = [];

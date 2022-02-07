@@ -16,6 +16,7 @@ describe("Layout OnLoad Actions tests", function () {
 
     it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function () {
         agHelper.AddDsl(dsl)
+        agHelper.SelectEntityByName('WIDGETS')
         agHelper.SelectEntityByName('Page1')
         cy.url().then((url) => {
             let currentURL = url;
@@ -50,7 +51,7 @@ describe("Layout OnLoad Actions tests", function () {
         apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize")
         apiPage.EnterParams('name', '{{RandomUser.data.results[0].name.first}}')
         apiPage.RunAPI()
-
+        agHelper.SelectEntityByName('WIDGETS')
         agHelper.SelectEntityByName('Page1')
 
         cy.url().then((url) => {
@@ -103,7 +104,7 @@ describe("Layout OnLoad Actions tests", function () {
         apiPage.CreateAndFillApi("https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}", "Genderize")
         apiPage.ValidateQueryParams({ key: "name", value: "{{RandomUser.data.results[0].name.first}}" }); // verifies Bug 10055
         apiPage.RunAPI()
-
+        agHelper.SelectEntityByName('WIDGETS')
         agHelper.SelectEntityByName('Page1')
 
         cy.url().then((url) => {
