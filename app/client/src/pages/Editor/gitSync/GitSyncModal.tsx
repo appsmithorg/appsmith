@@ -14,7 +14,7 @@ import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
 import Icon, { IconSize } from "components/ads/Icon";
 
-import GitErrorPopup from "./components/GitErrorPopup";
+import GitPullErrorPopup from "./components/GitPullErrorPopup";
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
@@ -154,7 +154,7 @@ function GitSyncModal() {
           </CloseBtnContainer>
         </Container>
       </Dialog>
-      <GitErrorPopup />
+      <GitPullErrorPopup />
     </>
   );
 }

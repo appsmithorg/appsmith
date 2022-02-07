@@ -45,7 +45,7 @@ class GitSyncAPI extends Api {
     branch,
     commitMessage,
     doPush,
-  }: CommitPayload): AxiosPromise<ApiResponse> {
+  }: CommitPayload): any {
     return Api.post(
       `${GitSyncAPI.baseURL}/commit/${applicationId}?branchName=${branch}`,
       {
@@ -59,7 +59,7 @@ class GitSyncAPI extends Api {
     applicationId,
     destinationBranch,
     sourceBranch,
-  }: MergeBranchPayload): AxiosPromise<ApiResponse> {
+  }: MergeBranchPayload): any {
     return Api.post(`${GitSyncAPI.baseURL}/merge/${applicationId}`, {
       sourceBranch,
       destinationBranch,

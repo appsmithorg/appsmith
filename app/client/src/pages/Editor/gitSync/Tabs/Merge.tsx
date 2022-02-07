@@ -41,7 +41,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
-import ConflictInfo from "../components/ConflictInfo";
+import PullError from "../components/PullError";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
@@ -53,6 +53,7 @@ import { Colors } from "constants/Colors";
 
 import { useTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
+import Callout from "../components/Callout";
 
 const Row = styled.div`
   display: flex;
@@ -79,6 +80,22 @@ function MergeSuccessIndicator() {
       </Text>
     </div>
   );
+}
+
+function GitMergeError() {
+  const isMerging = useSelector(getIsMergeInProgress);
+  const mergeStatus = useSelector(getMergeStatus);
+  const mergeError = useSelector(getMergeError);
+  const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
+  const showMergeError = !isMerging && !isConflicting && mergeError;
+
+  return showMergeError ? (
+    <Callout
+      docURL={mergeError?.error?.referenceDoc}
+      isError
+      message={mergeError?.error?.message || ""}
+    />
+  ) : null;
 }
 
 export default function Merge() {
@@ -266,7 +283,8 @@ export default function Merge() {
       </Row>
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
-      <ConflictInfo
+      {/* Conflicts found according to merge status */}
+      <PullError
         isConflicting={isConflicting}
         learnMoreLink={gitConflictDocumentUrl}
       />
@@ -294,6 +312,7 @@ export default function Merge() {
           />
         </StatusbarWrapper>
       )}
+      <GitMergeError />
     </>
   );
 }

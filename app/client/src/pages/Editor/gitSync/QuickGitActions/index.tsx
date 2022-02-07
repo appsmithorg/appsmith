@@ -38,7 +38,6 @@ import {
   getIsGitConnected,
   getPullInProgress,
   getIsFetchingGitStatus,
-  getPullFailed,
   getCountOfChangesToCommit,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
@@ -122,22 +121,9 @@ function QuickActionButton({
   );
 }
 
-const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
-  const { behindCount, isClean } = gitStatus || {};
-  let message = createMessage(NO_COMMITS_TO_PULL);
-  let disabled = behindCount === 0;
-  if (!isClean) {
-    disabled = true;
-    message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
-  } else if (pullFailed) {
-    message = createMessage(CONFLICTS_FOUND);
-  } else if (behindCount > 0) {
-    message = createMessage(PULL_CHANGES);
-  }
-
+const getPullBtnStatus = () => {
   return {
-    disabled,
-    message,
+    message: createMessage(PULL_CHANGES),
   };
 };
 
@@ -149,7 +135,6 @@ const getQuickActionButtons = ({
   isFetchingGitStatus,
   merge,
   pull,
-  pullDisabled,
   pullTooltipMessage,
   showPullLoadingState,
 }: {
@@ -160,7 +145,6 @@ const getQuickActionButtons = ({
   merge: () => void;
   gitStatus: any;
   isFetchingGitStatus: boolean;
-  pullDisabled: boolean;
   pullTooltipMessage: string;
   showPullLoadingState: boolean;
 }) => {
@@ -175,9 +159,8 @@ const getQuickActionButtons = ({
     {
       count: gitStatus?.behindCount,
       icon: "down-arrow-2" as IconName,
-      onClick: () => !pullDisabled && pull(),
+      onClick: () => pull(),
       tooltipText: pullTooltipMessage,
-      disabled: pullDisabled,
       loading: showPullLoadingState,
     },
     {
@@ -272,12 +255,8 @@ export default function QuickGitActions() {
   const isGitConnected = useSelector(getIsGitConnected);
   const dispatch = useDispatch();
   const gitStatus = useSelector(getGitStatus);
-  const pullFailed = useSelector(getPullFailed);
 
-  const {
-    disabled: pullDisabled,
-    message: pullTooltipMessage,
-  } = getPullBtnStatus(gitStatus, !!pullFailed);
+  const { message: pullTooltipMessage } = getPullBtnStatus();
 
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
@@ -326,7 +305,6 @@ export default function QuickGitActions() {
     },
     gitStatus,
     isFetchingGitStatus,
-    pullDisabled,
     pullTooltipMessage,
     showPullLoadingState,
     changesToCommit,

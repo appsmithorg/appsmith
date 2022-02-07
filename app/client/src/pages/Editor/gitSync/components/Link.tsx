@@ -29,7 +29,7 @@ export default function Link({
 }: {
   color?: string;
   hasIcon?: boolean;
-  link: string;
+  link?: string;
   onClick?: () => void;
   text: string;
 }) {

@@ -240,6 +240,7 @@ const gitSyncReducer = createReducer(initialState, {
     commitAndPushError: null,
     pullError: null,
     mergeError: null,
+    gitStatusError: null,
   }),
   [ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS]: (
     state: GitSyncReducerState,
@@ -248,12 +249,15 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     gitStatus: action.payload,
     isFetchingGitStatus: false,
+    gitStatusError: null,
   }),
   [ReduxActionErrorTypes.FETCH_GIT_STATUS_ERROR]: (
     state: GitSyncReducerState,
+    action: ReduxAction<{ error: GitErrorType }>,
   ) => ({
     ...state,
     isFetchingGitStatus: false,
+    gitStatusError: action.payload.error,
   }),
   [ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR]: (
     state: GitSyncReducerState,
@@ -424,6 +428,7 @@ export type GitSyncReducerState = {
   commitAndPushError?: GitErrorType;
   pullError?: GitErrorType;
   mergeError?: GitErrorType;
+
   pullFailed?: boolean;
   pullInProgress?: boolean;
 
@@ -438,6 +443,8 @@ export type GitSyncReducerState = {
   };
 
   useGlobalProfile?: boolean;
+
+  gitStatusError?: GitErrorType;
 };
 
 export default gitSyncReducer;

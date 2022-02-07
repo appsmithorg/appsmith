@@ -418,7 +418,7 @@ function* fetchGitStatusSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_GIT_STATUS_ERROR,
-      payload: { error, show: false },
+      payload: { error: response?.responseMeta?.error, show: false },
     });
     // non api error
     if (!response || response?.responseMeta?.success) {

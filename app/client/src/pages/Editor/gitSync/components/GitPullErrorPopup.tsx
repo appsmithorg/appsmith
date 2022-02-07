@@ -17,7 +17,7 @@ import { Space } from "./StyledComponents";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";
 
-import ConflictInfo from "../components/ConflictInfo";
+import PullError from "./PullError";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -71,14 +71,12 @@ function Header({ closePopup }: { closePopup: () => void }) {
   );
 }
 
-function GitErrorPopup() {
+function GitPullErrorPopup() {
   const dispatch = useDispatch();
   const isGitErrorPopupVisible = useSelector(getIsGitErrorPopupVisible);
   const hidePopup = () => {
     dispatch(setIsGitErrorPopupVisible({ isVisible: false }));
   };
-
-  const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
 
   return (
     <StyledGitErrorPopup>
@@ -93,10 +91,7 @@ function GitErrorPopup() {
           <div className="git-error-popup">
             <Header closePopup={hidePopup} />
             <Space size={2} />
-            <ConflictInfo
-              isConflicting
-              learnMoreLink={gitConflictDocumentUrl}
-            />
+            <PullError />
           </div>
         </div>
       </Overlay>
@@ -104,4 +99,4 @@ function GitErrorPopup() {
   );
 }
 
-export default GitErrorPopup;
+export default GitPullErrorPopup;
