@@ -6,6 +6,8 @@ export class CommonLocators {
     _queryName = ".t--action-name-edit-field span"
     _queryNameTxt = ".t--action-name-edit-field input"
     _entityNameInExplorer = (entityNameinLeftSidebar: string) => "//div[contains(@class, 't--entity-name')][text()='" + entityNameinLeftSidebar + "']"
+    _homeIcon = ".t--appsmith-logo"
+    _homePageAppCreateBtn = ".t--applications-container .createnew"
     _saveStatusSuccess = ".t--save-status-success"
     _codeMirrorTextArea = ".CodeMirror textarea"
     _codeMirrorCode = ".CodeMirror-code"
