@@ -306,6 +306,8 @@ class BaseInputWidget<
 
   onSubmitSuccess = (result: ExecutionResult) => {
     if (result.success && this.props.resetOnSubmit) {
+      //Resets isDirty
+      super.resetChildrenMetaProperty(this.props.widgetId);
       this.props.updateWidgetMetaProperty("text", "", {
         triggerPropertyName: "onSubmit",
         dynamicString: this.props.onTextChanged,
@@ -313,6 +315,15 @@ class BaseInputWidget<
           type: EventType.ON_TEXT_CHANGE,
         },
       });
+
+      /*
+       *  Value is a derived property in CURRENCY_INPUT_WIDGET &
+       *  INPUT_WIDGET_V2, so only reset value in
+       *  PHONE_INPUT_WIDGET, where its not derived value.
+       */
+      if (this.props.type === "PHONE_INPUT_WIDGET") {
+        this.props.updateWidgetMetaProperty("value", undefined);
+      }
     }
   };
 
