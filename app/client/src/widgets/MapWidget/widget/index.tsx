@@ -5,7 +5,7 @@ import MapComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
@@ -122,6 +122,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                         name: "title",
                         type: ValidationTypes.TEXT,
                       },
+                      {
+                        name: "color",
+                        type: ValidationTypes.TEXT,
+                      },
                     ],
                   },
                 },
@@ -168,6 +172,17 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             label: "Visible",
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -374,6 +389,7 @@ export interface MapWidgetProps extends WidgetProps {
     lat: number;
     long: number;
     title?: string;
+    color?: string;
   };
   onMarkerClick?: string;
   onCreateMarker?: string;

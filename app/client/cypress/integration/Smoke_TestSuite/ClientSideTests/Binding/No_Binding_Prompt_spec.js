@@ -8,7 +8,7 @@ describe("Binding prompt", function() {
   });
 
   it("Show binding prompt when there are no bindings in the editor", () => {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", " ");
     cy.get(dynamicInput.bindingPrompt).should("be.visible");
     cy.get(widgetsPage.defaultInput).type("{{");

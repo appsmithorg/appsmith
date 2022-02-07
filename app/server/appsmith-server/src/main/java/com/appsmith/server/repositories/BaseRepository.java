@@ -34,4 +34,6 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      * @return
      */
     Mono<Boolean> archiveAllById(List<ID> ids);
+
+    Mono<T> findByIdAndBranchName(ID id, String branchName);
 }

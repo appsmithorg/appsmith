@@ -38,7 +38,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
         ...action,
         actionConfiguration: {
           ...action.actionConfiguration,
-          path: path.substr(0, path.indexOf("?")),
+          path: path.slice(0, path.indexOf("?")),
         },
       };
     }

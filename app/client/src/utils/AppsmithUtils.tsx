@@ -3,7 +3,7 @@ import {
   Page,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
@@ -14,7 +14,7 @@ import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "../constants/messages";
 import localStorage from "utils/localStorage";
 import { APP_MODE } from "entities/App";
@@ -372,6 +372,26 @@ export const parseBlobUrl = (blobId: string) => {
 };
 
 /**
+ * Convert a string into camelCase
+ * @param sourceString input string
+ * @returns camelCase string
+ */
+export const getCamelCaseString = (sourceString: string) => {
+  let out = "";
+  // Split the input string to separate words using RegEx
+  const regEx = /[A-Z\xC0-\xD6\xD8-\xDE]?[a-z\xDF-\xF6\xF8-\xFF]+|[A-Z\xC0-\xD6\xD8-\xDE]+(?![a-z\xDF-\xF6\xF8-\xFF])|\d+/g;
+  const words = sourceString.match(regEx);
+  if (words) {
+    words.forEach(function(el, idx) {
+      const add = el.toLowerCase();
+      out += idx === 0 ? add : add[0].toUpperCase() + add.slice(1);
+    });
+  }
+
+  return out;
+};
+
+/*
  * gets the page url
  *
  * Note: for edit mode, the page will have different url ( contains '/edit' at the end )
@@ -397,4 +417,35 @@ export const getPageURL = (
     currentApplicationDetails?.id,
     page.pageId,
   );
+};
+
+/**
+ * Convert Base64 string to Blob
+ * @param base64Data
+ * @param contentType
+ * @param sliceSize
+ * @returns
+ */
+export const base64ToBlob = (
+  base64Data: string,
+  contentType = "",
+  sliceSize = 512,
+) => {
+  const byteCharacters = atob(base64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
 };

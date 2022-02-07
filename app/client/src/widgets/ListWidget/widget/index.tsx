@@ -12,6 +12,7 @@ import {
   omit,
   floor,
   isEmpty,
+  isEqual,
 } from "lodash";
 import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
@@ -37,8 +38,15 @@ import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
+import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
+
+/* in the List Widget, "children.0.children.0.children.0.children" is the path to the list of all
+  widgets present in the List Widget
+*/
+const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
+  "children.0.children.0.children.0.children";
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
@@ -73,6 +81,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     this.generateChildrenDefaultPropertiesMap(this.props);
     this.generateChildrenMetaPropertiesMap(this.props);
     this.generateChildrenEntityDefinitions(this.props);
+
+    // add privateWidgets to ListWidget
+    this.addPrivateWidgetsForChildren(this.props);
   }
 
   /**
@@ -111,6 +122,21 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         childrenEntityDefinitions,
       );
     }
+  }
+
+  // updates the "privateWidgets" field of the List Widget
+  addPrivateWidgetsForChildren(props: ListWidgetProps<WidgetProps>) {
+    const privateWidgets: PrivateWidgets = {};
+    const listWidgetChildren: WidgetProps[] = get(
+      props,
+      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
+    );
+    if (!listWidgetChildren) return;
+    listWidgetChildren.map((child) => {
+      privateWidgets[child.widgetName] = true;
+    });
+
+    super.updateWidgetProperty("privateWidgets", privateWidgets);
   }
 
   generateChildrenDefaultPropertiesMap = (
@@ -174,6 +200,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
+    const currentListWidgetChildren: WidgetProps[] = get(
+      this.props,
+      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
+    );
+
+    const previousListWidgetChildren: WidgetProps[] = get(
+      prevProps,
+      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
+    );
+
     if (
       xor(
         Object.keys(get(prevProps, "template", {})),
@@ -232,6 +268,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           },
         },
       );
+    }
+
+    // Update privateWidget field if there is a change in the List widget children
+    if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
+      this.addPrivateWidgetsForChildren(this.props);
     }
   }
 
@@ -317,6 +358,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
+  getGridGap = () =>
+    this.props.gridGap && this.props.gridGap >= -8 ? this.props.gridGap : 0;
+
   /**
    * here we are updating the position of each items and disabled resizing for
    * all items except template ( first item )
@@ -324,9 +368,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * @param children
    */
   updatePosition = (children: DSLWidget[]): DSLWidget[] => {
-    const gridGap = this.props.gridGap || 0;
     return children.map((child: DSLWidget, index) => {
-      const gap = gridGap;
+      const gap = this.getGridGap();
 
       return {
         ...child,
@@ -654,6 +697,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
+      const gridGap = this.getGridGap();
       try {
         // Passing template instead of deriving from canvasChildren becuase lesser items to compare
         // in memoize
@@ -663,7 +707,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           this.props.template,
           canvasChildren,
           page,
-          this.props.gridGap,
+          gridGap,
           this.props.itemBackgroundColor,
         );
       } catch (e) {
@@ -721,7 +765,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * can data be paginated
    */
   shouldPaginate = () => {
-    let { gridGap } = this.props;
+    let gridGap = this.getGridGap();
     const { children, listData, serverSidePaginationEnabled } = this.props;
 
     if (serverSidePaginationEnabled) {

@@ -1,5 +1,5 @@
 import { ApiActionConfig } from "entities/Action";
-import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
+import { DEFAULT_ACTION_TIMEOUT } from "ce/constants/ApiConstants";
 
 // This constant lists all the support HTTP methods & their color in
 // the entity explorer

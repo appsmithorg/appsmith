@@ -40,6 +40,7 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import Icon from "components/ads/Icon";
+import FlagBadge from "components/utils/FlagBadge";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -91,9 +92,10 @@ const ResponseTabAction = styled.li`
   .function-name {
     margin-left: 5px;
     display: inline-block;
+    flex: 1;
   }
   .run-button {
-    margin-left: auto;
+    margin-left: 10px;
     margin-right: 15px;
   }
   &.active {
@@ -212,7 +214,7 @@ function JSResponseView(props: Props) {
               ""
             )}
           </HelpSection>
-          <ResponseTabWrapper className={errors.length ? "disable" : ""}>
+          <ResponseTabWrapper className={errorsList.length ? "disable" : ""}>
             {sortedActionList && !sortedActionList?.length ? (
               <NoResponseContainer className="flex items-center">
                 {createMessage(EMPTY_JS_OBJECT)}
@@ -235,6 +237,11 @@ function JSResponseView(props: Props) {
                         >
                           <JSFunction />{" "}
                           <div className="function-name">{action.name}</div>
+                          {action.actionConfiguration.isAsync ? (
+                            <FlagBadge name={"ASYNC"} />
+                          ) : (
+                            ""
+                          )}
                           <RunFunction className="run-button" />
                         </ResponseTabAction>
                       );

@@ -3,7 +3,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
-import { get } from "lodash";
+import get from "lodash/get";
 
 import React, {
   forwardRef,
@@ -13,20 +13,16 @@ import React, {
   useState,
   useRef,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import { Classes, Position } from "@blueprintjs/core";
 import { AppState } from "reducers";
-import {
-  getExistingActionNames,
-  getExistingPageNames,
-  getExistingWidgetNames,
-} from "selectors/entitiesSelector";
 import styled from "styled-components";
 import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -47,10 +43,11 @@ const Wrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin: 0 4px;
+  margin: 0 4px 0 0;
   padding: 9px 0;
   line-height: 13px;
   position: relative;
+  font-weight: 500;
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }
@@ -108,9 +105,10 @@ export interface EntityNameProps {
   nameTransformFn?: (input: string, limit?: number) => string;
   isBeta?: boolean;
 }
-export const EntityName = forwardRef(
-  (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
+export const EntityName = React.memo(
+  forwardRef((props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;
+    const currentPageId = useSelector(getCurrentPageId);
     const tabs:
       | Array<{ id: string; widgetId: string; label: string }>
       | undefined = useSelector((state: AppState) => {
@@ -143,18 +141,9 @@ export const EntityName = forwardRef(
       setUpdatedName(name);
     }, [name, nameUpdateError]);
 
-    const existingPageNames: string[] = useSelector(getExistingPageNames);
-    const existingWidgetNames: string[] = useSelector(getExistingWidgetNames);
-
     const dispatch = useDispatch();
 
-    const existingActionNames: string[] = useSelector(getExistingActionNames);
-
-    const existingJSCollectionNames: string[] = useSelector((state: AppState) =>
-      state.entities.jsActions.map(
-        (action: { config: { name: string } }) => action.config.name,
-      ),
-    );
+    const store = useStore();
 
     const hasNameConflict = useCallback(
       (
@@ -162,6 +151,28 @@ export const EntityName = forwardRef(
         tabs?: Array<{ id: string; widgetId: string; label: string }>,
       ) => {
         if (tabs === undefined) {
+          const state: AppState = store.getState();
+          const existingPageNames = state.entities.pageList.pages.map(
+            (page) => page.pageName,
+          );
+          const existingActionNames = state.entities.actions
+            .filter(
+              (action) =>
+                action.config.id !== props.entityId &&
+                action.config.pageId === currentPageId,
+            )
+            .map((action) => action.config.name);
+          const existingJSCollectionNames = state.entities.jsActions
+            .filter((jsAction) => {
+              return (
+                jsAction.config.id !== props.entityId &&
+                jsAction.config.pageId === currentPageId
+              );
+            })
+            .map((jsAction) => jsAction.config.name);
+          const existingWidgetNames = Object.values(
+            state.entities.canvasWidgets,
+          ).map((widget) => widget.widgetName);
           return !(
             existingPageNames.indexOf(newName) === -1 &&
             existingActionNames.indexOf(newName) === -1 &&
@@ -172,12 +183,7 @@ export const EntityName = forwardRef(
           return tabs.findIndex((tab) => tab.label === newName) > -1;
         }
       },
-      [
-        existingPageNames,
-        existingActionNames,
-        existingWidgetNames,
-        existingJSCollectionNames,
-      ],
+      [],
     );
 
     const isInvalidName = useCallback(
@@ -233,7 +239,10 @@ export const EntityName = forwardRef(
             position={Position.TOP_LEFT}
           >
             <Wrapper
-              className={props.className}
+              className={`${
+                props.className ? props.className : ""
+              } ContextMenu`}
+              data-guided-tour-iid={name}
               onDoubleClick={props.enterEditMode}
               ref={targetRef}
             >
@@ -260,7 +269,7 @@ export const EntityName = forwardRef(
         />
       </EditableWrapper>
     );
-  },
+  }),
 );
 
 EntityName.displayName = "EntityName";

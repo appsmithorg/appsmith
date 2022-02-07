@@ -93,6 +93,16 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
+  [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ): ApiPaneReduxState => ({
+    ...state,
+    isRunning: {
+      ...state.isRunning,
+      [action.payload.id]: false,
+    },
+  }),
   [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: (
     state: ApiPaneReduxState,
     action: ReduxAction<UpdateActionPropertyActionPayload>,

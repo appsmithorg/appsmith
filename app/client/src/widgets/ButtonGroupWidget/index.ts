@@ -1,8 +1,7 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { Colors } from "constants/Colors";
 import { ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -11,13 +10,14 @@ export const CONFIG = {
   needsMeta: false, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 24,
     widgetName: "ButtonGroup",
     orientation: "horizontal",
     buttonVariant: ButtonVariantTypes.PRIMARY,
     isVisible: true,
     version: 1,
+    animateLoading: true,
     groupButtons: {
       groupButton1: {
         label: "Favorite",
@@ -26,6 +26,7 @@ export const CONFIG = {
         widgetId: "",
         buttonColor: Colors.GREEN,
         buttonType: "SIMPLE",
+        placement: "CENTER",
         isVisible: true,
         isDisabled: false,
         index: 0,
@@ -37,6 +38,7 @@ export const CONFIG = {
         id: "groupButton2",
         buttonColor: Colors.GREEN,
         buttonType: "SIMPLE",
+        placement: "CENTER",
         widgetId: "",
         isVisible: true,
         isDisabled: false,
@@ -48,6 +50,7 @@ export const CONFIG = {
         iconName: "more",
         id: "groupButton3",
         buttonType: "MENU",
+        placement: "CENTER",
         buttonColor: Colors.GREEN,
         widgetId: "",
         isVisible: true,
