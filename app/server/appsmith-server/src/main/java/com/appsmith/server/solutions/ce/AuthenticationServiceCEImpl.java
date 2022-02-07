@@ -284,7 +284,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 "&view_mode=true"));
     }
 
-    public Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request) {
+    public Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request, String isImport) {
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
         // If successful, then request for appsmithToken
@@ -320,6 +320,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             integrationDTO.setPageId(defaultPageId);
                             integrationDTO.setApplicationId(defaultApplicationId);
                             integrationDTO.setBranch(branchName);
+                            integrationDTO.setIsImport(isImport);
                             final Plugin plugin = tuple.getT3();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());

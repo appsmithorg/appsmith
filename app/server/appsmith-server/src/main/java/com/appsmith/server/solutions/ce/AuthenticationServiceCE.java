@@ -28,7 +28,7 @@ public interface AuthenticationServiceCE {
      */
     Mono<String> getAccessTokenForGenericOAuth2(AuthorizationCodeCallbackDTO callbackDTO);
 
-    Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request);
+    Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request, String isImport);
 
     Mono<Datasource> getAccessTokenFromCloud(String datasourceId, String appsmithToken);
 
