@@ -1050,10 +1050,10 @@ export const transformDSL = (
      */
     currentDSL.version = 51;
   }
-  
+
   if (currentDSL.version === 51) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
-    
+
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
