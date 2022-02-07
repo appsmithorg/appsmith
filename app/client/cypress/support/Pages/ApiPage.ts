@@ -98,7 +98,7 @@ export class ApiPage {
             .clear()
             .type(timeout.toString());
 
-        cy.get(this._apiTab('Header')).click();
+        cy.get(this._apiTab('Headers')).eq(0).click();
     }
 
     ValidateQueryParams(param: { key: string; value: string; }) {

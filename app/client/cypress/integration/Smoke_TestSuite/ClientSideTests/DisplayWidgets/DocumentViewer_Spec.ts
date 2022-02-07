@@ -20,7 +20,7 @@ describe("DocumentViewer Widget Functionality", () => {
     });
 
     it("3. Change visibility & Publish app & verify again", () => {
-        agHelper.SelectEntityByName("Widgets")//to expand widgets
+        agHelper.SelectEntityByName("WIDGETS")//to expand widgets
         agHelper.SelectEntityByName("DocumentViewer1")
         agHelper.ToggleOrDisable('visible')
         agHelper.DeployApp()
