@@ -20,6 +20,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { bootIntercom } from "utils/helpers";
+import { Colors } from "constants/Colors";
 
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -122,8 +123,8 @@ const Label = styled.span<{ enterprise?: boolean }>`
   ${(props) =>
     props.enterprise
       ? `
-    border: 1px solid #191919;
-    color: #191919;
+    border: 1px solid ${Colors.COD_GRAY};
+    color: ${Colors.COD_GRAY};
     background: #fff;
   `
       : `

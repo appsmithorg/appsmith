@@ -1,7 +1,8 @@
 import React, { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Icon from "./Icon";
+import { Colors } from "constants/Colors";
 
 export interface BreadcrumbsProps {
   items: {
@@ -25,6 +26,13 @@ export const StyledBreadcrumbList = styled.ol`
     color: #716e6e;
     margin: auto 6px;
     user-select: none;
+  }
+
+  .t--breadcrumb-item {
+    &.active {
+      color: ${Colors.COD_GRAY};
+      font-size: 14px;
+    }
   }
 `;
 
@@ -77,10 +85,15 @@ function BreadcrumbList(props: BreadcrumbProps) {
 }
 
 function Breadcrumbs(props: BreadcrumbsProps) {
+  const { pathname } = useLocation();
   return (
     <BreadcrumbList>
       {props.items.map(({ href, text }) => (
-        <Link className="t--breadcrumb-item" key={href} to={href}>
+        <Link
+          className={`t--breadcrumb-item ${href === pathname ? `active` : ``}`}
+          key={href}
+          to={href}
+        >
           {text}
         </Link>
       ))}
