@@ -36,13 +36,13 @@ ff4j:
             value: appsmith.com
 
     - uid: GIT
-        enable: true
-        description: Enable git for apps
-        flipstrategy:
-          class: org.ff4j.strategy.PonderationStrategy
-          param:
-            - name: weight
-              value: 1
+      enable: true
+      description: Enable git for apps
+      flipstrategy:
+        class: org.ff4j.strategy.PonderationStrategy
+        param:
+          - name: weight
+            value: 1
 
     - uid: GIT_IMPORT
       enable: true
