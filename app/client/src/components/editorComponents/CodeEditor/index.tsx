@@ -735,8 +735,6 @@ class CodeEditor extends Component<Props, State> {
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
             onMouseOver={this.handleMouseMove}
-            // onMouseEnter={this.handleMouseEnter}
-            // onMouseLeave={this.handleMouseLeave}
             ref={this.editorWrapperRef}
             size={size}
           >
