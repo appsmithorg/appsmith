@@ -331,7 +331,7 @@
 											"textSize":"PARAGRAPH",
 											"enableFilter":true,
 											"enableSort":true,
-											"isVisible":true,
+											"isVisible":false,
 											"isDisabled":false,
 											"isCellVisible":true,
 											"isDerived":false,
