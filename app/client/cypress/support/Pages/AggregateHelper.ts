@@ -222,9 +222,9 @@ export class AggregateHelper {
             .trigger("dragstart", { force: true })
             .trigger("mousemove", x, y, { force: true });
         cy.get(locator._dropHere)
-            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-            .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent"})
+            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent"})
+            .trigger("mouseup", x, y, { eventConstructor: "MouseEvent"});
         this.WaitAutoSave()//settling time for widget on canvas!
         cy.get(locator._widgetInCanvas(widgetType)).should('exist')
     }

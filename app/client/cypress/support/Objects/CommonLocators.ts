@@ -36,7 +36,7 @@ export class CommonLocators {
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
     _openWidget=  ".widgets .t--entity-add-btn"            
     _widgetPageIcon = (widgetType: string) => `.t--widget-card-draggable-${widgetType}`
-    _dropHere= "#canvas-dragging-0"
+    _dropHere= "#comment-overlay-wrapper-0"
     _widgetInCanvas=  (widgetType: string) => `.t--draggable-${widgetType}`
     _widgetInDeployed =  (widgetType: string) => `.t--widget-${widgetType}`
     _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"

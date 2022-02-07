@@ -13,7 +13,7 @@ export class JSEditor {
   private _jsObjTxt = ".t--js-action-name-edit-field input";
   private _addEntityJSEditor = ".t--entity-add-btn.group.files"
   private _newJSobj = "span:contains('New JS Object')"
-  private _entityClose = ".t--entity-property-close"
+  private _bindingsClose = ".t--entity-property-close"
 
   public NavigateToJSEditor() {
     cy.get(this._addEntityJSEditor)
@@ -136,7 +136,7 @@ export class JSEditor {
       ]);
       expect($lis.eq(2).text()).to.contain("{{" + jsObjName + ".myVar1}}");
       expect($lis.eq(3).text()).to.contain("{{" + jsObjName + ".myVar2}}");
-      cy.get(this._entityClose).click({ force: true });
     });
+    cy.get(this._bindingsClose).click({ force: true });
   }
 }

@@ -56,7 +56,7 @@ export class ApiPage {
     }
 
     EnterHeader(hKey: string, hValue: string) {
-        cy.get(this._apiTab('Header')).should('be.visible').click();
+        cy.get(this._apiTab('Headers')).should('be.visible').click();
         cy.get(this._headerKey(0))
             .first()
             .click({ force: true })
