@@ -1,7 +1,7 @@
 import React, { useRef, RefObject, useCallback } from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
@@ -186,13 +186,19 @@ const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${(props) =>
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
   cursor: pointer;
-  width: 38px;
+  width: ${(props) => (props.code.startsWith("2") ? "100%" : "38px")};
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  &:hover {
-    width: 100%;
-  }
+  text-overflow: ${(props) =>
+    props.code.startsWith("2") ? "normal" : "ellipsis"};
+
+  ${({ code }) =>
+    !code.startsWith("2") &&
+    css`
+      &:hover {
+        width: 100%;
+      }
+    `}
 `;
 
 const ResponseDataContainer = styled.div`
