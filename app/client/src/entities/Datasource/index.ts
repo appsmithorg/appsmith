@@ -61,6 +61,7 @@ interface BaseDatasource {
   name: string;
   organizationId: string;
   isValid: boolean;
+  isConfigured?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (

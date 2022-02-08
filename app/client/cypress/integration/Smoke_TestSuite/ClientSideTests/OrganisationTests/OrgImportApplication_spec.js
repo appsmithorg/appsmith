@@ -10,7 +10,7 @@ describe("Organization Import Application", function() {
     cy.addDsl(dsl);
   });
 
-  it("Can Import Application", function() {
+  it("Can Import Application from json", function() {
     cy.NavigateToHome();
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
@@ -47,10 +47,10 @@ describe("Organization Import Application", function() {
             cy.get(homePage.orgImportAppModal).should("be.visible");
             cy.xpath(homePage.uploadLogo).attachFile("exported-app.json");
 
-            cy.get(homePage.orgImportAppButton).click({ force: true });
             cy.wait("@importNewApplication").then((interception) => {
-              let appId = interception.response.body.data.id;
-              let defaultPage = interception.response.body.data.pages.find(
+              const importedApp = interception.response.body.data.application;
+              let appId = importedApp.id;
+              let defaultPage = importedApp.pages.find(
                 (eachPage) => !!eachPage.isDefault,
               );
               cy.get(homePage.toastMessage).should(

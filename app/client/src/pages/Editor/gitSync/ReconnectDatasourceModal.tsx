@@ -36,7 +36,6 @@ import {
   getIsReconnectingDatasourcesModalOpen,
   getPluginImages,
   getPluginNames,
-  getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
   resetDatasourceConfigForImportFetchedFlag,
@@ -55,6 +54,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { setOrgIdForImport } from "actions/applicationActions";
 import DatasourceForm from "../DataSourceEditor";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   height: 804px;
@@ -318,22 +318,25 @@ function TooltipContent() {
   );
 }
 
-function ReconnectDatasourceModal() {
+type Props = {
+  defaultAppId?: string;
+  defaultPageId?: string;
+  defaultDatasourceId?: string;
+};
+
+function ReconnectDatasourceModal(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const organizationId = useSelector(getOrganizationIdForImport);
   const datasources = useSelector(getDatasources);
-  const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
   const [selectedDatasourceId, setSelectedDatasourceId] = useState<
     string | null
-  >(null);
-  const [availableDatasources, setAvailableDatasources] = useState<
-    Array<Datasource>
-  >([]);
-  const [pageId, setPageId] = useState("");
+  >(props.defaultDatasourceId ?? null);
+  const [pageId, setPageId] = useState(props.defaultPageId ?? "");
+  const [appId, setAppId] = useState(props.defaultAppId ?? "");
   const [appURL, setAppURL] = useState("");
   const [collapsedMenu, setCollapsedMenu] = useState(
     DSCollapseMenu.UNCONFIGURED,
@@ -363,27 +366,32 @@ function ReconnectDatasourceModal() {
       setCollapsedMenu(
         isConfigured ? DSCollapseMenu.CONFIGURED : DSCollapseMenu.UNCONFIGURED,
       );
+      AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
+        id: ds.id,
+        name: ds.name,
+        pluginName: pluginNames[ds.id],
+        isConfigured: ds.isConfigured,
+      });
     },
     [],
   );
 
   useEffect(() => {
-    if (
-      isConfigFetched &&
-      datasources &&
-      unconfiguredDatasources &&
-      unconfiguredDatasources[0] &&
-      !selectedDatasourceId
-    ) {
-      setSelectedDatasourceId(unconfiguredDatasources[0].id);
+    if (isConfigFetched && datasources && !selectedDatasourceId) {
+      const unconfiguredDatasource = datasources.find(
+        (ds: Datasource) => !ds.isConfigured,
+      );
+      setSelectedDatasourceId(unconfiguredDatasource?.id ?? "");
     }
-  }, [isConfigFetched, selectedDatasourceId, unconfiguredDatasources]);
+  }, [isConfigFetched, selectedDatasourceId]);
 
   useEffect(() => {
-    const selectedDatasourceConfig = datasources.find(
-      (datasource: Datasource) => datasource.id === selectedDatasourceId,
-    );
-    dispatch(initialize(DATASOURCE_DB_FORM, selectedDatasourceConfig));
+    if (selectedDatasourceId) {
+      const selectedDatasourceConfig = datasources.find(
+        (datasource: Datasource) => datasource.id === selectedDatasourceId,
+      );
+      dispatch(initialize(DATASOURCE_DB_FORM, selectedDatasourceConfig));
+    }
   }, [selectedDatasourceId]);
 
   const menuOptions = [
@@ -393,17 +401,6 @@ function ReconnectDatasourceModal() {
     },
   ];
 
-  useEffect(() => {
-    setAvailableDatasources(
-      datasources.filter((ds: Datasource) => {
-        const index = unconfiguredDatasources.findIndex(
-          (uds: Datasource) => uds.id === ds.id,
-        );
-        return index < 0;
-      }),
-    );
-  }, [datasources, unconfiguredDatasources]);
-
   const importedApplication = useSelector(getImportedApplication);
   useEffect(() => {
     const defaultPage = importedApplication?.pages?.find(
@@ -411,14 +408,20 @@ function ReconnectDatasourceModal() {
     );
     if (defaultPage) {
       setPageId(defaultPage.id);
+      setAppId(importedApplication?.id);
+    }
+  }, [importedApplication]);
+
+  useEffect(() => {
+    if (pageId && appId) {
       setAppURL(
         BUILDER_PAGE_URL({
-          applicationId: importedApplication?.id,
-          pageId: defaultPage.id,
+          applicationId: appId,
+          pageId: pageId,
         }),
       );
     }
-  }, [importedApplication]);
+  }, [pageId, appId]);
 
   return (
     <>
@@ -460,21 +463,23 @@ function ReconnectDatasourceModal() {
                   }}
                   title="Available Datasources"
                 >
-                  {availableDatasources.map((ds: Datasource) => {
-                    return (
-                      <ListItemWrapper
-                        ds={ds}
-                        isConfigured
-                        key={ds.id}
-                        onClick={onSelectDatasource}
-                        plugin={{
-                          name: pluginNames[ds.pluginId],
-                          image: pluginImages[ds.pluginId],
-                        }}
-                        selected={ds.id === selectedDatasourceId}
-                      />
-                    );
-                  })}
+                  {datasources
+                    .filter((ds: Datasource) => ds.isConfigured)
+                    .map((ds: Datasource) => {
+                      return (
+                        <ListItemWrapper
+                          ds={ds}
+                          isConfigured
+                          key={ds.id}
+                          onClick={onSelectDatasource}
+                          plugin={{
+                            name: pluginNames[ds.pluginId],
+                            image: pluginImages[ds.pluginId],
+                          }}
+                          selected={ds.id === selectedDatasourceId}
+                        />
+                      );
+                    })}
                 </Collapsible>
                 <Collapsible
                   defaultIsOpen={collapsedMenu === DSCollapseMenu.UNCONFIGURED}
@@ -484,20 +489,22 @@ function ReconnectDatasourceModal() {
                   }}
                   title="Missing Datasources"
                 >
-                  {unconfiguredDatasources.map((ds: Datasource) => {
-                    return (
-                      <ListItemWrapper
-                        ds={ds}
-                        key={ds.id}
-                        onClick={onSelectDatasource}
-                        plugin={{
-                          name: pluginNames[ds.pluginId],
-                          image: pluginImages[ds.pluginId],
-                        }}
-                        selected={ds.id === selectedDatasourceId}
-                      />
-                    );
-                  })}
+                  {datasources
+                    .filter((ds: Datasource) => !ds.isConfigured)
+                    .map((ds: Datasource) => {
+                      return (
+                        <ListItemWrapper
+                          ds={ds}
+                          key={ds.id}
+                          onClick={onSelectDatasource}
+                          plugin={{
+                            name: pluginNames[ds.pluginId],
+                            image: pluginImages[ds.pluginId],
+                          }}
+                          selected={ds.id === selectedDatasourceId}
+                        />
+                      );
+                    })}
                 </Collapsible>
               </ListContainer>
               {isConfigFetched &&
@@ -522,6 +529,9 @@ function ReconnectDatasourceModal() {
                     hasIcon
                     link={DOCS_BASE_URL || ""}
                     onClick={() => {
+                      AnalyticsUtil.logEvent(
+                        "ADD_MISSING_DATASOURCE_LINK_CLICK",
+                      );
                       const ds = datasources[0];
                       if (ds) {
                         setSelectedDatasourceId(ds.id);
@@ -545,6 +555,12 @@ function ReconnectDatasourceModal() {
                 category={Category.tertiary}
                 className="t--application-edit-link"
                 href={appURL}
+                onClick={() => {
+                  AnalyticsUtil.logEvent(
+                    "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
+                  );
+                  window.open(appURL, "_self");
+                }}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}
               />

@@ -28,6 +28,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -437,13 +438,22 @@ public class GitExecutorImpl implements GitExecutor {
                 modifiedAssets.addAll(status.getRemoved());
                 modifiedAssets.addAll(status.getUncommittedChanges());
                 modifiedAssets.addAll(status.getUntracked());
+                response.setAdded(status.getAdded());
+                response.setRemoved(status.getRemoved());
+
                 long modifiedPages = 0L;
                 long modifiedQueries = 0L;
+                long modifiedJSObjects = 0L;
+                long modifiedDatasources = 0L;
                 for (String x : modifiedAssets) {
                     if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
                         modifiedQueries++;
+                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/")) {
+                        modifiedJSObjects++;
+                    } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
+                        modifiedDatasources++;
                     }
                 }
                 response.setModified(modifiedAssets);
@@ -451,6 +461,8 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setIsClean(status.isClean());
                 response.setModifiedPages(modifiedPages);
                 response.setModifiedQueries(modifiedQueries);
+                response.setModifiedJSObjects(modifiedJSObjects);
+                response.setModifiedDatasources(modifiedDatasources);
 
                 BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
                 if (trackingStatus != null) {
@@ -486,7 +498,7 @@ public class GitExecutorImpl implements GitExecutor {
                     //checkout the branch on which the merge command is run
                     git.checkout().setName(destinationBranch).setCreateBranch(false).call();
 
-                    MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
+                    MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setStrategy(MergeStrategy.RECURSIVE).call();
                     return mergeResult.getMergeStatus().name();
                 } catch (GitAPIException e) {
                     //On merge conflicts abort the merge => git merge --abort
