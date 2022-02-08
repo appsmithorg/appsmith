@@ -9,9 +9,6 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import {
-  updateDatasource,
-  testDatasource,
-  deleteDatasource,
   switchDatasource,
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
@@ -80,26 +77,10 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.switchDatasource(this.props.datasourceId);
     }
   }
-  handleSubmit = () => {
-    this.props.submitForm(DATASOURCE_DB_FORM);
-  };
-
-  handleSave = (formData: Datasource) => {
-    const { pageId } = this.props.match.params;
-    this.props.updateDatasource(
-      formData,
-      this.props.redirectToNewIntegrations(
-        this.props.applicationId,
-        pageId,
-        getQueryParams(),
-      ),
-    );
-  };
 
   render() {
     const {
       datasourceId,
-      deleteDatasource,
       formConfig,
       formData,
       fromImporting,
@@ -107,9 +88,6 @@ class DataSourceEditor extends React.Component<Props> {
       isNewDatasource,
       isSaving,
       isTesting,
-      // match: {
-      //   params: { datasourceId },
-      // },
       openOmnibarReadMore,
       pageId,
       pluginId,
@@ -126,15 +104,11 @@ class DataSourceEditor extends React.Component<Props> {
         formConfig={formConfig}
         formData={formData}
         formName={DATASOURCE_DB_FORM}
-        handleDelete={deleteDatasource}
         hiddenHeader={fromImporting}
         isDeleting={isDeleting}
         isNewDatasource={isNewDatasource}
         isSaving={isSaving}
         isTesting={isTesting}
-        onSave={this.handleSave}
-        onSubmit={this.handleSubmit}
-        onTest={this.props.testDatasource}
         openOmnibarReadMore={openOmnibarReadMore}
         pageId={pageId}
         pluginImage={pluginImages[pluginId]}
@@ -181,63 +155,40 @@ const mapDispatchToProps = (
   dispatch: any,
   ownProps: any,
 ): DatasourcePaneFunctions => ({
-  submitForm: (name: string) => dispatch(submit(name)),
-  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
-    dispatch(updateDatasource(formData, onSuccess));
+  switchDatasource: (id: string) => {
+    if (!ownProps.fromImporting) dispatch(switchDatasource(id));
   },
-  redirectToNewIntegrations: ownProps.fromImporting
-    ? noop
-    : (applicationId: string, pageId: string, params: any) => {
-        dispatch(redirectToNewIntegrations(applicationId, pageId, params));
-      },
-  testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
-  deleteDatasource: ownProps.fromImporting
-    ? noop
-    : (id: string) => dispatch(deleteDatasource({ id })),
-  switchDatasource: ownProps.fromImporting
-    ? noop
-    : (id: string) => dispatch(switchDatasource(id)),
-  setDatasourceEditorMode: ownProps.fromImporting
-    ? noop
-    : (id: string, viewMode: boolean) =>
-        dispatch(setDatsourceEditorMode({ id, viewMode })),
-  openOmnibarReadMore: ownProps.fromImporting
-    ? noop
-    : (text: string) => {
-        dispatch(setGlobalSearchQuery(text));
-        dispatch(toggleShowGlobalSearchModal());
-      },
+  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
+    dispatch(setDatsourceEditorMode({ id, viewMode })),
+  openOmnibarReadMore: (text: string) => {
+    dispatch(setGlobalSearchQuery(text));
+    dispatch(toggleShowGlobalSearchModal());
+  },
 });
 
 export interface DatasourcePaneFunctions {
-  submitForm: (name: string) => void;
-  updateDatasource: (formData: any, onSuccess?: any) => void;
-  testDatasource: (data: Datasource) => void;
-  deleteDatasource: (id: string) => void;
   switchDatasource: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
-  redirectToNewIntegrations: (
-    applicationId: string,
-    pageId: string,
-    params: any,
-  ) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props> {
   render() {
     const {
-      datasourceId,
+      datasourceId: datasourceIdProp,
       fromImporting,
       history,
       isDeleting,
       isNewDatasource,
       isSaving,
       location,
-      // match: {
-      //   params: { datasourceId, pageId },
-      // },
-      pageId,
+      match: {
+        params: {
+          datasourceId: datasourceIdQueryParam,
+          pageId: pageIdQueryParam,
+        },
+      },
+      pageId: pageIdProp,
       pluginDatasourceForm,
       pluginId,
       pluginImages,
@@ -245,6 +196,10 @@ class DatasourceEditorRouter extends React.Component<Props> {
       pluginType,
       viewMode,
     } = this.props;
+
+    const datasourceId = datasourceIdProp || datasourceIdQueryParam;
+    const pageId = pageIdProp || pageIdQueryParam;
+
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
     }
@@ -266,6 +221,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
     }
     // for saas form
     if (pluginType === "SAAS") {
+      // todo check if we can remove the flag here
       if (fromImporting) {
         return (
           <DatasourceSaasForm
@@ -289,7 +245,13 @@ class DatasourceEditorRouter extends React.Component<Props> {
 
     // Default to old flow
     // Todo: later refactor to make this "AutoForm"
-    return <DataSourceEditor {...this.props} />;
+    return (
+      <DataSourceEditor
+        {...this.props}
+        datasourceId={datasourceId}
+        pageId={pageId}
+      />
+    );
   }
 }
 
