@@ -1,7 +1,7 @@
 const path = require("path");
 const Perf = require("../src/perf.js");
 const dsl = require("./dsl/simple-typing").dsl;
-const { delay, makeid } = require("../src/utils/utils");
+const { delay, makeid, getFormattedTime } = require("../src/utils/utils");
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const SEL = {
