@@ -34,6 +34,12 @@ public class ApplicationTemplateControllerCE {
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
+    @GetMapping("{templateId}/similar")
+    public Mono<ResponseDTO<List<ApplicationTemplate>>> getSimilarTemplates(@PathVariable String templateId) {
+        return applicationTemplateService.getSimilarTemplates(templateId).collectList()
+                .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
+    }
+
     @PostMapping("{templateId}/import/{organizationId}")
     public Mono<Application> importApplicationFromTemplate(@PathVariable String templateId,
                                                            @PathVariable String organizationId) {

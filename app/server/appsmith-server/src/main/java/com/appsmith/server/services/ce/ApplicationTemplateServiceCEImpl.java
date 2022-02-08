@@ -36,6 +36,25 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
+    public Flux<ApplicationTemplate> getSimilarTemplates(String templateId) {
+        final String apiUrl = String.format("%s/api/v1/app-templates/%s/similar?version=%s",
+                cloudServicesConfig.getBaseUrl(), templateId, releaseNotesService.getReleasedVersion()
+        );
+        return WebClient
+                .create(apiUrl)
+                .get()
+                .exchangeToFlux(clientResponse -> {
+                    if (clientResponse.statusCode().equals(HttpStatus.OK)) {
+                        return clientResponse.bodyToFlux(ApplicationTemplate.class);
+                    } else if (clientResponse.statusCode().isError()) {
+                        return Flux.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
+                    } else {
+                        return clientResponse.createException().flatMapMany(Flux::error);
+                    }
+                });
+    }
+
+    @Override
     public Flux<ApplicationTemplate> getActiveTemplates() {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 

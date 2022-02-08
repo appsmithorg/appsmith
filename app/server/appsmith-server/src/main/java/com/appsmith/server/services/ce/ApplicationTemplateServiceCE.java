@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 
 public interface ApplicationTemplateServiceCE {
     Flux<ApplicationTemplate> getActiveTemplates();
+    Flux<ApplicationTemplate> getSimilarTemplates(String templateId);
     Mono<ApplicationTemplate> getTemplateDetails(String templateId);
     Mono<Application> importApplicationFromTemplate(String templateId, String organizationId);
 }
