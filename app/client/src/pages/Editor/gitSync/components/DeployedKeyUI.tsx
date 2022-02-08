@@ -1,11 +1,13 @@
 import { Colors } from "constants/Colors";
 import {
+  COPY_SSH_KEY,
   createMessage,
   DELETE_CONFIRMATION_MODAL_TITLE,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
-  LEARN_MORE,
   REGENERATE_KEY_CONFIRM_MESSAGE,
   REGENERATE_SSH_KEY,
+  SSH_KEY,
+  SSH_KEY_GENERATED,
   YES,
 } from "@appsmith/constants/messages";
 import React, { useCallback, useState } from "react";
@@ -13,14 +15,20 @@ import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import TooltipComponent from "components/ads/Tooltip";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
-import { Space } from "./StyledComponents";
+import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Icon, { IconSize } from "components/ads/Icon";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core";
 import MenuItem from "components/ads/MenuItem";
 import Button, { Category, Size } from "components/ads/Button";
-import { useSSHKeyPair } from "../hooks";
+import { useSSHKeyPair } from "pages/Editor/gitSync/hooks";
+import {
+  NotificationBanner,
+  NotificationVariant,
+} from "components/ads/NotificationBanner";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 const TooltipWrapper = styled.div`
   display: flex;
@@ -56,17 +64,6 @@ const KeyText = styled.span`
   color: ${Colors.CODE_GRAY};
 `;
 
-const LintText = styled.a`
-  :hover {
-    color: ${Colors.CRUSTA};
-  }
-
-  color: ${Colors.CRUSTA};
-  cursor: pointer;
-  font-weight: 500;
-  margin-left: ${(props) => props.theme.spaces[1]}px;
-`;
-
 const MoreMenuWrapper = styled.div`
   padding: 8px;
   align-items: center;
@@ -95,6 +92,10 @@ type DeployedKeyUIProps = {
   isImport?: boolean;
 };
 
+const NotificationBannerContainer = styled.div`
+  max-width: 456px;
+`;
+
 function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {
   return showCopied ? (
     <Icon
@@ -105,7 +106,7 @@ function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {
     />
   ) : (
     <TooltipWrapper>
-      <TooltipComponent content="Copy Key">
+      <TooltipComponent content={createMessage(COPY_SSH_KEY)}>
         <Icon
           fillColor={Colors.DARK_GRAY}
           hoverFillColor={Colors.GRAY2}
@@ -122,8 +123,12 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
   const { copyToClipboard, deployKeyDocUrl, showCopied, SSHKeyPair } = props;
   const { generateSSHKey } = useSSHKeyPair();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isConfirm, setIsConfirm] = useState(false);
-  const clickHandler = () => {
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showKeyRegeneratedMessage, setShowKeyRegeneratedMessage] = useState(
+    false,
+  );
+
+  const learnMoreClickHandler = () => {
     AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
       source: "SSH_KEY_ON_GIT_CONNECTION_TAB",
     });
@@ -132,15 +137,19 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
   const regenerateKey = useCallback(() => {
     AnalyticsUtil.logEvent("GS_REGENERATE_SSH_KEY_CONFIRM_CLICK");
     generateSSHKey();
-    setIsConfirm(false);
+    setShowConfirmation(false);
     setIsMenuOpen(false);
+    setShowKeyRegeneratedMessage(true);
+    Toaster.show({
+      text: createMessage(SSH_KEY_GENERATED),
+      variant: Variant.success,
+    });
   }, []);
   return (
     <>
       <Space size={7} />
-      <Text color={Colors.GREY_9} type={TextType.P3}>
-        {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
-        <LintText onClick={clickHandler}>{createMessage(LEARN_MORE)}</LintText>
+      <Text color={Colors.GREY_9} type={TextType.P1}>
+        {createMessage(SSH_KEY)}
       </Text>
       <FlexRow style={{ position: "relative" }}>
         <DeployedKeyContainer $marginTop={4}>
@@ -159,12 +168,12 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
             className="more"
             onClosing={() => {
               setIsMenuOpen(false);
-              setIsConfirm(false);
+              setShowConfirmation(false);
             }}
             onOpening={() => {
-              setIsConfirm(false);
+              setShowConfirmation(false);
             }}
-            position={Position.RIGHT_TOP}
+            position={Position.BOTTOM}
             target={
               <MoreOptionsContainer>
                 <Icon
@@ -173,7 +182,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
                   name="more-2-fill"
                   onClick={() => {
                     AnalyticsUtil.logEvent("GS_REGENERATE_SSH_KEY_MORE_CLICK");
-                    setIsConfirm(false);
+                    setShowConfirmation(false);
                     setIsMenuOpen(!isMenuOpen);
                   }}
                   size={IconSize.XXXXL}
@@ -181,14 +190,14 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
               </MoreOptionsContainer>
             }
           >
-            {isMenuOpen && !isConfirm && (
+            {isMenuOpen && !showConfirmation && (
               <MenuItem
                 cypressSelector="t--regenerate-sshkey"
-                onSelect={() => setIsConfirm(true)}
+                onSelect={() => setShowConfirmation(true)}
                 text={createMessage(REGENERATE_SSH_KEY)}
               />
             )}
-            {isMenuOpen && isConfirm && (
+            {isMenuOpen && showConfirmation && (
               <ConfirmMenuItem>
                 <Text type={TextType.P3}>
                   {createMessage(REGENERATE_KEY_CONFIRM_MESSAGE)}
@@ -211,6 +220,23 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
           </Menu>
         </MoreMenuWrapper>
       </FlexRow>
+      {showKeyRegeneratedMessage && (
+        <NotificationBannerContainer>
+          <NotificationBanner
+            canClose
+            className={"enterprise"}
+            learnMoreClickHandler={learnMoreClickHandler}
+            onClose={() => setShowKeyRegeneratedMessage(false)}
+            variant={NotificationVariant.info}
+          >
+            <div>
+              <Text color={Colors.GREY_9} type={TextType.P3}>
+                {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
+              </Text>
+            </div>
+          </NotificationBanner>
+        </NotificationBannerContainer>
+      )}
     </>
   );
 }
