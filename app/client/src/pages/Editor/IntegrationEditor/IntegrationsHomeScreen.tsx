@@ -28,8 +28,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   getCurrentApplicationId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 
 const HeaderFlex = styled.div`
@@ -104,8 +103,8 @@ type IntegrationsHomeScreenProps = {
   dataSources: Datasource[];
   mockDatasources: MockDatasource[];
   applicationId: string;
-  applicationSlug?: string;
-  pageSlug?: string;
+  applicationSlug: string;
+  pageSlug: string;
 };
 
 type IntegrationsHomeScreenState = {
@@ -562,13 +561,14 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
+  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
     applicationId: getCurrentApplicationId(state),
-    applicationSlug: selectCurrentApplicationSlug(state),
-    pageSlug: selectCurrentPageSlug(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 

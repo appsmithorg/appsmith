@@ -37,10 +37,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
-import {
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
-} from "selectors/editorSelectors";
+import { selectRelevantSlugNames } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -184,8 +181,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
 
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
-  const pageSlug = useSelector(selectCurrentPageSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");

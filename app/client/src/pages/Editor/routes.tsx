@@ -16,11 +16,8 @@ import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
-  API_EDITOR_ID_URL,
-  QUERIES_EDITOR_ID_URL,
   BUILDER_PAGE_URL,
   BuilderRouteParams,
-  INTEGRATION_EDITOR_URL,
   INTEGRATION_EDITOR_PATH,
   API_EDITOR_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -52,7 +49,10 @@ import PagesEditor from "./PagesEditor";
 import { AppState } from "reducers";
 
 import { trimQueryString } from "utils/helpers";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectRelevantSlugNames,
+} from "selectors/editorSelectors";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -83,6 +83,8 @@ interface RouterState {
 
 type Props = RouteComponentProps<BuilderRouteParams> & {
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 };
 
 class EditorsRouter extends React.Component<Props, RouterState> {
@@ -108,9 +110,9 @@ class EditorsRouter extends React.Component<Props, RouterState> {
   isMatchPath = () => {
     return matchPath(this.props.location.pathname, {
       path: [
-        trimQueryString(INTEGRATION_EDITOR_URL()),
-        trimQueryString(API_EDITOR_ID_URL()),
-        trimQueryString(QUERIES_EDITOR_ID_URL()),
+        trimQueryString(INTEGRATION_EDITOR_PATH),
+        trimQueryString(API_EDITOR_ID_PATH),
+        trimQueryString(QUERIES_EDITOR_ID_PATH),
       ],
       exact: true,
       strict: false,
@@ -123,11 +125,14 @@ class EditorsRouter extends React.Component<Props, RouterState> {
       { path: this.props.location.pathname },
     );
     e.stopPropagation();
-    const { applicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
+    const { applicationSlug, pageSlug } = this.props;
     this.setState({
       isVisible: false,
     });
-    this.props.history.replace(BUILDER_PAGE_URL({ applicationId, pageId }));
+    this.props.history.replace(
+      BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId }),
+    );
   };
 
   preventClose = (e: React.MouseEvent) => {
@@ -236,8 +241,13 @@ function PaneDrawer(props: PaneDrawerProps) {
 
 PaneDrawer.displayName = "PaneDrawer";
 
-const mapStateToProps = (state: AppState) => ({
-  applicationId: getCurrentApplicationId(state),
-});
+const mapStateToProps = (state: AppState) => {
+  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
+  return {
+    applicationId: getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
+  };
+};
 
 export default connect(mapStateToProps)(withRouter(EditorsRouter));

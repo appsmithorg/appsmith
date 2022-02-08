@@ -3,8 +3,8 @@ import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import history from "../utils/history";
 import { BUILDER_PAGE_URL } from "../constants/routes";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "../selectors/entitiesSelector";
@@ -30,7 +30,7 @@ export function* bindDataToWidgetSaga(
     widgetId: string;
   }>,
 ) {
-  const pageId = yield select(getCurrentPageId);
+  const pageId: string = yield select(getCurrentPageId);
   // console.log("Binding Data in Saga");
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
@@ -151,10 +151,11 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    const applicationId = yield select(getCurrentApplicationId);
+    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
     history.replace(
       BUILDER_PAGE_URL({
-        applicationId,
+        applicationSlug,
+        pageSlug,
         pageId,
       }),
     );

@@ -11,7 +11,10 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectRelevantSlugNames,
+} from "selectors/editorSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, GO_TO_PAGE } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
@@ -63,6 +66,7 @@ function EditName(props: Props) {
   const history = useHistory();
   const [isEditing, setIsEditing] = useState(false);
   const applicationId = useSelector(getCurrentApplicationId);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   const updateNameCallback = useCallback(
     (name: string) => {
@@ -80,7 +84,11 @@ function EditName(props: Props) {
   const switchPage = useCallback(() => {
     if (!!applicationId && !isEditing) {
       history.push(
-        BUILDER_PAGE_URL({ applicationId, pageId: props.page.pageId }),
+        BUILDER_PAGE_URL({
+          applicationSlug,
+          pageSlug,
+          pageId: props.page.pageId,
+        }),
       );
     }
   }, [props.page.pageId, applicationId]);

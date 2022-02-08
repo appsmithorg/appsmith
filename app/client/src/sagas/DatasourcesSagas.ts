@@ -20,8 +20,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import {
   getDatasource,
@@ -177,15 +176,14 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
-      const applicationSlug: string = yield select(
-        selectCurrentApplicationSlug,
+      const { applicationSlug, pageSlug } = yield select(
+        selectRelevantSlugNames,
       );
-      const pageSlug: string = yield select(selectCurrentPageSlug);
       const pageId: string = yield select(getCurrentPageId);
       const isGeneratePageInitiator = getIsGeneratePageInitiator(
         isGeneratePageMode,
       );
-      const isInGuidedTour = yield select(inGuidedTour);
+      const isInGuidedTour: boolean = yield select(inGuidedTour);
       if (isGeneratePageInitiator) {
         history.push(
           getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId, {
@@ -224,8 +222,7 @@ export function* deleteDatasourceSaga(
     );
 
     const isValidResponse = yield validateResponse(response);
-    const applicationSlug: string = yield select(selectCurrentApplicationSlug);
-    const pageSlug: string = yield select(selectCurrentPageSlug);
+    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
 
     if (isValidResponse) {
       const pageId = yield select(getCurrentPageId);
@@ -683,8 +680,7 @@ function* changeDatasourceSaga(
   const { datasource } = actionPayload.payload;
   const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
-  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
-  const pageSlug: string = yield select(selectCurrentPageSlug);
+  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
   const pageId: string = yield select(getCurrentPageId);
   let data;
 
@@ -803,8 +799,7 @@ function* storeAsDatasourceSaga() {
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const state = yield select();
   const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
-  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
-  const pageSlug: string = yield select(selectCurrentPageSlug);
+  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
   const pageId: string = yield select(getCurrentPageId);
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
     getGenerateCRUDEnabledPluginMap,

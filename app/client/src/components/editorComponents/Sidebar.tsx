@@ -16,8 +16,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import {
@@ -56,17 +56,17 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   let tooltipTimeout: number;
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
-  const pageId = useSelector(getCurrentPageId);
+  const pageId = useSelector(getCurrentPageId) as string;
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
   const isPreviewMode = useSelector(previewModeSelector);
-  const applicationId = useSelector(getCurrentApplicationId);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
   const resizer = useHorizontalResize(
     sidebarRef,
     props.onWidthChange,
@@ -85,14 +85,16 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         !(
           trimQueryString(
             BUILDER_PAGE_URL({
-              applicationId,
+              applicationSlug,
+              pageSlug,
               pageId,
             }),
           ) === window.location.pathname
         ) &&
           history.push(
             BUILDER_PAGE_URL({
-              applicationId,
+              applicationSlug,
+              pageSlug,
               pageId,
             }),
           );

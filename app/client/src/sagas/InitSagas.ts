@@ -217,9 +217,10 @@ function* initializeEditorSaga(
     );
     const appName = currentApplication ? currentApplication.name : "";
     const appId = currentApplication ? currentApplication.id : "";
-    const applicationSlug = currentApplication.slug;
+    const applicationSlug = currentApplication.slug as string;
     const currentPage: Page = yield select(getPageById(toLoadPageId));
-    const pageSlug = currentPage?.slug;
+    //Comeback
+    const pageSlug = currentPage?.slug as string;
 
     const originalUrl = getApplicationEditorPageURL(
       applicationSlug,
@@ -260,7 +261,8 @@ function* initializeEditorSaga(
     // redirect to the /pages route
     if (!pageId) {
       const pathname = BUILDER_PAGE_URL({
-        applicationId,
+        applicationSlug,
+        pageSlug,
         pageId: toLoadPageId,
       });
 

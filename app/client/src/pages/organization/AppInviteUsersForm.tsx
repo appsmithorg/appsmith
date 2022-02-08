@@ -15,7 +15,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { selectCurrentApplicationSlug } from "selectors/editorSelectors";
+import { selectRelevantSlugNames } from "selectors/editorSelectors";
 
 const Title = styled.div`
   padding: 10px 0px;
@@ -56,11 +56,12 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   const getViewApplicationURL = () => {
     const appViewEndPoint = getApplicationViewerPageURL({
       applicationSlug,
+      pageSlug,
       pageId: defaultPageId,
     });
     return window.location.origin.toString() + appViewEndPoint;

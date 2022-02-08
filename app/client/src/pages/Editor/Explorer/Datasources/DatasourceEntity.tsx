@@ -21,8 +21,7 @@ import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants
 import { getQueryParams } from "utils/AppsmithUtils";
 import {
   getCurrentPageId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
 
@@ -38,8 +37,7 @@ type ExplorerDatasourceEntityProps = {
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
     const pageId = useSelector(getCurrentPageId) as string;
-    const applicationSlug = useSelector(selectCurrentApplicationSlug);
-    const pageSlug = useSelector(selectCurrentPageSlug);
+    const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
     const dispatch = useDispatch();
     const icon = getPluginIcon(props.plugin);
     const switchDatasource = useCallback(() => {

@@ -6,6 +6,7 @@ import { useSelector } from "store";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
 import { keyBy } from "lodash";
@@ -43,18 +44,29 @@ const Datasources = React.memo(() => {
   const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) || "";
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
   const plugins = useSelector(getPlugins);
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
   const addDatasource = useCallback(() => {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      INTEGRATION_EDITOR_URL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+        INTEGRATION_TABS.NEW,
+      ),
     );
   }, [applicationId, pageId]);
   const activeDatasourceId = useDatasourceIdFromURL();
 
   const listDatasource = useCallback(() => {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      INTEGRATION_EDITOR_URL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+        INTEGRATION_TABS.ACTIVE,
+      ),
     );
   }, [applicationId, pageId]);
 

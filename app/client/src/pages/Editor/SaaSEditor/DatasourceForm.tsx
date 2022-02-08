@@ -38,7 +38,7 @@ interface StateProps extends JSONtoFormProps {
   actions: ActionDataState;
   datasource?: Datasource;
   applicationSlug: string;
-  pageSlug?: string;
+  pageSlug: string;
 }
 
 type DatasourceSaaSEditorProps = StateProps &

@@ -13,6 +13,7 @@ import {
   getCanvasWidgetDsl,
   getCurrentApplicationId,
   getCurrentPageName,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -40,6 +41,8 @@ type AppViewerPageContainerProps = {
   fetchPage: (pageId: string, bustCache?: boolean) => void;
   currentAppPermissions?: string[];
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
@@ -66,8 +69,9 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
           Please add widgets to this page in the&nbsp;
           <Link
             to={BUILDER_PAGE_URL({
-              applicationId: this.props.applicationId,
-              pageId: this.props.match.params.pageId,
+              applicationSlug: this.props.applicationId,
+              pageSlug: this.props.pageSlug,
+              pageId: this.props.match.params.pageId as string,
             })}
           >
             Appsmith Editor
@@ -119,6 +123,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 
 const mapStateToProps = (state: AppState) => {
   const currentApp = getCurrentApplication(state);
+  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
   return {
     isFetchingPage: getIsFetchingPage(state),
     widgets: getCanvasWidgetDsl(state),
@@ -126,6 +131,8 @@ const mapStateToProps = (state: AppState) => {
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
     applicationId: getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 

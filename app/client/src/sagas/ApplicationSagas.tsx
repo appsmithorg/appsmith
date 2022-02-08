@@ -59,7 +59,7 @@ import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectCurrentApplicationSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 
 import {
@@ -116,12 +116,13 @@ export function* publishApplicationSaga(
       const currentPageId: string = yield select(getCurrentPageId);
       const guidedTour: boolean = yield select(inGuidedTour);
       const currentStep: number = yield select(getCurrentStep);
-      const applicationSlug: string = yield select(
-        selectCurrentApplicationSlug,
+      const { applicationSlug, pageSlug } = yield select(
+        selectRelevantSlugNames,
       );
 
       let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationSlug,
+        pageSlug,
         pageId: currentPageId,
       });
       if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
@@ -361,6 +362,7 @@ export function* duplicateApplicationSaga(
       ApplicationApi.duplicateApplication,
       request,
     );
+    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
@@ -372,8 +374,9 @@ export function* duplicateApplicationSaga(
         payload: response.data,
       });
       const pageURL = BUILDER_PAGE_URL({
-        applicationId: application.id,
-        pageId: application.defaultPageId,
+        applicationSlug,
+        pageSlug,
+        pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
     }
@@ -491,6 +494,7 @@ export function* createApplicationSaga(
           getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
+
         if (
           isFirstTimeUserOnboardingEnabled &&
           FirstTimeUserOnboardingApplicationId === ""
@@ -501,12 +505,15 @@ export function* createApplicationSaga(
             payload: application.id,
           });
           pageURL = BUILDER_PAGE_URL({
-            applicationId: application.id,
-            pageId: application.defaultPageId,
+            // Comeback
+            applicationSlug: application.slug as string,
+            pageSlug: "page-1",
+            pageId: application.defaultPageId as string,
           });
         } else {
           pageURL = getGenerateTemplateURL(
-            application.id,
+            application.slug,
+            "page-1",
             application.defaultPageId,
           );
         }
@@ -554,8 +561,10 @@ export function* forkApplicationSaga(
         },
       });
       const pageURL = BUILDER_PAGE_URL({
-        applicationId: application.id,
-        pageId: application.defaultPageId,
+        // Comeback
+        applicationSlug: application.slug as string,
+        pageSlug: "Page-1",
+        pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
     }
@@ -577,18 +586,20 @@ export function* importApplicationSaga(
       ApplicationApi.importApplicationToOrg,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allOrgs = yield select(getCurrentOrg);
+      const allOrgs: Org[] = yield select(getCurrentOrg);
       const currentOrg = allOrgs.filter(
         (el: Org) => el.id === action.payload.orgId,
       );
       if (currentOrg.length > 0) {
         const {
+          applicationSlug,
           id: appId,
           pages,
         }: {
           id: string;
+          applicationSlug: string;
           pages: { default?: boolean; id: string; isDefault?: boolean }[];
         } = response.data;
         yield put({
@@ -599,11 +610,13 @@ export function* importApplicationSaga(
         });
         const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
         const pageURL = BUILDER_PAGE_URL({
-          applicationId: appId,
+          //Comeback
+          applicationSlug,
+          pageSlug: "Page-1",
           pageId: defaultPage[0].id,
         });
         history.push(pageURL);
-        const guidedTour = yield select(inGuidedTour);
+        const guidedTour: boolean = yield select(inGuidedTour);
 
         if (guidedTour) return;
 

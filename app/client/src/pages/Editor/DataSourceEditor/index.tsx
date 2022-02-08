@@ -29,7 +29,10 @@ import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectRelevantSlugNames,
+} from "selectors/editorSelectors";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -45,6 +48,8 @@ interface ReduxStateProps {
   pluginDatasourceForm: string;
   pluginPackageName: string;
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 }
 
 type Props = ReduxStateProps &
@@ -147,6 +152,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
+  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
   return {
     pluginImages: getPluginImages(state),
     formData,
@@ -163,6 +169,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
     applicationId: getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 
@@ -243,7 +251,8 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "DatasourceSaaSForm") {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          this.props.applicationId,
+          this.props.applicationSlug,
+          this.props.pageSlug,
           pageId,
           pluginPackageName,
           datasourceId,

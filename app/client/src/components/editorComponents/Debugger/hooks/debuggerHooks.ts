@@ -7,8 +7,7 @@ import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
@@ -106,8 +105,7 @@ export const useEntityLink = () => {
   const dataTree = useSelector(getDataTree);
   const pageId = useSelector(getCurrentPageId);
   const applicationId = useSelector(getCurrentApplicationId);
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
-  const pageSlug = useSelector(selectCurrentPageSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   const { navigateToWidget } = useNavigateToWidget();
 

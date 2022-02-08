@@ -330,9 +330,10 @@ export type ActionOperation = {
   kind: SEARCH_ITEM_TYPES;
   action?: (pageId: string, location: EventLocation) => any;
   redirect?: (
+    applicationSlug: string,
+    pageSlug: string,
     pageId: string,
     from: EventLocation,
-    applicationId: string,
   ) => any;
   pluginId?: string;
 };
@@ -357,12 +358,22 @@ export const actionOperations: ActionOperation[] = [
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (pageId: string, from: EventLocation, applicationId: string) => {
+    redirect: (
+      applicationSlug: string,
+      pageSlug: string,
+      pageId: string,
+      from: EventLocation,
+    ) => {
       const queryParams = getQueryParams();
-      const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
-        from,
-        ...queryParams,
-      });
+      const curlImportURL = getCurlImportPageURL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+        {
+          from,
+          ...queryParams,
+        },
+      );
       history.push(curlImportURL);
     },
   },

@@ -12,7 +12,7 @@ import {
 } from "actions/notificationActions";
 
 import history from "utils/history";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import moment from "moment";
 import styled from "styled-components";
@@ -24,6 +24,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { selectRelevantSlugNames } from "selectors/editorSelectors";
 
 export const NOTIFICATION_HEIGHT = 82;
 
@@ -104,6 +105,7 @@ const getModeFromRoleAndDomain = (
 
 function CommentNotification(props: { notification: AppsmithNotification }) {
   const dispatch = useDispatch();
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
   const {
     _id,
     comment,
@@ -114,7 +116,6 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     isRead,
   } = props.notification;
   const {
-    applicationId,
     applicationName,
     authorName,
     authorUsername,
@@ -140,7 +141,8 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
 
     const commentThreadUrl = getCommentThreadURL({
-      applicationId,
+      applicationSlug,
+      pageSlug,
       branch: branchName,
       commentThreadId: threadId,
       // isResolved: resolvedState?.active,
@@ -180,6 +182,7 @@ function CommentThreadNotification(props: {
   notification: AppsmithNotification;
 }) {
   const dispatch = useDispatch();
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
   const {
     _id: _notificationId,
     commentThread,
@@ -192,7 +195,6 @@ function CommentThreadNotification(props: {
 
   const {
     _id,
-    applicationId,
     applicationName,
     authorName,
     authorUsername,
@@ -211,7 +213,8 @@ function CommentThreadNotification(props: {
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
 
     const commentThreadUrl = getCommentThreadURL({
-      applicationId,
+      applicationSlug,
+      pageSlug,
       branch: branchName,
       commentThreadId,
       isResolved: resolvedState?.active,

@@ -75,14 +75,14 @@ import { isBlobUrl, mapToPropList, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
 import {
-  API_EDITOR_ID_URL,
-  API_EDITOR_URL,
+  API_EDITOR_BASE_PATH,
+  API_EDITOR_ID_PATH,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  INTEGRATION_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
+  INTEGRATION_EDITOR_PATH,
+  QUERIES_EDITOR_BASE_PATH,
+  QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
-import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import {
   ActionTriggerType,
   RunPluginActionDescription,
@@ -371,13 +371,14 @@ function* runActionShortcutSaga() {
   const location = window.location.pathname;
   const match: any = matchPath(location, {
     path: [
-      trimQueryString(API_EDITOR_URL()),
-      trimQueryString(API_EDITOR_ID_URL()),
-      trimQueryString(QUERIES_EDITOR_URL()),
-      trimQueryString(QUERIES_EDITOR_ID_URL()),
+      trimQueryString(API_EDITOR_BASE_PATH),
+      trimQueryString(API_EDITOR_ID_PATH),
+      trimQueryString(QUERIES_EDITOR_BASE_PATH),
+      trimQueryString(QUERIES_EDITOR_ID_PATH),
+      // Comeback
       trimQueryString(API_EDITOR_URL_WITH_SELECTED_PAGE_ID()),
-      trimQueryString(INTEGRATION_EDITOR_URL()),
-      trimQueryString(SAAS_EDITOR_API_ID_URL()),
+      trimQueryString(INTEGRATION_EDITOR_PATH),
+      trimQueryString(SAAS_EDITOR_API_ID_PATH),
     ],
     exact: true,
     strict: false,

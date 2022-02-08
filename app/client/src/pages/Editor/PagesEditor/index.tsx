@@ -14,6 +14,7 @@ import { Page } from "constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getPageList,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import DraggableList from "components/ads/DraggableList";
@@ -70,6 +71,7 @@ function PagesEditor() {
   const params = useParams<ExplorerURLParams>();
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -113,7 +115,9 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(BUILDER_PAGE_URL({ applicationId, pageId: params.pageId }));
+    history.push(
+      BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId: params.pageId }),
+    );
   }, []);
 
   /**

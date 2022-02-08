@@ -2,17 +2,20 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 
 export const navigateToCanvas = ({
-  applicationId,
+  applicationSlug,
   pageId,
+  pageSlug,
   widgetId,
 }: {
   pageId: string;
   widgetId: string;
-  applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 }) => {
   const currentPath = window.location.pathname;
   const canvasEditorURL = `${BUILDER_PAGE_URL({
-    applicationId,
+    applicationSlug,
+    pageSlug,
     pageId,
     hash: widgetId,
   })}`;

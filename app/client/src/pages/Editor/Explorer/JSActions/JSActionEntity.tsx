@@ -7,8 +7,7 @@ import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { getJSCollection } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
@@ -30,8 +29,7 @@ const getUpdateJSObjectName = (id: string, name: string) => {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const applicationSlug = useSelector(selectCurrentApplicationSlug);
-    const pageSlug = useSelector(selectCurrentPageSlug);
+    const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
     const pageId = useSelector(getCurrentPageId) as string;
     const jsAction = useSelector((state: AppState) =>
       getJSCollection(state, props.id),

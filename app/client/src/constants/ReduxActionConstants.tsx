@@ -916,6 +916,7 @@ export interface ApplicationPayload {
   color?: string;
   icon?: string;
   organizationId: string;
+  // Comeback
   defaultPageId?: string;
   isPublic?: boolean;
   userPermissions?: string[];

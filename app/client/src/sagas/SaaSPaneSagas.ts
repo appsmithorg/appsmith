@@ -15,8 +15,7 @@ import {
 
 import {
   getCurrentPageId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
@@ -27,6 +26,7 @@ import { autofill } from "redux-form";
 import { get } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Plugin } from "api/PluginApi";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
@@ -34,8 +34,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   if (plugin.type !== PluginType.SAAS) return;
 
   const pageId: string = yield select(getCurrentPageId);
-  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
-  const pageSlug: string = yield select(selectCurrentPageSlug);
+  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
 
   history.push(
     SAAS_EDITOR_DATASOURCE_ID_URL(
@@ -51,12 +50,11 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginId } = actionPayload.payload;
-  const plugin = yield select(getPlugin, pluginId);
+  const plugin: Plugin = yield select(getPlugin, pluginId);
 
   if (plugin.type !== "SAAS") return;
-  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
-  const pageSlug: string = yield select(selectCurrentPageSlug);
-  const pageId = yield select(getCurrentPageId);
+  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const pageId: string = yield select(getCurrentPageId);
   history.push(
     SAAS_EDITOR_API_ID_URL(
       applicationSlug,

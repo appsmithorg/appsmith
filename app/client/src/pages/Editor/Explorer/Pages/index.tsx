@@ -4,6 +4,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   selectCurrentApplicationSlug,
+  selectCurrentPageSlug,
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
@@ -55,6 +56,7 @@ const StyledEntity = styled(Entity)`
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
   const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const pageSlug = useSelector(selectCurrentPageSlug);
   const pages: Page[] = useSelector(selectAllPages);
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
@@ -69,7 +71,7 @@ function Pages() {
       history.push(
         BUILDER_PAGE_URL({
           applicationSlug,
-          pageSlug: page.slug,
+          pageSlug: page.slug as string,
           pageId: page.pageId,
         }),
       );
@@ -111,11 +113,16 @@ function Pages() {
   }, [pinned, dispatch, setExplorerPinnedAction]);
 
   const onClickRightIcon = useCallback(() => {
-    history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId));
+    history.push(
+      PAGE_LIST_EDITOR_URL(applicationSlug, pageSlug, currentPageId),
+    );
   }, [applicationId, currentPageId]);
 
   const onPageListSelection = React.useCallback(
-    () => history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId)),
+    () =>
+      history.push(
+        PAGE_LIST_EDITOR_URL(applicationSlug, pageSlug, currentPageId),
+      ),
     [applicationId, currentPageId],
   );
 

@@ -8,8 +8,8 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import {
   getCanvasWidgets,
@@ -192,8 +192,8 @@ const useStatus = (): { percentage: number; content: string } => {
 
 export function OnboardingStatusbar(props: RouteComponentProps) {
   const dispatch = useDispatch();
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
   const { content, percentage } = useStatus();
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
   const isGenerateAppPage =
@@ -231,7 +231,9 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       className="sticky top-0 t--onboarding-statusbar"
       data-testid="statusbar-container"
       onClick={() => {
-        history.push(getOnboardingCheckListUrl(applicationId, pageId));
+        history.push(
+          getOnboardingCheckListUrl(applicationSlug, pageSlug, pageId),
+        );
       }}
     >
       {!isFirstTimeUserOnboardingComplete && (

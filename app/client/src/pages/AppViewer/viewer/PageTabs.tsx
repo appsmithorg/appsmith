@@ -155,7 +155,8 @@ export function PageTabs(props: Props) {
             pathname ===
             trimQueryString(
               getApplicationViewerPageURL({
-                applicationSlug: currentApplicationDetails?.slug,
+                applicationSlug: currentApplicationDetails?.slug || "",
+                pageSlug: page.slug || page.pageName || "",
                 pageId: page.pageId,
               }),
             )

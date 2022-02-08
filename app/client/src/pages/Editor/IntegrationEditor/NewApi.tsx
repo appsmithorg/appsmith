@@ -18,7 +18,7 @@ import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { selectRelevantSlugNames } from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -151,8 +151,6 @@ const API_ACTION = {
 function NewApiScreen(props: Props) {
   const { createNewApiAction, history, isCreating, pageId, plugins } = props;
 
-  const applicationId = useSelector(getCurrentApplicationId);
-
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
@@ -187,6 +185,8 @@ function NewApiScreen(props: Props) {
     }
   };
 
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
   const handleOnClick = (actionType: string, params?: any) => {
@@ -218,10 +218,15 @@ function NewApiScreen(props: Props) {
         });
 
         delete queryParams.isGeneratePageMode;
-        const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
-          from: "datasources",
-          ...queryParams,
-        });
+        const curlImportURL = getCurlImportPageURL(
+          applicationSlug,
+          pageSlug,
+          pageId,
+          {
+            from: "datasources",
+            ...queryParams,
+          },
+        );
 
         history.push(curlImportURL);
         break;

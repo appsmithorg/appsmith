@@ -9,7 +9,7 @@ import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
 import {
   getCurrentPageId,
-  selectCurrentApplicationSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import {
   LATEST_DP_TITLE,
@@ -62,12 +62,16 @@ const CloudIconWrapper = styled.div`
 `;
 
 export default function DeployPreview(props: { showSuccess: boolean }) {
-  const pageId = useSelector(getCurrentPageId);
+  const pageId = useSelector(getCurrentPageId) as string;
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   const showDeployPreview = () => {
-    const path = getApplicationViewerPageURL({ applicationSlug, pageId });
+    const path = getApplicationViewerPageURL({
+      applicationSlug,
+      pageSlug,
+      pageId,
+    });
     window.open(path, "_blank");
   };
 

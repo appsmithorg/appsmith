@@ -48,8 +48,7 @@ import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 import {
   getCurrentApplicationId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { Indices } from "constants/Layers";
@@ -444,6 +443,7 @@ const mapStateToProps = (
       );
     }
   }
+  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
 
   return {
     orgId: state.ui.orgs.currentOrg.id,
@@ -453,8 +453,8 @@ const mapStateToProps = (
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: getCurrentApplicationId(state),
-    applicationSlug: selectCurrentApplicationSlug(state),
-    pageSlug: selectCurrentPageSlug(state),
+    applicationSlug,
+    pageSlug,
     dataTree: getDataTree(state),
     actionName: ownProps.actionName,
   };

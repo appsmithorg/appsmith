@@ -42,6 +42,7 @@ import {
   getActionById,
   getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -598,10 +599,11 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { pageId, queryId } = action.payload;
-  const applicationId = yield select(getCurrentApplicationId);
+  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
   history.push(
     BUILDER_PAGE_URL({
-      applicationId,
+      applicationSlug,
+      pageSlug,
       pageId,
       params: {
         isSnipingMode: "true",
@@ -725,21 +727,29 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const applicationId = yield select(getCurrentApplicationId);
+  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
 
   if (isApi) {
-    history.push(API_EDITOR_ID_URL(applicationId, action.pageId, action.id));
+    history.push(
+      API_EDITOR_ID_URL(applicationSlug, pageSlug, action.pageId, action.id),
+    );
   }
   if (isQuery) {
     history.push(
-      QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
+      QUERIES_EDITOR_ID_URL(
+        applicationSlug,
+        pageSlug,
+        action.pageId,
+        action.id,
+      ),
     );
   }
   if (isSaas) {
-    const plugin = yield select(getPlugin, action.pluginId);
+    const plugin: Plugin = yield select(getPlugin, action.pluginId);
     history.push(
       SAAS_EDITOR_API_ID_URL(
-        applicationId,
+        applicationSlug,
+        pageSlug,
         action.pageId,
         plugin.packageName,
         action.id,

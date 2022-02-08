@@ -16,29 +16,35 @@ import {
 } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { selectRelevantSlugNames } from "selectors/editorSelectors";
 
 type routeId = {
-  applicationId: string;
+  applicationSlug: string;
   pageId: string;
+  pageSlug: string;
 };
 
 const routeToEmptyEditorFromGenPage = ({
-  applicationId,
+  applicationSlug,
   pageId,
+  pageSlug,
 }: routeId): void => {
   AnalyticsUtil.logEvent("BUILD_FROM_SCRATCH_ACTION_CARD_CLICK");
-  history.push(BUILDER_PAGE_URL({ applicationId: applicationId, pageId }));
+  history.push(BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId }));
 };
 
-const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
+const goToGenPageForm = ({
+  applicationSlug,
+  pageId,
+  pageSlug,
+}: routeId): void => {
   AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
-  history.push(getGenerateTemplateFormURL(applicationId, pageId));
+  history.push(getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId));
 };
 
 function ActionCards() {
   const { pageId } = useParams<ExplorerURLParams>();
-  const applicationId = useSelector(getCurrentApplicationId);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   return (
     <>
@@ -47,7 +53,8 @@ function ActionCards() {
         className="t--BuildFromScratch"
         onClick={() =>
           routeToEmptyEditorFromGenPage({
-            applicationId: applicationId,
+            applicationSlug,
+            pageSlug,
             pageId,
           })
         }
@@ -65,9 +72,7 @@ function ActionCards() {
           />
         )}
         className="t--GenerateCRUDPage"
-        onClick={() =>
-          goToGenPageForm({ applicationId: applicationId, pageId })
-        }
+        onClick={() => goToGenPageForm({ applicationSlug, pageSlug, pageId })}
         subTitle={GENERATE_PAGE_ACTION_SUBTITLE()}
         title={GENERATE_PAGE_ACTION_TITLE()}
       />

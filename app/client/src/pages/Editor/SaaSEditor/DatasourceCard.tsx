@@ -17,10 +17,7 @@ import history from "utils/history";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "./constants";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import {
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
-} from "selectors/editorSelectors";
+import { selectRelevantSlugNames } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
@@ -97,8 +94,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     pluginPackageName: string;
   }>();
   const { datasource } = props;
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
-  const pageSlug = useSelector(selectCurrentPageSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );

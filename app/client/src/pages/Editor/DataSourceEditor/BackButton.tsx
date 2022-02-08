@@ -7,8 +7,8 @@ import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "../../../selectors/editorSelectors";
 import {
   BUILDER_PAGE_URL,
@@ -25,13 +25,13 @@ const Back = styled.span`
 
 function BackButton() {
   const history = useHistory();
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
+  const pageId = useSelector(getCurrentPageId) as string;
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
-      ? getGenerateTemplateFormURL(applicationId, pageId)
-      : BUILDER_PAGE_URL({ applicationId, pageId });
+      ? getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId)
+      : BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId });
     history.push(redirectURL);
   };
   return (

@@ -117,14 +117,16 @@ export const getOffsetPos = (
 };
 
 export const getCommentThreadURL = ({
-  applicationId,
+  applicationSlug,
+  pageSlug,
   branch,
   commentThreadId,
   isResolved,
   pageId,
   mode = APP_MODE.PUBLISHED,
 }: {
-  applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
   branch?: string;
   commentThreadId: string;
   isResolved?: boolean;
@@ -151,7 +153,8 @@ export const getCommentThreadURL = ({
 
   const url = new URL(
     `${window.location.origin}${urlBuilder({
-      applicationId: applicationId,
+      applicationSlug,
+      pageSlug,
       pageId,
       params: queryParams,
     })}`,

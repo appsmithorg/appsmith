@@ -29,6 +29,7 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import Datasources from "./Datasources";
 import Files from "./Files";
@@ -79,7 +80,8 @@ function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
   const applicationId = useSelector(getCurrentApplicationId);
-  const currentPageId = useSelector(getCurrentPageId);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const currentPageId = useSelector(getCurrentPageId) as string;
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
@@ -94,7 +96,9 @@ function EntityExplorer(props: IPanelProps) {
   const noResults = false;
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
-    history.push(BUILDER_PAGE_URL({ applicationId, pageId: currentPageId }));
+    history.push(
+      BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId: currentPageId }),
+    );
     openPanel({ component: WidgetSidebar });
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {

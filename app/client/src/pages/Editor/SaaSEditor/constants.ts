@@ -9,16 +9,16 @@ export const SAAS_EDITOR_API_ID_PATH = `${SAAS_EDITOR_PATH}/api/:apiId`;
 export const matchSaasPath = match(SAAS_EDITOR_API_ID_PATH);
 
 export const SAAS_BASE_URL = (
-  applicationSlug = ":applicationSlug",
-  pageSlug = ":pageSlug",
-  pageId = ":pageId",
+  applicationSlug: string,
+  pageSlug: string,
+  pageId: string,
 ) => BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId, suffix: "saas" });
 
 export const SAAS_EDITOR_URL = (
-  applicationSlug = ":applicationSlug",
-  pageSlug = ":pageSlug",
-  pageId = ":pageId",
-  pluginPackageName = ":pluginPackageName",
+  applicationSlug: string,
+  pageSlug: string,
+  pageId: string,
+  pluginPackageName: string,
 ): string => {
   return BUILDER_PAGE_URL({
     applicationSlug,
@@ -29,11 +29,11 @@ export const SAAS_EDITOR_URL = (
 };
 
 export const SAAS_EDITOR_DATASOURCE_ID_URL = (
-  applicationSlug = ":applicationSlug",
-  pageSlug = ":pageSlug",
-  pageId = ":pageId",
-  pluginPackageName = ":pluginPackageName",
-  datasourceId = ":datasourceId",
+  applicationSlug: string,
+  pageSlug: string,
+  pageId: string,
+  pluginPackageName: string,
+  datasourceId: string,
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
@@ -45,11 +45,11 @@ export const SAAS_EDITOR_DATASOURCE_ID_URL = (
   });
 
 export const SAAS_EDITOR_API_ID_URL = (
-  applicationSlug = ":applicationSlug",
-  pageSlug = ":pageSlug",
-  pageId = ":pageId",
-  pluginPackageName = ":pluginPackageName",
-  apiId = ":apiId",
+  applicationSlug: string,
+  pageSlug: string,
+  pageId: string,
+  pluginPackageName: string,
+  apiId: string,
   params = {},
 ): string =>
   BUILDER_PAGE_URL({

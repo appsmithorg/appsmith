@@ -39,7 +39,10 @@ import {
   setCurrentStep,
   toggleLoader,
 } from "actions/onboardingActions";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectRelevantSlugNames,
+} from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
 import WidgetFactory from "utils/WidgetFactory";
@@ -66,6 +69,7 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -115,6 +119,7 @@ function* setUpTourAppSaga() {
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
+  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
   const containerWidget = Object.values(widgets).find(
     (widget) => widget.type === "CONTAINER_WIDGET",
   );
@@ -154,12 +159,13 @@ function* setUpTourAppSaga() {
   );
   yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   yield put(clearActionResponse(query?.config.id ?? ""));
-  const applicationId = yield select(getCurrentApplicationId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   history.push(
     QUERIES_EDITOR_ID_URL(
-      applicationId,
-      query?.config.pageId,
-      query?.config.id,
+      applicationSlug,
+      pageSlug,
+      query?.config.pageId ?? "",
+      query?.config.id ?? "",
     ),
   );
 
@@ -182,7 +188,7 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
   const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
 
-  const evalTree = yield select(getDataTree);
+  const evalTree: DataTree = yield select(getDataTree);
   const widgets = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
@@ -315,7 +321,7 @@ function* setFirstTimeUserOnboardingIntroModalVisibility(
 }
 
 function* endFirstTimeUserOnboardingSaga() {
-  const firstTimeUserExperienceAppId = yield select(
+  const firstTimeUserExperienceAppId: string = yield select(
     getFirstTimeUserOnboardingApplicationId,
   );
   yield put({
@@ -365,7 +371,10 @@ function* firstTimeUserOnboardingInitSaga(
   });
   history.replace(
     BUILDER_PAGE_URL({
-      applicationId: action.payload.applicationId,
+      // Comeback
+      // applicationId: action.payload.applicationId,
+      applicationSlug: "application",
+      pageSlug: "page",
       pageId: action.payload.pageId,
     }),
   );

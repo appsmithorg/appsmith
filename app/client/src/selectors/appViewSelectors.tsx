@@ -40,9 +40,11 @@ export const getCurrentDSLPageId = createSelector(
 export const getEditorURL = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
-    pageList.applicationId && pageList.currentPageId
+    pageList.currentPageId
       ? BUILDER_PAGE_URL({
-          applicationId: pageList.applicationId,
+          // Comeback
+          applicationSlug: "",
+          pageSlug: "",
           pageId: pageList.currentPageId,
         })
       : "",

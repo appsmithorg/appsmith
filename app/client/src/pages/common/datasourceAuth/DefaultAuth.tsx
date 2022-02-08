@@ -19,8 +19,7 @@ import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import {
   getCurrentApplicationId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
@@ -49,8 +48,7 @@ export default function DefaultAuth({
 
   const applicationId = useSelector(getCurrentApplicationId);
 
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
-  const pageSlug = useSelector(selectCurrentPageSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   const dispatch = useDispatch();
 

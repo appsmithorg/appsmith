@@ -104,7 +104,7 @@ export const getPageById = (pageId: string) =>
   );
 
 export const getCurrentPageId = (state: AppState) =>
-  state.entities.pageList.currentPageId;
+  state.entities.pageList.currentPageId || "";
 
 export const selectCurrentPageSlug = createSelector(
   getCurrentPageId,
@@ -114,9 +114,10 @@ export const selectCurrentPageSlug = createSelector(
 
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
   pages.reduce((acc, page: Page) => {
-    acc[page.pageId] = page.slug;
+    // Comeback
+    acc[page.pageId] = page.slug || "";
     return acc;
-  }, {} as Record<string, string | undefined>),
+  }, {} as Record<string, string>),
 );
 
 export const getCurrentApplication = (state: AppState) =>
@@ -128,6 +129,18 @@ export const getCurrentApplicationId = (state: AppState) =>
 
 export const selectCurrentApplicationSlug = (state: AppState) =>
   state.ui.applications.currentApplication?.slug || "";
+
+export const selectRelevantSlugNames = createSelector(
+  getCurrentApplication,
+  getPageList,
+  getCurrentPageId,
+  (application, pages, pageId) => {
+    const applicationSlug = application?.slug || application?.name || "";
+    const currentPage = pages.find((page) => page.pageId === pageId);
+    const pageSlug = currentPage?.slug || currentPage?.pageName || "";
+    return { applicationSlug, pageSlug };
+  },
+);
 
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT

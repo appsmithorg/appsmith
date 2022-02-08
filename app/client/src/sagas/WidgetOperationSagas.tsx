@@ -53,8 +53,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -1159,13 +1159,14 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       payload: newWidget,
     });
 
-    const pageId = yield select(getCurrentPageId);
-    const applicationId = yield select(getCurrentApplicationId);
+    const pageId: string = yield select(getCurrentPageId);
+    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
 
     navigateToCanvas({
       pageId,
+      applicationSlug,
+      pageSlug,
       widgetId: newWidget.newWidgetId,
-      applicationId,
     });
   } catch (error) {
     log.error(error);

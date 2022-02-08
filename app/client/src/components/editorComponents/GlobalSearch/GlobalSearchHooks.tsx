@@ -5,10 +5,7 @@ import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
-import {
-  getCurrentApplicationId,
-  getPageList,
-} from "selectors/editorSelectors";
+import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,
   getAllPageWidgets,
@@ -44,7 +41,6 @@ export const useFilteredFileOperations = (query = "") => {
   if (newApiActionIdx > -1) {
     actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
   }
-  const applicationId = useSelector(getCurrentApplicationId);
   return useMemo(() => {
     let fileOperations: any =
       actionOperations.filter((op) =>
@@ -97,9 +93,18 @@ export const useFilteredFileOperations = (query = "") => {
         title: "New Datasource",
         icon: <AddDatasourceIcon color={Colors.DOVE_GRAY2} size={20} />,
         kind: SEARCH_ITEM_TYPES.actionOperation,
-        redirect: (pageId: string) => {
+        redirect: (
+          applicationSlug: string,
+          pageSlug: string,
+          pageId: string,
+        ) => {
           history.push(
-            INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+            INTEGRATION_EDITOR_URL(
+              applicationSlug,
+              pageSlug,
+              pageId,
+              INTEGRATION_TABS.NEW,
+            ),
           );
         },
       },

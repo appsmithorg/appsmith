@@ -61,9 +61,8 @@ import {
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  getCurrentApplicationId,
-  selectCurrentApplicationSlug,
   selectPageSlugToIdMap,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, noop } from "lodash";
@@ -179,7 +178,7 @@ const getSortedResults = (
 const filterCategoryList = getFilterCategoryList();
 
 function GlobalSearch() {
-  const currentPageId = useSelector(getCurrentPageId);
+  const currentPageId = useSelector(getCurrentPageId) as string;
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [snippets, setSnippetsState] = useState([]);
@@ -212,7 +211,6 @@ function GlobalSearch() {
   );
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
-  const applicationId = useSelector(getCurrentApplicationId);
 
   const toggleShow = () => {
     if (modalOpen) {
@@ -411,7 +409,7 @@ function GlobalSearch() {
     );
   };
 
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const { applicationSlug } = useSelector(selectRelevantSlugNames);
   const pageIdToSlugMap = useSelector(selectPageSlugToIdMap);
 
   const handleActionClick = (item: SearchItem) => {
@@ -420,7 +418,7 @@ function GlobalSearch() {
     const actionConfig = getActionConfig(pluginType);
     const url = actionConfig?.getURL(
       applicationSlug,
-      pageIdToSlugMap[pageId],
+      pageIdToSlugMap[pageId] as string,
       pageId,
       id,
       pluginType,
@@ -461,7 +459,7 @@ function GlobalSearch() {
     history.push(
       BUILDER_PAGE_URL({
         applicationSlug,
-        pageSlug: pageIdToSlugMap[item.pageId],
+        pageSlug: pageIdToSlugMap[item.pageId] as string,
         pageId: item.pageId,
       }),
     );
@@ -516,7 +514,12 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
       if (item.action) dispatch(item.action(currentPageId, "OMNIBAR"));
       else if (item.redirect)
-        item.redirect(currentPageId, "OMNIBAR", applicationId);
+        item.redirect(
+          applicationSlug,
+          pageIdToSlugMap[currentPageId],
+          currentPageId,
+          "OMNIBAR",
+        );
       dispatch(toggleShowGlobalSearchModal());
     },
   };

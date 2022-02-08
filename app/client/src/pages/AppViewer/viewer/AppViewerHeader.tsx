@@ -23,7 +23,7 @@ import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
 import {
   getViewModePageList,
-  selectCurrentApplicationSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
@@ -152,12 +152,12 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-  const pageId = useSelector(getCurrentPageId);
+  const pageId = useSelector(getCurrentPageId) as string;
   const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   function HtmlTitle() {
     if (!currentApplicationDetails?.name) return null;
@@ -173,6 +173,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     window.location.origin
   }${getApplicationViewerPageURL({
     applicationSlug,
+    pageSlug,
     pageId,
     suffix: "fork",
   })}`;

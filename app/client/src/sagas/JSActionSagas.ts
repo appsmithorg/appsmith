@@ -32,8 +32,8 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { JS_COLLECTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
@@ -50,7 +50,6 @@ import {
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
-import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -170,9 +169,14 @@ function* copyJSCollectionSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSCollection = yield select(getJSCollection, id);
-  const applicationId = yield select(getCurrentApplicationId);
+  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
   history.push(
-    JS_COLLECTION_ID_URL(applicationId, jsAction.pageId, jsAction.id),
+    JS_COLLECTION_ID_URL(
+      applicationSlug,
+      pageSlug,
+      jsAction.pageId,
+      jsAction.id,
+    ),
   );
 }
 
@@ -222,7 +226,7 @@ function* moveJSCollectionSaga(
 }
 
 export const getIndexToBeRedirected = (
-  jsActions: Array<DataTreeJSAction>,
+  jsActions: Array<JSCollectionData>,
   id: string,
 ): number | undefined => {
   let resultIndex = undefined;
@@ -247,12 +251,11 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const jsActions = yield select(getJSCollections);
-
+    const jsActions: JSCollectionData[] = yield select(getJSCollections);
     const response = yield JSActionAPI.deleteJSCollection(id);
-    const isValidResponse = yield validateResponse(response);
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const isValidResponse: boolean = yield validateResponse(response);
+    const pageId: string = yield select(getCurrentPageId);
+    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
     if (isValidResponse) {
       Toaster.show({
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
@@ -266,12 +269,18 @@ export function* deleteJSCollectionSaga(
         if (getIndex) {
           const jsAction = jsActions[getIndex];
           history.push(
-            JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
+            JS_COLLECTION_ID_URL(
+              applicationSlug,
+              pageSlug,
+              pageId,
+              jsAction.config.id,
+            ),
           );
         } else {
           history.push(
             BUILDER_PAGE_URL({
-              applicationId,
+              applicationSlug,
+              pageSlug,
               pageId,
             }),
           );

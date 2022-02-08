@@ -71,6 +71,7 @@ import {
   getCurrentPageId,
   getCurrentPageName,
   selectCurrentApplicationSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -531,10 +532,10 @@ export function* createPageSaga(
       );
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
-        const firstTimeUserOnboardingApplicationId = yield select(
+        const firstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
-        const isFirstTimeUserOnboardingEnabled = yield select(
+        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
           getIsFirstTimeUserOnboardingEnabled,
         );
         if (
@@ -594,11 +595,8 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
 export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
   try {
     const request: DeletePageRequest = action.payload;
-    const defaultPageId = yield select(
+    const defaultPageId: string = yield select(
       (state: AppState) => state.entities.pageList.defaultPageId,
-    );
-    const applicationId = yield select(
-      (state: AppState) => state.entities.pageList.applicationId,
     );
     if (defaultPageId === request.id) {
       throw Error("Cannot delete the home page.");
@@ -616,13 +614,17 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
           dsl: undefined,
         },
       });
-      const currentPageId = yield select(
+      const { applicationSlug, pageSlug } = yield select(
+        selectRelevantSlugNames,
+      );
+      const currentPageId: string = yield select(
         (state: AppState) => state.entities.pageList.currentPageId,
       );
       if (currentPageId === action.payload.id)
         history.push(
           BUILDER_PAGE_URL({
-            applicationId: applicationId,
+            applicationSlug,
+            pageSlug,
             pageId: defaultPageId,
           }),
         );
@@ -667,10 +669,14 @@ export function* clonePageSaga(
       yield put(selectMultipleWidgetsAction([]));
 
       if (!clonePageAction.payload.blockNavigation) {
-        const applicationId = yield select(getCurrentApplicationId);
+        const applicationSlug: string = yield select(
+          selectCurrentApplicationSlug,
+        );
         history.push(
           BUILDER_PAGE_URL({
-            applicationId,
+            applicationSlug,
+            //Comeback
+            pageSlug: response.data.slug,
             pageId: response.data.id,
           }),
         );
@@ -977,10 +983,13 @@ export function* generateTemplatePageSaga(
       // TODO : Add this to onSuccess (Redux Action)
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
       // TODO : Add it to onSuccessCallback
-      const applicationId = yield select(getCurrentApplicationId);
+      const applicationSlug: string = yield select(
+        selectCurrentApplicationSlug,
+      );
       history.replace(
         BUILDER_PAGE_URL({
-          applicationId,
+          applicationSlug,
+          pageSlug: response.data.page.slug,
           pageId,
         }),
       );

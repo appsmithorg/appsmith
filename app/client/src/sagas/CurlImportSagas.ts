@@ -16,14 +16,14 @@ import history from "utils/history";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { selectRelevantSlugNames } from "selectors/editorSelectors";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { name, pageId, type } = action.payload;
   let { curl } = action.payload;
   try {
     curl = transformCurlImport(curl);
-    const organizationId = yield select(getCurrentOrgId);
+    const organizationId: string = yield select(getCurrentOrgId);
     const request: CurlImportRequest = {
       type,
       pageId,
@@ -33,8 +33,9 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
     };
 
     const response: ApiResponse = yield CurlImportApi.curlImport(request);
-    const isValidResponse = yield validateResponse(response);
-    const applicationId = yield select(getCurrentApplicationId);
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
 
     if (isValidResponse) {
       AnalyticsUtil.logEvent("IMPORT_API", {
@@ -50,7 +51,9 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         payload: response.data,
       });
 
-      history.push(API_EDITOR_ID_URL(applicationId, pageId, response.data.id));
+      history.push(
+        API_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, response.data.id),
+      );
     }
   } catch (error) {
     yield put({

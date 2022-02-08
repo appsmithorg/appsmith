@@ -21,7 +21,7 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
-  selectCurrentApplicationSlug,
+  selectRelevantSlugNames,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -218,7 +218,7 @@ const HamburgerContainer = styled.div`
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
-  pageId?: string;
+  pageId: string;
   isPublishing: boolean;
   publishedTime?: string;
   orgId: string;
@@ -339,7 +339,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
 
   return (
     <ThemeProvider theme={theme}>
@@ -408,6 +408,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               className="t--application-name editable-application-name max-w-48"
               currentDeployLink={getApplicationViewerPageURL({
                 applicationSlug,
+                pageSlug,
                 pageId,
               })}
               defaultSavingState={
@@ -505,7 +506,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               <DeployLinkButtonDialog
                 link={getApplicationViewerPageURL({
                   applicationSlug,
-                  pageSlug: "dashboard",
+                  pageSlug,
                   pageId,
                 })}
                 trigger={
@@ -549,7 +550,7 @@ const mapStateToProps = (state: AppState) => ({
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
-  pageId: getCurrentPageId(state),
+  pageId: getCurrentPageId(state) as string,
   sharedUserList: getAllUsers(state),
   currentUser: getCurrentUser(state),
 });

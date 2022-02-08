@@ -25,7 +25,7 @@ export type ActionGroupConfig = {
   key: string;
   getURL: (
     applicationSlug: string,
-    pageSlug: string | undefined,
+    pageSlug: string,
     pageId: string,
     id: string,
     pluginType: PluginType,
@@ -51,7 +51,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     key: generateReactKey(),
     getURL: (
       applicationSlug: string,
-      pageSlug: string | undefined,
+      pageSlug: string,
       pageId: string,
       id: string,
       pluginType: PluginType,
