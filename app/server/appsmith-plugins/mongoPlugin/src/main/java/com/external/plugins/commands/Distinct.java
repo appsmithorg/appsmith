@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.external.plugins.constants.FieldName;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
@@ -27,6 +28,7 @@ import static com.external.plugins.constants.FieldName.KEY;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class Distinct extends MongoCommand {
     String query;
     String key;

@@ -613,7 +613,7 @@ public class MongoPluginTest {
                     "  \"aggregate\": \"users\",\n" +
                     "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ]" + 
                     " ,\n" +
-                    "  \"explain\": \"true\", \n" + 
+                    "  \"explain\": \"true\" \n" + 
                     "  }\n");
 
                     assertEquals(((Map<String, Object>) aggregateTemplate.getConfiguration()).get(COMMAND), "AGGREGATE");

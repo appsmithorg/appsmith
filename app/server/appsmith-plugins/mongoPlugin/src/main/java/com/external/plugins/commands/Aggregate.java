@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.ActionConfiguration;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
@@ -33,6 +34,7 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class Aggregate extends MongoCommand {
     String pipeline;
     String limit;
@@ -118,7 +120,7 @@ public class Aggregate extends MongoCommand {
                 "  \"aggregate\": \"" + collectionName + "\",\n" +
                 "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ]" + 
                 " ,\n" +
-                "  \"explain\": \"true\", \n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
+                "  \"explain\": \"true\" \n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
                 "}\n";
 
         return Collections.singletonList(new DatasourceStructure.Template(
