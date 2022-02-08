@@ -8,6 +8,8 @@ import { DropdownOption } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -90,16 +92,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             },
           },
           {
-            helpText: "Sets a Label Text",
-            propertyName: "labelText",
-            label: "Label Text",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter Label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -169,6 +161,65 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "labelText",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "LABEL_POSITION_OPTIONS",
+            options: [
+              LabelPosition.Auto,
+              LabelPosition.Top,
+              LabelPosition.Left,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: SelectWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: SelectWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
           },
         ],
       },
@@ -342,10 +393,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}
         label={this.props.optionValue?.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={
+          (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace
+        }
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
@@ -402,6 +458,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 export interface SelectWidgetProps extends WidgetProps {
   placeholderText?: string;
   label?: string;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
   selectedIndex?: number;
   selectedOption: DropdownOption;
   options?: DropdownOption[];

@@ -1,6 +1,12 @@
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import { MenuItem, Button, Classes } from "@blueprintjs/core";
+import {
+  MenuItem,
+  Button,
+  Classes,
+  Alignment,
+  Position,
+} from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
@@ -15,10 +21,12 @@ import {
   DropdownStyles,
   DropdownContainer,
   StyledDiv,
+  StyledTooltip,
 } from "./index.styled";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon, { IconSize } from "components/ads/Icon";
+import { LabelPosition } from "components/constants";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -34,6 +42,7 @@ const DEBOUNCE_TIMEOUT = 800;
 interface SelectComponentState {
   activeItemIndex: number | undefined;
   query?: string;
+  hasLabelEllipsis: boolean;
 }
 class SelectComponent extends React.Component<
   SelectComponentProps,
@@ -43,17 +52,28 @@ class SelectComponent extends React.Component<
     // used to show focused item for keyboard up down key interection
     activeItemIndex: 0,
     query: "",
+    hasLabelEllipsis: false,
   };
   componentDidMount = () => {
     // set default selectedIndex as focused index
     this.setState({ activeItemIndex: this.props.selectedIndex ?? 0 });
     this.setState({ query: this.props.filterText });
+    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
   };
 
   componentDidUpdate = (prevProps: SelectComponentProps) => {
     if (prevProps.selectedIndex !== this.props.selectedIndex) {
       // update focus index if selectedIndex changed by property pane
       this.setState({ activeItemIndex: this.props.selectedIndex });
+    }
+
+    if (
+      prevProps.width !== this.props.width ||
+      prevProps.labelText !== this.props.labelText ||
+      prevProps.labelPosition !== this.props.labelPosition ||
+      prevProps.labelWidth !== this.props.labelWidth
+    ) {
+      this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
     }
   };
 
@@ -65,15 +85,31 @@ class SelectComponent extends React.Component<
     ]);
     this.setState({ activeItemIndex });
   };
+
+  checkHasLabelEllipsis = () => {
+    const labelElement = document.querySelector(
+      `.appsmith_widget_${this.props.widgetId} .select-label`,
+    );
+
+    if (labelElement) {
+      return labelElement.scrollWidth > labelElement.clientWidth;
+    }
+
+    return false;
+  };
+
   render() {
     const {
       compactMode,
       disabled,
       isLoading,
+      labelAlignment,
+      labelPosition,
       labelStyle,
       labelText,
       labelTextColor,
       labelTextSize,
+      labelWidth,
       widgetId,
     } = this.props;
     // active focused item
@@ -93,30 +129,66 @@ class SelectComponent extends React.Component<
       : this.props.placeholder || "-- Select --";
 
     return (
-      <DropdownContainer compactMode={compactMode}>
+      <DropdownContainer
+        compactMode={compactMode}
+        labelPosition={labelPosition}
+      >
         <DropdownStyles
           dropDownWidth={this.props.dropDownWidth}
           id={widgetId}
           parentWidth={this.props.width - WidgetContainerDiff}
         />
         {labelText && (
-          <TextLabelWrapper compactMode={compactMode}>
-            <StyledLabel
-              $compactMode={compactMode}
-              $disabled={!!disabled}
-              $labelStyle={labelStyle}
-              $labelText={labelText}
-              $labelTextColor={labelTextColor}
-              $labelTextSize={labelTextSize}
-              className={`select-label ${
-                isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }`}
-            >
-              {labelText}
-            </StyledLabel>
+          <TextLabelWrapper
+            alignment={labelAlignment}
+            compactMode={compactMode}
+            position={labelPosition}
+            width={labelWidth}
+          >
+            {this.state.hasLabelEllipsis ? (
+              <StyledTooltip
+                content={labelText}
+                hoverOpenDelay={200}
+                position={Position.TOP}
+              >
+                <StyledLabel
+                  $compactMode={compactMode}
+                  $disabled={!!disabled}
+                  $labelStyle={labelStyle}
+                  $labelText={labelText}
+                  $labelTextColor={labelTextColor}
+                  $labelTextSize={labelTextSize}
+                  className={`select-label ${
+                    isLoading
+                      ? Classes.SKELETON
+                      : Classes.TEXT_OVERFLOW_ELLIPSIS
+                  }`}
+                >
+                  {labelText}
+                </StyledLabel>
+              </StyledTooltip>
+            ) : (
+              <StyledLabel
+                $compactMode={compactMode}
+                $disabled={!!disabled}
+                $labelStyle={labelStyle}
+                $labelText={labelText}
+                $labelTextColor={labelTextColor}
+                $labelTextSize={labelTextSize}
+                className={`select-label ${
+                  isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+                }`}
+              >
+                {labelText}
+              </StyledLabel>
+            )}
           </TextLabelWrapper>
         )}
-        <StyledControlGroup fill>
+        <StyledControlGroup
+          compactMode={compactMode}
+          fill
+          labelPosition={labelPosition}
+        >
           <StyledSingleDropDown
             activeItem={activeItem}
             className={isLoading ? Classes.SKELETON : ""}
@@ -242,10 +314,13 @@ export interface SelectComponentProps extends ComponentProps {
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;
-  labelText?: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
+  labelText: string;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelWidth: number;
   compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];

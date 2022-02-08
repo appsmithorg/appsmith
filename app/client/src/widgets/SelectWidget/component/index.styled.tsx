@@ -1,4 +1,4 @@
-import { Classes, ControlGroup, Label } from "@blueprintjs/core";
+import { Alignment, Classes, ControlGroup, Label } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import {
@@ -12,13 +12,38 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
+import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
+import Tooltip from "components/ads/Tooltip";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
+  alignment?: Alignment;
+  position?: LabelPosition;
+  width?: number;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
   display: flex;
+
+  ${({ alignment, compactMode, position, width }) => `
+    ${
+      position !== LabelPosition.Top &&
+      (position === LabelPosition.Left || compactMode)
+        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        : `width: 100%;`
+    }
+    ${position === LabelPosition.Left &&
+      `
+      ${!width && `width: 33%`};
+      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
+      label {
+        ${width && `width: ${width}px`};
+        ${
+          alignment === Alignment.RIGHT
+            ? `text-align: right`
+            : `text-align: left`
+        };
+      }
+    `}
+  `}
 `;
 
 export const StyledDiv = styled.div`
@@ -50,7 +75,12 @@ export const StyledLabel = styled(Label)<{
     props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
 `;
 
-export const StyledControlGroup = styled(ControlGroup)`
+export const StyledControlGroup = styled(ControlGroup)<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  ${({ compactMode, labelPosition }) =>
+    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
   &&& > {
     span {
       height: 100%;
@@ -245,14 +275,39 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `;
 
-export const DropdownContainer = styled.div<{ compactMode: boolean }>`
+export const DropdownContainer = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
   ${BlueprintCSSTransform}
   display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  flex-direction: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Left) return "row";
+    if (labelPosition === LabelPosition.Top) return "column";
+    if (compactMode) return "row";
+    return "column";
+  }};
+  align-items: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Top) return "flex-start";
+    if (compactMode || labelPosition === LabelPosition.Left) return "center";
+    return "flex-start";
+  }};
+  ${({ compactMode, labelPosition }) =>
+    ((labelPosition !== LabelPosition.Left && !compactMode) ||
+      labelPosition === LabelPosition.Top) &&
+    `overflow-x: hidden; overflow-y: auto;`}
 
   label.select-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+    ${({ compactMode, labelPosition }) => {
+      if (labelPosition === LabelPosition.Top)
+        return "margin-bottom: 5px; margin-right: 0px";
+      if (compactMode || labelPosition === LabelPosition.Left)
+        return "margin-bottom: 0px; margin-right: 5px";
+      return "margin-bottom: 5px; margin-right: 0px";
+    }};
   }
+`;
+
+export const StyledTooltip = styled(Tooltip)`
+  overflow: hidden;
 `;
