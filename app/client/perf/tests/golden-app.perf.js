@@ -36,9 +36,16 @@ async function testTyping() {
   //   },
   // );
 
-  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app-dev.json`);
+  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app.json`);
 
   await delay(10000, "for newly created page to settle down");
+  const screenshotPath = `${APP_ROOT}/traces/reports/debug-${getFormattedTime()}.png`;
+
+  page.screenshot({
+    path: screenshotPath, // Save the screenshot in current directory
+
+    fullPage: true,
+  });
   // Make the elements of the dropdown render
   await page.waitForSelector(SEL.multiSelect);
   await page.click(SEL.multiSelect);
