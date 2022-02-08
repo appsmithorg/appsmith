@@ -140,6 +140,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
     encrypted,
     isRequired,
     label,
+    nestedFormControl,
     subtitle,
     tooltipText = "",
     url,
@@ -147,27 +148,29 @@ function renderFormConfigTop(props: { config: ControlProps }) {
   } = { ...props.config };
   return (
     <React.Fragment key={props.config.label}>
-      <FormLabel config={props.config}>
-        <p className="label-icon-wrapper">
-          {label} {isRequired && "*"}{" "}
-          {encrypted && (
-            <>
-              <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-              <FormSubtitleText config={props.config}>
-                Encrypted
-              </FormSubtitleText>
-            </>
+      {!nestedFormControl && ( // if the form control is a nested form control hide its label
+        <FormLabel config={props.config}>
+          <p className="label-icon-wrapper">
+            {label} {isRequired && "*"}{" "}
+            {encrypted && (
+              <>
+                <FormIcons.LOCK_ICON height={12} keepColors width={12} />
+                <FormSubtitleText config={props.config}>
+                  Encrypted
+                </FormSubtitleText>
+              </>
+            )}
+            {tooltipText && (
+              <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+                <FormIcons.HELP_ICON height={16} width={16} />
+              </Tooltip>
+            )}
+          </p>
+          {subtitle && (
+            <FormInfoText config={props.config}>{subtitle}</FormInfoText>
           )}
-          {tooltipText && (
-            <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-              <FormIcons.HELP_ICON height={16} width={16} />
-            </Tooltip>
-          )}
-        </p>
-        {subtitle && (
-          <FormInfoText config={props.config}>{subtitle}</FormInfoText>
-        )}
-      </FormLabel>
+        </FormLabel>
+      )}
       {urlText && (
         <FormInputAnchor href={url} target="_blank">
           {urlText}
