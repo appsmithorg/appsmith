@@ -12,7 +12,7 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
   });
 
   beforeEach(function() {
-    if (Cypress.env("MySQL") == 0) {
+    if (Cypress.env("MySQL") === 0) {
       cy.log("MySQL DB is not found. Using intercept");
       cy.startInterceptRoutesForMySQL();
     } else cy.log("MySQL DB is found, hence using actual DB");

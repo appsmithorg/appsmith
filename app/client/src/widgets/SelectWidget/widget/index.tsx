@@ -173,6 +173,31 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when a user selects an option",
+            propertyName: "onOptionChange",
+            label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Trigger an action on change of filterText",
+            hidden: (props: SelectWidgetProps) => !props.serverSideFiltering,
+            dependencies: ["serverSideFiltering"],
+            propertyName: "onFilterUpdate",
+            label: "onFilterUpdate",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
         sectionName: "Styles",
         children: [
           {
@@ -243,30 +268,37 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-        ],
-      },
-      {
-        sectionName: "Actions",
-        children: [
           {
-            helpText: "Triggers an action when a user selects an option",
-            propertyName: "onOptionChange",
-            label: "onOptionChange",
-            controlType: "ACTION_SELECTOR",
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
-            isTriggerProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Trigger an action on change of filterText",
-            hidden: (props: SelectWidgetProps) => !props.serverSideFiltering,
-            dependencies: ["serverSideFiltering"],
-            propertyName: "onFilterUpdate",
-            label: "onFilterUpdate",
-            controlType: "ACTION_SELECTOR",
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
             isJSConvertible: true,
             isBindProperty: true,
-            isTriggerProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -326,6 +358,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <SelectComponent
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -415,6 +450,9 @@ export interface SelectWidgetProps extends WidgetProps {
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   isDirty?: boolean;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default SelectWidget;

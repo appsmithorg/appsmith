@@ -35,8 +35,6 @@ import MenuIcon from "remixicon-react/MenuFillIcon";
 import CloseIcon from "remixicon-react/CloseFillIcon";
 import PageMenu from "./PageMenu";
 import CommentModeButton from "./CommentModeButton";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { ShareButtonComponent } from "../../Editor/EditorHeader";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 
 /**

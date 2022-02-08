@@ -1,5 +1,4 @@
 import { ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 

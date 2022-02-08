@@ -330,6 +330,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "boxShadow",
@@ -340,6 +341,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
     ],
   },

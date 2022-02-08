@@ -208,6 +208,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "inactiveColor",
@@ -216,6 +217,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },

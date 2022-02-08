@@ -85,6 +85,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "borderRadius",
@@ -96,6 +97,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },

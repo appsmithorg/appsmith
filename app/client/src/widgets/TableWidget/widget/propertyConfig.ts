@@ -1012,6 +1012,9 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                  },
                 },
                 {
                   propertyName: "boxShadow",
@@ -1035,6 +1038,9 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                  },
                 },
                 {
                   propertyName: "buttonLabelColor",
@@ -1242,6 +1248,7 @@ export default [
                               "derivedColumns",
                               "columnOrder",
                             ],
+                            validation: { type: ValidationTypes.TEXT },
                           },
                           {
                             propertyName: "textColor",
@@ -1645,6 +1652,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "textColor",
@@ -1653,8 +1661,9 @@ export default [
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],
         isJSConvertible: true,
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "textSize",
@@ -1772,6 +1781,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "boxShadow",
@@ -1782,6 +1792,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
     ],
   },

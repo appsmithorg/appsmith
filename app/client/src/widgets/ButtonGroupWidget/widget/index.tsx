@@ -355,6 +355,7 @@ class ButtonGroupWidget extends BaseWidget<
                                 isJSConvertible: true,
                                 isBindProperty: true,
                                 isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
                               },
                               {
                                 propertyName: "textColor",
@@ -460,6 +461,7 @@ class ButtonGroupWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "boxShadow",
@@ -470,6 +472,7 @@ class ButtonGroupWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },

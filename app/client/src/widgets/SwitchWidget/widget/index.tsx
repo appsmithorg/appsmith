@@ -112,6 +112,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },

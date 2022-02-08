@@ -95,6 +95,7 @@ class SelectComponent extends React.Component<
     return (
       <DropdownContainer compactMode={compactMode}>
         <DropdownStyles
+          borderRadius={this.props.borderRadius}
           dropDownWidth={this.props.dropDownWidth}
           id={widgetId}
           parentWidth={this.props.width - WidgetContainerDiff}
@@ -119,6 +120,9 @@ class SelectComponent extends React.Component<
         <StyledControlGroup fill>
           <StyledSingleDropDown
             activeItem={activeItem}
+            backgroundColor={this.props.backgroundColor}
+            borderRadius={this.props.borderRadius}
+            boxShadow={this.props.boxShadow}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -261,6 +265,9 @@ export interface SelectComponentProps extends ComponentProps {
   value?: string;
   label?: string;
   filterText?: string;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default SelectComponent;

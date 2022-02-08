@@ -2,7 +2,6 @@ import { transformDSL } from "./DSLMigrations";
 import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
-import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 
 describe("correctly migrate dsl", () => {
   it("transformDSL", () => {
@@ -604,7 +603,11 @@ describe("correctly migrate dsl", () => {
           dynamicTriggerPathList: [],
           resetOnSubmit: true,
           leftColumn: 23,
-          dynamicBindingPathList: [],
+          dynamicBindingPathList: [
+            {
+              key: "primaryColor",
+            },
+          ],
           labelStyle: "",
           inputType: "TEXT",
           isDisabled: false,
@@ -621,6 +624,9 @@ describe("correctly migrate dsl", () => {
           isLoading: false,
           iconAlign: "left",
           defaultText: "",
+          borderRadius: "0px",
+          boxShadow: "none",
+          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         },
         {
           widgetName: "Button1",
@@ -663,6 +669,8 @@ describe("correctly migrate dsl", () => {
           isLoading: false,
           buttonVariant: "PRIMARY",
           placement: "CENTER",
+          borderRadius: "0px",
+          boxShadow: "none",
         },
         {
           widgetName: "Input2",
@@ -694,6 +702,14 @@ describe("correctly migrate dsl", () => {
           isLoading: false,
           iconAlign: "left",
           defaultText: "",
+          borderRadius: "0px",
+          boxShadow: "none",
+          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          dynamicBindingPathList: [
+            {
+              key: "primaryColor",
+            },
+          ],
         },
         {
           widgetName: "List1",
@@ -838,6 +854,9 @@ describe("correctly migrate dsl", () => {
             {
               key: "template.Text2.text",
             },
+            {
+              key: "primaryColor",
+            },
           ],
           gridType: "vertical",
           enhancements: true,
@@ -859,7 +878,7 @@ describe("correctly migrate dsl", () => {
               leftColumn: 0,
               children: [
                 {
-                  boxShadow: "NONE",
+                  boxShadow: "none",
                   widgetName: "Container1",
                   borderColor: "transparent",
                   disallowCopy: true,
@@ -959,6 +978,8 @@ describe("correctly migrate dsl", () => {
                           maxZoomLevel: 1,
                           enableDownload: false,
                           enableRotation: false,
+                          borderRadius: "0px",
+                          boxShadow: "none",
                         },
                         {
                           widgetName: "Text1",
@@ -1025,8 +1046,10 @@ describe("correctly migrate dsl", () => {
                           parentId: "vqn2okwc6a",
                           renderMode: "CANVAS",
                           isLoading: false,
-                          fontSize: "PARAGRAPH",
+                          fontSize: "0.875rem",
                           textStyle: "HEADING",
+                          borderRadius: "0px",
+                          boxShadow: "none",
                         },
                         {
                           widgetName: "Text2",
@@ -1093,11 +1116,15 @@ describe("correctly migrate dsl", () => {
                           parentId: "vqn2okwc6a",
                           renderMode: "CANVAS",
                           isLoading: false,
-                          fontSize: "PARAGRAPH",
+                          fontSize: "0.875rem",
                           textStyle: "BODY",
+                          borderRadius: "0px",
+                          boxShadow: "none",
                         },
                       ],
                       key: "omhgz5cakp",
+                      borderRadius: "0px",
+                      boxShadow: "none",
                     },
                   ],
                   borderWidth: "0",
@@ -1112,7 +1139,7 @@ describe("correctly migrate dsl", () => {
                   parentId: "q3ype57cdo",
                   renderMode: "CANVAS",
                   isLoading: false,
-                  borderRadius: "0",
+                  borderRadius: "0px",
                 },
               ],
               key: "omhgz5cakp",
@@ -1125,6 +1152,8 @@ describe("correctly migrate dsl", () => {
               parentId: "iupz1d99ka",
               renderMode: "CANVAS",
               isLoading: false,
+              borderRadius: "0px",
+              boxShadow: "none",
             },
           ],
           privateWidgets: {
@@ -1142,6 +1171,9 @@ describe("correctly migrate dsl", () => {
           renderMode: "CANVAS",
           isLoading: false,
           version: 1,
+          borderRadius: "0px",
+          boxShadow: "none",
+          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         },
       ],
       containerStyle: "none",
