@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
@@ -60,32 +60,51 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
 
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case "ArrowRight":
-      case "Right":
-        setFocusedIndex((prev) =>
-          prev === props.options.length - 1 ? 0 : prev + 1,
-        );
-        break;
-      case "ArrowLeft":
-      case "Left":
-        setFocusedIndex((prev) =>
-          prev === 0 ? props.options.length - 1 : prev - 1,
-        );
-        break;
-      case "Enter":
-      case " ":
-        props.selectButton(props.options[focusedIndex].value);
-        e.preventDefault();
-        break;
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowRight":
+        case "Right":
+          setFocusedIndex((prev) =>
+            prev === props.options.length - 1 ? 0 : prev + 1,
+          );
+          break;
+        case "ArrowLeft":
+        case "Left":
+          setFocusedIndex((prev) =>
+            prev === 0 ? props.options.length - 1 : prev - 1,
+          );
+          break;
+        case "Enter":
+        case " ":
+          props.selectButton(props.options[focusedIndex].value);
+          e.preventDefault();
+          break;
+      }
+    },
+    [props.options, focusedIndex],
+  );
+
+  const handleFocus = useCallback(() => setFocusedIndex(firstValueIndex), [
+    firstValueIndex,
+  ]);
+
+  const handleBlur = useCallback(() => setFocusedIndex(-1), []);
+
+  const handleItemClick = useCallback(
+    (index: number) => {
+      return () => {
+        props.selectButton(props.options[index].value);
+        setFocusedIndex(index);
+      };
+    },
+    [props.options],
+  );
 
   return (
     <FlexWrapper
-      onBlur={() => setFocusedIndex(-1)}
-      onFocus={() => setFocusedIndex(firstValueIndex)}
+      onBlur={handleBlur}
+      onFocus={handleFocus}
       onKeyDown={handleKeyDown}
       role="tablist"
       tabIndex={0}
@@ -101,10 +120,7 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
               index === focusedIndex ? "focused" : ""
             }`}
             key={index}
-            onClick={() => {
-              props.selectButton(option.value);
-              setFocusedIndex(index);
-            }}
+            onClick={handleItemClick(index)}
             role="tab"
             selected={isSelected}
           >
