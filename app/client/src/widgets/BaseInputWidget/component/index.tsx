@@ -71,14 +71,12 @@ const InputComponentWrapper = styled((props) => (
   compactMode: boolean;
   labelPosition: LabelPosition;
 }>`
-  flex-direction: ${(props) =>
-    props.labelPosition === LabelPosition.Left
-      ? "row"
-      : props.labelPosition === LabelPosition.Top
-      ? "column"
-      : props.compactMode
-      ? "row"
-      : "column"};
+  flex-direction: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Left) return "row";
+    if (labelPosition === LabelPosition.Top) return "column";
+    if (compactMode) return "row";
+    return "column";
+  }};
   ${({ compactMode, labelPosition }) =>
     ((labelPosition !== LabelPosition.Left && !compactMode) ||
       labelPosition === LabelPosition.Top) &&

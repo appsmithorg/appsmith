@@ -133,36 +133,30 @@ export interface CheckboxGroupContainerProps {
 
 export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   display: flex;
-  ${({ compactMode, labelPosition }) => `
-    flex-direction: ${
-      labelPosition === LabelPosition.Left
-        ? "row"
-        : labelPosition === LabelPosition.Top
-        ? "column"
-        : compactMode
-        ? "row"
-        : "column"
-    };
-    align-items: ${
-      labelPosition === LabelPosition.Top
-        ? `flex-start`
-        : compactMode || labelPosition === LabelPosition.Left
-        ? `center`
-        : `flex-start`
-    };
+  flex-direction: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Left) return "row";
+    if (labelPosition === LabelPosition.Top) return "column";
+    if (compactMode) return "row";
+    return "column";
+  }};
 
-    overflow-x: hidden;
+  align-items: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Top) return "flex-start";
+    if (compactMode || labelPosition === LabelPosition.Left) return "center";
+    return "flex-start";
+  }};
 
-    label.checkboxgroup-label {
-      ${
-        labelPosition === LabelPosition.Top
-          ? `margin-bottom: 5px; margin-right: 0px`
-          : compactMode || labelPosition === LabelPosition.Left
-          ? `margin-bottom: 0px; margin-right: 5px`
-          : `margin-bottom: 5px; margin-right: 0px`
-      };
-    }
-  `}
+  overflow-x: hidden;
+
+  label.checkboxgroup-label {
+    ${({ compactMode, labelPosition }) => {
+      if (labelPosition === LabelPosition.Top)
+        return "margin-bottom: 5px; margin-right: 0px";
+      if (compactMode || labelPosition === LabelPosition.Left)
+        return "margin-bottom: 0px; margin-right: 5px";
+      return "margin-bottom: 5px; margin-right: 0px";
+    }};
+  }
 
   & .select-all {
     white-space: nowrap;

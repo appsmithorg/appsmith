@@ -621,29 +621,27 @@ export const TreeSelectContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   display: flex;
-  flex-direction: ${(props) =>
-    props.labelPosition === LabelPosition.Left
-      ? "row"
-      : props.labelPosition === LabelPosition.Top
-      ? "column"
-      : props.compactMode
-      ? "row"
-      : "column"};
-  align-items: ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPosition.Top
-      ? `flex-start`
-      : compactMode || labelPosition === LabelPosition.Left
-      ? `center`
-      : `flex-start`};
+  flex-direction: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Left) return "row";
+    if (labelPosition === LabelPosition.Top) return "column";
+    if (compactMode) return "row";
+    return "column";
+  }};
+  align-items: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Top) return "flex-start";
+    if (compactMode || labelPosition === LabelPosition.Left) return "center";
+    return "flex-start";
+  }};
   overflow-x: hidden;
 
   label.multitree-select-label {
-    ${({ compactMode, labelPosition }) =>
-      labelPosition === LabelPosition.Top
-        ? `margin-bottom: 5px; margin-right: 0px`
-        : compactMode || labelPosition === LabelPosition.Left
-        ? `margin-bottom: 0px; margin-right: 5px`
-        : `margin-bottom: 5px; margin-right: 0px`};
+    ${({ compactMode, labelPosition }) => {
+      if (labelPosition === LabelPosition.Top)
+        return "margin-bottom: 5px; margin-right: 0px";
+      if (compactMode || labelPosition === LabelPosition.Left)
+        return "margin-bottom: 0px; margin-right: 5px";
+      return "margin-bottom: 5px; margin-right: 0px";
+    }};
   }
   .rc-tree-select {
     display: inline-block;
