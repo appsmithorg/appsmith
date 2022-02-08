@@ -6,6 +6,7 @@ import {
   CollidingSpace,
   CollidingSpaceMap,
   CollisionAccessors,
+  CollisionMap,
   CollisionTree,
   Delta,
   GridProps,
@@ -41,13 +42,13 @@ import {
 export function getMovementMap(
   occupiedSpaces: OccupiedSpace[],
   collidingSpaces: CollidingSpace[],
-  collidingSpaceMap: CollidingSpaceMap,
+  collidingSpaceMap: CollisionMap,
   gridProps: GridProps,
   delta = { X: 0, Y: 0 },
   shouldResize = true,
   movingSpacesArray: OccupiedSpace[], //can be named changedSpace
   globalDirection: ReflowDirection,
-  prevCollidingSpaces?: CollidingSpaceMap,
+  prevCollidingSpaceMap: CollidingSpaceMap,
   prevSpacesMap?: SpaceMap,
 ) {
   const movementMap: ReflowedSpaceMap = {};
@@ -56,7 +57,8 @@ export function getMovementMap(
     collidingSpaces,
     globalDirection,
     movingSpacesArray,
-    prevCollidingSpaces,
+    collidingSpaceMap,
+    prevCollidingSpaceMap,
     prevSpacesMap,
   );
 
@@ -172,7 +174,8 @@ function getCollisionTree(
   collidingSpaces: CollidingSpace[],
   globalDirection: ReflowDirection,
   movingSpacesArray: OccupiedSpace[],
-  prevCollidingSpaces?: CollidingSpaceMap,
+  collidingSpaceMap: CollisionMap,
+  prevCollidingSpaceMap: CollidingSpaceMap,
   prevSpacesMap?: SpaceMap,
 ) {
   const collisionTree: CollisionTree[] = [];
@@ -203,7 +206,8 @@ function getCollisionTree(
         globalDirection,
         i,
         collidingSpaces,
-        prevCollidingSpaces,
+        collidingSpaceMap,
+        prevCollidingSpaceMap,
         prevSpacesMap,
       );
 
@@ -231,7 +235,8 @@ function getCollisionTreeHelper(
   globalDirection: ReflowDirection,
   insertionIndex: number,
   globalCollidingSpaces: CollidingSpace[],
-  prevCollidingSpaces?: CollidingSpaceMap,
+  collidingSpaceMap: CollisionMap,
+  prevCollidingSpaceMap: CollidingSpaceMap,
   prevSpacesMap?: SpaceMap,
   emptySpaces = 0,
   processedNodes: { [key: string]: { [key: string]: boolean } } = {
@@ -270,11 +275,11 @@ function getCollisionTreeHelper(
     globalDirection,
     filteredMovingSpaces,
     globalCollidingSpaces,
-    prevCollidingValue,
     insertionIndex,
     globalProcessedNodes,
+    collidingSpaceMap,
+    prevCollidingSpaceMap,
     prevSpacesMap,
-    prevCollidingSpaces,
     occupiedSpaces,
   );
 
@@ -304,7 +309,8 @@ function getCollisionTreeHelper(
         globalDirection,
         insertionIndex,
         globalCollidingSpaces,
-        prevCollidingSpaces,
+        collidingSpaceMap,
+        prevCollidingSpaceMap,
         prevSpacesMap,
         nextEmptySpaces,
         currentProcessedNodes,

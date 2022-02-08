@@ -60,10 +60,16 @@ export type CollidingSpace = OccupiedSpace & {
   direction: ReflowDirection;
   collidingValue: number;
   collidingId: string;
+  isHorizontal: boolean;
   order: number;
 };
 
 export type CollidingSpaceMap = {
+  horizontal: CollisionMap;
+  vertical: CollisionMap;
+};
+
+export type CollisionMap = {
   [key: string]: CollidingSpace;
 };
 

@@ -20,6 +20,10 @@ type WidgetCollidingSpace = CollidingSpace & {
 };
 
 type WidgetCollidingSpaceMap = {
+  horizontal: WidgetCollisionMap;
+  vertical: WidgetCollisionMap;
+};
+export type WidgetCollisionMap = {
   [key: string]: WidgetCollidingSpace;
 };
 
@@ -77,6 +81,7 @@ export const useReflow = (
       immediateExitContainer,
       prevPositions.current,
       prevCollidingSpaces.current,
+      prevMovementMap.current,
     );
 
     prevPositions.current = newPositions;
@@ -92,9 +97,10 @@ export const useReflow = (
       );
 
     if (shouldSkipContainerReflow && collidingSpaceMap) {
-      const collidingSpaces = Object.values(
-        collidingSpaceMap,
-      ) as WidgetCollidingSpace[];
+      const collidingSpaces = [
+        ...Object.values(collidingSpaceMap.horizontal),
+        ...Object.values(collidingSpaceMap.vertical),
+      ] as WidgetCollidingSpace[];
 
       for (const collidingSpace of collidingSpaces) {
         if (checkIsDropTarget(collidingSpace.type)) {
