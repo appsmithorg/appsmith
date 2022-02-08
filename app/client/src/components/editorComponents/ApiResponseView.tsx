@@ -189,8 +189,7 @@ const StatusCodeText = styled(BaseText)<{ code: string }>`
   width: ${(props) => (props.code.startsWith("2") ? "100%" : "38px")};
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ${(props) =>
-    props.code.startsWith("2") ? "normal" : "ellipsis"};
+  text-overflow: ellipsis;
 
   ${({ code }) =>
     !code.startsWith("2") &&
