@@ -11,13 +11,18 @@ import {
   getUsedActionNames,
   getSavingStatusForActionName,
 } from "selectors/actionSelectors";
+import {
+  ACTION_INVALID_NAME_ERROR,
+  ACTION_NAME_CONFLICT_ERROR,
+  createMessage,
+} from "constants/messages";
 
 type NameEditorProps = {
   checkForGuidedTour?: boolean;
   children: (params: any) => JSX.Element;
   currentActionConfig: any;
   dispatchAction: (a: any) => any;
-  suffixErrorMessage?: string;
+  suffixErrorMessage?: (params?: any) => string;
 };
 
 /**
@@ -32,7 +37,7 @@ function NameEditor(props: NameEditorProps) {
     checkForGuidedTour,
     currentActionConfig,
     dispatchAction,
-    suffixErrorMessage = "is already being used or is a restricted keyword.",
+    suffixErrorMessage = ACTION_NAME_CONFLICT_ERROR,
   } = props;
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
@@ -63,12 +68,12 @@ function NameEditor(props: NameEditorProps) {
   const isInvalidNameForEntity = useCallback(
     (name: string): string | boolean => {
       if (!name || name.trim().length === 0) {
-        return "Please enter a valid name";
+        return createMessage(ACTION_INVALID_NAME_ERROR);
       } else if (
         name !== currentActionConfig?.name &&
         hasActionNameConflict(name)
       ) {
-        return `${name} ${suffixErrorMessage}`;
+        return createMessage(suffixErrorMessage, name);
       }
       return false;
     },

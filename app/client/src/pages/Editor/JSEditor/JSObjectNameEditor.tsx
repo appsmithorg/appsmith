@@ -15,6 +15,7 @@ import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { getJSCollection } from "selectors/entitiesSelector";
 import NameEditorComponent from "components/utils/NameEditorComponent";
+import { ACTION_NAME_PLACEHOLDER, createMessage } from "constants/messages";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -90,7 +91,7 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
             isEditingDefault={isNew}
             isInvalid={isInvalidNameForEntity}
             onBlur={handleNameChange}
-            placeholder="Name of the object in camelCase"
+            placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "object")}
             savingState={
               saveStatus.isSaving
                 ? SavingState.STARTED

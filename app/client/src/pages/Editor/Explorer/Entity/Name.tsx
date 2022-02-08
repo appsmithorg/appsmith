@@ -12,6 +12,7 @@ import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 import NameEditorComponent from "components/utils/NameEditorComponent";
+import { ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR } from "constants/messages";
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
@@ -155,7 +156,7 @@ export const EntityName = React.memo(
       <NameEditorComponent
         currentActionConfig={{ id: props.entityId, name: updatedName }}
         dispatchAction={handleUpdateName}
-        suffixErrorMessage="is already being used."
+        suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}
       >
         {({
           handleNameChange,

@@ -16,6 +16,7 @@ import { Classes } from "@blueprintjs/core";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import NameEditorComponent from "components/utils/NameEditorComponent";
+import { ACTION_NAME_PLACEHOLDER, createMessage } from "constants/messages";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -111,7 +112,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
               isEditingDefault={isNew}
               isInvalid={isInvalidNameForEntity}
               onTextChanged={handleNameChange}
-              placeholder="Name of the API in camelCase"
+              placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "Api")}
               type="text"
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
