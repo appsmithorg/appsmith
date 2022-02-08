@@ -14,6 +14,7 @@ export enum TextType {
   H5 = "h5",
   H6 = "h6",
   BUTTON_MEDIUM = "btnMedium",
+  BUTTON_SMALL = "btnSmall",
   SIDE_HEAD = "sideHeading",
 }
 
@@ -33,7 +34,6 @@ export type TextProps = CommonComponentProps & {
   underline?: boolean;
   italic?: boolean;
   case?: Case;
-  className?: string;
   weight?: FontWeight | string;
   highlight?: boolean;
   textAlign?: string;
