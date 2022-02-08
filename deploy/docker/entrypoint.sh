@@ -64,9 +64,10 @@ unset_unused_variables() {
 }
 
 check_mongodb_uri() {
-  echo 'Check mongodb uri host'
+  echo "Check mongodb uri host"
   isUriLocal=1
   if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
+    echo "Use local MongoDB"
     isUriLocal=0
   fi
 }
@@ -123,17 +124,17 @@ init_replica_set() {
 
   if [[ $isUriLocal -gt 0 ]]; then
     # Check mongodb cloud replica set
-    echo 'Check mongodb cloud replica set'
+    echo "Check mongodb cloud replica set"
     responseStatus=$(mongo "$APPSMITH_MONGODB_URI" --eval "rs.status()" | grep ok | xargs)
-    okString='ok : 1'
+    okString="ok : 1"
 
     if [[ $responseStatus == *$okString* ]]; then
       echo "Mongodb cloud replica set is enabled"
       mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     else
-      echo -e '\033[0;31m********************************************************************\033[0m'
-      echo -e '\033[0;31m*          Mongodb cloud replica set is not enabled                *\033[0m'
-      echo -e '\033[0;31m********************************************************************\033[0m'
+      echo -e "\033[0;31m********************************************************************\033[0m"
+      echo -e "\033[0;31m*          Mongodb cloud replica set is not enabled                *\033[0m"
+      echo -e "\033[0;31m********************************************************************\033[0m"
       exit 1
     fi
   fi
