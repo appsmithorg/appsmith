@@ -39,10 +39,10 @@ ff4j:
       enable: true
       description: Enable git for apps
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com
+          - name: weight
+            value: 1
 
     - uid: GIT_IMPORT
       enable: true

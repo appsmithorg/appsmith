@@ -24,12 +24,13 @@ describe("Form Widget Functionality", function() {
   it("Add Multiple widgets in Form", function() {
     cy.get(explorer.addWidget).click();
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
-    cy.dragAndDropToWidget("multiselectwidget", "formwidget", {
+    cy.dragAndDropToWidget("multiselectwidgetv2", "formwidget", {
       x: 100,
       y: 100,
     });
+    cy.wait(500);
     cy.dragAndDropToWidget("inputwidgetv2", "formwidget", { x: 50, y: 200 });
-    cy.get(formWidgetsPage.multiselectWidget).should("be.visible");
+    cy.get(formWidgetsPage.multiselectwidgetv2).should("be.visible");
     cy.get(widgetsPage.inputWidget).should("be.visible");
     cy.PublishtheApp();
   });
