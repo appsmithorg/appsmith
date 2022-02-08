@@ -1,13 +1,16 @@
-import { set, cloneDeep } from "lodash";
+import { set, cloneDeep, get } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
-import isObject from "lodash/isObject";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+
 import {
   ReduxActionTypes,
   ReduxAction,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import { Diff } from "deep-diff";
+import produce from "immer";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { isWidget } from "../../workers/evaluationUtils";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -17,24 +20,41 @@ export const metaReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_META_STATE]: (
     state: MetaState,
     action: ReduxAction<{
-      updatedWidgetMetaState: Record<string, DataTreeWidget>;
+      updates: Diff<any, any>[];
+      updatedDataTree: DataTree;
     }>,
   ) => {
-    // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
-    const newMetaState = cloneDeep(state);
-    const { updatedWidgetMetaState } = action.payload;
+    const { updatedDataTree, updates } = action.payload;
 
-    Object.entries(updatedWidgetMetaState).forEach(
-      ([entityWidgetId, entityMetaState]) => {
-        if (isObject(newMetaState[entityWidgetId])) {
-          Object.keys(newMetaState[entityWidgetId]).forEach((key) => {
-            if (key in entityMetaState) {
-              newMetaState[entityWidgetId][key] = entityMetaState[key];
+    // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
+    const newMetaState = produce(state, (draftMetaState) => {
+      if (updates.length) {
+        updates.forEach((update) => {
+          // if meta field is updated in the dataTree then update metaReducer values.
+          if (
+            update.kind === "E" &&
+            update.path?.length &&
+            update.path?.length > 1 &&
+            update.path[1] === "meta"
+          ) {
+            // path eg: Input1.meta.defaultText
+            const entity = get(updatedDataTree, update.path[0]);
+            const metaPropertyPath = update.path.slice(2);
+            if (
+              isWidget(entity) &&
+              entity.widgetId &&
+              metaPropertyPath.length
+            ) {
+              set(
+                draftMetaState,
+                [entity.widgetId, ...metaPropertyPath],
+                update.rhs,
+              );
             }
-          });
-        }
-      },
-    );
+          }
+        });
+      }
+    });
     return newMetaState;
   },
   [ReduxActionTypes.SET_META_PROP]: (
