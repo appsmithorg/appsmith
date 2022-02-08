@@ -11,15 +11,17 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { set } from "lodash";
+import { get, set } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import moment from "moment";
-import { extraLibrariesNames } from "./DynamicBindingUtils";
+import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
+import { DSLWidget } from "widgets/constants";
+import * as Sentry from "@sentry/react";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -611,4 +613,35 @@ export const mergeWidgetConfig = (target: any, source: any) => {
 
 export const getLocale = () => {
   return navigator.languages?.[0] || "en-US";
+};
+
+/**
+ * Function to check if the DynamicBindingPathList is valid
+ * @param currentDSL
+ * @returns
+ */
+export const captureInvalidDynamicBindingPath = (
+  currentDSL: Readonly<DSLWidget>,
+) => {
+  //Get the dynamicBindingPathList of the current DSL
+  const dynamicBindingPathList = get(currentDSL, "dynamicBindingPathList");
+  dynamicBindingPathList?.forEach((dBindingPath) => {
+    const pathValue = get(currentDSL, dBindingPath.key); //Gets the value for the given dynamic binding path
+    /**
+     * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
+     */
+    if (!isDynamicValue(pathValue)) {
+      Sentry.captureException(
+        new Error(
+          `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
+        ),
+      );
+      return;
+    }
+  });
+
+  if (currentDSL.children) {
+    currentDSL.children.map(captureInvalidDynamicBindingPath);
+  }
+  return currentDSL;
 };

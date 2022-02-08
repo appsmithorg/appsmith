@@ -69,7 +69,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -714,12 +716,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Import and save pages, also update the pages related fields in saved application
                     assert importedNewPageList != null;
+
+                    // For git-sync this will not be empty
+                    Mono<List<NewPage>> existingPagesMono = newPageService
+                            .findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
+                            .collectList()
+                            .cache();
+
                     return importAndSavePages(
                             importedNewPageList,
                             importedApplication,
                             importedDoc.getPublishedLayoutmongoEscapedWidgets(),
                             importedDoc.getUnpublishedLayoutmongoEscapedWidgets(),
-                            branchName
+                            branchName,
+                            existingPagesMono
                     )
                             .map(newPage -> {
                                 ApplicationPage unpublishedAppPage = new ApplicationPage();
@@ -759,7 +769,34 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return applicationPages;
                             })
                             .then()
-                            .thenReturn(applicationPages);
+                            .thenReturn(applicationPages)
+                            .flatMap(unused -> {
+                                if (!StringUtils.isEmpty(applicationId)) {
+                                    Set<String> validPageIds = applicationPages.get(PublishType.UNPUBLISHED).stream()
+                                            .map(ApplicationPage::getId).collect(Collectors.toSet());
+
+                                    validPageIds.addAll(applicationPages.get(PublishType.PUBLISHED).stream()
+                                            .map(ApplicationPage::getId).collect(Collectors.toSet()));
+
+                                    return existingPagesMono
+                                            .flatMap(existingPagesList -> {
+                                                List<String> inValidIds = new ArrayList<>();
+                                                for (NewPage newPage : existingPagesList) {
+                                                    if(!validPageIds.contains(newPage.getId())) {
+                                                        inValidIds.add(newPage.getId());
+                                                    }
+                                                }
+
+                                                // Delete the pages which were removed during git merge operation
+                                                // This does not apply to the traditional import via file approach
+                                                return Flux.fromIterable(inValidIds)
+                                                        .flatMap(applicationPageService::deleteUnpublishedPage)
+                                                        .then()
+                                                        .thenReturn(applicationPages);
+                                            });
+                                }
+                                return Mono.just(applicationPages);
+                            });
                 })
                 .flatMap(applicationPageMap -> {
                     importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISHED));
@@ -784,19 +821,31 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     && !StringUtils.isEmpty(action.getUnpublishedAction().getPageId()))
                             .flatMap(newAction -> {
                                 NewPage parentPage = new NewPage();
+                                ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                                ActionDTO publishedAction = newAction.getPublishedAction();
+
                                 if (newAction.getDefaultResources() != null) {
                                     newAction.getDefaultResources().setBranchName(branchName);
                                 }
-                                if (newAction.getUnpublishedAction() != null && newAction.getUnpublishedAction().getName() != null) {
-                                    newAction.getUnpublishedAction().setId(newAction.getId());
-                                    parentPage = updatePageInAction(newAction.getUnpublishedAction(), pageNameMap, actionIdMap);
-                                    sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceMap, pluginMap, organizationId, false);
+
+                                // If pageId is missing in the actionDTO create a fallback pageId
+                                final String fallbackParentPageId = unpublishedAction.getPageId();
+
+                                // pageNameMap.get(action.getPageId())
+                                if (unpublishedAction.getName() != null) {
+                                    unpublishedAction.setId(newAction.getId());
+                                    parentPage = updatePageInAction(unpublishedAction, pageNameMap, actionIdMap);
+                                    sanitizeDatasourceInActionDTO(unpublishedAction, datasourceMap, pluginMap, organizationId, false);
                                 }
 
-                                if (newAction.getPublishedAction() != null && newAction.getPublishedAction().getName() != null) {
-                                    newAction.getPublishedAction().setId(newAction.getId());
-                                    parentPage = updatePageInAction(newAction.getPublishedAction(), pageNameMap, actionIdMap);
-                                    sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceMap, pluginMap, organizationId, false);
+                                if (publishedAction != null && publishedAction.getName() != null) {
+                                    publishedAction.setId(newAction.getId());
+                                    if (StringUtils.isEmpty(publishedAction.getPageId())) {
+                                        publishedAction.setPageId(fallbackParentPageId);
+                                    }
+                                    NewPage publishedActionPage = updatePageInAction(publishedAction, pageNameMap, actionIdMap);
+                                    parentPage = parentPage == null ? publishedActionPage : parentPage;
+                                    sanitizeDatasourceInActionDTO(publishedAction, datasourceMap, pluginMap, organizationId, false);
                                 }
 
                                 examplesOrganizationCloner.makePristine(newAction);
@@ -898,17 +947,25 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 final String importedActionCollectionId = actionCollection.getId();
                                 NewPage parentPage = new NewPage();
                                 final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-                                if (unpublishedCollection != null && unpublishedCollection.getName() != null) {
+                                final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+
+                                // If pageId is missing in the actionDTO create a fallback pageId
+                                final String fallbackParentPageId = unpublishedCollection.getPageId();
+
+                                if (unpublishedCollection.getName() != null) {
                                     unpublishedCollection.setDefaultToBranchedActionIdsMap(unpublishedActionCollectionIdMap.get(importedActionCollectionId));
                                     unpublishedCollection.setPluginId(pluginMap.get(unpublishedCollection.getPluginId()));
                                     parentPage = updatePageInActionCollection(unpublishedCollection, pageNameMap);
                                 }
 
-                                final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
                                 if (publishedCollection != null && publishedCollection.getName() != null) {
                                     publishedCollection.setDefaultToBranchedActionIdsMap(publishedActionCollectionIdMap.get(importedActionCollectionId));
                                     publishedCollection.setPluginId(pluginMap.get(publishedCollection.getPluginId()));
-                                    parentPage = updatePageInActionCollection(publishedCollection, pageNameMap);
+                                    if (StringUtils.isEmpty(publishedCollection.getPageId())) {
+                                        publishedCollection.setPageId(fallbackParentPageId);
+                                    }
+                                    NewPage publishedCollectionPage = updatePageInActionCollection(publishedCollection, pageNameMap);
+                                    parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                                 }
 
                                 examplesOrganizationCloner.makePristine(actionCollection);
@@ -1061,12 +1118,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                              Application application,
                                              Map<String, Set<String>> publishedMongoEscapedWidget,
                                              Map<String, Set<String>> unpublishedMongoEscapedWidget,
-                                             String branchName) {
-
-        // For git-sync this will not be empty
-        Mono<List<NewPage>> existingPages = newPageService
-                .findNewPagesByApplicationId(application.getId(), MANAGE_PAGES)
-                .collectList();
+                                             String branchName,
+                                             Mono<List<NewPage>> existingPages) {
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
@@ -1179,6 +1232,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                        Map<String, NewPage> pageNameMap,
                                        Map<String, String> actionIdMap) {
         NewPage parentPage = pageNameMap.get(action.getPageId());
+        if (parentPage == null) {
+            return null;
+        }
         actionIdMap.put(action.getName() + parentPage.getId(), action.getId());
         action.setPageId(parentPage.getId());
 
@@ -1193,6 +1249,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private NewPage updatePageInActionCollection(ActionCollectionDTO collectionDTO,
                                                  Map<String, NewPage> pageNameMap) {
         NewPage parentPage = pageNameMap.get(collectionDTO.getPageId());
+        if (parentPage == null) {
+            return null;
+        }
         collectionDTO.setPageId(parentPage.getId());
 
         // Update defaultResources in actionCollectionDTO
