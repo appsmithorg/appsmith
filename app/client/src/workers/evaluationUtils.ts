@@ -27,7 +27,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
-import { cloneDeep } from "lodash";
+import { setter } from "./DataTreeEvaluatorUtils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -379,14 +379,14 @@ export function getValidatedTree(tree: DataTree) {
         value,
         entity,
       );
-      _.set(parsedEntity, property, parsed);
+      setter(parsedEntity, property, parsed);
       const evaluatedValue = isValid
         ? parsed
         : _.isUndefined(transformed)
         ? value
         : transformed;
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
-      _.set(
+      setter(
         parsedEntity,
         getEvalValuePath(`${entityKey}.${property}`, false),
         safeEvaluatedValue,
@@ -468,12 +468,12 @@ export function getSafeToRenderDataTree(
       const value = _.get(entity, property);
       // Pass it through parse
       const { parsed } = validateWidgetProperty(validation, value, entity);
-      _.set(safeToRenderEntity, property, parsed);
+      setter(safeToRenderEntity, property, parsed);
     });
     // Set derived values to undefined or else they would go as bindings
     Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
       (property) => {
-        _.set(safeToRenderEntity, property, undefined);
+        setter(safeToRenderEntity, property, undefined);
       },
     );
     return { ...tree, [entityKey]: safeToRenderEntity };
@@ -515,7 +515,7 @@ export const addErrorToEntityProperty = (
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
       [],
     ) as EvaluationError[];
-    _.set(
+    setter(
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
       existingErrors.concat(errors),
@@ -566,7 +566,7 @@ export const updateJSCollectionInDataTree = (
       const action = parsedBody.actions[i];
       if (jsCollection.hasOwnProperty(action.name)) {
         if (jsCollection[action.name] !== action.body) {
-          _.set(
+          setter(
             modifiedDataTree,
             `${jsCollection.name}.${action.name}`,
             action.body,
@@ -575,21 +575,25 @@ export const updateJSCollectionInDataTree = (
       } else {
         const bindingPaths = jsCollection.bindingPaths;
         bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
-        _.set(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
+        setter(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
-        _.set(
+        setter(
           modifiedDataTree,
           `${jsCollection}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
         const dependencyMap = jsCollection.dependencyMap;
         dependencyMap["body"].push(action.name);
-        _.set(modifiedDataTree, `${jsCollection}.dependencyMap`, dependencyMap);
+        setter(
+          modifiedDataTree,
+          `${jsCollection}.dependencyMap`,
+          dependencyMap,
+        );
         const meta = jsCollection.meta;
         meta[action.name] = { arguments: action.arguments };
-        _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
-        _.set(
+        setter(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        setter(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}`,
           action.body,
@@ -606,7 +610,7 @@ export const updateJSCollectionInDataTree = (
       if (!existed) {
         const bindingPaths = jsCollection.bindingPaths;
         delete bindingPaths[preAction];
-        _.set(
+        setter(
           modifiedDataTree,
           `${jsCollection.name}.bindingPaths`,
           bindingPaths,
@@ -615,7 +619,7 @@ export const updateJSCollectionInDataTree = (
         dynamicBindingPathList = dynamicBindingPathList.filter(
           (path) => path["key"] !== preAction,
         );
-        _.set(
+        setter(
           modifiedDataTree,
           `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
@@ -626,7 +630,7 @@ export const updateJSCollectionInDataTree = (
           const updatedDMap = dependencyMap.filter(
             (item) => item !== preAction,
           );
-          _.set(
+          setter(
             modifiedDataTree,
             `${jsCollection.name}.dependencyMap.body`,
             updatedDMap,
@@ -634,7 +638,7 @@ export const updateJSCollectionInDataTree = (
         }
         const meta = jsCollection.meta;
         delete meta[preAction];
-        _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        setter(modifiedDataTree, `${jsCollection.name}.meta`, meta);
         delete modifiedDataTree[`${jsCollection.name}`][`${preAction}`];
       }
     }
@@ -650,7 +654,7 @@ export const updateJSCollectionInDataTree = (
             (newVar.value && newVar.value.toString()) ||
           (!existedVarVal && !!newVar)
         ) {
-          _.set(
+          setter(
             modifiedDataTree,
             `${jsCollection.name}.${newVar.name}`,
             newVar.value,
@@ -658,8 +662,8 @@ export const updateJSCollectionInDataTree = (
         }
       } else {
         varList.push(newVar.name);
-        _.set(modifiedDataTree, `${jsCollection.name}.variables`, varList);
-        _.set(
+        setter(modifiedDataTree, `${jsCollection.name}.variables`, varList);
+        setter(
           modifiedDataTree,
           `${jsCollection.name}.${newVar.name}`,
           newVar.value,
@@ -678,7 +682,7 @@ export const updateJSCollectionInDataTree = (
       }
     }
     if (newVarList.length) {
-      _.set(modifiedDataTree, `${jsCollection.name}.variables`, newVarList);
+      setter(modifiedDataTree, `${jsCollection.name}.variables`, newVarList);
     }
   }
   return modifiedDataTree;
@@ -695,7 +699,7 @@ export const removeFunctionsAndVariableJSCollection = (
   });
   //removed variables
   const varList: Array<string> = entity.variables;
-  _.set(modifiedDataTree, `${entity.name}.variables`, []);
+  setter(modifiedDataTree, `${entity.name}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
     delete modifiedDataTree[`${entity.name}`][`${varName}`];
@@ -715,14 +719,14 @@ export const removeFunctionsAndVariableJSCollection = (
     );
     dependencyMap = dependencyMap.filter((item: any) => item !== actionName);
   }
-  _.set(modifiedDataTree, `${entity.name}.bindingPaths`, bindingPaths);
-  _.set(
+  setter(modifiedDataTree, `${entity.name}.bindingPaths`, bindingPaths);
+  setter(
     modifiedDataTree,
     `${entity.name}.dynamicBindingPathList`,
     dynamicBindingPathList,
   );
-  _.set(modifiedDataTree, `${entity.name}.dependencyMap.body`, dependencyMap);
-  _.set(modifiedDataTree, `${entity.name}.meta`, meta);
+  setter(modifiedDataTree, `${entity.name}.dependencyMap.body`, dependencyMap);
+  setter(modifiedDataTree, `${entity.name}.meta`, meta);
   return modifiedDataTree;
 };
 
@@ -800,14 +804,14 @@ export const overrideWidgetProperties = (
   value: unknown,
   currentTree: DataTree,
 ) => {
-  const clonedValue = cloneDeep(value);
+  const clonedValue = value;
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
 
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
-      _.set(
+      setter(
         currentTree,
         [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
@@ -823,10 +827,10 @@ export const overrideWidgetProperties = (
       entity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
-      const clonedDefaultValue = cloneDeep(defaultValue);
+      const clonedDefaultValue = defaultValue;
       if (defaultValue !== undefined) {
         const propertyPathArray = propertyPath.split(".");
-        _.set(
+        setter(
           currentTree,
           [entity.widgetName, ...propertyPathArray],
           clonedDefaultValue,

@@ -73,6 +73,7 @@ import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { setter } from "./DataTreeEvaluatorUtils";
 import {
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
@@ -120,8 +121,8 @@ export default class DataTreeEvaluator {
    */
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
-    // cloneDeep will make sure not to omit key which has value as undefined.
-    let localUnEvalTree = _.cloneDeep(unEvalTree);
+
+    let localUnEvalTree = unEvalTree;
     let jsUpdates: Record<string, JSUpdate> = {};
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
@@ -156,7 +157,7 @@ export default class DataTreeEvaluator {
     this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
-    this.oldUnEvalTree = _.cloneDeep(localUnEvalTree);
+    this.oldUnEvalTree = localUnEvalTree;
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -184,7 +185,7 @@ export default class DataTreeEvaluator {
       const updates = this.currentJSCollectionState[update];
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
-          _.set(dataTree, `${update}.${key}`, updates[key]);
+          setter(dataTree, `${update}.${key}`, updates[key]);
         });
       }
     });
@@ -281,7 +282,7 @@ export default class DataTreeEvaluator {
     // Check if dependencies have changed
     const updateDependenciesStart = performance.now();
 
-    this.logs.push({ differences: _.cloneDeep(differences), translatedDiffs });
+    this.logs.push({ differences: differences, translatedDiffs });
 
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
@@ -313,7 +314,7 @@ export default class DataTreeEvaluator {
         const unEvalPropValue = _.get(localUnEvalTree, propertyPath);
         const evalPropValue = _.get(this.evalTree, propertyPath);
         if (!_.isFunction(evalPropValue)) {
-          _.set(this.evalTree, propertyPath, unEvalPropValue);
+          setter(this.evalTree, propertyPath, unEvalPropValue);
         }
         return true;
       }
@@ -344,7 +345,7 @@ export default class DataTreeEvaluator {
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = _.cloneDeep(localUnEvalTree);
+    this.oldUnEvalTree = localUnEvalTree;
     this.evalTree = newEvalTree;
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -578,9 +579,13 @@ export default class DataTreeEvaluator {
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
   ): DataTree {
-    const tree = _.cloneDeep(oldUnevalTree);
+    const tree = oldUnevalTree;
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return sortedDependencies.reduce(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         (currentTree: DataTree, fullPropertyPath: string) => {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
@@ -604,7 +609,7 @@ export default class DataTreeEvaluator {
             !isATriggerPath &&
             (isDynamicValue(unEvalPropertyValue) || isJSAction(entity));
           if (propertyPath) {
-            _.set(currentTree, getEvalErrorPath(fullPropertyPath), []);
+            setter(currentTree, getEvalErrorPath(fullPropertyPath), []);
           }
           if (requiresEval) {
             const evaluationSubstitutionType =
@@ -659,9 +664,9 @@ export default class DataTreeEvaluator {
               if (overwriteObj && overwriteObj.overwriteParsedValue) {
                 parsedValue = overwriteObj.newValue;
               }
-              return _.set(currentTree, fullPropertyPath, parsedValue);
+              return setter(currentTree, fullPropertyPath, parsedValue);
             }
-            return _.set(currentTree, fullPropertyPath, evalPropertyValue);
+            return setter(currentTree, fullPropertyPath, evalPropertyValue);
           } else if (isATriggerPath) {
             const errors = this.lintTriggerPath(
               evalPropertyValue,
@@ -689,17 +694,17 @@ export default class DataTreeEvaluator {
               );
             }
             const safeEvaluatedValue = removeFunctions(evalPropertyValue);
-            _.set(
+            setter(
               currentTree,
               getEvalValuePath(fullPropertyPath),
               safeEvaluatedValue,
             );
-            _.set(currentTree, fullPropertyPath, evalPropertyValue);
+            setter(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
           } else if (isJSAction(entity)) {
             return currentTree;
           } else {
-            return _.set(currentTree, fullPropertyPath, evalPropertyValue);
+            return setter(currentTree, fullPropertyPath, evalPropertyValue);
           }
         },
         tree,
@@ -933,7 +938,7 @@ export default class DataTreeEvaluator {
       ? evalPropertyValue
       : transformed;
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
-    _.set(
+    setter(
       widget,
       getEvalValuePath(fullPropertyPath, false),
       safeEvaluatedValue,
@@ -1008,12 +1013,12 @@ export default class DataTreeEvaluator {
             if (typeof unEvalValue === "function") {
               const params = getParams(unEvalValue);
               const functionString = unEvalValue.toString();
-              _.set(
+              setter(
                 this.resolvedFunctions,
                 `${entityName}.${unEvalFunc}`,
                 unEvalValue,
               );
-              _.set(
+              setter(
                 this.currentJSCollectionState,
                 `${entityName}.${unEvalFunc}`,
                 functionString,
@@ -1029,7 +1034,7 @@ export default class DataTreeEvaluator {
                 name: unEvalFunc,
                 value: result[unEvalFunc],
               });
-              _.set(
+              setter(
                 this.currentJSCollectionState,
                 `${entityName}.${unEvalFunc}`,
                 unEvalValue,
@@ -1055,12 +1060,12 @@ export default class DataTreeEvaluator {
             actions: modifiedActions,
             variables,
           };
-          _.set(jsUpdates, `${entityName}`, {
+          setter(jsUpdates, `${entityName}`, {
             parsedBody,
             id: entity.actionId,
           });
         } else {
-          _.set(jsUpdates, `${entityName}`, {
+          setter(jsUpdates, `${entityName}`, {
             parsedBody: undefined,
             id: entity.actionId,
           });
