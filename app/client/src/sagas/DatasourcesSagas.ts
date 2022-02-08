@@ -400,7 +400,7 @@ function* redirectAuthorizationCodeSaga(
       const response: ApiResponse = yield OAuthApi.getAppsmithToken(
         datasourceId,
         pageId,
-        isImport,
+        !!isImport,
       );
 
       if (validateResponse(response)) {
