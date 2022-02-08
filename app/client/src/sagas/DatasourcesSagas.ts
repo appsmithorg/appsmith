@@ -390,6 +390,7 @@ function* redirectAuthorizationCodeSaga(
   }>,
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
+  const isImport: string = yield select(getOrganizationIdForImport);
 
   if (pluginType === PluginType.API) {
     window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
@@ -399,6 +400,7 @@ function* redirectAuthorizationCodeSaga(
       const response: ApiResponse = yield OAuthApi.getAppsmithToken(
         datasourceId,
         pageId,
+        !!isImport,
       );
 
       if (validateResponse(response)) {
