@@ -483,7 +483,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
                 );
     }
 
