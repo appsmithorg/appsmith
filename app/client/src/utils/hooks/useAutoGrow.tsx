@@ -1,30 +1,21 @@
-import { useEffect } from "react";
-import { useSpring } from "react-spring";
+import { useEffect, useState } from "react";
 
-const useAutoGrow = (ref: HTMLInputElement | HTMLTextAreaElement | null) => {
-  const [springHeight, setHeight] = useSpring(() => ({ height: 24 }));
-  const handleKeyDown = () => {
-    // TODO move to a separate hook
+const useAutoGrow = (value: string, defaultHeight?: number) => {
+  const [height, setHeight] = useState(defaultHeight || 24);
+  const handleValueChange = () => {
     setTimeout(() => {
-      if (ref) {
-        // need to reset the height so that
-        // the input shrinks as well on removing lines
-        setHeight({ height: 0 });
-        setHeight({
-          height: ref?.scrollHeight || 0,
-        });
-      }
+      const numberOfLineBreaks = (value.match(/\n/g) || []).length;
+      // defaultHeight + lines x line-height
+      const newHeight = (defaultHeight || 24) + numberOfLineBreaks * 20;
+      setHeight(newHeight);
     });
   };
 
   useEffect(() => {
-    ref?.addEventListener("keydown", handleKeyDown);
-    return () => {
-      ref?.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [ref]);
+    handleValueChange();
+  }, [value]);
 
-  return springHeight.height;
+  return height;
 };
 
 export default useAutoGrow;

@@ -24,13 +24,6 @@ import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
-import { QueryActionConfig } from "entities/Action";
-// import {
-//   VALIDATION_ARRAY_DISALLOWED_VALUE,
-//   VALIDATION_ARRAY_DUPLICATE_PROPERTY_VALUES,
-//   VALIDATION_ARRAY_INVALID_ENTRY,
-//   VALIDATION_ARRAY_UNIQUE,
-// } from "constants/messages";
 import { findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
