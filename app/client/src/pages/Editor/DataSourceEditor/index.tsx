@@ -1,8 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
-import { getFormValues, submit } from "redux-form";
+import { getFormValues } from "redux-form";
 import { AppState } from "reducers";
-import _, { noop } from "lodash";
+import _ from "lodash";
 import {
   getPluginImages,
   getDatasource,
@@ -18,12 +18,9 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { ReduxAction } from "constants/ReduxActionConstants";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 
