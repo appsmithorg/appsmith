@@ -11,7 +11,6 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
 
   it("validation of  default displayed in select widget based on row selected", function() {
-    cy.wait(5000);
     cy.isSelectRow(0);
     cy.readTabledataPublish("0", "0").then((tabData) => {
       const tabValue = tabData;
@@ -28,13 +27,12 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
   it("validation of  data displayed in select widget based on row selected", function() {
     cy.isSelectRow(2);
-    cy.wait(5000);
     cy.get(widgetsPage.defaultSingleSelectValue)
       .first()
       .invoke("text")
       .then((text) => {
         const someText = text;
-        expect(someText).to.equal("Select option");
+        expect(someText).to.equal("#3");
       });
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
