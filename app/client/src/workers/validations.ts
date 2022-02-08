@@ -799,7 +799,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, {}, [
+        const { result } = evaluate(config.params.fnString, {}, {}, false, [
           value,
           props,
           _,
