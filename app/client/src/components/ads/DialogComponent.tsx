@@ -50,6 +50,8 @@ const StyledDialog = styled(Dialog)<{
 
       svg {
         fill: ${Colors.CHARCOAL};
+        width: 24px;
+        height: 24px;
       }
     }
 

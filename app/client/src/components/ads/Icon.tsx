@@ -140,6 +140,7 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import FileListLineIcon from "remixicon-react/FileListLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -321,6 +322,7 @@ export const IconCollection = [
   "dropdown",
   "refresh",
   "key",
+  "file-list-line",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -750,6 +752,9 @@ const Icon = forwardRef(
         break;
       case "refresh":
         returnIcon = <RefreshLineIcon />;
+        break;
+      case "file-list-line":
+        returnIcon = <FileListLineIcon />;
         break;
       default:
         returnIcon = null;

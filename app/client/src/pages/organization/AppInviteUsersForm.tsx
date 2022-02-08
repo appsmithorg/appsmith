@@ -23,15 +23,19 @@ const CommonTitleTextStyle = css`
 `;
 
 const Title = styled.div`
-  padding: 10px 0px;
+  padding: 0 0 10px 0;
   & > span[type="h5"] {
     ${CommonTitleTextStyle}
   }
 `;
 
+const StyledCopyToClipBoard = styled(CopyToClipBoard)`
+  margin-bottom: 24px;
+`;
+
 const ShareWithPublicOption = styled.div`
   display: flex;
-  margin-bottom: 14px;
+  margin-bottom: 24px;
   align-items: center;
   justify-content: space-between;
 
@@ -109,7 +113,7 @@ function AppInviteUsersForm(props: any) {
       <Title>
         <Text type={TextType.H5}>Get shareable link for this application</Text>
       </Title>
-      <CopyToClipBoard
+      <StyledCopyToClipBoard
         btnWidth={InviteButtonWidth}
         copyText={getViewApplicationURL()}
       />

@@ -116,8 +116,8 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
       canEscapeKeyClose
       canOutsideClickClose
       headerIcon={{
-        name: "news-paper",
-        bgColor: "transparent",
+        name: "file-list-line",
+        bgColor: Colors.GEYSER_LIGHT,
       }}
       isOpen={isOpen}
       maxHeight={"94vh"}

@@ -46,12 +46,10 @@ const CommonTitleTextStyle = css`
   font-weight: normal;
 `;
 
-const OrgInviteWrapper = styled.div`
-  margin-top: 14px;
-`;
+const OrgInviteWrapper = styled.div``;
 
 const OrgInviteTitle = styled.div`
-  padding: 10px 0px;
+  padding: 0 0 10px 0;
   & > span[type="h5"] {
     ${CommonTitleTextStyle}
   }
@@ -98,7 +96,7 @@ const StyledInviteFieldGroup = styled.div`
 `;
 
 const UserList = styled.div`
-  margin-top: 10px;
+  margin-top: 24px;
   max-height: 260px;
   overflow-y: auto;
   &&::-webkit-scrollbar-thumb {
