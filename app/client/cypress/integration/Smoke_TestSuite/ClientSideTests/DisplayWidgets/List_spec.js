@@ -22,6 +22,7 @@ describe("List Widget Functionality", function() {
       "iconbuttonwidget",
       "iframewidget",
       "imagewidget",
+      "inputwidgetv2",
       "mapchartwidget",
       "mapwidget",
       "menubuttonwidget",
@@ -50,7 +51,6 @@ describe("List Widget Functionality", function() {
       "camerawidget",
       "selectwidget",
       "multiselectwidgetv2",
-      "inputwidgetv2",
       "phoneinputwidget",
       "currencyinputwidget",
     ];
