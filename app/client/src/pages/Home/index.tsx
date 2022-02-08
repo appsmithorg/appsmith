@@ -10,6 +10,7 @@ import { setHeaderMeta } from "actions/themeActions";
 import { APPLICATIONS_URL, TEMPLATES_URL } from "constants/routes";
 import history from "utils/history";
 import Templates from "pages/Templates";
+import Filters from "pages/Templates/Filters";
 
 const TabsWrapper = styled.div`
   position: fixed;
@@ -45,7 +46,7 @@ const HomeTabs = [
     title: "Templates",
     panelComponent: <Templates />,
     path: TEMPLATES_URL,
-    leftPane: <ApplicationsLeftPane />,
+    leftPane: <Filters />,
   },
 ];
 
