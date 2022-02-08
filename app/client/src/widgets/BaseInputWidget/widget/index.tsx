@@ -334,7 +334,7 @@ class BaseInputWidget<
   ) {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    if (isEnterKey && typeof onSubmit == "string" && isValid) {
+    if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
       super.executeAction({
         triggerPropertyName: "onSubmit",
         dynamicString: onSubmit,
