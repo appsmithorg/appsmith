@@ -236,18 +236,26 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       }
     }
 
-    if (_.get(authentication, "sendScopeWithRefreshToken") === undefined) {
-      this.props.change("authentication.sendScopeWithRefreshToken", false);
+    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
+      if (
+        _.get(authentication, "sendScopeWithRefreshToken") === undefined ||
+        _.get(authentication, "sendScopeWithRefreshToken") === ""
+      ) {
+        this.props.change("authentication.sendScopeWithRefreshToken", false);
+      }
     }
 
-    if (
-      _.get(authentication, "refreshTokenClientCredentialsLocation") ===
-      undefined
-    ) {
-      this.props.change(
-        "authentication.refreshTokenClientCredentialsLocation",
-        "BODY",
-      );
+    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
+      if (
+        _.get(authentication, "refreshTokenClientCredentialsLocation") ===
+          undefined ||
+        _.get(authentication, "refreshTokenClientCredentialsLocation") === ""
+      ) {
+        this.props.change(
+          "authentication.refreshTokenClientCredentialsLocation",
+          "BODY",
+        );
+      }
     }
   };
 
