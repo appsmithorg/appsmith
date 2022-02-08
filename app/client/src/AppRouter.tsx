@@ -23,9 +23,7 @@ import {
   ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
-import ApplicationListLoader from "pages/Applications/loader";
 import HomeScreenTabs from "pages/Home";
-import Templates from "pages/Templates";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
 import LandingScreen from "./LandingScreen";
