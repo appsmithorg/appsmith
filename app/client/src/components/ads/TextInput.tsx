@@ -146,6 +146,7 @@ const StyledInput = styled((props) => {
     "noCaret",
     "fill",
     "errorMsg",
+    "trimValue",
   ];
 
   return props.asyncControl ? (
@@ -210,7 +211,7 @@ const InputWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
-  align-items: center;  
+  align-items: center;
   width: ${(props) =>
     props.fill ? "100%" : props.width ? props.width : "260px"};
   height: ${(props) => props.height || "36px"};
