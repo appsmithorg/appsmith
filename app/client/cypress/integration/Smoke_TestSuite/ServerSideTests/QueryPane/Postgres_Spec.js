@@ -2,6 +2,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+
 let datasourceName;
 
 describe("Validate CRUD queries for Postgres along with UI flow verifications", function() {
@@ -162,6 +163,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.ClickGotIt();
 
+    cy.wait(2000);
     //Verifying Update from UI
     cy.xpath(generatePage.selectRowinTable)
       .scrollIntoView()
@@ -185,6 +187,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     ); //This verifies the Update on the table
 
     //.should("have.nested.property", "response.body.data.request.requestParams.Query.value",);
+
+    cy.wait(2000);
 
     cy.xpath(generatePage.selectRowinTable)
       .scrollIntoView()

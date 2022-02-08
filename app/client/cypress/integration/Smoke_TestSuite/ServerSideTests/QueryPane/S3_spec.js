@@ -414,7 +414,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // cy.window().its('navigator.clipboard').invoke('readText').should('contain', 'CRUDNewPageFile')
 
     //Verifying DeleteFile icon from UI
-    cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
+    cy.xpath(queryLocators.deleteFileicon)
+      .eq(0)
+      .click(); //Verifies 8684
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
     expect(
@@ -535,7 +537,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Upload: 2 - Bug verification 9201
     fixturePath = "AAAFlowerVase.jpeg";
     cy.wait(3000);
-    cy.clickButton("Select Files"); //1 files selected
+    cy.clickButton("1 files selected"); //Select Files
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
     cy.wait(2000);
     cy.get(generatePage.uploadBtn).click();
