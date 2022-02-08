@@ -22,6 +22,7 @@ import {
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
 import { PluginId } from "api/PluginApi";
+import set from "lodash/set";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -128,6 +129,10 @@ export type DataTreeEntity =
   | PageListPayload
   | ActionDispatcher;
 
+export interface oldDataTree {
+  [entityName: string]: DataTreeEntity;
+}
+
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
 };
@@ -155,6 +160,9 @@ export class DataTreeFactory {
     widgetsMeta,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
+
+    set(dataTree, `appLevel`, {});
+
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
       const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
@@ -163,9 +171,15 @@ export class DataTreeFactory {
         editorConfig,
         dependencyConfig,
       );
+      set(
+        dataTree,
+        `appLevel.${[action.config.name]}`,
+        dataTree[action.config.name],
+      );
     });
     jsActions.forEach((js) => {
       dataTree[js.config.name] = generateDataTreeJSAction(js);
+      set(dataTree, `appLevel.${[js.config.name]}`, dataTree[js.config.name]);
     });
     Object.values(widgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(
@@ -182,6 +196,7 @@ export class DataTreeFactory {
       store: { ...appData.store.persistent, ...appData.store.transient },
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
+
     return dataTree;
   }
 }

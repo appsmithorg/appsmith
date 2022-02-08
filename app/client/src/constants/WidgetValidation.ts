@@ -107,6 +107,8 @@ export const DATA_TREE_KEYWORDS = {
   actionPaths: "actionPaths",
   appsmith: "appsmith",
   pageList: "pageList",
+  appLevel: "appLevel",
+  orgLevel: "orgLevel",
   [EXECUTION_PARAM_KEY]: EXECUTION_PARAM_KEY,
 };
 
