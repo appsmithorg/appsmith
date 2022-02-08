@@ -130,6 +130,9 @@ function Deploy() {
   const dispatch = useDispatch();
 
   const handleCommit = (doPush: boolean) => {
+    AnalyticsUtil.logEvent("GS_COMMIT_AND_PUSH_BUTTON_CLICK", {
+      source: "GIT_DEPLOY_MODAL",
+    });
     if (currentBranch) {
       dispatch(
         commitToRepoInit({
@@ -141,6 +144,9 @@ function Deploy() {
   };
 
   const handlePull = () => {
+    AnalyticsUtil.logEvent("GS_PULL_GIT_CLICK", {
+      source: "GIT_DEPLOY_MODAL",
+    });
     if (currentBranch) {
       dispatch(gitPullInit());
     }
