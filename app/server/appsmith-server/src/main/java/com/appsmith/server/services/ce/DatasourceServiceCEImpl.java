@@ -369,7 +369,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
             return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES)
                     .map(datasource -> {
-                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                        datasource.setIsConfigured(!Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
                         return datasource;
                     });
         }
