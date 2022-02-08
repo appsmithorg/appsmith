@@ -24,7 +24,6 @@ import {
   getPullFailed,
   getGitCommitAndPushError,
   getUpstreamErrorDocUrl,
-  getConflictFoundDocUrlDeploy,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -231,8 +230,6 @@ function Deploy() {
       commitInputRef.current.focus();
     }
   }, [commitInputDisabled]);
-
-  const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
 
   return (
     <Container>

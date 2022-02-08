@@ -1,6 +1,4 @@
-import { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "./ApiResponses";
 import { GitConfig } from "entities/GitSync";
 
 export type CommitPayload = {

@@ -3,10 +3,7 @@ import styled, { useTheme } from "styled-components";
 import { Overlay, Classes } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitErrorPopupVisible } from "actions/gitSyncActions";
-import {
-  getConflictFoundDocUrlDeploy,
-  getIsGitErrorPopupVisible,
-} from "selectors/gitSyncSelectors";
+import { getIsGitErrorPopupVisible } from "selectors/gitSyncSelectors";
 import Icon, { IconSize } from "components/ads/Icon";
 
 import {
