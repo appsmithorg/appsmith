@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import ThemeList from "./ThemeList";
@@ -25,6 +25,20 @@ function ThemeSelector() {
     dispatch(setAppThemingModeStackAction(themingStack.slice(0, -1)));
   }, [setAppThemingModeStackAction]);
 
+  /**
+   * stores user saved themes
+   */
+  const userSavedThemes = useMemo(() => {
+    return themes.filter((theme) => theme.isSystemTheme === false);
+  }, [themes.length]);
+
+  /**
+   * stores default system themes
+   */
+  const systemThemes = useMemo(() => {
+    return themes.filter((theme) => theme.isSystemTheme === true);
+  }, [themes.length]);
+
   return (
     <div className="relative">
       <header className="sticky top-0 items-center justify-between bg-white z-1 ">
@@ -44,9 +58,15 @@ function ThemeSelector() {
           <ThemeCard theme={selectedTheme} />
         </SettingSection>
       </header>
+      {userSavedThemes.length > 0 && (
+        <header className="relative px-3 py-3 space-y-3">
+          <h3 className="text-base font-medium capitalize">Your Themes</h3>
+          <ThemeList themes={userSavedThemes} />
+        </header>
+      )}
       <header className="relative px-3 py-3 space-y-3">
-        <h3 className="text-sm font-medium uppercase">Featured Themes</h3>
-        <ThemeList themes={themes} />
+        <h3 className="text-base font-medium capitalize">Featured Themes</h3>
+        <ThemeList themes={systemThemes} />
       </header>
     </div>
   );

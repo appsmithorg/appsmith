@@ -423,11 +423,13 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       <InputComponent
         autoFocus={this.props.autoFocus}
         // show label and Input side by side if true
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
               GRID_DENSITY_MIGRATION_V1 >
-              1 && this.props.inputType === "TEXT"
+            1
           )
         }
         defaultValue={this.props.defaultText}
@@ -451,6 +453,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        primaryColor={this.props.primaryColor}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}

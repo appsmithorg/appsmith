@@ -23,10 +23,13 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
     return (
       <ISDCodeDropdown
         allowDialCodeChange={this.props.allowDialCodeChange}
+        borderRadius={this.props.borderRadius}
         disabled={!!this.props.disabled}
         onISDCodeChange={this.props.onISDCodeChange}
         options={ISDCodeDropdownOptions}
+        primaryColor={this.props.primaryColor}
         selected={selectedISDCode}
+        widgetId={this.props.widgetId}
       />
     );
   };
@@ -51,6 +54,8 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
     return (
       <BaseInputComponent
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={this.props.compactMode}
         defaultValue={this.props.defaultValue}
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
@@ -74,6 +79,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         onKeyDown={this.onKeyDown}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
+        primaryColor={this.props.primaryColor}
         showError={this.props.showError}
         tooltip={this.props.tooltip}
         value={this.props.value}

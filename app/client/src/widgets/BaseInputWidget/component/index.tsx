@@ -36,6 +36,7 @@ import { InputTypes } from "../constants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
+import { lightenColor } from "widgets/WidgetUtils";
 
 /**
  * All design system component specific logic goes here.
@@ -57,6 +58,9 @@ const InputComponentWrapper = styled((props) => (
       "multiline",
       "numeric",
       "inputType",
+      "borderRadius",
+      "boxShadow",
+      "primaryColor",
     ])}
   />
 ))<{
@@ -66,127 +70,162 @@ const InputComponentWrapper = styled((props) => (
   allowCurrencyChange?: boolean;
   disabled?: boolean;
   inputType: InputType;
+  borderRadius?: string;
+  boxShadow?: string;
+  primaryColor?: string;
 }>`
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  &&&& {
-    .currency-type-filter,
-    .country-type-filter {
-      width: fit-content;
-      height: 36px;
-      display: inline-block;
-      left: 0;
-      z-index: 16;
-      &:hover {
-        border: 1px solid ${Colors.GREY_5} !important;
-      }
-    }
-    .${Classes.INPUT} {
-      min-height: 36px;
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        props.allowCurrencyChange &&
-        `
-      padding-left: 45px;`};
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        !props.allowCurrencyChange &&
-        `
-      padding-left: 35px;`};
-      ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER &&
-        `padding-left: 85px;
-        `};
-      box-shadow: none;
-      border: 1px solid;
-      border-color: ${({ hasError }) =>
-        hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
-      border-radius: 0;
-      height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
-      width: 100%;
-      ${(props) =>
-        props.numeric &&
-        `
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
-        ${props.hasError ? "" : "border-right-width: 0px;"}
-      `}
-      ${(props) =>
-        props.inputType === "PASSWORD" &&
-        `
-        & + .bp3-input-action {
-          height: 36px;
-          width: 36px;
-          cursor: pointer;
-          padding: 1px;
-          .password-input {
-            color: ${Colors.GREY_6};
-            justify-content: center;
-            height: 100%;
-            svg {
-              width: 20px;
-              height: 20px;
-            }
-            &:hover {
-              background-color: ${Colors.GREY_2};
-              color: ${Colors.GREY_10};
-            }
-          }
-        }
-      `}
-      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-      &:active {
-        border-color: ${({ hasError }) =>
-          hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
-      }
-      &:hover {
-        border-left: 1px solid ${Colors.GREY_5};
-        border-right: 1px solid ${Colors.GREY_5};
-        border-color: ${Colors.GREY_5};
-      }
-      &:focus {
-        border-color: ${({ hasError }) =>
-          hasError ? Colors.DANGER_SOLID : Colors.MYSTIC};
+  height: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
 
-        &:focus {
-          outline: 0;
-          border: 1px solid ${Colors.GREEN_1};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2} !important;
-        }
+  .currency-type-filter,
+  .country-type-filter {
+    width: fit-content;
+    height: 100%;
+    position: static;
+    display: inline-block;
+    left: 0;
+    z-index: 16;
+    svg {
+      path {
+        fill: ${(props) => props.theme.colors.icon?.hover};
       }
-      &:disabled {
-        background-color: ${Colors.GREY_1};
-        border: 1.2px solid ${Colors.GREY_3};
-        & + .bp3-input-action {
-          pointer-events: none;
+    }
+  }
+
+  &&&& .bp3-input-group {
+    display: flex;
+    > {
+      &:first-child:not(input) {
+        position: static;
+        background: ${(props) =>
+          props.disabled ? Colors.GREY_1 : Colors.WHITE};
+        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
+        border-right: 0;
+      }
+      input:not(:first-child) {
+        padding-left: 0px;
+        z-index: 16;
+        line-height: 16px;
+      }
+    }
+  }
+
+  .currency-type-filter .bp3-popover-open > div,
+  .country-type-filter .bp3-popover-open > div {
+    border: 0px solid !important;
+    box-shadow: none !important;
+    background-color: #fafafa;
+  }
+
+  .${Classes.INPUT} {
+    ${(props) =>
+      props.inputType === InputTypes.CURRENCY &&
+      props.allowCurrencyChange &&
+      `
+  padding-left: 45px;`};
+    ${(props) =>
+      props.inputType === InputTypes.CURRENCY &&
+      !props.allowCurrencyChange &&
+      `
+  padding-left: 35px;`};
+    ${(props) =>
+      props.inputType === InputTypes.PHONE_NUMBER &&
+      `padding-left: 85px;
+    `};
+    background: ${({ disabled }) => (disabled ? Colors.GREY_1 : Colors.WHITE)};
+    border-radius: 0px;
+    box-shadow: none !important;
+    height: 100%;
+    width: 100%;
+
+    ${(props) =>
+      props.numeric &&
+      `
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    ${props.hasError ? "" : "border-right-width: 0px;"}
+  `}
+    ${(props) =>
+      props.inputType === "PASSWORD" &&
+      `
+    & + .bp3-input-action {
+      height: 100%;
+      width: 36px;
+      cursor: pointer;
+      padding: 1px;
+      .password-input {
+        color: ${Colors.GREY_6};
+        justify-content: center;
+        height: 100%;
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+        &:hover {
+          background-color: ${Colors.GREY_2};
+          color: ${Colors.GREY_10};
         }
       }
     }
+  `}
+  }
+
+  & {
     .${Classes.INPUT_GROUP} {
-      display: block;
+      display: flex;
       margin: 0;
       .bp3-tag {
         background-color: transparent;
         color: #5c7080;
-        margin-top: 8px;
       }
+
+      .${Classes.INPUT_ACTION} {
+        height: 100%;
+
+        .${Classes.TAG} {
+          height: 100%;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          align-items: center;
+        }
+      }
+
+      .${Classes.ICON} {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+
+        svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
-        pointer-events: none;
         button {
           background: ${Colors.GREY_1};
         }
       }
     }
+
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    height: 100%;
-    align-items: center;
+
     label {
       ${labelStyle}
-      margin-right: 5px;
+      margin-right: 0px;
+      margin-bottom: 0px;
       text-align: right;
       align-self: flex-start;
-      color: ${(props) => props.labelTextColor || "inherit"};
+      color: ${(props) =>
+        props.disabled ? Colors.GREY_8 : props.labelTextColor || "inherit"};
       font-size: ${(props) => props.labelTextSize};
       font-weight: ${(props) =>
         props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
@@ -198,58 +237,27 @@ const InputComponentWrapper = styled((props) => (
           : ""};
     }
   }
-  &&&& .bp3-input-group {
-    display: flex;
-    > {
-      &.bp3-icon:first-child {
-        top: 3px;
-      }
-      input:not(:first-child) {
-        border-left: 1px solid transparent;
-        line-height: 16px;
-
-        &:hover:not(:focus) {
-          border-left: 1px solid ${Colors.GREY_5};
-        }
-      }
-    }
-
-    ${(props) => {
-      if (props.inputType === InputTypes.PHONE_NUMBER) {
-        return `
-          > {
-            input:not(:first-child) {
-              padding-left: 10px;
-            }
-            .currency-type-filter,
-            .currency-type-trigger,
-            .country-type-filter,
-            .country-type-trigger {
-              position: static;
-              background: rgb(255, 255, 255);
-              border-width: 1.2px 0px 1.2px 1.2px;
-              border-top-style: solid;
-              border-bottom-style: solid;
-              border-left-style: solid;
-              border-top-color: rgb(235, 235, 235);
-              border-bottom-color: rgb(235, 235, 235);
-              border-left-color: rgb(235, 235, 235);
-              border-image: initial;
-              color: rgb(9, 7, 7);
-              border-right-style: initial;
-              border-right-color: initial;
-            }
-          }
-        `;
-      }
-    }}
-  }
 `;
 
 const StyledNumericInput = styled(NumericInput)`
+  &&&& .bp3-input-group {
+    display: flex;
+    > {
+      &:first-child:not(input) {
+        position: static;
+        background: ${(props) =>
+          props.disabled ? Colors.GREY_1 : Colors.WHITE};
+        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
+        border-right: 0;
+      }
+      input:not(:first-child) {
+        padding-left: 0px;
+        z-index: 16;
+        line-height: 16px;
+      }
+    }
+  }
   &&&& .bp3-button-group.bp3-vertical {
-    border: 1.2px solid ${Colors.GREY_3};
-    border-left: none;
     button {
       background: ${Colors.WHITE};
       box-shadow: none;
@@ -261,10 +269,6 @@ const StyledNumericInput = styled(NumericInput)`
         span {
           color: ${Colors.GREY_10};
         }
-      }
-      &:focus {
-        border: 1px solid ${Colors.GREEN_1};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
       }
       span {
         color: ${Colors.GREY_6};
@@ -297,10 +301,42 @@ const TextLableWrapper = styled.div<{
   max-height: 20px;
 `;
 
-const TextInputWrapper = styled.div`
+const TextInputWrapper = styled.div<{
+  borderRadius?: string;
+  boxShadow?: string;
+  primaryColor?: string;
+  hasError?: boolean;
+  disabled?: boolean;
+}>`
   width: 100%;
   display: flex;
   flex: 1;
+  height: 100%;
+  border: 1px solid;
+  overflow: hidden;
+  border-color: ${({ hasError }) =>
+    hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
+  border-radius: ${({ borderRadius }) => borderRadius} !important;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  min-height: 32px;
+
+  &:focus-within {
+    outline: 0;
+    border-color: ${({ hasError, primaryColor }) =>
+      hasError ? Colors.DANGER_SOLID : primaryColor};
+    box-shadow: ${({ hasError, primaryColor }) =>
+      `0px 0px 0px 3px ${lightenColor(
+        hasError ? Colors.DANGER_SOLID : primaryColor,
+      )} !important;`};
+  }
+
+  ${({ disabled }) =>
+    disabled &&
+    ` background-color: ${Colors.GREY_1};
+      border: 1px solid ${Colors.GREY_3};
+      & + .bp3-input-action {
+      pointer-events: none;
+  }`}
 `;
 
 type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -533,6 +569,8 @@ class BaseInputComponent extends React.Component<
 
     return (
       <InputComponentWrapper
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={this.props.compactMode}
         disabled={this.props.disabled}
         fill
@@ -543,6 +581,7 @@ class BaseInputComponent extends React.Component<
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={(!!this.props.multiline).toString()}
         numeric={isNumberInputType(this.props.inputHTMLType)}
+        primaryColor={this.props.primaryColor}
       >
         {showLabelHeader && (
           <TextLableWrapper
@@ -579,7 +618,13 @@ class BaseInputComponent extends React.Component<
             )}
           </TextLableWrapper>
         )}
-        <TextInputWrapper>
+        <TextInputWrapper
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          disabled={this.props.disabled}
+          hasError={this.props.isInvalid}
+          primaryColor={this.props.primaryColor}
+        >
           <ErrorTooltip
             isOpen={this.props.isInvalid && this.props.showError}
             message={
@@ -642,6 +687,9 @@ export interface BaseInputComponentProps extends ComponentProps {
   spellCheck?: boolean;
   maxNum?: number;
   minNum?: number;
+  borderRadius?: string;
+  boxShadow?: string;
+  primaryColor?: string;
 }
 
 export default BaseInputComponent;

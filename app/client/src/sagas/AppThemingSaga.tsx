@@ -1,6 +1,10 @@
 import React from "react";
 import {
+  ChangeSelectedAppThemeAction,
+  DeleteAppThemeAction,
+  FetchAppThemesAction,
   FetchSelectedAppThemeAction,
+  SaveAppThemeAction,
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import {
@@ -9,17 +13,21 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppTheme } from "entities/AppTheming";
-// import ThemingApi from "api/AppThemingApi";
+import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select } from "redux-saga/effects";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { CHANGE_APP_THEME, createMessage } from "constants/messages";
+import {
+  CHANGE_APP_THEME,
+  createMessage,
+  DELETE_APP_THEME,
+} from "constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { undoAction, updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import store from "store";
-// import { getAppMode } from "selectors/applicationSelectors";
-// import { APP_MODE } from "entities/App";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 
 // eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
@@ -351,6 +359,18 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
+      CURRENCY_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      PHONE_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -391,6 +411,12 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      INPUT_WIDGET_V2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
@@ -879,6 +905,12 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
+      INPUT_WIDGET_V2: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       LIST_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -996,14 +1028,14 @@ const dummyThemes: AppTheme[] = [
  *
  * @param action
  */
-export function* fetchAppThemes() {
+export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
-    // eslint-disable-next-line
-    // const response = yield ThemingApi.fetchThemes();
+    const { applicationId } = action.payload;
+    const response = yield ThemingApi.fetchThemes(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: dummyThemes,
+      payload: response.data,
     });
   } catch (error) {
     yield put({
@@ -1021,13 +1053,12 @@ export function* fetchAppThemes() {
 export function* fetchAppSelectedTheme(
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
-  // eslint-disable-next-line
   const { applicationId } = action.payload;
-  // const mode: APP_MODE = yield select(getAppMode);
+  const mode: APP_MODE = yield select(getAppMode);
 
   try {
     // eslint-disable-next-line
-    // const response = yield ThemingApi.fetchSelected(applicationId, mode);
+    const response = yield ThemingApi.fetchSelected(applicationId, mode);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
@@ -1050,10 +1081,12 @@ export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
   // eslint-disable-next-line
-  const { isNewThemeApplied, shouldReplay = true, theme } = action.payload;
+  const { shouldReplay = true, theme, applicationId } = action.payload;
   const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
+    const response = yield ThemingApi.updateTheme(applicationId, theme);
+
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
       payload: theme,
@@ -1068,19 +1101,119 @@ export function* updateSelectedTheme(
         ),
       );
     }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_SELECTED_APP_THEME_ERROR,
+      payload: { error },
+    });
+  }
+}
 
-    if (isNewThemeApplied) {
-      Toaster.show({
-        text: createMessage(CHANGE_APP_THEME, theme.name),
-        variant: Variant.success,
-        actionElement: (
-          <span onClick={() => store.dispatch(undoAction())}>Undo</span>
+/**
+ * changes eelcted theme
+ *
+ * @param action
+ */
+export function* changeSelectedTheme(
+  action: ReduxAction<ChangeSelectedAppThemeAction>,
+) {
+  const { applicationId, shouldReplay = true, theme } = action.payload;
+  const canvasWidgets = yield select(getCanvasWidgets);
+
+  try {
+    const response = yield ThemingApi.changeTheme(applicationId, theme);
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
+      payload: theme,
+    });
+
+    // shows toast
+    Toaster.show({
+      text: createMessage(CHANGE_APP_THEME, theme.name),
+      variant: Variant.success,
+      actionElement: (
+        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
+      ),
+    });
+
+    if (shouldReplay) {
+      yield put(
+        updateReplayEntity(
+          "canvas",
+          { widgets: canvasWidgets, theme },
+          ENTITY_TYPE.WIDGET,
         ),
-      });
+      );
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_SELECTED_APP_THEME_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+/**
+ * save and create new theme from  selcted theme
+ *
+ * @param action
+ */
+export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
+  const { applicationId, name } = action.payload;
+  const canvasWidgets = yield select(getCanvasWidgets);
+
+  try {
+    const response = yield ThemingApi.saveTheme(applicationId, { name });
+
+    yield put({
+      type: ReduxActionTypes.SAVE_APP_THEME_SUCCESS,
+      payload: response.data,
+    });
+
+    // shows toast
+    Toaster.show({
+      text: createMessage(CHANGE_APP_THEME, name),
+      variant: Variant.success,
+      actionElement: (
+        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
+      ),
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_APP_THEME_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+/**
+ * deletes custom saved theme
+ *
+ * @param action
+ */
+export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
+  const { name, themeId } = action.payload;
+
+  try {
+    const response = yield ThemingApi.deleteTheme(themeId);
+
+    yield put({
+      type: ReduxActionTypes.DELETE_APP_THEME_SUCCESS,
+      payload: { themeId },
+    });
+
+    // shows toast
+    Toaster.show({
+      text: createMessage(DELETE_APP_THEME, name),
+      variant: Variant.success,
+      actionElement: (
+        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
+      ),
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_APP_THEME_ERROR,
       payload: { error },
     });
   }
@@ -1097,5 +1230,11 @@ export default function* appThemingSaga() {
       ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT,
       updateSelectedTheme,
     ),
+    takeLatest(
+      ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
+      changeSelectedTheme,
+    ),
+    takeLatest(ReduxActionTypes.SAVE_APP_THEME_INIT, saveSelectedTheme),
+    takeLatest(ReduxActionTypes.DELETE_APP_THEME_INIT, deleteTheme),
   ]);
 }

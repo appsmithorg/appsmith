@@ -8,6 +8,10 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
  * ----------------------------------------------------------------------------
  */
 
+export type FetchAppThemesAction = {
+  applicationId: string;
+};
+
 export type FetchSelectedAppThemeAction = {
   applicationId: string;
 };
@@ -16,16 +20,26 @@ export type UpdateSelectedAppThemeAction = {
   applicationId: string;
   theme: AppTheme;
   shouldReplay?: boolean;
-  isNewThemeApplied?: boolean;
 };
 
 export type ChangeSelectedAppThemeAction = {
   applicationId: string;
   theme: AppTheme;
+  shouldReplay?: boolean;
 };
 
 export type HydrateSelectedAppThemeAction = {
   theme: AppTheme;
+};
+
+export type SaveAppThemeAction = {
+  applicationId: string;
+  name: string;
+};
+
+export type DeleteAppThemeAction = {
+  themeId: string;
+  name: string;
 };
 
 /**
@@ -105,5 +119,27 @@ export const changeSelectedAppThemeAction = (
  */
 export const setPreviewAppThemeAction = (payload?: AppTheme) => ({
   type: ReduxActionTypes.SET_PREVIEW_APP_THEME,
+  payload,
+});
+
+/**
+ * set the preview theme
+ *
+ * @param payload
+ * @returns
+ */
+export const saveSelectedThemeAction = (payload?: SaveAppThemeAction) => ({
+  type: ReduxActionTypes.SAVE_APP_THEME_INIT,
+  payload,
+});
+
+/**
+ * delete app theme
+ *
+ * @param payload
+ * @returns
+ */
+export const deleteAppThemeAction = (payload?: DeleteAppThemeAction) => ({
+  type: ReduxActionTypes.DELETE_APP_THEME_INIT,
   payload,
 });

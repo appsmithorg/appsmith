@@ -3,6 +3,7 @@ export interface AppTheme {
   name: string;
   created_by: string;
   created_at: string;
+  isSystemTheme?: boolean;
   config: {
     colors: {
       primaryColor: string;

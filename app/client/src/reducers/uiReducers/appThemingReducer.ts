@@ -89,6 +89,20 @@ const themeReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedTheme = action.payload;
   },
+  [ReduxActionTypes.DELETE_APP_THEME_SUCCESS]: (
+    state: AppThemingState,
+    action: ReduxAction<{ themeId: string }>,
+  ) => {
+    state.themes = state.themes.filter(
+      (theme) => theme.id !== action.payload.themeId,
+    );
+  },
+  [ReduxActionTypes.SAVE_APP_THEME_SUCCESS]: (
+    state: AppThemingState,
+    action: ReduxAction<AppTheme>,
+  ) => {
+    state.themes.push(action.payload);
+  },
 });
 
 export default themeReducer;
