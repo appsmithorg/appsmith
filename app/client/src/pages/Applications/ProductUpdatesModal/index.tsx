@@ -68,7 +68,7 @@ const WhiteOverlay = styled.div`
 const Footer = styled.div`
   display: flex;
   justify-content: end;
-  margin-top: 30px;
+  margin-top: 24px;
   a:first-child {
     margin-right: ${(props) => props.theme.spaces[5]}px;
   }
@@ -120,7 +120,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
         bgColor: "transparent",
       }}
       isOpen={isOpen}
-      maxHeight={"578px"}
+      maxHeight={"94vh"}
       onClose={onClose}
       onOpening={onOpening}
       title="Product Updates"
