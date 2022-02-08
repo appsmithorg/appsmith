@@ -47,6 +47,7 @@ interface TableFilterProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   widgetId: string;
+  isMobileScreenTableWidth: boolean;
 }
 
 function TableFilters(props: TableFilterProps) {
@@ -90,6 +91,14 @@ function TableFilters(props: TableFilterProps) {
     [props.widgetId],
   );
 
+  const tableActionTitle = React.useMemo(
+    () =>
+      `${props.isMobileScreenTableWidth ? "" : "Filters"}${
+        hasAnyFilters ? ` (${filters.length})` : ""
+      }`,
+    [props.isMobileScreenTableWidth],
+  );
+
   if (props.columns.length === 0) {
     return (
       <TableIconWrapper disabled>
@@ -122,7 +131,7 @@ function TableFilters(props: TableFilterProps) {
         }
         selectMenu={toggleFilterPane}
         selected={isTableFilterPaneVisible}
-        title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
+        title={tableActionTitle}
         titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
       >
         <FilterIcon />

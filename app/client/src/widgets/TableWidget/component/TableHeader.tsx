@@ -42,9 +42,12 @@ const PageNumberInputWrapper = styled(NumericInput)`
   margin: 0 8px;
 `;
 
-const SearchComponentWrapper = styled.div`
+const SearchComponentWrapper = styled.div<{
+  isMobileScreenTableWidth: boolean;
+}>`
   margin: 3px 10px;
-  flex: 0 0 200px;
+  flex: ${(props) =>
+    props.isMobileScreenTableWidth ? "0 0 120px" : "0 0 200px"};
 `;
 
 function PageNumberInput(props: {
@@ -126,6 +129,7 @@ interface TableHeaderProps {
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
+  isMobileScreenTableWidth: boolean;
   delimiter: string;
 }
 
@@ -133,7 +137,9 @@ function TableHeader(props: TableHeaderProps) {
   return (
     <>
       {props.isVisibleSearch && (
-        <SearchComponentWrapper>
+        <SearchComponentWrapper
+          isMobileScreenTableWidth={props.isMobileScreenTableWidth}
+        >
           <SearchComponent
             onSearch={props.searchTableData}
             placeholder="Search..."
@@ -148,6 +154,7 @@ function TableHeader(props: TableHeaderProps) {
               applyFilter={props.applyFilter}
               columns={props.columns}
               filters={props.filters}
+              isMobileScreenTableWidth={props.isMobileScreenTableWidth}
               widgetId={props.widgetId}
             />
           )}
@@ -157,6 +164,7 @@ function TableHeader(props: TableHeaderProps) {
               columns={props.tableColumns}
               data={props.tableData}
               delimiter={props.delimiter}
+              isMobileScreenTableWidth={props.isMobileScreenTableWidth}
               widgetName={props.widgetName}
             />
           )}
@@ -207,14 +215,14 @@ function TableHeader(props: TableHeaderProps) {
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <RowWrapper>
-            Page{" "}
+            {!props.isMobileScreenTableWidth && "Page "}
             <PageNumberInput
               disabled={props.pageCount === 1}
               pageCount={props.pageCount}
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
-            />{" "}
-            of {props.pageCount}
+            />
+            {!props.isMobileScreenTableWidth && ` of ${props.pageCount}`}
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"

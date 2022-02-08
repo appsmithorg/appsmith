@@ -126,6 +126,9 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
+  const isMobileScreenTableWidth = React.useMemo(() => props.width <= 576, [
+    props.width,
+  ]);
   const pageCount =
     props.serverSidePaginationEnabled && props.totalRecordsCount
       ? Math.ceil(props.totalRecordsCount / props.pageSize)
@@ -250,6 +253,7 @@ export function Table(props: TableProps) {
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
                 filters={props.filters}
+                isMobileScreenTableWidth={isMobileScreenTableWidth}
                 isVisibleDownload={props.isVisibleDownload}
                 isVisibleFilters={props.isVisibleFilters}
                 isVisiblePagination={props.isVisiblePagination}
