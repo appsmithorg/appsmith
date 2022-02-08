@@ -244,7 +244,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   [FieldType.DATE]: ["defaultValue"],
   [FieldType.SWITCH]: ["defaultValue"],
   [FieldType.ARRAY]: null,
-  [FieldType.CHECKBOX]: null,
+  [FieldType.CHECKBOX]: ["defaultValue"],
   [FieldType.CURRENCY]: null,
   [FieldType.EMAIL]: null,
   [FieldType.MULTI_SELECT]: null,

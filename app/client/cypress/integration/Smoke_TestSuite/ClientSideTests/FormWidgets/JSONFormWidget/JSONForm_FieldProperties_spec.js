@@ -85,14 +85,14 @@ describe("Checkbox Field Property Control", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Checkbox");
   });
 
-  it("has default selected", () => {
-    cy.get(".t--property-control-defaultselected")
-      .find(".bp3-control.bp3-switch")
-      .should("have.class", "unchecked");
+  it("has default property", () => {
+    cy.get(".t--property-control-defaultselected").contains(
+      "{{sourceData.check}}",
+    );
   });
 
   it("should update field checked state when default selected changed", () => {
-    cy.togglebar(`.t--property-control-defaultselected input`);
+    cy.testJsontext("defaultselected", "{{true}}");
     cy.get(`${fieldPrefix}-check input`).should("be.checked");
   });
 
@@ -125,14 +125,14 @@ describe("Switch Field Property Control", () => {
     cy.openFieldConfiguration("switch");
   });
 
-  it("has default selected", () => {
-    cy.get(".t--property-control-defaultselected")
-      .find(".bp3-control.bp3-switch")
-      .should("have.class", "checked");
+  it("has default property", () => {
+    cy.get(".t--property-control-defaultselected").contains(
+      "{{sourceData.switch}}",
+    );
   });
 
   it("should update field checked state when default selected changed", () => {
-    cy.togglebarDisable(`.t--property-control-defaultselected input`);
+    cy.testJsontext("defaultselected", "{{false}}");
     cy.get(`${fieldPrefix}-switch label.bp3-control.bp3-switch`).should(
       "have.class",
       "t--switch-widget-inactive",

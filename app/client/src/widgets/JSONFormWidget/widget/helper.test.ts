@@ -434,6 +434,16 @@ describe(".dynamicPropertyPathListFromSchema", () => {
                     identifier: "field3",
                     defaultValue: "10/12/2021",
                   },
+                  field4: {
+                    fieldType: FieldType.CHECKBOX,
+                    identifier: "field4",
+                    defaultValue: "{{sourceData.field1}}",
+                  },
+                  field5: {
+                    fieldType: FieldType.PHONE_NUMBER,
+                    identifier: "field5",
+                    defaultValue: "{{sourceData.field1}}",
+                  },
                 },
               },
             },
@@ -447,6 +457,7 @@ describe(".dynamicPropertyPathListFromSchema", () => {
       `schema.${ROOT_SCHEMA_KEY}.children.obj.children.agree.defaultValue`,
       `schema.${ROOT_SCHEMA_KEY}.children.array.children.${ARRAY_ITEM_KEY}.children.field1.defaultValue`,
       `schema.${ROOT_SCHEMA_KEY}.children.array.children.${ARRAY_ITEM_KEY}.children.field2.defaultValue`,
+      `schema.${ROOT_SCHEMA_KEY}.children.array.children.${ARRAY_ITEM_KEY}.children.field4.defaultValue`,
     ];
 
     const result = dynamicPropertyPathListFromSchema(schema);
