@@ -320,7 +320,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             integrationDTO.setPageId(defaultPageId);
                             integrationDTO.setApplicationId(defaultApplicationId);
                             integrationDTO.setBranch(branchName);
-                            integrationDTO.setIsImport(isImport);
+                            integrationDTO.setImportForGit(isImport);
                             final Plugin plugin = tuple.getT3();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());
