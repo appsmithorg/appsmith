@@ -21,7 +21,7 @@
 		"**/Smoke_TestSuite/ServerSideTests/QueryPane/S3_spec*.js",
 		"**/Smoke_TestSuite/ServerSideTests/QueryPane/Postgres_Spec*.js"
 	],
-	"chromeWebSecurity": false,
+	"chromeWebSecurity": true,
 	"viewportHeight": 900,
 	"viewportWidth": 1400,
 	"retries": {
