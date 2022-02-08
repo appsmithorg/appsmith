@@ -34,12 +34,12 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = ${ScriptTemplate}
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
-    const result = userFunction?.apply(self, ARGUMENTS);
+    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
     return result;
   }
   callback(${ScriptTemplate})
@@ -49,7 +49,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = await ${ScriptTemplate};
     return result;
   }
-  closedFunction();
+  closedFunction.call(THIS_CONTEXT);
   `,
 };
 
@@ -103,6 +103,18 @@ export const createGlobalData = (
   const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
+  //// Adding contextual data not part of data tree
+  GLOBAL_DATA.THIS_CONTEXT = {};
+  if (context) {
+    if (context.thisContext) {
+      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
+    }
+    if (context.globalContext) {
+      Object.entries(context.globalContext).forEach(([key, value]) => {
+        GLOBAL_DATA[key] = value;
+      });
+    }
+  }
   if (isTriggerBased) {
     //// Add internal functions to dataTree;
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
@@ -141,9 +153,13 @@ export function sanitizeScript(js: string) {
 }
 
 /** Define a context just for this script
+ * thisContext will define it on the `this`
+ * globalContext will define it globally
  * requestId is used for completing promises
  */
 export type EvaluateContext = {
+  thisContext?: Record<string, any>;
+  globalContext?: Record<string, any>;
   requestId?: string;
 };
 
@@ -180,6 +196,7 @@ export default function evaluateSync(
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
+  context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
@@ -190,7 +207,7 @@ export default function evaluateSync(
       dataTree,
       resolvedFunctions,
       isJSCollection,
-      undefined,
+      context,
       evalArguments,
     );
     GLOBAL_DATA.ALLOW_ASYNC = false;

@@ -617,7 +617,7 @@ export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";
 export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories you can remove existing repositories.";
-export const CONTACT_SALES = () => "Contact Sales";
+export const CONTACT_SUPPORT = () => "Contact Support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (orgName: string) =>
   `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${orgName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
@@ -1001,3 +1001,12 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+// Validations
+export const VALIDATION_ARRAY_UNIQUE = () =>
+  "Array must be unique. Duplicate values found";
+export const VALIDATION_ARRAY_DUPLICATE_PROPERTY_VALUES = () =>
+  "Duplicate values found for the following properties, in the array entries, that must be unique --";
+export const VALIDATION_ARRAY_DISALLOWED_VALUE = () =>
+  "Value is not allowed in this array";
+export const VALIDATION_ARRAY_INVALID_ENTRY = () => "Invalid entry at index:";

@@ -976,6 +976,20 @@ public class RestApiPluginTest {
     }
 
     @Test
+    public void testDenyInstanceMetadataAwsViaCname() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://169.254.169.254.nip.io/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .verifyComplete();
+    }
+
+    @Test
     public void testDenyInstanceMetadataGcp() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");

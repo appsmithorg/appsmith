@@ -251,6 +251,8 @@
     "autoprefixer": "^9",
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-styled-components": "^1.10.7",
+    "brotli-webpack-plugin": "^1.1.0",
+    "compression-webpack-plugin": "^6.0.5",
     "cra-bundle-analyzer": "^0.1.0",
     "craco-babel-loader": "^0.1.4",
     "cy-verify-downloads": "^0.0.5",
