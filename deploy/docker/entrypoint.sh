@@ -20,6 +20,8 @@ function setup_backend_cmd(){
         backend_start_command="java -Dserver.port=8080 -Djava.security.egd='file:/dev/./urandom' -Dlog4j2.formatMsgNoLookups=true -jar server.jar"
     fi
     export BACKEND_CMD=$backend_start_command
+}
+
 init_env_file() {
   CONF_PATH="/appsmith-stacks/configuration"
   ENV_PATH="$CONF_PATH/docker.env"
@@ -41,7 +43,11 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" > "$ENV_PATH"
+    AUTO_GEN_AUTH_PASSWORD=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+    bash "$TEMPLATES_PATH/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" "$AUTO_GEN_AUTH_PASSWORD" > "$ENV_PATH"
   fi
 
   printenv | grep -E '^APPSMITH_|^MONGO_' > "$TEMPLATES_PATH/pre-define.env"
@@ -172,7 +178,7 @@ configure_supervisord() {
 # Main Section
 init_env_file
 unset_unused_variables
-if [[ -z $DYNO ]]; then
+if [[ -z "${DYNO}" ]]; then
   # Don't run MongoDB if running in a Heroku dyno.
   init_mongodb
 fi
@@ -182,6 +188,11 @@ get_maximum_heap
 setup_backend_cmd
 configure_supervisord
 
+CREDENTIAL_PATH="/etc/nginx/passwords"
+if ! [[ -e "$CREDENTIAL_PATH" ]]; then
+  echo "Generating Basic Authentication file"
+  printf "$APPSMITH_BASIC_AUTH_USER:$(openssl passwd -apr1 $APPSMITH_BASIC_AUTH_PASSWORD)" > "$CREDENTIAL_PATH"
+fi
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
