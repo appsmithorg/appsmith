@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Checkbox from "components/ads/Checkbox";
+// import Checkbox from "components/ads/Checkbox";
 import Dialog from "components/ads/DialogComponent";
 import CloseIcon from "remixicon-react/CloseLineIcon";
 import Button, { Category, Size } from "components/ads/Button";
@@ -14,22 +14,34 @@ interface SaveThemeModalProps {
   onClose(): void;
 }
 
-interface SaveThemeFormProps {
-  name: string;
-}
-
 function SaveThemeModal(props: SaveThemeModalProps) {
   const { isOpen, onClose } = props;
   const dispatch = useDispatch();
-  const applicationId = useSelector(getCurrentApplicationId);
   const [name, setName] = useState("");
-  const onSubmit = () => {
-    dispatch(saveSelectedThemeAction({ applicationId, name }));
-  };
+  const applicationId = useSelector(getCurrentApplicationId);
+
+  /**
+   * dispatches action to save selected theme
+   *
+   */
+  const onSubmit = useCallback(
+    (event: any) => {
+      event.preventDefault();
+
+      // if name is empty, don't do anything
+      if (!name) return;
+
+      dispatch(saveSelectedThemeAction({ applicationId, name }));
+
+      // close the modal after submit
+      onClose();
+    },
+    [name],
+  );
 
   return (
     <Dialog canOutsideClickClose isOpen={isOpen} onClose={onClose}>
-      <form data-cy="save-theme-form">
+      <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
         <div className="flex items-center justify-between">
           <h2 className="text-xl">Save Theme</h2>
           <button onClick={onClose} type="button">
@@ -74,7 +86,6 @@ function SaveThemeModal(props: SaveThemeModalProps) {
             />
             <Button
               category={Category.primary}
-              disabled={!name}
               onClick={onSubmit}
               size={Size.medium}
               text="Save theme"

@@ -1,6 +1,7 @@
 import React from "react";
 import {
   ChangeSelectedAppThemeAction,
+  DeleteAppThemeAction,
   FetchAppThemesAction,
   FetchSelectedAppThemeAction,
   SaveAppThemeAction,
@@ -16,7 +17,11 @@ import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select } from "redux-saga/effects";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { CHANGE_APP_THEME, createMessage } from "constants/messages";
+import {
+  CHANGE_APP_THEME,
+  createMessage,
+  DELETE_APP_THEME,
+} from "constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { undoAction, updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
@@ -1139,11 +1144,12 @@ export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
 
     yield put({
       type: ReduxActionTypes.SAVE_APP_THEME_SUCCESS,
+      payload: response.data,
     });
 
     // shows toast
     Toaster.show({
-      text: createMessage(CHANGE_APP_THEME, "hello"),
+      text: createMessage(CHANGE_APP_THEME, name),
       variant: Variant.success,
       actionElement: (
         <span onClick={() => store.dispatch(undoAction())}>Undo</span>
@@ -1152,6 +1158,38 @@ export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_APP_THEME_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+/**
+ * deletes custom saved theme
+ *
+ * @param action
+ */
+export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
+  const { name, themeId } = action.payload;
+
+  try {
+    const response = yield ThemingApi.deleteTheme(themeId);
+
+    yield put({
+      type: ReduxActionTypes.DELETE_APP_THEME_SUCCESS,
+      payload: { themeId },
+    });
+
+    // shows toast
+    Toaster.show({
+      text: createMessage(DELETE_APP_THEME, name),
+      variant: Variant.success,
+      actionElement: (
+        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
+      ),
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_APP_THEME_ERROR,
       payload: { error },
     });
   }
@@ -1173,5 +1211,6 @@ export default function* appThemingSaga() {
       changeSelectedTheme,
     ),
     takeLatest(ReduxActionTypes.SAVE_APP_THEME_INIT, saveSelectedTheme),
+    takeLatest(ReduxActionTypes.DELETE_APP_THEME_INIT, deleteTheme),
   ]);
 }

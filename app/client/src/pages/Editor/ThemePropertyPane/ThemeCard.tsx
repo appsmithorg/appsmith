@@ -2,7 +2,7 @@ import { last } from "lodash";
 import classNames from "classnames";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
@@ -13,7 +13,11 @@ import {
 import { AppTheme } from "entities/AppTheming";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { changeSelectedAppThemeAction } from "actions/appThemingActions";
+import {
+  changeSelectedAppThemeAction,
+  deleteAppThemeAction,
+} from "actions/appThemingActions";
+import DeleteThemeModal from "./DeleteThemeModal";
 
 /**
  * ----------------------------------------------------------------------------
@@ -74,6 +78,7 @@ export function ThemeCard(props: ThemeCard) {
   const applicationId = useSelector(getCurrentApplicationId);
   const isThemeSelectionMode =
     themingMode === AppThemingMode.APP_THEME_SELECTION;
+  const [isDeleteModalOpen, toggleDeleteModal] = useState(false);
 
   // colors
   const userDefinedColors = theme.properties.colors;
@@ -105,81 +110,103 @@ export function ThemeCard(props: ThemeCard) {
     }
   }, [changeSelectedAppThemeAction, theme]);
 
+  const openDeleteModalFn = useCallback(() => toggleDeleteModal(true), []);
+  const closeDeleteModalFn = useCallback(() => toggleDeleteModal(false), []);
+
+  /**
+   * dispatch delete app theme action
+   */
+  const onDeleteTheme = useCallback(() => {
+    dispatch(deleteAppThemeAction({ themeId: theme.id, name: theme.name }));
+
+    closeDeleteModalFn();
+  }, [theme.id]);
+
   return (
-    <div className="space-y-1 group">
-      {selectable && (
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm text-gray-600 ">{props.theme.name}</h3>
-          {deletable && (
-            <button className="p-1 opacity-0 group-hover:block hover:bg-gray-100 group-hover:opacity-100">
-              <DeleteIcon className="w-4 h-4 text-gray-600" />
-            </button>
-          )}
-        </div>
-      )}
-      <div
-        className={classNames({
-          "border relative group transition-all t--theme-card": true,
-          "overflow-hidden": !selectable,
-          "hover:shadow-xl cursor-pointer": selectable,
-        })}
-        onClick={changeSelectedTheme}
-      >
-        <MainContainer backgroundColor={backgroundColor}>
-          <HeaderContainer
-            className="flex h-3 text-white"
-            primaryColor={primaryColor}
-          />
-          <section className="flex justify-between px-3 pt-3">
-            <MainText backgroundColor={backgroundColor} className="text-base">
-              AaBbCc
-            </MainText>
-            <div className="flex items-center space-x-2">
-              {Object.keys(userDefinedColors).map((colorKey, index) => (
-                <ThemeColorCircle
-                  backgroundColor={
-                    userDefinedColors[colorKey] || userDefinedColors[colorKey]
-                  }
-                  className="w-6 h-6 border rounded-full"
-                  key={index}
-                />
-              ))}
-            </div>
-          </section>
-          <section className="p-3">
-            <div className="flex space-x-2">
-              <ThemeColorButton
-                backgroundColor={primaryColor}
-                borderColor="transparent"
-                borderRadius={primaryBorderRadius}
-                boxShadow={primaryBoxShadow}
-                className="px-4 py-1"
+    <>
+      <div className="space-y-1 group">
+        {selectable && (
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm text-gray-600 ">{props.theme.name}</h3>
+            {deletable && (
+              <button
+                className="p-1 opacity-0 group-hover:block hover:bg-gray-100 group-hover:opacity-100"
+                onClick={openDeleteModalFn}
               >
-                Button
-              </ThemeColorButton>
-              <ThemeColorButton
-                backgroundColor="white"
-                borderColor={primaryColor}
-                borderRadius={primaryBorderRadius}
-                boxShadow={primaryBoxShadow}
-                className="px-4 py-1 border"
-              >
-                Button
-              </ThemeColorButton>
-            </div>
-          </section>
-        </MainContainer>
-        <aside
-          className={`absolute bottom-0 left-0 right-0 items-center justify-center hidden  bg-gray-900 bg-opacity-80 ${
-            selectable ? "group-hover:flex" : ""
-          }`}
-        >
-          <div className="py-1 text-xs tracking-wide text-white uppercase">
-            Apply Theme
+                <DeleteIcon className="w-4 h-4 text-gray-600" />
+              </button>
+            )}
           </div>
-        </aside>
+        )}
+        <div
+          className={classNames({
+            "border relative group transition-all t--theme-card": true,
+            "overflow-hidden": !selectable,
+            "hover:shadow-xl cursor-pointer": selectable,
+          })}
+          onClick={changeSelectedTheme}
+        >
+          <MainContainer backgroundColor={backgroundColor}>
+            <HeaderContainer
+              className="flex h-3 text-white"
+              primaryColor={primaryColor}
+            />
+            <section className="flex justify-between px-3 pt-3">
+              <MainText backgroundColor={backgroundColor} className="text-base">
+                AaBbCc
+              </MainText>
+              <div className="flex items-center space-x-2">
+                {Object.keys(userDefinedColors).map((colorKey, index) => (
+                  <ThemeColorCircle
+                    backgroundColor={
+                      userDefinedColors[colorKey] || userDefinedColors[colorKey]
+                    }
+                    className="w-6 h-6 border rounded-full"
+                    key={index}
+                  />
+                ))}
+              </div>
+            </section>
+            <section className="p-3">
+              <div className="flex space-x-2">
+                <ThemeColorButton
+                  backgroundColor={primaryColor}
+                  borderColor="transparent"
+                  borderRadius={primaryBorderRadius}
+                  boxShadow={primaryBoxShadow}
+                  className="px-4 py-1"
+                >
+                  Button
+                </ThemeColorButton>
+                <ThemeColorButton
+                  backgroundColor="white"
+                  borderColor={primaryColor}
+                  borderRadius={primaryBorderRadius}
+                  boxShadow={primaryBoxShadow}
+                  className="px-4 py-1 border"
+                >
+                  Button
+                </ThemeColorButton>
+              </div>
+            </section>
+          </MainContainer>
+          <aside
+            className={`absolute bottom-0 left-0 right-0 items-center justify-center hidden  bg-gray-900 bg-opacity-80 ${
+              selectable ? "group-hover:flex" : ""
+            }`}
+          >
+            <div className="py-1 text-xs tracking-wide text-white uppercase">
+              Apply Theme
+            </div>
+          </aside>
+        </div>
       </div>
-    </div>
+      <DeleteThemeModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModalFn}
+        onDelete={onDeleteTheme}
+      />
+    </>
   );
 }
 

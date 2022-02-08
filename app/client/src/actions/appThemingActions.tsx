@@ -37,6 +37,11 @@ export type SaveAppThemeAction = {
   name: string;
 };
 
+export type DeleteAppThemeAction = {
+  themeId: string;
+  name: string;
+};
+
 /**
  * ----------------------------------------------------------------------------
  * ACTIONS
@@ -125,5 +130,16 @@ export const setPreviewAppThemeAction = (payload?: AppTheme) => ({
  */
 export const saveSelectedThemeAction = (payload?: SaveAppThemeAction) => ({
   type: ReduxActionTypes.SAVE_APP_THEME_INIT,
+  payload,
+});
+
+/**
+ * delete app theme
+ *
+ * @param payload
+ * @returns
+ */
+export const deleteAppThemeAction = (payload?: DeleteAppThemeAction) => ({
+  type: ReduxActionTypes.DELETE_APP_THEME_INIT,
   payload,
 });
