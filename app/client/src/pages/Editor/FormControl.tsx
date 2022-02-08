@@ -186,10 +186,16 @@ function renderFormConfigBottom(props: {
   config: ControlProps;
   configErrors?: EvaluationError[];
 }) {
-  const { info } = { ...props.config };
+  const { controlType, info } = { ...props.config };
   return (
     <>
-      {info && <FormInputHelperText>{info}</FormInputHelperText>}
+      {info && (
+        <FormInputHelperText
+          addMarginTop={controlType === "CHECKBOX" ? "8px" : "2px"} // checkboxes need a higher margin top than others form control types
+        >
+          {info}
+        </FormInputHelperText>
+      )}
       {props.configErrors &&
         props.configErrors.length > 0 &&
         props.configErrors
