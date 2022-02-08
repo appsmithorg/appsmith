@@ -337,7 +337,7 @@ export const CurrentValueViewer = memo(
         )}
         <Collapse isOpen={openEvaluatedValue}>
           <CurrentValueWrapper
-            className="t-property-evaulated-value"
+            className="t-property-evaluated-value"
             colorTheme={props.theme}
           >
             {content}

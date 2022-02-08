@@ -3694,8 +3694,8 @@ Cypress.Commands.add("isInViewport", (element) => {
   });
 });
 
-Cypress.Commands.add("validateEvaulatedValue", (value) => {
-  cy.get(".t-property-evaulated-value").should("contain", value);
+Cypress.Commands.add("validateEvaluatedValue", (value) => {
+  cy.get(".t-property-evaluated-value").should("contain", value);
 });
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {

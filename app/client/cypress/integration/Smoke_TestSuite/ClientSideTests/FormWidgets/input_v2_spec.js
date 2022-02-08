@@ -162,7 +162,7 @@ describe("Input widget V2 - ", () => {
       ].forEach(([input, expected]) => {
         cy.updateCodeInput(".t--property-control-valid", input);
         cy.wait(500);
-        cy.validateEvaulatedValue(expected);
+        cy.validateEvaluatedValue(expected);
       });
     });
   });
