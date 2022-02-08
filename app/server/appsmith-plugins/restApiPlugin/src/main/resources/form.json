@@ -195,15 +195,15 @@
           "configProperty": "datasourceConfiguration.authentication.sendScopeWithRefreshToken",
           "controlType": "DROP_DOWN",
           "isRequired": true,
-          "initialValue": "false",
+          "initialValue": false,
           "options": [
             {
               "label": "Yes",
-              "value": "true"
+              "value": true
             },
             {
               "label": "No",
-              "value": "false"
+              "value": false
             }
           ]
         },
