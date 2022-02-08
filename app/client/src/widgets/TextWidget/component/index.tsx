@@ -65,6 +65,14 @@ export const TextContainer = styled.div`
     font-size: 0.75em;
     margin: 1.67em 0;
   }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: bold;
+  }
   a {
     color: #106ba3;
     text-decoration: none;
