@@ -3694,6 +3694,10 @@ Cypress.Commands.add("isInViewport", (element) => {
   });
 });
 
+Cypress.Commands.add("validateEvaulatedValue", (value) => {
+  cy.get(".t-property-evaulated-value").should("contain", value);
+});
+
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;
 
