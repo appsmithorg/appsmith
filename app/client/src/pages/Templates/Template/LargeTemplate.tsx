@@ -9,6 +9,7 @@ const TemplateWrapper = styled.div`
   flex: 1;
   max-width: 50%;
   transition: all 1s ease-out;
+  cursor: pointer;
   &:hover {
     box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
       0px 8px 8px -4px rgba(16, 24, 40, 0.04);
@@ -54,6 +55,7 @@ const TemplateContentFooter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 17px;
 `;
 
 const DatasourceChip = styled.div`
@@ -62,7 +64,6 @@ const DatasourceChip = styled.div`
   padding: 4px 9px;
   display: inline-flex;
   align-items: center;
-  margin-top: 19px;
   .image {
     height: 15px;
     width: 15px;

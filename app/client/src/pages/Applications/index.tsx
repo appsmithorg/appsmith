@@ -31,7 +31,6 @@ import {
   ApplicationPayload,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
@@ -998,7 +997,9 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllApplication();
+    if (!this.props.userOrgs.length) {
+      this.props.getAllApplication();
+    }
     this.props.setHeaderMetaData(true, true);
   }
 
