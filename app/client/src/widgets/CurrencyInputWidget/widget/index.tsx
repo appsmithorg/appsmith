@@ -351,6 +351,8 @@ class CurrencyInputWidget extends BaseInputWidget<
       <CurrencyInputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode
         currencyCode={currencyCode}
         decimals={this.props.decimals}
@@ -372,6 +374,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         onStep={this.onStep}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        primaryColor={this.props.primaryColor}
         renderMode={this.props.renderMode}
         showError={!!this.props.isFocused}
         tooltip={this.props.tooltip}

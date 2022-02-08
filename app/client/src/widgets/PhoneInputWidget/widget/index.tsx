@@ -226,6 +226,8 @@ class PhoneInputWidget extends BaseInputWidget<
       <PhoneInputComponent
         allowDialCodeChange={this.props.allowDialCodeChange}
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode
         countryCode={countryCode}
         defaultValue={this.props.defaultText}
@@ -246,6 +248,7 @@ class PhoneInputWidget extends BaseInputWidget<
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        primaryColor={this.props.primaryColor}
         showError={!!this.props.isFocused}
         tooltip={this.props.tooltip}
         value={value}

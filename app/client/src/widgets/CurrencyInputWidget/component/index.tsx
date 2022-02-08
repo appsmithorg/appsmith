@@ -40,6 +40,8 @@ class CurrencyInputComponent extends React.Component<
     return (
       <BaseInputComponent
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={this.props.compactMode}
         defaultValue={this.props.defaultValue}
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
@@ -62,9 +64,12 @@ class CurrencyInputComponent extends React.Component<
             allowCurrencyChange={
               this.props.allowCurrencyChange && !this.props.disabled
             }
+            borderRadius={this.props.borderRadius}
             onCurrencyTypeChange={this.props.onCurrencyTypeChange}
             options={CurrencyDropdownOptions}
+            primaryColor={this.props.primaryColor}
             selected={this.props.currencyCode}
+            widgetId={this.props.widgetId}
           />
         }
         multiline={false}
@@ -73,6 +78,7 @@ class CurrencyInputComponent extends React.Component<
         onStep={this.props.onStep}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
+        primaryColor={this.props.primaryColor}
         showError={this.props.showError}
         stepSize={1}
         tooltip={this.props.tooltip}

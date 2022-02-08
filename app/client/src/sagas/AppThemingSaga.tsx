@@ -359,6 +359,18 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
+      CURRENCY_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      PHONE_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -399,6 +411,12 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      INPUT_WIDGET_V2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
@@ -887,6 +905,12 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
+      INPUT_WIDGET_V2: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       LIST_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -1038,7 +1062,7 @@ export function* fetchAppSelectedTheme(
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: response.data,
+      payload: dummyThemes[1],
     });
   } catch (error) {
     yield put({
