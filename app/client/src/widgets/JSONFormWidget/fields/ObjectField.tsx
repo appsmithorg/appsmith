@@ -64,15 +64,19 @@ function ObjectField({
     backgroundColor,
     cellBackgroundColor,
     cellBorderColor,
-    defaultValue,
     isVisible = true,
     label,
     tooltip,
   } = schemaItem;
 
-  const objectDefaultValue = (defaultValue ||
-    passedDefaultValue ||
-    {}) as Record<string, unknown>;
+  const objectPassedDefaultValue = useMemo(() => {
+    let defaultValue: Record<string, unknown> = {};
+    if (passedDefaultValue && typeof passedDefaultValue === "object") {
+      defaultValue = passedDefaultValue as Record<string, unknown>;
+    }
+
+    return defaultValue;
+  }, [passedDefaultValue]);
 
   const fields = useMemo(() => {
     const children = Object.values(schemaItem.children);
@@ -86,7 +90,7 @@ function ObjectField({
         <FieldRenderer
           fieldName={fieldName as ControllerRenderProps["name"]}
           key={fieldName}
-          passedDefaultValue={objectDefaultValue[schemaItem.name]}
+          passedDefaultValue={objectPassedDefaultValue[schemaItem.name]}
           propertyPath={fieldPropertyPath}
           schemaItem={schemaItem}
         />
@@ -97,7 +101,7 @@ function ObjectField({
     name,
     schemaItem.identifier,
     propertyPath,
-    objectDefaultValue,
+    objectPassedDefaultValue,
   ]);
 
   if (!isVisible) {

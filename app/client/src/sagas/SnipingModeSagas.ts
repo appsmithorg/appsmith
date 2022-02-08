@@ -130,6 +130,10 @@ export function* bindDataToWidgetSaga(
       propertyPath = "url";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
+    case WidgetTypes.JSON_FORM_WIDGET:
+      propertyPath = "sourceData";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
     default:
       isValidProperty = false;
       break;

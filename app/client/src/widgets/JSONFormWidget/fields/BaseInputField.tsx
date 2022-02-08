@@ -135,7 +135,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   const inputDefaultValue = schemaItem.defaultValue || passedDefaultValue;
 
   const [isFocused, setIsFocused] = useState(false);
-  const [textValue, setTextValue] = useState<string>("");
+  const [textValue, setTextValue] = useState<string | undefined | null>("");
 
   const {
     field: { onBlur, onChange, value },
@@ -208,7 +208,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       triggerPropertyName = "onTextChange",
     ) => {
       const { onTextChanged } = schemaItem;
-      const { text, value } = transformValue(inputValue, textValue);
+      const { text, value } = transformValue(inputValue, textValue || "");
 
       fieldOnChangeHandler(value);
       setTextValue(text);
@@ -284,7 +284,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         showError={isFocused}
         spellCheck={schemaItem.isSpellCheck}
         stepSize={1}
-        value={textValue}
+        value={textValue || ""}
         widgetId=""
       />
     );
