@@ -18,7 +18,7 @@ import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -185,7 +185,7 @@ function NewApiScreen(props: Props) {
     }
   };
 
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.

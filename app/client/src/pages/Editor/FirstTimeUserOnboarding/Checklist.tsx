@@ -23,7 +23,7 @@ import {
   getApplicationLastDeployedAt,
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import history from "utils/history";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
@@ -234,7 +234,7 @@ export default function OnboardingChecklist() {
   );
   const theme = useSelector(getCurrentThemeDetails);
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const isCompleted = useSelector(getFirstTimeUserOnboardingComplete);
   const isFirstTimeUserOnboardingEnabled = useSelector(

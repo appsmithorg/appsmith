@@ -8,7 +8,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";
 import {
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "../../../selectors/editorSelectors";
 import {
   BUILDER_PAGE_URL,
@@ -26,7 +26,7 @@ const Back = styled.span`
 function BackButton() {
   const history = useHistory();
   const pageId = useSelector(getCurrentPageId) as string;
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator

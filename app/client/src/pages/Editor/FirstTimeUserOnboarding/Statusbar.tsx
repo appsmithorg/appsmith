@@ -9,7 +9,7 @@ import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getCanvasWidgets,
@@ -193,7 +193,7 @@ const useStatus = (): { percentage: number; content: string } => {
 export function OnboardingStatusbar(props: RouteComponentProps) {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const { content, percentage } = useStatus();
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
   const isGenerateAppPage =

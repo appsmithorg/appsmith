@@ -21,7 +21,7 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -339,7 +339,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   return (
     <ThemeProvider theme={theme}>

@@ -32,10 +32,7 @@ import {
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
 } from "constants/routes";
-import {
-  getCurrentPageId,
-  selectRelevantSlugNames,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
 import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
@@ -394,7 +391,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     const pageId: string = yield select(getCurrentPageId);
     history.push(
       API_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, id, {
@@ -414,7 +411,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   if (plugin.type !== PluginType.API) return;
 
   const pageId: string = yield select(getCurrentPageId);
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
   history.push(
     DATA_SOURCES_EDITOR_ID_URL(
@@ -499,7 +496,7 @@ function* handleApiNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     const pageId: string = yield select(getCurrentPageId);
     history.push(
       API_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, actionId, params),

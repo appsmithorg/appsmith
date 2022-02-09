@@ -2,7 +2,7 @@ import { call, select } from "redux-saga/effects";
 import {
   getCurrentPageId,
   getPageList,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import _ from "lodash";
 import { Page } from "constants/ReduxActionConstants";
@@ -41,7 +41,7 @@ export default function* navigateActionSaga(
   action: NavigateActionDescription["payload"],
 ) {
   const pageList: Page[] = yield select(getPageList);
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const {
     pageNameOrUrl,
     params,

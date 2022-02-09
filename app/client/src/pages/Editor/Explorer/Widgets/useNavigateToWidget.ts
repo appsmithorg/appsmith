@@ -9,7 +9,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import WidgetFactory from "utils/WidgetFactory";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -21,7 +21,7 @@ export const useNavigateToWidget = () => {
     selectWidget,
     shiftSelectWidgetEntityExplorer,
   } = useWidgetSelection();
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
     navigateToCanvas({ pageId, widgetId, applicationSlug, pageSlug });
     flashElementsById(widgetId);

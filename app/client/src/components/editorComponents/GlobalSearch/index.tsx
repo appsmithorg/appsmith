@@ -62,7 +62,7 @@ import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   selectPageSlugToIdMap,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, noop } from "lodash";
@@ -409,7 +409,7 @@ function GlobalSearch() {
     );
   };
 
-  const { applicationSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug } = useSelector(selectURLSlugs);
   const pageIdToSlugMap = useSelector(selectPageSlugToIdMap);
 
   const handleActionClick = (item: SearchItem) => {

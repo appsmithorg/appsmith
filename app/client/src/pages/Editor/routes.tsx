@@ -51,7 +51,7 @@ import { AppState } from "reducers";
 import { trimQueryString } from "utils/helpers";
 import {
   getCurrentApplicationId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
@@ -242,7 +242,7 @@ function PaneDrawer(props: PaneDrawerProps) {
 PaneDrawer.displayName = "PaneDrawer";
 
 const mapStateToProps = (state: AppState) => {
-  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     applicationId: getCurrentApplicationId(state),
     applicationSlug,

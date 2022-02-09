@@ -31,7 +31,7 @@ import { DatasourceComponentTypes } from "api/PluginApi";
 
 import {
   getCurrentApplicationId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 
 interface ReduxStateProps {
@@ -152,7 +152,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
-  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     pluginImages: getPluginImages(state),
     formData,

@@ -29,7 +29,7 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import Datasources from "./Datasources";
 import Files from "./Files";
@@ -80,7 +80,7 @@ function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const currentPageId = useSelector(getCurrentPageId) as string;
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,

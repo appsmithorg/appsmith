@@ -20,7 +20,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { autofill, change, initialize } from "redux-form";
 import {
@@ -63,7 +63,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const pageId: string = yield select(getCurrentPageId);
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
@@ -184,7 +184,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   } = actionPayload.payload;
   if (pluginType === PluginType.DB || pluginType === PluginType.REMOTE) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     const pageId: string = yield select(getCurrentPageId);
     const pluginTemplates = yield select(getPluginTemplates);
     const queryTemplate = pluginTemplates[pluginId];
@@ -209,7 +209,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
     return;
 
   const pageId: string = yield select(getCurrentPageId);
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
   yield put(
     initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
@@ -259,7 +259,7 @@ function* handleNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     const pageId: string = yield select(getCurrentPageId);
     history.replace(
       QUERIES_EDITOR_ID_URL(

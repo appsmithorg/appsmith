@@ -59,7 +59,7 @@ import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 
 import {
@@ -116,9 +116,7 @@ export function* publishApplicationSaga(
       const currentPageId: string = yield select(getCurrentPageId);
       const guidedTour: boolean = yield select(inGuidedTour);
       const currentStep: number = yield select(getCurrentStep);
-      const { applicationSlug, pageSlug } = yield select(
-        selectRelevantSlugNames,
-      );
+      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
       let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationSlug,
@@ -362,7 +360,7 @@ export function* duplicateApplicationSaga(
       ApplicationApi.duplicateApplication,
       request,
     );
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {

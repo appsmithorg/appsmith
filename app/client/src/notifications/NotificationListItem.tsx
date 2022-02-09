@@ -24,7 +24,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 
 export const NOTIFICATION_HEIGHT = 82;
 
@@ -105,7 +105,7 @@ const getModeFromRoleAndDomain = (
 
 function CommentNotification(props: { notification: AppsmithNotification }) {
   const dispatch = useDispatch();
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const {
     _id,
     comment,
@@ -182,7 +182,7 @@ function CommentThreadNotification(props: {
   notification: AppsmithNotification;
 }) {
   const dispatch = useDispatch();
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const {
     _id: _notificationId,
     commentThread,

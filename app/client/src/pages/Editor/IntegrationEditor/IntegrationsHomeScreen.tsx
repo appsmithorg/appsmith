@@ -28,7 +28,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   getCurrentApplicationId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 
 const HeaderFlex = styled.div`
@@ -561,7 +561,7 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
-  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),

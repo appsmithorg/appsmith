@@ -71,7 +71,7 @@ import {
   getCurrentPageId,
   getCurrentPageName,
   selectCurrentApplicationSlug,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -620,9 +620,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
           dsl: undefined,
         },
       });
-      const { applicationSlug, pageSlug } = yield select(
-        selectRelevantSlugNames,
-      );
+      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
       const currentPageId: string = yield select(
         (state: AppState) => state.entities.pageList.currentPageId,
       );

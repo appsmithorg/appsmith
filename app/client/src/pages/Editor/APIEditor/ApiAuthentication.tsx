@@ -27,7 +27,7 @@ import {
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
 } from "constants/messages";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
@@ -155,7 +155,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     }
   }
 
-  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
 
   return {
     datasource: datasourceMerged,

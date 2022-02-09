@@ -7,10 +7,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useSelector } from "store";
-import {
-  getCurrentPageId,
-  selectRelevantSlugNames,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import { keyBy } from "lodash";
@@ -29,7 +26,7 @@ type ExplorerActionEntityProps = {
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const pageId = useSelector(getCurrentPageId) as string;
   const action = useSelector((state) => getAction(state, props.id)) as Action;
   const plugins = useSelector(getPlugins);

@@ -15,7 +15,7 @@ import history from "utils/history";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
 import { useNewActionName } from "./helpers";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -39,7 +39,7 @@ type EntityContextMenuProps = {
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
   const params = useParams<ExplorerURLParams>();
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(

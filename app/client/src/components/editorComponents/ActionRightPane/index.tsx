@@ -33,7 +33,7 @@ import {
 import { Colors } from "constants/Colors";
 import {
   getCurrentApplicationId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 
 const SideBar = styled.div`
@@ -219,7 +219,7 @@ function ActionSidebar({
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const { pageId } = useParams<ExplorerURLParams>();
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const handleBindData = () => {

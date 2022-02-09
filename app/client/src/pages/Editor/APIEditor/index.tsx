@@ -20,7 +20,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageName,
   getIsEditorInitialized,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { Action, PaginationType, RapidApiAction } from "entities/Action";
@@ -258,7 +258,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { isCreating, isDeleting, isRunning } = state.ui.apiPane;
   const pluginId = _.get(apiAction, "pluginId", "");
   const settingsConfig = getPluginSettingConfigs(state, pluginId);
-  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),

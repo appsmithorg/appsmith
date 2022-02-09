@@ -9,7 +9,7 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getAction,
@@ -25,7 +25,7 @@ import { JS_COLLECTION_ID_URL } from "constants/routes";
 function ActionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   const action = useSelector((state: AppState) => getAction(state, props.id));
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const onClick = useCallback(() => {
     if (action) {
@@ -58,7 +58,7 @@ function ActionLink(props: EntityLinkProps) {
 }
 
 function JSCollectionLink(props: EntityLinkProps) {
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const pageId = useSelector(getCurrentPageId);
   const onClick = useCallback(() => {
     if (props.id) {
@@ -124,7 +124,7 @@ function DatasourceLink(props: EntityLinkProps) {
     getDatasource(state, props.id),
   );
   const pageId = useSelector(getCurrentPageId);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const onClick = () => {
     if (datasource) {

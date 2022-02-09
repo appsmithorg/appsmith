@@ -20,7 +20,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getDatasource,
@@ -176,9 +176,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
-      const { applicationSlug, pageSlug } = yield select(
-        selectRelevantSlugNames,
-      );
+      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
       const pageId: string = yield select(getCurrentPageId);
       const isGeneratePageInitiator = getIsGeneratePageInitiator(
         isGeneratePageMode,
@@ -222,7 +220,7 @@ export function* deleteDatasourceSaga(
     );
 
     const isValidResponse = yield validateResponse(response);
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
     if (isValidResponse) {
       const pageId = yield select(getCurrentPageId);
@@ -680,7 +678,7 @@ function* changeDatasourceSaga(
   const { datasource } = actionPayload.payload;
   const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const pageId: string = yield select(getCurrentPageId);
   let data;
 
@@ -799,7 +797,7 @@ function* storeAsDatasourceSaga() {
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const state = yield select();
   const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const pageId: string = yield select(getCurrentPageId);
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
     getGenerateCRUDEnabledPluginMap,

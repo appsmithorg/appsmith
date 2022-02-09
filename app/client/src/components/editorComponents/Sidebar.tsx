@@ -15,10 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import {
-  getCurrentPageId,
-  selectRelevantSlugNames,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import {
   getFirstTimeUserOnboardingComplete,
@@ -66,7 +63,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const resizer = useHorizontalResize(
     sidebarRef,
     props.onWidthChange,

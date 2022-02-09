@@ -42,7 +42,7 @@ import {
   getActionById,
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -599,7 +599,7 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { pageId, queryId } = action.payload;
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   history.push(
     BUILDER_PAGE_URL({
       applicationSlug,
@@ -727,7 +727,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
   if (isApi) {
     history.push(

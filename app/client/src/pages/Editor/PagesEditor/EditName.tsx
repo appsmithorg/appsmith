@@ -13,7 +13,7 @@ import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import {
   getCurrentApplicationId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, GO_TO_PAGE } from "constants/messages";
@@ -66,7 +66,7 @@ function EditName(props: Props) {
   const history = useHistory();
   const [isEditing, setIsEditing] = useState(false);
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const updateNameCallback = useCallback(
     (name: string) => {

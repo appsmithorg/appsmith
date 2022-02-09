@@ -48,7 +48,7 @@ import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 import {
   getCurrentApplicationId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { Indices } from "constants/Layers";
@@ -443,7 +443,7 @@ const mapStateToProps = (
       );
     }
   }
-  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
 
   return {
     orgId: state.ui.orgs.currentOrg.id,

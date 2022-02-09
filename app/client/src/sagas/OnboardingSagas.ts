@@ -41,7 +41,7 @@ import {
 } from "actions/onboardingActions";
 import {
   getCurrentApplicationId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
@@ -119,7 +119,7 @@ function* setUpTourAppSaga() {
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const containerWidget = Object.values(widgets).find(
     (widget) => widget.type === "CONTAINER_WIDGET",
   );

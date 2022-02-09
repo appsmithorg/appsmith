@@ -52,7 +52,7 @@ import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
@@ -297,7 +297,7 @@ function CommentCard({
     pinnedBy = "You";
   }
 
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const commentThreadURL = getCommentThreadURL({
     applicationSlug,

@@ -13,7 +13,7 @@ import {
   getCanvasWidgetDsl,
   getCurrentApplicationId,
   getCurrentPageName,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -123,7 +123,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 
 const mapStateToProps = (state: AppState) => {
   const currentApp = getCurrentApplication(state);
-  const { applicationSlug, pageSlug } = selectRelevantSlugNames(state);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     isFetchingPage: getIsFetchingPage(state),
     widgets: getCanvasWidgetDsl(state),

@@ -16,7 +16,7 @@ import {
 } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 
 type routeId = {
   applicationSlug: string;
@@ -44,7 +44,7 @@ const goToGenPageForm = ({
 
 function ActionCards() {
   const { pageId } = useParams<ExplorerURLParams>();
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   return (
     <>

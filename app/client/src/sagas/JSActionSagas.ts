@@ -31,10 +31,7 @@ import {
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
-import {
-  getCurrentPageId,
-  selectRelevantSlugNames,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { JS_COLLECTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
@@ -169,7 +166,7 @@ function* copyJSCollectionSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSCollection = yield select(getJSCollection, id);
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   history.push(
     JS_COLLECTION_ID_URL(
       applicationSlug,
@@ -255,7 +252,7 @@ export function* deleteJSCollectionSaga(
     const response = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
     const pageId: string = yield select(getCurrentPageId);
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     if (isValidResponse) {
       Toaster.show({
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),

@@ -16,7 +16,7 @@ import history from "utils/history";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { name, pageId, type } = action.payload;
@@ -35,7 +35,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
     const response: ApiResponse = yield CurlImportApi.curlImport(request);
     const isValidResponse: boolean = yield validateResponse(response);
 
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
     if (isValidResponse) {
       AnalyticsUtil.logEvent("IMPORT_API", {

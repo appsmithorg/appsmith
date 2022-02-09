@@ -13,10 +13,7 @@ import {
   SAAS_EDITOR_API_ID_URL,
 } from "pages/Editor/SaaSEditor/constants";
 
-import {
-  getCurrentPageId,
-  selectRelevantSlugNames,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { getFormData } from "selectors/formSelectors";
@@ -34,7 +31,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   if (plugin.type !== PluginType.SAAS) return;
 
   const pageId: string = yield select(getCurrentPageId);
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
   history.push(
     SAAS_EDITOR_DATASOURCE_ID_URL(
@@ -53,7 +50,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const plugin: Plugin = yield select(getPlugin, pluginId);
 
   if (plugin.type !== "SAAS") return;
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const pageId: string = yield select(getCurrentPageId);
   history.push(
     SAAS_EDITOR_API_ID_URL(

@@ -18,7 +18,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "../../selectors/editorSelectors";
 
 const IconContainer = styled.div`
@@ -35,7 +35,7 @@ const IconContainer = styled.div`
 function CloseEditor() {
   const history = useHistory();
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const pageId = useSelector(getCurrentPageId) as string;
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);

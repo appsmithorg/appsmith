@@ -21,10 +21,7 @@ import {
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/editorSelectors";
-import {
-  getViewModePageList,
-  selectRelevantSlugNames,
-} from "selectors/editorSelectors";
+import { getViewModePageList, selectURLSlugs } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -157,7 +154,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   function HtmlTitle() {
     if (!currentApplicationDetails?.name) return null;

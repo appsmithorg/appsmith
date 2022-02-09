@@ -61,7 +61,7 @@ import Icon from "components/ads/Icon";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 
 import {
@@ -477,7 +477,7 @@ function GeneratePageForm() {
     }
   }, [querySearch, setDatasourceIdToBeSelected]);
 
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");

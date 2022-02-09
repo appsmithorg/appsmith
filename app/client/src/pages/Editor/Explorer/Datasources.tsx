@@ -6,7 +6,7 @@ import { useSelector } from "store";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
 import { keyBy } from "lodash";
@@ -44,7 +44,7 @@ const Datasources = React.memo(() => {
   const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) || "";
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const plugins = useSelector(getPlugins);
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
   const addDatasource = useCallback(() => {

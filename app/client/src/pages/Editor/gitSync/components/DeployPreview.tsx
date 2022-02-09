@@ -7,10 +7,7 @@ import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
-import {
-  getCurrentPageId,
-  selectRelevantSlugNames,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import {
   LATEST_DP_TITLE,
   LATEST_DP_SUBTITLE,
@@ -65,7 +62,7 @@ const CloudIconWrapper = styled.div`
 export default function DeployPreview(props: { showSuccess: boolean }) {
   const pageId = useSelector(getCurrentPageId) as string;
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const showDeployPreview = () => {
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {

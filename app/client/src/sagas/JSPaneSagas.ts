@@ -15,7 +15,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -109,7 +109,7 @@ function* handleJSCollectionCreatedSaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
   const { id } = actionPayload.payload;
-  const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const pageId: string = yield select(getCurrentPageId);
   history.push(JS_COLLECTION_ID_URL(applicationSlug, pageSlug, pageId, id, {}));
 }
@@ -275,7 +275,7 @@ function* handleJSObjectNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const { applicationSlug, pageSlug } = yield select(selectRelevantSlugNames);
+    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     const pageId = yield select(getCurrentPageId);
     history.push(
       JS_COLLECTION_ID_URL(applicationSlug, pageSlug, pageId, actionId, params),

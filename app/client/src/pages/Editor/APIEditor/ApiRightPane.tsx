@@ -15,7 +15,7 @@ import ActionRightPane, {
 import { useSelector } from "react-redux";
 
 import { Classes } from "components/ads/common";
-import { selectRelevantSlugNames } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -177,7 +177,7 @@ export default function ApiRightPane(props: any) {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
 
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   return (
     <DatasourceContainer>

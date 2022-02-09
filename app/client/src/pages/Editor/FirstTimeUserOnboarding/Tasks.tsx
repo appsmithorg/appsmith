@@ -27,7 +27,7 @@ import { useDispatch } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getCanvasWidgets,
@@ -107,7 +107,7 @@ export default function OnboardingTasks() {
   const widgets = useSelector(getCanvasWidgets);
   const dispatch = useDispatch();
   const showModal = useSelector(getFirstTimeUserOnboardingModal);
-  const { applicationSlug, pageSlug } = useSelector(selectRelevantSlugNames);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   if (!datasources.length && !actions.length) {
     content = (
       <CenteredContainer>

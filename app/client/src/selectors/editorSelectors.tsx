@@ -132,7 +132,7 @@ export const getCurrentApplicationId = (state: AppState) =>
 export const selectCurrentApplicationSlug = (state: AppState) =>
   state.ui.applications.currentApplication?.slug || "";
 
-export const selectRelevantSlugNames = createSelector(
+export const selectURLSlugs = createSelector(
   getCurrentApplication,
   getPageList,
   getCurrentPageId,
@@ -494,7 +494,7 @@ export const getIsSavingEntity = (state: AppState) =>
 
 export const getEditorURL = createSelector(
   getCurrentPageId,
-  selectRelevantSlugNames,
+  selectURLSlugs,
   (pageId: string, { applicationSlug, pageSlug }) =>
     BUILDER_PAGE_URL({
       // Comeback
