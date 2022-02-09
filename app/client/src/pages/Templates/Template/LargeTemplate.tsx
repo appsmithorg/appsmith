@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import Button, { Size } from "components/ads/Button";
+import history from "utils/history";
 import TemplateSampleImage from "./template-test.png";
 import { TemplateProps } from "./index";
+import { TEMPLATE_ID_URL } from "constants/routes";
 
 const TemplateWrapper = styled.div`
   border: 1px solid #e7e7e7;
@@ -85,8 +87,12 @@ const StyledButton = styled(Button)`
 `;
 
 function LargeTemplate(props: TemplateProps) {
+  const onClick = () => {
+    history.push(TEMPLATE_ID_URL("dafads2342342"));
+  };
+
   return (
-    <TemplateWrapper>
+    <TemplateWrapper onClick={onClick}>
       <ImageWrapper>
         <StyledImage src={TemplateSampleImage} />
       </ImageWrapper>

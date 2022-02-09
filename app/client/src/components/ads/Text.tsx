@@ -4,6 +4,7 @@ import { Theme } from "constants/DefaultTheme";
 import { TypographyKeys } from "constants/typography";
 
 export enum TextType {
+  P0 = "p0",
   P1 = "p1",
   P2 = "p2",
   P3 = "p3",

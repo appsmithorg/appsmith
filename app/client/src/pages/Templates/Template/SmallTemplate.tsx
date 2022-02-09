@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import history from "utils/history";
 import Button, { Size } from "components/ads/Button";
+import { TEMPLATE_ID_URL } from "constants/routes";
 import TemplateSampleImage from "./template-test.png";
 import { TemplateProps } from "./index";
 
@@ -84,8 +86,12 @@ const StyledButton = styled(Button)`
 `;
 
 function SmallTemplate(props: TemplateProps) {
+  const onClick = () => {
+    history.push(TEMPLATE_ID_URL("dafads2342342"));
+  };
+
   return (
-    <TemplateWrapper>
+    <TemplateWrapper onClick={onClick}>
       <ImageWrapper>
         <StyledImage src={TemplateSampleImage} />
       </ImageWrapper>

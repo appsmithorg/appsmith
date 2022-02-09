@@ -31,7 +31,7 @@ function TemplateRoutes() {
 
   return (
     <Switch>
-      <SentryRoute component={TemplateView} path={`${path}/templateId`} />
+      <SentryRoute component={TemplateView} path={`${path}/:templateId`} />
       <SentryRoute component={Templates} path={path} />
     </Switch>
   );

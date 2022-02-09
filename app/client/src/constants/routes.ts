@@ -9,7 +9,7 @@ export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
 
 export const TEMPLATES_URL = "/templates";
-export const TEMPLATES_ID_URL = "/templates/:templateId";
+export const TEMPLATES_ID_PATH = "/templates/:templateId";
 
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
@@ -225,6 +225,9 @@ export const JS_COLLECTION_EDITOR_URL = (
     pageId,
     suffix: "jsObjects",
   });
+
+export const TEMPLATE_ID_URL = (templateId = ":templateId"): string =>
+  `${TEMPLATES_URL}/${templateId}`;
 
 export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",
