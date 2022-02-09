@@ -235,6 +235,28 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         this.props.change("authentication.isAuthorizationHeader", true);
       }
     }
+
+    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
+      if (
+        _.get(authentication, "sendScopeWithRefreshToken") === undefined ||
+        _.get(authentication, "sendScopeWithRefreshToken") === ""
+      ) {
+        this.props.change("authentication.sendScopeWithRefreshToken", false);
+      }
+    }
+
+    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
+      if (
+        _.get(authentication, "refreshTokenClientCredentialsLocation") ===
+          undefined ||
+        _.get(authentication, "refreshTokenClientCredentialsLocation") === ""
+      ) {
+        this.props.change(
+          "authentication.refreshTokenClientCredentialsLocation",
+          "BODY",
+        );
+      }
+    }
   };
 
   disableSave = (): boolean => {
@@ -712,6 +734,57 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
+  renderOauth2AdvancedSettings = () => {
+    return (
+      <>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.sendScopeWithRefreshToken")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.sendScopeWithRefreshToken",
+            [
+              {
+                label: "Yes",
+                value: true,
+              },
+              {
+                label: "No",
+                value: false,
+              },
+            ],
+            "Send scope with refresh token",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa(
+            "authentication.refreshTokenClientCredentialsLocation",
+          )}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.refreshTokenClientCredentialsLocation",
+            [
+              {
+                label: "Body",
+                value: "BODY",
+              },
+              {
+                label: "Header",
+                value: "HEADER",
+              },
+            ],
+            "Send client credentials with",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2CommonAdvanced = () => {
     return (
       <>
@@ -815,8 +888,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
           )}
         </FormInputContainer>
+
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
           this.renderOauth2CommonAdvanced()}
+        <Collapsible title="Advanced Settings">
+          {this.renderOauth2AdvancedSettings()}
+        </Collapsible>
         <FormInputContainer>
           <AuthorizeButton
             disabled={this.disableSave()}
