@@ -226,6 +226,9 @@ jobs:
         job: [0, 1, 2]
 
     steps:
+      - name: Testing GITHUB GITHUB_WORKSPACE.
+        run: |
+          cd $GITHUB_WORKSPACE/app/client/cypress/
       # Checkout the code
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
