@@ -13,7 +13,12 @@ import {
 } from "selectors/widgetReflowSelectors";
 import { useSelector } from "react-redux";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { GridProps, ReflowDirection, ReflowedSpace } from "reflow/reflowTypes";
+import {
+  GridProps,
+  MovementLimitMap,
+  ReflowDirection,
+  ReflowedSpace,
+} from "reflow/reflowTypes";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
@@ -242,7 +247,8 @@ export function ReflowResizable(props: ResizableProps) {
 
         let canVerticalMove = true,
           canHorizontalMove = true,
-          bottomMostRow = 0;
+          bottomMostRow = 0,
+          movementLimitMap: MovementLimitMap | undefined = {};
         if (!reflowEnabled && resizedPositions) {
           const isColliding = checkForCollision(resizedPositions);
           if (isColliding) {
@@ -250,11 +256,21 @@ export function ReflowResizable(props: ResizableProps) {
           }
         }
         if (resizedPositions) {
-          ({ bottomMostRow, canHorizontalMove, canVerticalMove } = reflow(
+          ({ bottomMostRow, movementLimitMap } = reflow(
             [resizedPositions],
             direction,
             true,
           ));
+        }
+
+        if (
+          resizedPositions &&
+          movementLimitMap &&
+          movementLimitMap[resizedPositions.id]
+        ) {
+          ({ canHorizontalMove, canVerticalMove } = movementLimitMap[
+            resizedPositions.id
+          ]);
         }
 
         if (!canHorizontalMove || !canResizeHorizontally) {

@@ -8,6 +8,7 @@ import { reflow } from "reflow";
 import {
   CollidingSpace,
   GridProps,
+  MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
@@ -36,8 +37,7 @@ export interface ReflowInterface {
     forceDirection?: boolean,
     immediateExitContainer?: string,
   ): {
-    canHorizontalMove: boolean;
-    canVerticalMove: boolean;
+    movementLimitMap: MovementLimitMap | undefined;
     movementMap: ReflowedSpaceMap;
     bottomMostRow: number;
   };
@@ -70,7 +70,7 @@ export const useReflow = (
     forceDirection = false,
     immediateExitContainer?: string,
   ) {
-    const { collidingSpaceMap, movementLimit, movementMap } = reflow(
+    const { collidingSpaceMap, movementLimitMap, movementMap } = reflow(
       newPositions,
       OGPositions,
       widgetSpaces,
@@ -93,7 +93,7 @@ export const useReflow = (
       correctedMovementMap = getLimitedMovementMap(
         movementMap,
         prevMovementMap.current,
-        movementLimit,
+        { canHorizontalMove: true, canVerticalMove: true },
       );
 
     if (shouldSkipContainerReflow && collidingSpaceMap) {
@@ -129,7 +129,7 @@ export const useReflow = (
     );
 
     return {
-      ...movementLimit,
+      movementLimitMap,
       movementMap: correctedMovementMap,
       bottomMostRow,
     };

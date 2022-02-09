@@ -62,8 +62,12 @@ export type CollidingSpace = OccupiedSpace & {
   collidingId: string;
   isHorizontal: boolean;
   order: number;
+  immediateChildren?: CollisionMap;
 };
 
+export type MovementLimitMap = {
+  [key: string]: { canVerticalMove: boolean; canHorizontalMove: boolean };
+};
 export type CollidingSpaceMap = {
   horizontal: CollisionMap;
   vertical: CollisionMap;
@@ -79,11 +83,11 @@ export type CollisionTree = OccupiedSpace & {
     [key: string]: CollisionTree;
   };
   collidingValue: number;
+  collidingId: string;
 };
 
-export type SpaceMovement = {
-  id?: string;
-  directionalMovements: DirectionalMovement[];
+export type SpaceMovementMap = {
+  [key: string]: DirectionalMovement[];
 };
 
 export type DirectionalMovement = {

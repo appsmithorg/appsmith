@@ -4,6 +4,7 @@ import { getMovementMap } from "./reflowHelpers";
 import {
   CollidingSpaceMap,
   GridProps,
+  MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
   SpaceAttributes,
@@ -17,6 +18,7 @@ import {
   getAccessor,
   getCollidingSpaces,
   getDelta,
+  getShouldReflow,
   getSpacesMapFromArray,
 } from "./reflowUtils";
 
@@ -59,10 +61,12 @@ export function reflow(
     direction,
   );
 
+  const movementLimitMap: MovementLimitMap = {};
+
   let currentDirection = forceDirection ? direction : primaryDirection;
   if (!OGPositionsArray || direction === ReflowDirection.UNSET) {
     return {
-      movementMap: prevMovementMap,
+      movementMap: prevMovementMap || {},
       movementLimit: {
         canHorizontalMove: true,
         canVerticalMove: true,
@@ -162,7 +166,7 @@ export function reflow(
       currentDirection,
     );
 
-    const { movementMap } = getMovementMap(
+    const { movementMap, movementVariablesMap } = getMovementMap(
       filteredOccupiedSpaces,
       collidingSpacesArray,
       collidingSpaceMap,
@@ -171,14 +175,17 @@ export function reflow(
       shouldResize,
       newSpacesArray,
       currentDirection,
+      newPositionsMap,
       prevCollidingSpaces,
       prevSpacesMap,
+      prevMovementMap,
     );
 
     globalCollidingSpaces[orientation.first] = flattenArrayToCollisionMap(
       collidingSpacesArray,
     );
     firstMovementMap = { ...movementMap };
+    getShouldReflow(movementLimitMap, movementVariablesMap, delta);
   }
 
   //once more from the top
@@ -256,7 +263,7 @@ export function reflow(
       currentDirection,
     );
 
-    const { movementMap } = getMovementMap(
+    const { movementMap, movementVariablesMap } = getMovementMap(
       filteredOccupiedSpaces,
       secondCollidingSpacesArray,
       secondCollidingSpaceMap,
@@ -265,13 +272,16 @@ export function reflow(
       shouldResize,
       newSpacesArray,
       currentDirection,
+      newPositionsMap,
       prevCollidingSpaces,
       prevSpacesMap,
+      prevMovementMap,
     );
     secondMovementMap = { ...movementMap };
     globalCollidingSpaces[orientation.second] = flattenArrayToCollisionMap(
       secondCollidingSpacesArray,
     );
+    getShouldReflow(movementLimitMap, movementVariablesMap, delta);
   }
 
   if (!isColliding && !secondIsColliding) {
@@ -294,18 +304,17 @@ export function reflow(
     };
   }
 
-  const movementLimit = { canVerticalMove: true, canHorizontalMove: true }; //getShouldReflow(newPositionsMovement, delta);
-
   //eslint-disable-next-line
   console.log(
     "reflow Post",
     _.cloneDeep({
       direction: [primaryDirection, secondaryDirection, direction],
       collidingSpaceMap: globalCollidingSpaces,
+      movementLimitMap,
     }),
   );
   return {
-    movementLimit,
+    movementLimitMap,
     movementMap: globalMovementMap,
     collidingSpaceMap: globalCollidingSpaces,
   };

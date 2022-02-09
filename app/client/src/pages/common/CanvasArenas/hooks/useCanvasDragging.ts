@@ -7,7 +7,11 @@ import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
+import {
+  MovementLimitMap,
+  ReflowDirection,
+  ReflowedSpaceMap,
+} from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
 import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { getNearestParentCanvas } from "utils/generators";
@@ -192,16 +196,10 @@ export const useCanvasDragging = (
       const scrollObj: any = {};
 
       let currentReflowParams: {
-        canVerticalMove: boolean;
-        canHorizontalMove: boolean;
+        movementLimitMap?: MovementLimitMap;
         bottomMostRow: number;
         movementMap: ReflowedSpaceMap;
-      } = {
-        canVerticalMove: false,
-        canHorizontalMove: false,
-        bottomMostRow: 0,
-        movementMap: {},
-      };
+      } = { movementLimitMap: {}, bottomMostRow: 0, movementMap: {} };
       let lastMousePosition = {
         x: 0,
         y: 0,
@@ -413,20 +411,33 @@ export const useCanvasDragging = (
             }
 
             if (isReflowing) {
-              const block = currentRectanglesToDraw[0];
-              const isNotInParentBoundaries = noCollision(
-                { x: block.left, y: block.top },
-                snapColumnSpace,
-                snapRowSpace,
-                { x: 0, y: 0 },
-                block.columnWidth,
-                block.rowHeight,
-                block.widgetId,
-                [],
-                rowRef.current,
-                GridDefaults.DEFAULT_GRID_COLUMNS,
-                block.detachFromLayout,
-              );
+              const { movementLimitMap } = currentReflowParams;
+              for (const block of currentRectanglesToDraw) {
+                const isNotInParentBoundaries = noCollision(
+                  { x: block.left, y: block.top },
+                  snapColumnSpace,
+                  snapRowSpace,
+                  { x: 0, y: 0 },
+                  block.columnWidth,
+                  block.rowHeight,
+                  block.widgetId,
+                  [],
+                  rowRef.current,
+                  GridDefaults.DEFAULT_GRID_COLUMNS,
+                  block.detachFromLayout,
+                );
+
+                let isNotReachedLimit = true;
+                const currentBlockLimit =
+                  movementLimitMap && movementLimitMap[block.widgetId];
+                if (currentBlockLimit) {
+                  isNotReachedLimit =
+                    currentBlockLimit.canHorizontalMove &&
+                    currentBlockLimit.canVerticalMove;
+                }
+                block.isNotColliding =
+                  isNotInParentBoundaries && isNotReachedLimit;
+              }
               const widgetIdsToExclude = currentRectanglesToDraw.map(
                 (a) => a.widgetId,
               );
@@ -436,10 +447,6 @@ export const useCanvasDragging = (
                 widgetIdsToExclude,
               );
               rowRef.current = newRows ? newRows : rowRef.current;
-              currentRectanglesToDraw[0].isNotColliding =
-                isNotInParentBoundaries &&
-                currentReflowParams.canHorizontalMove &&
-                currentReflowParams.canVerticalMove;
             }
           }
         };

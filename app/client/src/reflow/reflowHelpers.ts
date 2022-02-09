@@ -9,15 +9,18 @@ import {
   CollisionMap,
   CollisionTree,
   Delta,
+  DirectionalMovement,
   GridProps,
   HORIZONTAL_RESIZE_LIMIT,
   ReflowDirection,
   ReflowedSpaceMap,
   SpaceMap,
+  SpaceMovementMap,
   VERTICAL_RESIZE_LIMIT,
 } from "./reflowTypes";
 import {
   compareNumbers,
+  flattenArrayToCollisionMap,
   getAccessor,
   getCollidingSpacesInDirection,
   getMaxX,
@@ -48,8 +51,10 @@ export function getMovementMap(
   shouldResize = true,
   movingSpacesArray: OccupiedSpace[], //can be named changedSpace
   globalDirection: ReflowDirection,
+  movingSpaceMap: SpaceMap,
   prevCollidingSpaceMap: CollidingSpaceMap,
   prevSpacesMap?: SpaceMap,
+  prevMovementMap?: ReflowedSpaceMap,
 ) {
   const movementMap: ReflowedSpaceMap = {};
   const collisionTree = getCollisionTree(
@@ -59,7 +64,9 @@ export function getMovementMap(
     movingSpacesArray,
     collidingSpaceMap,
     prevCollidingSpaceMap,
+    gridProps,
     prevSpacesMap,
+    prevMovementMap,
   );
 
   if (!collisionTree || collisionTree.length <= 0) {
@@ -67,7 +74,14 @@ export function getMovementMap(
   }
 
   const directionalVariables: {
-    [direction: string]: [number, number, CollisionAccessors, ReflowDirection];
+    [key: string]: {
+      [direction: string]: [
+        number,
+        number,
+        CollisionAccessors,
+        ReflowDirection,
+      ];
+    };
   } = {};
 
   for (const childNode of collisionTree) {
@@ -95,57 +109,61 @@ export function getMovementMap(
 
     let staticDepth = 0,
       maxOccupiedSpace = 0;
-    if (directionalVariables[childDirection]) {
-      [staticDepth, maxOccupiedSpace] = directionalVariables[childDirection];
+    if (!directionalVariables[childNode.collidingId])
+      directionalVariables[childNode.collidingId] = {};
+    if (directionalVariables[childNode.collidingId][childDirection]) {
+      [staticDepth, maxOccupiedSpace] = directionalVariables[
+        childNode.collidingId
+      ][childDirection];
     }
     staticDepth = Math.max(staticDepth, depth);
     maxOccupiedSpace = Math.max(maxOccupiedSpace, occupiedSpace);
-    directionalVariables[childDirection] = [
+    directionalVariables[childNode.collidingId][childDirection] = [
       staticDepth,
       maxOccupiedSpace,
       directionalAccessors,
       childDirection,
     ];
   }
+  const movingSpaceIds = Object.keys(directionalVariables);
+  const movementVariablesMap: SpaceMovementMap = {};
+  for (const movingSpaceId of movingSpaceIds) {
+    const movementVariables = directionalVariables[movingSpaceId];
+    const directionalKeys = Object.keys(movementVariables);
+    const directionalMovements: DirectionalMovement[] = [];
+    for (const directionKey of directionalKeys) {
+      const [
+        staticDepth,
+        maxOccupiedSpace,
+        accessors,
+        reflowDirection,
+      ] = movementVariables[directionKey];
+      const maxMethod = accessors.isHorizontal ? getMaxX : getMaxY;
+      const gridDistance = accessors.isHorizontal
+        ? gridProps.parentColumnSpace
+        : gridProps.parentRowSpace;
+      const coordinateKey = accessors.isHorizontal ? "X" : "Y";
+      const maxMovement =
+        maxMethod(
+          movingSpaceMap[movingSpaceId] as CollisionTree,
+          gridProps,
+          reflowDirection,
+          staticDepth,
+          maxOccupiedSpace,
+          shouldResize,
+        ) +
+        delta[coordinateKey] +
+        accessors.directionIndicator * gridDistance;
+      directionalMovements.push({
+        maxMovement,
+        directionalIndicator: accessors.directionIndicator,
+        coordinateKey,
+        isHorizontal: accessors.isHorizontal,
+      });
+    }
+    movementVariablesMap[movingSpaceId] = directionalMovements;
+  }
 
-  // const directionalKeys = Object.keys(directionalVariables);
-
-  // const directionalMovements: DirectionalMovement[] = [];
-
-  // for (const directionKey of directionalKeys) {
-  //   const [
-  //     staticDepth,
-  //     maxOccupiedSpace,
-  //     accessors,
-  //     reflowDirection,
-  //   ] = directionalVariables[directionKey];
-  //   const maxMethod = accessors.isHorizontal ? getMaxX : getMaxY;
-  //   const gridDistance = accessors.isHorizontal
-  //     ? gridProps.parentColumnSpace
-  //     : gridProps.parentRowSpace;
-  //   const coordinateKey = accessors.isHorizontal ? "X" : "Y";
-  //   const maxMovement =
-  //     maxMethod(
-  //       childCollisionSpace.collidingValue,
-  //       gridProps,
-  //       reflowDirection,
-  //       staticDepth,
-  //       maxOccupiedSpace,
-  //       shouldResize,
-  //     ) +
-  //     delta[coordinateKey] +
-  //     accessors.directionIndicator * gridDistance;
-  //   directionalMovements.push({
-  //     maxMovement,
-  //     directionalIndicator: accessors.directionIndicator,
-  //     coordinateKey,
-  //     isHorizontal: accessors.isHorizontal,
-  //   });
-  // }
-  // const newPositionsMovement = {
-  //   id: collisionTree.id,
-  //   directionalMovements,
-  // };
   //eslint-disable-next-line
   console.log(
     "Reflow Object",
@@ -157,7 +175,7 @@ export function getMovementMap(
     }),
   );
   return {
-    //newPositionsMovement,
+    movementVariablesMap,
     movementMap,
   };
 }
@@ -176,7 +194,9 @@ function getCollisionTree(
   movingSpacesArray: OccupiedSpace[],
   collidingSpaceMap: CollisionMap,
   prevCollidingSpaceMap: CollidingSpaceMap,
+  gridProps: GridProps,
   prevSpacesMap?: SpaceMap,
+  prevMovementMap?: ReflowedSpaceMap,
 ) {
   const collisionTree: CollisionTree[] = [];
 
@@ -208,13 +228,17 @@ function getCollisionTree(
         collidingSpaces,
         collidingSpaceMap,
         prevCollidingSpaceMap,
+        true,
+        gridProps,
         prevSpacesMap,
+        prevMovementMap,
       );
 
       if (currentCollisionTree) {
         collisionTree.push({
           ...currentCollisionTree,
           collidingValue: collidingSpace.collidingValue,
+          collidingId: collidingSpace.collidingId,
         });
       }
     }
@@ -237,7 +261,10 @@ function getCollisionTreeHelper(
   globalCollidingSpaces: CollidingSpace[],
   collidingSpaceMap: CollisionMap,
   prevCollidingSpaceMap: CollidingSpaceMap,
+  isSecondaryCollidingWidget: boolean,
+  gridProps: GridProps,
   prevSpacesMap?: SpaceMap,
+  prevMovementMap?: ReflowedSpaceMap,
   emptySpaces = 0,
   processedNodes: { [key: string]: { [key: string]: boolean } } = {
     LEFT: {},
@@ -279,9 +306,17 @@ function getCollisionTreeHelper(
     globalProcessedNodes,
     collidingSpaceMap,
     prevCollidingSpaceMap,
+    gridProps,
     prevSpacesMap,
+    prevMovementMap,
     occupiedSpaces,
+    isSecondaryCollidingWidget,
   );
+
+  if (isSecondaryCollidingWidget)
+    collidingSpace.immediateChildren = flattenArrayToCollisionMap(
+      collidingSpaces,
+    );
 
   if (skipCollisionTree) return;
 
@@ -311,7 +346,10 @@ function getCollisionTreeHelper(
         globalCollidingSpaces,
         collidingSpaceMap,
         prevCollidingSpaceMap,
+        false,
+        gridProps,
         prevSpacesMap,
+        prevMovementMap,
         nextEmptySpaces,
         currentProcessedNodes,
       );
