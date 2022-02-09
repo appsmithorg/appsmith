@@ -1925,7 +1925,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 // get git connected apps count from db
                                 return applicationService.getGitConnectedApplicationCount(organizationId)
                                         .flatMap(count -> {
-                                            if (count < limitCount) {
+                                            if (limitCount < count) {
                                                 return addAnalyticsForGitOperation(
                                                         AnalyticsEvents.GIT_IMPORT.getEventName(),
                                                         newApplication,

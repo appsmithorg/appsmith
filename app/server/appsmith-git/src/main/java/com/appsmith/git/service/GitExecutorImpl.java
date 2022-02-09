@@ -438,13 +438,22 @@ public class GitExecutorImpl implements GitExecutor {
                 modifiedAssets.addAll(status.getRemoved());
                 modifiedAssets.addAll(status.getUncommittedChanges());
                 modifiedAssets.addAll(status.getUntracked());
+                response.setAdded(status.getAdded());
+                response.setRemoved(status.getRemoved());
+
                 long modifiedPages = 0L;
                 long modifiedQueries = 0L;
+                long modifiedJSObjects = 0L;
+                long modifiedDatasources = 0L;
                 for (String x : modifiedAssets) {
                     if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
                         modifiedQueries++;
+                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/")) {
+                        modifiedJSObjects++;
+                    } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
+                        modifiedDatasources++;
                     }
                 }
                 response.setModified(modifiedAssets);
@@ -452,6 +461,8 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setIsClean(status.isClean());
                 response.setModifiedPages(modifiedPages);
                 response.setModifiedQueries(modifiedQueries);
+                response.setModifiedJSObjects(modifiedJSObjects);
+                response.setModifiedDatasources(modifiedDatasources);
 
                 BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
                 if (trackingStatus != null) {
