@@ -65,6 +65,28 @@ describe("<CodeEditor /> - Keyboard navigation", () => {
     ).toStrictEqual("abcd");
   });
 
+  it("Pressing {Space} once in focus should make the input editable", () => {
+    const handleOnSelect = jest.fn();
+    const { container } = render(getTestComponent(handleOnSelect));
+    userEvent.tab();
+    expect(screen.getByTestId("code-editor-target")).toHaveFocus();
+
+    // Typing should not work unless {Enter} is pressed
+    userEvent.keyboard("abcd");
+    expect(
+      (container?.querySelector(".CodeMirror textarea") as HTMLTextAreaElement)
+        ?.value,
+    ).not.toStrictEqual("abcd");
+
+    userEvent.keyboard(" ");
+    expect(screen.getByTestId("code-editor-target")).not.toHaveFocus();
+    userEvent.keyboard("abcd");
+    expect(
+      (container?.querySelector(".CodeMirror textarea") as HTMLTextAreaElement)
+        ?.value,
+    ).toStrictEqual("abcd");
+  });
+
   it("Pressing {Escape} once in edit mode should make the input not editable", () => {
     const handleOnSelect = jest.fn();
     const { container } = render(getTestComponent(handleOnSelect));

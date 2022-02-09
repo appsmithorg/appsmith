@@ -329,6 +329,7 @@ class CodeEditor extends Component<Props, State> {
   private handleKeydown = (e: KeyboardEvent) => {
     switch (e.key) {
       case "Enter":
+      case " ":
         if (document.activeElement === this.codeEditorTarget.current) {
           this.editor.focus();
           e.preventDefault();
