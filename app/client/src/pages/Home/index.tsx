@@ -1,16 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useRouteMatch, Route, Switch } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import { TabComponent } from "components/ads/Tabs";
 import ApplicationLoader from "pages/Applications/loader";
 import PageWrapper from "pages/common/PageWrapper";
 import { LeftPane as ApplicationsLeftPane } from "pages/Applications";
 import styled from "styled-components";
 import { Indices } from "constants/Layers";
-import { useDispatch } from "react-redux";
-import { setHeaderMeta } from "actions/themeActions";
-import { APPLICATIONS_URL, TEMPLATES_URL } from "constants/routes";
+import {
+  APPLICATIONS_URL,
+  TEMPLATES_URL,
+  matchTemplatesPath,
+} from "constants/routes";
 import history from "utils/history";
 import Templates from "pages/Templates";
 import Filters from "pages/Templates/Filters";
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TabsWrapper = styled.div`
   position: fixed;
@@ -33,45 +38,53 @@ const HomePageTabsKeys = {
   TEMPLATES: "templates",
 };
 
+function LeftPane() {
+  return (
+    <Switch>
+      <SentryRoute component={ApplicationsLeftPane} path={APPLICATIONS_URL} />
+      <SentryRoute component={Filters} path={TEMPLATES_URL} />
+    </Switch>
+  );
+}
+
+const ContentRenderer = (
+  <Switch>
+    <SentryRoute component={ApplicationLoader} path={APPLICATIONS_URL} />
+    <SentryRoute component={Templates} path={TEMPLATES_URL} />
+  </Switch>
+);
+
 const HomeTabs = [
   {
     key: HomePageTabsKeys.APPLICATIONS,
     title: "Applications",
-    panelComponent: <ApplicationLoader />,
+    panelComponent: ContentRenderer,
     path: APPLICATIONS_URL,
-    leftPane: <ApplicationsLeftPane />,
   },
   {
     key: HomePageTabsKeys.TEMPLATES,
     title: "Templates",
-    panelComponent: <Templates />,
+    panelComponent: ContentRenderer,
     path: TEMPLATES_URL,
-    leftPane: <Filters />,
   },
 ];
 
 function HomeScreenTabs() {
-  const dispatch = useDispatch();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const { path } = useRouteMatch();
 
-  useEffect(() => {
-    if (window.location.pathname === TEMPLATES_URL) {
-      setSelectedIndex(1);
-    }
-  }, [window.location.pathname]);
-
-  useEffect(() => {
-    dispatch(setHeaderMeta(true, true));
-    history.push(HomeTabs[selectedIndex].path);
-  }, [selectedIndex]);
+  const onSelect = (tabIndex: number) => {
+    setSelectedIndex(selectedIndex);
+    history.push(HomeTabs[tabIndex].path);
+  };
 
   return (
     <PageWrapper>
-      {HomeTabs[selectedIndex].leftPane}
+      <LeftPane />
       <TabsWrapper>
         <TabComponent
-          onSelect={setSelectedIndex}
-          selectedIndex={selectedIndex}
+          onSelect={onSelect}
+          selectedIndex={matchTemplatesPath(path) ? 1 : 0}
           tabs={HomeTabs}
         />
       </TabsWrapper>

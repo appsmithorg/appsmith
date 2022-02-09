@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import * as Sentry from "@sentry/react";
+import { Switch, Route, useRouteMatch } from "react-router-dom";
 import TemplateList from "./TemplateList";
+import TemplateView from "./TemplateView";
+import { useDispatch } from "react-redux";
+import { setHeaderMeta } from "actions/themeActions";
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TemplateListWrapper = styled.div`
   padding-top: 26px;
@@ -15,6 +21,22 @@ const ResultsCount = styled.span`
   margin-left: 32px;
 `;
 
+function TemplateRoutes() {
+  const { path } = useRouteMatch();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setHeaderMeta(true, true));
+  }, []);
+
+  return (
+    <Switch>
+      <SentryRoute component={TemplateView} path={`${path}/templateId`} />
+      <SentryRoute component={Templates} path={path} />
+    </Switch>
+  );
+}
+
 function Templates() {
   return (
     <TemplateListWrapper>
@@ -24,4 +46,4 @@ function Templates() {
   );
 }
 
-export default Templates;
+export default TemplateRoutes;

@@ -21,6 +21,7 @@ import {
   ADMIN_SETTINGS_URL,
   ADMIN_SETTINGS_CATEGORY_URL,
   ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
+  TEMPLATES_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import HomeScreenTabs from "pages/Home";
@@ -119,13 +120,7 @@ class AppRouter extends React.Component<any, any> {
                 <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
                 <SentryRoute
                   component={HomeScreenTabs}
-                  exact
-                  path={APPLICATIONS_URL}
-                />
-                <SentryRoute
-                  component={HomeScreenTabs}
-                  exact
-                  path={"/templates"}
+                  path={[APPLICATIONS_URL, TEMPLATES_URL]}
                 />
                 <SentryRoute
                   component={SignupSuccess}

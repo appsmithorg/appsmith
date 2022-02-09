@@ -7,7 +7,9 @@ export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
-export const TEMPLATES_URL = `/templates`;
+
+export const TEMPLATES_URL = "/templates";
+export const TEMPLATES_ID_URL = "/templates/:templateId";
 
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
@@ -61,6 +63,7 @@ export const matchBuilderPath = match(BUILDER_URL);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = match(VIEWER_URL);
 export const matchViewerForkPath = match(VIEWER_FORK_PATH);
+export const matchTemplatesPath = match(TEMPLATES_URL);
 
 export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;
 export const extractAppIdAndPageIdFromUrl = (url = "") => {
