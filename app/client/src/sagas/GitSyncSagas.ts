@@ -91,6 +91,7 @@ export function* handleRepoLimitReachedError(response?: ApiResponse) {
     responseMeta?.error?.code ===
     GIT_ERROR_CODES.PRIVATE_REPO_CONNECTIONS_LIMIT_REACHED
   ) {
+    yield put(setIsGitSyncModalOpen({ isOpen: false }));
     yield put(setShowRepoLimitErrorModal(true));
     return true;
   }
