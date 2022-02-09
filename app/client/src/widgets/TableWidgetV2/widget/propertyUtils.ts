@@ -82,38 +82,26 @@ export function uniqueColumnNameValidation(
   }
 }
 
-// A hook to update all column styles when global table styles are updated
+/*
+ * Hook to update all column styles, when global table styles are updated.
+ */
 export const updateColumnStyles = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  const { primaryColumns } = props;
+  const { primaryColumns = {} } = props;
   const propertiesToUpdate: Array<{
     propertyPath: string;
     propertyValue: any;
   }> = [];
-  const tokens = propertyPath.split("."); // horizontalAlignment/textStyle
-  const currentStyleName = tokens[0];
+  const styleName = propertyPath.split(".").shift();
+
   // TODO: Figure out how propertyPaths will work when a nested property control is updating another property
-  if (primaryColumns && currentStyleName) {
-    // The style being updated currently
-
-    // for each primary column
+  if (primaryColumns && styleName) {
     Object.values(primaryColumns).map((column: ColumnProperties) => {
-      // Current column property path
-      const propertyPath = `primaryColumns.${column.id}.${currentStyleName}`;
-      // Is current column a derived column
-      const isDerived = primaryColumns[column.id].isDerived;
+      const propertyPath = `primaryColumns.${column.id}.${styleName}`;
 
-      // If it is a derived column and it exists in derivedColumns
-      if (isDerived && derivedColumns[column.id]) {
-        propertiesToUpdate.push({
-          propertyPath: `derivedColumns.${column.id}.${currentStyleName}`,
-          propertyValue: propertyValue,
-        });
-      }
-      // Is this a dynamic binding property?
       const notADynamicBinding =
         !props.dynamicBindingPathList ||
         props.dynamicBindingPathList.findIndex(
@@ -122,15 +110,20 @@ export const updateColumnStyles = (
 
       if (notADynamicBinding) {
         propertiesToUpdate.push({
-          propertyPath: `primaryColumns.${column.id}.${currentStyleName}`,
-          propertyValue: propertyValue,
+          propertyPath,
+          propertyValue,
         });
       }
     });
-    if (propertiesToUpdate.length > 0) return propertiesToUpdate;
+
+    if (propertiesToUpdate.length > 0) {
+      return propertiesToUpdate;
+    }
+  } else {
+    return;
   }
-  return;
 };
+
 // Select default Icon Alignment when an icon is chosen
 export function updateIconAlignment(
   props: TableWidgetProps,
