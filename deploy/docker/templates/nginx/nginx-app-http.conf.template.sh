@@ -54,6 +54,11 @@ server {
     sub_filter __APPSMITH_MAIL_ENABLED__ '\${APPSMITH_MAIL_ENABLED}';
     sub_filter __APPSMITH_DISABLE_TELEMETRY__ '\${APPSMITH_DISABLE_TELEMETRY}';
     sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '\${APPSMITH_RECAPTCHA_SITE_KEY}';
+    sub_filter __APPSMITH_DISABLE_INTERCOM__ '\${APPSMITH_DISABLE_INTERCOM}';
+    sub_filter __APPSMITH_CLOUD_SERVICES_BASE_URL__ '\${APPSMITH_CLOUD_SERVICES_BASE_URL}';
+    sub_filter __APPSMITH_OAUTH2_KEYCLOAK_CLIENT_ID__ '\${APPSMITH_OAUTH2_KEYCLOAK_CLIENT_ID}';
+    sub_filter __APPSMITH_FORM_LOGIN_DISABLED__ '\${APPSMITH_FORM_LOGIN_DISABLED}';
+    
   }
 
   location /api {
@@ -74,6 +79,14 @@ server {
     proxy_set_header Host \$host;
     proxy_set_header Connection 'upgrade';
     proxy_set_header Upgrade \$http_upgrade;
+  }
+
+  location /auth {
+    proxy_pass http://localhost:8081;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
   }
 }
 EOF

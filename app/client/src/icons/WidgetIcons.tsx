@@ -12,6 +12,7 @@ import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
 import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
 import { ReactComponent as MultiSelectIcon } from "assets/icons/widget/multiselect.svg";
+import { ReactComponent as MultiSelectV2Icon } from "assets/icons/widget/multiselect.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
 import { ReactComponent as InputIcon } from "assets/icons/widget/input.svg";
@@ -105,6 +106,16 @@ export const WidgetIcons: {
   MULTI_SELECT_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <MultiSelectIcon />
+    </StyledIconWrapper>
+  ),
+  SELECT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <DropDownIcon />
+    </StyledIconWrapper>
+  ),
+  MULTI_SELECT_WIDGET_V2: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MultiSelectV2Icon />
     </StyledIconWrapper>
   ),
   RADIO_GROUP_WIDGET: (props: IconProps) => (

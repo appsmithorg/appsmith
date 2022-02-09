@@ -1198,11 +1198,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return applicationService
                     .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
                     .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
-                    .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
-                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -1236,6 +1234,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params) {
         return this.getUnpublishedActions(params)
+                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
+        return this.getUnpublishedActions(params, branchName)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
@@ -1331,7 +1335,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.just(FALSE);
                     }
 
-                    // Extract names of existing pageload actions and new page load actions for quick lookup.
+                    // Extract names of existing page load actions and new page load actions for quick lookup.
                     Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions
                             .stream()
                             .map(ActionDTO::getValidName)
