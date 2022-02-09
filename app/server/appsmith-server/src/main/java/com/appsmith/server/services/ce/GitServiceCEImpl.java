@@ -2235,7 +2235,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
                 ? ""
                 : gitData.getDefaultApplicationId();
-        String gitHostingProvider = application.getGitApplicationMetadata() == null
+        String gitHostingProvider = gitData == null
                 ? ""
                 : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
 

@@ -74,7 +74,7 @@ public class GitUtils {
      * @return git hosting provider
      */
     public static String getGitProviderName(String sshUrl) {
-        final Matcher matcher = Pattern.compile("([^/]*).com*").matcher(sshUrl);
+        final Matcher matcher = Pattern.compile("([^/]*).(com|org).*").matcher(sshUrl);
         if (matcher.find()) {
             return matcher.group(1)
                     .replaceFirst("git@", "");
