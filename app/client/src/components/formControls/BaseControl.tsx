@@ -41,6 +41,7 @@ export interface ControlProps extends ControlData, ControlFunctions {
   key?: string;
   extraData?: ControlData[];
   formName: string;
+  nestedFormControl?: boolean;
 }
 
 export interface ControlData {
@@ -55,7 +56,7 @@ export interface ControlData {
   validationMessage?: string;
   validationRegex?: string;
   dataType?: InputType;
-  initialValue?: string | boolean | number;
+  initialValue?: string | boolean | number | Record<string, string>;
   info?: string; //helper text
   isRequired?: boolean;
   conditionals?: ConditonalObject; // Object that contains the conditionals config
