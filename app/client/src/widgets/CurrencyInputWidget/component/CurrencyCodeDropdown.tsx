@@ -8,29 +8,6 @@ import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 import { lightenColor } from "widgets/WidgetUtils";
 
-const DropdownContainer = styled.div`
-  .currency-type-filter,
-  .currency-type-trigger {
-    position: static;
-    background: rgb(255, 255, 255);
-    border-width: 1.2px 0px 1.2px 1.2px;
-    border-top-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgb(235, 235, 235);
-    border-bottom-color: rgb(235, 235, 235);
-    border-left-color: rgb(235, 235, 235);
-    border-image: initial;
-    color: rgb(9, 7, 7);
-    border-right-style: initial;
-    border-right-color: initial;
-  }
-
-  &&&&& + input {
-    padding-left: 10px;
-  }
-`;
-
 const DropdownTriggerIconWrapper = styled.div`
   display: flex;
   align-items: center;

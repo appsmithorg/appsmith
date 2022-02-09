@@ -26,8 +26,8 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { undoAction, updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import store from "store";
-import { getAppMode } from "selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
+// import { getAppMode } from "selectors/applicationSelectors";
+// import { APP_MODE } from "entities/App";
 
 // eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
@@ -1028,14 +1028,15 @@ const dummyThemes: AppTheme[] = [
  *
  * @param action
  */
+// eslint-disable-next-line
 export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
-    const { applicationId } = action.payload;
-    const response = yield ThemingApi.fetchThemes(applicationId);
+    // const { applicationId } = action.payload;
+    // const response = yield ThemingApi.fetchThemes(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: response.data,
+      payload: dummyThemes,
     });
   } catch (error) {
     yield put({
@@ -1050,15 +1051,17 @@ export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
  *
  * @param action
  */
+
 export function* fetchAppSelectedTheme(
+  // eslint-disable-next-line
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
-  const { applicationId } = action.payload;
-  const mode: APP_MODE = yield select(getAppMode);
+  // const { applicationId } = action.payload;
+  // const mode: APP_MODE = yield select(getAppMode);
 
   try {
     // eslint-disable-next-line
-    const response = yield ThemingApi.fetchSelected(applicationId, mode);
+    // const response = yield ThemingApi.fetchSelected(applicationId, mode);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
@@ -1081,11 +1084,11 @@ export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
   // eslint-disable-next-line
-  const { shouldReplay = true, theme, applicationId } = action.payload;
+  const { shouldReplay = true, theme } = action.payload;
   const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
-    const response = yield ThemingApi.updateTheme(applicationId, theme);
+    // const response = yield ThemingApi.updateTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
@@ -1121,7 +1124,7 @@ export function* changeSelectedTheme(
   const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
-    const response = yield ThemingApi.changeTheme(applicationId, theme);
+    yield ThemingApi.changeTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
@@ -1161,7 +1164,6 @@ export function* changeSelectedTheme(
  */
 export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
   const { applicationId, name } = action.payload;
-  const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
     const response = yield ThemingApi.saveTheme(applicationId, { name });
@@ -1196,7 +1198,7 @@ export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
   const { name, themeId } = action.payload;
 
   try {
-    const response = yield ThemingApi.deleteTheme(themeId);
+    yield ThemingApi.deleteTheme(themeId);
 
     yield put({
       type: ReduxActionTypes.DELETE_APP_THEME_SUCCESS,
