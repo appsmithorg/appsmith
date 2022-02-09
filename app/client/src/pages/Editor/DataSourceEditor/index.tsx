@@ -31,7 +31,6 @@ import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface ReduxStateProps {

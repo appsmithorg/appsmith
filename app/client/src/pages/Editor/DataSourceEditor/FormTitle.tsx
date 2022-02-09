@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
@@ -32,7 +32,6 @@ type FormTitleProps = ComponentProps;
 
 function FormTitle(props: FormTitleProps) {
   const params = useParams<{ datasourceId: string }>();
-  const location = useLocation();
   const currentDatasource:
     | Datasource
     | undefined = useSelector((state: AppState) =>
