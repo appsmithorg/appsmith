@@ -20,7 +20,7 @@ import {
 } from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getEditorURL } from "selectors/appViewSelectors";
+import { getEditorURL } from "selectors/editorSelectors";
 import {
   getViewModePageList,
   selectRelevantSlugNames,

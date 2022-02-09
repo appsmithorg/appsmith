@@ -2,7 +2,6 @@ import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import { BUILDER_PAGE_URL } from "constants/routes";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
 const getPageListState = (state: AppState): PageListReduxState =>
@@ -35,17 +34,4 @@ export const getIsInitialized = createSelector(
 export const getCurrentDSLPageId = createSelector(
   getPageListState,
   (pageList: PageListReduxState) => pageList.currentPageId,
-);
-
-export const getEditorURL = createSelector(
-  getPageListState,
-  (pageList: PageListReduxState) =>
-    pageList.currentPageId
-      ? BUILDER_PAGE_URL({
-          // Comeback
-          applicationSlug: "",
-          pageSlug: "",
-          pageId: pageList.currentPageId,
-        })
-      : "",
 );

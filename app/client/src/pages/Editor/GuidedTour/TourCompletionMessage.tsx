@@ -11,7 +11,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { useDispatch } from "react-redux";
 import { showPostCompletionMessage } from "actions/onboardingActions";
 import { useSelector } from "store";
-import { getEditorURL } from "selectors/appViewSelectors";
+import { getEditorURL } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,

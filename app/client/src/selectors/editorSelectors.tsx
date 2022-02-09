@@ -32,6 +32,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "constants/ReduxActionConstants";
+import { BUILDER_PAGE_URL } from "constants/routes";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -109,7 +110,8 @@ export const getCurrentPageId = (state: AppState) =>
 export const selectCurrentPageSlug = createSelector(
   getCurrentPageId,
   getPageList,
-  (pageId, pages) => pages.find((page) => page.pageId === pageId)?.slug,
+  //Comeback
+  (pageId, pages) => pages.find((page) => page.pageId === pageId)?.slug || "",
 );
 
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
@@ -489,3 +491,15 @@ export const getZoomLevel = (state: AppState) => {
  */
 export const getIsSavingEntity = (state: AppState) =>
   state.ui.editor.loadingStates.savingEntity;
+
+export const getEditorURL = createSelector(
+  getCurrentPageId,
+  selectRelevantSlugNames,
+  (pageId: string, { applicationSlug, pageSlug }) =>
+    BUILDER_PAGE_URL({
+      // Comeback
+      applicationSlug,
+      pageSlug,
+      pageId,
+    }),
+);
