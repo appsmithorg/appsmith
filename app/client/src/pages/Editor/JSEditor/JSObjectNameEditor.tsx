@@ -76,7 +76,7 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
         handleNameChange: (value: string) => void;
         isInvalidNameForEntity: (value: string) => string | boolean;
         isNew: boolean;
-        saveStatus: any;
+        saveStatus: { isSaving: boolean; error: boolean };
       }) => (
         <JSObjectNameWrapper page={props.page}>
           <NewEditableText

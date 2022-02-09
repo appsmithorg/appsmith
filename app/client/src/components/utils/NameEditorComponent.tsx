@@ -20,7 +20,7 @@ import {
 type NameEditorProps = {
   checkForGuidedTour?: boolean;
   children: (params: any) => JSX.Element;
-  currentActionConfig: any;
+  currentActionConfig: { id: string; name: string } | undefined;
   dispatchAction: (a: any) => any;
   suffixErrorMessage?: (params?: any) => string;
 };
@@ -43,7 +43,7 @@ function NameEditor(props: NameEditorProps) {
     new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
-  if (!currentActionConfig.id) {
+  if (!currentActionConfig?.id) {
     log.error("No correct API id or Query id found in the url.");
   }
   const guidedTourEnabled = useSelector(inGuidedTour);
@@ -56,7 +56,8 @@ function NameEditor(props: NameEditorProps) {
   );
 
   const conflictingNames = useSelector(
-    (state: AppState) => getUsedActionNames(state, currentActionConfig.id),
+    (state: AppState) =>
+      getUsedActionNames(state, currentActionConfig?.id || ""),
     shallowEqual,
   );
 
@@ -84,7 +85,7 @@ function NameEditor(props: NameEditorProps) {
     (name: string) => {
       if (
         currentActionConfig &&
-        name !== currentActionConfig?.name &&
+        name !== currentActionConfig.name &&
         !isInvalidNameForEntity(name)
       ) {
         if (checkForGuidedTour && guidedTourEnabled) {
