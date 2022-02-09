@@ -28,6 +28,11 @@ Fixes # (issue)
 - Test A
 - Test B
 
+## Suggested How-to Apps
+
+> Please suggest couple ideas for how-to apps, to help us better explain the usability of this feature/bug to the community.
+> e.g. - How to populate table from query response
+
 ## Checklist:
 
 - [ ] My code follows the style guidelines of this project
