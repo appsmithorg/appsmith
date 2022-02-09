@@ -173,7 +173,7 @@ async function main() {
 function findExamplesJsonPath() {
 	let projectDir = __dirname;
 
-	while (projectDir != null && !fs.existsSync(path.join(projectDir, "appsmith-server"))) {
+	while (projectDir !== null && !fs.existsSync(path.join(projectDir, "appsmith-server"))) {
 		projectDir = path.dirname(projectDir);
 	}
 

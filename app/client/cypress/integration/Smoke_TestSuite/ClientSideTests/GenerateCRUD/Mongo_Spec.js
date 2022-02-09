@@ -12,7 +12,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
   });
 
   beforeEach(function() {
-    if (Cypress.env("Mongo") == 0) {
+    if (Cypress.env("Mongo") === 0) {
       cy.log("Mongo DB is not found. Using intercept");
       cy.startInterceptRoutesForMongo();
     } else cy.log("Mongo DB is found, hence using actual DB");
@@ -22,7 +22,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click({ force: true });
 
-    if (Cypress.env("Mongo") == 0) cy.fillMongoDatasourceFormWithURI();
+    if (Cypress.env("Mongo") === 0) cy.fillMongoDatasourceFormWithURI();
     else cy.fillMongoDatasourceForm();
 
     cy.generateUUID().then((uid) => {
@@ -114,7 +114,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
 
     cy.get(datasource.MongoDB).click();
 
-    if (Cypress.env("Mongo") == 0) cy.fillMongoDatasourceFormWithURI();
+    if (Cypress.env("Mongo") === 0) cy.fillMongoDatasourceFormWithURI();
     else cy.fillMongoDatasourceForm();
 
     cy.generateUUID().then((uid) => {
