@@ -18,7 +18,7 @@ import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
-import { get } from "lodash";
+import _, { get } from "lodash";
 import { Title } from "./components/StyledComponents";
 import {
   ADD_MISSING_DATASOURCES,
@@ -33,6 +33,7 @@ import {
 } from "constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import {
+  getDatasourceDrafts,
   getDatasources,
   getIsReconnectingDatasourcesModalOpen,
   getPluginImages,
@@ -260,6 +261,7 @@ function ReconnectDatasourceModal() {
   const datasources = useSelector(getDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
+  const datasourceDrafts = useSelector(getDatasourceDrafts);
 
   // getting query from redirection url
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -349,7 +351,12 @@ function ReconnectDatasourceModal() {
       const selectedDatasourceConfig = datasources.find(
         (datasource: Datasource) => datasource.id === selectedDatasourceId,
       );
-      dispatch(initialize(DATASOURCE_DB_FORM, selectedDatasourceConfig));
+      const data =
+        selectedDatasourceId in datasourceDrafts
+          ? datasourceDrafts[selectedDatasourceId]
+          : selectedDatasourceConfig;
+
+      dispatch(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
     }
   }, [selectedDatasourceId]);
 
