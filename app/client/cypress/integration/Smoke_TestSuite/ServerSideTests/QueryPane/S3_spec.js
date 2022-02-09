@@ -445,7 +445,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
   });
 
-  it("7. Bug 9069, 9201, 6975, 9922: Upload/Update query is failing in S3 crud pages", function() {
+  //Open bug : 3836, 6492
+  it.skip("7. Bug 9069, 9201, 6975, 9922, 3836, 6492: Upload/Update query is failing in S3 crud pages", function() {
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.wait(3000);
     //Verifying List of Files from UI
@@ -537,7 +538,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Upload: 2 - Bug verification 9201
     fixturePath = "AAAFlowerVase.jpeg";
     cy.wait(3000);
-    cy.clickButton("1 files selected"); //Select Files
+    cy.clickButton("Select Files"); //1 files selected
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
     cy.wait(2000);
     cy.get(generatePage.uploadBtn).click();
