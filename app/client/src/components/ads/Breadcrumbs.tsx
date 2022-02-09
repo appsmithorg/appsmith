@@ -88,15 +88,28 @@ function Breadcrumbs(props: BreadcrumbsProps) {
   const { pathname } = useLocation();
   return (
     <BreadcrumbList>
-      {props.items.map(({ href, text }) => (
-        <Link
-          className={`t--breadcrumb-item ${href === pathname ? `active` : ``}`}
-          key={href}
-          to={href}
-        >
-          {text}
-        </Link>
-      ))}
+      {props.items.map(({ href, text }) =>
+        href === pathname ? (
+          <span
+            className={`t--breadcrumb-item ${
+              href === pathname ? `active` : ``
+            }`}
+            key={href}
+          >
+            {text}
+          </span>
+        ) : (
+          <Link
+            className={`t--breadcrumb-item ${
+              href === pathname ? `active` : ``
+            }`}
+            key={href}
+            to={href}
+          >
+            {text}
+          </Link>
+        ),
+      )}
     </BreadcrumbList>
   );
 }

@@ -1,5 +1,8 @@
 import styled from "styled-components";
 import React from "react";
+import { ReduxAction } from "constants/ReduxActionConstants";
+import { Dispatch } from "react";
+import { useDispatch } from "react-redux";
 import Icon, { IconSize } from "../../components/ads/Icon";
 
 export type CalloutType = "Warning" | "Info";
@@ -48,14 +51,24 @@ export function Callout(props: {
   type: CalloutType;
   title: string;
   actionLabel?: string;
-  action?: () => void;
+  action?: (
+    dispatch: Dispatch<ReduxAction<any>>,
+    settings?: Record<string, any>,
+  ) => void;
   url?: string;
 }) {
+  const dispatch = useDispatch();
   const linkProps: Record<string, string | (() => any)> = {};
 
   if (props.url) {
     linkProps.href = props.url;
     linkProps.target = "_blank";
+  } else if (props.action) {
+    linkProps.onClick = () => {
+      if (props.action) {
+        props.action(dispatch);
+      }
+    };
   }
 
   return (

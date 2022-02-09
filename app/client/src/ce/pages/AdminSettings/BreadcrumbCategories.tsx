@@ -9,13 +9,9 @@ export const BreadcrumbCategories = {
     href: APPLICATIONS_URL,
     text: "Homepage",
   },
-  /*DEFAULT_SETTINGS: {
-    href: getAdminSettingsCategoryUrl(SettingCategories.GENERAL),
-    text: "Settings",
-  },*/
   [SettingCategories.GENERAL]: {
     href: getAdminSettingsCategoryUrl(SettingCategories.GENERAL),
-    text: "Settings",
+    text: "General",
   },
   [SettingCategories.EMAIL]: {
     href: getAdminSettingsCategoryUrl(SettingCategories.EMAIL),

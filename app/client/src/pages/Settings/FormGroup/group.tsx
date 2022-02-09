@@ -104,6 +104,7 @@ export default function Group({
                     key={setting.name}
                   >
                     <Callout
+                      action={setting.action}
                       actionLabel="READ MORE"
                       title={createMessage(() => setting.label || "")}
                       type="Info"
