@@ -45,6 +45,7 @@ import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import BetaTag from "./BetaTag";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -380,8 +381,12 @@ export default function BranchList(props: {
   setIsPopupOpen?: (flag: boolean) => void;
 }) {
   const dispatch = useDispatch();
-  const pruneAndFetchBranches = () =>
+  const pruneAndFetchBranches = () => {
+    AnalyticsUtil.logEvent("GS_SYNC_BRANCHES", {
+      source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
+    });
     dispatch(fetchBranchesInit({ pruneBranches: true }));
+  };
 
   const branches = useSelector(getGitBranches);
   const branchNames = useSelector(getGitBranchNames);
@@ -416,6 +421,9 @@ export default function BranchList(props: {
 
   const handleCreateNewBranch = () => {
     if (isCreatingNewBranch) return;
+    AnalyticsUtil.logEvent("GS_CREATE_NEW_BRANCH", {
+      source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
+    });
     const branch = searchText;
     setIsCreatingNewBranch(true);
     dispatch(
