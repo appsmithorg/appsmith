@@ -85,19 +85,27 @@ export function StepComponent(props: StepComponentProps) {
   function handleKeydown(e: React.KeyboardEvent) {
     switch (e.key) {
       case "ArrowUp":
+      case "Up":
       case "ArrowRight":
+      case "Right":
         increase();
         e.preventDefault();
         break;
       case "ArrowDown":
+      case "Down":
       case "ArrowLeft":
+      case "Left":
         decrease();
         e.preventDefault();
         break;
     }
   }
   return (
-    <StepWrapper onKeyDown={handleKeydown} tabIndex={0}>
+    <StepWrapper
+      data-testid="step-wrapper"
+      onKeyDown={handleKeydown}
+      tabIndex={0}
+    >
       <StyledDecreaseIcon height={2} onClick={decrease} width={12} />
       <InputWrapper>{props.displayFormat(props.value)}</InputWrapper>
       <StyledIncreaseIcon height={12} onClick={increase} width={12} />
