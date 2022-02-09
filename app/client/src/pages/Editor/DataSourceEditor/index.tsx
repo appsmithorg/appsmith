@@ -32,6 +32,7 @@ import { DatasourceComponentTypes } from "api/PluginApi";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -77,16 +78,6 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.pluginDatasourceForm !== "RestAPIDatasourceForm"
     ) {
       this.props.switchDatasource(this.props.match.params.datasourceId);
-    }
-
-    if (this.props.match.params.datasourceId === "TEMP-ID-1") {
-      this.props.history.push(
-        INTEGRATION_EDITOR_URL(
-          this.props.applicationId,
-          this.props.match.params.pageId,
-          INTEGRATION_TABS.ACTIVE,
-        ),
-      );
     }
   }
 
@@ -170,7 +161,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource:
       datasourcePane.newDatasource === props.match.params.datasourceId ||
-      props.match.params.datasourceId === "TEMP-ID-1",
+      props.match.params.datasourceId === TEMP_DATASOURCE_ID,
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm:
@@ -242,7 +233,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
       viewMode,
     } = this.props;
 
-    if (!pluginId && datasourceId && datasourceId !== "TEMP-ID-1") {
+    if (!pluginId && datasourceId && datasourceId !== TEMP_DATASOURCE_ID) {
       return <EntityNotFoundPane />;
     }
 

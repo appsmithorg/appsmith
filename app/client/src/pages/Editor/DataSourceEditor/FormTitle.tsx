@@ -1,10 +1,9 @@
 import styled from "styled-components";
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-
 import { AppState } from "reducers";
 import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,6 +14,7 @@ import {
   saveDatasourceName,
 } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const Wrapper = styled.div`
   margin-left: 10px;
@@ -32,6 +32,7 @@ type FormTitleProps = ComponentProps;
 
 function FormTitle(props: FormTitleProps) {
   const params = useParams<{ datasourceId: string }>();
+  const location = useLocation();
   const currentDatasource:
     | Datasource
     | undefined = useSelector((state: AppState) =>
@@ -87,7 +88,7 @@ function FormTitle(props: FormTitleProps) {
         currentDatasource &&
         currentDatasource.name !== name
       ) {
-        if (currentDatasource.id === "TEMP-ID-1") {
+        if (currentDatasource.id === TEMP_DATASOURCE_ID) {
           return dispatch(
             saveDatasourceName({
               id: currentDatasource?.id ?? "",

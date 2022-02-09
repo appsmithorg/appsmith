@@ -59,6 +59,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "../../../actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Plugin } from "api/PluginApi";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -298,7 +299,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       appId: this.props.applicationId,
     });
 
-    if (this.props.datasource.id !== "TEMP-ID-1") {
+    if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
       return this.props.updateDatasource(normalizedValues, onSuccess);
     }
 
@@ -390,7 +391,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { datasourceId, deleteDatasource, isDeleting, isSaving } = this.props;
     return (
       <SaveButtonContainer>
-        {datasourceId !== "TEMP-ID-1" && (
+        {datasourceId !== TEMP_DATASOURCE_ID && (
           <ActionButton
             // accent="error"
             buttonStyle="DANGER"

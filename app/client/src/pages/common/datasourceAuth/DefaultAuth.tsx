@@ -22,6 +22,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface Props {
   datasource: Datasource;
@@ -76,7 +77,7 @@ export default function DefaultAuth({
     });
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
-    if (datasource.id === "TEMP-ID-1") {
+    if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(createDatasourceFromForm(getSanitizedFormData(), undefined));
     } else {
       dispatch(
@@ -100,7 +101,7 @@ export default function DefaultAuth({
     <>
       {shouldRender && (
         <SaveButtonContainer>
-          {datasource.id !== "TEMP-ID-1" && (
+          {datasource.id !== TEMP_DATASOURCE_ID && (
             <ActionButton
               buttonStyle="DANGER"
               buttonVariant={ButtonVariantTypes.PRIMARY}

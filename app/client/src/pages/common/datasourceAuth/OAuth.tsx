@@ -31,6 +31,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useLocation, useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface Props {
   datasource: Datasource;
@@ -85,7 +86,7 @@ function OAuth({
 
   // Handles datasource saving and updating
   const handleDatasourceSave = () => {
-    if (datasource.id === "TEMP-ID-1") {
+    if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(
         createDatasourceFromForm(
           getSanitizedFormData(),
