@@ -244,6 +244,15 @@ export const ERROR_ACTION_COPY_FAIL = (actionName: string) =>
 export const ERROR_ACTION_RENAME_FAIL = (actionName: string) =>
   `Unable to update action name to ${actionName}`;
 
+// Action Names Messages
+export const ACTION_NAME_PLACEHOLDER = (type: string) =>
+  `Name of the ${type} in camelCase`;
+export const ACTION_INVALID_NAME_ERROR = () => "Please enter a valid name";
+export const ACTION_NAME_CONFLICT_ERROR = (name: string) =>
+  `${name} is already being used or is a restricted keyword.`;
+export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
+  `${name} is already being used.`;
+
 export const DATASOURCE_CREATE = (dsName: string) =>
   `${dsName} datasource created`;
 export const DATASOURCE_DELETE = (dsName: string) =>
