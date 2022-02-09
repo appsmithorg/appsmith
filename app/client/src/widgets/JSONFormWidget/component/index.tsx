@@ -33,7 +33,7 @@ export type JSONFormComponentProps<TValues = any> = {
   renderMode: RenderMode;
   schema: Schema;
   scrollContents: boolean;
-  setFieldValidityState: (
+  setMetaInternalFieldState: (
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
   ) => void;
   showReset: boolean;
@@ -72,7 +72,7 @@ function JSONFormComponent<TValues>({
   executeAction,
   renderMode,
   schema,
-  setFieldValidityState,
+  setMetaInternalFieldState,
   updateWidgetMetaProperty,
   updateWidgetProperty,
   ...rest
@@ -116,7 +116,7 @@ function JSONFormComponent<TValues>({
     <FormContextProvider
       executeAction={executeAction}
       renderMode={renderMode}
-      setFieldValidityState={setFieldValidityState}
+      setMetaInternalFieldState={setMetaInternalFieldState}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >

@@ -9,7 +9,7 @@ import useRegisterFieldValidity, {
 import { FieldType } from "../constants";
 
 const initialFieldState = {
-  fieldValidity: {
+  metaInternalFieldState: {
     lastName: {
       isValid: false,
     },
@@ -28,7 +28,7 @@ const initialFieldState = {
 
 describe("useRegisterFieldInvalid", () => {
   it("updates fieldState and error state with the updated isValid value", () => {
-    const mockSetFieldValidityState = jest.fn();
+    const mocksetMetaInternalFieldState = jest.fn();
     function Wrapper({ children }: any) {
       const methods = useForm();
 
@@ -36,7 +36,7 @@ describe("useRegisterFieldInvalid", () => {
         <FormContextProvider
           executeAction={jest.fn}
           renderMode="CANVAS"
-          setFieldValidityState={mockSetFieldValidityState}
+          setMetaInternalFieldState={mocksetMetaInternalFieldState}
           updateWidgetMetaProperty={jest.fn}
           updateWidgetProperty={jest.fn}
         >
@@ -60,7 +60,7 @@ describe("useRegisterFieldInvalid", () => {
     );
 
     const expectedUpdatedFieldState = {
-      fieldValidity: {
+      metaInternalFieldState: {
         lastName: {
           isValid: false,
         },
@@ -77,7 +77,7 @@ describe("useRegisterFieldInvalid", () => {
       },
     };
 
-    expect(mockSetFieldValidityState).toBeCalledTimes(1);
+    expect(mocksetMetaInternalFieldState).toBeCalledTimes(1);
 
     rerender({
       isValid: true,
@@ -85,8 +85,8 @@ describe("useRegisterFieldInvalid", () => {
       fieldType: FieldType.TEXT,
     });
 
-    expect(mockSetFieldValidityState).toBeCalledTimes(2);
-    const cbResult = mockSetFieldValidityState.mock.calls[1][0](
+    expect(mocksetMetaInternalFieldState).toBeCalledTimes(2);
+    const cbResult = mocksetMetaInternalFieldState.mock.calls[1][0](
       initialFieldState,
     );
 
@@ -94,7 +94,7 @@ describe("useRegisterFieldInvalid", () => {
   });
 
   it("does not trigger meta update if field validity is same", () => {
-    const mockSetFieldValidityState = jest.fn();
+    const mocksetMetaInternalFieldState = jest.fn();
     function Wrapper({ children }: any) {
       const methods = useForm();
 
@@ -102,7 +102,7 @@ describe("useRegisterFieldInvalid", () => {
         <FormContextProvider
           executeAction={jest.fn}
           renderMode="CANVAS"
-          setFieldValidityState={mockSetFieldValidityState}
+          setMetaInternalFieldState={mocksetMetaInternalFieldState}
           updateWidgetMetaProperty={jest.fn}
           updateWidgetProperty={jest.fn}
         >
@@ -130,12 +130,12 @@ describe("useRegisterFieldInvalid", () => {
       fieldType: FieldType.TEXT,
     });
 
-    expect(mockSetFieldValidityState).toBeCalledTimes(1);
+    expect(mocksetMetaInternalFieldState).toBeCalledTimes(1);
     rerender({
       isValid: true,
       fieldName,
       fieldType: FieldType.TEXT,
     });
-    expect(mockSetFieldValidityState).toBeCalledTimes(1);
+    expect(mocksetMetaInternalFieldState).toBeCalledTimes(1);
   });
 });

@@ -131,7 +131,8 @@ export type FieldState<TObj> =
   | {
       [k: string]: TObj | TObj[] | FieldState<TObj> | FieldState<TObj>[];
     }
-  | FieldState<TObj>[];
+  | FieldState<TObj>[]
+  | TObj;
 
 export const ARRAY_ITEM_KEY = "__array_item__";
 export const ROOT_SCHEMA_KEY = "__root_schema__";

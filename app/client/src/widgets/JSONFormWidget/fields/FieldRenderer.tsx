@@ -5,10 +5,10 @@ import { FIELD_MAP, SchemaItem } from "../constants";
 
 type FieldRendererProps = {
   fieldName: ControllerRenderProps["name"];
-  schemaItem: SchemaItem;
-  propertyPath: string;
   options?: Record<string, any>;
   passedDefaultValue?: unknown;
+  propertyPath: string;
+  schemaItem: SchemaItem;
 };
 
 function FieldRenderer({

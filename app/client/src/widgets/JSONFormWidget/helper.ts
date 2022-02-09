@@ -82,3 +82,29 @@ export const schemaItemDefaultValue = (schemaItem: SchemaItem) => {
   const { defaultValue } = schemaItem;
   return defaultValue;
 };
+
+export function isPrimitive(val: unknown): val is number | string | boolean {
+  return val === null || /^[sbn]/.test(typeof val);
+}
+
+export const validateOptions = (values: unknown) => {
+  if (!Array.isArray(values)) return false;
+
+  let hasPrimitive = false;
+  let hasObject = false;
+  for (const value of values) {
+    if (value === undefined || value === null || Number.isNaN(value)) {
+      return false;
+    } else if (isPrimitive(value)) {
+      hasPrimitive = true;
+    } else if (isPlainObject(value) && "label" in value && "value" in value) {
+      hasObject = true;
+    } else {
+      return false;
+    }
+  }
+
+  if (hasPrimitive && hasObject) return [];
+
+  return true;
+};

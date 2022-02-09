@@ -1,36 +1,8 @@
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
 import { HiddenFnParams, getSchemaItem } from "../helper";
-
-function defaultOptionValueValidation(value: unknown): ValidationResponse {
-  let values: string[] = [];
-  if (typeof value === "string") {
-    try {
-      values = JSON.parse(value);
-      if (!Array.isArray(values)) {
-        throw new Error();
-      }
-    } catch {
-      values = value.length ? value.split(",") : [];
-      if (values.length > 0) {
-        values = values.map((_v: string) => _v.trim());
-      }
-    }
-  }
-  if (Array.isArray(value)) {
-    values = Array.from(new Set(value));
-  }
-
-  return {
-    isValid: true,
-    parsed: values,
-  };
-}
+import { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 const PROPERTIES = {
   general: [
@@ -43,16 +15,36 @@ const PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.FUNCTION,
+        type: ValidationTypes.ARRAY,
         params: {
-          fn: defaultOptionValueValidation,
-          expected: {
-            type: "Array of values",
-            example: `['option1', 'option2']`,
-            autocompleteDataType: AutocompleteDataType.ARRAY,
+          unique: ["value"],
+          children: {
+            type: ValidationTypes.OBJECT,
+            params: {
+              required: true,
+              allowedKeys: [
+                {
+                  name: "label",
+                  type: ValidationTypes.TEXT,
+                  params: {
+                    default: "",
+                    requiredKey: true,
+                  },
+                },
+                {
+                  name: "value",
+                  type: ValidationTypes.TEXT,
+                  params: {
+                    default: "",
+                    requiredKey: true,
+                  },
+                },
+              ],
+            },
           },
         },
       },
+      evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
@@ -66,7 +58,20 @@ const PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
+    },
+    {
+      propertyName: "isFilterable",
+      label: "Filterable",
+      helpText: "Makes the dropdown list filterable",
+      controlType: "SWITCH",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.BOOLEAN },
+      dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
     },
@@ -80,7 +85,20 @@ const PROPERTIES = {
       isTriggerProperty: false,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
+    },
+    {
+      propertyName: "allowSelectAll",
+      helpText: "Controls the visibility of select all option in dropdown.",
+      label: "Allow Select All",
+      controlType: "SWITCH",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.BOOLEAN },
+      dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
     },
@@ -95,7 +113,7 @@ const PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: true,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
     },
@@ -108,7 +126,7 @@ const PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: true,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).then(
           (schemaItem) => {

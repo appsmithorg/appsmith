@@ -1,5 +1,5 @@
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { FieldValidityState } from ".";
+import { MetaInternalFieldState } from ".";
 import {
   ARRAY_ITEM_KEY,
   FieldType,
@@ -9,12 +9,15 @@ import {
   AUTO_JS_ENABLED_FIELDS,
 } from "../constants";
 
-type FieldMetaState = FieldState<{
+type FieldStateItem = {
   isRequired?: boolean;
   isVisible?: boolean;
   isDisabled?: boolean;
   isValid?: boolean;
-}>;
+  filterText?: string;
+};
+
+type MetaFieldState = FieldState<FieldStateItem>;
 
 // propertyPath -> "schema[0].children[0].fieldType"
 // returns parentPropertyPath -> "schema[0].children[0]"
@@ -36,13 +39,16 @@ export const getGrandParentPropertyPath = (propertyPath: string) => {
 // that deals with object field type.
 const processFieldObject = (
   schema: Schema,
-  fieldValidityState: Record<string, any> = {},
+  metaInternalFieldState: Record<string, any> = {},
 ) => {
-  const obj: FieldMetaState = {};
+  const obj: Record<string, FieldStateItem> = {};
 
   Object.values(schema).forEach((schemaItem) => {
     const { name } = schemaItem;
-    obj[name] = processFieldSchemaItem(schemaItem, fieldValidityState[name]);
+    obj[name] = processFieldSchemaItem(
+      schemaItem,
+      metaInternalFieldState[name],
+    ) as FieldStateItem;
   });
 
   return obj;
@@ -52,12 +58,12 @@ const processFieldObject = (
 // that deals with array field type.
 const processFieldArray = (
   schema: Schema,
-  fieldValidityState: FieldValidityState,
-) => {
-  if (schema[ARRAY_ITEM_KEY] && Array.isArray(fieldValidityState)) {
+  metaInternalFieldState: MetaInternalFieldState,
+): MetaFieldState[] => {
+  if (schema[ARRAY_ITEM_KEY] && Array.isArray(metaInternalFieldState)) {
     /**
-     * We are iterating over the fieldValidityState and not the schema because
-     * the fieldValidity state would tell us how many array items have been
+     * We are iterating over the metaInternalFieldState and not the schema because
+     * the metaInternalField state would tell us how many array items have been
      * rendered in the form and we would be able to generate the field state for
      * each array item rather than just one if schema was considered
      * Eg. if the form data has [{ foo: 10 }, {foo: null}]
@@ -78,9 +84,9 @@ const processFieldArray = (
      *  }
      * ]
      */
-    return fieldValidityState.map((fieldValidityStateItem) =>
-      processFieldSchemaItem(schema[ARRAY_ITEM_KEY], fieldValidityStateItem),
-    );
+    return metaInternalFieldState.map((metaFieldStateItem) =>
+      processFieldSchemaItem(schema[ARRAY_ITEM_KEY], metaFieldStateItem),
+    ) as MetaFieldState[];
   }
 
   return [];
@@ -91,31 +97,39 @@ const processFieldArray = (
 // schemaItem's field state
 const processFieldSchemaItem = (
   schemaItem: SchemaItem,
-  fieldValidityState: FieldValidityState,
-): FieldMetaState => {
+  metaInternalFieldState: MetaInternalFieldState,
+): FieldStateItem | MetaFieldState => {
   if (schemaItem.fieldType === FieldType.OBJECT) {
-    return processFieldObject(schemaItem.children, fieldValidityState);
+    return processFieldObject(schemaItem.children, metaInternalFieldState);
   }
 
   if (schemaItem.fieldType === FieldType.ARRAY) {
-    return processFieldArray(schemaItem.children, fieldValidityState);
+    return processFieldArray(schemaItem.children, metaInternalFieldState);
   }
 
   const { isDisabled, isRequired, isVisible } = schemaItem;
-  let isValid;
+  const fieldState: FieldStateItem = {
+    isDisabled,
+    isRequired,
+    isVisible,
+  };
+
+  fieldState.isDisabled = isDisabled;
+
   if (
-    !Array.isArray(fieldValidityState) &&
-    typeof fieldValidityState?.isValid === "boolean"
+    !Array.isArray(metaInternalFieldState) &&
+    typeof metaInternalFieldState === "object"
   ) {
-    isValid = fieldValidityState.isValid;
+    if (typeof metaInternalFieldState?.isValid === "boolean") {
+      fieldState.isValid = metaInternalFieldState.isValid;
+    }
+
+    if (typeof metaInternalFieldState.filterText === "string") {
+      fieldState.filterText = metaInternalFieldState.filterText;
+    }
   }
 
-  return ({
-    isDisabled,
-    isVisible,
-    isRequired,
-    isValid,
-  } as unknown) as FieldMetaState;
+  return fieldState;
 };
 
 /**
@@ -137,20 +151,20 @@ const processFieldSchemaItem = (
  * }
  *
  * It takes in the current schema (as it holds isDisabled, isVisible, isRequired properties)
- * and fieldValidityState which a separate object that holds the isValid property of all the fields
+ * and metaInternalFieldState which a separate object that holds the isValid property of all the fields
  * currently visible in the form.
  *
  * @param schema Current schema
- * @param fieldValidityState current validity state of the fields
+ * @param metaFieldState current validity state of the fields
  */
 export const generateFieldState = (
   schema: Schema,
-  fieldValidityState: FieldValidityState,
+  metaFieldState: MetaInternalFieldState,
 ) => {
   let fieldState = {};
   if (schema) {
     Object.values(schema).forEach((schemaItem) => {
-      fieldState = processFieldSchemaItem(schemaItem, fieldValidityState);
+      fieldState = processFieldSchemaItem(schemaItem, metaFieldState);
     });
   }
 

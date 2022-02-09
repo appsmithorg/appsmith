@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useController } from "react-hook-form";
 
 import DropDownComponent from "widgets/DropdownWidget/component";
+// import SelectComponent from "widgets/SelectWidget/component";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
@@ -66,6 +67,7 @@ function SelectField({
   });
 
   const isValueValid = isValid(schemaItem, value);
+  const options = Array.isArray(schemaItem.options) ? schemaItem.options : [];
 
   useRegisterFieldValidity({
     isValid: isValueValid,
@@ -87,7 +89,7 @@ function SelectField({
     }
   };
 
-  const selectedOptionIndex = schemaItem.options.findIndex(
+  const selectedOptionIndex = options.findIndex(
     (option) => option.value === value,
   );
   const selectedIndex =
@@ -123,7 +125,7 @@ function SelectField({
           isValid={isDirty ? isValueValid : true}
           onFilterChange={onFilterChange}
           onOptionSelected={onOptionSelected}
-          options={schemaItem.options}
+          options={options}
           placeholder={schemaItem.placeholderText}
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}

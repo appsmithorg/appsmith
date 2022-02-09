@@ -42,7 +42,7 @@ describe(".getGrandParentPropertyPath", () => {
 describe(".generateFieldState", () => {
   it("returns fieldState for initial render", () => {
     const { schemaOutput } = schemaTestData.initialDataset;
-    const fieldValidityState = {};
+    const metaInternalFieldState = {};
     const expectedOutput = {
       name: {
         isRequired: false,
@@ -97,12 +97,12 @@ describe(".generateFieldState", () => {
       },
     };
 
-    const result = generateFieldState(schemaOutput, fieldValidityState);
+    const result = generateFieldState(schemaOutput, metaInternalFieldState);
 
     expect(result).toEqual(expectedOutput);
   });
 
-  it("returns updated fieldState same prevFieldState and empty fieldValidityState", () => {
+  it("returns updated fieldState same prevFieldState and empty metaInternalFieldState", () => {
     const schema = {
       __root_schema__: {
         children: {
@@ -204,7 +204,7 @@ describe(".generateFieldState", () => {
       },
     };
 
-    const fieldValidityState = {};
+    const metaInternalFieldState = {};
 
     const expectedOutput = {
       customField1: {
@@ -216,11 +216,11 @@ describe(".generateFieldState", () => {
       array: [],
     };
 
-    const result = generateFieldState(schema, fieldValidityState);
+    const result = generateFieldState(schema, metaInternalFieldState);
 
     expect(result).toEqual(expectedOutput);
   });
-  it("returns updated fieldState same prevFieldState and partial fieldValidityState", () => {
+  it("returns updated fieldState same prevFieldState and partial metaInternalFieldState", () => {
     const schema = {
       __root_schema__: {
         children: {
@@ -325,7 +325,7 @@ describe(".generateFieldState", () => {
 
     const inputAndExpectedOutput = [
       {
-        fieldValidityState: {
+        metaInternalFieldState: {
           customField1: { isValid: true },
           array: [],
         },
@@ -340,7 +340,7 @@ describe(".generateFieldState", () => {
         },
       },
       {
-        fieldValidityState: {
+        metaInternalFieldState: {
           customField1: { isValid: false },
           array: [{ name: { isValid: false } }, { name: { isValid: true } }],
         },
@@ -373,10 +373,12 @@ describe(".generateFieldState", () => {
       },
     ];
 
-    inputAndExpectedOutput.forEach(({ expectedOutput, fieldValidityState }) => {
-      const result = generateFieldState(schema, fieldValidityState);
-      expect(result).toEqual(expectedOutput);
-    });
+    inputAndExpectedOutput.forEach(
+      ({ expectedOutput, metaInternalFieldState }) => {
+        const result = generateFieldState(schema, metaInternalFieldState);
+        expect(result).toEqual(expectedOutput);
+      },
+    );
   });
 });
 

@@ -111,8 +111,9 @@ function Form<TValues = any>({
 
     const subscription = watch((values) => {
       if (!equal(valuesRef.current, values)) {
-        valuesRef.current = cloneDeep(values);
-        debouncedUpdateFormData(values as TValues);
+        const clonedValue = cloneDeep(values);
+        valuesRef.current = clonedValue;
+        debouncedUpdateFormData(clonedValue as TValues);
       }
     });
     return () => subscription.unsubscribe();

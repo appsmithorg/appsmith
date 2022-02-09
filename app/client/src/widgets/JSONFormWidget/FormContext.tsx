@@ -7,7 +7,7 @@ import { JSONFormWidgetState } from "./widget";
 type FormContextProps = React.PropsWithChildren<{
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   renderMode: RenderMode;
-  setFieldValidityState: (
+  setMetaInternalFieldState: (
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
   ) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
@@ -20,7 +20,7 @@ export function FormContextProvider({
   children,
   executeAction,
   renderMode,
-  setFieldValidityState,
+  setMetaInternalFieldState,
   updateWidgetMetaProperty,
   updateWidgetProperty,
 }: FormContextProps) {
@@ -28,7 +28,7 @@ export function FormContextProvider({
     () => ({
       executeAction,
       renderMode,
-      setFieldValidityState,
+      setMetaInternalFieldState,
       updateWidgetMetaProperty,
       updateWidgetProperty,
     }),

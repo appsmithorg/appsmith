@@ -2,6 +2,7 @@ import equal from "fast-deep-equal/es6";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { ControllerProps, useFormContext } from "react-hook-form";
+import { cloneDeep } from "lodash";
 
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
@@ -55,7 +56,7 @@ function Field<TValue>({
 
       const isValid = defaultValueValidatorFn?.(defaultValue) ?? true;
       if (isValid) {
-        setValue(name, defaultValue);
+        setValue(name, cloneDeep(defaultValue));
       }
     }
   }, [defaultValue, setValue]);

@@ -21,7 +21,7 @@ function useRegisterFieldValidity({
   isValid,
 }: UseRegisterFieldValidityProps) {
   const { clearErrors, setError } = useFormContext();
-  const { setFieldValidityState } = useContext(FormContext);
+  const { setMetaInternalFieldState } = useContext(FormContext);
 
   useEffect(() => {
     try {
@@ -35,13 +35,15 @@ function useRegisterFieldValidity({
       Sentry.captureException(e);
     }
 
-    setFieldValidityState((prevState) => {
-      const fieldValidity = cloneDeep(prevState.fieldValidity);
-      set(fieldValidity, `${fieldName}.isValid`, isValid);
+    setMetaInternalFieldState((prevState) => {
+      const metaInternalFieldState = cloneDeep(
+        prevState.metaInternalFieldState,
+      );
+      set(metaInternalFieldState, `${fieldName}.isValid`, isValid);
 
       return {
         ...prevState,
-        fieldValidity,
+        metaInternalFieldState,
       };
     });
   }, [isValid, fieldName, fieldType]);

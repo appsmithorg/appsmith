@@ -42,10 +42,13 @@ export interface JSONFormWidgetProps extends WidgetProps {
   title: string;
 }
 
-export type FieldValidityState = FieldState<{ isValid: boolean }>;
+export type MetaInternalFieldState = FieldState<{
+  isValid: boolean;
+  filterText?: string;
+}>;
 
 export type JSONFormWidgetState = {
-  fieldValidity: FieldValidityState;
+  metaInternalFieldState: MetaInternalFieldState;
 };
 
 const SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT = 400;
@@ -64,7 +67,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   state: JSONFormWidgetState = {
-    fieldValidity: {},
+    metaInternalFieldState: {},
   };
 
   static getPropertyPaneConfig() {
@@ -150,7 +153,7 @@ class JSONFormWidget extends BaseWidget<
   parseAndSaveFieldState = () => {
     const fieldState = generateFieldState(
       this.props.schema,
-      this.state.fieldValidity,
+      this.state.metaInternalFieldState,
     );
 
     if (!equal(fieldState, this.props.fieldState)) {
@@ -185,7 +188,7 @@ class JSONFormWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty(propertyName, propertyValue);
   };
 
-  setFieldValidityState = (
+  setMetaInternalFieldState = (
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
   ) => {
     this.setState(cb);
@@ -208,7 +211,7 @@ class JSONFormWidget extends BaseWidget<
         resetButtonStyles={this.props.resetButtonStyles}
         schema={this.props.schema}
         scrollContents={this.props.scrollContents}
-        setFieldValidityState={this.setFieldValidityState}
+        setMetaInternalFieldState={this.setMetaInternalFieldState}
         showReset={this.props.showReset}
         submitButtonStyles={this.props.submitButtonStyles}
         title={this.props.title}

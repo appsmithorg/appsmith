@@ -29,7 +29,7 @@ function useDeepEffect(effectFn: EffectCallback, deps?: DependencyList) {
   const depsRef = useRef(deps);
   const signalRef = useRef<number>(0);
 
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV === "development") {
     checkDeps(deps);
   }
 

@@ -116,7 +116,7 @@ function ArrayField({
     defaultValue,
   );
 
-  const { setFieldValidityState } = useContext(FormContext);
+  const { setMetaInternalFieldState } = useContext(FormContext);
 
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
@@ -127,7 +127,7 @@ function ArrayField({
   const remove = useCallback(
     (removedKey: string) => {
       const removedIndex = keys.findIndex((key) => key === removedKey);
-      const values = getValues(name);
+      const values = cloneDeep(getValues(name));
 
       if (values === undefined) {
         return;
@@ -154,11 +154,17 @@ function ArrayField({
         (_val: any, index: number) => index !== removedIndex,
       );
 
-      setValue(name, newValues);
+      setKeys((prevKeys) => {
+        const newKeys = prevKeys.filter((prevKey) => prevKey !== removedKey);
+        return newKeys;
+      });
 
-      setKeys((prevKeys) =>
-        prevKeys.filter((prevKey) => prevKey !== removedKey),
-      );
+      // setTimeout with 0 is used to let the fields get removed,
+      // react-hook-form updating value take place and then we update with appropriate
+      // values else we would see multiple null values in the formData.
+      setTimeout(() => {
+        setValue(name, newValues);
+      }, 0);
     },
     [keys, setKeys, setValue, getValues],
   );
@@ -190,31 +196,36 @@ function ArrayField({
   }, [defaultValue]);
 
   /**
-   * If array field is reset/array items are removed, the field Validity
+   * If array field is reset/array items are removed, the field metaInternalState
    * should reflect that change. This block ensures only when there is a
    * decrease of array items, we remove the last n removed items as the rest
    * would auto correct it self by individual field using useRegisterFieldInvalid hook
    */
   useDeepEffect(() => {
-    setFieldValidityState((prevState) => {
-      const fieldValidity = cloneDeep(prevState.fieldValidity);
-      const currFieldValidity: FieldState<{ isValid: true }> = get(
-        fieldValidity,
+    setMetaInternalFieldState((prevState) => {
+      const metaInternalFieldState = cloneDeep(
+        prevState.metaInternalFieldState,
+      );
+      const currMetaInternalFieldState: FieldState<{ isValid: true }> = get(
+        metaInternalFieldState,
         name,
         [],
       );
 
-      if (Array.isArray(currFieldValidity)) {
-        if (currFieldValidity.length > keys.length) {
-          const updatedFieldValidity = currFieldValidity.slice(0, keys.length);
+      if (Array.isArray(currMetaInternalFieldState)) {
+        if (currMetaInternalFieldState.length > keys.length) {
+          const updatedMetaInternalFieldState = currMetaInternalFieldState.slice(
+            0,
+            keys.length,
+          );
 
-          set(fieldValidity, name, updatedFieldValidity);
+          set(metaInternalFieldState, name, updatedMetaInternalFieldState);
         }
       }
 
       return {
         ...prevState,
-        fieldValidity,
+        metaInternalFieldState,
       };
     });
   }, [keys]);

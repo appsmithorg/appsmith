@@ -1,5 +1,5 @@
 import { DataType, FieldType, SchemaItem } from "./constants";
-import { schemaItemDefaultValue } from "./helper";
+import { schemaItemDefaultValue, validateOptions } from "./helper";
 
 describe(".schemaItemDefaultValue", () => {
   it("returns array default value when sub array fields don't have default value", () => {
@@ -246,5 +246,54 @@ describe(".schemaItemDefaultValue", () => {
     const result = schemaItemDefaultValue(schemaItem);
 
     expect(result).toEqual(expectedDefaultValue);
+  });
+});
+
+describe(".validateOptions", () => {
+  it("returns values passed for valid values", () => {
+    const inputAndExpectedOutput = [
+      [[""], true],
+      [[0], true],
+      [[true], true],
+      [[false], true],
+      [[{}, ""], false],
+      [[{}, null], false],
+      [[{}, undefined], false],
+      [[{}, NaN], false],
+      [["test", null], false],
+      [["test", undefined], false],
+      [["test", NaN], false],
+      [["", null], false],
+      [["", undefined], false],
+      [["", NaN], false],
+      [[0, null], false],
+      [[0, undefined], false],
+      [[0, NaN], false],
+      [[1, null], false],
+      [[1, undefined], false],
+      [[1, NaN], false],
+      [[{ label: "", value: "" }], true],
+      [[{ label: "", value: "" }, { label: "" }], false],
+      [{ label: "", value: "" }, false],
+      ["label", false],
+      [1, false],
+      [null, false],
+      [undefined, false],
+      [NaN, false],
+      [
+        ["one", "two"],
+        ["one", "two"],
+      ],
+      [
+        [1, 2],
+        [1, 2],
+      ],
+    ];
+
+    inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
+      const result = validateOptions(input);
+
+      expect(result).toEqual(expectedOutput);
+    });
   });
 });
