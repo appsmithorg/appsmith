@@ -80,7 +80,7 @@ server {
     location /auth {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass ${APPSMITH_SERVER_PROXY_PASS};
+        proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
 }
 
