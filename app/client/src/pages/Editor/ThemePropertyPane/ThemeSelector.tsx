@@ -36,7 +36,7 @@ function ThemeSelector() {
    * stores default system themes
    */
   const systemThemes = useMemo(() => {
-    return themes.filter((theme) => true);
+    return themes.filter(() => true);
   }, [themes.length]);
 
   return (
