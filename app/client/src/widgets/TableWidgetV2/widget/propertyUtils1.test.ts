@@ -1,211 +1,127 @@
-import { defaultSelectedRowValidation } from "./propertyUtils";
+import {
+  totalRecordsCountValidation,
+  uniqueColumnNameValidation,
+} from "./propertyUtils";
 import _ from "lodash";
 import { TableWidgetProps } from "../constants";
 
 describe("PropertyUtils - ", () => {
-  describe("defaultSelectedRowValidation - ", () => {
-    it("check validations when multiRowSelection is off", () => {
-      const testValues = [
-        [
-          "-1",
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value should be a postive integer"],
-          },
-        ],
-        [
-          "test",
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          -1,
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value should be a postive integer"],
-          },
-        ],
-        [
-          [],
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          [1, 2, "3"],
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          null,
-          {
-            isValid: true,
-            parsed: -1,
-            message: [""],
-          },
-        ],
-        [
-          {},
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          "{1: 'test'}",
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          "",
-          {
-            isValid: true,
-            parsed: -1,
-            message: [""],
-          },
-        ],
-        [
-          1,
-          {
-            isValid: true,
-            parsed: 1,
-            message: [""],
-          },
-        ],
-        [
-          100,
-          {
-            isValid: true,
-            parsed: 100,
-            message: [""],
-          },
-        ],
-      ];
+  it("totalRecordsCountValidation should test with all possible values", () => {
+    const ERROR_MESSAGE = "This value must be a number";
 
-      testValues.forEach(([value, expected]) => {
-        expect(
-          defaultSelectedRowValidation(
-            value,
-            { multiRowSelection: false } as TableWidgetProps,
-            _,
-          ),
-        ).toEqual(expected);
-      });
+    const values = [
+      [
+        undefined,
+        {
+          isValid: true,
+          parsed: 0,
+          message: [""],
+        },
+      ],
+      [
+        null,
+        {
+          isValid: true,
+          parsed: 0,
+          message: [""],
+        },
+      ],
+      [
+        "",
+        {
+          isValid: true,
+          parsed: 0,
+          message: [""],
+        },
+      ],
+      [
+        {},
+        {
+          isValid: false,
+          parsed: 0,
+          message: [ERROR_MESSAGE],
+        },
+      ],
+      [
+        [],
+        {
+          isValid: false,
+          parsed: 0,
+          message: [ERROR_MESSAGE],
+        },
+      ],
+      [
+        "test",
+        {
+          isValid: false,
+          parsed: 0,
+          message: [ERROR_MESSAGE],
+        },
+      ],
+      [
+        "1",
+        {
+          isValid: true,
+          parsed: 1,
+          message: [""],
+        },
+      ],
+      [
+        1,
+        {
+          isValid: true,
+          parsed: 1,
+          message: [""],
+        },
+      ],
+    ];
+
+    values.forEach(([input, expected]) => {
+      expect(
+        totalRecordsCountValidation(input, {} as TableWidgetProps, _),
+      ).toEqual(expected);
+    });
+  });
+
+  it("uniqueColumnNameValidation should test with all possible values", () => {
+    let value = [
+      {
+        label: "column1",
+      },
+      {
+        label: "column2",
+      },
+      {
+        label: "column3",
+      },
+    ];
+
+    expect(
+      uniqueColumnNameValidation(value, {} as TableWidgetProps, _),
+    ).toEqual({
+      isValid: true,
+      parsed: value,
+      messages: [""],
     });
 
-    it("check validations when multiRowSelection is on", () => {
-      const testValues = [
-        [
-          "[1, 2]",
-          {
-            parsed: [1, 2],
-          },
-        ],
-        [
-          "-1",
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value should be a postive integer"],
-          },
-        ],
-        [
-          -1,
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value should be a postive integer"],
-          },
-        ],
-        [
-          [],
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          [1, 2, "3"],
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          null,
-          {
-            isValid: true,
-            parsed: -1,
-            message: [""],
-          },
-        ],
-        [
-          {},
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          "{1: 'test'}",
-          {
-            isValid: false,
-            parsed: -1,
-            message: ["This value does not match type: number"],
-          },
-        ],
-        [
-          "",
-          {
-            isValid: true,
-            parsed: -1,
-            message: [""],
-          },
-        ],
-        [
-          1,
-          {
-            isValid: true,
-            parsed: 1,
-            message: [""],
-          },
-        ],
-        [
-          100,
-          {
-            isValid: true,
-            parsed: 100,
-            message: [""],
-          },
-        ],
-      ];
+    value = [
+      {
+        label: "column1",
+      },
+      {
+        label: "column2",
+      },
+      {
+        label: "column1",
+      },
+    ];
 
-      testValues.forEach(([value, expected]) => {
-        expect(
-          defaultSelectedRowValidation(
-            value,
-            { multiRowSelection: false } as TableWidgetProps,
-            _,
-          ),
-        ).toEqual(expected);
-      });
+    expect(
+      uniqueColumnNameValidation(value, {} as TableWidgetProps, _),
+    ).toEqual({
+      isValid: false,
+      parsed: value,
+      messages: ["Column names should be unique."],
     });
   });
 });
