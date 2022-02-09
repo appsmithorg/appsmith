@@ -15,12 +15,22 @@ describe("App Theming funtionality", function() {
 
     // select a theme
     cy.get(commonlocators.themeCard)
-      .eq(2)
+      .last()
       .click({ force: true });
+
+    // check for alert
+    cy.get(`${commonlocators.themeCard}`)
+      .last()
+      .siblings("h3")
+      .first()
+      .invoke("text")
+      .then((text) => {
+        cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
+      });
 
     // check if color of canvas is same as theme bg color
     cy.get(`${commonlocators.themeCard} > main`)
-      .eq(2)
+      .last()
       .invoke("css", "background-color")
       .then((backgroudColor) => {
         cy.get(commonlocators.canvas).should(
@@ -29,17 +39,6 @@ describe("App Theming funtionality", function() {
           backgroudColor,
         );
       });
-
-    // save theme ( it goes to theme editor )
-    cy.get(commonlocators.saveThemeBtn).click({ force: true });
-
-    // check for alert
-    cy.get(`${commonlocators.themeCard} main h3`)
-      .first()
-      .invoke("text")
-      .then((text) => {
-        cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
-      });
   });
 
   it("checks if theme can be edited", function() {
@@ -47,6 +46,12 @@ describe("App Theming funtionality", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.get("body").click();
+
+    //Click the back button
+    cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
+
+    //Click the border radius toggle
+    cy.contains("Border Radius").click({ force: true });
 
     // change app border radius
     cy.get(commonlocators.themeAppBorderRadiusBtn)

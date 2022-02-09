@@ -21,7 +21,9 @@ describe("Hide / Show page test functionality", function() {
   });
 
   it("Show page test ", function() {
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.get(`.t--entity-name:contains('MyPage2')`).trigger("mouseover");
     cy.hoverAndClick();
     cy.get(pages.showPage).click({ force: true });

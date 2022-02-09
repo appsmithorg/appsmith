@@ -9,13 +9,14 @@ describe("Dropdown Widget Functionality", function() {
 
   it("Verify dropdown width of Select widgets and menu button", function() {
     // Select
+    cy.wait(450);
     cy.get(formWidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .invoke("outerWidth")
       .then((width) => {
         expect(parseInt(width)).to.equal(147);
       });
-    cy.get(formWidgetsPage.dropdownWidget)
+    cy.get(formWidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({
         force: true,
@@ -23,7 +24,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(".select-popover-wrapper")
       .invoke("outerWidth")
       .then((width) => {
-        expect(parseInt(Math.ceil(width))).to.equal(218);
+        expect(parseInt(Math.ceil(width))).to.equal(181);
       });
 
     // Menu Button
@@ -52,7 +53,7 @@ describe("Dropdown Widget Functionality", function() {
         expect(parseInt(width)).to.equal(147);
       });
 
-    cy.get(formWidgetsPage.multiselectWidget)
+    cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-search-input")
       .first()
       .focus({ force: true })
