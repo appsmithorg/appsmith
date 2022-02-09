@@ -172,20 +172,14 @@ export interface DatasourcePaneFunctions {
 class DatasourceEditorRouter extends React.Component<Props> {
   render() {
     const {
-      datasourceId: datasourceIdProp,
+      datasourceId,
       fromImporting,
       history,
       isDeleting,
       isNewDatasource,
       isSaving,
       location,
-      match: {
-        params: {
-          datasourceId: datasourceIdQueryParam,
-          pageId: pageIdQueryParam,
-        },
-      },
-      pageId: pageIdProp,
+      pageId,
       pluginDatasourceForm,
       pluginId,
       pluginImages,
@@ -193,9 +187,6 @@ class DatasourceEditorRouter extends React.Component<Props> {
       pluginType,
       viewMode,
     } = this.props;
-
-    const datasourceId = datasourceIdProp || datasourceIdQueryParam;
-    const pageId = pageIdProp || pageIdQueryParam;
 
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
@@ -211,7 +202,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
           isNewDatasource={isNewDatasource}
           isSaving={isSaving}
           location={location}
-          pageId={this.props.match.params.pageId}
+          pageId={pageId}
           pluginImage={pluginImages[pluginId]}
         />
       );
