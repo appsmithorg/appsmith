@@ -1,6 +1,7 @@
 import {
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
+  updateColumnStyles,
 } from "./propertyUtils";
 import _ from "lodash";
 import { TableWidgetProps } from "../constants";
@@ -123,5 +124,108 @@ describe("PropertyUtils - ", () => {
       parsed: value,
       messages: ["Column names should be unique."],
     });
+  });
+
+  it("updateColumnStyles shoudl test with all possible values", () => {
+    let props: any = {
+      primaryColumns: {
+        1: {
+          id: 1,
+          style: "someRandomStyleValue",
+        },
+        2: {
+          id: 2,
+          style: "someRandomStyleValue",
+        },
+        3: {
+          id: 3,
+          style: "someRandomStyleValue",
+        },
+      },
+    };
+
+    expect(
+      updateColumnStyles(
+        (props as any) as TableWidgetProps,
+        "style",
+        "someOtherRandomStyleValue",
+      ),
+    ).toEqual([
+      {
+        propertyPath: "primaryColumns.1.style",
+        propertyValue: "someOtherRandomStyleValue",
+      },
+      {
+        propertyPath: "primaryColumns.2.style",
+        propertyValue: "someOtherRandomStyleValue",
+      },
+      {
+        propertyPath: "primaryColumns.3.style",
+        propertyValue: "someOtherRandomStyleValue",
+      },
+    ]);
+
+    props = {
+      dynamicBindingPathList: [
+        {
+          key: "primaryColumns.3.style",
+        },
+      ],
+      primaryColumns: {
+        1: {
+          id: 1,
+          style: "someRandomStyleValue",
+        },
+        2: {
+          id: 2,
+          style: "someRandomStyleValue",
+        },
+        3: {
+          id: 3,
+          style: "someRandomStyleValue",
+        },
+      },
+    };
+
+    expect(
+      updateColumnStyles(
+        (props as any) as TableWidgetProps,
+        "style",
+        "someOtherRandomStyleValue",
+      ),
+    ).toEqual([
+      {
+        propertyPath: "primaryColumns.1.style",
+        propertyValue: "someOtherRandomStyleValue",
+      },
+      {
+        propertyPath: "primaryColumns.2.style",
+        propertyValue: "someOtherRandomStyleValue",
+      },
+    ]);
+
+    expect(
+      updateColumnStyles(
+        (props as any) as TableWidgetProps,
+        "",
+        "someOtherRandomStyleValue",
+      ),
+    ).toEqual(undefined);
+
+    expect(
+      updateColumnStyles(
+        ({} as any) as TableWidgetProps,
+        "style",
+        "someOtherRandomStyleValue",
+      ),
+    ).toEqual(undefined);
+
+    expect(
+      updateColumnStyles(
+        ({} as any) as TableWidgetProps,
+        "",
+        "someOtherRandomStyleValue",
+      ),
+    ).toEqual(undefined);
   });
 });
