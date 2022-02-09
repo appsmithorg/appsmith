@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import history from "utils/history";
 import Text, { FontWeight, TextType } from "components/ads/Text";
