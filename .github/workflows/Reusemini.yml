@@ -37,7 +37,7 @@ jobs:
 
       - name: Testing GITHUB GITHUB_WORKSPACE.
         run: |
-          cd $GITHUB_WORKSPACE/app/client/cypress/
+          cd ${{ env.GITHUB_WORKSPACE }}/app/client/cypress/
 
       # Checkout the code
       - id: timestamp
