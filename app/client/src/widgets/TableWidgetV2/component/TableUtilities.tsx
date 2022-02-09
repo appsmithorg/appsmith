@@ -50,7 +50,6 @@ import {
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
-import { generateTableColumnId } from "./TableHelpers";
 
 export const renderCell = (
   value: any,
