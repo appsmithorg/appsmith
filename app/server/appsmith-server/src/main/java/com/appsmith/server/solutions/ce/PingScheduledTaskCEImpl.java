@@ -3,6 +3,12 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +38,13 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final SegmentConfig segmentConfig;
 
     private final CommonConfig commonConfig;
+
+    private final OrganizationRepository organizationRepository;
+    private final ApplicationRepository applicationRepository;
+    private final NewPageRepository newPageRepository;
+    private final NewActionRepository newActionRepository;
+    private final DatasourceRepository datasourceRepository;
+    private final UserRepository userRepository;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -65,7 +78,8 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
         // are not intended to be configurable.
         final String ceKey = segmentConfig.getCeKey();
         if (StringUtils.isEmpty(ceKey)) {
-            log.error("The segment key is null");
+            log.error("The segment ce key is null");
+            return Mono.empty();
         }
 
         return WebClient
@@ -82,6 +96,57 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 )))
                 .retrieve()
                 .bodyToMono(String.class);
+    }
+
+    // Number of milliseconds between the start of each scheduled calls to this method.
+    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 24 * 60 * 60 * 1000 /* a day */)
+    public void pingStats() {
+        if (commonConfig.isTelemetryDisabled()) {
+            return;
+        }
+
+        final String ceKey = segmentConfig.getCeKey();
+        if (StringUtils.isEmpty(ceKey)) {
+            log.error("The segment ce key is null");
+            return;
+        }
+
+        Mono.zip(
+                        configService.getInstanceId().defaultIfEmpty("null"),
+                        NetworkUtils.getExternalAddress(),
+                        organizationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                        applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                        newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                        newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                        datasourceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                        userRepository.countByDeletedAtNull().defaultIfEmpty(0L)
+                )
+                .flatMap(statsData -> {
+                    final String ipAddress = statsData.getT2();
+                    return WebClient
+                            .create("https://api.segment.io")
+                            .post()
+                            .uri("/v1/track")
+                            .headers(headers -> headers.setBasicAuth(ceKey, ""))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(BodyInserters.fromValue(Map.of(
+                                    "userId", ipAddress,
+                                    "context", Map.of("ip", ipAddress),
+                                    "properties", Map.of("instanceId", statsData.getT1()),
+                                    "numOrgs", statsData.getT3(),
+                                    "numApps", statsData.getT4(),
+                                    "numPages", statsData.getT5(),
+                                    "numActions", statsData.getT6(),
+                                    "numDatasources", statsData.getT7(),
+                                    "numUsers", statsData.getT8(),
+                                    "event", "instance_stats"
+                            )))
+                            .retrieve()
+                            .bodyToMono(String.class);
+                })
+                .doOnError(error -> log.error("Error sending anonymous counts {0}", error))
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
     }
 
 }
