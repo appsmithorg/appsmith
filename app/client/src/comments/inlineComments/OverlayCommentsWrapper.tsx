@@ -36,7 +36,6 @@ type Props = {
 const Container = styled.div<{ isCommentMode: boolean }>`
   width: 100%;
   height: 100%;
-  position: relative;
   ${(props) =>
     props.isCommentMode && `cursor: url("${commentIcon}") 25 20 , auto;`}
 `;
