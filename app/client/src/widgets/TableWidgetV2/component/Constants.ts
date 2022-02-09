@@ -207,6 +207,7 @@ export interface ColumnProperties {
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   isCellVisible?: boolean;
+  isAscOrder?: boolean;
 }
 
 export const ConditionFunctions: {

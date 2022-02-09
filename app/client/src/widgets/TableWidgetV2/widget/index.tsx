@@ -141,7 +141,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { componentWidth } = this.getComponentDimensions();
     let totalColumnWidth = 0;
 
-    tableColumns.forEach((column) => {
+    tableColumns.forEach((column: any) => {
       const isHidden = !column.isVisible;
       const accessor = column.id;
       const columnData = {
