@@ -16,144 +16,45 @@ export enum ColumnTypes {
   MENU_BUTTON = "menuButton",
 }
 
-export function defaultSelectedRowValidation(
-  value: unknown,
-  props: TableWidgetProps,
-  _: any,
-) {
-  let isValid = true;
-  let parsed = value;
-  let message = "";
-
-  if (value === "" || _.isNil(value)) {
-    parsed = props.multiRowSelection ? [] : -1;
-  } else if (props) {
-    const isValidIndex = (index: any) => {
-      const parsed = parseInt(index, 10);
-      return _.isNumber(parsed) && parsed > -1;
-    };
-
-    if (props.multiRowSelection) {
-      /*
-       * When value is a string, parse it using JSON.parse.
-       * if value is not a valid JSON, check if its a comma
-       * seperated values and then parse accordingly.
-       */
-      if (_.isString(value)) {
-        value = (value as string).trim();
-
-        try {
-          value = JSON.parse(value as string);
-        } catch (e) {
-          if ((value as string).indexOf(",") > -1) {
-            value = (value as string).split(",");
-          } else {
-            return {
-              value: [],
-              isValid: false,
-              message: "This value does not match type: number[]",
-            };
-          }
-        }
-      }
-
-      if (_.isArray(value)) {
-        if ((value as number[]).every((v) => Number.isInteger(v))) {
-          if ((value as number[]).every((v) => v > -1)) {
-            isValid = true;
-            parsed = value;
-          } else {
-            isValid = false;
-            parsed = [];
-            message = "All values should be postive integers";
-          }
-        } else {
-          isValid = false;
-          parsed = [];
-          message = "This value does not match type: number[]";
-        }
-
-        parsed = (value as []).filter(isValidIndex).map(_.toNumber);
-      } else if (Number.isInteger(value)) {
-        if ((value as number) > -1) {
-          isValid = true;
-          parsed = [value];
-        } else {
-          isValid = false;
-          parsed = [];
-          message = "This value should be a postive integer";
-        }
-      } else {
-        isValid = false;
-        parsed = [];
-        message = "This value does not match type: number[]";
-      }
-    } else {
-      try {
-        if (_.isString(value)) {
-          value = _.toNumber(value);
-        }
-
-        if (Number.isInteger(value)) {
-          if ((value as number) > -1) {
-            isValid = true;
-            parsed = value;
-          } else {
-            isValid = false;
-            parsed = -1;
-            message = "This value should be a postive integer";
-          }
-        } else {
-          isValid = false;
-          parsed = -1;
-          message = "This value does not match type: number";
-        }
-      } catch (e) {
-        isValid = false;
-        parsed = -1;
-        message = "This value does not match type: number";
-      }
-    }
-  }
-
-  return {
-    isValid,
-    parsed,
-    message: [message],
-  };
-}
-
 export function totalRecordsCountValidation(
   value: unknown,
   props: TableWidgetProps,
   _?: any,
 ) {
+  const ERROR_MESSAGE = "This value must be a number";
+  const defaultValue = 0;
+
+  /*
+   * Undefined, null and empty string
+   */
   if (_.isNil(value) || value === "") {
     return {
       isValid: true,
-      parsed: 0,
-      message: "",
+      parsed: defaultValue,
+      message: [""],
     };
-  }
-  if (!Number.isFinite(value) && !_.isString(value)) {
+  } else if (
+    (!_.isFinite(value) && !_.isString(value)) ||
+    (_.isString(value) && !/^\d+\.?\d*$/.test(value as string))
+  ) {
+    /*
+     * objects, array, string (but not cast-able to number type)
+     */
     return {
       isValid: false,
-      parsed: 0,
-      message: "This value must be a number",
+      parsed: defaultValue,
+      message: [ERROR_MESSAGE],
     };
-  }
-  if (_.isString(value) && !/^\d+\.?\d*$/.test(value as string)) {
+  } else {
+    /*
+     * Number or number type cast-able
+     */
     return {
-      isValid: false,
-      parsed: 0,
-      message: "This value must be a number",
+      isValid: true,
+      parsed: Number(value),
+      message: [""],
     };
   }
-  return {
-    isValid: true,
-    parsed: Number(value),
-    message: "",
-  };
 }
 
 export function uniqueColumnNameValidation(
@@ -161,23 +62,24 @@ export function uniqueColumnNameValidation(
   props: TableWidgetProps,
   _?: any,
 ) {
-  const tableColumns = _.map(value, "label");
-  const duplicates = tableColumns.filter(
+  const tableColumnLabels = _.map(value, "label");
+  const duplicates = tableColumnLabels.find(
     (val: string, index: number, arr: string[]) => arr.indexOf(val) !== index,
   );
-  const hasError = !!duplicates.length;
-  if (value && hasError) {
+
+  if (value && !!duplicates) {
     return {
       isValid: false,
       parsed: value,
       messages: ["Column names should be unique."],
     };
+  } else {
+    return {
+      isValid: true,
+      parsed: value,
+      messages: [""],
+    };
   }
-  return {
-    isValid: true,
-    parsed: value,
-    messages: [],
-  };
 }
 
 // A hook to update all column styles when global table styles are updated
@@ -186,7 +88,7 @@ export const updateColumnStyles = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  const { primaryColumns, derivedColumns = {} } = props;
+  const { primaryColumns } = props;
   const propertiesToUpdate: Array<{
     propertyPath: string;
     propertyValue: any;
