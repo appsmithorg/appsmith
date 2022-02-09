@@ -6,6 +6,7 @@ const widgetName = "currencyinputwidget";
 describe("Currency widget - ", () => {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(7000);
   });
 
   it("Add new dropdown widget", () => {
@@ -86,5 +87,13 @@ describe("Currency widget - ", () => {
       .click();
     enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
     cy.get(".t--input-currency-change").should("contain", "£");
+  });
+  it("should accept 0 decimal option", () => {
+    cy.openPropertyPane(widgetName);
+    cy.selectDropdownValue(".t--property-control-decimals", "0");
+    cy.closePropertyPane();
+    cy.wait(500);
+    cy.openPropertyPane(widgetName);
+    cy.get(".t--property-control-decimals .cs-text").should("have.text", "0");
   });
 });
