@@ -87,6 +87,13 @@ export function SettingsForm(
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
         props.settingsConfig[settingName] =
           props.settingsConfig[settingName].toString() == "true";
+
+        if (
+          typeof props.settingsConfig["APPSMITH_SIGNUP_DISABLED"] ===
+          "undefined"
+        ) {
+          props.settingsConfig["APPSMITH_SIGNUP_DISABLED"] = true;
+        }
       }
     });
     props.initialize(props.settingsConfig);
