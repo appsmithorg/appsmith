@@ -5,6 +5,7 @@ import {
   getOrganizationIdForImport,
   getImportedApplication,
   getIsDatasourceConfigForImportFetched,
+  getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -42,7 +43,6 @@ import {
   setIsReconnectingDatasourcesModalOpen,
 } from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
-import { PluginImage } from "../DataSourceEditor/JSONtoForm";
 import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { initialize } from "redux-form";
@@ -55,6 +55,8 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import { setOrgIdForImport } from "actions/applicationActions";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useQuery } from "../utils";
+import ListItemWrapper from "./components/DatasourceListItem";
 
 const Container = styled.div`
   height: 804px;
@@ -191,36 +193,6 @@ const ListContainer = styled.div`
   }
 `;
 
-const ListItem = styled.div<{ disabled?: boolean }>`
-  display: flex;
-  height: 64px;
-  width: 100%;
-  padding: 10px 18px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  opacity: ${(props) => (props.disabled ? 0.4 : 1)};
-  &.active,
-  &:hover {
-    background-color: ${Colors.GEYSER_LIGHT};
-  }
-  img {
-    width: 24pxx;
-    height: 22.5px;
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
-`;
-
-const ListLabels = styled.div`
-  display: flex;
-  flex-direction: column;
-  .t--ds-list-description {
-    max-width: 120px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
-
 const Message = styled.div`
   font-size: ${(props) => props.theme.typography["p0"].fontSize}px;
   line-height: ${(props) => props.theme.typography["p0"].lineHeight}px;
@@ -262,44 +234,6 @@ enum DSCollapseMenu {
   UNCONFIGURED = "UNCONFIGURED",
 }
 
-function ListItemWrapper(props: {
-  ds: Datasource;
-  selected?: boolean;
-  isConfigured?: boolean;
-  plugin: {
-    image: string;
-    name: string;
-  };
-  onClick: (ds: Datasource, isConfigured?: boolean) => void;
-}) {
-  const { ds, isConfigured, onClick, plugin, selected } = props;
-  return (
-    <ListItem
-      className={`t--ds-list ${selected ? "active" : ""}`}
-      disabled={isConfigured}
-      onClick={() => onClick(ds, isConfigured)}
-    >
-      <PluginImage alt="Datasource" src={plugin.image} />
-      <ListLabels>
-        <Text
-          color={Colors.GRAY_800}
-          style={{ marginBottom: 2 }}
-          type={TextType.H4}
-        >
-          {plugin.name}
-        </Text>
-        <Text
-          className="t--ds-list-description"
-          color={Colors.GRAY_700}
-          type={TextType.H5}
-        >
-          {ds.name}
-        </Text>
-      </ListLabels>
-    </ListItem>
-  );
-}
-
 function TooltipContent() {
   return (
     <TooltipWrapper>
@@ -318,13 +252,7 @@ function TooltipContent() {
   );
 }
 
-type Props = {
-  defaultAppId?: string;
-  defaultPageId?: string;
-  defaultDatasourceId?: string;
-};
-
-function ReconnectDatasourceModal(props: Props) {
+function ReconnectDatasourceModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
@@ -332,15 +260,41 @@ function ReconnectDatasourceModal(props: Props) {
   const datasources = useSelector(getDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
+
+  // getting query from redirection url
+  const userOrgs = useSelector(getUserApplicationsOrgsList);
+  const queryParams = useQuery();
+  const queryAppId = queryParams.get("appId");
+  const queryPageId = queryParams.get("pageId");
+  const queryDatasourceId = queryParams.get("datasourceId");
+  const queryIsImport = JSON.parse(queryParams.get("importForGit") ?? "false");
+
   const [selectedDatasourceId, setSelectedDatasourceId] = useState<
     string | null
-  >(props.defaultDatasourceId ?? null);
-  const [pageId, setPageId] = useState(props.defaultPageId ?? "");
-  const [appId, setAppId] = useState(props.defaultAppId ?? "");
+  >(queryDatasourceId);
+  const [pageId, setPageId] = useState<string | null>(queryPageId);
+  const [appId, setAppId] = useState<string | null>(queryAppId);
   const [appURL, setAppURL] = useState("");
   const [collapsedMenu, setCollapsedMenu] = useState(
     DSCollapseMenu.UNCONFIGURED,
   );
+
+  // should open reconnect datasource modal
+  useEffect(() => {
+    if (userOrgs && queryIsImport && queryDatasourceId) {
+      if (queryAppId) {
+        for (const org of userOrgs) {
+          const { applications, organization } = org;
+          if (applications.find((app: any) => app.id === queryAppId)) {
+            dispatch(setOrgIdForImport(organization.id));
+            dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+            break;
+          }
+        }
+      }
+    }
+  }, [userOrgs, queryIsImport]);
+
   const isConfigFetched = useSelector(getIsDatasourceConfigForImportFetched);
 
   // todo uncomment this to fetch datasource config
@@ -377,13 +331,18 @@ function ReconnectDatasourceModal(props: Props) {
   );
 
   useEffect(() => {
-    if (isConfigFetched && datasources && !selectedDatasourceId) {
+    if (
+      isConfigFetched &&
+      datasources &&
+      !selectedDatasourceId &&
+      !queryIsImport
+    ) {
       const unconfiguredDatasource = datasources.find(
         (ds: Datasource) => !ds.isConfigured,
       );
       setSelectedDatasourceId(unconfiguredDatasource?.id ?? "");
     }
-  }, [isConfigFetched, selectedDatasourceId]);
+  }, [isConfigFetched, selectedDatasourceId, queryIsImport]);
 
   useEffect(() => {
     if (selectedDatasourceId) {
@@ -403,14 +362,16 @@ function ReconnectDatasourceModal(props: Props) {
 
   const importedApplication = useSelector(getImportedApplication);
   useEffect(() => {
-    const defaultPage = importedApplication?.pages?.find(
-      (page: any) => page.isDefault,
-    );
-    if (defaultPage) {
-      setPageId(defaultPage.id);
-      setAppId(importedApplication?.id);
+    if (!queryIsImport) {
+      const defaultPage = importedApplication?.pages?.find(
+        (page: any) => page.isDefault,
+      );
+      if (defaultPage) {
+        setPageId(defaultPage.id);
+        setAppId(importedApplication?.id);
+      }
     }
-  }, [importedApplication]);
+  }, [importedApplication, queryIsImport]);
 
   useEffect(() => {
     if (pageId && appId) {

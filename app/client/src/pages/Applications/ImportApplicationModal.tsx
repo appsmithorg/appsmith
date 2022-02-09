@@ -26,6 +26,7 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { setOrgIdForImport } from "actions/applicationActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const TextWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
@@ -161,6 +162,9 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   const dispatch = useDispatch();
   const onGitImport = useCallback(() => {
     onClose && onClose();
+    dispatch({
+      type: ReduxActionTypes.GIT_INFO_INIT,
+    });
     dispatch(setOrgIdForImport(organizationId));
 
     dispatch(

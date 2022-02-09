@@ -416,6 +416,11 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     SSHKeyPair: null,
   }),
+  [ReduxActionTypes.GIT_INFO_INIT]: (state: GitSyncReducerState) => ({
+    ...initialState,
+    globalGitConfig: state.globalGitConfig,
+    localGitConfig: state.localGitConfig,
+  }),
 });
 
 export type GitStatusData = {
