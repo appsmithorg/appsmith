@@ -56,6 +56,7 @@ const SortingDropdownContainer = styled.div`
   flex-direction: row;
   width: min-content;
   justify-content: space-between;
+  margin-bottom: 10px;
 `;
 
 // container for the column dropdown section
@@ -101,7 +102,6 @@ const StyledBottomLabelContainer = styled.div`
 `;
 
 export const StyledBottomLabel = styled(FormLabel)`
-  margin-top: 5px;
   margin-left: 5px;
   font-weight: 400;
   font-size: 12px;
@@ -110,8 +110,13 @@ export const StyledBottomLabel = styled(FormLabel)`
 `;
 
 function SortingComponent(props: any) {
-  const customStyles = {
-    width: `100%`,
+  const columnCustomStyles = {
+    width: "100%",
+    height: "30px",
+  };
+
+  const orderCustomStyles = {
+    width: "15vw",
     height: "30px",
   };
 
@@ -140,9 +145,9 @@ function SortingComponent(props: any) {
               <FormControl
                 config={{
                   ...columnFieldConfig,
-                  label: "",
-                  customStyles,
+                  customStyles: columnCustomStyles,
                   configProperty: `${field}.column`,
+                  nestedFormControl: true,
                 }}
                 formName={props.formName}
               />
@@ -151,9 +156,9 @@ function SortingComponent(props: any) {
               <FormControl
                 config={{
                   ...orderFieldConfig,
-                  label: "",
-                  customStyles,
+                  customStyles: orderCustomStyles,
                   configProperty: `${field}.order`,
+                  nestedFormControl: true,
                 }}
                 formName={props.formName}
               />

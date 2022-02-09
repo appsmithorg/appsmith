@@ -303,7 +303,7 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.GIT_CONNECTION,
         }),
       );
-      AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+      AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
         source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });
     },
