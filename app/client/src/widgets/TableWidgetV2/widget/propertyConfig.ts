@@ -11,7 +11,6 @@ import {
 import {
   updateDerivedColumnsHook,
   ColumnTypes,
-  defaultSelectedRowValidation,
   totalRecordsCountValidation,
   updateColumnStyles,
   updateIconAlignment,
