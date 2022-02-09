@@ -50,6 +50,7 @@ export const datasourceToFormValues = (
     authType: authType,
     authentication: authentication,
     connection: connection,
+    name: datasource.name,
   };
 };
 

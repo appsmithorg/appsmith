@@ -134,6 +134,7 @@ interface ReduxStateProps {
   pluginImages: Record<string, string>;
   isSaving: boolean;
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
+  datasourceName: string;
 }
 
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
@@ -184,6 +185,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
     }
 
     this.props.createTempDatasource({
+      name: "this.props.datasourceName",
       pluginId,
     });
   };
@@ -229,14 +231,19 @@ class DatasourceHomeScreen extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
-  const { datasources } = state.entities;
+const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+  const {
+    entities: { datasources },
+    ui,
+  } = state;
+
   return {
     pluginImages: getPluginImages(state),
     plugins: getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
     isSaving: datasources.loading,
     generateCRUDSupportedPlugin: getGenerateCRUDEnabledPluginMap(state),
+    datasourceName: ui.datasourceName.name[props.datasourceId],
   };
 };
 

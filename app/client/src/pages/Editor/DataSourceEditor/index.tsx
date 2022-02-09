@@ -31,6 +31,7 @@ import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -76,6 +77,16 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.pluginDatasourceForm !== "RestAPIDatasourceForm"
     ) {
       this.props.switchDatasource(this.props.match.params.datasourceId);
+    }
+
+    if (this.props.match.params.datasourceId === "TEMP-ID-1") {
+      this.props.history.push(
+        INTEGRATION_EDITOR_URL(
+          this.props.applicationId,
+          this.props.match.params.pageId,
+          INTEGRATION_TABS.ACTIVE,
+        ),
+      );
     }
   }
 

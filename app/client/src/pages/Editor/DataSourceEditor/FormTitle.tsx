@@ -40,6 +40,7 @@ function FormTitle(props: FormTitleProps) {
   const datasources: Datasource[] = useSelector(getDatasources);
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
+
   const saveStatus: {
     isSaving: boolean;
     error: boolean;
@@ -80,6 +81,7 @@ function FormTitle(props: FormTitleProps) {
 
   const handleDatasourceNameChange = useCallback(
     (name: string) => {
+      const datsourceName = name !== "New Datasource" ? name : "";
       if (
         !isInvalidDatasourceName(name) &&
         currentDatasource &&
@@ -87,11 +89,17 @@ function FormTitle(props: FormTitleProps) {
       ) {
         if (currentDatasource.id === "TEMP-ID-1") {
           return dispatch(
-            saveDatasourceName({ id: currentDatasource?.id ?? "", name }),
+            saveDatasourceName({
+              id: currentDatasource?.id ?? "",
+              name: datsourceName,
+            }),
           );
         }
         dispatch(
-          updateDatasourceName({ id: currentDatasource?.id ?? "", name }),
+          updateDatasourceName({
+            id: currentDatasource?.id ?? "",
+            name: datsourceName,
+          }),
         );
       }
     },

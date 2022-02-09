@@ -27,6 +27,7 @@ import {
   createDatasourceFromForm,
   deleteDatasource,
   redirectAuthorizationCode,
+  saveDatasourceName,
   updateDatasource,
 } from "actions/datasourceActions";
 import { ReduxAction } from "constants/ReduxActionConstants";
@@ -86,7 +87,8 @@ interface DatasourceRestApiEditorProps {
     onSuccess?: ReduxAction<unknown>,
   ) => void;
   plugins: Plugin[];
-  datasourceName: any;
+  datasourceName: string;
+  saveDatasourceName: (data: Record<string, string>) => void;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -191,6 +193,13 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
   }
 
+  componentWillUnmount() {
+    this.props.saveDatasourceName({
+      id: this.props.datasource?.id ?? "",
+      name: "",
+    });
+  }
+
   componentDidUpdate() {
     if (!this.props.formData) return;
 
@@ -276,14 +285,13 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   save = (onSuccess?: ReduxAction<unknown>) => {
     const plugin = this.props.plugins.find((p) => p.name === "REST API");
-    const normalizedValues = formValuesToDatasource(this.props.datasource, {
-      ...this.props.formData,
-      ...this.props.datasourceName,
-    });
-
-    console.log("datasource", this.props.datasource);
-    console.log("formData", this.props.formData);
-    console.log("normalizedValues", normalizedValues);
+    const normalizedValues = formValuesToDatasource(
+      {
+        ...this.props.datasource,
+        name: this.props.datasourceName,
+      },
+      this.props.formData,
+    );
 
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
@@ -294,13 +302,13 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       return this.props.updateDatasource(normalizedValues, onSuccess);
     }
 
-    // this.props.createDatasource(
-    //   {
-    //     ...normalizedValues,
-    //     pluginId: (plugin as Plugin).id,
-    //   },
-    //   onSuccess,
-    // );
+    this.props.createDatasource(
+      {
+        ...normalizedValues,
+        pluginId: (plugin as Plugin).id,
+      },
+      onSuccess,
+    );
   };
 
   createApiAction = () => {
@@ -1115,7 +1123,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
     plugins: state.entities.plugins.list,
-    datasourceName: state.ui.datasourceName.name,
+    datasourceName: state.ui.datasourceName.name[props.datasourceId],
   };
 };
 
@@ -1125,9 +1133,10 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
-    createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
+    createDatasource: (formData: any) =>
       dispatch(createDatasourceFromForm(formData)),
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
+    saveDatasourceName: (data: any) => dispatch(saveDatasourceName(data)),
   };
 };
 

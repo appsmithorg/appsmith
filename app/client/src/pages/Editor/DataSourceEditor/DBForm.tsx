@@ -42,6 +42,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   pluginType: string;
   messages?: Array<string>;
   datasource: Datasource;
+  datasourceName: string;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -77,7 +78,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   }
   // returns normalized and trimmed datasource form data
   getSanitizedData = () => {
-    return this.getTrimmedData(this.normalizeValues());
+    return this.getTrimmedData({
+      ...this.normalizeValues(),
+      name: this.props.datasourceName,
+    });
   };
 
   openOmnibarReadMore = () => {
@@ -179,6 +183,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   return {
     messages: hintMessages,
     datasource,
+    datasourceName: state.ui.datasourceName.name[props.datasourceId],
   };
 };
 

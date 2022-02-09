@@ -1,10 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import {
-  DATA_SOURCES_EDITOR_ID_URL,
-  getCurlImportPageURL,
-} from "constants/routes";
+import { getCurlImportPageURL } from "constants/routes";
 import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
@@ -25,7 +22,6 @@ import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSele
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 
 const StyledContainer = styled.div`
   flex: 1;
