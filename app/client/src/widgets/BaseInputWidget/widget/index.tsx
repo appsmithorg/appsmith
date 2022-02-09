@@ -304,8 +304,10 @@ class BaseInputWidget<
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   }
 
-  onSubmitSuccess(result: ExecutionResult) {
+  onSubmitSuccess = (result: ExecutionResult) => {
     if (result.success && this.props.resetOnSubmit) {
+      //Resets isDirty
+      super.resetChildrenMetaProperty(this.props.widgetId);
       this.props.updateWidgetMetaProperty("text", "", {
         triggerPropertyName: "onSubmit",
         dynamicString: this.props.onTextChanged,
@@ -313,8 +315,17 @@ class BaseInputWidget<
           type: EventType.ON_TEXT_CHANGE,
         },
       });
+
+      /*
+       *  Value is a derived property in CURRENCY_INPUT_WIDGET &
+       *  INPUT_WIDGET_V2, so only reset value in
+       *  PHONE_INPUT_WIDGET, where its not derived value.
+       */
+      if (this.props.type === "PHONE_INPUT_WIDGET") {
+        this.props.updateWidgetMetaProperty("value", undefined);
+      }
     }
-  }
+  };
 
   handleKeyDown(
     e:
@@ -323,7 +334,7 @@ class BaseInputWidget<
   ) {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    if (isEnterKey && typeof onSubmit == "string" && isValid) {
+    if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
       super.executeAction({
         triggerPropertyName: "onSubmit",
         dynamicString: onSubmit,
