@@ -9,13 +9,6 @@ import { PluginType } from "entities/Action";
 import { executeDatasourceQueryRequest } from "../api/DatasourcesApi";
 import { ResponseMeta } from "../api/ApiResponses";
 
-// export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
-//   return {
-//     type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
-//     payload,
-//   };
-// };
-
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
   onSuccess?: ReduxAction<unknown>,
