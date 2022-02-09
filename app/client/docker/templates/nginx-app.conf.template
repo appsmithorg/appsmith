@@ -79,7 +79,7 @@ server {
     location /auth {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass http://host.docker.internal:8081;
+        proxy_pass ${APPSMITH_SERVER_PROXY_PASS};
     }
 }
 
