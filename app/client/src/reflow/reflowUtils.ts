@@ -85,14 +85,22 @@ export function shouldReplaceOldMovement(
  */
 export function getResizedDimensions(
   collisionTree: CollisionTree,
-  distanceBeforeCollision: number,
-  emptySpaces: number,
-  { direction }: CollisionAccessors,
+  {
+    direction,
+    directionIndicator,
+    parallelMax,
+    parallelMin,
+  }: CollisionAccessors,
 ) {
   const reflowedPosition = { ...collisionTree, children: [] };
 
-  const newDimension = distanceBeforeCollision + emptySpaces;
-  reflowedPosition[direction] -= newDimension;
+  // const newDimension = distanceBeforeCollision + emptySpaces;
+  // reflowedPosition[direction] -= newDimension;
+
+  reflowedPosition[direction] =
+    reflowedPosition.collidingValue +
+    directionIndicator *
+      (reflowedPosition[parallelMax] - reflowedPosition[parallelMin]);
 
   return reflowedPosition;
 }
@@ -344,14 +352,14 @@ export function getCollidingSpaces(
  * @returns Colliding Spaces Array
  */
 export function getCollidingSpacesInDirection(
-  staticPosition: OccupiedSpace,
+  staticPosition: CollidingSpace,
   OGPosition: OccupiedSpace,
   direction: ReflowDirection,
   globalDirection: ReflowDirection,
   movingSpaces: OccupiedSpace[],
   globalCollidingSpaces: CollidingSpace[],
   insertionIndex: number,
-  globalProcessedNodes: { [key: string]: { [key: string]: boolean } },
+  globalProcessedNodes: { [key: string]: boolean },
   collidingSpaceMap: CollisionMap,
   prevCollidingSpaceMap: CollidingSpaceMap,
   gridProps: GridProps,
@@ -411,7 +419,7 @@ export function getCollidingSpacesInDirection(
           collidingSpaceMap[collidingSpace.id] = collidingSpace;
         }
         globalCollidingSpaces.splice(insertionIndex + 1, 0, collidingSpace);
-        delete globalProcessedNodes[currentDirection][staticPosition.id];
+        delete globalProcessedNodes[staticPosition.id];
       }
     }
   }
@@ -423,28 +431,45 @@ export function getCollidingSpacesInDirection(
     };
   let order = 1;
   for (const occupiedSpace of occupiedSpacesInDirection) {
-    if (
-      ShouldAddToCollisionSpacesArray(
-        staticPosition,
-        occupiedSpace,
-        direction,
-        collidingSpaceMap,
-        isSecondaryCollidingWidget,
-        gridProps,
-        prevCollidingSpaceMap,
-        prevMovementMap,
-      )
-    ) {
+    const { shouldAddToArray } = ShouldAddToCollisionSpacesArray(
+      staticPosition,
+      occupiedSpace,
+      direction,
+      accessor,
+      collidingSpaceMap,
+      isSecondaryCollidingWidget,
+      gridProps,
+      prevCollidingSpaceMap,
+      prevMovementMap,
+    );
+    if (shouldAddToArray) {
       collidingSpaces.push({
         ...occupiedSpace,
-        direction,
+        direction: direction,
         collidingValue: staticPosition[accessor.direction],
         collidingId: staticPosition.id,
         isHorizontal: accessor.isHorizontal,
         order,
       });
       order++;
-    }
+    } //else if (collidingValue !== undefined && changedDirection) {
+    //   const currentCollidingSpace = {
+    //     ...occupiedSpace,
+    //     direction: changedDirection,
+    //     collidingValue: collidingValue,
+    //     collidingId: staticPosition.id,
+    //     isHorizontal: accessor.isHorizontal,
+    //     order,
+    //   };
+    //   if (!collidingSpaceMap[occupiedSpace.id]) {
+    //     collidingSpaceMap[occupiedSpace.id] = currentCollidingSpace;
+    //   }
+    //   globalCollidingSpaces.splice(
+    //     insertionIndex + 1,
+    //     0,
+    //     currentCollidingSpace,
+    //   );
+    // }
   }
 
   return {
@@ -455,24 +480,30 @@ export function getCollidingSpacesInDirection(
 }
 
 function ShouldAddToCollisionSpacesArray(
-  staticSpace: OccupiedSpace,
+  staticSpace: CollidingSpace,
   collidingSpace: OccupiedSpace,
   direction: ReflowDirection,
+  accessor: CollisionAccessors,
   collidingSpaceMap: CollisionMap,
   isSecondaryCollidingWidget: boolean,
   gridProps: GridProps,
   prevCollidingSpaceMap: CollidingSpaceMap,
   prevMovementMap?: ReflowedSpaceMap,
 ) {
-  if (!areIntersecting(collidingSpace, staticSpace)) return false;
+  if (!areIntersecting(collidingSpace, staticSpace))
+    return { shouldAddToArray: false };
+  const movementDirectionAccessor = accessor.isHorizontal
+    ? "directionX"
+    : "directionY";
 
   if (
-    collidingSpaceMap[collidingSpace.id] &&
-    collidingSpaceMap[collidingSpace.id].direction !== direction
+    prevMovementMap &&
+    prevMovementMap[collidingSpace.id] &&
+    prevMovementMap[collidingSpace.id][movementDirectionAccessor] !== direction
   )
-    return false;
+    return { shouldAddToArray: false };
 
-  if (!isSecondaryCollidingWidget) return true;
+  if (!isSecondaryCollidingWidget) return { shouldAddToArray: true };
 
   const {
     direction: directionAccessor,
@@ -492,9 +523,10 @@ function ShouldAddToCollisionSpacesArray(
       prevCollidingChildren[collidingSpace.id] &&
       prevCollidingChildren[collidingSpace.id].direction === direction)
   )
-    return true;
+    return { shouldAddToArray: true };
 
-  if (!prevMovementMap || !prevMovementMap[staticSpace.id]) return true;
+  if (!prevMovementMap || !prevMovementMap[staticSpace.id])
+    return { shouldAddToArray: true };
 
   const displacementAccessor = isHorizontal ? "X" : "Y";
   const gridGap = isHorizontal
@@ -507,13 +539,27 @@ function ShouldAddToCollisionSpacesArray(
         prevMovementMap[staticSpace.id][displacementAccessor]) ||
         0) / gridGap,
     );
-
-  return compareNumbers(
+  const shouldAddToArray = compareNumbers(
     collidingSpace[oppositeDirection],
     prevDirectionalValue,
     directionIndicator > 0,
     true,
   );
+  if (
+    !shouldAddToArray &&
+    compareNumbers(
+      collidingSpace[directionAccessor],
+      staticSpace.collidingValue,
+      directionIndicator > 0,
+    )
+  ) {
+    return {
+      shouldAddToArray: false,
+      changedDirection: getOppositeDirection(direction),
+      collidingValue: staticSpace.collidingValue,
+    };
+  }
+  return { shouldAddToArray };
 }
 function filterSpaceByDirection(
   staticPosition: OccupiedSpace,
@@ -522,7 +568,11 @@ function filterSpaceByDirection(
 ): OccupiedSpace[] {
   let filteredSpaces: OccupiedSpace[] = [];
 
-  const { directionIndicator, oppositeDirection } = getAccessor(direction);
+  const {
+    direction: directionAccessor,
+    directionIndicator,
+    oppositeDirection,
+  } = getAccessor(direction);
   if (occupiedSpaces) {
     filteredSpaces = occupiedSpaces.filter((occupiedSpace) => {
       if (
@@ -533,7 +583,7 @@ function filterSpaceByDirection(
       }
 
       return compareNumbers(
-        occupiedSpace[oppositeDirection],
+        occupiedSpace[directionAccessor],
         staticPosition[oppositeDirection],
         directionIndicator > 0,
       );
@@ -1080,32 +1130,49 @@ export function getSpacesMapFromArray(
   return spacesMap;
 }
 
-// export function flattenToCollidingSpaceMap(collidingSpacesObj: {
-//   [key: string]: {
-//     vertical?: CollidingSpace;
-//     horizontal?: CollidingSpace;
-//   };
-// }) {
-//   const collidingArray = Object.values(collidingSpacesObj);
-//   const collidingSpaceMap: CollidingSpaceMap = {};
-//   for (const { horizontal, vertical } of collidingArray) {
-//     if (horizontal)
-//       collidingSpaceMap[
-//         getCollisionKey(horizontal.collidingId, horizontal.id)
-//       ] = { ...horizontal };
-//     if (vertical)
-//       collidingSpaceMap[getCollisionKey(vertical.collidingId, vertical.id)] = {
-//         ...vertical,
-//       };
-//   }
-//   return collidingSpaceMap;
-// }
+export function flattenArrayToGlobalCollisionMap(
+  movingSpacesMap: SpaceMap,
+  collidingSpaces: CollidingSpace[],
+) {
+  const collidingSpaceMap: CollisionMap = {};
+  let order = 1;
+  for (const collidingSpace of collidingSpaces) {
+    //if (!movingSpacesMap[collidingSpace.collidingId]) continue;
+    const { directionIndicator } = getAccessor(collidingSpace.direction);
+    const prevCollidingSpace = collidingSpaceMap[collidingSpace.id];
+    if (
+      !prevCollidingSpace ||
+      (prevCollidingSpace &&
+        prevCollidingSpace.direction === collidingSpace.direction &&
+        compareNumbers(
+          collidingSpace.collidingValue,
+          prevCollidingSpace.collidingValue,
+          directionIndicator > 0,
+        ))
+    ) {
+      collidingSpaceMap[collidingSpace.id] = { ...collidingSpace, order };
+      order++;
+    }
+  }
+  return collidingSpaceMap;
+}
 
 export function flattenArrayToCollisionMap(collidingSpaces: CollidingSpace[]) {
   const collidingSpaceMap: CollisionMap = {};
   let order = 1;
   for (const collidingSpace of collidingSpaces) {
-    if (!collidingSpaceMap[collidingSpace.id]) {
+    const { directionIndicator } = getAccessor(collidingSpace.direction);
+    const prevCollidingSpace = collidingSpaceMap[collidingSpace.id];
+    if (
+      !prevCollidingSpace ||
+      (prevCollidingSpace &&
+        prevCollidingSpace.direction === collidingSpace.direction &&
+        compareNumbers(
+          collidingSpace.collidingValue,
+          prevCollidingSpace.collidingValue,
+          directionIndicator > 0,
+        ))
+    ) {
       collidingSpaceMap[collidingSpace.id] = { ...collidingSpace, order };
       order++;
     }

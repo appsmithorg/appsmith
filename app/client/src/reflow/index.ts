@@ -14,7 +14,7 @@ import {
   changeExitContainerDirection,
   compareNumbers,
   filterCommonSpaces,
-  flattenArrayToCollisionMap,
+  flattenArrayToGlobalCollisionMap,
   getAccessor,
   getCollidingSpaces,
   getDelta,
@@ -181,7 +181,8 @@ export function reflow(
       prevMovementMap,
     );
 
-    globalCollidingSpaces[orientation.first] = flattenArrayToCollisionMap(
+    globalCollidingSpaces[orientation.first] = flattenArrayToGlobalCollisionMap(
+      newPositionsMap,
       collidingSpacesArray,
     );
     firstMovementMap = { ...movementMap };
@@ -224,7 +225,7 @@ export function reflow(
     !isHorizontal,
     prevSpacesMap,
     forceDirection,
-    flattenArrayToCollisionMap(collidingSpacesArray),
+    flattenArrayToGlobalCollisionMap(newPositionsMap, collidingSpacesArray),
   );
 
   const secondCollidingSpacesArray = Object.values(
@@ -278,7 +279,10 @@ export function reflow(
       prevMovementMap,
     );
     secondMovementMap = { ...movementMap };
-    globalCollidingSpaces[orientation.second] = flattenArrayToCollisionMap(
+    globalCollidingSpaces[
+      orientation.second
+    ] = flattenArrayToGlobalCollisionMap(
+      newPositionsMap,
       secondCollidingSpacesArray,
     );
     getShouldReflow(movementLimitMap, movementVariablesMap, delta);

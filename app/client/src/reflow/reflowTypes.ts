@@ -84,6 +84,8 @@ export type CollisionTree = OccupiedSpace & {
   };
   collidingValue: number;
   collidingId: string;
+  isHorizontal: boolean;
+  order: number;
 };
 
 export type SpaceMovementMap = {
@@ -108,6 +110,8 @@ export type ReflowedSpace = {
   y?: number;
   maxX?: number;
   maxY?: number;
+  directionX?: ReflowDirection;
+  directionY?: ReflowDirection;
   dimensionXBeforeCollision?: number;
   dimensionYBeforeCollision?: number;
   horizontalMaxOccupiedSpace?: number;
