@@ -8,12 +8,12 @@ describe("MultiSelect Widget Functionality", function() {
 
   it("Add new dropdown widget", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("multiselectwidget", { x: 300, y: 300 });
-    cy.get(".t--widget-multiselectwidget").should("exist");
+    cy.dragAndDropToCanvas("multiselectwidgetv2", { x: 300, y: 300 });
+    cy.get(".t--widget-multiselectwidgetv2").should("exist");
   });
 
   it("should check that empty value is allowed in options", () => {
-    cy.openPropertyPane("multiselectwidget");
+    cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[
@@ -37,7 +37,7 @@ describe("MultiSelect Widget Functionality", function() {
   });
 
   it("should check that more thatn empty value is not allowed in options", () => {
-    cy.openPropertyPane("multiselectwidget");
+    cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[
