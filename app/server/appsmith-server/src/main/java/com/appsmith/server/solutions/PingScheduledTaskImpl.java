@@ -2,6 +2,12 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SegmentConfig;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.ce.PingScheduledTaskCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +24,28 @@ import org.springframework.stereotype.Component;
 @Component
 public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements PingScheduledTask {
 
-    public PingScheduledTaskImpl(ConfigService configService,
-                                 SegmentConfig segmentConfig,
-                                 CommonConfig commonConfig) {
+    public PingScheduledTaskImpl(
+            ConfigService configService,
+            SegmentConfig segmentConfig,
+            CommonConfig commonConfig,
+            OrganizationRepository organizationRepository,
+            ApplicationRepository applicationRepository,
+            NewPageRepository newPageRepository,
+            NewActionRepository newActionRepository,
+            DatasourceRepository datasourceRepository,
+            UserRepository userRepository
+    ) {
 
-        super(configService, segmentConfig, commonConfig);
+        super(
+                configService,
+                segmentConfig,
+                commonConfig,
+                organizationRepository,
+                applicationRepository,
+                newPageRepository,
+                newActionRepository,
+                datasourceRepository,
+                userRepository
+        );
     }
 }
