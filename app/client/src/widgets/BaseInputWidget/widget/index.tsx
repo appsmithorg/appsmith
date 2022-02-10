@@ -44,7 +44,12 @@ class BaseInputWidget<
             placeholderText: "{{ Input1.text.length > 0 }}",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                default: true,
+              },
+            },
           },
           {
             helpText:
