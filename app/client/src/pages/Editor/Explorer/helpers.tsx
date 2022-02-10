@@ -14,6 +14,7 @@ import {
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { PluginType } from "entities/Action";
+import localStorage from "utils/localStorage";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -99,4 +100,44 @@ export const useDatasourceIdFromURL = () => {
   if (saasMatch?.params?.datasourceId) {
     return saasMatch.params.datasourceId;
   }
+};
+
+const EXPLORER_STORAGE_PREFIX = "explorerState_";
+
+export type ExplorerStateType = {
+  pages: boolean;
+  widgets: boolean;
+  queriesAndJs: boolean;
+  datasource: boolean;
+};
+
+export const getExplorerStatus = (
+  appId: string,
+  entityName: keyof ExplorerStateType,
+): boolean | null => {
+  const storageItemName = EXPLORER_STORAGE_PREFIX + appId;
+  const data = localStorage.getItem(storageItemName);
+  if (data === null) return null;
+  const parsedData: ExplorerStateType = JSON.parse(data);
+  return parsedData[entityName];
+};
+
+export const saveExplorerStatus = (
+  appId: string,
+  entityName: keyof ExplorerStateType,
+  value: boolean,
+): void => {
+  const storageItemName = EXPLORER_STORAGE_PREFIX + appId;
+  const state = localStorage.getItem(storageItemName);
+  let data: ExplorerStateType = {
+    pages: false,
+    widgets: false,
+    queriesAndJs: false,
+    datasource: false,
+  };
+  if (state !== null) {
+    data = JSON.parse(state);
+  }
+  data[entityName] = value;
+  localStorage.setItem(storageItemName, JSON.stringify(data));
 };

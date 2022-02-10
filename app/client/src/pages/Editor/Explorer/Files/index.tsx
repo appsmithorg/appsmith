@@ -3,7 +3,10 @@ import { useActiveAction } from "../hooks";
 import { Entity } from "../Entity/index";
 import { createMessage, ADD_QUERY_JS_TOOLTIP } from "constants/messages";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
@@ -14,6 +17,7 @@ import {
 } from "components/editorComponents/GlobalSearch/utils";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
+import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 
 const emptyNode = (
   <EntityPlaceholder step={0}>
@@ -23,9 +27,12 @@ const emptyNode = (
 );
 
 function Files() {
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) as string;
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
+  const isFilesOpen = getExplorerStatus(applicationId, "queriesAndJs");
+
   const onCreate = useCallback(() => {
     dispatch(
       toggleShowGlobalSearchModal(
@@ -35,6 +42,13 @@ function Files() {
   }, [dispatch]);
 
   const activeActionId = useActiveAction();
+
+  const onFilesToggle = useCallback(
+    (isOpen: boolean) => {
+      saveExplorerStatus(applicationId, "queriesAndJs", isOpen);
+    },
+    [applicationId],
+  );
 
   const fileEntities = useMemo(
     () =>
@@ -83,11 +97,12 @@ function Files() {
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
-      isDefaultExpanded
+      isDefaultExpanded={isFilesOpen === null ? true : isFilesOpen}
       isSticky
       key={pageId + "_widgets"}
       name="QUERIES/JS"
       onCreate={onCreate}
+      onToggle={onFilesToggle}
       searchKeyword={""}
       step={0}
     >

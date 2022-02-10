@@ -17,7 +17,11 @@ import { createMessage, CREATE_DATASOURCE_TOOLTIP } from "constants/messages";
 import styled from "styled-components";
 import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";
-import { useDatasourceIdFromURL } from "./helpers";
+import {
+  useDatasourceIdFromURL,
+  getExplorerStatus,
+  saveExplorerStatus,
+} from "./helpers";
 
 const emptyNode = (
   <EntityPlaceholder step={0}>
@@ -44,6 +48,7 @@ const Datasources = React.memo(() => {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) || "";
   const plugins = useSelector(getPlugins);
+  const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
   const addDatasource = useCallback(() => {
     history.push(
@@ -76,17 +81,25 @@ const Datasources = React.memo(() => {
     [appWideDS, pageId],
   );
 
+  const onDatasourcesToggle = useCallback(
+    (isOpen: boolean) => {
+      saveExplorerStatus(applicationId, "datasource", isOpen);
+    },
+    [applicationId],
+  );
+
   return (
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
       className={"datasources"}
       entityId={pageId + "_datasources"}
       icon={null}
-      isDefaultExpanded
+      isDefaultExpanded={isDatasourcesOpen === null ? true : isDatasourcesOpen}
       isSticky
       key={pageId + "_datasources"}
       name="DATASOURCES"
       onCreate={addDatasource}
+      onToggle={onDatasourcesToggle}
       searchKeyword={""}
       step={0}
     >

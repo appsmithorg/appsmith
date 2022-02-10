@@ -1,12 +1,16 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import WidgetEntity from "./WidgetEntity";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -15,9 +19,18 @@ type ExplorerWidgetGroupProps = {
 };
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
+  let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
+  if (isWidgetsOpen === null) {
+    isWidgetsOpen = widgets?.children?.length === 0 || guidedTour;
+    saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
+  } else if (guidedTour) {
+    isWidgetsOpen = guidedTour;
+    saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
+  }
 
   const childNode = (
     <EntityPlaceholder step={props.step}>
@@ -29,6 +42,13 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     return widgets?.children?.map((child) => child.widgetId) || [];
   }, [widgets?.children]);
 
+  const onWidgetToggle = useCallback(
+    (isOpen: boolean) => {
+      saveExplorerStatus(applicationId, "widgets", isOpen);
+    },
+    [applicationId],
+  );
+
   return (
     <Entity
       addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
@@ -36,11 +56,12 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       disabled={!widgets && !!props.searchKeyword}
       entityId={pageId + "_widgets"}
       icon={""}
-      isDefaultExpanded={widgets?.children?.length === 0 || guidedTour}
+      isDefaultExpanded={isWidgetsOpen}
       isSticky
       key={pageId + "_widgets"}
       name="WIDGETS"
       onCreate={props.addWidgetsFn}
+      onToggle={onWidgetToggle}
       searchKeyword={props.searchKeyword}
       step={props.step}
     >
