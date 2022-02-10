@@ -416,7 +416,9 @@ export const getPageURL = (
   }
 
   return getApplicationEditorPageURL(
-    currentApplicationDetails?.id,
+    currentApplicationDetails?.slug || "",
+    //Comeback
+    page.slug || "",
     page.pageId,
   );
 };
