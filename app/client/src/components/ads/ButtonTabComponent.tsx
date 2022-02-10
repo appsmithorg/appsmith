@@ -4,8 +4,9 @@ import { Colors } from "constants/Colors";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
-  width: 32px;
+  min-width: 32px;
   height: 32px;
+  padding: 0 2px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,6 +41,7 @@ const FlexWrapper = styled.div`
 export interface ButtonTabOption {
   icon: string;
   value: string;
+  width?: number;
 }
 
 interface ButtonTabComponentProps {
@@ -90,28 +92,30 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
       role="tablist"
       tabIndex={0}
     >
-      {props.options.map((option: ButtonTabOption, index: number) => {
-        const controlIconName: ControlIconName = option.icon;
-        const ControlIcon = ControlIcons[controlIconName];
-        const isSelected = valueSet.has(option.value);
-        return (
-          <ItemWrapper
-            aria-selected={isSelected}
-            className={`t--button-tab-${option.value} ${
-              index === focusedIndex ? "focused" : ""
-            }`}
-            key={index}
-            onClick={() => {
-              props.selectButton(option.value);
-              setFocusedIndex(index);
-            }}
-            role="tab"
-            selected={isSelected}
-          >
-            <ControlIcon height={24} width={24} />
-          </ItemWrapper>
-        );
-      })}
+      {props.options.map(
+        ({ icon, value, width = 24 }: ButtonTabOption, index: number) => {
+          const controlIconName: ControlIconName = icon;
+          const ControlIcon = ControlIcons[controlIconName];
+          const isSelected = valueSet.has(value);
+          return (
+            <ItemWrapper
+              aria-selected={isSelected}
+              className={`t--button-tab-${value} ${
+                index === focusedIndex ? "focused" : ""
+              }`}
+              key={index}
+              onClick={() => {
+                props.selectButton(value);
+                setFocusedIndex(index);
+              }}
+              role="tab"
+              selected={isSelected}
+            >
+              <ControlIcon height={24} width={width} />
+            </ItemWrapper>
+          );
+        },
+      )}
     </FlexWrapper>
   );
 }
