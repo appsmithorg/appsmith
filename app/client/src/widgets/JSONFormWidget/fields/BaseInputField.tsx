@@ -208,6 +208,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       triggerPropertyName = "onTextChange",
     ) => {
       const { onTextChanged } = schemaItem;
+      // text - what we show in the component
+      // value - what we store in the formData
       const { text, value } = transformValue(inputValue, textValue || "");
 
       fieldOnChangeHandler(value);

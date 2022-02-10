@@ -21,6 +21,7 @@ import {
   SchemaItem,
   getBindingTemplate,
   RESTRICTED_KEYS,
+  FieldComponentBaseProps,
 } from "./constants";
 
 type Obj = Record<string, any>;
@@ -484,7 +485,7 @@ class SchemaParser {
     // can either be an object or a function.
     const componentDefaultValues = (() => {
       const { componentDefaultValues } = FieldComponent;
-      let defaultValues;
+      let defaultValues: FieldComponentBaseProps;
       if (typeof componentDefaultValues === "function") {
         defaultValues = componentDefaultValues({
           sourceDataPath,
@@ -499,9 +500,14 @@ class SchemaParser {
           isDisabled: false,
           isRequired: false,
           isVisible: true,
+          label: "",
         };
       } else {
         defaultValues = componentDefaultValues;
+      }
+
+      if (isCustomField || skipDefaultValueProcessing) {
+        defaultValues = omit(defaultValues, "defaultValue");
       }
 
       return {

@@ -32,7 +32,7 @@ describe("Text Field Property Control", () => {
         "Default Text length must be less than Max Chars allowed",
       );
     });
-    cy.testJsontext("maxchars", undefined);
+    cy.testJsontext("maxchars", "");
   });
 
   it("sets placeholder", () => {

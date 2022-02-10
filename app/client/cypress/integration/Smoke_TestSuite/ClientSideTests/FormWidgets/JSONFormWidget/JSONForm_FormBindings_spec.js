@@ -130,6 +130,7 @@ describe("JSON Form Widget Form Bindings", () => {
         isVisible: true,
         isRequired: false,
         isValid: true,
+        filterText: "",
       },
     };
 
@@ -193,6 +194,7 @@ describe("JSON Form Widget Form Bindings", () => {
         isVisible: true,
         isRequired: false,
         isValid: true,
+        filterText: "",
       },
     };
 
@@ -339,6 +341,7 @@ describe("JSON Form Widget Form Bindings", () => {
         isVisible: true,
         isRequired: false,
         isValid: true,
+        filterText: "",
       },
     };
 

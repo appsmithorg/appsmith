@@ -16,6 +16,7 @@ import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import { Layers } from "constants/Layers";
 import {
   BaseFieldComponentProps,
+  ComponentDefaultValuesFnProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
@@ -57,6 +58,28 @@ const COMPONENT_DEFAULT_VALUES: MultiSelectComponentProps = {
 const StyledMultiSelectWrapper = styled.div`
   width: 100%;
 `;
+
+const componentDefaultValues = ({
+  bindingTemplate,
+  sourceDataPath,
+}: ComponentDefaultValuesFnProps<string>): Omit<
+  MultiSelectComponentProps,
+  "defaultValue"
+> & {
+  defaultValue: string;
+} => {
+  // let defaultValue;
+  const { endTemplate, startTemplate } = bindingTemplate;
+
+  const defaultValue = `
+    ${startTemplate}${sourceDataPath}.map((item) => ({ "label": item, "value": item }))${endTemplate}
+  `;
+
+  return {
+    ...COMPONENT_DEFAULT_VALUES,
+    defaultValue,
+  };
+};
 
 const isValid = (schemaItem: MultiSelectFieldProps["schemaItem"], value = []) =>
   schemaItem.isRequired ? Boolean(value.length) : true;
@@ -133,15 +156,20 @@ function MultiSelectField({
   const { componentDefaultValue, fieldDefaultValue } = useMemo(() => {
     let componentDefaultValue: LabelValueType[] = [];
     let fieldDefaultValue: LabelValueType["value"][] = [];
-    const values:
-      | LabelValueType["value"][]
-      | LabelValueType[] = validateOptions(passedDefaultValue)
-      ? schemaItem.defaultValue ||
-        (passedDefaultValue as LabelValueType[]) ||
-        []
-      : schemaItem.defaultValue || [];
 
-    if (values.length && isPrimitive(values[0])) {
+    const values: LabelValueType["value"][] | LabelValueType[] = (() => {
+      if (
+        schemaItem.defaultValue !== undefined &&
+        validateOptions(schemaItem.defaultValue)
+      )
+        return schemaItem.defaultValue;
+
+      if (validateOptions(fieldDefaultValue)) return fieldDefaultValue;
+
+      return [];
+    })();
+
+    if (Array.isArray(values) && values.length && isPrimitive(values[0])) {
       fieldDefaultValue = values as LabelValueType["value"][];
       componentDefaultValue = fieldValuesToComponentValues(
         fieldDefaultValue,
@@ -253,9 +281,6 @@ function MultiSelectField({
   );
 }
 
-MultiSelectField.componentDefaultValues = {
-  ...COMPONENT_DEFAULT_VALUES,
-  isDisabled: false,
-};
+MultiSelectField.componentDefaultValues = componentDefaultValues;
 
 export default MultiSelectField;
