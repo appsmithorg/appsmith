@@ -8,7 +8,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
-import { rfdc } from "utils/deepCopy";
+const clone = require("rfdc/default");
 declare global {
   interface Window {
     ALLOW_ASYNC?: boolean;
@@ -263,7 +263,7 @@ export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
   requestId = "",
 ): DataTree => {
-  const clonedDT = rfdc()(dataTree);
+  const clonedDT = clone(dataTree);
   self.TRIGGER_COLLECTOR = [];
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
