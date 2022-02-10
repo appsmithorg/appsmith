@@ -192,6 +192,11 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [InputWidgetV2, INPUT_WIDGET_V2_CONFIG],
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
+  /*
+   * If a newly added widget works well inside the list widget,
+   * please add widget type in the List widget's allowed widget
+   * list, to make the new widget be droppable inside List widget.
+   */
 ];
 
 export const registerWidgets = () => {
