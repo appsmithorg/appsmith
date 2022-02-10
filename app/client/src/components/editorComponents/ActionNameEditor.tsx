@@ -1,25 +1,22 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { memo } from "react";
+import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { removeSpecialChars, isNameValid } from "utils/helpers";
+import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
-import { JSCollection } from "entities/JSCollection";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
 import { Classes } from "@blueprintjs/core";
-import log from "loglevel";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { getAction, getPlugin } from "selectors/entitiesSelector";
+import { Plugin } from "api/PluginApi";
+import NameEditorComponent from "components/utils/NameEditorComponent";
+import { ACTION_NAME_PLACEHOLDER, createMessage } from "constants/messages";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -45,6 +42,13 @@ const ApiNameWrapper = styled.div<{ page?: string }>`
       : null}
 `;
 
+const ApiIconWrapper = styled.img`
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  align-self: center;
+`;
+
 type ActionNameEditorProps = {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
@@ -55,131 +59,70 @@ type ActionNameEditorProps = {
   page?: string;
 };
 
-export function ActionNameEditor(props: ActionNameEditorProps) {
+function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();
-  const isNew =
-    new URLSearchParams(window.location.search).get("editName") === "true";
-  const [forceUpdate, setForceUpdate] = useState(false);
-  const dispatch = useDispatch();
-  if (!params.apiId && !params.queryId) {
-    log.error("No API id or Query id found in the url.");
-  }
-  const guidedTourEnabled = useSelector(inGuidedTour);
-  const actions: Action[] = useSelector((state: AppState) =>
-    state.entities.actions.map((action) => action.config),
+
+  const currentActionConfig:
+    | Action
+    | undefined = useSelector((state: AppState) =>
+    getAction(state, params.apiId || params.queryId || ""),
   );
 
-  const jsActions: JSCollection[] = useSelector((state: AppState) =>
-    state.entities.jsActions.map((action: JSCollectionData) => action.config),
+  const currentPlugin: Plugin | undefined = useSelector((state: AppState) =>
+    getPlugin(state, currentActionConfig?.pluginId || ""),
   );
-
-  const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
-  );
-
-  const existingWidgetNames: string[] = useSelector((state: AppState) =>
-    Object.values(state.entities.canvasWidgets).map(
-      (widget) => widget.widgetName,
-    ),
-  );
-
-  const evalTree = useSelector(getDataTree);
-  const existingPageNames = useSelector(getExistingPageNames);
-
-  const saveStatus: {
-    isSaving: boolean;
-    error: boolean;
-  } = useSelector((state: AppState) => {
-    const id = currentActionConfig ? currentActionConfig.id : "";
-    return {
-      isSaving: state.ui.apiName.isSaving[id],
-      error: state.ui.apiName.errors[id],
-    };
-  });
-
-  const hasActionNameConflict = useCallback(
-    (name: string) => !isNameValid(name, { ...existingPageNames, ...evalTree }),
-    [existingPageNames, actions, existingWidgetNames, jsActions],
-  );
-
-  const isInvalidActionName = useCallback(
-    (name: string): string | boolean => {
-      if (!name || name.trim().length === 0) {
-        return "Please enter a valid name";
-      } else if (
-        name !== currentActionConfig?.name &&
-        hasActionNameConflict(name)
-      ) {
-        return `${name} is already being used or is a restricted keyword.`;
-      }
-      return false;
-    },
-    [currentActionConfig, hasActionNameConflict],
-  );
-
-  const handleAPINameChange = useCallback(
-    (name: string) => {
-      if (
-        currentActionConfig &&
-        name !== currentActionConfig?.name &&
-        !isInvalidActionName(name)
-      ) {
-        if (guidedTourEnabled) {
-          dispatch(toggleShowDeviationDialog(true));
-          return;
-        }
-        dispatch(saveActionName({ id: currentActionConfig.id, name }));
-      }
-    },
-    [dispatch, isInvalidActionName, currentActionConfig, guidedTourEnabled],
-  );
-
-  useEffect(() => {
-    if (saveStatus.isSaving === false && saveStatus.error === true) {
-      setForceUpdate(true);
-    } else if (saveStatus.isSaving === true) {
-      setForceUpdate(false);
-    } else if (saveStatus.isSaving === false && saveStatus.error === false) {
-      // Construct URLSearchParams object instance from current URL querystring.
-      const queryParams = new URLSearchParams(window.location.search);
-
-      if (
-        queryParams.has("editName") &&
-        queryParams.get("editName") === "true"
-      ) {
-        // Set new or modify existing parameter value.
-        queryParams.set("editName", "false");
-        // Replace current querystring with the new one.
-        history.replaceState({}, "", "?" + queryParams.toString());
-      }
-    }
-  }, [saveStatus.isSaving, saveStatus.error]);
 
   return (
-    <ApiNameWrapper page={props.page}>
-      <div
-        style={{
-          display: "flex",
-        }}
-      >
-        <EditableText
-          className="t--action-name-edit-field"
-          defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          errorTooltipClass="t--action-name-edit-error"
-          forceDefault={forceUpdate}
-          isEditingDefault={isNew}
-          isInvalid={isInvalidActionName}
-          onTextChanged={handleAPINameChange}
-          placeholder="Name of the API in camelCase"
-          type="text"
-          updating={saveStatus.isSaving}
-          valueTransform={removeSpecialChars}
-        />
-        {saveStatus.isSaving && <Spinner size={16} />}
-      </div>
-    </ApiNameWrapper>
+    <NameEditorComponent
+      checkForGuidedTour
+      currentActionConfig={currentActionConfig}
+      dispatchAction={saveActionName}
+    >
+      {({
+        forceUpdate,
+        handleNameChange,
+        isInvalidNameForEntity,
+        isNew,
+        saveStatus,
+      }: {
+        forceUpdate: boolean;
+        handleNameChange: (value: string) => void;
+        isInvalidNameForEntity: (value: string) => string | boolean;
+        isNew: boolean;
+        saveStatus: { isSaving: boolean; error: boolean };
+      }) => (
+        <ApiNameWrapper page={props.page}>
+          <div
+            style={{
+              display: "flex",
+            }}
+          >
+            {currentPlugin && (
+              <ApiIconWrapper
+                alt={currentPlugin.name}
+                src={currentPlugin.iconLocation}
+              />
+            )}
+            <EditableText
+              className="t--action-name-edit-field"
+              defaultValue={currentActionConfig ? currentActionConfig.name : ""}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              errorTooltipClass="t--action-name-edit-error"
+              forceDefault={forceUpdate}
+              isEditingDefault={isNew}
+              isInvalid={isInvalidNameForEntity}
+              onTextChanged={handleNameChange}
+              placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "Api")}
+              type="text"
+              updating={saveStatus.isSaving}
+              valueTransform={removeSpecialChars}
+            />
+            {saveStatus.isSaving && <Spinner size={16} />}
+          </div>
+        </ApiNameWrapper>
+      )}
+    </NameEditorComponent>
   );
 }
 
-export default ActionNameEditor;
+export default memo(ActionNameEditor);

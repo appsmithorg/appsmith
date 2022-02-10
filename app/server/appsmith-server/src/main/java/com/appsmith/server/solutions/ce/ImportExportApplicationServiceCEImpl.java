@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
@@ -70,6 +71,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -112,6 +114,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
 
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Export application, with id: " + applicationId);
         /*
             1. Fetch application by id
             2. Fetch pages from the application
@@ -135,7 +139,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 ? applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 : applicationService.findById(applicationId, EXPORT_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 );
 
         // Set json schema version which will be used to check the compatibility while importing the JSON
@@ -426,6 +430,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                 }
 
+                                processStopwatch.stopAndLogTimeInMillis();
                                 return applicationJson;
                             });
                 })
@@ -533,6 +538,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             6. Extract and save pages in the application
             7. Extract and save actions in the application
          */
+
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Import application");
+
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         Map<String, String> pluginMap = new HashMap<>();
@@ -714,12 +723,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Import and save pages, also update the pages related fields in saved application
                     assert importedNewPageList != null;
+
+                    // For git-sync this will not be empty
+                    Mono<List<NewPage>> existingPagesMono = newPageService
+                            .findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
+                            .collectList()
+                            .cache();
+
                     return importAndSavePages(
                             importedNewPageList,
                             importedApplication,
                             importedDoc.getPublishedLayoutmongoEscapedWidgets(),
                             importedDoc.getUnpublishedLayoutmongoEscapedWidgets(),
-                            branchName
+                            branchName,
+                            existingPagesMono
                     )
                             .map(newPage -> {
                                 ApplicationPage unpublishedAppPage = new ApplicationPage();
@@ -759,7 +776,34 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return applicationPages;
                             })
                             .then()
-                            .thenReturn(applicationPages);
+                            .thenReturn(applicationPages)
+                            .flatMap(unused -> {
+                                if (!StringUtils.isEmpty(applicationId)) {
+                                    Set<String> validPageIds = applicationPages.get(PublishType.UNPUBLISHED).stream()
+                                            .map(ApplicationPage::getId).collect(Collectors.toSet());
+
+                                    validPageIds.addAll(applicationPages.get(PublishType.PUBLISHED).stream()
+                                            .map(ApplicationPage::getId).collect(Collectors.toSet()));
+
+                                    return existingPagesMono
+                                            .flatMap(existingPagesList -> {
+                                                List<String> inValidIds = new ArrayList<>();
+                                                for (NewPage newPage : existingPagesList) {
+                                                    if(!validPageIds.contains(newPage.getId())) {
+                                                        inValidIds.add(newPage.getId());
+                                                    }
+                                                }
+
+                                                // Delete the pages which were removed during git merge operation
+                                                // This does not apply to the traditional import via file approach
+                                                return Flux.fromIterable(inValidIds)
+                                                        .flatMap(applicationPageService::deleteUnpublishedPage)
+                                                        .then()
+                                                        .thenReturn(applicationPages);
+                                            });
+                                }
+                                return Mono.just(applicationPages);
+                            });
                 })
                 .flatMap(applicationPageMap -> {
                     importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISHED));
@@ -1034,7 +1078,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return mapActionIdWithPageLayout(newPage, actionIdMap)
                                         .flatMap(newPageService::save);
                             })
-                            .then(applicationService.update(importedApplication.getId(), importedApplication));
+                            .then(applicationService.update(importedApplication.getId(), importedApplication))
+                            .map(application -> {
+                                processStopwatch.stopAndLogTimeInMillis();
+                                return application;
+                            });
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
@@ -1081,12 +1129,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                              Application application,
                                              Map<String, Set<String>> publishedMongoEscapedWidget,
                                              Map<String, Set<String>> unpublishedMongoEscapedWidget,
-                                             String branchName) {
-
-        // For git-sync this will not be empty
-        Mono<List<NewPage>> existingPages = newPageService
-                .findNewPagesByApplicationId(application.getId(), MANAGE_PAGES)
-                .collectList();
+                                             String branchName,
+                                             Mono<List<NewPage>> existingPages) {
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {

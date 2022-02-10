@@ -362,7 +362,7 @@ public class ApplicationServiceTest {
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("randomBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId() + "," + "randomBranch")))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId() + "," + "randomBranch")))
                 .verify();
     }
 
