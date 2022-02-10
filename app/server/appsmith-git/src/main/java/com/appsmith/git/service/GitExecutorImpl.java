@@ -395,7 +395,7 @@ public class GitExecutorImpl implements GitExecutor {
                                                  String privateKey,
                                                  String publicKey,
                                                  Boolean refreshBranches) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT listBranches");
+        Stopwatch processStopwatch = new Stopwatch("JGIT listBranches, refreshBranch: " + refreshBranches);
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
