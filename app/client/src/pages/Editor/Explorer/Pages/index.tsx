@@ -36,7 +36,7 @@ import { selectAllPages } from "selectors/entitiesSelector";
 const StyledEntity = styled(Entity)`
   &.pages {
     & > div:not(.t--entity-item) {
-      max-height: 138px !important;
+      max-height: 144px !important;
       overflow-y: auto !important;
     }
   }

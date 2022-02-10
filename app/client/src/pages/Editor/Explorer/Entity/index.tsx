@@ -83,7 +83,7 @@ export const EntityItem = styled.div<{
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
   background: ${(props) =>
     props.active ? Colors.GREY_2 : props.isSticky ? Colors.WHITE : "none"};
-  height: 36px;
+  height: 32px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: 20px auto 1fr auto auto auto;
