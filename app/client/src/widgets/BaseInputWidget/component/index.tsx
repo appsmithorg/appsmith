@@ -370,6 +370,23 @@ export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
 };
 
+interface LabelComponentProps {
+  isLoading: boolean;
+  label: string;
+}
+
+function LabelComponent({ isLoading, label }: LabelComponentProps) {
+  return (
+    <Label
+      className={`t--input-widget-label ${
+        isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+      }`}
+    >
+      {label}
+    </Label>
+  );
+}
+
 class BaseInputComponent extends React.Component<
   BaseInputComponentProps,
   InputComponentState
@@ -397,7 +414,10 @@ class BaseInputComponent extends React.Component<
       }
     }
 
-    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    const hasLabelEllipsis = this.checkHasLabelEllipsis();
+    if (this.state.hasLabelEllipsis !== hasLabelEllipsis) {
+      this.setState({ hasLabelEllipsis });
+    }
   }
 
   componentDidUpdate(prevProps: BaseInputComponentProps) {
@@ -409,14 +429,17 @@ class BaseInputComponent extends React.Component<
       prevProps.labelWidth !== this.props.labelWidth ||
       prevProps.tooltip !== this.props.tooltip
     ) {
-      this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+      const hasLabelEllipsis = this.checkHasLabelEllipsis();
+      if (this.state.hasLabelEllipsis !== hasLabelEllipsis) {
+        this.setState({ hasLabelEllipsis });
+      }
     }
   }
 
   componentWillUnmount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+        `[class*=StyledNumericInput] .bp3-button`,
       );
 
       if (element !== null && element.childNodes) {
@@ -660,28 +683,10 @@ class BaseInputComponent extends React.Component<
                   hoverOpenDelay={200}
                   position={Position.TOP}
                 >
-                  <Label
-                    className={`t--input-widget-label ${
-                      isLoading
-                        ? Classes.SKELETON
-                        : Classes.TEXT_OVERFLOW_ELLIPSIS
-                    }`}
-                  >
-                    {label}
-                  </Label>
+                  <LabelComponent isLoading={isLoading} label={label} />
                 </StyledTooltip>
               ) : (
-                <Label
-                  className={`
-                  t--input-widget-label ${
-                    isLoading
-                      ? Classes.SKELETON
-                      : Classes.TEXT_OVERFLOW_ELLIPSIS
-                  }
-                `}
-                >
-                  {label}
-                </Label>
+                <LabelComponent isLoading={isLoading} label={label} />
               ))}
             {tooltip && (
               <Tooltip
