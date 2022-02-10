@@ -101,8 +101,6 @@ export const getSelectRowIndices = (
   }
 };
 
-//Refactored till here
-
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
