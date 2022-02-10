@@ -14,6 +14,17 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
+  const allowedKeys = [
+    {
+      name: "label",
+    },
+    {
+      name: "value",
+    },
+  ];
+  let _valid = true;
+  let parsed = value;
+  const _messages: string[] = [];
   if (value === undefined || value === null) {
     return {
       isValid: false,
@@ -23,16 +34,6 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
   }
   // Check if it's object
   if (typeof value === "object" && !Array.isArray(value)) {
-    const allowedKeys = [
-      {
-        name: "label",
-      },
-      {
-        name: "value",
-      },
-    ];
-    let _valid = true;
-    const _messages: string[] = [];
     allowedKeys.forEach((entry) => {
       const entryName = entry.name;
 
@@ -64,11 +65,53 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
     };
   }
 
+  try {
+    value = JSON.parse(value as string);
+    // Check if it's object
+    if (typeof value === "object" && !Array.isArray(value)) {
+      allowedKeys.forEach((entry) => {
+        const entryName = entry.name;
+
+        // check if label and value exist in object
+        if ((value as Record<string, unknown>).hasOwnProperty(entryName)) {
+          // check if label and Value are actual inputs
+          if (
+            typeof (value as Record<string, unknown>)[entryName] !== "string" &&
+            typeof (value as Record<string, unknown>)[entryName] !== "number"
+          ) {
+            _valid = false;
+            _messages.push(`Value of key: ${entryName} is invalid`);
+          }
+        } else {
+          _valid = false;
+          _messages.push(`Missing required key: ${entryName}`);
+        }
+      });
+      if (_valid) {
+        return {
+          isValid: true,
+          parsed: value,
+        };
+      }
+      return {
+        isValid: false,
+        parsed: value,
+        messages: _messages,
+      };
+    }
+  } catch {
+    _valid = false;
+    _messages.push(
+      'This value does not evaluate to type: string | { "label": "label1", "value": "value1" }',
+    );
+    parsed = {};
+  }
+
   if (typeof value === "string") {
     const parsed = { label: value, value };
     return { isValid: true, parsed };
   }
-  return { isValid: true, parsed: value };
+  return { isValid: _valid, parsed, messages: _messages };
 }
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {

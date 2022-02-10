@@ -18,7 +18,7 @@ export const CONFIG = {
     ],
     serverSideFiltering: false,
     widgetName: "Select",
-    defaultOptionValue: { label: "Green", value: "GREEN" },
+    defaultOptionValue: "GREEN",
     version: 1,
     isFilterable: false,
     isRequired: false,
