@@ -92,12 +92,16 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     public ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
+        return filterData(items, conditionList, null);
+    }
+
+    public ArrayNode filterData(ArrayNode items, List<Condition> conditionList, Map<DataType, DataType> dataTypeConversionMap) {
 
         if (items == null || items.size() == 0) {
             return items;
         }
 
-        Map<String, DataType> schema = generateSchema(items);
+        Map<String, DataType> schema = generateSchema(items, dataTypeConversionMap);
 
         if (!validConditionList(conditionList, schema)) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Conditions for filtering were incomplete or incorrect.");
@@ -109,10 +113,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         String tableName = generateTable(schema);
 
         // insert the data
-        insertAllData(tableName, items, schema);
+        insertAllData(tableName, items, schema, dataTypeConversionMap);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQueryOldFormat(tableName, conditions, schema);
+        List<Map<String, Object>> finalResults = executeFilterQueryOldFormat(tableName, conditions, schema, dataTypeConversionMap);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -354,7 +358,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
 
-    public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
+    public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap) {
         Connection conn = checkAndGetConnection();
 
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
@@ -379,7 +383,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 PreparedStatementValueDTO valueEntry = iterator.next();
                 String value = valueEntry.getValue();
                 DataType dataType = valueEntry.getDataType();
-                setValueInStatement(preparedStatement, i + 1, value, dataType);
+                setValueInStatement(preparedStatement, i + 1, value, dataType, dataTypeConversionMap);
             }
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -475,6 +479,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema) {
+        insertAllData( tableName, items, schema, null);
+    }
+
+    public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
@@ -507,7 +515,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             // rows, execute the insert for rows so far and start afresh for the rest of the rows
             if (counter == 1000) {
 
-                insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes);
+                insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes, dataTypeConversionMap);
                 // Reset the values builder and counter for new insert queries.
                 valuesMasterBuilder = new StringBuilder();
                 counter = 0;
@@ -550,7 +558,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         if (valuesMasterBuilder.length() > 0) {
-            insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes);
+            insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes, dataTypeConversionMap);
         }
     }
 
@@ -568,7 +576,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
     }
 
-    private void insertReadyData(String partialInsertQuery, StringBuilder valuesBuilder, List<String> inOrderValues, List<DataType> columnTypes) {
+    private void insertReadyData(String partialInsertQuery, StringBuilder valuesBuilder, List<String> inOrderValues, List<DataType> columnTypes, Map<DataType, DataType> dataTypeConversionMap) {
 
         Connection conn = checkAndGetConnection();
 
@@ -585,7 +593,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             while (valueCounter < inOrderValues.size()) {
 
                 for (int columnTypeCounter = 0; columnTypeCounter < columnTypes.size(); columnTypeCounter++, valueCounter++) {
-                    setValueInStatement(preparedStatement, valueCounter + 1, inOrderValues.get(valueCounter), columnTypes.get(columnTypeCounter));
+                    setValueInStatement(preparedStatement, valueCounter + 1, inOrderValues.get(valueCounter), columnTypes.get(columnTypeCounter), dataTypeConversionMap);
                 }
             }
 
@@ -667,6 +675,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
 
     public Map<String, DataType> generateSchema(ArrayNode items) {
+        return generateSchema(items, null);
+    }
+
+    public Map<String, DataType> generateSchema(ArrayNode items, Map<DataType, DataType> dataTypeConversionMap) {
 
         JsonNode item = items.get(0);
 
@@ -707,7 +719,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                         // Default to string
                                         return DataType.STRING;
                                     } else {
-                                        return stringToKnownDataTypeConverter(value);
+                                        DataType foundDataType = stringToKnownDataTypeConverter(value);
+                                        DataType convertedDataType = foundDataType;
+                                        if(name != "rowIndex" && dataTypeConversionMap != null) {
+                                            convertedDataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
+                                        }
+                                        return convertedDataType;
                                     }
                                 },
                                 (u, v) -> {
@@ -727,7 +744,11 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             for (JsonNode entry : items) {
                 String value = entry.get(columnName).asText();
                 if (!StringUtils.isEmpty(value)) {
-                    DataType dataType = stringToKnownDataTypeConverter(value);
+                    DataType foundDataType = stringToKnownDataTypeConverter(value);
+                    DataType dataType = foundDataType;
+                    if(dataTypeConversionMap != null) {
+                        dataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
+                    }
                     schema.put(columnName, dataType);
                     missingColumnDataTypes.remove(columnName);
                 }
@@ -744,14 +765,32 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType dataType) {
+        return setValueInStatement(preparedStatement, index, value, dataType, null);
+    }
+
+    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType topRowDataType, Map<DataType, DataType> dataTypeConversionMap) {
+
+        DataType dataType = topRowDataType;
+        if (dataTypeConversionMap != null) {
+            dataType = dataTypeConversionMap.getOrDefault(topRowDataType, topRowDataType);
+        }
 
         // Override datatype to null for empty values
         if (StringUtils.isEmpty(value)) {
             dataType = DataType.NULL;
         } else {
             // value is not empty.
-            DataType inputDataType = stringToKnownDataTypeConverter(value);
+            DataType currentRowDataType = stringToKnownDataTypeConverter(value);
+            DataType inputDataType = currentRowDataType;
+            if (dataTypeConversionMap != null) {
+                inputDataType = dataTypeConversionMap.getOrDefault(currentRowDataType, currentRowDataType);
+            }
             if (DataType.NULL.equals(inputDataType)) {
+                dataType = DataType.NULL;
+            }
+            //Ignore incompatible datatypes after first row
+            if (inputDataType != dataType) {
+                log.debug("DataType Error : [" + inputDataType + "] " + value + " is not of type " + dataType + " which is the datatype of the column, hence ignored in filter.");
                 dataType = DataType.NULL;
             }
         }
