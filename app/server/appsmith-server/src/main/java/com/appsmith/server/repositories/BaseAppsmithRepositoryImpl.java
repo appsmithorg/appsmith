@@ -228,12 +228,21 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
+        return queryAll(criterias, null, aclPermission, sort);
+    }
+
+    public Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMapMany(auth -> {
                     User user = (User) auth.getPrincipal();
                     Query query = new Query();
+                    if(includeFields != null) {
+                        for(String includeField: includeFields) {
+                            query.fields().include(includeField);
+                        }
+                    }
                     Criteria andCriteria = new Criteria();
 
                     criteriaList.add(notDeleted());
@@ -256,24 +265,22 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public T setUserPermissionsInObject(T obj, User user) {
-
         Set<String> permissions = new HashSet<>();
+        if(obj.getPolicies() != null) {
+            for (Policy policy : obj.getPolicies()) {
+                Set<String> policyUsers = policy.getUsers();
+                Set<String> policyGroups = policy.getGroups();
+                if (policyUsers != null &&
+                        (policyUsers.contains(user.getUsername()) || policyUsers.contains(FieldName.ANONYMOUS_USER))) {
+                    permissions.add(policy.getPermission());
+                }
 
-        for (Policy policy : obj.getPolicies()) {
-            Set<String> policyUsers = policy.getUsers();
-            Set<String> policyGroups = policy.getGroups();
-
-
-            if (policyUsers != null &&
-                    (policyUsers.contains(user.getUsername()) || policyUsers.contains(FieldName.ANONYMOUS_USER))) {
-                permissions.add(policy.getPermission());
-            }
-
-            if (user.getGroupIds() != null) {
-                for (String groupId : user.getGroupIds()) {
-                    if (policyGroups != null && policyGroups.contains(groupId)) {
-                        permissions.add(policy.getPermission());
-                        break;
+                if (user.getGroupIds() != null) {
+                    for (String groupId : user.getGroupIds()) {
+                        if (policyGroups != null && policyGroups.contains(groupId)) {
+                            permissions.add(policy.getPermission());
+                            break;
+                        }
                     }
                 }
             }
