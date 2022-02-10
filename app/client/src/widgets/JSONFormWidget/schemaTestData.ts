@@ -129,6 +129,7 @@ const initialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.MULTI_SELECT,
+          isFilterable: false,
           sourceData: ["travelling", "skating", "off-roading"],
           isCustomField: false,
           name: "hobbies",
@@ -490,6 +491,7 @@ const withRemovedKeyFromInitialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.MULTI_SELECT,
+          isFilterable: false,
           sourceData: ["travelling", "skating", "off-roading"],
           isCustomField: false,
           name: "hobbies",
@@ -830,6 +832,7 @@ const withRemovedAddedKeyToInitialDataset = {
           defaultValue:
             "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.MULTI_SELECT,
+          isFilterable: false,
           sourceData: ["travelling", "skating", "off-roading"],
           isCustomField: false,
           name: "hobbies",

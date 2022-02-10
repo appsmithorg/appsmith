@@ -280,14 +280,8 @@ describe(".validateOptions", () => {
       [null, false],
       [undefined, false],
       [NaN, false],
-      [
-        ["one", "two"],
-        ["one", "two"],
-      ],
-      [
-        [1, 2],
-        [1, 2],
-      ],
+      [["one", "two"], true],
+      [[1, 2], true],
     ];
 
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {

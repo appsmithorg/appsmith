@@ -424,6 +424,7 @@ describe("#getSchemaItemFor", () => {
         "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.MULTI_SELECT,
       sourceData: ["one", "two"],
+      isFilterable: false,
       isCustomField: false,
       name: "hobbies",
       accessor: "hobbies",
