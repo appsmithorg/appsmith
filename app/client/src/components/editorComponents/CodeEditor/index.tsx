@@ -233,7 +233,7 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // Set value of the editor
-      const inputValue = getInputValue(this.props.input.value || "");
+      const inputValue = getInputValue(this.props.input.value) || "";
       if (this.props.size === EditorSize.COMPACT) {
         options.value = removeNewLineChars(inputValue);
       } else {
@@ -293,6 +293,8 @@ class CodeEditor extends Component<Props, State> {
         const editorValue = this.editor.getValue();
         // Safe update of value of the editor when value updated outside the editor
         const inputValue = getInputValue(this.props.input.value);
+        const previousInputValue = getInputValue(prevProps.input.value);
+
         if (!!inputValue || inputValue === "") {
           if (inputValue !== editorValue && isString(inputValue)) {
             this.editor.setValue(inputValue);
@@ -302,6 +304,9 @@ class CodeEditor extends Component<Props, State> {
             //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
             this.editor.refresh();
           }
+        } else if (previousInputValue !== inputValue) {
+          // handles case when inputValue changes from a truthy to a falsy value
+          this.editor.setValue("");
         }
         CodeEditor.updateMarkings(this.editor, this.props.marking);
       } else {
