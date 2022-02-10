@@ -64,6 +64,7 @@ import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
+  CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
   LOCK_ENTITY_EXPLORER_MESSAGE,
@@ -75,11 +76,13 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
+import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
+import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
+import { isMac } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
@@ -200,6 +203,15 @@ const StyledShareText = styled.span`
 
 const StyledSharedIcon = styled(Icon)`
   display: inline-block;
+`;
+
+const HamburgerContainer = styled.div`
+  height: 34px;
+  width: 34px;
+
+  :hover {
+    background-color: ${Colors.GEYSER_LIGHT};
+  }
 `;
 
 type EditorHeaderProps = {
@@ -331,18 +343,18 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3">
         <HeaderSection className="space-x-3">
-          <div
-            className={classNames({
-              "text-gray-800 transform transition-all duration-400 pl-3 relative": true,
-              "ml-0": !pinned,
-              "-ml-7": pinned,
-            })}
-          >
+          <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
             <TooltipComponent
               content={
-                <div className="flex items-center justify-between">
-                  <span>{createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)}</span>
-                  <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
+                <div className="flex justify-between items-center">
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
+                  <span className="ml-4 text-xs text-gray-300">
+                    {isMac() ? "Cmd" : "Ctrl"} + /
+                  </span>
                 </div>
               }
               position="bottom-left"
@@ -351,14 +363,22 @@ export function EditorHeader(props: EditorHeaderProps) {
                 className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
                 onMouseEnter={onMenuHover}
               >
-                <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />
-                <UnpinIcon
-                  className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                  onClick={onPin}
-                />
+                <MenuIcon className="absolute w-4 h-4 transition-opacity fill-current cursor-pointer group-hover:opacity-0" />
+                {!pinned && (
+                  <UnpinIcon
+                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
+                {pinned && (
+                  <PinIcon
+                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
               </div>
             </TooltipComponent>
-          </div>
+          </HamburgerContainer>
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}

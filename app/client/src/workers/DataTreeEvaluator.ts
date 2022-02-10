@@ -48,7 +48,6 @@ import {
   getParams,
   updateJSCollectionInDataTree,
   removeFunctionsAndVariableJSCollection,
-  isPrivateEntityPath,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -56,11 +55,13 @@ import toposort from "toposort";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
+  THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluateSync, {
   createGlobalData,
   EvalResult,
+  EvaluateContext,
   EvaluationScriptType,
   getScriptToEval,
   evaluateAsync,
@@ -501,12 +502,22 @@ export default class DataTreeEvaluator {
 
     if (isWidget(entity)) {
       // Adding the dynamic triggers in the dependency list as they need linting whenever updated
-      // we don't make it dependent on anything else
-      if (entity.dynamicTriggerPathList) {
-        Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
-          dependencies[`${entityName}.${key}`] = [];
+      // To keep linting in trigger fields in sync, nodes they depend on need to be added to their dependencies
+      const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+
+      if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
+        dynamicTriggerPathlist.forEach((dynamicPath) => {
+          const propertyPath = dynamicPath.key;
+          const unevalPropValue = _.get(entity, propertyPath);
+          const { jsSnippets } = getDynamicBindings(unevalPropValue);
+          const existingDeps =
+            dependencies[`${entityName}.${propertyPath}`] || [];
+          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
+            jsSnippets.filter((jsSnippet) => !!jsSnippet),
+          );
         });
       }
+
       const widgetDependencies = addWidgetPropertyDependencies({
         entity,
         entityName,
@@ -578,13 +589,9 @@ export default class DataTreeEvaluator {
     sortedDependencies: Array<string>,
   ): DataTree {
     const tree = _.cloneDeep(oldUnevalTree);
-    this.privateWidgets = this.getPrivateWidgets(oldUnevalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
-          // do not evaluate private entities
-          if (isPrivateEntityPath(this.privateWidgets, fullPropertyPath))
-            return currentTree;
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
@@ -614,12 +621,19 @@ export default class DataTreeEvaluator {
               entity.bindingPaths[propertyPath] ||
               EvaluationSubstitutionType.TEMPLATE;
 
+            const contextData: EvaluateContext = {};
+            if (isAction(entity)) {
+              contextData.thisContext = {
+                params: {},
+              };
+            }
             try {
               evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,
                 currentTree,
                 resolvedFunctions,
                 evaluationSubstitutionType,
+                contextData,
                 undefined,
                 fullPropertyPath,
               );
@@ -769,6 +783,7 @@ export default class DataTreeEvaluator {
     data: DataTree,
     resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
+    contextData?: EvaluateContext,
     callBackData?: Array<any>,
     fullPropertyPath?: string,
   ) {
@@ -797,6 +812,7 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
+            contextData,
             callBackData,
           );
           if (fullPropertyPath && result.errors.length) {
@@ -869,10 +885,17 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
+    contextData?: EvaluateContext,
     callbackData?: Array<any>,
   ): EvalResult {
     try {
-      return evaluateSync(js, data, resolvedFunctions, callbackData);
+      return evaluateSync(
+        js,
+        data,
+        resolvedFunctions,
+        contextData,
+        callbackData,
+      );
     } catch (e) {
       return {
         result: undefined,
@@ -1294,7 +1317,12 @@ export default class DataTreeEvaluator {
                 entity,
                 entityPropertyPath,
               );
-              if (isABindingPath) {
+
+              const isATriggerPath =
+                isWidget(entity) &&
+                isPathADynamicTrigger(entity, entityPropertyPath);
+
+              if (isABindingPath || isATriggerPath) {
                 didUpdateDependencyMap = true;
 
                 const { jsSnippets } = getDynamicBindings(
@@ -1560,24 +1588,26 @@ export default class DataTreeEvaluator {
       );
     }
 
-    // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
-    const bindingsForExecutionParams: string[] = bindings.map(
-      (binding: string) =>
-        binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
-    );
-
-    const dataTreeWithExecutionParams = Object.assign({}, this.evalTree, {
-      [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
-    });
-
-    return bindingsForExecutionParams.map((binding) =>
-      this.getDynamicValue(
-        `{{${binding}}}`,
-        dataTreeWithExecutionParams,
+    return bindings.map((binding) => {
+      // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
+      // also helps with dealing with IIFE which are normal functions (not arrow)
+      // because normal functions won't retain 'this' context (when executed elsewhere)
+      const replacedBinding = binding.replace(
+        EXECUTION_PARAM_REFERENCE_REGEX,
+        EXECUTION_PARAM_KEY,
+      );
+      return this.getDynamicValue(
+        `{{${replacedBinding}}}`,
+        this.evalTree,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
-      ),
-    );
+        // params can be accessed via "this.params" or "executionParams"
+        {
+          thisContext: { [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams },
+          globalContext: { [EXECUTION_PARAM_KEY]: evaluatedExecutionParams },
+        },
+      );
+    });
   }
 
   clearErrors() {

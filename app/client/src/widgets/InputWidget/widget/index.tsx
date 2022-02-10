@@ -513,7 +513,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyName: "iconAlign",
             label: "Icon alignment",
             helpText: "Sets the icon alignment of input field",
-            controlType: "ICON_ALIGN",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "VERTICAL_LEFT",
+                value: "left",
+              },
+              {
+                icon: "VERTICAL_RIGHT",
+                value: "right",
+              },
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

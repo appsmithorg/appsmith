@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "median": "^0.0.2",
     "node-stdev": "^1.0.1",
     "puppeteer": "^12.0.1",
     "sanitize-filename": "^1.6.3",

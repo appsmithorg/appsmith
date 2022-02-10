@@ -29,6 +29,7 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
   RIGHT_ICON = "entity-right-icon",
+  PRE_RIGHT_ICON = "entity-pre-right-icon",
   ADD_BUTTON = "t--entity-add-btn",
   NAME = "t--entity-name",
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
@@ -37,12 +38,24 @@ export enum EntityClassNames {
   TOOLTIP = "t--entity-tooltp",
 }
 
+const ContextMenuWrapper = styled.div`
+  height: 100%;
+`;
+
 const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+  ${ContextMenuWrapper} {
+    width: 0;
+  }
+  &: hover {
+    & > div > ${ContextMenuWrapper} {
+      min-width: 30px;
+      width: auto;
+    }
+  }
 `;
 
 export const entityTooltipCSS = css`
-  width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -54,19 +67,27 @@ export const EntityItem = styled.div<{
   step: number;
   spaced: boolean;
   highlight: boolean;
+  isSticky: boolean;
   rightIconClickable?: boolean;
   alwaysShowRightIcon?: boolean;
 }>`
-  position: relative;
+  position: ${({ isSticky }) => (isSticky ? "sticky" : "relative")};
+  ${(props) =>
+    props.isSticky &&
+    css`
+      top: 0;
+      z-index: 100;
+    `}
   font-size: 14px;
   user-select: none;
-  padding-left: ${(props) => `calc(0.75rem + (0.25 * ${props.step}rem))`};
-  background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
-  height: 30px;
+  padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
+  background: ${(props) =>
+    props.active ? Colors.GREY_2 : props.isSticky ? Colors.WHITE : "none"};
+  height: 36px;
   width: 100%;
   display: inline-grid;
-  grid-template-columns: ${(props) =>
-    props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
+  grid-template-columns: 20px auto 1fr auto auto auto;
+  grid-auto-flow: column dense;
   border-radius: 0;
   color: ${Colors.CODE_GRAY};
   cursor: pointer;
@@ -106,7 +127,7 @@ export const EntityItem = styled.div<{
   & .${EntityClassNames.RIGHT_ICON} {
     visibility: ${(props) =>
       props.alwaysShowRightIcon ? "visible" : "hidden"};
-    height: 30px;
+    height: 100%;
     width: 30px;
     display: inline-flex;
     align-items: center;
@@ -136,6 +157,8 @@ export const EntityItem = styled.div<{
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
   color: ${Colors.CHARCOAL};
+  display: flex;
+  align-items: center;
 
   div {
     cursor: pointer;
@@ -145,6 +168,7 @@ const IconWrapper = styled.span`
     width: 16px;
     height: 16px;
   }
+  margin-right: 4px;
 `;
 
 export type EntityProps = {
@@ -171,6 +195,9 @@ export type EntityProps = {
   onClickRightIcon?: () => void;
   addButtonHelptext?: string;
   isBeta?: boolean;
+  preRightIcon?: ReactNode;
+  onClickPreRightIcon?: () => void;
+  isSticky?: boolean;
 };
 
 export const Entity = forwardRef(
@@ -262,6 +289,8 @@ export const Entity = forwardRef(
             } t--entity-item`}
             data-guided-tour-id={`explorer-entity-${props.name}`}
             highlight={!!props.highlight}
+            id={props.entityId}
+            isSticky={props.isSticky === true}
             rightIconClickable={typeof props.onClickRightIcon === "function"}
             spaced={!!props.children}
             step={props.step}
@@ -287,12 +316,22 @@ export const Entity = forwardRef(
               searchKeyword={props.searchKeyword}
               updateEntityName={updateNameCallback}
             />
-            <IconWrapper
-              className={EntityClassNames.RIGHT_ICON}
-              onClick={props.onClickRightIcon}
-            >
-              {props.rightIcon}
-            </IconWrapper>
+            {props.preRightIcon && (
+              <IconWrapper
+                className={`${EntityClassNames.PRE_RIGHT_ICON} w-full h-full`}
+                onClick={props.onClickPreRightIcon}
+              >
+                {props.preRightIcon}
+              </IconWrapper>
+            )}
+            {props.rightIcon && (
+              <IconWrapper
+                className={EntityClassNames.RIGHT_ICON}
+                onClick={props.onClickRightIcon}
+              >
+                {props.rightIcon}
+              </IconWrapper>
+            )}
             {props.addButtonHelptext ? (
               <TooltipComponent
                 boundary="viewport"
@@ -302,17 +341,19 @@ export const Entity = forwardRef(
                 position={Position.RIGHT}
               >
                 <AddButton
-                  className={`${EntityClassNames.ADD_BUTTON}`}
+                  className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
                   onClick={props.onCreate}
                 />
               </TooltipComponent>
             ) : (
               <AddButton
-                className={`${EntityClassNames.ADD_BUTTON}`}
+                className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
                 onClick={props.onCreate}
               />
             )}
-            {props.contextMenu}
+            {props.contextMenu && (
+              <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
+            )}
             <Loader isVisible={isUpdating} />
           </EntityItem>
           <Collapse active={props.active} isOpen={isOpen} step={props.step}>

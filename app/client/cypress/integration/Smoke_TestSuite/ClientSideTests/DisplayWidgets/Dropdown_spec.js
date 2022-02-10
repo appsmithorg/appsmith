@@ -8,12 +8,12 @@ describe("Dropdown Widget Functionality", function() {
 
   it("Add new dropdown widget", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("dropdownwidget", { x: 300, y: 300 });
-    cy.get(".t--widget-dropdownwidget").should("exist");
+    cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
+    cy.get(".t--widget-selectwidget").should("exist");
   });
 
   it("should check that empty value is allowed in options", () => {
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[
@@ -37,7 +37,7 @@ describe("Dropdown Widget Functionality", function() {
   });
 
   it("should check that more thatn empty value is not allowed in options", () => {
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[

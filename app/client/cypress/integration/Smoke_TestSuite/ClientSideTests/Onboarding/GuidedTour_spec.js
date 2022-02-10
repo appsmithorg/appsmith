@@ -35,12 +35,17 @@ describe("Guided Tour", function() {
     // Step 5: Add binding to the rest of the widgets in the container
     cy.get(commonlocators.editWidgetName).contains("EmailInput");
     cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.email}}");
-    cy.SearchEntityandOpen("CountryInput");
+    cy.get(".t--entity-name")
+      .contains("CountryInput")
+      .click({ force: true });
     cy.wait(1000);
     cy.get(commonlocators.editWidgetName).contains("CountryInput");
     cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.country}}");
-    cy.SearchEntityandOpen("ImageWidget");
-    cy.get(commonlocators.editWidgetName).contains("CountryInput");
+    cy.get(".t--entity-name")
+      .contains("ImageWidget")
+      .click({ force: true });
+    // cy.SearchEntityandOpen("ImageWidget");
+    // cy.get(commonlocators.editWidgetName).contains("CountryInput");
     cy.testJsontext("image", "{{CustomersTable.selectedRow.image}}");
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget

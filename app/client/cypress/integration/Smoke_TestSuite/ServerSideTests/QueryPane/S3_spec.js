@@ -608,7 +608,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.xpath(queryLocators.suggestedWidgetDropdown)
       .click()
       .wait(1000);
-    cy.get(commonlocators.dropdownWidget).validateWidgetExists();
+    cy.get(".t--draggable-dropdownwidget").validateWidgetExists();
 
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedTableWidget)
@@ -641,7 +641,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(1500); //wait for table to load!
 
     cy.get(commonlocators.TableRow).validateWidgetExists();
-
+    cy.get(".t--entity-name")
+      .contains("WIDGETS")
+      .click();
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
     cy.actionContextMenuByEntityName("Table1");

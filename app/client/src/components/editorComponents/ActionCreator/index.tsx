@@ -2,18 +2,13 @@ import { createActionRequest } from "actions/pluginActionActions";
 import { createModalAction } from "actions/widgetActions";
 import { TreeDropdownOption } from "components/ads/TreeDropdown";
 import TreeStructure from "components/utils/TreeStructure";
-import {
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
 import { PluginType } from "entities/Action";
 import { Datasource } from "entities/Datasource";
 import { isString, keyBy } from "lodash";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
-  apiIcon,
   getPluginIcon,
+  JsFileIconV2,
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import React, { useMemo } from "react";
@@ -35,7 +30,6 @@ import {
   getNextModalName,
 } from "selectors/widgetSelectors";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import history from "utils/history";
 import Fields, {
   ACTION_ANONYMOUS_FUNC_REGEX,
   ACTION_TRIGGER_REGEX,
@@ -68,6 +62,9 @@ import {
   STORE_VALUE,
   WATCH_GEO_LOCATION,
 } from "constants/messages";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -417,7 +414,7 @@ function getIntegrationOptionsWithChildren(
   applicationId: string,
   plugins: any,
   options: TreeDropdownOption[],
-  actions: any[],
+  actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
   datasources: Datasource[],
   createIntegrationOption: TreeDropdownOption,
@@ -425,7 +422,7 @@ function getIntegrationOptionsWithChildren(
 ) {
   const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
   const createJSObject: TreeDropdownOption = {
-    label: "Create New JS Object",
+    label: "New JS Object",
     value: "JSObject",
     id: "create",
     icon: "plus",
@@ -459,13 +456,11 @@ function getIntegrationOptionsWithChildren(
         id: api.config.id,
         value: api.config.name,
         type: option.value,
-        icon:
-          api.config.pluginType === PluginType.API
-            ? apiIcon
-            : getActionConfig(api.config.pluginType)?.getIcon(
-                api.config,
-                plugins[(api as any).config.datasource.pluginId],
-              ),
+        icon: getActionConfig(api.config.pluginType)?.getIcon(
+          api.config,
+          plugins[(api as any).config.datasource.pluginId],
+          api.config.pluginType === PluginType.API,
+        ),
       } as TreeDropdownOption);
     });
     queries.forEach((query) => {
@@ -513,12 +508,13 @@ function getIntegrationOptionsWithChildren(
     jsOption.children = [createJSObject];
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
-        const jsObject: TreeDropdownOption = {
+        const jsObject = {
           label: jsAction.config.name,
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
-        };
+          icon: JsFileIconV2,
+        } as TreeDropdownOption;
         (jsOption.children as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {
           //don't remove this will be used soon
@@ -583,18 +579,15 @@ function useIntegrationsOptionTree() {
     jsActions,
     datasources,
     {
-      label: "Create New Query",
+      label: "New Query",
       value: "datasources",
       id: "create",
       icon: "plus",
       className: "t--create-datasources-query-btn",
       onSelect: () => {
-        history.push(
-          INTEGRATION_EDITOR_URL(
-            applicationId,
-            pageId,
-            INTEGRATION_TABS.NEW,
-            INTEGRATION_EDITOR_MODES.AUTO,
+        dispatch(
+          toggleShowGlobalSearchModal(
+            filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
           ),
         );
       },
