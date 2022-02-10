@@ -67,7 +67,7 @@ type ReduxStateProps = {
   dataTree: DataTree;
   actionName: string;
   applicationSlug: string;
-  pageSlug?: string;
+  pageSlug: string;
 };
 
 type ReduxDispatchProps = {
@@ -408,7 +408,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                 DATA_SOURCES_EDITOR_ID_URL(
                   this.props.applicationSlug,
                   this.props.pageSlug,
-                  this.props.currentPageId,
+                  this.props.currentPageId ?? "",
                   datasource.id,
                   getQueryParams(),
                 ),

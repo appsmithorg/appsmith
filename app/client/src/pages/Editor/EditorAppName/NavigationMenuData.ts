@@ -33,7 +33,10 @@ import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
 } from "constants/messages";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 
@@ -96,6 +99,8 @@ export const GetNavigationMenuData = ({
     }
   };
 
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
+
   const deployOptions = [
     {
       text: createMessage(DEPLOY_MENU_OPTION),
@@ -154,7 +159,9 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
+        history.push(
+          PAGE_LIST_EDITOR_URL(applicationSlug, pageSlug, params.pageId),
+        );
       },
       type: MenuTypes.MENU,
       isVisible: true,

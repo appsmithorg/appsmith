@@ -548,7 +548,7 @@ function GeneratePageForm() {
       applicationSlug,
       pageSlug,
       currentPageId,
-      selectedDatasource.id,
+      selectedDatasource.id as string,
       { isGeneratePageMode: "generate-page" },
     );
     history.push(redirectURL);

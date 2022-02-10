@@ -12,6 +12,9 @@ import { GenerateCRUDSuccess } from "actions/pageActions";
 const initialState: PageListReduxState = {
   pages: [],
   isGeneratingTemplatePage: false,
+  applicationId: "",
+  currentPageId: "",
+  defaultPageId: "",
 };
 
 export const pageListReducer = createReducer(initialState, {
@@ -168,9 +171,9 @@ export interface AppLayoutConfig {
 
 export interface PageListReduxState {
   pages: PageListPayload;
-  applicationId?: string;
-  defaultPageId?: string;
-  currentPageId?: string;
+  applicationId: string;
+  defaultPageId: string;
+  currentPageId: string;
   appLayout?: AppLayoutConfig;
   isGeneratingTemplatePage?: boolean;
 }

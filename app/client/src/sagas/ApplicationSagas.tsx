@@ -467,7 +467,7 @@ export function* createApplicationSaga(
       if (isValidResponse) {
         const application: ApplicationPayload = {
           ...response.data,
-          defaultPageId: getDefaultPageId(response.data.pages),
+          defaultPageId: getDefaultPageId(response.data.pages) as string,
         };
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
@@ -510,9 +510,9 @@ export function* createApplicationSaga(
           });
         } else {
           pageURL = getGenerateTemplateURL(
-            application.slug,
+            application.slug as string,
             "page-1",
-            application.defaultPageId,
+            application.defaultPageId as string,
           );
         }
         history.push(pageURL);

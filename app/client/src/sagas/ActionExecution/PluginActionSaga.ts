@@ -77,7 +77,7 @@ import { matchPath } from "react-router";
 import {
   API_EDITOR_BASE_PATH,
   API_EDITOR_ID_PATH,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  API_EDITOR_PATH_WITH_SELECTED_PAGE_ID,
   INTEGRATION_EDITOR_PATH,
   QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -375,8 +375,7 @@ function* runActionShortcutSaga() {
       trimQueryString(API_EDITOR_ID_PATH),
       trimQueryString(QUERIES_EDITOR_BASE_PATH),
       trimQueryString(QUERIES_EDITOR_ID_PATH),
-      // Comeback
-      trimQueryString(API_EDITOR_URL_WITH_SELECTED_PAGE_ID()),
+      trimQueryString(API_EDITOR_PATH_WITH_SELECTED_PAGE_ID),
       trimQueryString(INTEGRATION_EDITOR_PATH),
       trimQueryString(SAAS_EDITOR_API_ID_PATH),
     ],

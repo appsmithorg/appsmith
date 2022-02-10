@@ -32,9 +32,9 @@ import { selectURLSlugs } from "selectors/editorSelectors";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
   applicationId?: string;
-  currentPageId?: string;
-  applicationSlug?: string;
-  pageSlug?: string;
+  currentPageId: string;
+  applicationSlug: string;
+  pageSlug: string;
 }
 
 interface ReduxDispatchProps {
