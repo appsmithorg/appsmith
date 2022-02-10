@@ -110,6 +110,25 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .should("have.text", "May 4, 2021 6:25 AM");
   });
 
+  it("Datepicker should not change the display data unless user selects the date", () => {
+    cy.openPropertyPane("datepickerwidget2");
+    cy.testJsontext(
+      "defaultdate",
+      '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
+    );
+    cy.selectDateFormat("D MMMM, YYYY");
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
+      "contain.value",
+      "4 May, 2021",
+    );
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").trigger("focus");
+    cy.get(".DayPicker-NavButton--next").click({ force: true });
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
+      "contain.value",
+      "4 May, 2021",
+    );
+  });
+
   it("Datepicker default date validation with js binding", function() {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
