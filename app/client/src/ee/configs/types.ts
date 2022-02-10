@@ -11,4 +11,5 @@ export type FeatureFlagConfig = CE_FeatureFlagConfig;
 
 export interface AppsmithUIConfigs extends CE_AppsmithUIConfigs {
   enableKeycloakOAuth: boolean;
+  enableOidcOAuth: boolean;
 }
