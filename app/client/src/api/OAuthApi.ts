@@ -12,7 +12,7 @@ class OAuthApi extends Api {
     pageId: string,
     isImport?: boolean,
   ): AxiosPromise<GenericApiResponse<string>> {
-    const isImportQuery = isImport ? "?isImport=true" : "";
+    const isImportQuery = isImport ? "?isImportForGit=true" : "";
     return Api.post(
       `${OAuthApi.url}/${datasourceId}/pages/${pageId}/oauth${isImportQuery}`,
     );
