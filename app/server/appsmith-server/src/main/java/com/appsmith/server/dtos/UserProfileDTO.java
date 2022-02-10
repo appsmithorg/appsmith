@@ -4,6 +4,8 @@ import com.appsmith.server.constants.CommentOnboardingState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -40,6 +42,8 @@ public class UserProfileDTO {
     String role;
 
     String useCase;
+
+    Map<String, Object> metadata = new HashMap<>();
 
     boolean enableTelemetry = false;
 
