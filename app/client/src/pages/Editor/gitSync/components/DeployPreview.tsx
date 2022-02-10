@@ -21,6 +21,7 @@ import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   display: flex;
@@ -67,6 +68,9 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
 
   const showDeployPreview = () => {
+    AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
+      source: "GIT_DEPLOY_MODAL",
+    });
     const path = getApplicationViewerPageURL({ applicationId, pageId });
     window.open(path, "_blank");
   };

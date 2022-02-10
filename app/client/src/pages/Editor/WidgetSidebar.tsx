@@ -57,6 +57,7 @@ function WidgetSidebar(props: IPanelProps) {
       searchInputRef.current.value = "";
     }
     filterCards("");
+    searchInputRef.current?.focus();
   };
 
   return (

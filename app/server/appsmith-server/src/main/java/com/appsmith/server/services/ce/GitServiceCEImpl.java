@@ -2238,7 +2238,9 @@ public class GitServiceCEImpl implements GitServiceCE {
         String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
                 ? ""
                 : gitData.getDefaultApplicationId();
-
+        String gitHostingProvider = gitData == null
+                ? ""
+                : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
 
         return sessionUserService.getCurrentUser()
                 .map(user -> {
@@ -2248,7 +2250,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                             "branchApplicationId", defaultIfNull(application.getId(), ""),
                             "errorMessage", defaultIfNull(errorMessage, ""),
                             "errorType", defaultIfNull(errorType, ""),
-                            "isRepoPrivate", defaultIfNull(isRepoPrivate, "")
+                            "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
+                            "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
                     );
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
