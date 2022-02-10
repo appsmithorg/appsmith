@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import Template from "./Template";
+import { Template as TemplateInterface } from "api/TemplatesApi";
 
 const Wrapper = styled.div`
   padding-top: 24px;
@@ -27,6 +28,10 @@ const FirstRow = styled.div`
   gap: 19px;
   align-items: flex-start;
 `;
+
+interface TemplateListProps {
+  templates: TemplateInterface[];
+}
 
 export const templates = [
   {
@@ -66,11 +71,11 @@ export const templates = [
   },
 ];
 
-function TemplateList() {
+function TemplateList(props: TemplateListProps) {
   return (
     <Wrapper>
       <FirstRow>
-        {templates.slice(0, 2).map((template) => (
+        {props.templates.slice(0, 2).map((template) => (
           <Template key={template.id} size="large" template={template} />
         ))}
       </FirstRow>
@@ -79,7 +84,7 @@ function TemplateList() {
         className="grid"
         columnClassName="grid_column"
       >
-        {templates.slice(2).map((template) => (
+        {props.templates.slice(2).map((template) => (
           <Template key={template.id} template={template} />
         ))}
       </Masonry>

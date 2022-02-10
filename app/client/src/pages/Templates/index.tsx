@@ -4,8 +4,10 @@ import * as Sentry from "@sentry/react";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setHeaderMeta } from "actions/themeActions";
+import { getAllTemplates } from "actions/templateActions";
+import { getTemplatesSelector } from "selectors/templatesSelectors";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TemplateListWrapper = styled.div`
@@ -38,10 +40,21 @@ function TemplateRoutes() {
 }
 
 function Templates() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getAllTemplates());
+  }, []);
+
+  const templates = useSelector(getTemplatesSelector);
+  const resultsText =
+    templates.length > 1
+      ? `Showing all ${templates.length} templates`
+      : "Showing 1 template";
+
   return (
     <TemplateListWrapper>
-      <ResultsCount>Showing all 20 templates</ResultsCount>
-      <TemplateList />
+      <ResultsCount>{resultsText}</ResultsCount>
+      <TemplateList templates={templates} />
     </TemplateListWrapper>
   );
 }

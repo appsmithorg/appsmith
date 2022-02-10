@@ -5,10 +5,11 @@ import history from "utils/history";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import Button, { IconPositions, Size } from "components/ads/Button";
 import { TEMPLATES_URL } from "constants/routes";
-import { templates } from "./TemplateList";
 import Template from "./Template";
+import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
 import DatasourceChip from "./DatasourceChip";
 import WidgetInfo from "./WidgetInfo";
+import { Template as TemplateInterface } from "api/TemplatesApi";
 
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
@@ -202,9 +203,11 @@ function TemplateView() {
             className="grid"
             columnClassName="grid_column"
           >
-            {templates.map((template) => (
-              <Template key={template.id} template={template} />
-            ))}
+            {((TemplatesMockResponse.data as unknown) as TemplateInterface[]).map(
+              (template) => (
+                <Template key={template.id} template={template} />
+              ),
+            )}
           </Masonry>
         </Section>
       </SimilarTemplatesWrapper>
