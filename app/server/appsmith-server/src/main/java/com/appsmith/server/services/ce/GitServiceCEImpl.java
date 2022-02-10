@@ -2021,7 +2021,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
 
                                 applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
-                                applicationJson.getExportedApplication().setName(application.getName());
                                 return importExportApplicationService
                                         .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
                                         .onErrorResume(throwable -> {
