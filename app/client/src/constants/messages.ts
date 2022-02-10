@@ -244,6 +244,15 @@ export const ERROR_ACTION_COPY_FAIL = (actionName: string) =>
 export const ERROR_ACTION_RENAME_FAIL = (actionName: string) =>
   `Unable to update action name to ${actionName}`;
 
+// Action Names Messages
+export const ACTION_NAME_PLACEHOLDER = (type: string) =>
+  `Name of the ${type} in camelCase`;
+export const ACTION_INVALID_NAME_ERROR = () => "Please enter a valid name";
+export const ACTION_NAME_CONFLICT_ERROR = (name: string) =>
+  `${name} is already being used or is a restricted keyword.`;
+export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
+  `${name} is already being used.`;
+
 export const DATASOURCE_CREATE = (dsName: string) =>
   `${dsName} datasource created`;
 export const DATASOURCE_DELETE = (dsName: string) =>
@@ -1001,12 +1010,3 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
-
-// Validations
-export const VALIDATION_ARRAY_UNIQUE = () =>
-  "Array must be unique. Duplicate values found";
-export const VALIDATION_ARRAY_DUPLICATE_PROPERTY_VALUES = () =>
-  "Duplicate values found for the following properties, in the array entries, that must be unique --";
-export const VALIDATION_ARRAY_DISALLOWED_VALUE = () =>
-  "Value is not allowed in this array";
-export const VALIDATION_ARRAY_INVALID_ENTRY = () => "Invalid entry at index:";
