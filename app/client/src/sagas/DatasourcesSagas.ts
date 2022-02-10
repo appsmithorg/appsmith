@@ -618,7 +618,7 @@ function* createTempDatasourceFromFormSaga(
 ) {
   const payload = {
     id: TEMP_DATASOURCE_ID,
-    name: "New Datasource",
+    name: "Untitled Datasource X",
     type: (actionPayload.payload as any).type,
     pluginId: actionPayload.payload.pluginId,
     new: false,

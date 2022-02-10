@@ -10,7 +10,11 @@ import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { getDatasource, getPluginImages } from "selectors/entitiesSelector";
+import {
+  getDatasource,
+  getPlugin,
+  getPluginImages,
+} from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   FormTitleContainer,
@@ -26,6 +30,9 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { DatasourceComponentTypes } from "api/PluginApi";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -37,6 +44,9 @@ interface StateProps extends JSONtoFormProps {
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
+  pluginType: string;
+  pluginDatasourceForm: string;
+  formValues: any;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -60,6 +70,22 @@ const EditDatasourceButton = styled(AdsButton)`
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props> {
+  // componentDidMount() {
+  //   if (
+  //     this.props.match.params.datasourceId === TEMP_DATASOURCE_ID &&
+  //     this.props.formValues &&
+  //     !this.props.formValues
+  //   ) {
+  //     this.props.history.push(
+  //       INTEGRATION_EDITOR_URL(
+  //         this.props.applicationId,
+  //         this.props.match.params.pageId,
+  //         INTEGRATION_TABS.ACTIVE,
+  //       ),
+  //     );
+  //   }
+  // }
+
   render() {
     const { formConfig, pluginId } = this.props;
     if (!pluginId) {
@@ -82,7 +108,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         params: { datasourceId, pageId, pluginPackageName },
       },
     } = this.props;
-
     const params: string = location.search;
     const viewMode = new URLSearchParams(params).get("viewMode");
     return (
@@ -151,6 +176,8 @@ const mapStateToProps = (state: AppState, props: any) => {
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const formConfig = formConfigs[pluginId];
+  const plugin = getPlugin(state, pluginId);
+
   const initialValues = {};
   if (formConfig) {
     merge(initialValues, getConfigInitialValues(formConfig));
@@ -163,13 +190,17 @@ const mapStateToProps = (state: AppState, props: any) => {
     formData: formData,
     formConfig,
     isNewDatasource:
-      datasourcePane.newDatasource === props.match.params.datasourceId,
+      datasourcePane.newDatasource === props.match.params.datasourceId ||
+      props.match.params.datasourceId === TEMP_DATASOURCE_ID,
     pluginImage: getPluginImages(state)[pluginId],
     initialValues,
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
+    pluginDatasourceForm:
+      plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     applicationId: getCurrentApplicationId(state),
+    formValues: state.form,
   };
 };
 

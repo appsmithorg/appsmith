@@ -1,1 +1,1 @@
-export const TEMP_DATASOURCE_ID = "TEMP_ID_1";
+export const TEMP_DATASOURCE_ID = "temp-id-0";

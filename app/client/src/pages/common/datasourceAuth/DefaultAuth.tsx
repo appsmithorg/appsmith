@@ -78,7 +78,7 @@ export default function DefaultAuth({
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
     if (datasource.id === TEMP_DATASOURCE_ID) {
-      dispatch(createDatasourceFromForm(getSanitizedFormData(), undefined));
+      dispatch(createDatasourceFromForm(getSanitizedFormData()));
     } else {
       dispatch(
         updateDatasource(

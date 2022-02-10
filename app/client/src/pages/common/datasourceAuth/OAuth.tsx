@@ -150,15 +150,17 @@ function OAuth({
       )}
       {shouldRender ? (
         <SaveButtonContainer>
-          <ActionButton
-            // accent="error"
-            buttonStyle="DANGER"
-            buttonVariant={ButtonVariantTypes.PRIMARY}
-            className="t--delete-datasource"
-            loading={isDeleting}
-            onClick={handleDatasourceDelete}
-            text="Delete"
-          />
+          {datasource.id !== TEMP_DATASOURCE_ID && (
+            <ActionButton
+              // accent="error"
+              buttonStyle="DANGER"
+              buttonVariant={ButtonVariantTypes.PRIMARY}
+              className="t--delete-datasource"
+              loading={isDeleting}
+              onClick={handleDatasourceDelete}
+              text="Delete"
+            />
+          )}
 
           <StyledButton
             className="t--save-datasource"
