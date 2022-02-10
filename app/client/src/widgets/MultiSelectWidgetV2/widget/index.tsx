@@ -17,8 +17,23 @@ import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-function defaultOptionValueValidation(value: unknown): ValidationResponse {
-  let values: string[] = [];
+function defaultOptionValueValidation(
+  value: unknown,
+  props: MultiSelectWidgetProps,
+  _: any,
+): ValidationResponse {
+  const allowedKeys = [
+    {
+      name: "label",
+    },
+    {
+      name: "value",
+    },
+  ];
+  let values: unknown[] = [];
+  let _valid = true;
+  let parsed = value;
+  const _messages: string[] = [];
   if (typeof value === "string") {
     try {
       values = JSON.parse(value);
@@ -26,17 +41,22 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
         throw new Error();
       }
     } catch {
+      // Accommodate comma separated values
       values = value.length ? value.split(",") : [];
       if (values.length > 0) {
-        values = values.map((_v: string) => _v.trim());
+        values = (values as string[]).map((_v: string) => _v.trim());
       }
     }
   }
+  if (Array.isArray(value)) {
+    values = value;
+  }
+  // values is either an Array<string | number> or Array<object>
+
+  // Assuming values is an Array<string | number>
   if (
     Array.isArray(values) &&
-    values.every((data) => {
-      return typeof data === "string" || typeof data === "number";
-    })
+    values.every((data) => _.isString(data) || _.isFinite(data))
   ) {
     values = Array.from(new Set(values));
     return {
@@ -47,10 +67,52 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
       })),
     };
   }
+
+  // Assuming Array<object>
+  if (
+    (values as Record<string, any>[]) &&
+    Array.isArray(values) &&
+    values.every((data) => _.isPlainObject(data))
+  ) {
+    const uniqueValue = new Set();
+    // Check if each object in array has label and value
+    values.forEach((data) => {
+      allowedKeys.forEach((entry) => {
+        const entryName = entry.name;
+        // check if label and value exist in object
+        if (data.hasOwnProperty(entryName)) {
+          // check if label and Value are actual inputs
+          if (!_.isString(data[entryName]) && !_.isFinite(data[entryName])) {
+            _valid = false;
+            _messages.push(`Value of key: ${entryName} is invalid`);
+            parsed = [];
+          }
+        } else {
+          _valid = false;
+          _messages.push(`Missing required key: ${entryName}`);
+          parsed = [];
+        }
+      });
+      // Check for uniqueness
+      if (uniqueValue.has(data["value"])) {
+        _valid = false;
+        _messages.push(`path:value must be unique. Duplicate values found`);
+      } else {
+        uniqueValue.add(data["value"]);
+      }
+    });
+
+    if (_valid) {
+      return {
+        isValid: true,
+        parsed: values,
+      };
+    }
+  }
   return {
-    isValid: false,
-    parsed: [],
-    messages: ["This value does not evaluate to type: [string]"],
+    isValid: _valid,
+    parsed,
+    messages: _messages,
   };
 }
 

@@ -13,7 +13,11 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-function defaultOptionValueValidation(value: unknown): ValidationResponse {
+function defaultOptionValueValidation(
+  value: unknown,
+  props: SelectWidgetProps,
+  _: any,
+): ValidationResponse {
   const allowedKeys = [
     {
       name: "label",
@@ -25,6 +29,7 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let _valid = true;
   let parsed = value;
   const _messages: string[] = [];
+  let values: Record<string, unknown> = {};
   if (value === undefined || value === null) {
     return {
       isValid: false,
@@ -32,18 +37,26 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
       messages: ["This value does not evaluate to type: string"],
     };
   }
+  // if JSON, parse data and Check if it's an Object
+  try {
+    values = JSON.parse(value as string);
+    if (!_.isPlainObject(values)) {
+      throw new Error();
+    }
+  } catch {
+    if (_.isPlainObject(value)) {
+      values = value as Record<string, unknown>;
+    }
+  }
   // Check if it's object
-  if (typeof value === "object" && !Array.isArray(value)) {
+  // If true we're working with values we either parsed or assigned in the try catch block
+  if (_.isPlainObject(values)) {
     allowedKeys.forEach((entry) => {
       const entryName = entry.name;
-
       // check if label and value exist in object
-      if ((value as Record<string, unknown>).hasOwnProperty(entryName)) {
+      if (values.hasOwnProperty(entryName)) {
         // check if label and Value are actual inputs
-        if (
-          typeof (value as Record<string, unknown>)[entryName] !== "string" &&
-          typeof (value as Record<string, unknown>)[entryName] !== "number"
-        ) {
+        if (!_.isString(values[entryName]) && !_.isFinite(values[entryName])) {
           _valid = false;
           _messages.push(`Value of key: ${entryName} is invalid`);
         }
@@ -55,51 +68,15 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
     if (_valid) {
       return {
         isValid: true,
-        parsed: value,
+        parsed: values,
       };
     }
-    return {
-      isValid: false,
-      parsed: value,
-      messages: _messages,
-    };
   }
-
-  try {
-    value = JSON.parse(value as string);
-    // Check if it's object
-    if (typeof value === "object" && !Array.isArray(value)) {
-      allowedKeys.forEach((entry) => {
-        const entryName = entry.name;
-
-        // check if label and value exist in object
-        if ((value as Record<string, unknown>).hasOwnProperty(entryName)) {
-          // check if label and Value are actual inputs
-          if (
-            typeof (value as Record<string, unknown>)[entryName] !== "string" &&
-            typeof (value as Record<string, unknown>)[entryName] !== "number"
-          ) {
-            _valid = false;
-            _messages.push(`Value of key: ${entryName} is invalid`);
-          }
-        } else {
-          _valid = false;
-          _messages.push(`Missing required key: ${entryName}`);
-        }
-      });
-      if (_valid) {
-        return {
-          isValid: true,
-          parsed: value,
-        };
-      }
-      return {
-        isValid: false,
-        parsed: value,
-        messages: _messages,
-      };
-    }
-  } catch {
+  // Check if it's String
+  if (_.isString(value)) {
+    const parsed = { label: value, value };
+    return { isValid: true, parsed };
+  } else {
     _valid = false;
     _messages.push(
       'This value does not evaluate to type: string | { "label": "label1", "value": "value1" }',
@@ -107,10 +84,6 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
     parsed = {};
   }
 
-  if (typeof value === "string") {
-    const parsed = { label: value, value };
-    return { isValid: true, parsed };
-  }
   return { isValid: _valid, parsed, messages: _messages };
 }
 
