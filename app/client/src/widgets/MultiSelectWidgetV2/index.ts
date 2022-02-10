@@ -19,7 +19,7 @@ export const CONFIG = {
     ],
     widgetName: "MultiSelect",
     serverSideFiltering: false,
-    defaultOptionValue: [{ label: "Green", value: "GREEN" }],
+    defaultOptionValue: ["GREEN", "RED"],
     version: 1,
     isRequired: false,
     isDisabled: false,

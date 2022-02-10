@@ -3,7 +3,10 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "../component";
 import {
@@ -12,6 +15,44 @@ import {
 } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
+function defaultOptionValueValidation(value: unknown): ValidationResponse {
+  let values: string[] = [];
+  if (typeof value === "string") {
+    try {
+      values = JSON.parse(value);
+      if (!Array.isArray(values)) {
+        throw new Error();
+      }
+    } catch {
+      values = value.length ? value.split(",") : [];
+      if (values.length > 0) {
+        values = values.map((_v: string) => _v.trim());
+      }
+    }
+  }
+  if (
+    Array.isArray(values) &&
+    values.every((data) => {
+      return typeof data === "string" || typeof data === "number";
+    })
+  ) {
+    values = Array.from(new Set(values));
+    return {
+      isValid: true,
+      parsed: values.map((data) => ({
+        value: data,
+        label: data,
+      })),
+    };
+  }
+  return {
+    isValid: false,
+    parsed: [],
+    messages: ["This value does not evaluate to type: [string]"],
+  };
+}
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -74,32 +115,13 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.ARRAY,
+              type: ValidationTypes.FUNCTION,
               params: {
-                unique: ["value"],
-                children: {
-                  type: ValidationTypes.OBJECT,
-                  params: {
-                    required: true,
-                    allowedKeys: [
-                      {
-                        name: "label",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                      {
-                        name: "value",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                    ],
-                  },
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "Array of values",
+                  example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+                  autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
             },
