@@ -75,6 +75,13 @@ public class Aggregate extends MongoCommand {
             }
         } else {
             // The command expects the pipelines to be sent in an array. Parse and create a single element array
+
+            // check for enclosing curly bracket to make json validation more strict
+            final String jsonObject = this.pipeline.trim();
+            if (jsonObject.charAt(jsonObject.length() - 1) != '}') {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Pipeline stage is not a valid JSON object.");
+            }
+
             Document document = parseSafely("Array of Pipelines", this.pipeline);
             ArrayList<Document> documentArrayList = new ArrayList<>();
             documentArrayList.add(document);

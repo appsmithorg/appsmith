@@ -24,13 +24,7 @@ import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
-import { QueryActionConfig } from "entities/Action";
-import {
-  VALIDATION_ARRAY_DISALLOWED_VALUE,
-  VALIDATION_ARRAY_DUPLICATE_PROPERTY_VALUES,
-  VALIDATION_ARRAY_INVALID_ENTRY,
-  VALIDATION_ARRAY_UNIQUE,
-} from "constants/messages";
+
 import { findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
@@ -176,7 +170,9 @@ function validateArray(
       return {
         isValid: false,
         parsed: config.params?.default || [],
-        messages: [`${VALIDATION_ARRAY_UNIQUE()} at index: ${duplicateIndex}`],
+        messages: [
+          `Array must be unique. Duplicate values found at index: ${duplicateIndex}`,
+        ],
       };
     }
   }
@@ -199,7 +195,7 @@ function validateArray(
         isValid: false,
         parsed: config.params?.default || [],
         messages: [
-          `${VALIDATION_ARRAY_DUPLICATE_PROPERTY_VALUES()} ${uniqueKeys.join(
+          `Duplicate values found for the following properties, in the array entries, that must be unique -- ${uniqueKeys.join(
             ",",
           )}.`,
         ],
@@ -211,7 +207,7 @@ function validateArray(
   value.every((entry, index) => {
     // Validate for allowed values
     if (shouldVerifyAllowedValues && !allowedValues.has(entry)) {
-      _messages.push(`${VALIDATION_ARRAY_DISALLOWED_VALUE()}: ${entry}`);
+      _messages.push(`Value is not allowed in this array: ${entry}`);
       _isValid = false;
     }
 
@@ -228,9 +224,7 @@ function validateArray(
       if (!childValidationResult.isValid) {
         _isValid = false;
         childValidationResult.messages?.forEach((message) =>
-          _messages.push(
-            `${VALIDATION_ARRAY_INVALID_ENTRY()} ${index}. ${message}`,
-          ),
+          _messages.push(`Invalid entry at index: ${index}. ${message}`),
         );
       }
     }
