@@ -80,12 +80,17 @@ import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
-import { getLintAnnotations } from "./lintHelpers";
+import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdation } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
+import {
+  LintTooltipDirection,
+  LINT_TOOLTIP_CLASS,
+  LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS,
+} from "./constants";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -152,6 +157,8 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
+  // state of lint errors in editor
+  hasLintError: boolean;
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -174,6 +181,7 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
+      hasLintError: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -403,6 +411,21 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
+  handleLintTooltip = () => {
+    // return if there is no lint error in editor instance
+    if (!this.state.hasLintError) return;
+    const lintTooltipList = document.getElementsByClassName(LINT_TOOLTIP_CLASS);
+    if (!lintTooltipList) return;
+    for (const tooltip of lintTooltipList) {
+      if (
+        tooltip &&
+        getLintTooltipDirection(tooltip) === LintTooltipDirection.left
+      ) {
+        tooltip.classList.add(LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS);
+      }
+    }
+  };
+
   handleChange = (instance?: any, changeObj?: any) => {
     const value = this.editor.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
@@ -599,6 +622,16 @@ class CodeEditor extends Component<Props, State> {
       (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
 
+    const lintErrors = errors.filter(
+      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
+    );
+
+    if (!_.isEmpty(lintErrors)) {
+      !this.state.hasLintError && this.setState({ hasLintError: true });
+    } else {
+      this.state.hasLintError && this.setState({ hasLintError: false });
+    }
+
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
@@ -706,6 +739,7 @@ class CodeEditor extends Component<Props, State> {
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
+            onMouseMove={this.handleLintTooltip}
             ref={this.editorWrapperRef}
             size={size}
           >
