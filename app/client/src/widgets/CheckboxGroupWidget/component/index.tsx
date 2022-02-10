@@ -5,7 +5,7 @@ import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
-import { StyledCheckbox } from "widgets/CheckboxWidget/component";
+import { Checkbox } from "components/wds";
 
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
@@ -53,11 +53,6 @@ const CheckboxGroupContainer = styled.div<
     margin: 0px 12px;
   }
 
-  & .bp3-control.bp3-checkbox {
-    margin-top: ${({ inline, optionCount }) =>
-      (inline || optionCount === 1) && `4px`};
-  }
-
   & .select-all {
     white-space: nowrap;
     color: ${Colors.GREY_9} !important;
@@ -74,13 +69,6 @@ export interface SelectAllProps {
   backgroundColor: string;
   borderRadius: string;
 }
-export interface StyledCheckboxProps {
-  disabled?: boolean;
-  optionCount: number;
-  rowspace: number;
-  backgroundColor: string;
-  borderRadius: string;
-}
 
 function SelectAll(props: SelectAllProps) {
   const {
@@ -91,10 +79,9 @@ function SelectAll(props: SelectAllProps) {
     indeterminate,
     inline,
     onChange,
-    rowSpace,
   } = props;
   return (
-    <StyledCheckbox
+    <Checkbox
       backgroundColor={backgroundColor}
       borderRadius={borderRadius}
       checked={checked}
@@ -104,7 +91,6 @@ function SelectAll(props: SelectAllProps) {
       inline={inline}
       label="Select All"
       onChange={onChange}
-      rowSpace={rowSpace}
     />
   );
 }
@@ -172,7 +158,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       {options &&
         options.length > 0 &&
         [...options].map((option: OptionProps) => (
-          <StyledCheckbox
+          <Checkbox
             backgroundColor={props.backgroundColor}
             borderRadius={props.borderRadius}
             checked={(selectedValues || []).includes(option.value)}
@@ -182,7 +168,6 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
             key={generateReactKey()}
             label={option.label}
             onChange={onChange(option.value)}
-            rowSpace={rowSpace}
           />
         ))}
     </CheckboxGroupContainer>

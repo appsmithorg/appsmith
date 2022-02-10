@@ -4014,6 +4014,35 @@
   dependencies:
     lodash "^4"
 
+"@xstyled/core@^3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@xstyled/core/-/core-3.5.1.tgz#a5af87a272a9f8fc7422a4d5c45a566779031d09"
+  integrity sha512-pUFgEii1NMEuIKwAujS1/5zuRnq655/YSLcQ8A/mD6IqWM2YxG3dXTPBa0bavJbUA1RSDKEVPDALhLC50dipQQ==
+  dependencies:
+    "@xstyled/system" "^3.5.1"
+
+"@xstyled/styled-components@^3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@xstyled/styled-components/-/styled-components-3.5.1.tgz#0c0f1f50cb66bff76193489b8570fa375436e322"
+  integrity sha512-siSBEjddGqIRMKNt25LMRHwfV89RbVWdop8zzspNds1BCNeP0P53DKEauflHTC/XozYOR7NnvhUukWF7jeRSRg==
+  dependencies:
+    "@xstyled/core" "^3.5.1"
+    "@xstyled/system" "^3.5.1"
+    "@xstyled/util" "^3.5.1"
+
+"@xstyled/system@^3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@xstyled/system/-/system-3.5.1.tgz#7c788c3e44750e768b9f49b34458198c6fc04f3e"
+  integrity sha512-dsYsHaSu4cm/45M0MQz+ju3Nxpp3glGW1xxSfUsN2NIYKuBWnncY+ZoheWETG4kSnOL8Clv2W8v2dyhBHgp/MA==
+  dependencies:
+    "@xstyled/util" "^3.5.1"
+    csstype "^3.0.8"
+
+"@xstyled/util@^3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@xstyled/util/-/util-3.5.1.tgz#ab8118652b28bb86bbdaf14fa04b4e61905ff86b"
+  integrity sha512-Pf3/t+Xkp+2kKN+vfzBEeyIlO2M1HSOGgb47apgntcqTxYiVms/GrXR4ROKUoMtcLscY9+6xduA+7febPehY1g==
+
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@xtuc/ieee754/-/ieee754-1.2.0.tgz"
@@ -6388,6 +6417,11 @@ csstype@^2.5.7:
 csstype@^3.0.2:
   version "3.0.3"
   resolved "https://registry.npmjs.org/csstype/-/csstype-3.0.3.tgz"
+
+csstype@^3.0.8:
+  version "3.0.10"
+  resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.10.tgz#2ad3a7bed70f35b965707c092e5f30b327c290e5"
+  integrity sha512-2u44ZG2OcNUO9HDp/Jl8C07x6pU/eTR3ncV91SiK3dhG9TWvRVsCoJw14Ckx5DgWkzGA3waZWO3d7pgqpUI/XA==
 
 cuid@^2.1.1:
   version "2.1.8"
