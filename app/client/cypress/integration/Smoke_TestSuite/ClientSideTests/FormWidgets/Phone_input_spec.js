@@ -2,6 +2,7 @@ const dsl = require("../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
 const widgetName = "phoneinputwidget";
+const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Phone input widget - ", () => {
   before(() => {
@@ -53,5 +54,20 @@ describe("Phone input widget - ", () => {
     cy.get(`.t--widget-${widgetName} input`).type("9999999999");
     cy.get(".t--widget-textwidget").should("contain", "99999 99999:IN:+91");
     cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
+  });
+
+  it("should check that widget input resets on submit", () => {
+    cy.openPropertyPane(widgetName);
+    cy.get(
+      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
+    ).click();
+    cy.selectShowMsg();
+    cy.addSuccessMessage("Submitted!!");
+
+    cy.get(widgetInput).clear();
+    cy.wait(300);
+    cy.get(widgetInput).type("1234567890{enter}");
+    cy.wait(300);
+    cy.get(widgetInput).should("contain.value", "");
   });
 });

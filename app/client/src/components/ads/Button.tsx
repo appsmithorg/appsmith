@@ -64,6 +64,7 @@ export type ButtonProps = CommonComponentProps & {
   size?: Size;
   fill?: boolean;
   href?: string;
+  tabIndex?: number;
   tag?: "a" | "button";
   type?: "submit" | "reset" | "button";
   target?: string;
