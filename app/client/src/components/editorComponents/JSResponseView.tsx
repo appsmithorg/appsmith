@@ -214,7 +214,7 @@ function JSResponseView(props: Props) {
               ""
             )}
           </HelpSection>
-          <ResponseTabWrapper className={errors.length ? "disable" : ""}>
+          <ResponseTabWrapper className={errorsList.length ? "disable" : ""}>
             {sortedActionList && !sortedActionList?.length ? (
               <NoResponseContainer className="flex items-center">
                 {createMessage(EMPTY_JS_OBJECT)}

@@ -5,9 +5,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import org.eclipse.jgit.util.StringUtils;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,7 @@ public class GitUtils {
      * @param sshUrl ssh url of repo
      * @return https url supported by curl command extracted from ssh repo url
      */
-    public static String convertSshUrlToHttpsCurlSupportedUrl(String sshUrl) {
+    public static String convertSshUrlToBrowserSupportedUrl(String sshUrl) {
         if (StringUtils.isEmptyOrNull(sshUrl)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
         }
@@ -63,5 +65,18 @@ public class GitUtils {
         int responseCode = huc.getResponseCode();
 
         return !(HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_ACCEPTED == responseCode);
+    }
+
+    /**
+     * Sample repo urls :
+     * git@gitPlatform.com:user/repoName.git
+     * gitPlatform
+     *
+     * @param sshUrl ssh url of repo
+     * @return git hosting provider
+     */
+    public static String getGitProviderName(String sshUrl) {
+        return sshUrl.split("\\.")[0]
+                .replaceFirst("git@", "");
     }
 }

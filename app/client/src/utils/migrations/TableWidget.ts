@@ -490,6 +490,9 @@ export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
   return currentDSL;
 };
 
+/*
+ * DO NOT USE THIS. it overwrites conputedValues of the Table Columns
+ */
 export const migrateTableWidgetNumericColumnName = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "TABLE_WIDGET") {
@@ -509,7 +512,6 @@ export const migrateTableWidgetNumericColumnName = (currentDSL: DSLWidget) => {
           child.primaryColumns[columnId] = {
             ...column,
             id: columnId,
-            label: columnId,
             computedValue: newComputedValue,
           };
         }

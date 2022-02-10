@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.git.helpers.StringOutputStream;
-import com.appsmith.server.constants.GitConstants;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -36,7 +36,7 @@ public class GitDeployKeyGenerator {
         gitAuth.setPublicKey(publicKeyOutput.toString());
         gitAuth.setPrivateKey(privateKeyOutput.toString());
         gitAuth.setGeneratedAt(Instant.now());
-        gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
 
         return gitAuth;
     }

@@ -1022,7 +1022,8 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 47) {
-    //We're skipping this to fix a bad table migration.
+    // We're skipping this to fix a bad table migration.
+    // skipped migration is added as version 51
     currentDSL.version = 48;
   }
 
@@ -1033,6 +1034,14 @@ export const transformDSL = (
 
   if (currentDSL.version === 49) {
     currentDSL = addPrivateWidgetsToAllListWidgets(currentDSL);
+    currentDSL.version = 50;
+  }
+
+  if (currentDSL.version === 50) {
+    /*
+     * We're skipping this to fix a bad table migration - migrateTableWidgetNumericColumnName
+     * it overwrites the computedValue of the table columns
+     */
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

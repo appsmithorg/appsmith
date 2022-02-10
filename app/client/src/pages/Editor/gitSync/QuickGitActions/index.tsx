@@ -17,6 +17,7 @@ import {
   DURING_ONBOARDING_TOUR,
   createMessage,
   GIT_SETTINGS,
+  CONNECT_GIT_BETA,
 } from "constants/messages";
 
 import Tooltip from "components/ads/Tooltip";
@@ -41,7 +42,7 @@ import {
   getCountOfChangesToCommit,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
-import { inOnboarding } from "sagas/OnboardingSagas";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -219,7 +220,7 @@ const PlaceholderButton = styled.div`
 
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
-  const isInOnboarding = useSelector(inOnboarding);
+  const isInOnboarding = useSelector(inGuidedTour);
 
   const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
   const tooltipContent = !isInOnboarding ? (
@@ -256,7 +257,7 @@ function ConnectGitPlaceholder() {
                 dispatch(showConnectGitModal());
               }}
               size={Size.small}
-              text={createMessage(CONNECT_GIT)}
+              text={createMessage(CONNECT_GIT_BETA)}
             />
           ) : (
             <PlaceholderButton>{createMessage(CONNECT_GIT)}</PlaceholderButton>
@@ -302,7 +303,7 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.GIT_CONNECTION,
         }),
       );
-      AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+      AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
         source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });
     },

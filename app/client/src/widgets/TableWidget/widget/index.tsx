@@ -825,7 +825,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={transformedData}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
-          unSelectAllRow={this.resetSelectedRowIndex}
+          unSelectAllRow={this.unSelectAllRow}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -1031,6 +1031,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndices,
       );
     }
+  };
+  unSelectAllRow = () => {
+    this.props.updateWidgetMetaProperty("selectedRowIndices", []);
   };
 
   handlePrevPageClick = () => {
