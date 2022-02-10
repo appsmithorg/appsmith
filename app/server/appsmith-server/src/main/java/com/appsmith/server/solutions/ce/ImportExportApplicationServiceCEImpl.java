@@ -69,7 +69,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -137,7 +136,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 ? applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 : applicationService.findById(applicationId, EXPORT_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 );
 
         // Set json schema version which will be used to check the compatibility while importing the JSON
