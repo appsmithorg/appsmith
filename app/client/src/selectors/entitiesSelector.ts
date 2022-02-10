@@ -169,6 +169,10 @@ export const getDatasource = (
     (datasource) => datasource.id === datasourceId,
   );
 
+export const getDatasourceDrafts = (state: AppState) => {
+  return state.ui.datasourcePane.drafts;
+};
+
 export const getDatasourceDraft = (state: AppState, id: string) => {
   const drafts = state.ui.datasourcePane.drafts;
   if (id in drafts) return drafts[id];
