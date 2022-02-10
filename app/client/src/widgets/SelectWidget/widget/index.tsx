@@ -5,9 +5,71 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import SelectComponent from "../component";
 import _ from "lodash";
 import { DropdownOption } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
+function defaultOptionValueValidation(value: unknown): ValidationResponse {
+  if (value === undefined || value === null) {
+    return {
+      isValid: false,
+      parsed: "",
+      messages: ["This value does not evaluate to type: string"],
+    };
+  }
+  // Check if it's object
+  if (typeof value === "object" && !Array.isArray(value)) {
+    const allowedKeys = [
+      {
+        name: "label",
+      },
+      {
+        name: "value",
+      },
+    ];
+    let _valid = true;
+    const _messages: string[] = [];
+    allowedKeys.forEach((entry) => {
+      const entryName = entry.name;
+
+      // check if label and value exist in object
+      if ((value as Record<string, unknown>).hasOwnProperty(entryName)) {
+        // check if label and Value are actual inputs
+        if (
+          typeof (value as Record<string, unknown>)[entryName] !== "string" &&
+          typeof (value as Record<string, unknown>)[entryName] !== "number"
+        ) {
+          _valid = false;
+          _messages.push(`Value of key: ${entryName} is invalid`);
+        }
+      } else {
+        _valid = false;
+        _messages.push(`Missing required key: ${entryName}`);
+      }
+    });
+    if (_valid) {
+      return {
+        isValid: true,
+        parsed: value,
+      };
+    }
+    return {
+      isValid: false,
+      parsed: value,
+      messages: _messages,
+    };
+  }
+
+  if (typeof value === "string") {
+    const parsed = { label: value, value };
+    return { isValid: true, parsed };
+  }
+  return { isValid: true, parsed: value };
+}
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -21,7 +83,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
+            placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -62,30 +124,18 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "defaultOptionValue",
             label: "Default Option",
             controlType: "INPUT_TEXT",
-            placeholderText: '{ "label": "Option1", "value": "Option2" }',
+            placeholderText: '{ "label": "label1", "value": "value1" }',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.OBJECT,
+              type: ValidationTypes.FUNCTION,
               params: {
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      requiredKey: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      requiredKey: true,
-                    },
-                  },
-                ],
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: 'value1 or { "label": "label1", "value": "value1" }',
+                  example: `value1 | { "label": "label1", "value": "value1" }`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
               },
             },
           },
