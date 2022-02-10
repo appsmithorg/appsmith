@@ -351,12 +351,14 @@ function ReconnectDatasourceModal() {
       const selectedDatasourceConfig = datasources.find(
         (datasource: Datasource) => datasource.id === selectedDatasourceId,
       );
-      const data =
-        selectedDatasourceId in datasourceDrafts
-          ? datasourceDrafts[selectedDatasourceId]
-          : selectedDatasourceConfig;
+      if (selectedDatasourceConfig && !selectedDatasourceConfig.isConfigured) {
+        const data =
+          selectedDatasourceId in datasourceDrafts
+            ? datasourceDrafts[selectedDatasourceId]
+            : selectedDatasourceConfig;
 
-      dispatch(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
+        dispatch(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
+      }
     }
   }, [selectedDatasourceId]);
 
@@ -478,7 +480,7 @@ function ReconnectDatasourceModal() {
               {isConfigFetched &&
                 collapsedMenu === DSCollapseMenu.UNCONFIGURED && (
                   <DatasourceForm
-                    applicationId={importedApplication?.id}
+                    applicationId={appId}
                     datasourceId={selectedDatasourceId}
                     fromImporting
                     pageId={pageId}
@@ -500,7 +502,9 @@ function ReconnectDatasourceModal() {
                       AnalyticsUtil.logEvent(
                         "ADD_MISSING_DATASOURCE_LINK_CLICK",
                       );
-                      const ds = datasources[0];
+                      const ds = datasources.filter(
+                        (ds: Datasource) => !ds.isConfigured,
+                      )[0];
                       if (ds) {
                         setSelectedDatasourceId(ds.id);
                         setCollapsedMenu(DSCollapseMenu.UNCONFIGURED);
