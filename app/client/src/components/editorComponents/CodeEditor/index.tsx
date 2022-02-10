@@ -200,6 +200,7 @@ class CodeEditor extends Component<Props, State> {
           async: true,
           lintOnChange: false,
         },
+        tabindex: -1,
       };
 
       if (!this.props.input.onChange || this.props.disabled) {
@@ -274,6 +275,7 @@ class CodeEditor extends Component<Props, State> {
       // DO NOT ADD CODE BELOW. If you need to do something with the editor right after it’s created,
       // put that code into `options.finishInit()`.
     }
+    window.addEventListener("keydown", this.handleKeydown);
   }
 
   componentDidUpdate(prevProps: Props): void {
@@ -306,6 +308,7 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    window.removeEventListener("keydown", this.handleKeydown);
     // return if component unmounts before editor is created
     if (!this.editor) return;
 
@@ -322,6 +325,21 @@ class CodeEditor extends Component<Props, State> {
     // @ts-ignore: No types available
     this.editor.closeHint();
   }
+
+  private handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === this.codeEditorTarget.current) {
+          this.editor.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (this.state.isFocused) this.codeEditorTarget.current?.focus();
+        break;
+    }
+  };
 
   static startAutocomplete(
     editor: CodeMirror.Editor,
@@ -655,6 +673,7 @@ class CodeEditor extends Component<Props, State> {
                   : "/";
               this.updatePropertyValue(newValue, newValue.length);
             }}
+            tabIndex={-1}
             tag="button"
             text="/"
           />
@@ -701,7 +720,12 @@ class CodeEditor extends Component<Props, State> {
                 src={this.props.leftImage}
               />
             )}
-            <div className="CodeEditorTarget" ref={this.codeEditorTarget}>
+            <div
+              className="CodeEditorTarget"
+              data-testid="code-editor-target"
+              ref={this.codeEditorTarget}
+              tabIndex={0}
+            >
               <BindingPrompt
                 editorTheme={this.props.theme}
                 isOpen={
