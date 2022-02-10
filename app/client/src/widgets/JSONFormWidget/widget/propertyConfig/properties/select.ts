@@ -1,22 +1,7 @@
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
 import { HiddenFnParams, getSchemaItem } from "../helper";
-
-function defaultValueValidation(value: unknown): ValidationResponse {
-  if (typeof value === "string") return { isValid: true, parsed: value.trim() };
-  if (value === undefined || value === null)
-    return {
-      isValid: false,
-      parsed: "",
-      messages: ["This value does not evaluate to type: string"],
-    };
-  return { isValid: true, parsed: value };
-}
 
 const PROPERTIES = {
   general: [
@@ -25,18 +10,30 @@ const PROPERTIES = {
       helpText: "Selects the option with value by default",
       label: "Default Value",
       controlType: "JSON_FORM_COMPUTE_VALUE",
-      placeholderText: "GREEN",
+      placeholderText: '{ "label": "Option1", "value": "Option2" }',
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.FUNCTION,
+        type: ValidationTypes.OBJECT,
         params: {
-          fn: defaultValueValidation,
-          expected: {
-            type: "value or Array of values",
-            example: `option1 | ['option1', 'option2']`,
-            autocompleteDataType: AutocompleteDataType.STRING,
-          },
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.TEXT,
+              params: {
+                default: "",
+                requiredKey: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                default: "",
+                requiredKey: true,
+              },
+            },
+          ],
         },
       },
       hidden: (...args: HiddenFnParams) =>

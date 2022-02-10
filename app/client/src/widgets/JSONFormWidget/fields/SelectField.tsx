@@ -1,19 +1,34 @@
-import React, { useCallback, useContext, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { useController } from "react-hook-form";
 
-import DropDownComponent from "widgets/DropdownWidget/component";
-// import SelectComponent from "widgets/SelectWidget/component";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
+import SelectComponent from "widgets/SelectWidget/component";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
-import { DropdownOption } from "widgets/DropdownWidget/constants";
+import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { DropdownOption } from "widgets/SelectWidget/constants";
+import { isPrimitive } from "../helper";
 
 type MetaProps = {
   filterText?: string;
 };
+
+type DefaultValue =
+  | string
+  | number
+  | boolean
+  | DropdownOption
+  | null
+  | undefined;
 
 type SelectComponentProps = FieldComponentBaseProps &
   MetaProps & {
@@ -46,18 +61,38 @@ const StyledSelectWrapper = styled.div`
   width: 100%;
 `;
 
-const isValid = (schemaItem: SelectFieldProps["schemaItem"], value?: string) =>
-  schemaItem.isRequired ? Boolean(value?.trim()) : true;
+const isValid = (
+  schemaItem: SelectFieldProps["schemaItem"],
+  value?: unknown,
+) => {
+  if (schemaItem.isRequired && (value === undefined || value === null)) {
+    return false;
+  }
+  if (!isPrimitive(value)) return false;
+  return true;
+};
+
+const composeDefaultValue = (
+  schemaItemDefaultValue: DefaultValue,
+  passedDefaultValue: DefaultValue,
+) => {
+  if (isPrimitive(schemaItemDefaultValue) || isPrimitive(passedDefaultValue)) {
+    return schemaItemDefaultValue ?? passedDefaultValue;
+  }
+
+  return schemaItemDefaultValue?.value ?? passedDefaultValue?.value;
+};
 
 function SelectField({
   fieldClassName,
   name,
   passedDefaultValue,
-  propertyPath,
   schemaItem,
 }: SelectFieldProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { executeAction, updateWidgetMetaProperty } = useContext(FormContext);
+  const isDirtyRef = useRef<boolean>(false);
+  const { executeAction } = useContext(FormContext);
+  const [filterText, setFilterText] = useState<string>();
   const {
     field: { onChange, value },
     fieldState: { isDirty },
@@ -69,25 +104,38 @@ function SelectField({
   const isValueValid = isValid(schemaItem, value);
   const options = Array.isArray(schemaItem.options) ? schemaItem.options : [];
 
+  const defaultValue = composeDefaultValue(
+    schemaItem.defaultValue,
+    passedDefaultValue as DefaultValue,
+  );
+
   useRegisterFieldValidity({
     isValid: isValueValid,
     fieldName: name,
     fieldType: schemaItem.fieldType,
   });
 
-  const onFilterChange = (value: string) => {
-    updateWidgetMetaProperty(`${propertyPath}.filterText`, value);
+  useUpdateInternalMetaState({
+    propertyName: `${name}.filterText`,
+    propertyValue: filterText,
+  });
 
-    if (schemaItem.onFilterUpdate) {
-      executeAction({
-        triggerPropertyName: "onFilterUpdate",
-        dynamicString: schemaItem.onFilterUpdate,
-        event: {
-          type: EventType.ON_FILTER_UPDATE,
-        },
-      });
-    }
-  };
+  const onFilterChange = useCallback(
+    (value: string) => {
+      setFilterText(value);
+
+      if (schemaItem.onFilterUpdate) {
+        executeAction({
+          triggerPropertyName: "onFilterUpdate",
+          dynamicString: schemaItem.onFilterUpdate,
+          event: {
+            type: EventType.ON_FILTER_UPDATE,
+          },
+        });
+      }
+    },
+    [executeAction, schemaItem.onFilterUpdate],
+  );
 
   const selectedOptionIndex = options.findIndex(
     (option) => option.value === value,
@@ -98,6 +146,10 @@ function SelectField({
   const onOptionSelected = useCallback(
     (option: DropdownOption) => {
       onChange(option.value);
+
+      if (!isDirtyRef.current) {
+        isDirtyRef.current = true;
+      }
 
       if (schemaItem.onOptionChange && executeAction) {
         executeAction({
@@ -112,34 +164,54 @@ function SelectField({
     [onChange, schemaItem.onOptionChange, executeAction],
   );
 
+  const dropdownWidth = wrapperRef.current?.clientWidth;
   const fieldComponent = useMemo(
     () => (
       <StyledSelectWrapper ref={wrapperRef}>
-        <DropDownComponent
+        <SelectComponent
           compactMode={false}
           disabled={schemaItem.isDisabled}
-          dropDownWidth={wrapperRef.current?.clientWidth || 100}
+          dropDownWidth={dropdownWidth || 100}
+          filterText={filterText}
+          hasError={isDirtyRef.current ? !isValueValid : false}
           height={10}
           isFilterable={schemaItem.isFilterable}
           isLoading={false}
-          isValid={isDirty ? isValueValid : true}
+          isValid={isValueValid}
           onFilterChange={onFilterChange}
           onOptionSelected={onOptionSelected}
           options={options}
           placeholder={schemaItem.placeholderText}
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
+          value={options[selectedOptionIndex]?.value}
           widgetId=""
           width={10}
         />
       </StyledSelectWrapper>
     ),
-    [wrapperRef, isDirty, isValueValid, onOptionSelected, selectedIndex],
+    [
+      selectedOptionIndex,
+      schemaItem.serverSideFiltering,
+      schemaItem.placeholderText,
+      options,
+      onFilterChange,
+      schemaItem.isFilterable,
+      schemaItem.isDisabled,
+      isDirtyRef,
+      filterText,
+      wrapperRef,
+      isDirty,
+      isValueValid,
+      onOptionSelected,
+      selectedIndex,
+      dropdownWidth,
+    ],
   );
 
   return (
     <Field
-      defaultValue={schemaItem.defaultValue || passedDefaultValue}
+      defaultValue={defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
