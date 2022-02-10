@@ -22,7 +22,7 @@ import {
   REST_PLUGIN_PACKAGE_NAME,
   CONTENT_TYPE_HEADER_KEY,
   EMPTY_KEY_VALUE_PAIRS,
-  HTTP_METHODS,
+  HTTP_METHOD,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -149,7 +149,7 @@ function* handleUpdateBodyContentType(
 
   // this is the update for the new api contentType
   // update the api content type so it can be persisted.
-  let formData = cloneDeep(values.actionConfiguration.formData);
+  let formData = { ...values.actionConfiguration.formData };
   if (formData === undefined) formData = {};
   formData["apiContentType"] = title;
 
@@ -342,12 +342,10 @@ export function* updateFormFields(
     const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
     const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
       (header: { key: string; value: string }) =>
-        header &&
-        header.key &&
-        header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+        header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
 
-    if (value !== HTTP_METHODS.GET) {
+    if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
       if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE)
         apiContentType = POST_BODY_FORMAT_OPTIONS.JSON;
@@ -361,7 +359,6 @@ export function* updateFormFields(
         value: apiContentType,
       };
     } else {
-      log.debug("yoyo: Got the GET request");
       // when user switches to GET method, do not clear off content type headers, instead leave them.
       if (contentTypeHeaderIndex > -1) {
         actionConfigurationHeaders[contentTypeHeaderIndex] = {
@@ -401,9 +398,7 @@ function* formValueChangeSaga(
   if (!values.id) return;
   const contentTypeHeaderIndex = values.actionConfiguration.headers.findIndex(
     (header: { key: string; value: string }) =>
-      header &&
-      header.key &&
-      header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+      header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
   );
   if (
     actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||

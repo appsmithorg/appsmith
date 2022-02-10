@@ -3,7 +3,7 @@ import { DEFAULT_ACTION_TIMEOUT } from "ce/constants/ApiConstants";
 
 // This constant lists all the support HTTP methods & their color in
 // the entity explorer
-export enum HTTP_METHODS {
+export enum HTTP_METHOD {
   GET = "GET",
   POST = "POST",
   PUT = "PUT",
@@ -11,9 +11,7 @@ export enum HTTP_METHODS {
   PATCH = "PATCH",
 }
 
-export const HTTP_METHODS_COLOR: {
-  [key in keyof typeof HTTP_METHODS]: string;
-} = {
+export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
   GET: "#457AE6",
   POST: "#EABB0C",
   PUT: "#5BB749",
@@ -30,11 +28,9 @@ export enum API_EDITOR_TABS {
   AUTHENTICATION = "AUTHENTICATION",
 }
 
-export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHODS).map(
-  (method) => ({
-    value: method,
-  }),
-);
+export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHOD).map((method) => ({
+  value: method,
+}));
 
 export const REST_PLUGIN_PACKAGE_NAME = "restapi-plugin";
 
@@ -43,7 +39,7 @@ export const EMPTY_KEY_VALUE_PAIRS = [
   { key: "", value: "" },
 ];
 
-export enum ApiContentTypes {
+export enum ApiContentType {
   NONE = "none",
   JSON = "json",
   FORM_URLENCODED = "x-www-form-urlencoded",
@@ -54,9 +50,10 @@ export enum ApiContentTypes {
 // This lists all the support content types in the API body. The value field is the
 // value for the content-type header. In the UI, these content types are displayed in the
 // order defined here.
-export const POST_BODY_FORMAT_OPTIONS: {
-  [key in keyof typeof ApiContentTypes]: string;
-} = {
+export const POST_BODY_FORMAT_OPTIONS: Record<
+  keyof typeof ApiContentType, // using the key of ApiContentType enum as the key property of this Record type.
+  string
+> = {
   NONE: "none",
   JSON: "application/json",
   FORM_URLENCODED: "application/x-www-form-urlencoded",
@@ -67,7 +64,7 @@ export const POST_BODY_FORMAT_OPTIONS: {
 export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
-  httpMethod: HTTP_METHODS.GET,
+  httpMethod: HTTP_METHOD.GET,
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
   body: "",
