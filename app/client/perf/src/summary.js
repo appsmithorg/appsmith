@@ -3,9 +3,6 @@ const path = require("path");
 const sd = require("node-stdev");
 var median = require("median");
 
-global.APP_ROOT = path.resolve(__dirname);
-global.APP_ROOT = "/Users/satish/work/appsmith/app/client/perf";
-
 exports.summaries = async (directory) => {
   const files = await fs.promises.readdir(directory);
   const results = {};
