@@ -2,12 +2,16 @@ import {
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateColumnStyles,
+  updateColumnOrderHook,
+  getBasePropertyPath,
+  hideByColumnType,
+  ColumnTypes,
 } from "./propertyUtils";
 import _ from "lodash";
 import { TableWidgetProps } from "../constants";
 
 describe("PropertyUtils - ", () => {
-  it("totalRecordsCountValidation should test with all possible values", () => {
+  it("totalRecordsCountValidation - should test with all possible values", () => {
     const ERROR_MESSAGE = "This value must be a number";
 
     const values = [
@@ -84,7 +88,7 @@ describe("PropertyUtils - ", () => {
     });
   });
 
-  it("uniqueColumnNameValidation should test with all possible values", () => {
+  it("uniqueColumnNameValidation - should test with all possible values", () => {
     let value = [
       {
         label: "column1",
@@ -126,7 +130,7 @@ describe("PropertyUtils - ", () => {
     });
   });
 
-  it("updateColumnStyles shoudl test with all possible values", () => {
+  it("updateColumnStyles - should test with all possible values", () => {
     let props: any = {
       primaryColumns: {
         1: {
@@ -227,5 +231,139 @@ describe("PropertyUtils - ", () => {
         "someOtherRandomStyleValue",
       ),
     ).toEqual(undefined);
+  });
+
+  it("updateColumnOrderHook - should test with all possible values", () => {
+    expect(
+      updateColumnOrderHook(
+        ({
+          columnOrder: ["column1", "columns2"],
+        } as any) as TableWidgetProps,
+        "primaryColumns.column3",
+        {
+          id: "column3",
+        },
+      ),
+    ).toEqual([
+      {
+        propertyPath: "columnOrder",
+        propertyValue: ["column1", "columns2", "column3"],
+      },
+    ]);
+
+    expect(
+      updateColumnOrderHook(
+        ({
+          columnOrder: ["column1", "columns2"],
+        } as any) as TableWidgetProps,
+        "",
+        {
+          id: "column3",
+        },
+      ),
+    ).toEqual(undefined);
+
+    expect(
+      updateColumnOrderHook(({} as any) as TableWidgetProps, "", {
+        id: "column3",
+      }),
+    ).toEqual(undefined);
+
+    expect(
+      updateColumnOrderHook(
+        ({
+          columnOrder: ["column1", "columns2"],
+        } as any) as TableWidgetProps,
+        "primaryColumns.column3.iconAlignment",
+        {
+          id: "column3",
+        },
+      ),
+    ).toEqual(undefined);
+  });
+
+  it("getBasePropertyPath - should test with all possible values", () => {
+    expect(getBasePropertyPath("primaryColumns.test")).toBe("primaryColumns");
+    expect(getBasePropertyPath("primaryColumns.test.style")).toBe(
+      "primaryColumns.test",
+    );
+    expect(getBasePropertyPath("")).toBe(undefined);
+    expect(getBasePropertyPath("primaryColumns")).toBe(undefined);
+  });
+
+  describe("hideByColumnType - ", () => {
+    it("should test with column type that should not be hidden", () => {
+      const prop = {
+        primaryColumns: {
+          column: {
+            columnType: "text",
+          },
+        },
+      };
+
+      expect(
+        hideByColumnType(
+          (prop as any) as TableWidgetProps,
+          "primaryColumns.column",
+          ["text"] as ColumnTypes[],
+          true,
+        ),
+      ).toBe(false);
+    });
+
+    it("should test with column type that should be hidden", () => {
+      const prop = {
+        primaryColumns: {
+          column: {
+            columnType: "select",
+          },
+        },
+      };
+
+      expect(
+        hideByColumnType(
+          (prop as any) as TableWidgetProps,
+          "primaryColumns.column",
+          ["text"] as ColumnTypes[],
+          true,
+        ),
+      ).toBe(true);
+    });
+
+    it("should test column that should be hidden, with full propertyPath", () => {
+      const prop = {
+        primaryColumns: {
+          column: {
+            columnType: "select",
+          },
+        },
+      };
+
+      expect(
+        hideByColumnType(
+          (prop as any) as TableWidgetProps,
+          "primaryColumns.column.buttonColor",
+          (["Button"] as any) as ColumnTypes[],
+        ),
+      ).toBe(true);
+    });
+
+    it("should test column that should not be hidden, with full propertyPath", () => {
+      const prop = {
+        primaryColumns: {
+          column: {
+            columnType: "Button",
+          },
+        },
+      };
+
+      expect(
+        hideByColumnType(
+          (prop as any) as TableWidgetProps,
+          "primaryColumns.column.buttonColor",
+          (["Button"] as any) as ColumnTypes[],
+        ),
+      ).toBe(false);
+    });
   });
 });
