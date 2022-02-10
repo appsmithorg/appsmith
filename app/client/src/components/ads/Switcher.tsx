@@ -18,10 +18,12 @@ const SwitchBlock = styled.div<{ active?: boolean }>`
   align-items: center;
   justify-content: center;
   font-size: 14px;
+  line-height: 28px;
   color: ${Colors.DARK_GRAY};
   cursor: pointer;
   height: 100%;
   flex: 1;
+  border: 1px solid transparent;
 
   ${(props) =>
     props.active &&
