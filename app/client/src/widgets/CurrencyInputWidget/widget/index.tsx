@@ -4,10 +4,7 @@ import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import CurrencyInputComponent, {
   CurrencyInputComponentProps,
 } from "../component";
-import {
-  EventType,
-  ExecutionResult,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   ValidationTypes,
   ValidationResponse,
@@ -290,35 +287,12 @@ class CurrencyInputWidget extends BaseInputWidget<
     }
   };
 
-  onSubmitSuccess = (result: ExecutionResult) => {
-    if (result.success && this.props.resetOnSubmit) {
-      this.props.updateWidgetMetaProperty("text", "", {
-        triggerPropertyName: "onSubmit",
-        dynamicString: this.props.onTextChanged,
-        event: {
-          type: EventType.ON_TEXT_CHANGE,
-        },
-      });
-    }
-  };
-
   handleKeyDown = (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    const { isValid, onSubmit } = this.props;
-    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    if (isEnterKey && onSubmit && isValid) {
-      super.executeAction({
-        triggerPropertyName: "onSubmit",
-        dynamicString: onSubmit,
-        event: {
-          type: EventType.ON_SUBMIT,
-          callback: this.onSubmitSuccess,
-        },
-      });
-    }
+    super.handleKeyDown(e);
   };
 
   onStep = (direction: number) => {

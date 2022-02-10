@@ -418,7 +418,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   const applicationId = props.application?.id;
-  const showGitBadge = props.application?.gitApplicationMetadata;
+  const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
   useEffect(() => {
     let colorCode;

@@ -51,7 +51,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
-const { disableLoginForm } = getAppsmithConfigs();
+const { disableLoginForm, disableSignup } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
@@ -113,7 +113,7 @@ export function Login(props: LoginFormProps) {
       <AuthCardHeader>
         <h1>{createMessage(LOGIN_PAGE_TITLE)}</h1>
       </AuthCardHeader>
-      {!disableLoginForm && (
+      {!disableSignup && (
         <SignUpLinkSection>
           {createMessage(NEW_TO_APPSMITH)}
           <AuthCardNavLink
