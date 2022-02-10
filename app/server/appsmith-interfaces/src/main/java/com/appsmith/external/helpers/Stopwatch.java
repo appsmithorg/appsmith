@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class Stopwatch {
 
-    public String processName;
-    StopWatch watch = new StopWatch();
+    private final String processName;
+    private final StopWatch watch = new StopWatch();
 
     public Stopwatch(String processName) {
         this.processName = processName;
