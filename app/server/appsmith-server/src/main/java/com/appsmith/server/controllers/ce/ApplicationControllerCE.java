@@ -186,10 +186,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                                                                     @PathVariable String orgId) {
         log.debug("Going to import application in organization with id: {}", orgId);
         return fileMono
-                .flatMap(file -> {
-                    log.debug("File part header for imported file: {}", file.headers());
-                    return importExportApplicationService.extractFileAndSaveApplication(orgId, file);
-                })
+                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(orgId, file))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
