@@ -1,2 +1,3 @@
 export { Checkbox } from "./Checkbox";
-export { Button } from "./Button";
+export { withTooltip } from "./Tooltip";
+export { default as Button } from "./Button";
