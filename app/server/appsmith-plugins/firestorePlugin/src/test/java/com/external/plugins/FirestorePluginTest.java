@@ -14,6 +14,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.util.DateTime;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.firestore.Blob;
@@ -33,6 +34,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,7 +83,7 @@ public class FirestorePluginTest {
     static DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
     @BeforeClass
-    public static void setUp() throws ExecutionException, InterruptedException {
+    public static void setUp() throws ExecutionException, InterruptedException, ParseException {
         firestoreConnection = FirestoreOptions.newBuilder()
                 .setHost(emulator.getEmulatorEndpoint())
                 .setCredentials(NoCredentials.getInstance())
@@ -114,6 +118,14 @@ public class FirestorePluginTest {
                         firestoreConnection.document("initial/two")
                 )
         )).get();
+
+        final Map<String, Object> numData = new HashMap<>(Map.of(
+                "score", Integer.valueOf("99"),
+                "isPlural", Boolean.TRUE,
+                "dob", new SimpleDateFormat("yyyy-MM-dd").parse("2000-03-24"),
+                "start", Timestamp.valueOf("2018-09-01 09:01:15")
+        ));
+        firestoreConnection.document("numeric/two").set(numData).get();
 
         firestoreConnection.document("changing/to-update").set(Map.of("value", 1)).get();
         firestoreConnection.document("changing/to-delete").set(Map.of("value", 1)).get();
@@ -781,6 +793,182 @@ public class FirestorePluginTest {
                     assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
                     assertEquals("test", second.remove("category"));
                     assertEquals(Collections.emptyMap(), second);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNumberWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "EQ");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("numeric");
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("score");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("99");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBooleanWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "EQ");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("numeric");
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("isPlural");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("true");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDateWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "EQ");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("numeric");
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("dob");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("2000-03-24");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTimeStampWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "EQ");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("numeric");
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("start");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("2018-09-01 09:01:15");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
                 })
                 .verifyComplete();
     }

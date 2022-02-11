@@ -241,6 +241,18 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById("invalidAppId", "");
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION_ID, "invalidAppId")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
         Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
 
@@ -1168,11 +1180,6 @@ public class ImportExportApplicationServiceTests {
 
         String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
-        PageDTO page = new PageDTO();
-        page.setName("Page 2");
-        page.setApplicationId(application.getId());
-        PageDTO savedPage = applicationPageService.createPage(page).block();
-
         assert application.getId() != null;
         Set<String> applicationPageIdsBeforeImport = Objects.requireNonNull(applicationRepository.findById(application.getId()).block())
                 .getPages()
@@ -1182,8 +1189,6 @@ public class ImportExportApplicationServiceTests {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-added.json").block();
         applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
-        applicationJson.getPageList().get(1).setGitSyncId(gitSyncIdBeforeImport);
-        applicationJson.getPageList().get(2).setGitSyncId(gitSyncIdBeforeImport);
 
         Application applicationMono = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
 
@@ -1198,16 +1203,12 @@ public class ImportExportApplicationServiceTests {
                 .create(pageList)
                 .assertNext(newPages -> {
                     // Check before import we had both the pages
-                    assertThat(applicationPageIdsBeforeImport).hasSize(2);
+                    assertThat(applicationPageIdsBeforeImport).hasSize(1);
                     assertThat(newPages.size()).isEqualTo(3);
                     List<String> pageNames = newPages.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
                     assertThat(pageNames).contains("Page1");
                     assertThat(pageNames).contains("Page2");
                     assertThat(pageNames).contains("Page3");
-                    for (NewPage newPage: newPages) {
-                        assertThat(newPage.getGitSyncId()).isEqualTo(gitSyncIdBeforeImport);
-                    }
-                    assertThat(applicationMono.getPages().containsAll(pageNames));
                 })
                 .verifyComplete();
 
