@@ -2,11 +2,11 @@ const dsl = require("../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
 const widgetName = "currencyinputwidget";
+const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Currency widget - ", () => {
   before(() => {
     cy.addDsl(dsl);
-    cy.wait(7000);
   });
 
   it("Add new dropdown widget", () => {
@@ -23,10 +23,10 @@ describe("Currency widget - ", () => {
 
   it("should check for type of value and widget", () => {
     function enterAndTest(text, expected) {
-      cy.get(`.t--widget-${widgetName} input`).clear();
+      cy.get(widgetInput).clear();
       cy.wait(300);
       if (text) {
-        cy.get(`.t--widget-${widgetName} input`).type(text);
+        cy.get(widgetInput).type(text);
       }
       cy.openPropertyPane("textwidget");
       cy.get(".t--widget-textwidget").should("contain", expected);
@@ -95,5 +95,20 @@ describe("Currency widget - ", () => {
     cy.wait(500);
     cy.openPropertyPane(widgetName);
     cy.get(".t--property-control-decimals .cs-text").should("have.text", "0");
+  });
+
+  it("should check that widget input resets on submit", () => {
+    cy.openPropertyPane(widgetName);
+    cy.get(
+      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
+    ).click();
+    cy.selectShowMsg();
+    cy.addSuccessMessage("Submitted!!");
+
+    cy.get(widgetInput).clear();
+    cy.wait(300);
+    cy.get(widgetInput).type("10000{enter}");
+    cy.wait(300);
+    cy.get(widgetInput).should("contain.value", "");
   });
 });
