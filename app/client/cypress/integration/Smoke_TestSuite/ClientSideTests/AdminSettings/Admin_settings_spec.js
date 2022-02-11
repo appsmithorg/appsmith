@@ -222,8 +222,7 @@ describe("Admin settings page", function() {
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(1)
           .contains("General")
-          .should("have.attr", "href")
-          .and("eq", "/settings/general");
+          .should("not.have.attr", "href");
       });
 
     // checking settings category page
@@ -243,8 +242,7 @@ describe("Admin settings page", function() {
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(1)
           .contains("Authentication")
-          .should("have.attr", "href")
-          .and("eq", "/settings/authentication");
+          .should("not.have.attr", "href");
       });
 
     // checking settings subcategory page
@@ -269,8 +267,7 @@ describe("Admin settings page", function() {
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(2)
           .contains("Google Authentication")
-          .should("have.attr", "href")
-          .and("eq", "/settings/authentication/google-auth");
+          .should("not.have.attr", "href");
       });
   });
 });
