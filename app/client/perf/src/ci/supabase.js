@@ -1,5 +1,6 @@
 const { createClient } = require("@supabase/supabase-js");
 const { actions } = require("../../tests/actions");
+const { parseReports } = require("../summary");
 const supabaseUrl = "https://ymiketujsffsmdmgpmut.supabase.co";
 
 const metricsToLog = [
