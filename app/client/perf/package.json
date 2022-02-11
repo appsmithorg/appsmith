@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^1.30.0",
     "airtable": "^0.11.1",
     "median": "^0.0.2",
     "node-stdev": "^1.0.1",
