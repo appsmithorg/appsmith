@@ -177,7 +177,7 @@ function JSResponseView(props: Props) {
   const actionList = jsObject?.actions;
   const sortedActionList = actionList && sortBy(actionList, "name");
   const response =
-    selectActionId && !!responses[selectActionId]
+    selectActionId && selectActionId in responses
       ? responses[selectActionId]
       : "";
   const isRunning = selectActionId && !!isExecuting[selectActionId];
