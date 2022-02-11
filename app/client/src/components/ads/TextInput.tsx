@@ -72,6 +72,8 @@ export type TextInputProps = CommonComponentProps & {
   onFocus?: EventHandler<FocusEvent<any>>;
   errorMsg?: string;
   trimValue?: boolean;
+  $padding?: string;
+  useTextArea?: boolean;
 };
 
 type boxReturnType = {
@@ -146,7 +148,10 @@ const StyledInput = styled((props) => {
     "noCaret",
     "fill",
     "errorMsg",
+    "useTextArea",
   ];
+
+  const HtmlTag = props.useTextArea ? "textarea" : "input";
 
   return props.asyncControl ? (
     <AsyncControllableInput
@@ -155,7 +160,7 @@ const StyledInput = styled((props) => {
       inputRef={inputRef}
     />
   ) : (
-    <input ref={inputRef} {..._.omit(inputProps, omitProps)} />
+    <HtmlTag ref={inputRef} {..._.omit(inputProps, omitProps)} />
   );
 })<
   TextInputProps & {
@@ -178,6 +183,7 @@ const StyledInput = styled((props) => {
   box-shadow: none;
   border: none;
   padding: 0px ${(props) => props.theme.spaces[6]}px;
+  ${(props) => (props.$padding ? `padding: ${props.$padding}` : "")};
   padding-right: ${(props) =>
     props.rightSideComponentWidth + props.theme.spaces[6]}px;
   background-color: transparent;

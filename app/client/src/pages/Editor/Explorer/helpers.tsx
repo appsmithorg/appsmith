@@ -1,5 +1,5 @@
 import { IPopoverSharedProps } from "@blueprintjs/core";
-import { matchPath } from "react-router";
+import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -11,10 +11,13 @@ import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { PluginType } from "entities/Action";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
-    enabled: true,
+    enabled: false,
     offset: 200,
   },
 
@@ -29,6 +32,12 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
 
 export type ExplorerURLParams = {
   pageId: string;
+};
+
+export type ExplorerFileEntity = {
+  type: PluginType | "group";
+  group?: string;
+  entity: ActionData | JSCollectionData;
 };
 
 export const getActionIdFromURL = () => {
@@ -73,8 +82,9 @@ export const getQueryIdFromURL = () => {
   }
 };
 
-export const getDatasourceIdFromURL = () => {
-  const match = matchPath<{ datasourceId: string }>(window.location.pathname, {
+export const useDatasourceIdFromURL = () => {
+  const location = useLocation();
+  const match = matchPath<{ datasourceId: string }>(location.pathname, {
     path: DATA_SOURCES_EDITOR_ID_PATH,
   });
   if (match?.params?.datasourceId) {

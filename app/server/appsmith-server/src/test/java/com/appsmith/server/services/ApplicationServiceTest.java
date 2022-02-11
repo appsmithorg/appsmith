@@ -362,7 +362,7 @@ public class ApplicationServiceTest {
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("randomBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId())))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId() + "," + "randomBranch")))
                 .verify();
     }
 
@@ -990,6 +990,9 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication.getOrganizationId().equals(orgId));
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
+                    assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
+                    assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
+
                     List<ApplicationPage> pages = clonedApplication.getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());

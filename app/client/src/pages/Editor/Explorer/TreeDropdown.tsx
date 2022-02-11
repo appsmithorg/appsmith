@@ -165,7 +165,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   }
 
   const list = optionTree.map(renderTreeOption);
-  const menuItems = <StyledMenu>{list}</StyledMenu>;
+  const menuItems = (
+    <StyledMenu className="t--entity-context-menu">{list}</StyledMenu>
+  );
   const defaultToggle = (
     <StyledDropDownContainer>
       <BlueprintButton
@@ -183,6 +185,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   );
   return (
     <StyledPopover
+      boundary="viewport"
+      canEscapeKeyClose
       className={props.className}
       content={menuItems}
       isOpen={isOpen}
@@ -191,7 +195,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       onClose={() => {
         setIsOpen(false);
       }}
-      position={PopoverPosition.AUTO_END}
+      position={PopoverPosition.RIGHT_TOP}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

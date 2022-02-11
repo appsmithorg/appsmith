@@ -2,6 +2,8 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -102,5 +104,30 @@ public class ResponseUtilsTest {
 
         Assert.assertEquals(actionCollectionCopy.getUnpublishedCollection().getDefaultResources().getPageId(), actionCollection.getUnpublishedCollection().getPageId());
         Assert.assertEquals(actionCollectionCopy.getPublishedCollection().getDefaultResources().getPageId(), actionCollection.getPublishedCollection().getPageId());
+    }
+
+    @Test
+    public void getApplication_withDefaultIdsPresent_returnsUpdatedApplication() {
+        Application application = gson.fromJson(String.valueOf(jsonNode.get("application")), Application.class);
+
+        final Application applicationCopy = new Application();
+        BeanCopyUtils.copyNestedNonNullProperties(application, applicationCopy);
+
+        // Check if the id and defaultPage ids for pages are not same before we update the application using responseUtils
+        for (ApplicationPage applicationPage : application.getPages()) {
+            Assert.assertNotEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
+        }
+        for (ApplicationPage applicationPage : application.getPublishedPages()) {
+            Assert.assertNotEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
+        }
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertNotEquals(applicationCopy, application);
+        // Check if the id and defaultPage ids for pages are same after we update the application from responseUtils
+        for (ApplicationPage applicationPage : application.getPages()) {
+            Assert.assertEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
+        }
+        for (ApplicationPage applicationPage : application.getPublishedPages()) {
+            Assert.assertEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
+        }
     }
 }

@@ -655,7 +655,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Application")))
                 .cache();
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception
@@ -687,6 +686,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
                     newApplication.setLastEditedAt(Instant.now());
+                    newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
