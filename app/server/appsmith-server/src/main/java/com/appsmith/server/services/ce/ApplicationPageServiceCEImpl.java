@@ -655,7 +655,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Application")))
                 .cache();
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception

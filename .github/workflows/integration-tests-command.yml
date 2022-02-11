@@ -606,7 +606,7 @@ jobs:
       - name: Incase of test failures copy them to a file
         if: failure()
         run: |
-          cd /home/runner/work/appsmith/appsmith/app/client/cypress/
+          cd ${{ github.workspace }}/app/client/cypress/
           find screenshots -type d|grep spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec/failed_spec-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job

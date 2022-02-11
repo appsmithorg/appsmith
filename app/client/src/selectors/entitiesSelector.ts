@@ -636,7 +636,10 @@ export const selectFilesForExplorer = createSelector(
       [] as Array<ExplorerFileEntity>,
     );
 
-    const filesSortedByGroupName = sortBy(files, "group", "entity.config.name");
+    const filesSortedByGroupName = sortBy(files, [
+      (file) => file.group?.toLowerCase(),
+      (file) => file.entity.config?.name?.toLowerCase(),
+    ]);
     const groupedFiles = filesSortedByGroupName.reduce(
       (acc, file) => {
         if (acc.group !== file.group) {
