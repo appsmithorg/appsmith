@@ -26,6 +26,8 @@ import reactor.core.Exceptions;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -100,10 +102,14 @@ public class DataTypeStringUtils {
         }
 
         try {
-            Double.parseDouble(input);
+            DecimalFormat decimalFmt = new DecimalFormat("###,###.###"); //to handle like 12,345,678.123456
+            decimalFmt.setParseBigDecimal(true);
+            decimalFmt.parse(input);
             return DataType.DOUBLE;
         } catch (NumberFormatException e3) {
             // Not double
+        } catch (ParseException e) {
+            // Not Double
         }
 
         // Creating a copy of the input in lower case form to do simple string equality to check for boolean/null types.

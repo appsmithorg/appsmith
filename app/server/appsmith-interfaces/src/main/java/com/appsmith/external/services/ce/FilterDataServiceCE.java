@@ -25,6 +25,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -772,7 +774,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 }
                 case FLOAT:
                 case DOUBLE: {
-                    preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
+                    DecimalFormat decimalFmt = new DecimalFormat("###,###.###"); //to handle like 12,345,678.123456
+                    decimalFmt.setParseBigDecimal(true);
+                    preparedStatement.setBigDecimal(index, (BigDecimal) decimalFmt.parse(value));
                     break;
                 }
                 case BOOLEAN: {
@@ -793,6 +797,11 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         } catch (IllegalArgumentException e) {
             // The data type recognized does not match the data type of the value being set via Prepared Statement
             // Add proper handling here.
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                    "Error while interacting with value " + value + " : " + e.getMessage() +
+                            ". The data type value was being parsed to was : " + dataType);
+        } catch (ParseException e) {
+            // To catch when it is not the right datatype
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
                     "Error while interacting with value " + value + " : " + e.getMessage() +
                             ". The data type value was being parsed to was : " + dataType);
