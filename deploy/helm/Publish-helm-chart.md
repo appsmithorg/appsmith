@@ -23,7 +23,7 @@ aws s3 cp ./appsmith-1.4.1.tgz s3://helm.appsmith.com/
 * Initialize the Amazon S3 Helm repository
 
 ```
-helm repo index --url https://helm.appsmith.com
+helm repo index . --url https://helm.appsmith.com
 ```
 
 * Upload `index.yaml` to S3 bucket
