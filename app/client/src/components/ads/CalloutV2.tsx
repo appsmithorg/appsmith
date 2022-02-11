@@ -4,6 +4,7 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { Dispatch } from "react";
 import { useDispatch } from "react-redux";
 import Icon, { IconSize } from "../../components/ads/Icon";
+import { Colors } from "constants/Colors";
 
 export type CalloutType = "Warning" | "Info";
 
@@ -14,10 +15,10 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
   padding: 8px 16px;
   ${(props) =>
     props.type !== "Warning"
-      ? `border-left: 5px solid #1d9bd1;
+      ? `border-left: 5px solid ${Colors.CURIOUS_BLUE};
      color: #00407d;
-     background: #e8f5fa;`
-      : `color: #c91818; background: #FFE9E9;
+     background: ${Colors.PALE_BLUE};`
+      : `color: #c91818; background: ${Colors.FAIR_PINK};
    `}
   margin: 16px 0;
 
