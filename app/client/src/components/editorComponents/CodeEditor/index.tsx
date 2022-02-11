@@ -174,7 +174,7 @@ class CodeEditor extends Component<Props, State> {
     hinting: [bindingHint, commandsHelper],
   };
   // this is the higlighted element for any highlighted text in the codemirror
-  highlightedUrlElement: any;
+  highlightedUrlElement: HTMLElement | undefined;
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
@@ -352,7 +352,6 @@ class CodeEditor extends Component<Props, State> {
   };
 
   componentWillUnmount() {
-
     // if the highlighted element exists, remove the event listeners to prevent memory leaks
     if (this.highlightedUrlElement) {
       removeEventFromHighlightedElement(this.highlightedUrlElement, [
@@ -793,8 +792,8 @@ class CodeEditor extends Component<Props, State> {
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
-            onMouseOver={this.handleMouseMove}
             onMouseMove={this.handleLintTooltip}
+            onMouseOver={this.handleMouseMove}
             ref={this.editorWrapperRef}
             size={size}
           >
