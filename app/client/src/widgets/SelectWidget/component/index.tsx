@@ -88,9 +88,10 @@ class SelectComponent extends React.Component<
         ? this.props.options[this.props.selectedIndex].label
         : this.props.label;
     // for display selected option, there is no separate option to show placeholder
-    const value = selectedOption
-      ? selectedOption
-      : this.props.placeholder || "-- Select --";
+    const value =
+      !_.isNil(selectedOption) && selectedOption !== ""
+        ? selectedOption
+        : this.props.placeholder || "-- Select --";
 
     return (
       <DropdownContainer compactMode={compactMode}>
@@ -142,7 +143,7 @@ class SelectComponent extends React.Component<
               onClose: () => {
                 if (!this.props.selectedIndex) return;
                 return this.handleActiveItemChange(
-                  this.props.options[this.props.selectedIndex as number],
+                  this.props.options[this.props.selectedIndex],
                 );
               },
               modifiers: {
@@ -160,7 +161,7 @@ class SelectComponent extends React.Component<
               disabled={this.props.disabled}
               rightIcon={
                 <StyledDiv>
-                  {this.props.value ? (
+                  {!_.isNil(this.props.value) ? (
                     <Icon
                       className="dropdown-icon cancel-icon"
                       fillColor={

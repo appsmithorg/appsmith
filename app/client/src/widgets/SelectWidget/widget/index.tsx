@@ -44,20 +44,13 @@ export function defaultOptionValueValidation(
     } catch (e) {}
   }
 
-  if (typeof value === "string") {
+  if (_.isString(value) || _.isFinite(value)) {
     /*
-     * When value is "", "green"
+     * When value is "", "green", 444
      */
     isValid = true;
 
-    if (value === "") {
-      parsed = {};
-    } else {
-      parsed = {
-        label: value,
-        value: value,
-      };
-    }
+    parsed = value;
   } else if (hasLabelValue(value)) {
     /*
      * When value is {label: "green", value: "green"}
@@ -332,8 +325,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
-      selectedOptionLabel: `{{ this.optionValue.label ?? this.optionValue.value }}`,
-      selectedOptionValue: `{{ this.optionValue.value }}`,
+      selectedOptionLabel: `{{_.isString(this.optionValue) || _.isFinite(this.optionValue)  ? this.optionValue : this.optionValue?.label}}`,
+      selectedOptionValue: `{{_.isString(this.optionValue) || _.isFinite(this.optionValue)  ? this.optionValue : this.optionValue?.value}}`,
     };
   }
 
@@ -357,6 +350,18 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: SelectWidgetProps): void {
     // removing selectedOptionValue if defaultValueChanges
     if (
+      this.isStringOrNumber(prevProps.defaultOptionValue) ||
+      this.isStringOrNumber(this.props.defaultOptionValue)
+    ) {
+      if (
+        prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
+        prevProps.option !== this.props.option
+      ) {
+        this.changeSelectedOption();
+      }
+      return;
+    }
+    if (
       prevProps.defaultOptionValue?.value !==
         this.props.defaultOptionValue?.value ||
       prevProps.option !== this.props.option
@@ -365,6 +370,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     }
   }
 
+  isStringOrNumber = (value: any): value is string | number =>
+    _.isString(value) || _.isNumber(value);
   changeSelectedOption = () => {
     this.props.updateWidgetMetaProperty("optionValue", this.props.optionValue);
   };
@@ -379,6 +386,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       value: this.props.selectedOptionValue,
     });
 
+    const { label = "", value = "" } = !_.isNil(this.props.optionValue)
+      ? this.isStringOrNumber(this.props.optionValue)
+        ? { label: this.props.optionValue, value: this.props.optionValue }
+        : this.props.optionValue
+      : {};
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <SelectComponent
@@ -397,7 +409,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}
-        label={this.props.optionValue?.label}
+        label={label}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -408,7 +420,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={this.props.optionValue?.value}
+        value={value}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
@@ -462,7 +474,8 @@ export interface SelectWidgetProps extends WidgetProps {
   selectedOption: DropdownOption;
   options?: DropdownOption[];
   onOptionChange?: string;
-  defaultOptionValue?: { label?: string; value?: string };
+  defaultOptionValue?: { label?: string; value?: string } | string;
+  optionValue?: { label?: string; value?: string } | string;
   value?: string;
   isRequired: boolean;
   isFilterable: boolean;
