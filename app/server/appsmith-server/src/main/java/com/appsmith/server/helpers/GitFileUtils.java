@@ -12,6 +12,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -35,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
@@ -304,8 +306,16 @@ public class GitFileUtils {
         layout.setAllOnPageLoadActionEdges(null);
         layout.setActionsUsedInDynamicBindings(null);
         layout.setMongoEscapedWidgetNames(null);
+        List<Set<DslActionDTO>> layoutOnLoadActions = layout.getLayoutOnLoadActions();
         if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
-            layout.getLayoutOnLoadActions().forEach(layoutAction -> layoutAction.forEach(actionDTO -> actionDTO.setDefaultActionId(null)));
+            // Sort actions based on id to commit to git in ordered manner
+            for (int dslActionIndex = 0; dslActionIndex < layoutOnLoadActions.size(); dslActionIndex++) {
+                TreeSet<DslActionDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
+                sortedActions.addAll(layoutOnLoadActions.get(dslActionIndex));
+                sortedActions
+                        .forEach(actionDTO -> actionDTO.setDefaultActionId(null));
+                layoutOnLoadActions.set(dslActionIndex, sortedActions);
+            }
         }
     }
 
