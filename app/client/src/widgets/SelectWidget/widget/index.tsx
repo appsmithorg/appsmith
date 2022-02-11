@@ -22,6 +22,9 @@ export function defaultOptionValueValidation(
   let parsed;
   let message = "";
 
+  /*
+   * Function to check if the object has `label` and `value`
+   */
   const hasLabelValue = (obj: any) => {
     return (
       _.isPlainObject(value) &&
@@ -32,6 +35,9 @@ export function defaultOptionValueValidation(
     );
   };
 
+  /*
+   * When value is "{label: 'green', value: 'green'}"
+   */
   if (typeof value === "string") {
     try {
       value = JSON.parse(value);
@@ -39,6 +45,9 @@ export function defaultOptionValueValidation(
   }
 
   if (typeof value === "string") {
+    /*
+     * When value is "", "green"
+     */
     isValid = true;
 
     if (value === "") {
@@ -50,6 +59,9 @@ export function defaultOptionValueValidation(
       };
     }
   } else if (hasLabelValue(value)) {
+    /*
+     * When value is {label: "green", value: "green"}
+     */
     isValid = true;
     parsed = value;
   } else {
