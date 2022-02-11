@@ -21,6 +21,7 @@ import {
 } from "./helper";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
+import { countFields } from "../helper";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   borderColor?: string;
@@ -49,9 +50,11 @@ export type MetaInternalFieldState = FieldState<{
 
 export type JSONFormWidgetState = {
   metaInternalFieldState: MetaInternalFieldState;
+  fieldLimitExceeded: boolean;
 };
 
 const SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT = 400;
+export const MAX_ALLOWED_FIELDS = 50;
 
 class JSONFormWidget extends BaseWidget<
   JSONFormWidgetProps,
@@ -68,6 +71,7 @@ class JSONFormWidget extends BaseWidget<
 
   state: JSONFormWidgetState = {
     metaInternalFieldState: {},
+    fieldLimitExceeded: false,
   };
 
   static getPropertyPaneConfig() {
@@ -123,6 +127,22 @@ class JSONFormWidget extends BaseWidget<
     // Hot path - early exit
     if (equal(prevSourceData, currSourceData)) {
       return;
+    }
+
+    const count = countFields(currSourceData);
+    if (count > MAX_ALLOWED_FIELDS && !this.state.fieldLimitExceeded) {
+      this.setState((prevState) => ({
+        ...prevState,
+        fieldLimitExceeded: true,
+      }));
+      return;
+    }
+
+    if (this.state.fieldLimitExceeded) {
+      this.setState((prevState) => ({
+        ...prevState,
+        fieldLimitExceeded: false,
+      }));
     }
 
     const start = performance.now();
@@ -205,6 +225,7 @@ class JSONFormWidget extends BaseWidget<
         boxShadowColor={this.props.boxShadowColor}
         disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
+        fieldLimitExceeded={this.state.fieldLimitExceeded}
         fixedFooter={this.props.fixedFooter}
         onSubmit={this.onSubmit}
         renderMode={this.props.renderMode}

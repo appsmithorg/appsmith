@@ -12,7 +12,7 @@ import { FIELD_MAP, ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { FormContextProvider } from "../FormContext";
 import { isEmpty, pick } from "lodash";
 import { RenderMode, TEXT_SIZES } from "constants/WidgetConstants";
-import { JSONFormWidgetState } from "../widget";
+import { JSONFormWidgetState, MAX_ALLOWED_FIELDS } from "../widget";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 
 type StyledContainerProps = {
@@ -29,6 +29,7 @@ export type JSONFormComponentProps<TValues = any> = {
   disabledWhenInvalid?: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   fixedFooter: boolean;
+  fieldLimitExceeded: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode: RenderMode;
   schema: Schema;
@@ -51,14 +52,14 @@ const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
   overflow-y: auto;
 `;
 
-const StyledZeroStateWrapper = styled.div`
+const MessageStateWrapper = styled.div`
   align-items: center;
   display: flex;
   height: 100%;
   justify-content: center;
 `;
 
-const StyledZeroTitle = styled(Text)`
+const Message = styled(Text)`
   font-size: ${TEXT_SIZES.HEADING3};
   left: 50%;
   position: absolute;
@@ -68,8 +69,24 @@ const StyledZeroTitle = styled(Text)`
   width: 100%;
 `;
 
+const zeroState = (
+  <MessageStateWrapper>
+    <Message>Connect data or paste JSON to add items to this form.</Message>
+  </MessageStateWrapper>
+);
+
+const limitExceededState = (
+  <MessageStateWrapper>
+    <Message>
+      Source data exceeds {MAX_ALLOWED_FIELDS} fields, please update the source
+      data.
+    </Message>
+  </MessageStateWrapper>
+);
+
 function JSONFormComponent<TValues>({
   executeAction,
+  fieldLimitExceeded,
   renderMode,
   schema,
   setMetaInternalFieldState,
@@ -88,14 +105,6 @@ function JSONFormComponent<TValues>({
     "widgetId",
   ]);
 
-  const zeroState = (
-    <StyledZeroStateWrapper>
-      <StyledZeroTitle>
-        Connect data or paste JSON to add items to this form.
-      </StyledZeroTitle>
-    </StyledZeroStateWrapper>
-  );
-
   const renderRootField = () => {
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
     const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
@@ -111,6 +120,13 @@ function JSONFormComponent<TValues>({
       />
     );
   };
+
+  const renderComponent = (() => {
+    if (fieldLimitExceeded) return limitExceededState;
+    if (isEmpty(schema)) return zeroState;
+
+    return renderRootField();
+  })();
 
   return (
     <FormContextProvider
@@ -134,7 +150,7 @@ function JSONFormComponent<TValues>({
           title={rest.title}
           updateFormData={rest.updateFormData}
         >
-          {isEmpty(schema) ? zeroState : renderRootField()}
+          {renderComponent}
         </Form>
       </StyledContainer>
     </FormContextProvider>

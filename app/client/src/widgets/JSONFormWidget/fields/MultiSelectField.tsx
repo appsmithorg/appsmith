@@ -68,12 +68,9 @@ const componentDefaultValues = ({
 > & {
   defaultValue: string;
 } => {
-  // let defaultValue;
   const { endTemplate, startTemplate } = bindingTemplate;
 
-  const defaultValue = `
-    ${startTemplate}${sourceDataPath}.map((item) => ({ "label": item, "value": item }))${endTemplate}
-  `;
+  const defaultValue = `${startTemplate}${sourceDataPath}.map((item) => ({ "label": item, "value": item }))${endTemplate}`;
 
   return {
     ...COMPONENT_DEFAULT_VALUES,

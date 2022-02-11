@@ -1,5 +1,10 @@
 import { DataType, FieldType, SchemaItem } from "./constants";
-import { schemaItemDefaultValue, validateOptions } from "./helper";
+import {
+  countFields,
+  mergeAllObjectsInAnArray,
+  schemaItemDefaultValue,
+  validateOptions,
+} from "./helper";
 
 describe(".schemaItemDefaultValue", () => {
   it("returns array default value when sub array fields don't have default value", () => {
@@ -286,6 +291,147 @@ describe(".validateOptions", () => {
 
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
       const result = validateOptions(input);
+
+      expect(result).toEqual(expectedOutput);
+    });
+  });
+});
+
+describe(".mergeAllObjectsInAnArray", () => {
+  it("returns merged array", () => {
+    const input = [
+      {
+        number: 10,
+        text: "text",
+        obj: {
+          arr: {
+            number: 10,
+            text: "text",
+            arr: ["a", "b"],
+            obj: {
+              a: 10,
+              c: 20,
+            },
+          },
+        },
+      },
+      {
+        number1: 10,
+        text2: "text",
+        obj: {
+          arr: {
+            number: 10,
+            text: "text",
+            arr: ["a", "b"],
+            obj1: {
+              a: 10,
+              c: 20,
+            },
+          },
+        },
+      },
+    ];
+
+    const expectedOutput = {
+      number: 10,
+      text: "text",
+      number1: 10,
+      text2: "text",
+      obj: {
+        arr: {
+          number: 10,
+          text: "text",
+          arr: ["a", "b"],
+          obj: {
+            a: 10,
+            c: 20,
+          },
+          obj1: {
+            a: 10,
+            c: 20,
+          },
+        },
+      },
+    };
+
+    const result = mergeAllObjectsInAnArray(input);
+
+    expect(result).toEqual(expectedOutput);
+  });
+});
+
+describe(".countFields", () => {
+  it("return number of fields in an object", () => {
+    const inputAndExpectedOutput = [
+      { input: { foo: { bar: 10 } }, expectedOutput: 2 },
+      { input: { foo: { bar: 10 }, arr: ["1", "2", "3"] }, expectedOutput: 3 },
+      {
+        input: {
+          foo: { bar: 10 },
+          arr: ["1", "2", "3"],
+          arr1: [{ a: 10 }, { c: 10, d: { e: 20, k: ["a", "b"] } }],
+        },
+        expectedOutput: 14,
+      },
+      {
+        input: {
+          number: 10,
+          text: "text",
+          arr: {
+            number: 10,
+            text: "text",
+            obj: {
+              arr: {
+                number: 10,
+                text: "text",
+                arr: ["a", "b"],
+                obj: {
+                  a: 10,
+                  c: 20,
+                },
+              },
+            },
+          },
+          arr2: ["1", "2"],
+          arr1: [
+            {
+              number: 10,
+              text: "text",
+              obj: {
+                arr: {
+                  number: 10,
+                  text: "text",
+                  arr: ["a", "b"],
+                  obj: {
+                    a: 10,
+                    c: 20,
+                  },
+                },
+              },
+            },
+            {
+              number1: 10,
+              text2: "text",
+              obj: {
+                arr: {
+                  number: 10,
+                  text: "text",
+                  arr: ["a", "b"],
+                  obj1: {
+                    a: 10,
+                    c: 20,
+                  },
+                },
+              },
+            },
+          ],
+        },
+        expectedOutput: 45,
+      },
+    ];
+
+    inputAndExpectedOutput.forEach(({ expectedOutput, input }) => {
+      const result = countFields(input);
 
       expect(result).toEqual(expectedOutput);
     });

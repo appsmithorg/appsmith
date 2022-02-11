@@ -108,3 +108,38 @@ export const validateOptions = (values: unknown) => {
 
   return true;
 };
+
+export const mergeAllObjectsInAnArray = (arrObj: Record<string, unknown>[]) => {
+  return arrObj.reduce((r, c) => merge(r, c), {});
+};
+
+export const countFields = (
+  obj:
+    | Record<string, unknown>
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null
+    | undefined,
+) => {
+  let count = 0;
+  if (!Array.isArray(obj) && !isPlainObject(obj)) return 0;
+
+  if (Array.isArray(obj)) {
+    if (isPlainObject(obj[0])) {
+      const mergedObject = mergeAllObjectsInAnArray(
+        obj as Record<string, unknown>[],
+      );
+      count += countFields(mergedObject) * obj.length;
+    }
+  } else {
+    if (obj && typeof obj === "object") {
+      Object.values(obj).forEach((objVal) => {
+        count += countFields(objVal as Record<string, unknown>) + 1;
+      });
+    }
+  }
+
+  return count;
+};
