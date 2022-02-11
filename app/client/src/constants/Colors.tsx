@@ -93,6 +93,8 @@ export const Colors = {
   DANUBE: "#6A86CE",
   FAIR_PINK: "#FFE9E9",
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
+  PALE_BLUE: "#E8F5FA",
+  CURIOUS_BLUE: "#1D9BD1",
   RATE_ACTIVE: "#FFCB45",
   MALIBU: "#7DBCFF",
   ALABASTER_ALT: "#FAFAFA",

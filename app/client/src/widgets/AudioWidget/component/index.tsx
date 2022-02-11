@@ -1,7 +1,7 @@
 import ReactPlayer from "react-player";
 import React, { Ref } from "react";
 import styled from "styled-components";
-import { createMessage, ENTER_AUDIO_URL } from "constants/messages";
+import { createMessage, ENTER_AUDIO_URL } from "@appsmith/constants/messages";
 export interface AudioComponentProps {
   url?: string;
   autoplay?: boolean;

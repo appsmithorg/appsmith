@@ -47,7 +47,7 @@ import {
   API_EDITOR_TAB_TITLES,
   createMessage,
   WIDGET_BIND_HELP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";

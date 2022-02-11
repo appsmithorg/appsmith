@@ -18,11 +18,13 @@ export default function TextComponent({ setting }: SettingComponentProps) {
   const value = setting.name && settingsConfig && settingsConfig[setting.name];
   return (
     <FormGroup setting={setting}>
-      <TextWrapper>
-        <StyledText data-testid="admin-settings-text" type={TextType.P1}>
-          {value}
-        </StyledText>
-      </TextWrapper>
+      {value && (
+        <TextWrapper>
+          <StyledText data-testid="admin-settings-text" type={TextType.P1}>
+            {value}
+          </StyledText>
+        </TextWrapper>
+      )}
     </FormGroup>
   );
 }
