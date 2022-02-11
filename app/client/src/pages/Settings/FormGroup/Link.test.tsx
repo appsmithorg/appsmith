@@ -1,11 +1,12 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { SettingTypes } from "../SettingsConfig";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import Link from "./Link";
 
 let container: any = null;
 const linkClickHandler = jest.fn();
 const setting = {
+  id: "SETTING_ID",
   isHidden: false,
   label: "setting label",
   action: linkClickHandler,

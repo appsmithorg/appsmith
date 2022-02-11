@@ -1,7 +1,7 @@
 import { Icon } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
-import { createMessage } from "constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -61,7 +61,7 @@ export default function Link({ setting }: SettingComponentProps) {
   }
   return (
     <LinkWrapper
-      className={setting.isHidden ? "hide" : ""}
+      className={`${setting.isHidden ? "hide" : ""} t--read-more-link`}
       data-testid="admin-settings-link"
     >
       <StyledLink data-testid="admin-settings-link-anchor" {...linkProps}>
