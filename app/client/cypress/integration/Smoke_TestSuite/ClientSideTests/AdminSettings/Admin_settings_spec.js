@@ -221,7 +221,7 @@ describe("Admin settings page", function() {
           .and("eq", "/applications");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(1)
-          .contains("Settings")
+          .contains("General")
           .should("have.attr", "href")
           .and("eq", "/settings/general");
       });
