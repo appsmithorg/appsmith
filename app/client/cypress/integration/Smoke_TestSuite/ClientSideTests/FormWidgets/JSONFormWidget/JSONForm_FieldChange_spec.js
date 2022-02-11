@@ -15,11 +15,11 @@ describe("JSON Form Widget Field Change", () => {
       .find("button")
       .should("not.exist");
     cy.openFieldConfiguration("name");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Number");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Number Input");
     cy.get(`${fieldPrefix}-name`)
       .find("button")
       .should("have.length", 2);
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -36,7 +36,7 @@ describe("JSON Form Widget Field Change", () => {
       .find("input")
       .invoke("attr", "type")
       .should("contain", "checkbox");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -48,12 +48,12 @@ describe("JSON Form Widget Field Change", () => {
       .click({ force: true });
     cy.get(".bp3-popover.bp3-dateinput-popover").should("not.exist");
     cy.openFieldConfiguration("name");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Date");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Datepicker");
     cy.get(`${fieldPrefix}-name`)
       .find("input")
       .click({ force: true });
     cy.get(".bp3-popover.bp3-dateinput-popover").should("exist");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -71,7 +71,7 @@ describe("JSON Form Widget Field Change", () => {
       .find(".bp3-control.bp3-switch")
       .should("exist");
 
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -82,12 +82,12 @@ describe("JSON Form Widget Field Change", () => {
     cy.get(".bp3-select-popover.select-popover-wrapper").should("not.exist");
 
     cy.openFieldConfiguration("name");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Select");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
 
     cy.get(`${fieldPrefix}-name label`).click({ force: true });
-    cy.get(".bp3-select-popover.select-popover-wrapper").should("not.exist");
+    cy.get(".bp3-select-popover.select-popover-wrapper").should("exist");
 
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -99,12 +99,12 @@ describe("JSON Form Widget Field Change", () => {
       .should("not.exist");
 
     cy.openFieldConfiguration("name");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Multi-Select");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Multiselect");
     cy.get(`${fieldPrefix}-name`)
       .find(".rc-select-multiple")
       .should("exist");
 
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -116,13 +116,13 @@ describe("JSON Form Widget Field Change", () => {
       .should("not.exist");
 
     cy.openFieldConfiguration("name");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio-Group");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
     cy.get(`${fieldPrefix}-name`)
       .find(".bp3-control.bp3-radio")
       .should("exist")
       .should("have.length", 2);
 
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -139,7 +139,7 @@ describe("JSON Form Widget Field Change", () => {
       .find(".t--jsonformfield-array-add-btn")
       .should("exist");
 
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -164,7 +164,7 @@ describe("JSON Form Widget Field Change", () => {
       .find("input")
       .should("exist");
 
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 
@@ -189,7 +189,7 @@ describe("JSON Form Widget Field Change", () => {
         .should("have.length", 2);
     });
 
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Text");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input$/);
     cy.closePropertyPane();
   });
 });

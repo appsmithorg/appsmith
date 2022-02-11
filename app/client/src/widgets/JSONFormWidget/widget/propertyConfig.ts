@@ -237,7 +237,7 @@ export default [
         helpText: "Input JSON sample for default form layout",
         label: "Source Data",
         controlType: "INPUT_TEXT",
-        placeholderText: 'Enter { "name": "John", "age": 24 }',
+        placeholderText: '{ "name": "John", "age": 24 }',
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -246,7 +246,7 @@ export default [
             fn: sourceDataValidationFn,
             expected: {
               type: "JSON",
-              example: `{ "name": "John Doe", age: 29 }`,
+              example: `{ "name": "John Doe", "age": 29 }`,
               autocompleteDataType: AutocompleteDataType.OBJECT,
             },
           },

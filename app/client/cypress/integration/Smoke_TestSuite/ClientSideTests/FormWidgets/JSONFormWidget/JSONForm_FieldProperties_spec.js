@@ -252,7 +252,7 @@ describe("Multi-Select Field Property Control", () => {
 
   it("has valid default value", () => {
     cy.get(".t--property-control-defaultvalue").contains(
-      "{{sourceData.hobbies}}",
+      '{{sourceData.hobbies.map((item) => ({ "label": item, "value": item }))}}',
     );
     cy.closePropertyPane();
   });
@@ -283,7 +283,7 @@ describe("Multi-Select Field Property Control", () => {
     cy.openFieldConfiguration("hobbies");
 
     cy.testJsontext("placeholder", "Select placeholder");
-
+    cy.wait(2000);
     cy.get(`.rc-select-selection-placeholder`).contains("Select placeholder");
   });
 
@@ -315,7 +315,7 @@ describe("Radio group Field Property Control", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.openFieldConfiguration("radio");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio-Group");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
   });
 
   it("has valid default value", () => {
