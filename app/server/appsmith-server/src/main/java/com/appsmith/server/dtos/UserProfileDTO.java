@@ -43,8 +43,6 @@ public class UserProfileDTO {
 
     String useCase;
 
-    Map<String, Object> metadata = new HashMap<>();
-
     boolean enableTelemetry = false;
 
     Map<String, Object> metadata = new HashMap<>();
