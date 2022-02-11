@@ -47,6 +47,7 @@
     "orgSectionBtn": ".t--org-section .bp3-button",
     "shareOrg": ") button:contains('Share')",
     "orgSection": "a:contains(",
+    "createNewAppButton": ".t--new-button",
     "createAppFrOrg": ") .t--new-button", 
     "shareApp": ".t--application-share-btn",
     "enablePublicAccess": ".t--share-public-toggle .slider",
