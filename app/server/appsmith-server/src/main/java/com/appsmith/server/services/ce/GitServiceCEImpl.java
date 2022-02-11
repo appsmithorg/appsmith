@@ -2245,8 +2245,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                             "applicationId", defaultApplicationId,
                             "organizationId", defaultIfNull(application.getOrganizationId(), ""),
                             "branchApplicationId", defaultIfNull(application.getId(), ""),
-                            "errorMessage", defaultIfNull(errorMessage, ""),
-                            "errorType", defaultIfNull(errorType, ""),
+                            "errorMessage", errorMessage,
+                            "errorType", errorType,
                             "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
                             "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
                     );
