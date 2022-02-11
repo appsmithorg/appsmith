@@ -13,78 +13,56 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-function defaultOptionValueValidation(
+export function defaultOptionValueValidation(
   value: unknown,
   props: SelectWidgetProps,
   _: any,
 ): ValidationResponse {
-  const allowedKeys = [
-    {
-      name: "label",
-    },
-    {
-      name: "value",
-    },
-  ];
-  let _valid = true;
-  let parsed = value;
-  const _messages: string[] = [];
-  let values: Record<string, unknown> = {};
-  if (value === undefined || value === null) {
-    return {
-      isValid: false,
-      parsed: "",
-      messages: ["This value does not evaluate to type: string"],
-    };
-  }
-  // if JSON, parse data and Check if it's an Object
-  try {
-    values = JSON.parse(value as string);
-    if (!_.isPlainObject(values)) {
-      throw new Error();
-    }
-  } catch {
-    if (_.isPlainObject(value)) {
-      values = value as Record<string, unknown>;
-    }
-  }
-  // Check if it's object
-  // If true we're working with values we either parsed or assigned in the try catch block
-  if (_.isPlainObject(values)) {
-    allowedKeys.forEach((entry) => {
-      const entryName = entry.name;
-      // check if label and value exist in object
-      if (values.hasOwnProperty(entryName)) {
-        // check if label and Value are actual inputs
-        if (!_.isString(values[entryName]) && !_.isFinite(values[entryName])) {
-          _valid = false;
-          _messages.push(`Value of key: ${entryName} is invalid`);
-        }
-      } else {
-        _valid = false;
-        _messages.push(`Missing required key: ${entryName}`);
-      }
-    });
-    if (_valid) {
-      return {
-        isValid: true,
-        parsed: values,
-      };
-    }
-  }
-  // Check if it's String
-  if (_.isString(value)) {
-    const parsed = { label: value, value };
-    return { isValid: true, parsed };
-  } else {
-    _valid = false;
-    _messages.push(
-      'This value does not evaluate to type: string | { "label": "label1", "value": "value1" }',
+  let isValid;
+  let parsed;
+  let message = "";
+
+  const hasLabelValue = (obj: any) => {
+    return (
+      _.isPlainObject(value) &&
+      obj.hasOwnProperty("label") &&
+      obj.hasOwnProperty("value") &&
+      _.isString(obj.label) &&
+      (_.isString(obj.value) || _.isFinite(obj.value))
     );
-    parsed = {};
+  };
+
+  if (typeof value === "string") {
+    try {
+      value = JSON.parse(value);
+    } catch (e) {}
   }
 
-  return { isValid: _valid, parsed, messages: _messages };
+  if (typeof value === "string") {
+    isValid = true;
+
+    if (value === "") {
+      parsed = {};
+    } else {
+      parsed = {
+        label: value,
+        value: value,
+      };
+    }
+  } else if (hasLabelValue(value)) {
+    isValid = true;
+    parsed = value;
+  } else {
+    isValid = false;
+    parsed = {};
+    message = `value does not evaluate to type: string | { "label": "label1", "value": "value1" }'`;
+  }
+
+  return {
+    isValid,
+    parsed,
+    messages: [message],
+  };
 }
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {

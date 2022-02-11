@@ -17,102 +17,113 @@ import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-function defaultOptionValueValidation(
+export function defaultOptionValueValidation(
   value: unknown,
   props: MultiSelectWidgetProps,
   _: any,
 ): ValidationResponse {
-  const allowedKeys = [
-    {
-      name: "label",
-    },
-    {
-      name: "value",
-    },
-  ];
-  let values: unknown[] = [];
-  let _valid = true;
-  let parsed = value;
-  const _messages: string[] = [];
-  if (typeof value === "string") {
+  let isValid;
+  let parsed;
+  let message = "";
+
+  /*
+   * Function to check if the object has `label` and `value`
+   */
+  const hasLabelValue = (obj: any) => {
+    return (
+      _.isPlainObject(obj) &&
+      obj.hasOwnProperty("label") &&
+      obj.hasOwnProperty("value") &&
+      _.isString(obj.label) &&
+      (_.isString(obj.value) || _.isFinite(obj.value))
+    );
+  };
+
+  /*
+   * Function to check for duplicate values in array
+   */
+  const hasUniqueValues = (arr: []) => {
+    const uniqueValues = Array.from(new Set(arr));
+
+    return uniqueValues.length === arr.length;
+  };
+
+  /*
+   * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
+   */
+  if (_.isString(value) && value !== "") {
     try {
-      values = JSON.parse(value);
-      if (!Array.isArray(values)) {
-        throw new Error();
-      }
-    } catch {
-      // Accommodate comma separated values
-      values = value.length ? value.split(",") : [];
-      if (values.length > 0) {
-        values = (values as string[]).map((_v: string) => _v.trim());
-      }
+      /*
+       * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
+       */
+      value = JSON.parse(value as string);
+    } catch (e) {
+      /*
+       * when value is "green, red", JSON.parse throws error
+       */
+      const splitByComma = (value as string).split(",") || [];
+
+      value = splitByComma.map((s) => s.trim());
     }
   }
-  if (Array.isArray(value)) {
-    values = value;
-  }
-  // values is either an Array<string | number> or Array<object>
 
-  // Assuming values is an Array<string | number>
-  if (
-    Array.isArray(values) &&
-    values.every((data) => _.isString(data) || _.isFinite(data))
-  ) {
-    values = Array.from(new Set(values));
-    return {
-      isValid: true,
-      parsed: values.map((data) => ({
-        value: data,
-        label: data,
-      })),
-    };
-  }
-
-  // Assuming Array<object>
-  if (
-    (values as Record<string, any>[]) &&
-    Array.isArray(values) &&
-    values.every((data) => _.isPlainObject(data))
-  ) {
-    const uniqueValue = new Set();
-    // Check if each object in array has label and value
-    values.forEach((data) => {
-      allowedKeys.forEach((entry) => {
-        const entryName = entry.name;
-        // check if label and value exist in object
-        if (data.hasOwnProperty(entryName)) {
-          // check if label and Value are actual inputs
-          if (!_.isString(data[entryName]) && !_.isFinite(data[entryName])) {
-            _valid = false;
-            _messages.push(`Value of key: ${entryName} is invalid`);
-            parsed = [];
-          }
-        } else {
-          _valid = false;
-          _messages.push(`Missing required key: ${entryName}`);
-          parsed = [];
-        }
-      });
-      // Check for uniqueness
-      if (uniqueValue.has(data["value"])) {
-        _valid = false;
-        _messages.push(`path:value must be unique. Duplicate values found`);
+  if (value === "") {
+    isValid = true;
+    parsed = [];
+    message = "";
+  } else if (Array.isArray(value)) {
+    if (value.every((val) => _.isString(val) || _.isFinite(val))) {
+      /*
+       * When value is ["green", "red"]
+       */
+      if (hasUniqueValues(value as [])) {
+        isValid = true;
+        parsed = value.map((val) => ({
+          label: val,
+          value: val,
+        }));
+        message = "";
       } else {
-        uniqueValue.add(data["value"]);
+        isValid = false;
+        parsed = [];
+        message = "values must be unique. Duplicate values found";
       }
-    });
-
-    if (_valid) {
-      return {
-        isValid: true,
-        parsed: values,
-      };
+    } else if (value.every(hasLabelValue)) {
+      /*
+       * When value is [{label: "green", value: "red"}]
+       */
+      if (hasUniqueValues(value.map((val) => val.value) as [])) {
+        isValid = true;
+        parsed = value;
+        message = "";
+      } else {
+        isValid = false;
+        parsed = [];
+        message = "path:value must be unique. Duplicate values found";
+      }
+    } else {
+      /*
+       * When value is [true, false], [undefined, undefined] etc.
+       */
+      isValid = false;
+      parsed = [];
+      message =
+        "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
     }
+  } else {
+    /*
+     * When value is undefined, null, {} etc.
+     */
+    isValid = false;
+    parsed = [];
+    message =
+      "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
   }
+
   return {
-    isValid: _valid,
+    isValid,
     parsed,
-    messages: _messages,
+    messages: [message],
   };
 }
 
