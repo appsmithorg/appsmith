@@ -16,8 +16,6 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { AppState } from "reducers";
@@ -110,19 +108,17 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           {viewMode && (
-            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-              <EditDatasourceButton
-                category={Category.tertiary}
-                className="t--edit-datasource"
-                onClick={() => {
-                  this.props.setDatasourceEditorMode(
-                    this.props.datasourceId,
-                    false,
-                  );
-                }}
-                text="EDIT"
-              />
-            </Boxed>
+            <EditDatasourceButton
+              category={Category.tertiary}
+              className="t--edit-datasource"
+              onClick={() => {
+                this.props.setDatasourceEditorMode(
+                  this.props.datasourceId,
+                  false,
+                );
+              }}
+              text="EDIT"
+            />
           )}
         </Header>
         {messages &&

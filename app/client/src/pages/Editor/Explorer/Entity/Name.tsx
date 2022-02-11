@@ -3,33 +3,16 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
-import _, { get } from "lodash";
 
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { Classes, Position } from "@blueprintjs/core";
-import { AppState } from "reducers";
-import {
-  getExistingActionNames,
-  getExistingJSCollectionNames,
-  getExistingPageNames,
-  getExistingWidgetNames,
-} from "selectors/entitiesSelector";
 import styled from "styled-components";
 import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
-import WidgetFactory from "utils/WidgetFactory";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
-
-const WidgetTypes = WidgetFactory.widgetTypes;
+import NameEditorComponent from "components/utils/NameEditorComponent";
+import { ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR } from "constants/messages";
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
@@ -48,10 +31,11 @@ const Wrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin: 0 4px;
+  margin: 0 4px 0 0;
   padding: 9px 0;
   line-height: 13px;
   position: relative;
+  font-weight: 500;
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }
@@ -109,99 +93,19 @@ export interface EntityNameProps {
   nameTransformFn?: (input: string, limit?: number) => string;
   isBeta?: boolean;
 }
-export const EntityName = forwardRef(
-  (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
+export const EntityName = React.memo(
+  forwardRef((props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;
-    const tabs:
-      | Array<{ id: string; widgetId: string; label: string }>
-      | undefined = useSelector((state: AppState) => {
-      if (state.entities.canvasWidgets.hasOwnProperty(props.entityId)) {
-        const widget = state.entities.canvasWidgets[props.entityId];
-        if (
-          widget.parentId &&
-          state.entities.canvasWidgets.hasOwnProperty(widget.parentId)
-        ) {
-          const parent = state.entities.canvasWidgets[widget.parentId];
-          // Todo(abhinav): abstraction leak
-          if (parent.type === WidgetTypes.TABS_WIDGET) {
-            return Object.values(parent.tabsObj);
-          }
-        }
-      }
-      return;
-    });
+    const [updatedName, setUpdatedName] = useState(name);
 
-    const nameUpdateError = useSelector((state: AppState) => {
-      return (
-        get(state, "ui.explorer.entity.updateEntityError") === props.entityId
-      );
-    });
     const targetRef = useRef<HTMLDivElement | null>(null);
 
-    const [updatedName, setUpdatedName] = useState(name);
+    const handleUpdateName = ({ name }: { name: string }) =>
+      updateEntityName(name);
 
     useEffect(() => {
       setUpdatedName(name);
-    }, [name, nameUpdateError]);
-
-    const existingPageNames: string[] = useSelector(getExistingPageNames);
-    const existingWidgetNames: string[] = useSelector(getExistingWidgetNames);
-
-    const dispatch = useDispatch();
-
-    const existingActionNames: string[] | [] = _.compact(
-      useSelector(getExistingActionNames),
-    );
-
-    const existingJSCollectionNames: string[] = useSelector(
-      getExistingJSCollectionNames,
-    );
-
-    const hasNameConflict = useCallback(
-      (
-        newName: string,
-        tabs?: Array<{ id: string; widgetId: string; label: string }>,
-      ) => {
-        if (tabs === undefined) {
-          return !(
-            existingPageNames.indexOf(newName) === -1 &&
-            existingActionNames.indexOf(newName) === -1 &&
-            existingWidgetNames.indexOf(newName) === -1 &&
-            existingJSCollectionNames.indexOf(newName)
-          );
-        } else {
-          return tabs.findIndex((tab) => tab.label === newName) > -1;
-        }
-      },
-      [
-        existingPageNames,
-        existingActionNames,
-        existingWidgetNames,
-        existingJSCollectionNames,
-      ],
-    );
-
-    const isInvalidName = useCallback(
-      (newName: string): string | boolean => {
-        if (!newName || newName.trim().length === 0) {
-          return "Please enter a name";
-        } else if (newName !== name && hasNameConflict(newName, tabs)) {
-          return `${newName} is already being used.`;
-        }
-        return false;
-      },
-      [name, hasNameConflict],
-    );
-
-    const handleAPINameChange = useCallback(
-      (newName: string) => {
-        if (name && newName !== name && !isInvalidName(newName)) {
-          setUpdatedName(newName);
-          dispatch(updateEntityName(newName));
-        }
-      },
-      [dispatch, isInvalidName, name, updateEntityName],
-    );
+    }, [name, setUpdatedName]);
 
     const searchHighlightedName = useMemo(() => {
       if (searchKeyword) {
@@ -237,6 +141,7 @@ export const EntityName = forwardRef(
               className={`${
                 props.className ? props.className : ""
               } ContextMenu`}
+              data-guided-tour-iid={name}
               onDoubleClick={props.enterEditMode}
               ref={targetRef}
             >
@@ -246,24 +151,39 @@ export const EntityName = forwardRef(
           </TooltipComponent>
         </Container>
       );
+
     return (
-      <EditableWrapper>
-        <EditableText
-          className={`${props.className} editing`}
-          defaultValue={updatedName}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          isEditingDefault
-          isInvalid={isInvalidName}
-          minimal
-          onBlur={props.exitEditMode}
-          onTextChanged={handleAPINameChange}
-          placeholder="Name"
-          type="text"
-          valueTransform={props.nameTransformFn || removeSpecialChars}
-        />
-      </EditableWrapper>
+      <NameEditorComponent
+        currentActionConfig={{ id: props.entityId, name: updatedName }}
+        dispatchAction={handleUpdateName}
+        suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}
+      >
+        {({
+          handleNameChange,
+          isInvalidNameForEntity,
+        }: {
+          handleNameChange: (value: string) => void;
+          isInvalidNameForEntity: (value: string) => string | boolean;
+        }) => (
+          <EditableWrapper>
+            <EditableText
+              className={`${props.className} editing`}
+              defaultValue={updatedName}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              isEditingDefault
+              isInvalid={isInvalidNameForEntity}
+              minimal
+              onBlur={props.exitEditMode}
+              onTextChanged={handleNameChange}
+              placeholder="Name"
+              type="text"
+              valueTransform={props.nameTransformFn || removeSpecialChars}
+            />
+          </EditableWrapper>
+        )}
+      </NameEditorComponent>
     );
-  },
+  }),
 );
 
 EntityName.displayName = "EntityName";

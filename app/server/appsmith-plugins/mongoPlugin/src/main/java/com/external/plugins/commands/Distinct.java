@@ -86,7 +86,7 @@ public class Distinct extends MongoCommand {
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
         setValueSafelyInFormData(configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
-        setValueSafelyInFormData(configMap, DISTINCT_KEY, "\"_id\"");
+        setValueSafelyInFormData(configMap, DISTINCT_KEY, "_id");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
        
 

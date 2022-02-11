@@ -1,8 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const sd = require("node-stdev");
-
-global.APP_ROOT = path.resolve(__dirname);
+var median = require("median");
 
 exports.summaries = async (directory) => {
   const files = await fs.promises.readdir(directory);
@@ -56,11 +55,11 @@ const generateMarkdown = (results) => {
   for (let i = 0; i < size; i++) {
     markdown = markdown + `| Run ${i + 1} `;
   }
-  markdown = markdown + `| Mean | SD.Sample | SD.Population`;
+  markdown = markdown + `| Median | Mean | SD.Sample | SD.Population`;
 
   markdown += "|\n";
 
-  for (let i = 0; i <= size + 3; i++) {
+  for (let i = 0; i <= size + 4; i++) {
     markdown = markdown + `| ------------- `;
   }
   markdown += "|\n";
@@ -68,7 +67,7 @@ const generateMarkdown = (results) => {
   Object.keys(results).forEach((key) => {
     const action = results[key];
     markdown += `**${key}**`;
-    for (let i = 0; i <= size; i++) {
+    for (let i = 0; i <= size + 4; i++) {
       markdown += `| `;
     }
     markdown += "|\n";
@@ -82,6 +81,8 @@ const generateMarkdown = (results) => {
           markdown += " | ";
         }
       }
+      // Add median
+      markdown += `| ${median(action[key])}`;
       // Add average
       const avg = parseFloat(
         (action[key].reduce((sum, val) => sum + val, 0) / length).toFixed(2),

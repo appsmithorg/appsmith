@@ -831,7 +831,11 @@ function renderField(props: {
       break;
   }
 
-  return <div key={fieldType}>{viewElement}</div>;
+  return (
+    <div data-guided-tour-iid={field.label} key={fieldType}>
+      {viewElement}
+    </div>
+  );
 }
 
 function Fields(props: {
@@ -856,6 +860,7 @@ function Fields(props: {
           field: fields[0],
           ...otherProps,
         })}
+
         <ul className={props.depth === 1 ? "tree" : ""}>
           {remainingFields.map((field: any, index: number) => {
             if (Array.isArray(field)) {

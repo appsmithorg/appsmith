@@ -2,6 +2,7 @@ const dsl = require("../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
 const widgetName = "inputwidgetv2";
+const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Input widget V2 - ", () => {
   before(() => {
@@ -132,6 +133,37 @@ describe("Input widget V2 - ", () => {
         "$100.22",
         "test@appsmith.com",
       ].forEach(enterAndTest);
+    });
+  });
+
+  it("should check that widget input resets on submit", () => {
+    cy.openPropertyPane(widgetName);
+    cy.get(
+      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
+    ).click();
+    cy.selectShowMsg();
+    cy.addSuccessMessage("Submitted!!");
+
+    cy.get(widgetInput).clear();
+    cy.wait(300);
+    cy.get(widgetInput).type("test{enter}");
+    cy.wait(300);
+    cy.get(widgetInput).should("contain.value", "");
+  });
+
+  describe("Should test other properties of the input widget - ", () => {
+    it("#valid", () => {
+      cy.openPropertyPane(widgetName);
+      [
+        ["{{1 === 2}}", "false"],
+        ["", "true"],
+        ["{{1 === 1}}", "true"],
+        ["", "true"],
+      ].forEach(([input, expected]) => {
+        cy.updateCodeInput(".t--property-control-valid", input);
+        cy.wait(500);
+        cy.validateEvaluatedValue(expected);
+      });
     });
   });
 });

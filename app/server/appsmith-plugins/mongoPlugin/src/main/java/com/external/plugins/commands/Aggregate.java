@@ -86,6 +86,13 @@ public class Aggregate extends MongoCommand {
             }
         } else {
             // The command expects the pipelines to be sent in an array. Parse and create a single element array
+
+            // check for enclosing curly bracket to make json validation more strict
+            final String jsonObject = this.pipeline.trim();
+            if (jsonObject.charAt(jsonObject.length() - 1) != '}') {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Pipeline stage is not a valid JSON object.");
+            }
+
             Document document = parseSafely("Array of Pipelines", this.pipeline);
             ArrayList<Document> documentArrayList = new ArrayList<>();
             documentArrayList.add(document);
@@ -113,14 +120,14 @@ public class Aggregate extends MongoCommand {
         setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
         setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, "[ {\"$sort\" : {\"_id\": 1} } ]");
-        // setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10"); according to Mongo docs Limit is not a key for the aggregate command.
+        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10");
 
 
         String rawQuery = "{\n" +
                 "  \"aggregate\": \"" + collectionName + "\",\n" +
-                "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ]" + 
-                " ,\n" +
-                "  \"explain\": \"true\" \n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
+                "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
+                "  \"limit\": 10,\n" +
+                "  \"explain\": \"true\"\n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
                 "}\n";
 
         return Collections.singletonList(new DatasourceStructure.Template(

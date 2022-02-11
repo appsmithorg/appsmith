@@ -11,21 +11,22 @@ describe("API Panel Test Functionality ", function() {
     cy.CreateAPI("FirstAPI");
     cy.enterDatasourceAndPath(testdata.baseUrl, "{{ '/random' }}");
     cy.log("Creation of FirstAPI Action successful");
-    cy.GlobalSearchEntity("FirstAPI");
+    //cy.GlobalSearchEntity("FirstAPI");
     cy.xpath('//*[local-name()="g" and @id="Icon/Outline/more-vertical"]')
       .last()
       .should("be.hidden")
       .invoke("show")
       .click({ force: true });
     cy.copyEntityToPage("SecondPage");
-    cy.GlobalSearchEntity("FirstAPICopy");
     // click on learn how link
     cy.get(".t--learn-how-apis-link").click();
     // this should open in a global search modal
     cy.get(commonlocators.globalSearchModal);
     cy.get("body").click(0, 0);
     cy.MoveAPIToPage("Page1");
-    cy.SearchEntityandOpen("FirstAPICopy");
+    cy.get(".t--entity-name")
+      .contains("FirstAPICopy")
+      .click({ force: true });
     cy.get(apiwidget.resourceUrl).should("contain.text", "{{ '/random' }}");
     cy.DeleteAPIFromSideBar();
   });

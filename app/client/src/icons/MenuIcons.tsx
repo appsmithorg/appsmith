@@ -3,7 +3,7 @@ import { IconProps, IconWrapper } from "constants/IconConstants";
 import WidgetsIcon from "remixicon-react/FunctionLineIcon";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api.svg";
 import { ReactComponent as OrgIcon } from "assets/icons/menu/org.svg";
-import PageIcon from "remixicon-react/File3LineIcon";
+import PageIcon from "remixicon-react/PagesLineIcon";
 import { ReactComponent as DataSourcesIcon } from "assets/icons/menu/data-sources.svg";
 import { ReactComponent as QueriesIcon } from "assets/icons/menu/queries.svg";
 import { ReactComponent as HomepageIcon } from "assets/icons/menu/homepage.svg";
@@ -20,13 +20,16 @@ import { ReactComponent as JSFileIcon } from "assets/icons/menu/js-file-icon.svg
 import { ReactComponent as LinkIcon } from "assets/icons/menu/link.svg";
 import { ReactComponent as JSFunctionIcon } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as DataSourcesIconV2 } from "assets/icons/menu/datasources-2.svg";
+import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 import { ReactComponent as JSIconV2 } from "assets/icons/menu/js-icon.svg";
 import { ReactComponent as QueryMain } from "assets/icons/menu/query-main.svg";
 import DefaultHomeIcon from "remixicon-react/Home4LineIcon";
+import CurrentPageIcon from "remixicon-react/CheckLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import SortIcon from "remixicon-react/ArrowUpDownLineIcon";
 /* eslint-disable react/display-name */
 
 const StyledDataSourcesIconV2 = styled(DataSourcesIconV2)`
@@ -180,6 +183,21 @@ export const MenuIcons: {
   QUERY_MAIN: (props: IconProps) => (
     <IconWrapper {...props}>
       <StyledQueryMain />
+    </IconWrapper>
+  ),
+  CURRENT_PAGE_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CurrentPageIcon />
+    </IconWrapper>
+  ),
+  SORT_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <SortIcon />
+    </IconWrapper>
+  ),
+  CURL_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CurlIcon />
     </IconWrapper>
   ),
 };

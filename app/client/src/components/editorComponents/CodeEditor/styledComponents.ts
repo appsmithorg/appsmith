@@ -245,6 +245,14 @@ export const EditorWrapper = styled.div<{
   }
   .CodeEditorTarget {
     width: 100%;
+
+    &:focus {
+      border: 1px solid var(--appsmith-input-focus-border-color);
+      .CodeMirror.cm-s-duotone-light {
+        border: none;
+      }
+    }
+
     ${(props) =>
       props.size === EditorSize.COMPACT
         ? `
