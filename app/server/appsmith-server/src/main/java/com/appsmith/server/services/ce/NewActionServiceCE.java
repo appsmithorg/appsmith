@@ -36,6 +36,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
+    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, Mono<NewAction> actionMono);
+
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String branchName);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);

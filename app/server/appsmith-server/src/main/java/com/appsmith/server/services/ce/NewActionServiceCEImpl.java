@@ -546,37 +546,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
                 .cache();
 
-        Mono<ActionDTO> actionDTOMono = actionMono
-                .flatMap(dbAction -> {
-                    ActionDTO action;
-                    if (TRUE.equals(executeActionDTO.getViewMode())) {
-                        action = dbAction.getPublishedAction();
-                        // If the action has not been published, return error
-                        if (action == null) {
-                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
-                        }
-                    } else {
-                        action = dbAction.getUnpublishedAction();
-                    }
-
-                    // Now check for erroneous situations which would deter the execution of the action :
-
-                    // Error out with in case of an invalid action
-                    if (FALSE.equals(action.getIsValid())) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_ACTION,
-                                action.getName(),
-                                ArrayUtils.toString(action.getInvalids().toArray())
-                        ));
-                    }
-
-                    // Error out in case of JS Plugin (this is currently client side execution only)
-                    if (dbAction.getPluginType() == PluginType.JS) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-                    return Mono.just(action);
-                })
-                .cache();
+        Mono<ActionDTO> actionDTOMono = getValidActionForExecution(executeActionDTO, actionId, actionMono);
 
         // 3. Instantiate the implementation class based on the query type
 
@@ -774,6 +744,42 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Mono.just(result);
                 })
                 .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
+    }
+
+    @Override
+    public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, Mono<NewAction> actionMono) {
+        Mono<ActionDTO> actionDTOMono = actionMono
+                .flatMap(dbAction -> {
+                    ActionDTO action;
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        action = dbAction.getPublishedAction();
+                        // If the action has not been published, return error
+                        if (action == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
+                        }
+                    } else {
+                        action = dbAction.getUnpublishedAction();
+                    }
+
+                    // Now check for erroneous situations which would deter the execution of the action :
+
+                    // Error out with in case of an invalid action
+                    if (FALSE.equals(action.getIsValid())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_ACTION,
+                                action.getName(),
+                                ArrayUtils.toString(action.getInvalids().toArray())
+                        ));
+                    }
+
+                    // Error out in case of JS Plugin (this is currently client side execution only)
+                    if (dbAction.getPluginType() == PluginType.JS) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                    return Mono.just(action);
+                })
+                .cache();
+        return actionDTOMono;
     }
 
     @Override
