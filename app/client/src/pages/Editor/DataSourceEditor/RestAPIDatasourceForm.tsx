@@ -79,6 +79,8 @@ interface DatasourceRestApiEditorProps {
   formMeta: any;
   messages?: Array<string>;
   hiddenHeader?: boolean;
+  responseStatus?: string;
+  responseMessage?: string;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -156,8 +158,7 @@ const AuthorizeButton = styled(StyledButton)`
 
 class DatasourceRestAPIEditor extends React.Component<Props> {
   componentDidMount() {
-    const search = new URLSearchParams(this.props.location.search);
-    const status = search.get("response_status");
+    const status = this.props.responseStatus;
 
     // set replay data
     this.props.initializeReplayEntity(
@@ -166,7 +167,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
 
     if (status) {
-      const display_message = search.get("display_message");
       // Set default error message
       let message = REST_API_AUTHORIZATION_FAILED;
       let variant = Variant.danger;
@@ -177,7 +177,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
       }
       Toaster.show({
-        text: display_message || createMessage(message),
+        text: this.props.responseMessage || createMessage(message),
         variant,
       });
     }
@@ -935,6 +935,13 @@ const mapStateToProps = (state: AppState, props: any) => {
   ) as Datasource;
 
   const hintMessages = datasource && datasource.messages;
+  let responseStatus = props.responseStatus;
+  let responseMessage = props.responseMessage;
+  if (props.location) {
+    const search = new URLSearchParams(props.location.search);
+    responseStatus = search.get("response_status");
+    responseMessage = search.get("display_message");
+  }
 
   return {
     initialValues: datasourceToFormValues(datasource),
@@ -945,6 +952,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
+    responseStatus,
+    responseMessage,
   };
 };
 

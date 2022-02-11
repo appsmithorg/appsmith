@@ -192,8 +192,9 @@ class DatasourceEditorRouter extends React.Component<Props> {
       return <EntityNotFoundPane />;
     }
 
+    const shouldViewMode = viewMode && !fromImporting;
     // Check for specific form types first
-    if (pluginDatasourceForm === "RestAPIDatasourceForm" && !viewMode) {
+    if (pluginDatasourceForm === "RestAPIDatasourceForm" && !shouldViewMode) {
       return (
         <RestAPIDatasourceForm
           applicationId={this.props.applicationId}
