@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
@@ -113,6 +114,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
 
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Export application, with id: " + applicationId);
         /*
             1. Fetch application by id
             2. Fetch pages from the application
@@ -427,6 +430,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                 }
 
+                                processStopwatch.stopAndLogTimeInMillis();
                                 return applicationJson;
                             });
                 })
@@ -534,6 +538,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             6. Extract and save pages in the application
             7. Extract and save actions in the application
          */
+
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Import application");
+
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         Map<String, String> pluginMap = new HashMap<>();
@@ -1070,7 +1078,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return mapActionIdWithPageLayout(newPage, actionIdMap)
                                         .flatMap(newPageService::save);
                             })
-                            .then(applicationService.update(importedApplication.getId(), importedApplication));
+                            .then(applicationService.update(importedApplication.getId(), importedApplication))
+                            .map(application -> {
+                                processStopwatch.stopAndLogTimeInMillis();
+                                return application;
+                            });
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
