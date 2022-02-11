@@ -47,7 +47,7 @@ const PROPERTIES = {
       evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
     },
     {
       propertyName: "placeholderText",
@@ -60,7 +60,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.TEXT },
       dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
     },
     {
       propertyName: "isFilterable",
@@ -73,7 +73,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN },
       dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
     },
     {
       propertyName: "serverSideFiltering",
@@ -87,7 +87,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN },
       dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
     },
     {
       propertyName: "allowSelectAll",
@@ -100,7 +100,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN },
       dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
     },
   ],
   actions: [
@@ -115,7 +115,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
     },
     {
       helpText: "Trigger an action on change of filterText",
@@ -130,7 +130,7 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).then(
           (schemaItem) => {
-            if (schemaItem.fieldType !== FieldType.MULTI_SELECT) return true;
+            if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
             return !schemaItem.serverSideFiltering;
           },
         ),

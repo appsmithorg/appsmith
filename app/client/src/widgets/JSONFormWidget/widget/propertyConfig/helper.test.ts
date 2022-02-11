@@ -81,14 +81,14 @@ describe(".fieldTypeUpdateHook", () => {
     expect(result.propertyPath).toEqual(
       "schema.__root_schema__.children.hobbies",
     );
-    expect(oldSchemaItem.fieldType).toEqual(FieldType.MULTI_SELECT);
+    expect(oldSchemaItem.fieldType).toEqual(FieldType.MULTISELECT);
     expect(newSchemaItem).toEqual(expectedNewSchemaItem);
   });
 
   it("updates valid new schema item for a field type array -> multiselect", () => {
     const schema = cloneDeep(schemaTestData.initialDataset.schemaOutput);
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
-    const fieldType = FieldType.MULTI_SELECT;
+    const fieldType = FieldType.MULTISELECT;
 
     const oldSchemaItem = {
       isCollapsible: true,
@@ -224,7 +224,7 @@ describe(".getSchemaItem", () => {
     const schema = schemaTestData.initialDataset.schemaOutput;
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
 
-    const inputs = [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTI_SELECT];
+    const inputs = [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTISELECT];
     const expectedOutput = [false, false, true];
 
     inputs.forEach((input, index) => {
@@ -243,7 +243,7 @@ describe(".getSchemaItem", () => {
     const schema = schemaTestData.initialDataset.schemaOutput;
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
 
-    const inputs = [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTI_SELECT];
+    const inputs = [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTISELECT];
     const expectedOutput = [true, true, false];
 
     inputs.forEach((input, index) => {
@@ -263,7 +263,7 @@ describe(".getSchemaItem", () => {
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
 
     const inputs = [
-      [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTI_SELECT],
+      [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTISELECT],
       [FieldType.SWITCH, FieldType.DATE],
     ];
     const expectedOutput = [false, true];

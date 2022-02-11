@@ -202,20 +202,22 @@ export const fieldTypeFor = (value: any) => {
       case DataType.ARRAY:
         return FieldType.ARRAY;
       default:
-        return FieldType.MULTI_SELECT;
+        return FieldType.MULTISELECT;
     }
   }
 
   if (dataType === DataType.STRING) {
-    const DateField = FIELD_MAP[FieldType.DATE];
-    const EmailField = FIELD_MAP[FieldType.EMAIL];
+    const DateField = FIELD_MAP[FieldType.DATEPICKER];
+    const EmailField = FIELD_MAP[FieldType.EMAIL_INPUT];
 
-    if (EmailField?.isValidType?.(value, { fieldType: FieldType.EMAIL })) {
-      return FieldType.EMAIL;
+    if (
+      EmailField?.isValidType?.(value, { fieldType: FieldType.EMAIL_INPUT })
+    ) {
+      return FieldType.EMAIL_INPUT;
     }
 
     if (DateField?.isValidType?.(value)) {
-      return FieldType.DATE;
+      return FieldType.DATEPICKER;
     }
   }
 

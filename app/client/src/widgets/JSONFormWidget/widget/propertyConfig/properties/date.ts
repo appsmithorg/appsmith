@@ -104,7 +104,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
     {
@@ -121,7 +121,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.TEXT },
       hideSubText: true,
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
     {
@@ -159,7 +159,7 @@ const PROPERTIES = {
         },
       },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
     {
@@ -173,7 +173,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
     {
@@ -187,7 +187,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
     {
@@ -202,7 +202,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
     {
@@ -217,7 +217,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
     {
@@ -232,7 +232,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
   ],
@@ -246,7 +246,7 @@ const PROPERTIES = {
       isTriggerProperty: true,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
     },
   ],

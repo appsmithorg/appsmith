@@ -16,22 +16,25 @@ import {
 } from "./fields";
 import { TextSize } from "constants/WidgetConstants";
 
+// CAUTION! When changing the enum value, make sure any direct comparison
+// eg fieldType === "Array" instead of fieldType === FieldType.ARRAY is taking place
+// and modified accordingly
 export enum FieldType {
   ARRAY = "Array",
   CHECKBOX = "Checkbox",
-  CURRENCY = "Currency",
-  DATE = "Date",
-  EMAIL = "Email",
-  MULTI_SELECT = "Multi-Select",
-  MULTILINE = "Multiline",
-  NUMBER = "Number",
+  CURRENCY_INPUT = "Currency Input",
+  DATEPICKER = "DatePicker",
+  EMAIL_INPUT = "Email Input",
+  MULTISELECT = "MultiSelect",
+  MULTILINE_TEXT_INPUT = "Multiline Text Input",
+  NUMBER_INPUT = "Number Input",
   OBJECT = "Object",
-  PASSWORD = "Password",
-  PHONE_NUMBER = "Phone Number",
-  RADIO_GROUP = "Radio-Group",
+  PASSWORD_INPUT = "Password Input",
+  PHONE_NUMBER_INPUT = "Phone Number Input",
+  RADIO_GROUP = "Radio Group",
   SELECT = "Select",
   SWITCH = "Switch",
-  TEXT = "Text",
+  TEXT_INPUT = "Text Input",
 }
 
 export enum DataType {
@@ -142,29 +145,29 @@ export const RESTRICTED_KEYS = [ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY];
 export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.ARRAY]: ArrayField,
   [FieldType.CHECKBOX]: CheckboxField,
-  [FieldType.CURRENCY]: CurrencyInputField,
-  [FieldType.DATE]: DateField,
-  [FieldType.EMAIL]: InputField,
-  [FieldType.MULTI_SELECT]: MultiSelectField,
-  [FieldType.MULTILINE]: InputField,
-  [FieldType.NUMBER]: InputField,
+  [FieldType.CURRENCY_INPUT]: CurrencyInputField,
+  [FieldType.DATEPICKER]: DateField,
+  [FieldType.EMAIL_INPUT]: InputField,
+  [FieldType.MULTISELECT]: MultiSelectField,
+  [FieldType.MULTILINE_TEXT_INPUT]: InputField,
+  [FieldType.NUMBER_INPUT]: InputField,
   [FieldType.OBJECT]: ObjectField,
-  [FieldType.PASSWORD]: InputField,
-  [FieldType.PHONE_NUMBER]: PhoneInputField,
+  [FieldType.PASSWORD_INPUT]: InputField,
+  [FieldType.PHONE_NUMBER_INPUT]: PhoneInputField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.SELECT]: SelectField,
   [FieldType.SWITCH]: SwitchField,
-  [FieldType.TEXT]: InputField,
+  [FieldType.TEXT_INPUT]: InputField,
 };
 
 export const INPUT_TYPES = [
-  FieldType.CURRENCY,
-  FieldType.EMAIL,
-  FieldType.MULTILINE,
-  FieldType.NUMBER,
-  FieldType.PASSWORD,
-  FieldType.PHONE_NUMBER,
-  FieldType.TEXT,
+  FieldType.CURRENCY_INPUT,
+  FieldType.EMAIL_INPUT,
+  FieldType.MULTILINE_TEXT_INPUT,
+  FieldType.NUMBER_INPUT,
+  FieldType.PASSWORD_INPUT,
+  FieldType.PHONE_NUMBER_INPUT,
+  FieldType.TEXT_INPUT,
 ] as const;
 
 /**
@@ -173,33 +176,32 @@ export const INPUT_TYPES = [
  * would help use identify what inputType it is based on the FieldType.
  */
 export const INPUT_FIELD_TYPE: Record<typeof INPUT_TYPES[number], InputType> = {
-  [FieldType.CURRENCY]: "CURRENCY",
-  [FieldType.EMAIL]: "EMAIL",
-  [FieldType.NUMBER]: "NUMBER",
-  [FieldType.PASSWORD]: "PASSWORD",
-  [FieldType.PHONE_NUMBER]: "PHONE_NUMBER",
-  [FieldType.TEXT]: "TEXT",
-  [FieldType.MULTILINE]: "TEXT",
+  [FieldType.CURRENCY_INPUT]: "CURRENCY",
+  [FieldType.EMAIL_INPUT]: "EMAIL",
+  [FieldType.NUMBER_INPUT]: "NUMBER",
+  [FieldType.PASSWORD_INPUT]: "PASSWORD",
+  [FieldType.PHONE_NUMBER_INPUT]: "PHONE_NUMBER",
+  [FieldType.TEXT_INPUT]: "TEXT",
+  [FieldType.MULTILINE_TEXT_INPUT]: "TEXT",
 };
 
 export const FIELD_EXPECTING_OPTIONS = [
-  FieldType.MULTI_SELECT,
-  FieldType.MULTI_SELECT,
+  FieldType.MULTISELECT,
   FieldType.RADIO_GROUP,
   FieldType.SELECT,
 ];
 
 export const DATA_TYPE_POTENTIAL_FIELD = {
-  [DataType.STRING]: FieldType.TEXT,
+  [DataType.STRING]: FieldType.TEXT_INPUT,
   [DataType.BOOLEAN]: FieldType.SWITCH,
-  [DataType.NUMBER]: FieldType.NUMBER,
-  [DataType.BIGINT]: FieldType.NUMBER,
-  [DataType.SYMBOL]: FieldType.TEXT,
-  [DataType.UNDEFINED]: FieldType.TEXT,
-  [DataType.NULL]: FieldType.TEXT,
+  [DataType.NUMBER]: FieldType.NUMBER_INPUT,
+  [DataType.BIGINT]: FieldType.NUMBER_INPUT,
+  [DataType.SYMBOL]: FieldType.TEXT_INPUT,
+  [DataType.UNDEFINED]: FieldType.TEXT_INPUT,
+  [DataType.NULL]: FieldType.TEXT_INPUT,
   [DataType.OBJECT]: FieldType.OBJECT,
   [DataType.ARRAY]: FieldType.ARRAY,
-  [DataType.FUNCTION]: FieldType.TEXT,
+  [DataType.FUNCTION]: FieldType.TEXT_INPUT,
 };
 
 // The potential value here is just for representation i.e it won't be used to set default value anywhere.
@@ -208,32 +210,32 @@ export const DATA_TYPE_POTENTIAL_FIELD = {
 export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.ARRAY]: [{ firstField: "" }],
   [FieldType.CHECKBOX]: true,
-  [FieldType.CURRENCY]: "",
-  [FieldType.DATE]: "",
-  [FieldType.EMAIL]: "",
-  [FieldType.MULTI_SELECT]: [],
-  [FieldType.MULTILINE]: "",
-  [FieldType.NUMBER]: 0,
+  [FieldType.CURRENCY_INPUT]: "",
+  [FieldType.DATEPICKER]: "",
+  [FieldType.EMAIL_INPUT]: "",
+  [FieldType.MULTISELECT]: [],
+  [FieldType.MULTILINE_TEXT_INPUT]: "",
+  [FieldType.NUMBER_INPUT]: 0,
   [FieldType.OBJECT]: {},
-  [FieldType.PASSWORD]: "",
-  [FieldType.PHONE_NUMBER]: "",
+  [FieldType.PASSWORD_INPUT]: "",
+  [FieldType.PHONE_NUMBER_INPUT]: "",
   [FieldType.RADIO_GROUP]: "",
   [FieldType.SELECT]: "",
   [FieldType.SWITCH]: true,
-  [FieldType.TEXT]: "",
+  [FieldType.TEXT_INPUT]: "",
 };
 
 export const FIELD_SUPPORTING_FOCUS_EVENTS = [
   FieldType.CHECKBOX,
-  FieldType.CURRENCY,
-  FieldType.DATE,
-  FieldType.EMAIL,
-  FieldType.MULTI_SELECT,
-  FieldType.MULTILINE,
-  FieldType.NUMBER,
-  FieldType.PASSWORD,
-  FieldType.PHONE_NUMBER,
-  FieldType.TEXT,
+  FieldType.CURRENCY_INPUT,
+  FieldType.DATEPICKER,
+  FieldType.EMAIL_INPUT,
+  FieldType.MULTISELECT,
+  FieldType.MULTILINE_TEXT_INPUT,
+  FieldType.NUMBER_INPUT,
+  FieldType.PASSWORD_INPUT,
+  FieldType.PHONE_NUMBER_INPUT,
+  FieldType.TEXT_INPUT,
 ];
 
 // These are the fields who's defaultValue property control's JS
@@ -242,21 +244,21 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   FieldType,
   (keyof SchemaItem)[] | null
 > = {
-  [FieldType.DATE]: ["defaultValue"],
+  [FieldType.DATEPICKER]: ["defaultValue"],
   [FieldType.SWITCH]: ["defaultValue"],
   [FieldType.ARRAY]: null,
   [FieldType.CHECKBOX]: ["defaultValue"],
-  [FieldType.CURRENCY]: null,
-  [FieldType.EMAIL]: null,
-  [FieldType.MULTI_SELECT]: null,
-  [FieldType.MULTILINE]: null,
-  [FieldType.NUMBER]: null,
+  [FieldType.CURRENCY_INPUT]: null,
+  [FieldType.EMAIL_INPUT]: null,
+  [FieldType.MULTISELECT]: null,
+  [FieldType.MULTILINE_TEXT_INPUT]: null,
+  [FieldType.NUMBER_INPUT]: null,
   [FieldType.OBJECT]: null,
-  [FieldType.PASSWORD]: null,
-  [FieldType.PHONE_NUMBER]: null,
+  [FieldType.PASSWORD_INPUT]: null,
+  [FieldType.PHONE_NUMBER_INPUT]: null,
   [FieldType.RADIO_GROUP]: null,
   [FieldType.SELECT]: null,
-  [FieldType.TEXT]: null,
+  [FieldType.TEXT_INPUT]: null,
 };
 
 export const getBindingTemplate = (widgetName: string) => {

@@ -33,11 +33,7 @@ function defaultValueValidation(
   // Cannot use FieldType typing check as this whole method is passed as string and executed on worker, so it results
   // any methods/variable (closure) usage as reference error.
   // CAUTION! - make sure the correct fieldType is used here as string.
-  if (
-    fieldType === "Number" ||
-    fieldType === "Currency" ||
-    fieldType === "Phone Number"
-  ) {
+  if (fieldType === "Number Input" || fieldType === "Currency Input") {
     const parsed = Number(value);
 
     if (typeof value === "string") {
@@ -211,7 +207,7 @@ const PROPERTIES = {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CURRENCY),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CURRENCY_INPUT),
       dependencies: ["schema"],
     },
     {
@@ -224,7 +220,7 @@ const PROPERTIES = {
       placeholderText: "Search by code or name",
       options: CurrencyDropdownOptions,
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CURRENCY),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CURRENCY_INPUT),
       dependencies: ["schema"],
       isBindProperty: false,
       isTriggerProperty: false,
@@ -249,7 +245,7 @@ const PROPERTIES = {
         },
       ],
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CURRENCY),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CURRENCY_INPUT),
       dependencies: ["schema"],
       isBindProperty: false,
       isTriggerProperty: false,
@@ -263,7 +259,9 @@ const PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: false,
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.PHONE_NUMBER),
+        getSchemaItem(...args).fieldTypeNotMatches(
+          FieldType.PHONE_NUMBER_INPUT,
+        ),
       dependencies: ["schema"],
       validation: { type: ValidationTypes.BOOLEAN },
     },
@@ -277,7 +275,9 @@ const PROPERTIES = {
       placeholderText: "Search by code or country name",
       options: ISDCodeDropdownOptions,
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.PHONE_NUMBER),
+        getSchemaItem(...args).fieldTypeNotMatches(
+          FieldType.PHONE_NUMBER_INPUT,
+        ),
       dependencies: ["schema"],
       isBindProperty: false,
       isTriggerProperty: false,
@@ -292,7 +292,7 @@ const PROPERTIES = {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.NUMBER },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT_INPUT),
       dependencies: ["schema"],
     },
     {
@@ -315,7 +315,7 @@ const PROPERTIES = {
         },
       },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.NUMBER),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.NUMBER_INPUT),
       dependencies: ["schema"],
     },
     {
@@ -338,7 +338,7 @@ const PROPERTIES = {
         },
       },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.NUMBER),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.NUMBER_INPUT),
       dependencies: ["schema"],
     },
     {
@@ -408,7 +408,7 @@ const PROPERTIES = {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT),
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT_INPUT),
       dependencies: ["schema"],
     },
     {
@@ -421,10 +421,10 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.TEXT },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes([
-          FieldType.TEXT,
-          FieldType.EMAIL,
-          FieldType.PASSWORD,
-          FieldType.NUMBER,
+          FieldType.TEXT_INPUT,
+          FieldType.EMAIL_INPUT,
+          FieldType.PASSWORD_INPUT,
+          FieldType.NUMBER_INPUT,
         ]),
       dependencies: ["schema"],
     },

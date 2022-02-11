@@ -114,7 +114,7 @@ export const parseRegex = (regex?: string) => {
 };
 
 function isValidType(value: string, options?: IsValidOptions) {
-  if (options?.fieldType === FieldType.EMAIL && value) {
+  if (options?.fieldType === FieldType.EMAIL_INPUT && value) {
     return EMAIL_REGEX.test(value);
   }
 
@@ -278,7 +278,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         leftIcon={leftIcon}
         maxNum={schemaItem.maxNum}
         minNum={schemaItem.minNum}
-        multiline={schemaItem.fieldType === FieldType.MULTILINE}
+        multiline={schemaItem.fieldType === FieldType.MULTILINE_TEXT_INPUT}
         onFocusChange={setIsFocused}
         onKeyDown={(e) => keyDownHandler(e, onChange, isValueValid)}
         onValueChange={(value) => onTextChangeHandler(value, onChange)}

@@ -31,11 +31,11 @@ const EMAIL_REGEX = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 
 const getInputHTMLType = (fieldType: FieldType) => {
   switch (fieldType) {
-    case FieldType.NUMBER:
+    case FieldType.NUMBER_INPUT:
       return "NUMBER";
-    case FieldType.EMAIL:
+    case FieldType.EMAIL_INPUT:
       return "EMAIL";
-    case FieldType.PASSWORD:
+    case FieldType.PASSWORD_INPUT:
       return "PASSWORD";
     default:
       return "TEXT";
@@ -48,7 +48,7 @@ const isValid = (
 ) => {
   let hasValidValue, value, isEmpty;
   switch (schemaItem.fieldType) {
-    case FieldType.NUMBER:
+    case FieldType.NUMBER_INPUT:
       try {
         isEmpty = isNil(inputValue);
         value = Number(inputValue);
@@ -78,7 +78,7 @@ const isValid = (
   const parsedRegex = parseRegex(schemaItem.regex);
 
   switch (schemaItem.fieldType) {
-    case FieldType.EMAIL:
+    case FieldType.EMAIL_INPUT:
       if (!EMAIL_REGEX.test(inputValue)) {
         /* email should conform to generic email regex */
         return false;
@@ -88,7 +88,7 @@ const isValid = (
       } else {
         return true;
       }
-    case FieldType.NUMBER:
+    case FieldType.NUMBER_INPUT:
       if (
         !isNil(schemaItem.maxNum) &&
         Number.isFinite(schemaItem.maxNum) &&
@@ -116,7 +116,7 @@ const isValid = (
 };
 
 function isValidType(value: string, options?: IsValidOptions) {
-  if (options?.fieldType === FieldType.EMAIL && value) {
+  if (options?.fieldType === FieldType.EMAIL_INPUT && value) {
     return EMAIL_REGEX.test(value);
   }
 
@@ -134,7 +134,7 @@ function InputField({
     (inputValue: string) => {
       let value;
       switch (schemaItem.fieldType) {
-        case FieldType.NUMBER:
+        case FieldType.NUMBER_INPUT:
           try {
             if (inputValue === "") {
               value = null;
