@@ -115,11 +115,6 @@ const downloadDataAsCSV = (props: {
 function TableDataDownload(props: TableDataDownloadProps) {
   const [selected, selectMenu] = React.useState(false);
 
-  const tableActionTitle = React.useMemo(
-    () => (props.isMobileScreenTableWidth ? "" : "Download"),
-    [props.isMobileScreenTableWidth],
-  );
-
   const downloadFile = (type: string) => {
     if (type === "CSV") {
       downloadTableDataAsCsv();
@@ -209,7 +204,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
         className="t--table-download-btn"
         selectMenu={selectMenu}
         selected={selected}
-        title={tableActionTitle}
+        title={props.isMobileScreenTableWidth ? "" : "Download"}
       >
         <DownloadIcon />
       </TableAction>

@@ -27,6 +27,7 @@ import {
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
+  TableWidth,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
@@ -126,9 +127,7 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
-  const isMobileScreenTableWidth = React.useMemo(() => props.width <= 576, [
-    props.width,
-  ]);
+  const isMobileScreenTableWidth = props.width <= TableWidth["Mobile"];
   const pageCount =
     props.serverSidePaginationEnabled && props.totalRecordsCount
       ? Math.ceil(props.totalRecordsCount / props.pageSize)
