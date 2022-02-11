@@ -55,7 +55,7 @@ const SearchInputWrapper = styled(InputGroup)`
       color: ${Colors.GREY_10};
       padding-right: 20px;
       text-overflow: ellipsis;
-      width: 200px;
+      width: 100%;
     }
     input:focus {
       border: 1.2px solid ${Colors.FERN_GREEN};
