@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouteMatch, Route, Switch } from "react-router-dom";
 import * as Sentry from "@sentry/react";
-import { TabComponent } from "components/ads/Tabs";
+import { TabComponent, DefaultTabItem } from "components/ads/Tabs";
 import ApplicationLoader from "pages/Applications/loader";
 import PageWrapper from "pages/common/PageWrapper";
 import { LeftPane as ApplicationsLeftPane } from "pages/Applications";
@@ -85,6 +85,7 @@ function HomeScreenTabs() {
         <TabComponent
           onSelect={onSelect}
           selectedIndex={matchTemplatesPath(path) ? 1 : 0}
+          tabItemComponent={DefaultTabItem}
           tabs={HomeTabs}
         />
       </TabsWrapper>

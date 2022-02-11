@@ -178,7 +178,7 @@ export type TabItemProps = {
   vertical: boolean;
 };
 
-function DefaultTabItem(props: TabItemProps) {
+export function DefaultTabItem(props: TabItemProps) {
   const { selected, tab, vertical } = props;
   return (
     <TabTitleWrapper

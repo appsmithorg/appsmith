@@ -116,8 +116,8 @@ export function TemplateLayout(props: TemplateLayoutProps) {
         <StyledImage src={TemplateSampleImage} />
       </ImageWrapper>
       <TemplateContent>
-        <div className="title">Job Application Tracker</div>
-        <div className="categories">Customer Support • DevOps</div>
+        <div className="title">{template.title}</div>
+        <div className="categories">{template.functions.join(" • ")}</div>
         <div className="description">{template.description}</div>
         <TemplateContentFooter>
           <DatasourceChip>

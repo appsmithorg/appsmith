@@ -82,7 +82,7 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps"
+          "Customer Support", "DevOps", "Test"
         ],
         "useCases": [
           "Support",

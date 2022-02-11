@@ -12,4 +12,5 @@ const LargeTemplate = styled(TemplateLayout)`
       0px 8px 8px -4px rgba(16, 24, 40, 0.04);
   }
 `;
+
 export default LargeTemplate;
