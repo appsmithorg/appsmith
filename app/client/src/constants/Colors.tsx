@@ -42,6 +42,7 @@ export const Colors = {
 
   FOAM: "#D9FDED",
   GREEN: "#03B365",
+  LIGHT_GREEN_CYAN: "#e5f6ec",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
   FERN_GREEN: "#50AF6C",
