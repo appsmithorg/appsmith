@@ -64,7 +64,8 @@ describe("Tasks", () => {
     fireEvent.click(button[0]);
     expect(history).toHaveBeenCalledWith(
       INTEGRATION_EDITOR_URL(
-        initialState.entities.pageList.applicationId,
+        initialState.ui.applications.currentApplication.slug,
+        initialState.entities.pageList.pages[0].slug,
         initialState.entities.pageList.currentPageId,
         INTEGRATION_TABS.NEW,
       ),
@@ -94,7 +95,8 @@ describe("Tasks", () => {
     fireEvent.click(button[0]);
     expect(history).toHaveBeenCalledWith(
       INTEGRATION_EDITOR_URL(
-        initialState.entities.pageList.applicationId,
+        initialState.ui.applications.currentApplication.slug,
+        initialState.entities.pageList.pages[0].slug,
         initialState.entities.pageList.currentPageId,
         INTEGRATION_TABS.ACTIVE,
       ),

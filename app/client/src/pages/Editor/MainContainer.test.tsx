@@ -72,7 +72,7 @@ const renderNestedComponent = () => {
   });
 
   return render(
-    <MemoryRouter initialEntries={["/applications/app_id/pages/page_id/edit"]}>
+    <MemoryRouter initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}>
       <MockApplication>
         <GlobalHotKeys>
           <UpdatedMainContainer dsl={dsl} />
@@ -128,9 +128,7 @@ describe("Drag and Drop widgets into Main container", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
-      <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
-      >
+      <MemoryRouter initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}>
         <MockApplication>
           <GlobalHotKeys>
             <UpdatedMainContainer dsl={dsl} />
@@ -228,9 +226,7 @@ describe("Drag and Drop widgets into Main container", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
-      <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
-      >
+      <MemoryRouter initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}>
         <MockApplication>
           <GlobalHotKeys>
             <UpdatedMainContainer dsl={dsl} />
@@ -335,9 +331,7 @@ describe("Drag and Drop widgets into Main container", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
-      <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
-      >
+      <MemoryRouter initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}>
         <MockApplication>
           <GlobalHotKeys>
             <UpdatedMainContainer dsl={dsl} />
@@ -443,9 +437,7 @@ describe("Drag and Drop widgets into Main container", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
-      <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
-      >
+      <MemoryRouter initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}>
         <MockApplication>
           <GlobalHotKeys>
             <UpdatedMainContainer dsl={dsl} />
@@ -548,9 +540,7 @@ describe("Drag and Drop widgets into Main container", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
-      <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
-      >
+      <MemoryRouter initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}>
         <MockApplication>
           <GlobalHotKeys>
             <UpdatedMainContainer dsl={dsl} />
@@ -656,9 +646,7 @@ describe("Drag and Drop widgets into Main container", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
-      <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
-      >
+      <MemoryRouter initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}>
         <MockApplication>
           <GlobalHotKeys>
             <UpdatedMainContainer dsl={dsl} />

@@ -79,7 +79,8 @@ describe("Checklist", () => {
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
       INTEGRATION_EDITOR_URL(
-        initialState.entities.pageList.applicationId,
+        initialState.ui.applications.currentApplication.slug,
+        initialState.entities.pageList.pages[0].slug,
         initialState.entities.pageList.currentPageId,
         INTEGRATION_TABS.NEW,
       ),
@@ -96,7 +97,8 @@ describe("Checklist", () => {
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
       INTEGRATION_EDITOR_URL(
-        initialState.entities.pageList.applicationId,
+        initialState.ui.applications.currentApplication.slug,
+        initialState.entities.pageList.pages[0].slug,
         initialState.entities.pageList.currentPageId,
         INTEGRATION_TABS.ACTIVE,
       ),
@@ -111,7 +113,8 @@ describe("Checklist", () => {
     fireEvent.click(widgetButton[0]);
     expect(history).toHaveBeenCalledWith(
       BUILDER_PAGE_URL({
-        applicationId: initialState.entities.pageList.applicationId,
+        applicationSlug: initialState.ui.applications.currentApplication.slug,
+        pageSlug: initialState.entities.pageList.pages[0].slug,
         pageId: initialState.entities.pageList.currentPageId,
       }),
     );

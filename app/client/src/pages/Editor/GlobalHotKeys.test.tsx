@@ -71,7 +71,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+          initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
             <GlobalHotKeys>
@@ -191,7 +191,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+          initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
             <GlobalHotKeys>
@@ -233,7 +233,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+          initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
             <GlobalHotKeys>
@@ -318,7 +318,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+          initialEntries={["/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
             <GlobalHotKeys>

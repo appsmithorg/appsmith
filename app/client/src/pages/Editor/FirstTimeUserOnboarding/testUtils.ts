@@ -7,6 +7,12 @@ export const initialState: any = {
     pageList: {
       applicationId: 1,
       currentPageId: PAGE_ID,
+      pages: [
+        {
+          pageId: PAGE_ID,
+          slug: "pageSlug",
+        },
+      ],
     },
     datasources: {
       list: [],
@@ -25,6 +31,7 @@ export const initialState: any = {
     applications: {
       currentApplication: {
         lastDeployedAt: null,
+        slug: "applicationSlug",
       },
     },
     onBoarding: {
