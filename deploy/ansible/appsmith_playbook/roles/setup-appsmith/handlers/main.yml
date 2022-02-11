@@ -1,0 +1,6 @@
+---
+
+- name: Successful installation message
+  debug:
+    msg: "Successful installation. Please open http://{{ ansible_host }}/ to view your instance"
+  listen: "Start Appsmith with docker-compose"
