@@ -675,7 +675,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         )
                         .onErrorResume(error -> {
-                            log.error("Error while cloning the remote repo, {}", error.getMessage());
+                            log.error("Error while cloning the remote repo, ", error);
                             return addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CONNECT.getEventName(),
                                     application,
@@ -690,7 +690,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 if (error instanceof InvalidRemoteException) {
                                     return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
                                 }
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                if (error instanceof TimeoutException) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
                             });
                         });
                         return Mono.zip(
