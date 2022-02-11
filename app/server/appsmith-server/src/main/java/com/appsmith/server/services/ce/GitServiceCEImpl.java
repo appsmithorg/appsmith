@@ -2238,6 +2238,21 @@ public class GitServiceCEImpl implements GitServiceCE {
         String gitHostingProvider = gitData == null
                 ? ""
                 : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
+        // Do not include the error data points in the map for success states
+        if(StringUtils.isEmptyOrNull(errorMessage) || StringUtils.isEmptyOrNull(errorType)) {
+            return sessionUserService.getCurrentUser()
+                    .map(user -> {
+                        final Map<String, Object> analyticsProps = Map.of(
+                                "applicationId", defaultApplicationId,
+                                "organizationId", defaultIfNull(application.getOrganizationId(), ""),
+                                "branchApplicationId", defaultIfNull(application.getId(), ""),
+                                "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
+                                "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
+                        );
+                        analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
+                        return application;
+                    });
+        }
 
         return sessionUserService.getCurrentUser()
                 .map(user -> {
@@ -2245,8 +2260,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                             "applicationId", defaultApplicationId,
                             "organizationId", defaultIfNull(application.getOrganizationId(), ""),
                             "branchApplicationId", defaultIfNull(application.getId(), ""),
-                            "errorMessage", errorMessage,
-                            "errorType", errorType,
+                            "errorMessage", defaultIfNull(errorMessage, ""),
+                            "errorType", defaultIfNull(errorType, ""),
                             "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
                             "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
                     );
