@@ -19,7 +19,11 @@ import BaseInputWidget from "widgets/BaseInputWidget";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
-import { AsYouType, CountryCode } from "libphonenumber-js";
+import {
+  AsYouType,
+  CountryCode,
+  parseIncompletePhoneNumber,
+} from "libphonenumber-js";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 
@@ -113,6 +117,16 @@ class PhoneInputWidget extends BaseInputWidget<
                 },
               },
             },
+            {
+              propertyName: "allowFormatting",
+              label: "Enable Formatting",
+              helpText: "Formats the phone number as per the country selected",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
           ],
         },
       ],
@@ -121,26 +135,40 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return _.merge(super.getDerivedPropertiesMap(), {
+    return {
       isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
-    });
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return _.merge(super.getMetaPropertiesMap());
+    return _.merge(super.getMetaPropertiesMap(), {
+      value: undefined,
+    });
+  }
+
+  getFormattedPhoneNumber(value: string) {
+    const countryCode = getCountryCode(this.props.dialCode);
+    let formattedValue;
+
+    if (!value) {
+      formattedValue = value;
+    } else if (this.props.allowFormatting) {
+      formattedValue = new AsYouType(countryCode as CountryCode).input(value);
+    } else {
+      formattedValue = parseIncompletePhoneNumber(value);
+    }
+
+    return formattedValue;
   }
 
   componentDidMount() {
     //format the defaultText and store it in text
     if (!!this.props.text) {
       try {
-        const dialCode = this.props.dialCode || "+1";
-        const countryCode = getCountryCode(dialCode);
-        const value = this.props.text;
-        const parsedValue: string = new AsYouType(
-          countryCode as CountryCode,
-        ).input(value);
-        this.props.updateWidgetMetaProperty("text", parsedValue);
+        const formattedValue = this.getFormattedPhoneNumber(this.props.text);
+
+        this.props.updateWidgetMetaProperty("value", this.props.text);
+        this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
         Sentry.captureException(e);
@@ -155,6 +183,26 @@ class PhoneInputWidget extends BaseInputWidget<
     ) {
       this.onISDCodeChange(this.props.dialCode);
     }
+
+    if (prevProps.allowFormatting !== this.props.allowFormatting) {
+      const formattedValue = this.getFormattedPhoneNumber(this.props.value);
+
+      this.props.updateWidgetMetaProperty("text", formattedValue);
+    }
+
+    // When the default text changes
+    if (
+      prevProps.text !== this.props.text &&
+      this.props.text === this.props.defaultText
+    ) {
+      const formattedValue = this.getFormattedPhoneNumber(this.props.text);
+
+      this.props.updateWidgetMetaProperty(
+        "value",
+        parseIncompletePhoneNumber(formattedValue),
+      );
+      this.props.updateWidgetMetaProperty("text", formattedValue);
+    }
   }
 
   onISDCodeChange = (dialCode?: string) => {
@@ -168,26 +216,28 @@ class PhoneInputWidget extends BaseInputWidget<
       this.props.updateWidgetMetaProperty("countryCode", countryCode);
     }
 
-    if (this.props.text) {
-      const parsedValue: string = new AsYouType(
-        countryCode as CountryCode,
-      ).input(this.props.text);
-      this.props.updateWidgetMetaProperty("text", parsedValue);
+    if (this.props.value && this.props.allowFormatting) {
+      const formattedValue = this.getFormattedPhoneNumber(this.props.value);
+
+      this.props.updateWidgetMetaProperty("text", formattedValue);
     }
   };
 
   onValueChange = (value: string) => {
-    const countryCode = this.props.countryCode || "US";
-    let parsedValue: string;
+    let formattedValue;
 
-    // Don't format as value is typed when user is deleting
-    if (value.length > this.props.text.length) {
-      parsedValue = new AsYouType(countryCode).input(value);
+    // Don't format, as value is typed, when user is deleting
+    if (value && value.length > this.props.text.length) {
+      formattedValue = this.getFormattedPhoneNumber(value);
     } else {
-      parsedValue = value;
+      formattedValue = value;
     }
 
-    this.props.updateWidgetMetaProperty("text", parsedValue, {
+    this.props.updateWidgetMetaProperty(
+      "value",
+      parseIncompletePhoneNumber(formattedValue),
+    );
+    this.props.updateWidgetMetaProperty("text", formattedValue, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
