@@ -1,3 +1,4 @@
+import Icon, { IconSize } from "components/ads/Icon";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import { Datasource } from "entities/Datasource";
@@ -25,6 +26,7 @@ const ListItem = styled.div<{ disabled?: boolean }>`
 `;
 
 const ListLabels = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   .t--ds-list-description {
@@ -33,33 +35,39 @@ const ListLabels = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .cs-icon {
+    margin-left: ${(props) => props.theme.spaces[2]}px;
+  }
 `;
 
 function ListItemWrapper(props: {
   ds: Datasource;
   selected?: boolean;
-  isConfigured?: boolean;
   plugin: {
     image: string;
     name: string;
   };
-  onClick: (ds: Datasource, isConfigured?: boolean) => void;
+  onClick: (ds: Datasource) => void;
 }) {
-  const { ds, isConfigured, onClick, plugin, selected } = props;
+  const { ds, onClick, plugin, selected } = props;
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}
-      disabled={isConfigured}
-      onClick={() => onClick(ds, isConfigured)}
+      onClick={() => onClick(ds)}
     >
       <PluginImage alt="Datasource" src={plugin.image} />
       <ListLabels>
         <Text
           color={Colors.GRAY_800}
-          style={{ marginBottom: 2 }}
+          style={{ marginBottom: 2, display: "flex" }}
           type={TextType.H4}
         >
           {plugin.name}
+          <Icon
+            fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
+            name={ds.isConfigured ? "oval-check" : "info"}
+            size={IconSize.MEDIUM}
+          />
         </Text>
         <Text
           className="t--ds-list-description"

@@ -21,7 +21,6 @@ import styled, { useTheme } from "styled-components";
 import _, { get } from "lodash";
 import { Title } from "./components/StyledComponents";
 import {
-  ADD_MISSING_DATASOURCES,
   createMessage,
   RECONNECT_DATASOURCE_SUCCESS_MESSAGE1,
   RECONNECT_DATASOURCE_SUCCESS_MESSAGE2,
@@ -47,10 +46,6 @@ import { Datasource } from "entities/Datasource";
 import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { initialize } from "redux-form";
-import { setUnconfiguredDatasourcesDuringImport } from "actions/datasourceActions";
-import Collapsible from "../DataSourceEditor/Collapsible";
-import Link from "./components/Link";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { setOrgIdForImport } from "actions/applicationActions";
@@ -230,11 +225,6 @@ const TooltipWrapper = styled.div`
   }
 `;
 
-enum DSCollapseMenu {
-  CONFIGURED = "CONFIGURED",
-  UNCONFIGURED = "UNCONFIGURED",
-}
-
 function TooltipContent() {
   return (
     <TooltipWrapper>
@@ -277,9 +267,7 @@ function ReconnectDatasourceModal() {
   const [pageId, setPageId] = useState<string | null>(queryPageId);
   const [appId, setAppId] = useState<string | null>(queryAppId);
   const [appURL, setAppURL] = useState("");
-  const [collapsedMenu, setCollapsedMenu] = useState(
-    DSCollapseMenu.UNCONFIGURED,
-  );
+  const [datasouce, setDatasource] = useState<Datasource | null>(null);
 
   // should open reconnect datasource modal
   useEffect(() => {
@@ -312,25 +300,19 @@ function ReconnectDatasourceModal() {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setOrgIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
-    dispatch(setUnconfiguredDatasourcesDuringImport());
     setSelectedDatasourceId("");
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
 
-  const onSelectDatasource = useCallback(
-    (ds: Datasource, isConfigured?: boolean) => {
-      setSelectedDatasourceId(ds.id);
-      setCollapsedMenu(
-        isConfigured ? DSCollapseMenu.CONFIGURED : DSCollapseMenu.UNCONFIGURED,
-      );
-      AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
-        id: ds.id,
-        name: ds.name,
-        pluginName: pluginNames[ds.id],
-        isConfigured: ds.isConfigured,
-      });
-    },
-    [],
-  );
+  const onSelectDatasource = useCallback((ds: Datasource) => {
+    setSelectedDatasourceId(ds.id);
+    setDatasource(ds);
+    AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
+      id: ds.id,
+      name: ds.name,
+      pluginName: pluginNames[ds.id],
+      isConfigured: ds.isConfigured,
+    });
+  }, []);
 
   useEffect(() => {
     if (
@@ -339,10 +321,8 @@ function ReconnectDatasourceModal() {
       !selectedDatasourceId &&
       !queryIsImport
     ) {
-      const unconfiguredDatasource = datasources.find(
-        (ds: Datasource) => !ds.isConfigured,
-      );
-      setSelectedDatasourceId(unconfiguredDatasource?.id ?? "");
+      setDatasource(datasources[0]);
+      setSelectedDatasourceId(datasources[0].id ?? "");
     }
   }, [isConfigFetched, selectedDatasourceId, queryIsImport]);
 
@@ -425,68 +405,30 @@ function ReconnectDatasourceModal() {
             </Section>
             <ContentWrapper>
               <ListContainer>
-                <Collapsible
-                  defaultIsOpen={collapsedMenu === DSCollapseMenu.CONFIGURED}
-                  headerIcon={{
-                    name: "oval-check",
-                    color: Colors.GREEN,
-                  }}
-                  title="Available Datasources"
-                >
-                  {datasources
-                    .filter((ds: Datasource) => ds.isConfigured)
-                    .map((ds: Datasource) => {
-                      return (
-                        <ListItemWrapper
-                          ds={ds}
-                          isConfigured
-                          key={ds.id}
-                          onClick={onSelectDatasource}
-                          plugin={{
-                            name: pluginNames[ds.pluginId],
-                            image: pluginImages[ds.pluginId],
-                          }}
-                          selected={ds.id === selectedDatasourceId}
-                        />
-                      );
-                    })}
-                </Collapsible>
-                <Collapsible
-                  defaultIsOpen={collapsedMenu === DSCollapseMenu.UNCONFIGURED}
-                  headerIcon={{
-                    name: "warning-line",
-                    color: Colors.WARNING_SOLID,
-                  }}
-                  title="Missing Datasources"
-                >
-                  {datasources
-                    .filter((ds: Datasource) => !ds.isConfigured)
-                    .map((ds: Datasource) => {
-                      return (
-                        <ListItemWrapper
-                          ds={ds}
-                          key={ds.id}
-                          onClick={onSelectDatasource}
-                          plugin={{
-                            name: pluginNames[ds.pluginId],
-                            image: pluginImages[ds.pluginId],
-                          }}
-                          selected={ds.id === selectedDatasourceId}
-                        />
-                      );
-                    })}
-                </Collapsible>
+                {datasources.map((ds: Datasource) => {
+                  return (
+                    <ListItemWrapper
+                      ds={ds}
+                      key={ds.id}
+                      onClick={onSelectDatasource}
+                      plugin={{
+                        name: pluginNames[ds.pluginId],
+                        image: pluginImages[ds.pluginId],
+                      }}
+                      selected={ds.id === selectedDatasourceId}
+                    />
+                  );
+                })}
               </ListContainer>
-              {isConfigFetched &&
-                collapsedMenu === DSCollapseMenu.UNCONFIGURED && (
-                  <DatasourceForm
-                    applicationId={appId}
-                    datasourceId={selectedDatasourceId}
-                    fromImporting
-                    pageId={pageId}
-                  />
-                )}
-              {collapsedMenu === DSCollapseMenu.CONFIGURED && (
+              {isConfigFetched && !datasouce?.isConfigured && (
+                <DatasourceForm
+                  applicationId={appId}
+                  datasourceId={selectedDatasourceId}
+                  fromImporting
+                  pageId={pageId}
+                />
+              )}
+              {datasouce && datasouce.isConfigured && (
                 <Section className="t--message-container">
                   <Message>
                     {createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE1)}
@@ -494,24 +436,6 @@ function ReconnectDatasourceModal() {
                   <Message>
                     {createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE2)}
                   </Message>
-                  <Link
-                    color={Colors.GREY_9}
-                    hasIcon
-                    link={DOCS_BASE_URL || ""}
-                    onClick={() => {
-                      AnalyticsUtil.logEvent(
-                        "ADD_MISSING_DATASOURCE_LINK_CLICK",
-                      );
-                      const ds = datasources.filter(
-                        (ds: Datasource) => !ds.isConfigured,
-                      )[0];
-                      if (ds) {
-                        setSelectedDatasourceId(ds.id);
-                        setCollapsedMenu(DSCollapseMenu.UNCONFIGURED);
-                      }
-                    }}
-                    text={createMessage(ADD_MISSING_DATASOURCES)}
-                  />
                 </Section>
               )}
             </ContentWrapper>

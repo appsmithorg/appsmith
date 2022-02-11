@@ -660,8 +660,6 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
           yield put(
             showReconnectDatasourceModal({
               application: response?.data?.application,
-              unConfiguredDatasourceList:
-                response?.data.unConfiguredDatasourceList,
               orgId: organizationIdForImport,
             }),
           );

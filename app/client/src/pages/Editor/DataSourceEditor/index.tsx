@@ -199,6 +199,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
         <RestAPIDatasourceForm
           applicationId={this.props.applicationId}
           datasourceId={datasourceId}
+          hiddenHeader={fromImporting}
           isDeleting={isDeleting}
           isNewDatasource={isNewDatasource}
           isSaving={isSaving}

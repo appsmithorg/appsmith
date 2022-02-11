@@ -9,7 +9,6 @@ import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
 } from "api/ApplicationApi";
-import { Datasource } from "entities/Datasource";
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -158,7 +157,6 @@ export const setOrgIdForImport = (orgId?: string) => ({
 
 export const showReconnectDatasourceModal = (payload: {
   application: ApplicationResponsePayload;
-  unConfiguredDatasourceList: Array<Datasource>;
   orgId: string;
 }) => ({
   type: ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,

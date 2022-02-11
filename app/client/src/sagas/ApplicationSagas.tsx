@@ -81,10 +81,7 @@ import {
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
-import {
-  fetchDatasources,
-  setUnconfiguredDatasourcesDuringImport,
-} from "actions/datasourceActions";
+import { fetchDatasources } from "actions/datasourceActions";
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
@@ -581,16 +578,16 @@ export function* forkApplicationSaga(
 function* showReconnectDatasourcesModalSaga(
   action: ReduxAction<{
     application: ApplicationResponsePayload;
-    unConfiguredDatasourceList: Array<Datasource>;
     orgId: string;
   }>,
 ) {
-  const { application, orgId, unConfiguredDatasourceList } = action.payload;
+  const { application, orgId } = action.payload;
   yield put(getAllApplications());
   yield put(importApplicationSuccess(application));
-  yield put(
-    setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
-  );
+  // fetching latest datasources of org
+  yield put(fetchDatasources({ orgId }));
+  yield put(fetchPlugins({ orgId }));
+
   yield put(setOrgIdForImport(orgId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
@@ -627,8 +624,6 @@ export function* importApplicationSaga(
           yield put(
             showReconnectDatasourceModal({
               application: response.data?.application,
-              unConfiguredDatasourceList:
-                response?.data.unConfiguredDatasourceList,
               orgId: action.payload.orgId,
             }),
           );

@@ -236,13 +236,6 @@ export const executeDatasourceQuery = ({
   };
 };
 
-export const setUnconfiguredDatasourcesDuringImport = (
-  payload?: Array<Datasource>,
-) => ({
-  type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
-  payload,
-});
-
 export default {
   fetchDatasources,
   initDatasourcePane,

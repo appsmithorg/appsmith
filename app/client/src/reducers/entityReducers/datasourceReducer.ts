@@ -326,15 +326,6 @@ const datasourceReducer = createReducer(initialState, {
       isReconnectingModalOpen: action.payload.isOpen,
     };
   },
-  [ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES]: (
-    state: DatasourceDataState,
-    action: ReduxAction<Datasource[] | undefined>,
-  ) => {
-    return {
-      ...state,
-      unconfiguredList: action.payload,
-    };
-  },
 });
 
 export default datasourceReducer;
