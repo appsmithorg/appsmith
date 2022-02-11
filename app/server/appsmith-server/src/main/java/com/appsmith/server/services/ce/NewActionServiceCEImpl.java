@@ -546,7 +546,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
                 .cache();
 
-        Mono<ActionDTO> actionDTOMono = getValidActionForExecution(executeActionDTO, actionId, actionMono);
+        Mono<ActionDTO> actionDTOMono = actionMono
+                .flatMap(action -> getValidActionForExecution(executeActionDTO, actionId, action))
+                .cache();
 
         // 3. Instantiate the implementation class based on the query type
 
@@ -747,8 +749,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, Mono<NewAction> actionMono) {
-        Mono<ActionDTO> actionDTOMono = actionMono
+    public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction) {
+        Mono<ActionDTO> actionDTOMono = Mono.just(newAction)
                 .flatMap(dbAction -> {
                     ActionDTO action;
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
@@ -777,8 +779,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                     return Mono.just(action);
-                })
-                .cache();
+                });
         return actionDTOMono;
     }
 
