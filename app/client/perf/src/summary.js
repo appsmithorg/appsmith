@@ -1,7 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 const sd = require("node-stdev");
-const { storeResults } = require("./ci/airtable");
 
 var median = require("median");
 
@@ -13,7 +12,6 @@ exports.summaries = async (directory) => {
   );
 
   generateMarkdown(results);
-  storeResults(results);
 };
 
 const parseReports = async (
@@ -117,3 +115,5 @@ const generateMarkdown = (results) => {
     }
   });
 };
+
+exports.parseReports = parseReports;
