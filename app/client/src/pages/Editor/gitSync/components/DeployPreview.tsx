@@ -15,7 +15,7 @@ import {
   LATEST_DP_TITLE,
   LATEST_DP_SUBTITLE,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Text, { TextType, Case } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";

@@ -12,7 +12,7 @@ import {
   createMessage,
   SUGGESTED_WIDGETS,
   SUGGESTED_WIDGET_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { SuggestedWidget } from "api/ActionAPI";
 
 import { useSelector } from "store";

@@ -8,7 +8,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 
 import styled from "styled-components";
 import ImageEditor from "@uppy/image-editor";
-import { REMOVE, createMessage } from "constants/messages";
+import { REMOVE, createMessage } from "@appsmith/constants/messages";
 
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";

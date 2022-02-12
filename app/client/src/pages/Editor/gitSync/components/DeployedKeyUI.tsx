@@ -3,7 +3,7 @@ import {
   createMessage,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
   LEARN_MORE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";

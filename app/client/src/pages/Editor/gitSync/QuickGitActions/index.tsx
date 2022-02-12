@@ -18,7 +18,7 @@ import {
   createMessage,
   GIT_SETTINGS,
   CONNECT_GIT_BETA,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";

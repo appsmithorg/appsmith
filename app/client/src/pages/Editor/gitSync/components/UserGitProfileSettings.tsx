@@ -7,7 +7,7 @@ import {
   AUTHOR_EMAIL,
   FORM_VALIDATION_INVALID_EMAIL,
   AUTHOR_NAME_CANNOT_BE_EMPTY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
 import Checkbox from "components/ads/Checkbox";
