@@ -9,7 +9,7 @@ describe("defaultOptionValueValidation - ", () => {
       defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
     ).toEqual({
       isValid: true,
-      parsed: {},
+      parsed: "",
       messages: [""],
     });
   });
