@@ -2242,17 +2242,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                 ? ""
                 : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
 
+        Map<String, Object> analyticsProps = new HashMap<>(Map.of("applicationId", defaultApplicationId,
+                "organizationId", defaultIfNull(application.getOrganizationId(), ""),
+                "branchApplicationId", defaultIfNull(application.getId(), ""),
+                "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
+                "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
+        ));
+
         return sessionUserService.getCurrentUser()
                 .map(user -> {
-                    final Map<String, Object> analyticsProps = Map.of(
-                            "applicationId", defaultApplicationId,
-                            "organizationId", defaultIfNull(application.getOrganizationId(), ""),
-                            "branchApplicationId", defaultIfNull(application.getId(), ""),
-                            "errorMessage", defaultIfNull(errorMessage, ""),
-                            "errorType", defaultIfNull(errorType, ""),
-                            "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
-                            "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
-                    );
+                    // Do not include the error data points in the map for success states
+                    if(!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
+                        analyticsProps.put("errorMessage", errorMessage);
+                        analyticsProps.put("errorType", errorType);
+                    }
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
                 });
