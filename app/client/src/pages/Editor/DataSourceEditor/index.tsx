@@ -111,7 +111,7 @@ class DataSourceEditor extends React.Component<Props> {
         pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
         setDatasourceEditorMode={setDatasourceEditorMode}
-        viewMode={viewMode}
+        viewMode={viewMode && !fromImporting}
       />
     );
   }

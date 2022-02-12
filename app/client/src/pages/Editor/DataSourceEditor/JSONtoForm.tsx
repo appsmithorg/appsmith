@@ -70,6 +70,7 @@ export interface JSONtoFormProps {
   formName: string;
   formConfig: any[];
   datasourceId: string;
+  isReconnectingModalOpen?: boolean;
 }
 
 export class JSONtoForm<
@@ -252,6 +253,16 @@ export class JSONtoForm<
     multipleConfig?: ControlProps[],
   ) => {
     multipleConfig = multipleConfig || [];
+
+    // dropdown components width on reconnect modal
+    if (
+      config.controlType === "DROP_DOWN" &&
+      this.props.isReconnectingModalOpen
+    ) {
+      config.customStyles = {
+        width: "566px",
+      };
+    }
     try {
       this.setupConfig(config);
       return (

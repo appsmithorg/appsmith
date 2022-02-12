@@ -33,10 +33,10 @@ import {
 import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceDrafts,
-  getDatasources,
   getIsReconnectingDatasourcesModalOpen,
   getPluginImages,
   getPluginNames,
+  getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
   resetDatasourceConfigForImportFetchedFlag,
@@ -248,7 +248,7 @@ function ReconnectDatasourceModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const organizationId = useSelector(getOrganizationIdForImport);
-  const datasources = useSelector(getDatasources);
+  const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
   const datasourceDrafts = useSelector(getDatasourceDrafts);

@@ -185,6 +185,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   return {
     messages: hintMessages,
     datasource,
+    isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
   };
 };
 

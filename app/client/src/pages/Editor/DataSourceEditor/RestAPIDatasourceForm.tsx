@@ -334,18 +334,26 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderSave = () => {
-    const { datasourceId, deleteDatasource, isDeleting, isSaving } = this.props;
+    const {
+      datasourceId,
+      deleteDatasource,
+      hiddenHeader,
+      isDeleting,
+      isSaving,
+    } = this.props;
     return (
       <SaveButtonContainer>
-        <ActionButton
-          // accent="error"
-          buttonStyle="DANGER"
-          buttonVariant={ButtonVariantTypes.PRIMARY}
-          className="t--delete-datasource"
-          loading={isDeleting}
-          onClick={() => deleteDatasource(datasourceId)}
-          text="Delete"
-        />
+        {!hiddenHeader && (
+          <ActionButton
+            // accent="error"
+            buttonStyle="DANGER"
+            buttonVariant={ButtonVariantTypes.PRIMARY}
+            className="t--delete-datasource"
+            loading={isDeleting}
+            onClick={() => deleteDatasource(datasourceId)}
+            text="Delete"
+          />
+        )}
 
         <StyledButton
           className="t--save-datasource"

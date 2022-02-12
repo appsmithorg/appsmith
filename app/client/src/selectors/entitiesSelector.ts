@@ -211,6 +211,9 @@ export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   ),
 );
 
+export const getUnconfiguredDatasources = (state: AppState) =>
+  state.entities.datasources.unconfiguredList ?? [];
+
 export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
   state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
 
