@@ -21,10 +21,7 @@ describe("defaultOptionValueValidation - ", () => {
       defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
     ).toEqual({
       isValid: true,
-      parsed: {
-        label: "green",
-        value: "green",
-      },
+      parsed: "green",
       messages: [""],
     });
   });

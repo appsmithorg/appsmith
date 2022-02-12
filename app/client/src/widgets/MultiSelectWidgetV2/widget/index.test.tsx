@@ -21,16 +21,7 @@ describe("defaultOptionValueValidation - ", () => {
       defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       isValid: true,
-      parsed: [
-        {
-          label: "green",
-          value: "green",
-        },
-        {
-          label: "red",
-          value: "red",
-        },
-      ],
+      parsed: input,
       messages: [""],
     });
   });
@@ -42,16 +33,7 @@ describe("defaultOptionValueValidation - ", () => {
       defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       isValid: true,
-      parsed: [
-        {
-          label: "green",
-          value: "green",
-        },
-        {
-          label: "red",
-          value: "red",
-        },
-      ],
+      parsed: ["green", "red"],
       messages: [""],
     });
   });
@@ -93,16 +75,7 @@ describe("defaultOptionValueValidation - ", () => {
       defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       isValid: true,
-      parsed: [
-        {
-          label: "green",
-          value: "green",
-        },
-        {
-          label: "red",
-          value: "red",
-        },
-      ],
+      parsed: ["green", "red"],
       messages: [""],
     });
   });
@@ -114,12 +87,7 @@ describe("defaultOptionValueValidation - ", () => {
       defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       isValid: true,
-      parsed: [
-        {
-          label: "green",
-          value: "green",
-        },
-      ],
+      parsed: ["green"],
       messages: [""],
     });
   });
@@ -131,12 +99,7 @@ describe("defaultOptionValueValidation - ", () => {
       defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       isValid: true,
-      parsed: [
-        {
-          label: `{"green"`,
-          value: `{"green"`,
-        },
-      ],
+      parsed: [`{"green"`],
       messages: [""],
     });
   });

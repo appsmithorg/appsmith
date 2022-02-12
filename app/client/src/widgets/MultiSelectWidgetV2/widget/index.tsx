@@ -16,6 +16,7 @@ import {
 import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import _ from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -78,10 +79,7 @@ export function defaultOptionValueValidation(
        */
       if (hasUniqueValues(value as [])) {
         isValid = true;
-        parsed = value.map((val) => ({
-          label: val,
-          value: val,
-        }));
+        parsed = value;
         message = "";
       } else {
         isValid = false;
@@ -399,8 +397,8 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => o.label ) : [] }}`,
-      selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) => o.value ) : [] }}`,
+      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => _.isNil(o.label) ? o : o.label ) : [] }}`,
+      selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) =>  _.isNil(o.value) ? o : o.value  ) : [] }}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
     };
   }
@@ -423,7 +421,13 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-
+    const values = this.props.selectedOptions
+      ? this.props.selectedOptions.map((o) =>
+          _.isNil(o.value)
+            ? { laebl: o, value: o }
+            : { label: o.label, value: o.value },
+        )
+      : [];
     return (
       <MultiSelectComponent
         allowSelectAll={this.props.allowSelectAll}
@@ -452,7 +456,7 @@ class MultiSelectWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={this.props.selectedOptions ?? []}
+        value={values as LabelValueType[]}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
