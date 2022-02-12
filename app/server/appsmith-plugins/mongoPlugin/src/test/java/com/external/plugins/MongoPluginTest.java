@@ -194,7 +194,7 @@ public class MongoPluginTest {
      *    also, it indicates a successful connection establishment.
      */
     @Test
-    public void testDatasourceWithUnauthorizedException() throws NoSuchFieldException {
+    public void testDatasourceWithUnauthorizedException() {
         /*
          * 1. Create mock exception of type: MongoCommandException.
          *      - mock method getErrorCodeName() to return String "Unauthorized".
@@ -202,6 +202,8 @@ public class MongoPluginTest {
         MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
         when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
         when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
+        when(mockMongoCommandException.getErrorMessage()).thenReturn("Error getting filter : Expected 'filter' to be BSON (or equivalent), but got string instead.\n" +
+                "Doc = [{find newAction} {filter filterx} {limit 10} {$db mobtools} ...]");
 
         /*
          * 1. Spy MongoPluginExecutor class.
@@ -222,7 +224,7 @@ public class MongoPluginTest {
         StepVerifier
                 .create(spyMongoPluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
-                    assertTrue(datasourceTestResult.isSuccess());
+                    assertFalse(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }
