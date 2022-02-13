@@ -5,6 +5,8 @@ import {
   createMessage,
   ADD_QUERY_JS_TOOLTIP,
   ADD_QUERY_JS_BUTTON,
+  EMPTY_QUERY_JS_BUTTON_TEXT,
+  EMPTY_QUERY_JS_MAIN_TEXT,
 } from "constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,17 +21,11 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
-import EntityPlaceholder from "../Entity/Placeholder";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import Icon from "components/ads/Icon";
-
-const emptyNode = (
-  <EntityPlaceholder step={0}>
-    Click the <strong>+</strong> icon above to create a new query, API or JS
-    Object
-  </EntityPlaceholder>
-);
+import { noop } from "lodash";
+import { EmptyComponent } from "../common";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -111,7 +107,15 @@ function Files() {
       searchKeyword={""}
       step={0}
     >
-      {fileEntities.length ? fileEntities : emptyNode}
+      {fileEntities.length ? (
+        fileEntities
+      ) : (
+        <EmptyComponent
+          addBtnText={createMessage(EMPTY_QUERY_JS_BUTTON_TEXT)}
+          addFunction={onCreate || noop}
+          mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
+        />
+      )}
       {fileEntities.length > 0 && (
         <Entity
           action={onCreate}

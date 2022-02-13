@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import WidgetEntity from "./WidgetEntity";
 import {
@@ -11,11 +10,15 @@ import {
   ADD_WIDGET_BUTTON,
   ADD_WIDGET_TOOLTIP,
   createMessage,
+  EMPTY_WIDGET_BUTTON_TEXT,
+  EMPTY_WIDGET_MAIN_TEXT,
 } from "constants/messages";
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import Icon from "components/ads/Icon";
+import { EmptyComponent } from "../common";
+import { noop } from "lodash";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -36,12 +39,6 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     isWidgetsOpen = guidedTour;
     saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
   }
-
-  const childNode = (
-    <EntityPlaceholder step={props.step}>
-      Click the <strong>+</strong> icon above to add widgets
-    </EntityPlaceholder>
-  );
 
   const widgetsInStep = useMemo(() => {
     return widgets?.children?.map((child) => child.widgetId) || [];
@@ -84,8 +81,13 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
         />
       ))}
       {(!widgets?.children || widgets?.children.length === 0) &&
-        !props.searchKeyword &&
-        childNode}
+        !props.searchKeyword && (
+          <EmptyComponent
+            addBtnText={createMessage(EMPTY_WIDGET_BUTTON_TEXT)}
+            addFunction={props.addWidgetsFn || noop}
+            mainText={createMessage(EMPTY_WIDGET_MAIN_TEXT)}
+          />
+        )}
       {widgets?.children && widgets?.children?.length > 0 && (
         <Entity
           action={props.addWidgetsFn}

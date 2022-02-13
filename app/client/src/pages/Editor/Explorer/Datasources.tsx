@@ -8,15 +8,16 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
-import { keyBy } from "lodash";
+import { keyBy, noop } from "lodash";
 import Entity from "./Entity";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
-import EntityPlaceholder from "./Entity/Placeholder";
 import {
   ADD_DATASOURCE_BUTTON,
   createMessage,
   CREATE_DATASOURCE_TOOLTIP,
+  EMPTY_DATASOURCE_BUTTON_TEXT,
+  EMPTY_DATASOURCE_MAIN_TEXT,
 } from "constants/messages";
 import styled from "styled-components";
 import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
@@ -27,12 +28,7 @@ import {
   saveExplorerStatus,
 } from "./helpers";
 import Icon from "components/ads/Icon";
-
-const emptyNode = (
-  <EntityPlaceholder step={0}>
-    Click the <strong>+</strong> icon above to create a new datasource
-  </EntityPlaceholder>
-);
+import { EmptyComponent } from "./common";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
@@ -108,7 +104,15 @@ const Datasources = React.memo(() => {
       searchKeyword={""}
       step={0}
     >
-      {appWideDS.length ? datasourceElements : emptyNode}
+      {appWideDS.length ? (
+        datasourceElements
+      ) : (
+        <EmptyComponent
+          addBtnText={createMessage(EMPTY_DATASOURCE_BUTTON_TEXT)}
+          addFunction={addDatasource || noop}
+          mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
+        />
+      )}
       {appWideDS.length > 0 && (
         <Entity
           action={addDatasource}
