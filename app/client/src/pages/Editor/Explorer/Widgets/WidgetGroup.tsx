@@ -7,10 +7,15 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
+import {
+  ADD_WIDGET_BUTTON,
+  ADD_WIDGET_TOOLTIP,
+  createMessage,
+} from "constants/messages";
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
+import Icon from "components/ads/Icon";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -81,6 +86,15 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       {(!widgets?.children || widgets?.children.length === 0) &&
         !props.searchKeyword &&
         childNode}
+      {widgets?.children && widgets?.children?.length > 0 && (
+        <Entity
+          action={props.addWidgetsFn}
+          entityId={pageId + "_widgets_add_new_datasource"}
+          icon={<Icon name="plus" />}
+          name={createMessage(ADD_WIDGET_BUTTON)}
+          step={props.step + 1}
+        />
+      )}
     </Entity>
   );
 });

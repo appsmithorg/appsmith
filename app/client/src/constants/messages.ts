@@ -1010,3 +1010,8 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+// Entity explorer
+export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
+export const ADD_WIDGET_BUTTON = () => "ADD WIDGET";
+export const ADD_QUERY_JS_BUTTON = () => "ADD QUERY/JS";

@@ -13,7 +13,11 @@ import Entity from "./Entity";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import EntityPlaceholder from "./Entity/Placeholder";
-import { createMessage, CREATE_DATASOURCE_TOOLTIP } from "constants/messages";
+import {
+  ADD_DATASOURCE_BUTTON,
+  createMessage,
+  CREATE_DATASOURCE_TOOLTIP,
+} from "constants/messages";
 import styled from "styled-components";
 import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";
@@ -22,6 +26,7 @@ import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "./helpers";
+import Icon from "components/ads/Icon";
 
 const emptyNode = (
   <EntityPlaceholder step={0}>
@@ -104,6 +109,15 @@ const Datasources = React.memo(() => {
       step={0}
     >
       {appWideDS.length ? datasourceElements : emptyNode}
+      {appWideDS.length > 0 && (
+        <Entity
+          action={addDatasource}
+          entityId={pageId + "_datasources_add_new_datasource"}
+          icon={<Icon name="plus" />}
+          name={createMessage(ADD_DATASOURCE_BUTTON)}
+          step={1}
+        />
+      )}
       {otherDS.length ? (
         <ShowAll onClick={listDatasource}>
           Show all datasources

@@ -1,7 +1,11 @@
 import React, { useCallback, useMemo } from "react";
 import { useActiveAction } from "../hooks";
 import { Entity } from "../Entity/index";
-import { createMessage, ADD_QUERY_JS_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  ADD_QUERY_JS_TOOLTIP,
+  ADD_QUERY_JS_BUTTON,
+} from "constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -18,6 +22,7 @@ import {
 import EntityPlaceholder from "../Entity/Placeholder";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
+import Icon from "components/ads/Icon";
 
 const emptyNode = (
   <EntityPlaceholder step={0}>
@@ -107,6 +112,15 @@ function Files() {
       step={0}
     >
       {fileEntities.length ? fileEntities : emptyNode}
+      {fileEntities.length > 0 && (
+        <Entity
+          action={onCreate}
+          entityId={pageId + "_queries_js_add_new_datasource"}
+          icon={<Icon name="plus" />}
+          name={createMessage(ADD_QUERY_JS_BUTTON)}
+          step={1}
+        />
+      )}
     </Entity>
   );
 }
