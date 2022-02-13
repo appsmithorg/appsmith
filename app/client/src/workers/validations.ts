@@ -24,7 +24,6 @@ import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
-
 import { findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
@@ -831,12 +830,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, {}, undefined, [
-          value,
-          props,
-          _,
-          moment,
-        ]);
+        const { result } = evaluate(
+          config.params.fnString,
+          {},
+          {},
+          false,
+          undefined,
+          [value, props, _, moment],
+        );
         return result;
       } catch (e) {
         log.error("Validation function error: ", { e });

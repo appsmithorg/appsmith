@@ -1,4 +1,8 @@
 const AdminsSettingsLocators = require("../../../../locators/AdminsSettingsLocators.json");
+const {
+  GITHUB_SIGNUP_SETUP_DOC,
+  GOOGLE_SIGNUP_SETUP_DOC,
+} = require("../../../../../src/constants/ThirdPartyConstants");
 
 describe("Admin settings page", function() {
   beforeEach(() => {
@@ -63,10 +67,50 @@ describe("Admin settings page", function() {
     cy.url().should("contain", "/settings/version");
   });
 
-  it("should test that setting page back button redirects to home page", () => {
-    cy.get(AdminsSettingsLocators.backButton).should("be.visible");
-    cy.get(AdminsSettingsLocators.backButton).click();
-    cy.url().should("contain", "/applications");
+  it("should test that authentication page redirects", () => {
+    cy.visit("/settings/general");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.googleButton).click();
+    cy.url().should("contain", "/settings/authentication/google-auth");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.githubButton).click();
+    cy.url().should("contain", "/settings/authentication/github-auth");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.formloginButton).click();
+    cy.url().should("contain", "/settings/authentication/form-login");
+  });
+
+  it("should test that configure link redirects to google signup setup doc", () => {
+    cy.visit("/settings/general");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.googleButton).click();
+    cy.url().should("contain", "/settings/authentication/google-auth");
+    cy.get(AdminsSettingsLocators.readMoreLink).within(() => {
+      cy.get("a")
+        .should("have.attr", "target", "_blank")
+        .invoke("removeAttr", "target")
+        .click();
+      cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
+    });
+  });
+
+  it("should test that configure link redirects to github signup setup doc", () => {
+    cy.visit("/settings/general");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.githubButton).click();
+    cy.url().should("contain", "/settings/authentication/github-auth");
+    cy.get(AdminsSettingsLocators.readMoreLink).within(() => {
+      cy.get("a")
+        .should("have.attr", "target", "_blank")
+        .invoke("removeAttr", "target")
+        .click();
+      cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
+    });
   });
 
   it("should test save and clear buttons disabled state", () => {
@@ -158,5 +202,72 @@ describe("Admin settings page", function() {
     cy.wait(3000);
     cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
     cy.wait(3000);
+  });
+
+  it("should test that breadcrumbs work properly", () => {
+    // checking settings default page
+    cy.visit("/settings/general");
+    cy.get(AdminsSettingsLocators.breadcrumbList)
+      .children()
+      .within(() => {
+        cy.get(AdminsSettingsLocators.breadcrumbItem).should(
+          "have.length",
+          "2",
+        );
+        cy.get(AdminsSettingsLocators.breadcrumbItem)
+          .eq(0)
+          .contains("Homepage")
+          .should("have.attr", "href")
+          .and("eq", "/applications");
+        cy.get(AdminsSettingsLocators.breadcrumbItem)
+          .eq(1)
+          .contains("General")
+          .should("not.have.attr", "href");
+      });
+
+    // checking settings category page
+    cy.visit("/settings/authentication");
+    cy.get(AdminsSettingsLocators.breadcrumbList)
+      .children()
+      .within(() => {
+        cy.get(AdminsSettingsLocators.breadcrumbItem).should(
+          "have.length",
+          "2",
+        );
+        cy.get(AdminsSettingsLocators.breadcrumbItem)
+          .eq(0)
+          .contains("Homepage")
+          .should("have.attr", "href")
+          .and("eq", "/applications");
+        cy.get(AdminsSettingsLocators.breadcrumbItem)
+          .eq(1)
+          .contains("Authentication")
+          .should("not.have.attr", "href");
+      });
+
+    // checking settings subcategory page
+    cy.visit("/settings/authentication/google-auth");
+    cy.get(AdminsSettingsLocators.breadcrumbList)
+      .children()
+      .within(() => {
+        cy.get(AdminsSettingsLocators.breadcrumbItem).should(
+          "have.length",
+          "3",
+        );
+        cy.get(AdminsSettingsLocators.breadcrumbItem)
+          .eq(0)
+          .contains("Homepage")
+          .should("have.attr", "href")
+          .and("eq", "/applications");
+        cy.get(AdminsSettingsLocators.breadcrumbItem)
+          .eq(1)
+          .contains("Authentication")
+          .should("have.attr", "href")
+          .and("eq", "/settings/authentication");
+        cy.get(AdminsSettingsLocators.breadcrumbItem)
+          .eq(2)
+          .contains("Google Authentication")
+          .should("not.have.attr", "href");
+      });
   });
 });

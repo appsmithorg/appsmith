@@ -26,7 +26,7 @@ import {
   CANCEL,
   POST,
   INVALID_EMAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 import { useDispatch, useSelector } from "react-redux";

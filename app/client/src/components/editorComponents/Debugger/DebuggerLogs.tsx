@@ -6,7 +6,7 @@ import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
-import { createMessage, NO_LOGS } from "constants/messages";
+import { createMessage, NO_LOGS } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { bootIntercom } from "utils/helpers";
