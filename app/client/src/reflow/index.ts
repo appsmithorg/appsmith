@@ -7,6 +7,7 @@ import {
   MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
+  SecondaryCollisionMap,
   SpaceAttributes,
   SpaceMap,
 } from "./reflowTypes";
@@ -49,11 +50,14 @@ export function reflow(
   prevSpacesArray?: OccupiedSpace[],
   prevCollidingSpaces: CollidingSpaceMap = { horizontal: {}, vertical: {} },
   prevMovementMap?: ReflowedSpaceMap,
+  prevSecondaryCollisionMap?: SecondaryCollisionMap,
 ) {
   const newPositionsMap = getSpacesMapFromArray(newPositionsArray);
   const OGPositionsMap = getSpacesMapFromArray(OGPositionsArray);
   const OccupiedSpacesMap = getSpacesMapFromArray(occupiedSpacesArray);
   const prevSpacesMap = getSpacesMapFromArray(prevSpacesArray);
+
+  const secondaryCollisionMap: SecondaryCollisionMap = {};
 
   const [primaryDirection, secondaryDirection] = getCalculatedDirection(
     newPositionsMap,
@@ -168,8 +172,10 @@ export function reflow(
 
     const { movementMap, movementVariablesMap } = getMovementMap(
       filteredOccupiedSpaces,
+      directionalOccupiedSpacesMap,
       collidingSpacesArray,
       collidingSpaceMap,
+      secondaryCollisionMap,
       gridProps,
       delta,
       shouldResize,
@@ -179,6 +185,7 @@ export function reflow(
       prevCollidingSpaces,
       prevSpacesMap,
       prevMovementMap,
+      prevSecondaryCollisionMap,
     );
 
     globalCollidingSpaces[orientation.first] = flattenArrayToGlobalCollisionMap(
@@ -266,8 +273,10 @@ export function reflow(
 
     const { movementMap, movementVariablesMap } = getMovementMap(
       filteredOccupiedSpaces,
+      directionalOccupiedSpacesMap,
       secondCollidingSpacesArray,
       secondCollidingSpaceMap,
+      secondaryCollisionMap,
       gridProps,
       delta,
       shouldResize,
@@ -277,6 +286,7 @@ export function reflow(
       prevCollidingSpaces,
       prevSpacesMap,
       prevMovementMap,
+      prevSecondaryCollisionMap,
     );
     secondMovementMap = { ...movementMap };
     globalCollidingSpaces[
@@ -315,12 +325,15 @@ export function reflow(
       direction: [primaryDirection, secondaryDirection, direction],
       collidingSpaceMap: globalCollidingSpaces,
       movementLimitMap,
+      prevCollidingSpaces,
+      prevSecondaryCollisionMap,
     }),
   );
   return {
     movementLimitMap,
     movementMap: globalMovementMap,
     collidingSpaceMap: globalCollidingSpaces,
+    secondaryCollisionMap,
   };
 }
 
@@ -373,6 +386,7 @@ function getModifiedOccupiedSpacesMap(
   const spaceKeys = Object.keys(occupiedSpacesMap);
   const directionalOccupiedSpacesMap: SpaceMap = {};
   const displaceMentAccessor = isHorizontal ? "Y" : "X";
+  const dimensionAccessor = isHorizontal ? "height" : "width";
   const gridGap = isHorizontal
     ? gridProps.parentRowSpace
     : gridProps.parentColumnSpace;
@@ -380,13 +394,17 @@ function getModifiedOccupiedSpacesMap(
   for (const key of spaceKeys) {
     const movement =
       (prevMovementMap[key] && prevMovementMap[key][displaceMentAccessor]) || 0;
+    const dimension =
+      prevMovementMap[key] && prevMovementMap[key][dimensionAccessor];
     const currentSpace = occupiedSpacesMap[key];
     directionalOccupiedSpacesMap[key] = {
       ...currentSpace,
-      [directionMax]:
-        currentSpace[directionMax] + Math.round(movement / gridGap),
       [directionMin]:
         currentSpace[directionMin] + Math.round(movement / gridGap),
+      [directionMax]: dimension
+        ? currentSpace[directionMin] +
+          Math.round((movement + dimension) / gridGap)
+        : currentSpace[directionMax] + Math.round(movement / gridGap),
     };
   }
   return directionalOccupiedSpacesMap;

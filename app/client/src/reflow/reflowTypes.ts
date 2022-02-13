@@ -62,7 +62,20 @@ export type CollidingSpace = OccupiedSpace & {
   collidingId: string;
   isHorizontal: boolean;
   order: number;
-  immediateChildren?: CollisionMap;
+};
+
+export type SecondaryCollision = OccupiedSpace & {
+  children: {
+    [key: string]: OccupiedSpace & {
+      direction: ReflowDirection;
+      isHorizontal: boolean;
+      processed?: boolean;
+    };
+  };
+};
+
+export type SecondaryCollisionMap = {
+  [key: string]: SecondaryCollision;
 };
 
 export type MovementLimitMap = {
