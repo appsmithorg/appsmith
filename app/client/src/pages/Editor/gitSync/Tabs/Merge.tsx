@@ -11,7 +11,7 @@ import {
   FETCH_GIT_STATUS,
   IS_MERGING,
   MERGED_SUCCESSFULLY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled from "styled-components";

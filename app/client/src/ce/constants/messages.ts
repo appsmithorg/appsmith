@@ -269,6 +269,9 @@ export const EDIT_DATASOURCE_MESSAGE = () =>
   "Edit Datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
+export const ADD = () => "ADD";
+export const UPGRADE = () => "UPGRADE";
+export const EDIT = () => "EDIT";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -936,6 +939,13 @@ export const GENERATE_APPLICATION_DESCRIPTION = () =>
   "Quickly generate a page to perform CRUD operations on your database tables";
 
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
+
+export const UPGRADE_TO_EE = (authLabel: string) =>
+  `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
+export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
+export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
+  "Select a protocol you want to authenticate users with";
+export const DANGER_ZONE = () => "Danger Zone";
 
 // Guided tour
 // -- STEPS ---

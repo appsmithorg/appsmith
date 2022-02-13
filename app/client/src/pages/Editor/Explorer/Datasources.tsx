@@ -18,7 +18,7 @@ import {
   CREATE_DATASOURCE_TOOLTIP,
   EMPTY_DATASOURCE_BUTTON_TEXT,
   EMPTY_DATASOURCE_MAIN_TEXT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";

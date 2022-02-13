@@ -1,6 +1,6 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { SettingTypes } from "../SettingsConfig";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import Group from "./group";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { reduxForm } from "redux-form";
@@ -8,6 +8,7 @@ import { reduxForm } from "redux-form";
 let container: any = null;
 const settings = [
   {
+    id: "test",
     name: "test",
     label: "formGroup",
     helpText: "",
@@ -19,7 +20,7 @@ const settings = [
 
 function renderComponent() {
   function GroupComponent() {
-    return <Group name="test" settings={settings} />;
+    return <Group category="test" name="test" settings={settings} />;
   }
   const Parent = reduxForm<any, any>({
     validate: () => {

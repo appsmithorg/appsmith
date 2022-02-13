@@ -7,7 +7,7 @@ import {
   ADD_QUERY_JS_BUTTON,
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,

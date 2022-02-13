@@ -12,7 +12,7 @@ import {
   createMessage,
   EMPTY_WIDGET_BUTTON_TEXT,
   EMPTY_WIDGET_MAIN_TEXT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
