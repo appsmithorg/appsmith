@@ -430,6 +430,7 @@ export const scrollbarWidth = () => {
 // To { isValid: false, settings.color: false}
 export const flattenObject = (data: Record<string, any>) => {
   const result: Record<string, any> = {};
+  const seen = [] as any[];
   function recurse(cur: any, prop: any) {
     if (Object(cur) !== cur) {
       result[prop] = cur;
@@ -438,6 +439,11 @@ export const flattenObject = (data: Record<string, any>) => {
         recurse(cur[i], prop + "[" + i + "]");
       if (cur.length == 0) result[prop] = [];
     } else {
+      if (seen.some((s) => s === cur)) {
+        result[prop] = cur;
+        return;
+      }
+      seen.push(cur);
       let isEmpty = true;
       for (const p in cur) {
         isEmpty = false;

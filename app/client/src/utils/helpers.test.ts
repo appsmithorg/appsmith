@@ -13,6 +13,45 @@ import WidgetFactory from "./WidgetFactory";
 import * as Sentry from "@sentry/react";
 
 describe("flattenObject test", () => {
+  it("Check if recursively referenced object is returned correctly", () => {
+    type InputType = {
+      s: string;
+      n: number;
+      b: boolean;
+      o1: { s: string };
+      o2: InputType;
+      a1: number[];
+      a2: InputType[];
+    };
+    const input: InputType = {
+      s: "string",
+      n: 1,
+      b: true,
+      o1: { s: "str" },
+      o2: {} as InputType,
+      a1: [1, 2, 3],
+      a2: [] as InputType[],
+    };
+
+    input.o2 = input;
+    input.a2[0] = input;
+    input.a2[1] = input;
+
+    const output = {
+      s: "string",
+      n: 1,
+      b: true,
+      "o1.s": "str",
+      o2: input,
+      "a1[0]": 1,
+      "a1[1]": 2,
+      "a1[2]": 3,
+      "a2[0]": input,
+      "a2[1]": input,
+    };
+
+    expect(flattenObject(input)).toStrictEqual(output);
+  });
   it("Check if non nested object is returned correctly", () => {
     const testObject = {
       isVisible: true,
