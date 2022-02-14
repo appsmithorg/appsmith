@@ -8,7 +8,6 @@ import {
   ReflowDirection,
   ReflowedSpaceMap,
   SecondaryCollisionMap,
-  SpaceAttributes,
   SpaceMap,
 } from "./reflowTypes";
 import {
@@ -19,6 +18,7 @@ import {
   getAccessor,
   getCollidingSpaces,
   getDelta,
+  getModifiedOccupiedSpacesMap,
   getShouldReflow,
   getSpacesMapFromArray,
 } from "./reflowUtils";
@@ -371,41 +371,4 @@ function getCalculatedDirection(
     }
   }
   return [passedDirection];
-}
-
-function getModifiedOccupiedSpacesMap(
-  occupiedSpacesMap: SpaceMap,
-  prevMovementMap: ReflowedSpaceMap | undefined,
-  isHorizontal: boolean,
-  gridProps: GridProps,
-  directionMax: SpaceAttributes,
-  directionMin: SpaceAttributes,
-) {
-  if (!prevMovementMap) return _.cloneDeep(occupiedSpacesMap);
-
-  const spaceKeys = Object.keys(occupiedSpacesMap);
-  const directionalOccupiedSpacesMap: SpaceMap = {};
-  const displaceMentAccessor = isHorizontal ? "Y" : "X";
-  const dimensionAccessor = isHorizontal ? "height" : "width";
-  const gridGap = isHorizontal
-    ? gridProps.parentRowSpace
-    : gridProps.parentColumnSpace;
-
-  for (const key of spaceKeys) {
-    const movement =
-      (prevMovementMap[key] && prevMovementMap[key][displaceMentAccessor]) || 0;
-    const dimension =
-      prevMovementMap[key] && prevMovementMap[key][dimensionAccessor];
-    const currentSpace = occupiedSpacesMap[key];
-    directionalOccupiedSpacesMap[key] = {
-      ...currentSpace,
-      [directionMin]:
-        currentSpace[directionMin] + Math.round(movement / gridGap),
-      [directionMax]: dimension
-        ? currentSpace[directionMin] +
-          Math.round((movement + dimension) / gridGap)
-        : currentSpace[directionMax] + Math.round(movement / gridGap),
-    };
-  }
-  return directionalOccupiedSpacesMap;
 }
