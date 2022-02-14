@@ -15,7 +15,7 @@ import {
   REMOTE_URL_INPUT_PLACEHOLDER,
   CONNECTING_REPO,
   LEARN_MORE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
@@ -46,7 +46,7 @@ import {
   CONNECT_BTN_LABEL,
   PASTE_SSH_URL_INFO,
   GENERATE_KEY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,

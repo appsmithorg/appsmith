@@ -71,6 +71,8 @@ import {
   isActionEntity,
   isWidgetEntity,
   removeNewLineChars,
+  addEventToHighlightedElement,
+  removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
@@ -144,6 +146,11 @@ export type EditorProps = EditorStyleProps &
     errors?: any;
     isInvalid?: boolean;
     isEditorHidden?: boolean;
+    codeEditorVisibleOverflow?: boolean; // flag for determining the input overflow type for the code editor
+    showCustomToolTipForHighlightedText?: boolean;
+    highlightedTextClassName?: string;
+    handleMouseEnter?: (event: MouseEvent) => void;
+    handleMouseLeave?: () => void;
   };
 
 type Props = ReduxStateProps &
@@ -166,7 +173,8 @@ class CodeEditor extends Component<Props, State> {
     marking: [bindingMarker],
     hinting: [bindingHint, commandsHelper],
   };
-
+  // this is the higlighted element for any highlighted text in the codemirror
+  highlightedUrlElement: HTMLElement | undefined;
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
@@ -320,8 +328,46 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  handleMouseMove = () => {
+    // this code only runs when we want custom tool tip for any highlighted text inside codemirror instance
+    if (
+      this.props.showCustomToolTipForHighlightedText &&
+      this.props.highlightedTextClassName
+    ) {
+      addEventToHighlightedElement(
+        this.highlightedUrlElement,
+        this.props.highlightedTextClassName,
+        [
+          {
+            eventType: "mouseenter",
+            eventHandlerFn: this.props.handleMouseEnter,
+          },
+          {
+            eventType: "mouseleave",
+            eventHandlerFn: this.props.handleMouseLeave,
+          },
+        ],
+      );
+    }
+  };
+
   componentWillUnmount() {
+    // if the highlighted element exists, remove the event listeners to prevent memory leaks
+    if (this.highlightedUrlElement) {
+      removeEventFromHighlightedElement(this.highlightedUrlElement, [
+        {
+          eventType: "mouseenter",
+          eventHandlerFn: this.props.handleMouseEnter,
+        },
+        {
+          eventType: "mouseleave",
+          eventHandlerFn: this.props.handleMouseLeave,
+        },
+      ]);
+    }
+
     window.removeEventListener("keydown", this.handleKeydown);
+
     // return if component unmounts before editor is created
     if (!this.editor) return;
 
@@ -651,6 +697,7 @@ class CodeEditor extends Component<Props, State> {
       border,
       borderLess,
       className,
+      codeEditorVisibleOverflow,
       dataTreePath,
       disabled,
       dynamicData,
@@ -736,6 +783,7 @@ class CodeEditor extends Component<Props, State> {
             className={`${className} ${replayHighlightClass} ${
               isInvalid ? "t--codemirror-has-error" : ""
             }`}
+            codeEditorVisibleOverflow={codeEditorVisibleOverflow}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
@@ -745,6 +793,7 @@ class CodeEditor extends Component<Props, State> {
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
             onMouseMove={this.handleLintTooltip}
+            onMouseOver={this.handleMouseMove}
             ref={this.editorWrapperRef}
             size={size}
           >

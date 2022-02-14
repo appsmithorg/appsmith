@@ -8,13 +8,13 @@ import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/ads/formFields/TextField";
 import Toggle from "components/ads/Toggle";
-import { createMessage } from "constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 
 const ToggleWrapper = styled.div``;
 
 const ToggleStatus = styled.span`
   position: relative;
-  top: -5px;
+  top: -10px;
   left: 68px;
 `;
 
@@ -52,10 +52,6 @@ const StyledFieldToggleGroup = styled.div`
   }
 `;
 
-const Spacing = styled.div`
-  height: 20px;
-`;
-
 export function ToggleComponent({ setting }: SettingComponentProps) {
   return (
     <StyledFieldToggleGroup>
@@ -64,7 +60,6 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
           component={FieldToggleWithToggleText(setting.toggleText)}
           name={setting.name}
         />
-        <Spacing />
       </FormGroup>
     </StyledFieldToggleGroup>
   );
