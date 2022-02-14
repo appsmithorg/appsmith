@@ -12,7 +12,7 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
-import _ from "lodash";
+import { isNil } from "lodash";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
@@ -145,8 +145,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${(props) =>
-      !_.isNil(props.value) ? Colors.GREY_10 : Colors.GREY_6};
+    color: ${(props) => (!isNil(props.value) ? Colors.GREY_10 : Colors.GREY_6)};
   }
   && {
     .${Classes.ICON} {
