@@ -15,7 +15,7 @@ import {
   createMessage,
   ADMIN_SETTINGS,
   DOCUMENTATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
 

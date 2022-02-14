@@ -796,7 +796,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         </Wrapper>
         <CardFooter>
           <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-          {!!moreActionItems.length && ContextMenu}
+          {!!moreActionItems.length && !props.isMobile && ContextMenu}
         </CardFooter>
       </NameWrapper>
       {showGitBadge && <GitConnectedBadge />}
