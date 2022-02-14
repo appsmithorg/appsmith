@@ -38,6 +38,7 @@ import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapp
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 
 /***
  * BaseWidget
@@ -313,12 +314,25 @@ abstract class BaseWidget<
     );
   }
 
+  addPreviewModeWidget(content: ReactNode) {
+    return (
+      <PreviewModeComponent isVisible={this.props.isVisible}>
+        {content}
+      </PreviewModeComponent>
+    );
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
 
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
+        content = this.addPreviewModeWidget(content);
+        // NOTE: if content not available, we don't have to show widget
+        if (!content) {
+          return null;
+        }
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {
