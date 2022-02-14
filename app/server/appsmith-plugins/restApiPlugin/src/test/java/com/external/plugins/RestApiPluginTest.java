@@ -933,35 +933,6 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
-    @Test
-    // HEAD (Current Change)
-    public void testGetApiWithBody() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/get");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(
-                new Property("content-type", "application/json")
-        ));
-        actionConfig.setHttpMethod(HttpMethod.GET);
-        actionConfig.setFormData(new HashMap<>());
-        PluginUtils.setValueSafelyInFormData(actionConfig.getFormData(), "apiContentType", "application/json");
-
-        String requestBody = "{\"key\":\"value\"}";
-        actionConfig.setBody(requestBody);
-
-        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getRequest().getBody());
-                    System.out.println(result.getRequest().getBody());
-                })
-                .verifyComplete();
-    }
-    // ============
     public void testQueryParamsInDatasource() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("https://postman-echo.com/post");
@@ -1032,6 +1003,33 @@ public class RestApiPluginTest {
                 .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
                 .verifyComplete();
     }
-    // >>>>>>>>>>> 5c3e12fc1018206d7afe92384435ceed2136ad72 Incoming Change
+
+    @Test
+    public void testGetApiWithBody() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/get");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(
+                new Property("content-type", "application/json")
+        ));
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setFormData(new HashMap<>());
+        PluginUtils.setValueSafelyInFormData(actionConfig.getFormData(), "apiContentType", "application/json");
+
+        String requestBody = "{\"key\":\"value\"}";
+        actionConfig.setBody(requestBody);
+
+        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getRequest().getBody());
+                    System.out.println(result.getRequest().getBody());
+                })
+                .verifyComplete();
+    }
 }
 
