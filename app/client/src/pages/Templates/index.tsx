@@ -14,6 +14,7 @@ import {
 import { fetchPlugins } from "actions/pluginActions";
 import { Classes } from "@blueprintjs/core";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { editorInitializer } from "utils/EditorUtils";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TemplateListWrapper = styled.div`
@@ -51,6 +52,8 @@ function TemplateRoutes() {
 
   useEffect(() => {
     dispatch(setHeaderMeta(true, true));
+    // Generate the widget config list
+    editorInitializer();
   }, []);
 
   useEffect(() => {

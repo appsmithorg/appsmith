@@ -89,6 +89,12 @@ const StyledDatasourceChip = styled(DatasourceChip)`
   }
 `;
 
+const TemplatesWidgetList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+`;
+
 const SimilarTemplatesWrapper = styled.div`
   margin-top: 82px;
   padding-right: 32px;
@@ -109,6 +115,24 @@ const SimilarTemplatesWrapper = styled.div`
 function TemplateView() {
   const navigateToTemplatesPage = () => {
     history.push(TEMPLATES_URL);
+  };
+  const template = {
+    id: "61f447545bf0264436db038e",
+    userPermissions: [],
+    title: "Updated title",
+    description:
+      "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
+    appUrl: "http://app.appsmith.com/applications/hello-nayan",
+    gifUrl: "http://gif.appsmith.com/images/hello",
+    screenshotUrls: ["http://gif.appsmith.com/images/hello"],
+    widgets: ["BUTTON_WIDGET", "MAP_WIDGET", "CHART_WIDGET"],
+    functions: ["Customer Support", "DevOps"],
+    useCases: ["Support", "Admin"],
+    datasources: ["postgres-plugin", "mongo-plugin"],
+    minVersion: "v1.6.8",
+    minVersionPadded: "000010000600008",
+    active: true,
+    new: false,
   };
 
   return (
@@ -192,7 +216,13 @@ function TemplateView() {
             <Section>
               <Text type={TextType.H1}>Widgets Used</Text>
               <div className="section-content">
-                <WidgetInfo />
+                <TemplatesWidgetList>
+                  {template.widgets.map((widgetType) => {
+                    return (
+                      <WidgetInfo key={widgetType} widgetType={widgetType} />
+                    );
+                  })}
+                </TemplatesWidgetList>
               </div>
             </Section>
           </DescriptionColumn>

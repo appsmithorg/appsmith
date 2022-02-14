@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
 import Text, { FontWeight, TextType } from "components/ads/Text";
-import { getWidgetIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { IconWrapper } from "constants/IconConstants";
+import { getWidgetCards } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -10,25 +12,23 @@ const Wrapper = styled.div`
   justify-content: center;
 `;
 
-const IconWrapper = styled.span`
-  div {
-    height: 32px;
-    width: 32px;
-  }
-  && {
-    svg {
-      height: 32px;
-      width: 32px;
-    }
-  }
-`;
+interface WidgetInfoProps {
+  widgetType: string;
+}
 
-function WidgetInfo() {
+function WidgetInfo({ widgetType }: WidgetInfoProps) {
+  const widgetList = useSelector(getWidgetCards);
+  const widgetInfo = useMemo(() => {
+    return widgetList.find((widget) => widget.type === widgetType);
+  }, [widgetType, widgetList.length]);
+
   return (
     <Wrapper>
-      <IconWrapper>{getWidgetIcon("BUTTON_WIDGET")}</IconWrapper>
+      <IconWrapper>
+        <img className="w-8 h-8" src={widgetInfo?.icon} />
+      </IconWrapper>
       <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-        Button
+        {widgetInfo?.displayName}
       </Text>
     </Wrapper>
   );
