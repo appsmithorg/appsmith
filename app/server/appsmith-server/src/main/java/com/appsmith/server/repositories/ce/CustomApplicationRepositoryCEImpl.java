@@ -172,8 +172,16 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Query query = new Query();
         query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
         query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
-        query.addCriteria(where(fieldName(QApplication.application.deleted)).is(Boolean.FALSE));
+        query.addCriteria(notDeleted());
         return mongoOperations.count(query, Application.class);
+    }
+
+    @Override
+    public Flux<Application> getGitConnectedApplicationWithPrivateRepo(String organizationId){
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+        Criteria privateRepoCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE);
+        Criteria organizationIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
+        return queryAll(List.of(privateRepoCriteria, organizationIdCriteria), AclPermission.MANAGE_APPLICATIONS);
     }
 
     @Override
