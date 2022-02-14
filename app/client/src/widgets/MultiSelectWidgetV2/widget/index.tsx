@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray } from "lodash";
+import { isArray, isString, isNumber } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -16,7 +16,6 @@ import {
 import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import _ from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -43,16 +42,16 @@ export function defaultOptionValueValidation(
   /*
    * Function to check for duplicate values in array
    */
-  const hasUniqueValues = (arr: []) => {
-    const uniqueValues = Array.from(new Set(arr));
+  const hasUniqueValues = (arr: Array<string>) => {
+    const uniqueValues = new Set(arr);
 
-    return uniqueValues.length === arr.length;
+    return uniqueValues.size === arr.length;
   };
 
   /*
    * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
    */
-  if (_.isString(value) && value !== "") {
+  if (_.isString(value) && (value as string).trim() !== "") {
     try {
       /*
        * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
@@ -68,7 +67,7 @@ export function defaultOptionValueValidation(
     }
   }
 
-  if (value === "") {
+  if (_.isString(value) && (value as string).trim() !== "") {
     isValid = true;
     parsed = [];
     message = "";
@@ -421,10 +420,10 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-    const values = this.props.selectedOptions
+    const values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
-          _.isNil(o.value)
-            ? { laebl: o, value: o }
+          isString(o) || isNumber(o)
+            ? { label: o, value: o }
             : { label: o.label, value: o.value },
         )
       : [];
@@ -456,7 +455,7 @@ class MultiSelectWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={values as LabelValueType[]}
+        value={values}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />

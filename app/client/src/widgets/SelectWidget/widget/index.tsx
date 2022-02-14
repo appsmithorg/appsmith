@@ -3,7 +3,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import SelectComponent from "../component";
-import _ from "lodash";
 import { DropdownOption } from "../constants";
 import {
   ValidationResponse,
@@ -12,6 +11,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { findIndex, isArray, isNumber, isString } from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -371,18 +371,18 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   }
 
   isStringOrNumber = (value: any): value is string | number =>
-    _.isString(value) || _.isNumber(value);
+    isString(value) || isNumber(value);
   changeSelectedOption = () => {
     this.props.updateWidgetMetaProperty("optionValue", this.props.optionValue);
   };
 
   getPageView() {
-    const options = _.isArray(this.props.options) ? this.props.options : [];
+    const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
-    const selectedIndex = _.findIndex(this.props.options, {
+    const selectedIndex = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
     const { componentHeight, componentWidth } = this.getComponentDimensions();
