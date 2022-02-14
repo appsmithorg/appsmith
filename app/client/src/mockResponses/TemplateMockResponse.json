@@ -9,7 +9,7 @@
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"

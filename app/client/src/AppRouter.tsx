@@ -120,8 +120,10 @@ class AppRouter extends React.Component<any, any> {
                 <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
                 <SentryRoute
                   component={HomeScreenTabs}
-                  path={[APPLICATIONS_URL, TEMPLATES_URL]}
+                  exact
+                  path={APPLICATIONS_URL}
                 />
+                <SentryRoute component={HomeScreenTabs} path={TEMPLATES_URL} />
                 <SentryRoute
                   component={SignupSuccess}
                   exact

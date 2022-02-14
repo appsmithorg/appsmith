@@ -65,11 +65,20 @@ export interface FetchTemplatesResponse extends ApiResponse {
   data: Template[];
 }
 
+export interface FetchTemplateResponse extends ApiResponse {
+  data: Template;
+}
+
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
 
   static getAllTemplates(): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates`);
+  }
+  static getTemplateInformation(
+    templateId: string,
+  ): AxiosPromise<FetchTemplatesResponse> {
+    return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
   }
 }
 

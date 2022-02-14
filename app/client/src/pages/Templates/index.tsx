@@ -10,6 +10,7 @@ import { getAllTemplates } from "actions/templateActions";
 import {
   getOrganizationForTemplates,
   getTemplatesSelector,
+  isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import { fetchPlugins } from "actions/pluginActions";
 import { Classes } from "@blueprintjs/core";
@@ -78,12 +79,13 @@ function Templates() {
 
   const templates = useSelector(getTemplatesSelector);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
       : "Showing 1 template";
 
-  if (isFetchingApplications) {
+  if (isFetchingApplications || isFetchingTemplates) {
     return (
       <Loader>
         <ResultsCount className={`results-count ${Classes.SKELETON}`} />

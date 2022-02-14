@@ -1,19 +1,44 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import Masonry from "react-masonry-css";
+import { Classes } from "@blueprintjs/core";
+import { useParams } from "react-router";
 import history from "utils/history";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import Button, { IconPositions, Size } from "components/ads/Button";
 import { TEMPLATES_URL } from "constants/routes";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import Template from "./Template";
 import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
 import DatasourceChip from "./DatasourceChip";
 import WidgetInfo from "./WidgetInfo";
 import { Template as TemplateInterface } from "api/TemplatesApi";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllTemplates } from "actions/templateActions";
+import {
+  getTemplateById,
+  isFetchingTemplatesSelector,
+} from "selectors/templatesSelectors";
 
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   height: calc(100vh - ${(props) => props.theme.homePage.search.height}px);
+
+  .breadcrumb-placeholder {
+    margin-top: 30px;
+    height: 16px;
+    width: 195px;
+  }
+  .title-placeholder {
+    margin-top: 26px;
+    height: 28px;
+    width: 269px;
+  }
+  .iframe-placeholder {
+    margin-top: 29px;
+    height: 500px;
+    width: 100%;
+  }
 `;
 
 const TemplateViewWrapper = styled.div`
@@ -95,6 +120,12 @@ const TemplatesWidgetList = styled.div`
   gap: 30px;
 `;
 
+const TemplateDatasources = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+`;
+
 const SimilarTemplatesWrapper = styled.div`
   margin-top: 82px;
   padding-right: 32px;
@@ -113,27 +144,38 @@ const SimilarTemplatesWrapper = styled.div`
 `;
 
 function TemplateView() {
+  const dispatch = useDispatch();
+  const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
+  const params = useParams<{ templateId: string }>();
+  const currentTemplate = useSelector(getTemplateById(params.templateId));
+
+  useEffect(() => {
+    dispatch(getAllTemplates());
+  }, []);
+
   const navigateToTemplatesPage = () => {
     history.push(TEMPLATES_URL);
   };
-  const template = {
-    id: "61f447545bf0264436db038e",
-    userPermissions: [],
-    title: "Updated title",
-    description:
-      "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-    appUrl: "http://app.appsmith.com/applications/hello-nayan",
-    gifUrl: "http://gif.appsmith.com/images/hello",
-    screenshotUrls: ["http://gif.appsmith.com/images/hello"],
-    widgets: ["BUTTON_WIDGET", "MAP_WIDGET", "CHART_WIDGET"],
-    functions: ["Customer Support", "DevOps"],
-    useCases: ["Support", "Admin"],
-    datasources: ["postgres-plugin", "mongo-plugin"],
-    minVersion: "v1.6.8",
-    minVersionPadded: "000010000600008",
-    active: true,
-    new: false,
-  };
+
+  if (isFetchingTemplates) {
+    return (
+      <Wrapper>
+        <TemplateViewWrapper>
+          <div className={`breadcrumb-placeholder ${Classes.SKELETON}`} />
+          <div className={`title-placeholder ${Classes.SKELETON}`} />
+          <div className={`iframe-placeholder ${Classes.SKELETON}`} />
+        </TemplateViewWrapper>
+      </Wrapper>
+    );
+  }
+
+  if (!currentTemplate) {
+    return (
+      <Wrapper>
+        <EntityNotFoundPane />;
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
@@ -151,13 +193,9 @@ function TemplateView() {
           </Text>
           <Text type={TextType.P0}> Job Application Tracker</Text>
         </BreadCrumbs>
-        <Title type={TextType.H4}>Job Application Tracker</Title>
+        <Title type={TextType.H4}>{currentTemplate.title}</Title>
         <IframeWrapper>
-          <iframe
-            height={"100%"}
-            src="https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79"
-            width={"100%"}
-          />
+          <iframe height={"100%"} src={currentTemplate.appUrl} width={"100%"} />
         </IframeWrapper>
         <DescriptionWrapper>
           <DescriptionColumn>
@@ -165,9 +203,7 @@ function TemplateView() {
               <Text type={TextType.H1}>Overview</Text>
               <div className="section-content">
                 <Text type={TextType.H2} weight={FontWeight.NORMAL}>
-                  An admin panel for reading from and writing to your customer
-                  data, built on PostgreSQL. This app lets you look through,
-                  edit, and add users, orders, and products.
+                  {currentTemplate.description}
                 </Text>
               </div>
               <Button
@@ -183,7 +219,7 @@ function TemplateView() {
               <Text type={TextType.H1}>Function</Text>
               <div className="section-content">
                 <Text type={TextType.H1} weight={FontWeight.NORMAL}>
-                  Customer Support • Data and Analytics
+                  {currentTemplate.functions.join(" • ")}
                 </Text>
               </div>
             </Section>
@@ -191,7 +227,7 @@ function TemplateView() {
               <Text type={TextType.H1}>Industry</Text>
               <div className="section-content">
                 <Text type={TextType.H1} weight={FontWeight.NORMAL}>
-                  Technology • Logistics
+                  {currentTemplate.useCases.join(" • ")}
                 </Text>
               </div>
             </Section>
@@ -200,11 +236,16 @@ function TemplateView() {
             <Section>
               <Text type={TextType.H1}>Data Sources</Text>
               <div className="section-content">
-                <StyledDatasourceChip
-                  pluginPackageName={
-                    TemplatesMockResponse.data[0].datasources[0]
-                  }
-                />
+                <TemplateDatasources>
+                  {currentTemplate.datasources.map((packageName) => {
+                    return (
+                      <StyledDatasourceChip
+                        key={packageName}
+                        pluginPackageName={packageName}
+                      />
+                    );
+                  })}
+                </TemplateDatasources>
                 <div className="datasource-note">
                   <Text type={TextType.H2}>Note: </Text>
                   <Text type={TextType.H2} weight={FontWeight.NORMAL}>
@@ -217,7 +258,7 @@ function TemplateView() {
               <Text type={TextType.H1}>Widgets Used</Text>
               <div className="section-content">
                 <TemplatesWidgetList>
-                  {template.widgets.map((widgetType) => {
+                  {currentTemplate.widgets.map((widgetType) => {
                     return (
                       <WidgetInfo key={widgetType} widgetType={widgetType} />
                     );

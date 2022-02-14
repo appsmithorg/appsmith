@@ -5,9 +5,6 @@ import { getOrganizationCreateApplication } from "./applicationSelectors";
 export const getTemplatesSelector = (state: AppState) =>
   state.ui.templates.templates;
 
-export const getOrganizationsForTemplateForking = (state: AppState) =>
-  state.ui.templates.templates;
-
 export const getOrganizationForTemplates = createSelector(
   getOrganizationCreateApplication,
   (organizationList) => {
@@ -18,3 +15,10 @@ export const getOrganizationForTemplates = createSelector(
     return null;
   },
 );
+
+export const isFetchingTemplatesSelector = (state: AppState) =>
+  state.ui.templates.gettingAllTemplates;
+
+export const getTemplateById = (id: string) => (state: AppState) => {
+  return state.ui.templates.templates.find((template) => template.id === id);
+};
