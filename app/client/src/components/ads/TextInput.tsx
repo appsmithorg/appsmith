@@ -15,7 +15,7 @@ import {
   ERROR_MESSAGE_NAME_EMPTY,
   createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
@@ -72,6 +72,8 @@ export type TextInputProps = CommonComponentProps & {
   onFocus?: EventHandler<FocusEvent<any>>;
   errorMsg?: string;
   trimValue?: boolean;
+  $padding?: string;
+  useTextArea?: boolean;
 };
 
 type boxReturnType = {
@@ -146,8 +148,11 @@ const StyledInput = styled((props) => {
     "noCaret",
     "fill",
     "errorMsg",
+    "useTextArea",
     "trimValue",
   ];
+
+  const HtmlTag = props.useTextArea ? "textarea" : "input";
 
   return props.asyncControl ? (
     <AsyncControllableInput
@@ -156,7 +161,7 @@ const StyledInput = styled((props) => {
       inputRef={inputRef}
     />
   ) : (
-    <input ref={inputRef} {..._.omit(inputProps, omitProps)} />
+    <HtmlTag ref={inputRef} {..._.omit(inputProps, omitProps)} />
   );
 })<
   TextInputProps & {
@@ -179,6 +184,7 @@ const StyledInput = styled((props) => {
   box-shadow: none;
   border: none;
   padding: 0px ${(props) => props.theme.spaces[6]}px;
+  ${(props) => (props.$padding ? `padding: ${props.$padding}` : "")};
   padding-right: ${(props) =>
     props.rightSideComponentWidth + props.theme.spaces[6]}px;
   background-color: transparent;
