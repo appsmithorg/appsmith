@@ -17,7 +17,7 @@ import {
   BULK_WIDGET_ADDED,
   WIDGET_REMOVED,
   BULK_WIDGET_REMOVED,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 /**
  * get the text for toast

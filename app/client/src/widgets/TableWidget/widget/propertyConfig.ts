@@ -22,7 +22,7 @@ import {
 import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { IconNames } from "@blueprintjs/icons";
 
 const ICON_NAMES = Object.keys(IconNames).map(
