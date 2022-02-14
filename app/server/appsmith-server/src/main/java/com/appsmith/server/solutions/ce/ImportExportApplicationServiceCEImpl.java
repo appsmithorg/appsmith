@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
@@ -69,7 +70,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -114,6 +114,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
 
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Export application, with id: " + applicationId);
         /*
             1. Fetch application by id
             2. Fetch pages from the application
@@ -137,7 +139,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 ? applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 : applicationService.findById(applicationId, EXPORT_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 );
 
         // Set json schema version which will be used to check the compatibility while importing the JSON
@@ -428,6 +430,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                 }
 
+                                processStopwatch.stopAndLogTimeInMillis();
                                 return applicationJson;
                             });
                 })
@@ -495,7 +498,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile);
-                });
+                })
+                .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage())));
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -535,6 +539,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             6. Extract and save pages in the application
             7. Extract and save actions in the application
          */
+
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Import application");
+
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         Map<String, String> pluginMap = new HashMap<>();
@@ -1071,7 +1079,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return mapActionIdWithPageLayout(newPage, actionIdMap)
                                         .flatMap(newPageService::save);
                             })
-                            .then(applicationService.update(importedApplication.getId(), importedApplication));
+                            .then(applicationService.update(importedApplication.getId(), importedApplication))
+                            .map(application -> {
+                                processStopwatch.stopAndLogTimeInMillis();
+                                return application;
+                            });
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions

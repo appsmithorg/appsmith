@@ -36,9 +36,9 @@ async function testTyping() {
   //   },
   // );
 
-  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app-dev.json`);
+  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app.json`);
 
-  await delay(10000, "for newly created page to settle down");
+  await delay(20000, "for newly created page to settle down");
   // Make the elements of the dropdown render
   await page.waitForSelector(SEL.multiSelect);
   await page.click(SEL.multiSelect);

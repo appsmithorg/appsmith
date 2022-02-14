@@ -56,6 +56,13 @@ public class UserData extends BaseDomain {
     @JsonIgnore
     Map<String, GitProfile> gitProfiles;
 
+    // JWT tokens
+    @JsonIgnore
+    String accessToken;
+
+    Map<String, Object> userClaims;
+
+
     public GitProfile getGitProfileByKey(String key) {
         // Always use DEFAULT_GIT_PROFILE as fallback
         if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {

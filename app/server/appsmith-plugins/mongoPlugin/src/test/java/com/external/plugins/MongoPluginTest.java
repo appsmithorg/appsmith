@@ -1438,6 +1438,38 @@ public class MongoPluginTest {
     }
 
     @Test
+    public void testAggregateCommandWithInvalidQuery() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
+        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        // Invalid JSON object (issue: #5326)
+        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, "{$sort :{ _id  : 1 }}abcd");
+        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
+
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .expectErrorMatches(throwable -> {
+                    boolean sameClass = throwable.getClass().equals(AppsmithPluginException.class);
+                    if (sameClass) {
+                        var ape = ((AppsmithPluginException) throwable);
+                        return ape.getError().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR)
+                                && ape.getArgs()[0].equals("Pipeline stage is not a valid JSON object.");
+                    }
+                    return false;
+                })
+                .verify();
+    }
+
+    @Test
     public void testFindCommandProjection() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 

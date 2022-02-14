@@ -49,6 +49,8 @@ export interface Oauth2Common {
   isTokenHeader: boolean;
   audience: string;
   resource: string;
+  sendScopeWithRefreshToken: string;
+  refreshTokenClientCredentialsLocation: string;
 }
 
 export interface ClientCredentials extends Oauth2Common {
