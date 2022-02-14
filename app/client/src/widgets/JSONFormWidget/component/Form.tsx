@@ -17,6 +17,7 @@ import { schemaItemDefaultValue } from "../helper";
 export type FormProps<TValues = any> = PropsWithChildren<{
   disabledWhenInvalid?: boolean;
   fixedFooter: boolean;
+  isSubmitting: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   resetButtonStyles: ButtonStyleProps;
   schema: Schema;
@@ -85,6 +86,7 @@ function Form<TValues = any>({
   children,
   disabledWhenInvalid,
   fixedFooter,
+  isSubmitting,
   onSubmit,
   resetButtonStyles,
   schema,
@@ -147,6 +149,7 @@ function Form<TValues = any>({
           <Button
             {...submitButtonStyles}
             disabled={disabledWhenInvalid && isFormInValid}
+            loading={isSubmitting}
             onClick={onSubmit}
             text="Submit"
             type="submit"

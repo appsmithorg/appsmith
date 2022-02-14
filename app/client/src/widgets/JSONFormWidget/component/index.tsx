@@ -28,23 +28,24 @@ export type JSONFormComponentProps<TValues = any> = {
   boxShadowColor?: string;
   disabledWhenInvalid?: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
-  fixedFooter: boolean;
   fieldLimitExceeded: boolean;
+  fixedFooter: boolean;
+  isSubmitting: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode: RenderMode;
+  resetButtonStyles: ButtonStyleProps;
   schema: Schema;
   scrollContents: boolean;
   setMetaInternalFieldState: (
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
   ) => void;
   showReset: boolean;
+  submitButtonStyles: ButtonStyleProps;
   title: string;
   updateFormData: (values: TValues) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;
-  submitButtonStyles: ButtonStyleProps;
-  resetButtonStyles: ButtonStyleProps;
 };
 
 const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
@@ -87,6 +88,7 @@ const limitExceededState = (
 function JSONFormComponent<TValues>({
   executeAction,
   fieldLimitExceeded,
+  isSubmitting,
   renderMode,
   schema,
   setMetaInternalFieldState,
@@ -140,6 +142,7 @@ function JSONFormComponent<TValues>({
         <Form
           disabledWhenInvalid={rest.disabledWhenInvalid}
           fixedFooter={rest.fixedFooter}
+          isSubmitting={isSubmitting}
           onSubmit={rest.onSubmit}
           resetButtonStyles={rest.resetButtonStyles}
           schema={schema}

@@ -49,8 +49,9 @@ export type MetaInternalFieldState = FieldState<{
 }>;
 
 export type JSONFormWidgetState = {
-  metaInternalFieldState: MetaInternalFieldState;
   fieldLimitExceeded: boolean;
+  isSubmitting: boolean;
+  metaInternalFieldState: MetaInternalFieldState;
 };
 
 const SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT = 400;
@@ -70,8 +71,9 @@ class JSONFormWidget extends BaseWidget<
   }
 
   state: JSONFormWidgetState = {
-    metaInternalFieldState: {},
     fieldLimitExceeded: false,
+    isSubmitting: false,
+    metaInternalFieldState: {},
   };
 
   static getPropertyPaneConfig() {
@@ -123,7 +125,6 @@ class JSONFormWidget extends BaseWidget<
     if (isEmpty(currSourceData)) {
       return;
     }
-
     // Hot path - early exit
     if (equal(prevSourceData, currSourceData)) {
       return;
@@ -186,14 +187,25 @@ class JSONFormWidget extends BaseWidget<
     event.preventDefault();
 
     if (this.props.onSubmit) {
+      this.setState({
+        isSubmitting: true,
+      });
+
       super.executeAction({
         triggerPropertyName: "onSubmit",
         dynamicString: this.props.onSubmit,
         event: {
           type: EventType.ON_SUBMIT,
+          callback: this.handleSubmitResult,
         },
       });
     }
+  };
+
+  handleSubmitResult = () => {
+    this.setState({
+      isSubmitting: false,
+    });
   };
 
   onExecuteAction = (actionPayload: ExecuteTriggerPayload) => {
@@ -227,6 +239,7 @@ class JSONFormWidget extends BaseWidget<
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.state.fieldLimitExceeded}
         fixedFooter={this.props.fixedFooter}
+        isSubmitting={this.state.isSubmitting}
         onSubmit={this.onSubmit}
         renderMode={this.props.renderMode}
         resetButtonStyles={this.props.resetButtonStyles}
