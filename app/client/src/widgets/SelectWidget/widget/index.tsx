@@ -385,12 +385,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-
-    const { label = "", value = "" } = !_.isNil(this.props.optionValue)
-      ? this.isStringOrNumber(this.props.optionValue)
-        ? { label: this.props.optionValue, value: this.props.optionValue }
-        : this.props.optionValue
-      : {};
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <SelectComponent
@@ -409,7 +403,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}
-        label={label}
+        label={this.props.selectedOptionLabel}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -420,7 +414,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={value}
+        value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
