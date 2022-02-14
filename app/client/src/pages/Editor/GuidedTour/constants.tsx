@@ -38,7 +38,7 @@ import {
   STEP_THREE_SUCCESS_TEXT,
   STEP_THREE_TITLE,
   STEP_TWO_TITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 export const Classes = {
