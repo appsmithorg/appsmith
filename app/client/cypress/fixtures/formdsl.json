@@ -240,7 +240,7 @@
                                   "top": 11,
                                   "left": 12
                                 },
-                                "type": "FORM_BUTTON_WIDGET",
+                                "type": "BUTTON_WIDGET",
                                 "props": {
                                   "resetFormOnClick": false,
                                   "disabledWhenInvalid": true,
@@ -257,7 +257,7 @@
                                   "top": 11,
                                   "left": 8
                                 },
-                                "type": "FORM_BUTTON_WIDGET",
+                                "type": "BUTTON_WIDGET",
                                 "props": {
                                   "resetFormOnClick": true,
                                   "disabledWhenInvalid": false,
@@ -318,7 +318,7 @@
                               "top": 11,
                               "left": 12
                             },
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "props": {
                               "resetFormOnClick": false,
                               "disabledWhenInvalid": true,
@@ -335,7 +335,7 @@
                               "top": 11,
                               "left": 8
                             },
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "props": {
                               "resetFormOnClick": true,
                               "disabledWhenInvalid": false,
@@ -374,7 +374,7 @@
                           "topRow": 11,
                           "bottomRow": 12,
                           "isVisible": true,
-                          "type": "FORM_BUTTON_WIDGET",
+                          "type": "BUTTON_WIDGET",
                           "dynamicBindingPathList": [],
                           "isLoading": false,
                           "disabledWhenInvalid": true,
@@ -391,7 +391,7 @@
                           "topRow": 11,
                           "bottomRow": 12,
                           "isVisible": true,
-                          "type": "FORM_BUTTON_WIDGET",
+                          "type": "BUTTON_WIDGET",
                           "dynamicBindingPathList": [],
                           "isLoading": false,
                           "disabledWhenInvalid": false,

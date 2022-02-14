@@ -1042,6 +1042,11 @@ export const transformDSL = (
      * We're skipping this to fix a bad table migration - migrateTableWidgetNumericColumnName
      * it overwrites the computedValue of the table columns
      */
+    currentDSL.version = 51;
+  }
+
+  if (currentDSL.version === 51) {
+    currentDSL = migrateFormButton(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -1513,4 +1518,15 @@ export const migrateFilterValueForDropDownWidget = (
   });
 
   return newDSL;
+};
+
+const migrateFormButton = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+  if (currentDSL.type === "FORM_BUTTON_WIDGET")
+    currentDSL.type = "BUTTON_WIDGET";
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateFormButton(child),
+    );
+  }
+  return currentDSL;
 };

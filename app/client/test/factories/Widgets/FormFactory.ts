@@ -49,7 +49,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
                   top: 11,
                   left: 12,
                 },
-                type: "FORM_BUTTON_WIDGET",
+                type: "BUTTON_WIDGET",
                 props: {
                   resetFormOnClick: false,
                   disabledWhenInvalid: true,
@@ -66,7 +66,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
                   top: 11,
                   left: 8,
                 },
-                type: "FORM_BUTTON_WIDGET",
+                type: "BUTTON_WIDGET",
                 props: {
                   resetFormOnClick: true,
                   disabledWhenInvalid: false,
@@ -127,7 +127,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
               top: 11,
               left: 12,
             },
-            type: "FORM_BUTTON_WIDGET",
+            type: "BUTTON_WIDGET",
             props: {
               resetFormOnClick: false,
               disabledWhenInvalid: true,
@@ -144,7 +144,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
               top: 11,
               left: 8,
             },
-            type: "FORM_BUTTON_WIDGET",
+            type: "BUTTON_WIDGET",
             props: {
               resetFormOnClick: true,
               disabledWhenInvalid: false,
@@ -183,7 +183,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
           topRow: 11,
           bottomRow: 12,
           isVisible: true,
-          type: "FORM_BUTTON_WIDGET",
+          type: "BUTTON_WIDGET",
           dynamicBindingPathList: [],
           isLoading: false,
           disabledWhenInvalid: true,
@@ -200,7 +200,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
           topRow: 11,
           bottomRow: 12,
           isVisible: true,
-          type: "FORM_BUTTON_WIDGET",
+          type: "BUTTON_WIDGET",
           dynamicBindingPathList: [],
           isLoading: false,
           disabledWhenInvalid: false,

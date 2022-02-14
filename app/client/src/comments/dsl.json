@@ -141,7 +141,7 @@
         "canExtend":false,
         "detachFromLayout":true,
         "children":[
-           
+
         ],
         "minHeight":400,
         "type":"CANVAS_WIDGET",
@@ -203,7 +203,7 @@
      "a0n63ney9n":{
         "isVisible":true,
         "files":[
-           
+
         ],
         "label":"Select Files",
         "maxNumFiles":"1",
@@ -295,7 +295,7 @@
         "buttonStyle":"PRIMARY_BUTTON",
         "disabledWhenInvalid":true,
         "resetFormOnClick":true,
-        "type":"FORM_BUTTON_WIDGET",
+        "type":"BUTTON_WIDGET",
         "isLoading":false,
         "leftColumn":12,
         "rightColumn":16,
@@ -313,7 +313,7 @@
         "buttonStyle":"SECONDARY_BUTTON",
         "disabledWhenInvalid":false,
         "resetFormOnClick":true,
-        "type":"FORM_BUTTON_WIDGET",
+        "type":"BUTTON_WIDGET",
         "isLoading":false,
         "leftColumn":8,
         "rightColumn":12,
@@ -758,7 +758,7 @@
         "parentId":"zviu5egw42",
         "detachFromLayout":true,
         "children":[
-           
+
         ],
         "parentRowSpace":1,
         "parentColumnSpace":1,

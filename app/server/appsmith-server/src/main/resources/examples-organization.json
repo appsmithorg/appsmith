@@ -1191,9 +1191,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "ordersTable.selectedRow.id"
-              ],
+              "jsonPathKeys": ["ordersTable.selectedRow.id"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -1238,9 +1236,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "usersTable.selectedRow.id"
-              ],
+              "jsonPathKeys": ["usersTable.selectedRow.id"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -1334,9 +1330,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "ordersTable.selectedRow.id"
-              ],
+              "jsonPathKeys": ["ordersTable.selectedRow.id"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -2240,10 +2234,7 @@
                     ]
                   },
                   {
-                    "hiddenColumns": [
-                      "userId",
-                      "orderDate"
-                    ],
+                    "hiddenColumns": ["userId", "orderDate"],
                     "widgetName": "ordersTable",
                     "rightColumn": 8,
                     "columnOrder": [
@@ -2321,10 +2312,7 @@
                           "type": "CANVAS_WIDGET",
                           "props": {
                             "detachFromLayout": true,
-                            "children": [
-                              "v8531ch9d8",
-                              "0cz98i5vmt"
-                            ],
+                            "children": ["v8531ch9d8", "0cz98i5vmt"],
                             "containerStyle": "none",
                             "canExtend": false
                           }
@@ -3661,10 +3649,7 @@
                     ]
                   },
                   {
-                    "hiddenColumns": [
-                      "userId",
-                      "orderDate"
-                    ],
+                    "hiddenColumns": ["userId", "orderDate"],
                     "widgetName": "ordersTable",
                     "rightColumn": 8,
                     "columnOrder": [
@@ -3742,10 +3727,7 @@
                           "type": "CANVAS_WIDGET",
                           "props": {
                             "detachFromLayout": true,
-                            "children": [
-                              "v8531ch9d8",
-                              "0cz98i5vmt"
-                            ],
+                            "children": ["v8531ch9d8", "0cz98i5vmt"],
                             "containerStyle": "none",
                             "canExtend": false
                           }
@@ -4479,9 +4461,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "6af2mwjii8"
-                            ],
+                            "children": ["6af2mwjii8"],
                             "tabId": "tab1"
                           }
                         },
@@ -4499,10 +4479,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "bv27fj7bs5",
-                              "6af2mwjii8"
-                            ],
+                            "children": ["bv27fj7bs5", "6af2mwjii8"],
                             "tabId": "tab2"
                           }
                         }
@@ -4669,10 +4646,7 @@
                         "detachFromLayout": true,
                         "children": [
                           {
-                            "hiddenColumns": [
-                              "description",
-                              "actions"
-                            ],
+                            "hiddenColumns": ["description", "actions"],
                             "widgetName": "ticketsTable",
                             "rightColumn": 16,
                             "widgetId": "472a29heor",
@@ -4747,10 +4721,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "472a29heor",
-                              "dqzd7flg31"
-                            ]
+                            "children": ["472a29heor", "dqzd7flg31"]
                           }
                         }
                       ]
@@ -4811,9 +4782,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "6af2mwjii8"
-                            ],
+                            "children": ["6af2mwjii8"],
                             "tabId": "tab1"
                           }
                         },
@@ -4831,10 +4800,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "bv27fj7bs5",
-                              "6af2mwjii8"
-                            ],
+                            "children": ["bv27fj7bs5", "6af2mwjii8"],
                             "tabId": "tab2"
                           }
                         }
@@ -5001,10 +4967,7 @@
                         "detachFromLayout": true,
                         "children": [
                           {
-                            "hiddenColumns": [
-                              "description",
-                              "actions"
-                            ],
+                            "hiddenColumns": ["description", "actions"],
                             "widgetName": "ticketsTable",
                             "rightColumn": 16,
                             "widgetId": "472a29heor",
@@ -5079,10 +5042,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "472a29heor",
-                              "dqzd7flg31"
-                            ]
+                            "children": ["472a29heor", "dqzd7flg31"]
                           }
                         }
                       ]
@@ -5276,7 +5236,7 @@
                                     "top": 11,
                                     "left": 12
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": true,
@@ -5293,7 +5253,7 @@
                                     "top": 11,
                                     "left": 8
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": false,
@@ -5354,7 +5314,7 @@
                                 "top": 11,
                                 "left": 12
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": true,
@@ -5371,7 +5331,7 @@
                                 "top": 11,
                                 "left": 8
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": false,
@@ -5415,7 +5375,7 @@
                             "topRow": 15,
                             "bottomRow": 16,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "parentId": "x8vgckp3l4",
                             "isLoading": false,
                             "disabledWhenInvalid": true,
@@ -5435,7 +5395,7 @@
                             "topRow": 15,
                             "bottomRow": 16,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "parentId": "x8vgckp3l4",
                             "isLoading": false,
                             "disabledWhenInvalid": false,
@@ -5955,7 +5915,7 @@
                                     "top": 11,
                                     "left": 12
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": true,
@@ -5972,7 +5932,7 @@
                                     "top": 11,
                                     "left": 8
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": false,
@@ -6033,7 +5993,7 @@
                                 "top": 11,
                                 "left": 12
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": true,
@@ -6050,7 +6010,7 @@
                                 "top": 11,
                                 "left": 8
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": false,
@@ -6094,7 +6054,7 @@
                             "topRow": 15,
                             "bottomRow": 16,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "parentId": "x8vgckp3l4",
                             "isLoading": false,
                             "disabledWhenInvalid": true,
@@ -6114,7 +6074,7 @@
                             "topRow": 15,
                             "bottomRow": 16,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "parentId": "x8vgckp3l4",
                             "isLoading": false,
                             "disabledWhenInvalid": false,
@@ -6730,7 +6690,7 @@
                                     "top": 11,
                                     "left": 12
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": true,
@@ -6747,7 +6707,7 @@
                                     "top": 11,
                                     "left": 8
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": false,
@@ -6808,7 +6768,7 @@
                                 "top": 11,
                                 "left": 12
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": true,
@@ -6825,7 +6785,7 @@
                                 "top": 11,
                                 "left": 8
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": false,
@@ -6869,7 +6829,7 @@
                             "topRow": 13,
                             "bottomRow": 14,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "dynamicBindings": {},
                             "parentId": "pqa1d7o4vt",
                             "isLoading": false,
@@ -6890,7 +6850,7 @@
                             "topRow": 13,
                             "bottomRow": 14,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "parentId": "pqa1d7o4vt",
                             "isLoading": false,
                             "disabledWhenInvalid": false,
@@ -7538,7 +7498,7 @@
                                     "top": 11,
                                     "left": 12
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": true,
@@ -7555,7 +7515,7 @@
                                     "top": 11,
                                     "left": 8
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": false,
@@ -7616,7 +7576,7 @@
                                 "top": 11,
                                 "left": 12
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": true,
@@ -7633,7 +7593,7 @@
                                 "top": 11,
                                 "left": 8
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": false,
@@ -7677,7 +7637,7 @@
                             "topRow": 13,
                             "bottomRow": 14,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "dynamicBindings": {},
                             "parentId": "pqa1d7o4vt",
                             "isLoading": false,
@@ -7698,7 +7658,7 @@
                             "topRow": 13,
                             "bottomRow": 14,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "parentId": "pqa1d7o4vt",
                             "isLoading": false,
                             "disabledWhenInvalid": false,
@@ -8363,9 +8323,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "appsmith.URL.queryParams.email"
-              ],
+              "jsonPathKeys": ["appsmith.URL.queryParams.email"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -8491,7 +8449,7 @@
                                     "top": 11,
                                     "left": 12
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": true,
@@ -8508,7 +8466,7 @@
                                     "top": 11,
                                     "left": 8
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": false,
@@ -8569,7 +8527,7 @@
                                 "top": 11,
                                 "left": 12
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": true,
@@ -8586,7 +8544,7 @@
                                 "top": 11,
                                 "left": 8
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": false,
@@ -8630,7 +8588,7 @@
                             "topRow": 11,
                             "bottomRow": 12,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "dynamicBindings": {},
                             "parentId": "epboelq954",
                             "isLoading": false,
@@ -8651,7 +8609,7 @@
                             "topRow": 11,
                             "bottomRow": 12,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "parentId": "epboelq954",
                             "isLoading": false,
                             "disabledWhenInvalid": false,
@@ -9050,7 +9008,7 @@
                                     "top": 11,
                                     "left": 12
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": true,
@@ -9067,7 +9025,7 @@
                                     "top": 11,
                                     "left": 8
                                   },
-                                  "type": "FORM_BUTTON_WIDGET",
+                                  "type": "BUTTON_WIDGET",
                                   "props": {
                                     "resetFormOnClick": true,
                                     "disabledWhenInvalid": false,
@@ -9128,7 +9086,7 @@
                                 "top": 11,
                                 "left": 12
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": true,
@@ -9145,7 +9103,7 @@
                                 "top": 11,
                                 "left": 8
                               },
-                              "type": "FORM_BUTTON_WIDGET",
+                              "type": "BUTTON_WIDGET",
                               "props": {
                                 "resetFormOnClick": true,
                                 "disabledWhenInvalid": false,
@@ -9189,7 +9147,7 @@
                             "topRow": 11,
                             "bottomRow": 12,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "dynamicBindings": {},
                             "parentId": "epboelq954",
                             "isLoading": false,
@@ -9210,7 +9168,7 @@
                             "topRow": 11,
                             "bottomRow": 12,
                             "isVisible": true,
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "parentId": "epboelq954",
                             "isLoading": false,
                             "disabledWhenInvalid": false,
@@ -9548,9 +9506,7 @@
                   {
                     "name": "fetchUserByUrlParam",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "appsmith.URL.queryParams.email"
-                    ],
+                    "jsonPathKeys": ["appsmith.URL.queryParams.email"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -9560,9 +9516,7 @@
                   {
                     "name": "fetchUserByUrlParam",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "appsmith.URL.queryParams.email"
-                    ],
+                    "jsonPathKeys": ["appsmith.URL.queryParams.email"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -9651,9 +9605,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "(usersTable.pageNo - 1) * 5"
-              ],
+              "jsonPathKeys": ["(usersTable.pageNo - 1) * 5"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -10389,9 +10341,7 @@
                   {
                     "name": "getUsers",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1) * 5"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1) * 5"],
                     "timeoutInMillisecond": 10000
                   },
                   {
@@ -10410,9 +10360,7 @@
                   {
                     "name": "getUsers",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1) * 5"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1) * 5"],
                     "timeoutInMillisecond": 10000
                   },
                   {
@@ -11049,9 +10997,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "(usersTable.pageNo - 1) * 10"
-              ],
+              "jsonPathKeys": ["(usersTable.pageNo - 1) * 10"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -11887,9 +11833,7 @@
                   {
                     "name": "getUsersDrilldown",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1) * 10"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1) * 10"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -11899,9 +11843,7 @@
                   {
                     "name": "getUsersDrilldown",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1) * 10"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1) * 10"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -11978,9 +11920,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "(usersTable.pageNo - 1)  * 5"
-              ],
+              "jsonPathKeys": ["(usersTable.pageNo - 1)  * 5"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -13483,9 +13423,7 @@
                   {
                     "name": "getUsersToEdit",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1)  * 5"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1)  * 5"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -13495,9 +13433,7 @@
                   {
                     "name": "getUsersToEdit",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1)  * 5"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1)  * 5"],
                     "timeoutInMillisecond": 10000
                   }
                 ]

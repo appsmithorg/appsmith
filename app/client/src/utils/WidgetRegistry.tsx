@@ -62,9 +62,6 @@ import FilePickerWidget, {
 import FilePickerWidgetV2, {
   CONFIG as FILEPICKER_WIDGET_V2_CONFIG,
 } from "widgets/FilePickerWidgetV2";
-import FormButtonWidget, {
-  CONFIG as FORM_BUTTON_WIDGET_CONFIG,
-} from "widgets/FormButtonWidget";
 import FormWidget, { CONFIG as FORM_WIDGET_CONFIG } from "widgets/FormWidget";
 import IconButtonWidget, {
   CONFIG as ICON_BUTTON_WIDGET_CONFIG,
@@ -163,7 +160,6 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [DatePickerWidget2, DATE_PICKER_WIDGET_2_CONFIG],
   [SwitchWidget, SWITCH_WIDGET_CONFIG],
   [FormWidget, FORM_WIDGET_CONFIG],
-  [FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG],
   [IconWidget, ICON_WIDGET_CONFIG],
   [ListWidget, LIST_WIDGET_CONFIG],
   [RateWidget, RATE_WIDGET_CONFIG],

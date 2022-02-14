@@ -2,7 +2,10 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, { ButtonType } from "../component";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Alignment } from "@blueprintjs/core";
@@ -117,6 +120,33 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Form options",
+        children: [
+          {
+            helpText:
+              "Disabled if the form is invalid, if this widget exists directly within a Form widget",
+            propertyName: "disabledWhenInvalid",
+            label: "Disable for Invalid Forms",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText:
+              "Resets the fields of the form, on click, if this widget exists directly within a Form widget",
+            propertyName: "resetFormOnClick",
+            label: "Reset Form on Success",
+            controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -349,19 +379,24 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
-          callback: this.handleActionComplete,
+          callback: this.handleActionResult,
         },
       });
+    } else if (this.props.resetFormOnClick && this.props.onReset) {
+      this.props.onReset();
     }
   }
 
   clickWithRecaptcha(token: string) {
+    if (this.props.onClick) {
+      this.setState({ isLoading: true });
+    }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,
-        callback: this.handleActionComplete,
+        callback: this.handleActionResult,
       },
     });
   }
@@ -372,13 +407,24 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
-  handleActionComplete = () => {
+  handleActionResult = (result: ExecutionResult) => {
     this.setState({
       isLoading: false,
     });
+    if (result.success) {
+      if (this.props.resetFormOnClick && this.props.onReset) {
+        this.props.onReset();
+      }
+    }
   };
 
   getPageView() {
+    const disabled =
+      this.props.isDisabled ||
+      (this.props.disabledWhenInvalid &&
+        this.props.hasOwnProperty("isFormValid") &&
+        !this.props.isFormValid);
+
     return (
       <ButtonComponent
         borderRadius={this.props.borderRadius}
@@ -391,10 +437,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
-        isDisabled={this.props.isDisabled}
+        isDisabled={disabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
-        onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
+        onClick={!disabled ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
         text={this.props.text}
@@ -419,6 +465,10 @@ export interface ButtonWidgetProps extends WidgetProps {
   recaptchaType?: RecaptchaType;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
+  resetFormOnClick?: boolean;
+  onReset?: () => void;
+  disabledWhenInvalid?: boolean;
+  isFormValid?: boolean;
   buttonVariant?: ButtonVariant;
   buttonColor?: string;
   borderRadius?: ButtonBorderRadius;

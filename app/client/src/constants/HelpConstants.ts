@@ -79,10 +79,6 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/filepicker",
     searchKey: "File picker",
   },
-  FORM_BUTTON_WIDGET: {
-    path: "",
-    searchKey: "",
-  },
   CANVAS_WIDGET: {
     path: "",
     searchKey: "",

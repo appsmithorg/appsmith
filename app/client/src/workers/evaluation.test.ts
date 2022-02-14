@@ -191,11 +191,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     derivedProperties: {},
     metaProperties: {},
   },
-  FORM_BUTTON_WIDGET: {
-    defaultProperties: {},
-    derivedProperties: {},
-    metaProperties: {},
-  },
   MAP_WIDGET: {
     defaultProperties: {
       markers: "defaultMarkers",

@@ -195,7 +195,7 @@
                 "iconSVG": "/static/media/icon.c8f649ed.svg",
                 "topRow": 34,
                 "bottomRow": 38,
-                "type": "FORM_BUTTON_WIDGET",
+                "type": "BUTTON_WIDGET",
                 "hideCard": true,
                 "animateLoading": true,
                 "dynamicTriggerPathList": [
@@ -740,7 +740,7 @@
                 "iconSVG": "/static/media/icon.c8f649ed.svg",
                 "topRow": 35,
                 "bottomRow": 39,
-                "type": "FORM_BUTTON_WIDGET",
+                "type": "BUTTON_WIDGET",
                 "hideCard": true,
                 "animateLoading": true,
                 "dynamicTriggerPathList": [

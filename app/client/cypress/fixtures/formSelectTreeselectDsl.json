@@ -1,5 +1,5 @@
 {
-   
+
         "dsl": {
             "widgetName": "MainContainer",
             "backgroundColor": "none",
@@ -21,7 +21,7 @@
             "leftColumn": 0,
             "children": [
 
-                
+
                 {
                     "widgetName": "Form1",
                     "backgroundColor": "white",
@@ -100,7 +100,7 @@
                                     "iconSVG": "/static/media/icon.c8f649ed.svg",
                                     "topRow": 33,
                                     "bottomRow": 37,
-                                    "type": "FORM_BUTTON_WIDGET",
+                                    "type": "BUTTON_WIDGET",
                                     "hideCard": true,
                                     "animateLoading": true,
                                     "leftColumn": 46,

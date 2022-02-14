@@ -14,7 +14,6 @@ import { ModalFactory } from "./ModalFactory";
 import { RichTextFactory } from "./RichTextFactory";
 import { ChartFactory } from "./ChartFactory";
 import { FormFactory } from "./FormFactory";
-import { FormButtonFactory } from "./FormButtonFactory";
 import { MapFactory } from "./MapFactory";
 import { CanvasFactory } from "./CanvasFactory";
 import { IconFactory } from "./IconFactory";
@@ -43,7 +42,6 @@ export const WidgetTypeFactories: Record<string, any> = {
   RICH_TEXT_EDITOR_WIDGET: RichTextFactory,
   CHART_WIDGET: ChartFactory,
   FORM_WIDGET: FormFactory,
-  FORM_BUTTON_WIDGET: FormButtonFactory,
   MAP_WIDGET: MapFactory,
   CANVAS_WIDGET: CanvasFactory,
   ICON_WIDGET: IconFactory,

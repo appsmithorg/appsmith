@@ -331,15 +331,6 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     data: generateTypeDef(widget.data),
   }),
-  FORM_BUTTON_WIDGET: {
-    "!doc":
-      "Form button is provided by default to every form. It is used for form submission and resetting form inputs",
-    "!url": "https://docs.appsmith.com/widget-reference/form",
-    isVisible: isVisible,
-    text: "string",
-    isDisabled: "bool",
-    recaptchaToken: "string",
-  },
   MAP_WIDGET: {
     isVisible: isVisible,
     center: "latLong",

@@ -93,7 +93,7 @@
                 "iconSVG": "/static/media/icon.c8f649ed.svg",
                 "topRow": 33,
                 "bottomRow": 37,
-                "type": "FORM_BUTTON_WIDGET",
+                "type": "BUTTON_WIDGET",
                 "hideCard": true,
                 "dynamicTriggerPathList": [
                   {
@@ -129,7 +129,7 @@
                 "bottomRow": 37,
                 "recaptchaV2": false,
                 "isVisible": true,
-                "type": "FORM_BUTTON_WIDGET",
+                "type": "BUTTON_WIDGET",
                 "version": 1,
                 "hideCard": true,
                 "parentId": "zkqsia9dzd",

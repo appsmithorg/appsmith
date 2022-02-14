@@ -183,11 +183,6 @@ export const WidgetIcons: {
       <ModalIcon />
     </StyledIconWrapper>
   ),
-  FORM_BUTTON_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
-      <ButtonIcon />
-    </StyledIconWrapper>
-  ),
   LIST_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props} data-testid="list-widget-icon">
       <ListIcon />

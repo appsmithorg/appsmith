@@ -259,7 +259,7 @@
                         "iconSVG": "/static/media/icon.c8f649ed.svg",
                         "topRow": 41,
                         "bottomRow": 45,
-                        "type": "FORM_BUTTON_WIDGET",
+                        "type": "BUTTON_WIDGET",
                         "hideCard": true,
                         "dynamicTriggerPathList": [{ "key": "onClick" }],
                         "leftColumn": 46,

@@ -54,7 +54,7 @@
                 "buttonStyle": "PRIMARY_BUTTON",
                 "disabledWhenInvalid": true,
                 "resetFormOnClick": true,
-                "type": "FORM_BUTTON_WIDGET",
+                "type": "BUTTON_WIDGET",
                 "isLoading": false,
                 "leftColumn": 12,
                 "rightColumn": 16,
@@ -71,7 +71,7 @@
                 "buttonStyle": "SECONDARY_BUTTON",
                 "disabledWhenInvalid": false,
                 "resetFormOnClick": true,
-                "type": "FORM_BUTTON_WIDGET",
+                "type": "BUTTON_WIDGET",
                 "isLoading": false,
                 "leftColumn": 8,
                 "rightColumn": 12,
@@ -178,7 +178,7 @@
                   }
                 },
                 {
-                  "type": "FORM_BUTTON_WIDGET",
+                  "type": "BUTTON_WIDGET",
                   "size": {
                     "rows": 1,
                     "cols": 4
@@ -195,7 +195,7 @@
                   }
                 },
                 {
-                  "type": "FORM_BUTTON_WIDGET",
+                  "type": "BUTTON_WIDGET",
                   "size": {
                     "rows": 1,
                     "cols": 4
@@ -258,7 +258,7 @@
                       }
                     },
                     {
-                      "type": "FORM_BUTTON_WIDGET",
+                      "type": "BUTTON_WIDGET",
                       "size": {
                         "rows": 1,
                         "cols": 4
@@ -275,7 +275,7 @@
                       }
                     },
                     {
-                      "type": "FORM_BUTTON_WIDGET",
+                      "type": "BUTTON_WIDGET",
                       "size": {
                         "rows": 1,
                         "cols": 4

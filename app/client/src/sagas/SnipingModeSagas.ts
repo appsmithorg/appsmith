@@ -58,7 +58,6 @@ export function* bindDataToWidgetSaga(
 
   switch (selectedWidget.type) {
     case WidgetTypes.BUTTON_WIDGET:
-    case WidgetTypes.FORM_BUTTON_WIDGET:
       propertyPath = "onClick";
       propertyValue = `{{${currentAction.config.name}.run()}}`;
       break;
