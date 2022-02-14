@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/react";
 import { Classes } from "@blueprintjs/core";
 import { TabComponent, DefaultTabItem } from "components/ads/Tabs";
 import ApplicationLoader from "pages/Applications/loader";
+import TemplatesLoader from "pages/Templates/loader";
 import PageWrapper from "pages/common/PageWrapper";
 import { LeftPane as ApplicationsLeftPane } from "pages/Applications";
 import styled from "styled-components";
@@ -14,7 +15,6 @@ import {
   matchTemplatesPath,
 } from "constants/routes";
 import history from "utils/history";
-import Templates from "pages/Templates";
 import Filters from "pages/Templates/Filters";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -63,7 +63,7 @@ function LeftPane() {
 const ContentRenderer = (
   <Switch>
     <SentryRoute component={ApplicationLoader} path={APPLICATIONS_URL} />
-    <SentryRoute component={Templates} path={TEMPLATES_URL} />
+    <SentryRoute component={TemplatesLoader} path={TEMPLATES_URL} />
   </Switch>
 );
 
