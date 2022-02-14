@@ -34,7 +34,11 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { CurrentApplicationData } from "constants/ReduxActionConstants";
-import { getPluginSettingConfigs } from "selectors/entitiesSelector";
+import {
+  getPageList,
+  getPlugins,
+  getPluginSettingConfigs,
+} from "selectors/entitiesSelector";
 import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 import history from "utils/history";
 
@@ -258,9 +262,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
-    pages: state.entities.pageList.pages,
+    pages: getPageList(state),
     apiName: apiName || "",
-    plugins: state.entities.plugins.list,
+    plugins: getPlugins(state),
     pluginId,
     settingsConfig,
     paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
