@@ -2082,6 +2082,33 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .thenReturn(gitAuth);
     }
 
+    @Override
+    public Mono<Boolean> testConnection(String defaultApplicationId) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if(isInvalidDefaultApplicationGitMetadata(gitApplicationMetadata)) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                    }
+                    return gitExecutor.testConnection(
+                            gitApplicationMetadata.getGitAuth().getPublicKey(),
+                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                            gitApplicationMetadata.getRemoteUrl()
+                    ).onErrorResume(error -> {
+                        if (error instanceof TransportException) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                        }
+                        if (error instanceof InvalidRemoteException) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
+                        }
+                        if (error instanceof TimeoutException) {
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                        }
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
+                    });
+                });
+    }
+
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
                                                                              List<Datasource> datasourceList) {
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
