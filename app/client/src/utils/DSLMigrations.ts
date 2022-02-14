@@ -45,6 +45,7 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 
 /**
@@ -1048,8 +1049,12 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 51) {
-    currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+    currentDSL = migratePhoneInputWidgetAllowFormatting(currentDSL);
+    currentDSL.version = 52;
+  }
 
+  if (currentDSL.version === 52) {
+    currentDSL = currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

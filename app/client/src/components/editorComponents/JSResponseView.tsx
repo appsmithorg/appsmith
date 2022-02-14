@@ -13,7 +13,7 @@ import {
   PARSING_ERROR,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";

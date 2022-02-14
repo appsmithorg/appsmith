@@ -24,7 +24,7 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import Tooltip from "components/ads/Tooltip";
 

@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { Setting, SettingTypes } from "../SettingsConfig";
+import {
+  Setting,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 import { StyledLabel } from "./Common";
-import Link from "./Link";
 import TextInput from "./TextInput";
 import Toggle from "./Toggle";
 import Text from "./Text";
@@ -10,12 +12,15 @@ import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
-import { createMessage } from "constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
+import { Callout } from "components/ads/CalloutV2";
 
 type GroupProps = {
   name?: string;
   settings?: Setting[];
   isHidden?: boolean;
+  category?: string;
+  subCategory?: string;
 };
 
 const GroupWrapper = styled.div`
@@ -37,11 +42,22 @@ const GroupBody = styled.div`
   & .hide {
     display: none;
   }
+  & .callout-link {
+    max-width: 634px;
+    > div {
+      margin-top: 0px;
+    }
+  }
 `;
 
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
-export default function Group({ name, settings }: GroupProps) {
+export default function Group({
+  category,
+  name,
+  settings,
+  subCategory,
+}: GroupProps) {
   const state = useSelector((state) => state);
   return (
     <GroupWrapper data-testid="admin-settings-group-wrapper">
@@ -50,8 +66,10 @@ export default function Group({ name, settings }: GroupProps) {
         {settings &&
           settings.map((setting) => {
             if (
-              setting.isVisible &&
-              !setting.isVisible(formValuesSelector(state))
+              (setting.isVisible &&
+                !setting.isVisible(formValuesSelector(state))) ||
+              (setting.category !== category &&
+                setting.category !== subCategory)
             ) {
               return null;
             }
@@ -79,11 +97,19 @@ export default function Group({ name, settings }: GroupProps) {
               case SettingTypes.LINK:
                 return (
                   <div
-                    className={setting.isHidden ? "hide" : ""}
+                    className={`${
+                      setting.isHidden ? "hide" : "callout-link"
+                    } t--read-more-link`}
                     data-testid="admin-settings-group-link"
                     key={setting.name}
                   >
-                    <Link setting={setting} />
+                    <Callout
+                      action={setting.action}
+                      actionLabel="READ MORE"
+                      title={createMessage(() => setting.label || "")}
+                      type="Info"
+                      url={setting.url}
+                    />
                   </div>
                 );
               case SettingTypes.TEXT:
@@ -113,7 +139,12 @@ export default function Group({ name, settings }: GroupProps) {
                     data-testid="admin-settings-group"
                     key={setting.name}
                   >
-                    <Group name={setting.name} settings={setting.children} />
+                    <Group
+                      category={category}
+                      name={setting.name}
+                      settings={setting.children}
+                      subCategory={subCategory}
+                    />
                   </div>
                 );
             }

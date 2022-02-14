@@ -25,7 +25,7 @@ import {
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "../api/ApiUtils";

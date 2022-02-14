@@ -23,7 +23,7 @@ describe("Phone input widget - ", () => {
 
   it("should check for the format and dialCode", () => {
     cy.get(`.t--widget-${widgetName} input`).clear();
-    cy.wait(300);
+    cy.wait(500);
     cy.get(`.t--widget-${widgetName} input`).type("9999999999");
     cy.get(".t--widget-textwidget").should("contain", "(999) 999-9999:US:+1");
 
@@ -33,9 +33,9 @@ describe("Phone input widget - ", () => {
       "Afghanistan (+93)",
     );
     cy.get(`.t--widget-${widgetName} input`).clear();
-    cy.wait(300);
-    cy.get(`.t--widget-${widgetName} input`).type("1111111111");
-    cy.get(".t--widget-textwidget").should("contain", "1111111111:AF:+93");
+    cy.wait(500);
+    cy.get(`.t--widget-${widgetName} input`).type("1234567890");
+    cy.get(".t--widget-textwidget").should("contain", "1234567890:AF:+93");
     cy.get(".t--input-country-code-change").should("contain", "🇦🇫+93");
 
     cy.get(".t--property-control-allowcountrycodechange label")
@@ -50,9 +50,33 @@ describe("Phone input widget - ", () => {
       .last()
       .click();
     cy.get(`.t--widget-${widgetName} input`).clear();
-    cy.wait(300);
+    cy.wait(500);
     cy.get(`.t--widget-${widgetName} input`).type("9999999999");
     cy.get(".t--widget-textwidget").should("contain", "99999 99999:IN:+91");
+    cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
+
+    cy.get(".t--property-control-enableformatting label")
+      .last()
+      .click({ force: true });
+
+    cy.selectDropdownValue(
+      ".t--property-control-defaultcountrycode",
+      "United States / Canada (+1)",
+    );
+    cy.get(`.t--widget-${widgetName} input`).clear();
+    cy.wait(500);
+    cy.get(`.t--widget-${widgetName} input`).type("9999999999");
+    cy.get(".t--widget-textwidget").should("contain", "9999999999:US:+1");
+
+    cy.openPropertyPane(widgetName);
+    cy.selectDropdownValue(
+      ".t--property-control-defaultcountrycode",
+      "India (+91)",
+    );
+    cy.get(`.t--widget-${widgetName} input`).clear();
+    cy.wait(500);
+    cy.get(`.t--widget-${widgetName} input`).type("1234567890");
+    cy.get(".t--widget-textwidget").should("contain", "1234567890:IN:+91");
     cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
   });
 
