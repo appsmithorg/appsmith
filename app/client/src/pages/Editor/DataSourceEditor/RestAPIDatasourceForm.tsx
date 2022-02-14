@@ -46,7 +46,7 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
 } from "constants/messages";
 import Collapsible from "./Collapsible";
-import _ from "lodash";
+import _, { merge } from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
@@ -55,6 +55,7 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "../../../actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { getConfigInitialValues } from "components/formControls/utils";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -941,6 +942,15 @@ const mapStateToProps = (state: AppState, props: any) => {
   const datasource = state.entities.datasources.list.find(
     (e) => e.id === props.datasourceId,
   ) as Datasource;
+
+  if (!datasource.datasourceConfiguration) {
+    const formConfig = state.entities.plugins.formConfigs[datasource.pluginId];
+    const initialValues = getConfigInitialValues(formConfig);
+    const temp = merge(initialValues, datasource);
+    if (temp.datasourceConfiguration) {
+      datasource.datasourceConfiguration = temp.datasourceConfiguration;
+    }
+  }
 
   const hintMessages = datasource && datasource.messages;
   let responseStatus = props.responseStatus;
