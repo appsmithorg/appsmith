@@ -27,6 +27,8 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.BSONTimestamp;
+import org.bson.types.Decimal128;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -38,6 +40,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,7 +125,16 @@ public class MongoPluginTest {
                                         "netWorth", new BigDecimal("123456.789012"),
                                         "updatedByCommand", false
                                 )),
-                                new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
+                                new Document(Map.of(
+                                        "name", "Alden Cantrell",
+                                        "gender", "M",
+                                        "age", 30,
+                                        "dob", new Date(0),
+                                        "netWorth", Decimal128.parse("123456.789012"),
+                                        "updatedByCommand", false,
+                                        "aLong", 9_000_000_000_000_000_000L,
+                                        "ts", new BSONTimestamp(1421006159, 4)
+                                )),
                                 new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
                         ))).block();
                     }
@@ -1934,6 +1946,57 @@ public class MongoPluginTest {
                 .verifyComplete();
 
     }
+
+    @Test
+    public void testSmartSubstitutionWithMongoTypes() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        final String findQuery = "" +
+                "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "dob:{ $in: {{Input1.dob}} },\n" +
+                "netWorth:{ $in: {{Input1.netWorth}} },\n" +
+                "aLong:{ $in: {{Input1.aLong}} },\n" +
+                "ts:{ $in: {{Input1.ts}} },\n" +
+                "    },\n" +
+                "}";
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(findQuery);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        final List<Param> params = new ArrayList<>();
+        final Param dob = new Param("Input1.dob", "[ 'ISODate(\\'1970-01-01T00:00:00.000Z\\')' ]");
+        params.add(dob);
+        final Param netWorth = new Param("Input1.netWorth", "[ 'NumberDecimal(\"123456.789012\")' ]");
+        params.add(netWorth);
+        final Param aLong = new Param("Input1.aLong", "[ \"NumberLong(9000000000000000000)\" ]");
+        params.add(aLong);
+        final Param ts = new Param("Input1.ts", "[ \"Timestamp(1421006159, 4)\" ]");
+        params.add(ts);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+
+    }
+
 
     @Test
     public void testBuildClientURI_withoutUserInfoAndAuthSource() {

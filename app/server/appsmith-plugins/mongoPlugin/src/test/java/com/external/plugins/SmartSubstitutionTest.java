@@ -66,10 +66,10 @@ public class SmartSubstitutionTest {
                                         "gender", "F",
                                         "age", 20,
                                         "dob", new Date(0),
-                                        "netWorth",  Decimal128.parse("123456.789012"),
+                                        "netWorth", Decimal128.parse("123456.789012"),
                                         "updatedByCommand", false,
                                         "aLong", 9_000_000_000_000_000_000L,
-                                        "ts",new BSONTimestamp(1421006159, 4)
+                                        "ts", new BSONTimestamp(1421006159, 4)
                                 )),
                                 new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
                                 new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
@@ -165,52 +165,23 @@ public class SmartSubstitutionTest {
     }
 
     @Test
-    public void testSmartSubstitutionWithISODateInDoubleQuotes() {
-        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
-
-
+    public void testSmartSubstitutionWithMongoTypes() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
-
-//        Map<String, String> kvs = Map.of(
-//                "dob", "ISODate(\"1970-01-01T00:00:00.000Z\")",
-//                "netWorth", "NumberDecimal(\"123456.789012\")",
-//                "aLong", "NumberLong(9000000000000000000)",
-//                "ts", "Timestamp(1421006159, 4)"
-//        );
-//
-//        final StringBuilder findQuery = new StringBuilder();
-//        findQuery.append("{\n" +
-//                "   \"find\": \"users\",\n" +
-//                "   \"filter\": {\n");
-//
-//        kvs.forEach((k, v) -> findQuery.append(k).append(": {{Input1.").append(k).append("}},\n"));
-//        findQuery.setLength(findQuery.length() - 2);
-//        findQuery.append("    }\n" +
-//                "}");
 
         final String findQuery = "" +
                 "{\n" +
                 "   \"find\": \"users\",\n" +
                 "   \"filter\": {\n" +
-//                "netWorth: {{Input1.netWorth}},\n" +
-//                "aLong: {{Input1.aLong}},\n" +
-//                "dob: {{Input1.dob}},\n" +
-                "_id: {{Input1._id}},\n" +
-//                "dob: ISODate(\"1970-01-01T00:00:00.000Z\"),\n" +
-//                "ts: {{Input1.ts}}" +
+                "dob:{ $in: {{Input1.dob}} },\n" +
+                "netWorth:{ $in: {{Input1.netWorth}} },\n" +
+                "aLong:{ $in: {{Input1.aLong}} },\n" +
+                "ts:{ $in: {{Input1.ts}} },\n" +
                 "    },\n" +
                 "}";
-//        final String findQuery = buildQueryForEverySpecialType(false);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody(findQuery.toString());
-
-
-
-
-
-
+        actionConfiguration.setBody(findQuery);
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
@@ -218,10 +189,16 @@ public class SmartSubstitutionTest {
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        List<Param> params = createParams(false);
+        final List<Param> params = new ArrayList<>();
+        final Param dob = new Param("Input1.dob", "[ 'ISODate(\\'1970-01-01T00:00:00.000Z\\')' ]");
+        params.add(dob);
+        final Param netWorth = new Param("Input1.netWorth", "[ 'NumberDecimal(\"123456.789012\")' ]");
+        params.add(netWorth);
+        final Param aLong = new Param("Input1.aLong", "[ \"NumberLong(9000000000000000000)\" ]");
+        params.add(aLong);
+        final Param ts = new Param("Input1.ts", "[ \"Timestamp(1421006159, 4)\" ]");
+        params.add(ts);
         executeActionDTO.setParams(params);
-
-        executeActionDTO.toString();
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -238,51 +215,51 @@ public class SmartSubstitutionTest {
     }
 
 
-    private String buildQueryForEverySpecialType(boolean useDoubleQuote) {
-        final char quote = useDoubleQuote ? '"' : '\'';
+//    private String buildQueryForEverySpecialType(boolean useDoubleQuote) {
+//        final char quote = useDoubleQuote ? '"' : '\'';
+//
+//        Map<String, String> kvs = Map.of(
+//                "_id","ObjectId(\"6200fdea5c4142fa578cd971\")",
+//                "dob", "ISODate(\"1970-01-01T00:00:00.000Z\")",
+//                "netWorth", "NumberDecimal(\"123456.789012\")",
+//                "aLong", "NumberLong(9000000000000000000)",
+//                "ts", "Timestamp(1421006159, 4)"
+//        );
+//
+//        StringBuilder findQuery = new StringBuilder();
+//        findQuery.append("{\n" +
+//                "   \"find\": \"users\",\n" +
+//                "   \"filter\": {\n");
+//
+////        kvs.forEach((k, v) -> findQuery.append(k).append(": ").append(quote).append(v).append(quote).append(",\n"));
+//        kvs.forEach((k, v) -> findQuery.append(k).append(": {{Input1.").append(k).append("}},\n"));
+//        findQuery.setLength(findQuery.length() - 2);
+//        findQuery.append("    }\n" +
+//                "}");
+//
+//       return findQuery.toString();
+//    }
 
-        Map<String, String> kvs = Map.of(
-                "_id","ObjectId(\"6200fdea5c4142fa578cd971\")",
-                "dob", "ISODate(\"1970-01-01T00:00:00.000Z\")",
-                "netWorth", "NumberDecimal(\"123456.789012\")",
-                "aLong", "NumberLong(9000000000000000000)",
-                "ts", "Timestamp(1421006159, 4)"
-        );
 
-        StringBuilder findQuery = new StringBuilder();
-        findQuery.append("{\n" +
-                "   \"find\": \"users\",\n" +
-                "   \"filter\": {\n");
-
-//        kvs.forEach((k, v) -> findQuery.append(k).append(": ").append(quote).append(v).append(quote).append(",\n"));
-        kvs.forEach((k, v) -> findQuery.append(k).append(": {{Input1.").append(k).append("}},\n"));
-        findQuery.setLength(findQuery.length() - 2);
-        findQuery.append("    }\n" +
-                "}");
-
-       return findQuery.toString();
-    }
-
-
-    private List<Param> createParams(boolean useDoubleQuote) {
-        final char quote = useDoubleQuote ? '"' : '\'';
-
-        Map<String, String> kvs = Map.of(
-                "_id","ObjectId(\"6200fdea5c4142fa578cd971\")",
-                "dob", "ISODate(\"1970-01-01T00:00:00.000Z\")",
-                "netWorth", "NumberDecimal(\"123456.789012\")",
-                "aLong", "NumberLong(9000000000000000000)",
-                "ts", "Timestamp(1421006159, 4)"
-        );
-        final List<Param> params = new ArrayList<>();
-        final StringBuilder sb = new StringBuilder();
-        kvs.forEach((k, v) ->{
-            sb.setLength(0);
-            final String paramKey = "Input1." + k;
-            final String paramValue = sb.append(quote).append(v).append(quote).toString();
-            params.add(new Param(paramKey, paramValue));
-        } );
-        return params;
-    }
+//    private List<Param> createParams(boolean useDoubleQuote) {
+//        final char quote = useDoubleQuote ? '"' : '\'';
+//
+//        Map<String, String> kvs = Map.of(
+//                "_id","ObjectId(\"6200fdea5c4142fa578cd971\")",
+//                "dob", "ISODate(\"1970-01-01T00:00:00.000Z\")",
+//                "netWorth", "NumberDecimal(\"123456.789012\")",
+//                "aLong", "NumberLong(9000000000000000000)",
+//                "ts", "Timestamp(1421006159, 4)"
+//        );
+//        final List<Param> params = new ArrayList<>();
+//        final StringBuilder sb = new StringBuilder();
+//        kvs.forEach((k, v) ->{
+//            sb.setLength(0);
+//            final String paramKey = "Input1." + k;
+//            final String paramValue = sb.append(quote).append(v).append(quote).toString();
+//            params.add(new Param(paramKey, paramValue));
+//        } );
+//        return params;
+//    }
 
 }
