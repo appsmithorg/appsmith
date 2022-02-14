@@ -5,6 +5,10 @@
   "authenticationTab": ".t--settings-category-authentication",
   "emailTab": ".t--settings-category-email",
   "googleMapsTab": ".t--settings-category-google-maps",
+  "googleButton": ".t--settings-sub-category-google-auth",
+  "githubButton": ".t--settings-sub-category-github-auth",
+  "formloginButton": ".t--settings-sub-category-form-login",
+  "readMoreLink": ".t--read-more-link",
   "versionTab": ".t--settings-category-version",
   "backButton": ".t--admin-settings-back-button",
   "saveButton": ".t--admin-settings-save-button",
@@ -12,5 +16,7 @@
   "textInput": ".t--admin-settings-text-input input",
   "instanceName": ".t--admin-settings-APPSMITH_INSTANCE_NAME input",
   "fromAddress": ".t--admin-settings-APPSMITH_MAIL_FROM input",
-  "restartNotice": ".t--admin-settings-restart-notice"
+  "restartNotice": ".t--admin-settings-restart-notice",
+  "breadcrumbList": ".t--breadcrumb-list",
+  "breadcrumbItem": ".t--breadcrumb-item"
 }

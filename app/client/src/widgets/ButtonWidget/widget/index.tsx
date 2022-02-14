@@ -302,7 +302,17 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             propertyName: "iconAlign",
             label: "Icon Alignment",
             helpText: "Sets the icon alignment of the button",
-            controlType: "ICON_ALIGN",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "VERTICAL_LEFT",
+                value: "left",
+              },
+              {
+                icon: "VERTICAL_RIGHT",
+                value: "right",
+              },
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {

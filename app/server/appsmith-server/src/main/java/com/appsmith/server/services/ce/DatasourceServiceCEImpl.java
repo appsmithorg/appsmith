@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
@@ -302,7 +302,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 datasource.getDatasourceConfiguration().getAuthentication() != null) {
             datasourceMono = getById(datasource.getId())
                     .map(datasource1 -> {
-                        BeanCopyUtils.copyNestedNonNullProperties(datasource, datasource1);
+                        AppsmithBeanUtils.copyNestedNonNullProperties(datasource, datasource1);
                         return datasource1;
                     })
                     .switchIfEmpty(Mono.just(datasource));

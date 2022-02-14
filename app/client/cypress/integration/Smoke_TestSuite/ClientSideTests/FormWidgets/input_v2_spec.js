@@ -150,7 +150,7 @@ describe("Input widget V2 - ", () => {
     cy.wait(300);
     cy.get(widgetInput).should("contain.value", "");
   });
-  
+
   describe("Should test other properties of the input widget - ", () => {
     it("#valid", () => {
       cy.openPropertyPane(widgetName);

@@ -7,7 +7,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
@@ -408,7 +408,7 @@ public class ActionServiceTest {
                     ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
                     actionMoveDTO.setAction(savedAction);
                     actionMoveDTO.setDestinationPageId(destinationPage.getId());
-                    BeanCopyUtils.copyNestedNonNullProperties(savedAction.getDefaultResources(), sourceActionDefaultRes);
+                    AppsmithBeanUtils.copyNestedNonNullProperties(savedAction.getDefaultResources(), sourceActionDefaultRes);
                     return layoutActionService.moveAction(actionMoveDTO, branchName);
                 });
 
