@@ -109,7 +109,7 @@ describe(".generateFieldState", () => {
           customField1: {
             children: {},
             dataType: DataType.STRING,
-            fieldType: FieldType.TEXT,
+            fieldType: FieldType.TEXT_INPUT,
             sourceData: "",
             isCustomField: true,
             name: "customField1",
@@ -130,7 +130,7 @@ describe(".generateFieldState", () => {
                   name: {
                     children: {},
                     dataType: DataType.STRING,
-                    fieldType: FieldType.TEXT,
+                    fieldType: FieldType.TEXT_INPUT,
                     sourceData: "",
                     isCustomField: false,
                     name: "name",
@@ -227,7 +227,7 @@ describe(".generateFieldState", () => {
           customField1: {
             children: {},
             dataType: DataType.STRING,
-            fieldType: FieldType.TEXT,
+            fieldType: FieldType.TEXT_INPUT,
             sourceData: "",
             isCustomField: true,
             name: "customField1",
@@ -248,7 +248,7 @@ describe(".generateFieldState", () => {
                   name: {
                     children: {},
                     dataType: DataType.STRING,
-                    fieldType: FieldType.TEXT,
+                    fieldType: FieldType.TEXT_INPUT,
                     sourceData: "",
                     isCustomField: false,
                     name: "name",
@@ -390,12 +390,12 @@ describe(".dynamicPropertyPathListFromSchema", () => {
         fieldType: FieldType.OBJECT,
         children: {
           name: {
-            fieldType: FieldType.TEXT,
+            fieldType: FieldType.TEXT_INPUT,
             identifier: "name",
             defaultValue: "{{sourceData.name}}",
           },
           dob: {
-            fieldType: FieldType.DATE,
+            fieldType: FieldType.DATEPICKER,
             identifier: "dob",
             defaultValue: "{{sourceData.{dob}}",
           },
@@ -427,12 +427,12 @@ describe(".dynamicPropertyPathListFromSchema", () => {
                     defaultValue: "{{sourceData.field1}}",
                   },
                   field2: {
-                    fieldType: FieldType.DATE,
+                    fieldType: FieldType.DATEPICKER,
                     identifier: "field2",
                     defaultValue: "{{sourceData.field2}}",
                   },
                   field3: {
-                    fieldType: FieldType.DATE,
+                    fieldType: FieldType.DATEPICKER,
                     identifier: "field3",
                     defaultValue: "10/12/2021",
                   },
@@ -442,7 +442,7 @@ describe(".dynamicPropertyPathListFromSchema", () => {
                     defaultValue: "{{sourceData.field1}}",
                   },
                   field5: {
-                    fieldType: FieldType.PHONE_NUMBER,
+                    fieldType: FieldType.PHONE_NUMBER_INPUT,
                     identifier: "field5",
                     defaultValue: "{{sourceData.field1}}",
                   },

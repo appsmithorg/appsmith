@@ -44,7 +44,7 @@ describe(".fieldTypeUpdateHook", () => {
           children: {},
           dataType: DataType.STRING,
           defaultValue: undefined,
-          fieldType: FieldType.TEXT,
+          fieldType: FieldType.TEXT_INPUT,
           iconAlign: "left",
           sourceData: "travelling",
           isCustomField: false,
@@ -103,7 +103,7 @@ describe(".fieldTypeUpdateHook", () => {
           children: {},
           dataType: DataType.STRING,
           defaultValue: undefined,
-          fieldType: FieldType.TEXT,
+          fieldType: FieldType.TEXT_INPUT,
           iconAlign: "left",
           sourceData: "travelling",
           isCustomField: false,
@@ -224,7 +224,11 @@ describe(".getSchemaItem", () => {
     const schema = schemaTestData.initialDataset.schemaOutput;
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
 
-    const inputs = [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTISELECT];
+    const inputs = [
+      FieldType.NUMBER_INPUT,
+      FieldType.ARRAY,
+      FieldType.MULTISELECT,
+    ];
     const expectedOutput = [false, false, true];
 
     inputs.forEach((input, index) => {
@@ -243,7 +247,11 @@ describe(".getSchemaItem", () => {
     const schema = schemaTestData.initialDataset.schemaOutput;
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
 
-    const inputs = [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTISELECT];
+    const inputs = [
+      FieldType.NUMBER_INPUT,
+      FieldType.ARRAY,
+      FieldType.MULTISELECT,
+    ];
     const expectedOutput = [true, true, false];
 
     inputs.forEach((input, index) => {
@@ -263,8 +271,8 @@ describe(".getSchemaItem", () => {
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
 
     const inputs = [
-      [FieldType.NUMBER, FieldType.ARRAY, FieldType.MULTISELECT],
-      [FieldType.SWITCH, FieldType.DATE],
+      [FieldType.NUMBER_INPUT, FieldType.ARRAY, FieldType.MULTISELECT],
+      [FieldType.SWITCH, FieldType.DATEPICKER],
     ];
     const expectedOutput = [false, true];
 

@@ -51,11 +51,15 @@ describe("useRegisterFieldInvalid", () => {
         useRegisterFieldValidity({
           isValid,
           fieldName,
-          fieldType: FieldType.TEXT,
+          fieldType: FieldType.TEXT_INPUT,
         }),
       {
         wrapper: Wrapper,
-        initialProps: { isValid: false, fieldName, fieldType: FieldType.TEXT },
+        initialProps: {
+          isValid: false,
+          fieldName,
+          fieldType: FieldType.TEXT_INPUT,
+        },
       },
     );
 
@@ -82,7 +86,7 @@ describe("useRegisterFieldInvalid", () => {
     rerender({
       isValid: true,
       fieldName,
-      fieldType: FieldType.TEXT,
+      fieldType: FieldType.TEXT_INPUT,
     });
 
     expect(mocksetMetaInternalFieldState).toBeCalledTimes(2);
@@ -117,7 +121,7 @@ describe("useRegisterFieldInvalid", () => {
         useRegisterFieldValidity({
           isValid: false,
           fieldName,
-          fieldType: FieldType.TEXT,
+          fieldType: FieldType.TEXT_INPUT,
         }),
       {
         wrapper: Wrapper,
@@ -127,14 +131,14 @@ describe("useRegisterFieldInvalid", () => {
     rerender({
       isValid: true,
       fieldName,
-      fieldType: FieldType.TEXT,
+      fieldType: FieldType.TEXT_INPUT,
     });
 
     expect(mocksetMetaInternalFieldState).toBeCalledTimes(1);
     rerender({
       isValid: true,
       fieldName,
-      fieldType: FieldType.TEXT,
+      fieldType: FieldType.TEXT_INPUT,
     });
     expect(mocksetMetaInternalFieldState).toBeCalledTimes(1);
   });

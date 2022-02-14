@@ -179,6 +179,7 @@ export const dynamicPropertyPathListFromSchema = (
   const paths: string[] = [];
   Object.values(schema).forEach((schemaItem) => {
     const properties = AUTO_JS_ENABLED_FIELDS[schemaItem.fieldType];
+
     if (properties) {
       properties.forEach((property) => {
         const propertyValue = schemaItem[property];
