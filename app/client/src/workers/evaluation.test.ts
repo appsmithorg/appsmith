@@ -66,7 +66,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     metaProperties: {},
   },
-  DROP_DOWN_WIDGET: {
+  SELECT_WIDGET: {
     defaultProperties: {
       selectedOptionValue: "defaultOptionValue",
       selectedOptionValueArr: "defaultOptionValue",
@@ -394,7 +394,7 @@ describe("DataTreeEvaluator", () => {
             value: "valueTest2",
           },
         ],
-        type: "DROP_DOWN_WIDGET",
+        type: "SELECT_WIDGET",
       },
       {},
     ),
@@ -492,7 +492,7 @@ describe("DataTreeEvaluator", () => {
             value: "valueTest2",
           },
         ],
-        type: "DROP_DOWN_WIDGET",
+        type: "SELECT_WIDGET",
         bindingPaths: {
           options: EvaluationSubstitutionType.TEMPLATE,
           defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
