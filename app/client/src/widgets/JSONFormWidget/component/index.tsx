@@ -11,7 +11,7 @@ import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionC
 import { FIELD_MAP, ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { FormContextProvider } from "../FormContext";
 import { isEmpty, pick } from "lodash";
-import { RenderMode, TEXT_SIZES } from "constants/WidgetConstants";
+import { RenderMode, RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
 import { JSONFormWidgetState, MAX_ALLOWED_FIELDS } from "../widget";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 
@@ -70,20 +70,13 @@ const Message = styled(Text)`
   width: 100%;
 `;
 
-const zeroState = (
-  <MessageStateWrapper>
-    <Message>Connect data or paste JSON to add items to this form.</Message>
-  </MessageStateWrapper>
-);
-
-const limitExceededState = (
-  <MessageStateWrapper>
-    <Message>
-      Source data exceeds {MAX_ALLOWED_FIELDS} fields, please update the source
-      data.
-    </Message>
-  </MessageStateWrapper>
-);
+function InfoMessage({ children }: { children: React.ReactNode }) {
+  return (
+    <MessageStateWrapper>
+      <Message>{children}</Message>
+    </MessageStateWrapper>
+  );
+}
 
 function JSONFormComponent<TValues>({
   executeAction,
@@ -124,8 +117,23 @@ function JSONFormComponent<TValues>({
   };
 
   const renderComponent = (() => {
-    if (fieldLimitExceeded) return limitExceededState;
-    if (isEmpty(schema)) return zeroState;
+    if (fieldLimitExceeded) {
+      return (
+        <InfoMessage>
+          Source data exceeds {MAX_ALLOWED_FIELDS} fields.&nbsp;
+          {renderMode === RenderModes.PAGE
+            ? "Please contact your developer for more information"
+            : "Please update the source data."}
+        </InfoMessage>
+      );
+    }
+    if (isEmpty(schema)) {
+      return (
+        <InfoMessage>
+          Connect data or paste JSON to add items to this form.
+        </InfoMessage>
+      );
+    }
 
     return renderRootField();
   })();
