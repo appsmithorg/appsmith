@@ -30,6 +30,7 @@ export type ToastProps = ToastOptions &
     hideActionElementSpace?: boolean;
     width?: string;
     maxWidth?: string;
+    position?: string;
   };
 
 const WrappedToastContainer = styled.div`
@@ -41,14 +42,14 @@ const WrappedToastContainer = styled.div`
     background: transparent;
   }
   .Toastify__toast {
-    cursor: auto;
+    cursor: pointer;
     min-height: auto;
     border-radius: 0px !important;
     font-family: ${(props) => props.theme.fonts.text};
     margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
-  .Toastify__toast-container--top-right {
-    top: 8em;
+  .Toastify__toast-container--top-center {
+    top: 2rem;
   }
 `;
 export function StyledToastContainer(props: ToastOptions) {
@@ -206,10 +207,6 @@ export function ToastComponent(
 
 export const Toaster = {
   show: (config: ToastProps) => {
-    if (typeof config.text !== "string") {
-      log.error("Toast message needs to be a string");
-      return;
-    }
     if (config.variant && !Object.values(Variant).includes(config.variant)) {
       log.error(
         "Toast type needs to be a one of " +
@@ -234,6 +231,7 @@ export const Toaster = {
         autoClose: false,
         closeOnClick: true,
         hideProgressBar: config.hideProgressBar,
+        position: "top-center",
       },
     );
     // Update autoclose everytime to keep resetting the timer.

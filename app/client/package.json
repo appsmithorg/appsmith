@@ -129,7 +129,7 @@
     "react-table": "^7.0.0",
     "react-tabs": "^3.0.0",
     "react-timer-hook": "^3.0.4",
-    "react-toastify": "^5.5.0",
+    "react-toastify": "8.1.0",
     "react-transition-group": "^4.3.0",
     "react-use-gesture": "^7.0.4",
     "react-virtuoso": "^1.9.0",
