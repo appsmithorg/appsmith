@@ -61,7 +61,7 @@ import {
   STOP_WATCH_GEO_LOCATION,
   STORE_VALUE,
   WATCH_GEO_LOCATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";

@@ -17,7 +17,7 @@ import {
   ONBOARDING_TASK_WIDGET_FOOTER_ACTION,
   ONBOARDING_TASK_FOOTER,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";

@@ -26,9 +26,8 @@ import {
   SAVE_DATASOURCE,
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { selectURLSlugs } from "selectors/editorSelectors";
-
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
   applicationId?: string;

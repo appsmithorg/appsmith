@@ -5,7 +5,7 @@ import {
   DOC_DESCRIPTION,
   NAV_DESCRIPTION,
   SNIPPET_DESCRIPTION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
