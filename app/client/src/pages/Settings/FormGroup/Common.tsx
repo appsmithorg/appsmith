@@ -19,7 +19,7 @@ const StyledIcon = styled(Icon)`
 
 export const StyledFormGroup = styled.div`
   width: 634px;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
   & span.bp3-popover-target {
     display: inline-block;
     background: ${(props) => props.theme.colors.menuItem.normalIcon};
