@@ -62,6 +62,7 @@ function Showcase() {
             </div>
           </div>
         </div>
+        {/* checkbox end */}
 
         {/* buttons */}
         <div className="">
@@ -70,16 +71,76 @@ function Showcase() {
             <div className="space-y-1">
               <h3 className="text-gray-500">Types</h3>
               <div className="flex space-x-3">
+                <Button leftIcon="download" {...theme} />
                 <Button variant="solid" {...theme}>
                   Solid
                 </Button>
                 <Button variant="outline" {...theme}>
                   Outline
                 </Button>
+                <Button variant="ghost" {...theme}>
+                  Ghost
+                </Button>
+                <Button variant="link" {...theme}>
+                  Link
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-gray-500">States</h3>
+              <div className="flex space-x-3">
+                <Button {...theme}>Default</Button>
+                <Button isDisabled {...theme}>
+                  Disalbed
+                </Button>
+                <Button isLoading {...theme}>
+                  Loading
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-gray-500">Icon and Alignment</h3>
+              <div className="flex space-x-3">
+                <Button className="w-40" leftIcon="download" {...theme}>
+                  With Icon
+                </Button>
+                <Button
+                  className="w-40"
+                  justifyContent="space-between"
+                  leftIcon="download"
+                  {...theme}
+                >
+                  With Icon
+                </Button>
+                <Button
+                  className="w-40"
+                  justifyContent="flex-start"
+                  leftIcon="download"
+                  {...theme}
+                >
+                  With Icon
+                </Button>
+                <Button
+                  className="w-40"
+                  justifyContent="flex-end"
+                  leftIcon="download"
+                  {...theme}
+                >
+                  With Icon
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-gray-500">Misc</h3>
+              <div className="flex space-x-3">
+                <Button tooltip="This is tooltip content" {...theme}>
+                  Tooltip
+                </Button>
               </div>
             </div>
           </div>
         </div>
+        {/*button end */}
       </div>
     </div>
   );

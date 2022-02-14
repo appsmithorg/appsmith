@@ -1,17 +1,13 @@
-import React, { useRef, useState } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import React from "react";
+import styled from "styled-components";
 import {
   IButtonProps,
   MaybeElement,
   Button as BButton,
-  Alignment,
-  Position,
 } from "@blueprintjs/core";
-import { Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import { withTooltip } from "components/wds";
 
-import { ThemeProp, Variant } from "components/ads/common";
 import { Colors } from "constants/Colors";
 
 import _ from "lodash";
@@ -22,7 +18,6 @@ import {
 } from "components/constants";
 import {
   getComplementaryGrayscaleColor,
-  getCustomJustifyContent,
   lightenColor,
 } from "widgets/WidgetUtils";
 import { borderRadiusOptions } from "constants/ThemeConstants";
@@ -36,6 +31,7 @@ export const StyledButton = styled((props) => (
       "buttonColor",
       "buttonVariant",
       "variant",
+      "justifyContent",
     ])}
   />
 ))<ButtonProps>`
@@ -46,6 +42,8 @@ export const StyledButton = styled((props) => (
   background-image: none !important;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  justify-content: ${({ justifyContent }) => `${justifyContent}`} !important;
+  flex-direction: ${({ iconAlign }) => `${iconAlign}`};
 
   ${({ buttonColor }) => `
     &.button--solid {
@@ -89,11 +87,6 @@ export const StyledButton = styled((props) => (
       }
     }
 
-    &.bp3-fill {
-      flex-grow: 1;
-      width: auto;
-    }
-
     &:disabled {
       background-color: ${Colors.GREY_1} !important;
       color: ${Colors.GREY_9} !important;
@@ -121,32 +114,34 @@ export const StyledButton = styled((props) => (
       color: inherit;
     }
   `}
-
-  ${({ placement }) =>
-    placement
-      ? `
-      justify-content: ${getCustomJustifyContent(placement)};
-      & > span.bp3-button-text {
-        flex: unset !important;
-      }
-    `
-      : ""}
 `;
 
 type ButtonStyleProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   iconName?: IconName;
-  iconAlign?: Alignment;
   placement?: ButtonPlacement;
+  justifyContent?:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "space-evenly";
 };
 
-interface ButtonProps extends IButtonProps, ButtonStyleProps, RecaptchaProps {
+export interface ButtonProps
+  extends IButtonProps,
+    ButtonStyleProps,
+    RecaptchaProps {
   variant?: keyof typeof VariantTypes;
   boxShadow?: string;
   borderRadius?: string;
   tooltip?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  leftIcon?: IconName | MaybeElement;
+  isDisabled?: boolean;
+  isLoading?: boolean;
 }
 
 enum VariantTypes {
@@ -156,12 +151,15 @@ enum VariantTypes {
   link = "link",
 }
 function Button(props: ButtonProps) {
-  const { children, ...rest } = props;
+  const { children, isDisabled, isLoading, leftIcon, ...rest } = props;
 
   return (
     <StyledButton
       {...rest}
-      className={`button--${props.variant}`}
+      className={`button--${props.variant} ${props.className}`}
+      disabled={isDisabled}
+      icon={leftIcon}
+      loading={isLoading}
       text={children}
     />
   );
@@ -175,6 +173,7 @@ Button.defaultProps = {
   variant: "solid",
   buttonColor: "#553DE9",
   borderRadius: borderRadiusOptions.md,
+  justifyContent: "center",
 } as ButtonProps;
 
 export default withRecaptcha(withTooltip(Button));
