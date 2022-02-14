@@ -26,6 +26,13 @@ import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
+import { matchPath } from "react-router";
+import {
+  BUILDER_URL,
+  BUILDER_URL_DEP,
+  VIEWER_URL,
+  VIEWER_URL_DEP,
+} from "constants/routes";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -694,4 +701,28 @@ export const captureInvalidDynamicBindingPath = (
     currentDSL.children.map(captureInvalidDynamicBindingPath);
   }
   return currentDSL;
+};
+
+export const isURLDeprecated = (url: string) => {
+  return matchPath(url, {
+    path: [trimQueryString(BUILDER_URL_DEP), trimQueryString(VIEWER_URL_DEP)],
+    strict: false,
+    exact: false,
+  });
+};
+
+export const updateRoute = (path: string, params: Record<string, string>) => {
+  let updatedPath = path;
+  const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
+    path: [trimQueryString(BUILDER_URL), trimQueryString(VIEWER_URL)],
+    strict: false,
+    exact: false,
+  });
+  if (match?.params) {
+    const { applicationSlug, pageSlug } = match?.params;
+    updatedPath = updatedPath
+      .replace(applicationSlug, params.applicationSlug)
+      .replace(pageSlug, `${params.pageSlug}-`);
+  }
+  return updatedPath;
 };

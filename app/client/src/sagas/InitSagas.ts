@@ -54,7 +54,11 @@ import { resetEditorSuccess } from "actions/initActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getIsEditorInitialized, getPageById } from "selectors/editorSelectors";
+import {
+  getIsEditorInitialized,
+  getPageById,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
@@ -62,6 +66,7 @@ import {
   addBranchParam,
   BUILDER_PAGE_URL,
   getApplicationEditorPageURL,
+  getApplicationViewerPageURL,
 } from "constants/routes";
 import history from "utils/history";
 import {
@@ -72,6 +77,7 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import PageApi, { FetchPageResponse } from "api/PageApi";
+import { isURLDeprecated, updateRoute } from "utils/helpers";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -222,11 +228,20 @@ function* initializeEditorSaga(
     //Comeback
     const pageSlug = currentPage?.slug as string;
 
-    const originalUrl = getApplicationEditorPageURL(
-      applicationSlug,
-      pageSlug,
-      pageId,
-    );
+    let originalUrl = "";
+    if (isURLDeprecated(window.location.pathname)) {
+      originalUrl = getApplicationEditorPageURL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+      );
+    } else {
+      originalUrl = updateRoute(window.location.pathname, {
+        applicationSlug,
+        pageSlug,
+        pageId,
+      });
+    }
 
     window.history.replaceState(null, "", originalUrl);
 
@@ -395,6 +410,25 @@ export function* initializeAppViewerSaga(
   }
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
+
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
+
+  let originalUrl = "";
+  if (isURLDeprecated(window.location.pathname)) {
+    originalUrl = getApplicationViewerPageURL({
+      applicationSlug,
+      pageSlug,
+      pageId,
+    });
+  } else {
+    originalUrl = updateRoute(window.location.pathname, {
+      applicationSlug,
+      pageSlug,
+      pageId,
+    });
+  }
+
+  window.history.replaceState(null, "", originalUrl);
 
   yield put(fetchCommentThreadsInit());
 

@@ -145,10 +145,10 @@ export const BUILDER_PAGE_URL = (props: {
   suffix?: string;
 }): string => {
   const {
-    applicationSlug = "applicationSlug",
+    applicationSlug = "application",
     hash = "",
     pageId,
-    pageSlug = "dashboard",
+    pageSlug = "page-1",
     params = {},
     suffix,
   } = props;
