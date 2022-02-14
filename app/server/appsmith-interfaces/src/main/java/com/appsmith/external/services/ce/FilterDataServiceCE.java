@@ -789,7 +789,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 dataType = DataType.NULL;
             }
             //Ignore incompatible datatypes after first row
-            if (inputDataType != dataType) {
+            if (dataTypeConversionMap != null && inputDataType != dataType) {
                 log.debug("DataType Error : [" + inputDataType + "] " + value + " is not of type " + dataType + " which is the datatype of the column, hence ignored in filter.");
                 dataType = DataType.NULL;
             }
