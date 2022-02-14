@@ -116,7 +116,6 @@ export function DraggableListCard(props: RenderComponentProps) {
         onFocus={onFocus}
         placeholder={placeholder}
         ref={ref}
-        trimValue={false}
         value={value}
         width="100%"
       />
