@@ -6,10 +6,12 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-public final class BeanCopyUtils {
+public final class AppsmithBeanUtils {
 
     private static String[] getNullPropertyNames(Object source) {
         // TODO: The `BeanWrapperImpl` class has been declared to be an internal class. Migrate to using
@@ -97,5 +99,26 @@ public final class BeanCopyUtils {
 
         props.forEach(p -> trgWrap.setPropertyValue(p, srcWrap.getPropertyValue(p)));
 
+    }
+
+    public static List<Object> getBeanPropertyValues(Object object) {
+        final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+        final List<Object> values = new ArrayList<>();
+
+        for (PropertyDescriptor propertyDescriptor : sourceBeanWrapper.getPropertyDescriptors()) {
+            // For properties like `class` that don't have a set method, just ignore them.
+            if (propertyDescriptor.getWriteMethod() == null) {
+                continue;
+            }
+
+            String name = propertyDescriptor.getName();
+            Object value = sourceBeanWrapper.getPropertyValue(name);
+
+            if (value != null) {
+                values.add(value);
+            }
+        }
+
+        return values;
     }
 }
