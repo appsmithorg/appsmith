@@ -1,5 +1,5 @@
 import FormTextField from "components/ads/formFields/TextField";
-import { createMessage } from "constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import { FormGroup, SettingComponentProps } from "./Common";
 

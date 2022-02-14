@@ -34,7 +34,7 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
 import { getAppMode } from "selectors/applicationSelectors";

@@ -28,7 +28,7 @@ import {
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   ALREADY_HAVE_AN_ACCOUNT,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
