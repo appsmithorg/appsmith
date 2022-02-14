@@ -74,6 +74,12 @@ public interface Method {
         return response;
     }
 
+    /**
+     * Method for custom DataType Mapping based on plugin,
+     * so here in GoogleSheet, DataTypes like Integer, Long, Float will be processed as Double as required.
+     * For example, another plugin may implement this method to process all DataType as String etc.
+     * @return  -   Map containing custom DataType to be considered against input DataType.
+     */
     default Map<DataType, DataType> getDataTypeConversionMap() {
         Map<DataType, DataType> conversionMap = new HashMap<DataType, DataType>();
         conversionMap.put(DataType.INTEGER, DataType.DOUBLE);
