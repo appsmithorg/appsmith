@@ -17,11 +17,11 @@ import { previewModeSelector } from "selectors/editorSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const Container = styled.div`
+const Container = styled.div<{ prviewMode: boolean }>`
   display: flex;
   height: calc(
     100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.bottomBarHeight}
+      ${(props) => (props.prviewMode ? 0 : props.theme.bottomBarHeight)}
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
@@ -53,7 +53,10 @@ function MainContainer() {
 
   return (
     <>
-      <Container className="w-full overflow-x-hidden">
+      <Container
+        className="w-full overflow-x-hidden"
+        prviewMode={isPreviewMode}
+      >
         <EntityExplorerSidebar
           onDragEnd={onLeftSidebarDragEnd}
           onWidthChange={onLeftSidebarWidthChange}
