@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouteMatch, Route, Switch } from "react-router-dom";
 import * as Sentry from "@sentry/react";
+import { Classes } from "@blueprintjs/core";
 import { TabComponent, DefaultTabItem } from "components/ads/Tabs";
 import ApplicationLoader from "pages/Applications/loader";
 import PageWrapper from "pages/common/PageWrapper";
@@ -15,6 +16,18 @@ import {
 import history from "utils/history";
 import Templates from "pages/Templates";
 import Filters from "pages/Templates/Filters";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+
+const StyledDiv = styled.div`
+  width: 100%;
+  height: 100%;
+  display: block;
+`;
+
+export function Skeleton() {
+  return <StyledDiv className={Classes.SKELETON} />;
+}
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TabsWrapper = styled.div`
@@ -72,6 +85,11 @@ const HomeTabs = [
 function HomeScreenTabs() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { path } = useRouteMatch();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
+  }, []);
 
   const onSelect = (tabIndex: number) => {
     setSelectedIndex(selectedIndex);

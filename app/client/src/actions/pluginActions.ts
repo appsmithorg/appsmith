@@ -7,13 +7,18 @@ import {
 import { PluginFormPayload } from "api/PluginApi";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
-export const fetchPlugins = (): ReduxActionWithoutPayload => ({
+export const fetchPlugins = (organizationId?: string) => ({
   type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
+  payload: organizationId,
 });
 
 export const fetchPluginFormConfigs = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_REQUEST,
 });
+
+export type FetchPluginsPayload = {
+  organizationId?: string;
+};
 
 export type PluginFormsPayload = {
   formConfigs: Record<string, any[]>;

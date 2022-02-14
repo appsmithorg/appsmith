@@ -4,6 +4,7 @@ import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
 import Button, { Size } from "components/ads/Button";
 import { TEMPLATE_ID_URL } from "constants/routes";
+import DatasourceChip from "../DatasourceChip";
 import TemplateSampleImage from "./template-test.png";
 import LargeTemplate from "./LargeTemplate";
 
@@ -60,25 +61,10 @@ const TemplateContentFooter = styled.div`
   margin-top: 17px;
 `;
 
-const DatasourceChip = styled.div`
-  background-color: rgba(248, 248, 248, 0.5);
-  border: 1px solid #e7e7e7;
-  padding: 4px 9px;
-  display: inline-flex;
-  align-items: center;
-  .image {
-    height: 15px;
-    width: 15px;
-    display: inline-block;
-  }
-  span {
-    margin-left: 6px;
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: -0.221538px;
-    color: #191919;
-  }
+const TemplateDatasources = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 `;
 
 const StyledButton = styled(Button)`
@@ -105,28 +91,31 @@ export interface TemplateLayoutProps {
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
-  const { template } = props;
+  const { datasources, description, functions, id, title } = props.template;
   const onClick = () => {
-    history.push(TEMPLATE_ID_URL("dafads2342342"));
+    history.push(TEMPLATE_ID_URL(id));
   };
 
   return (
     <TemplateWrapper className={props.className} onClick={onClick}>
-      <ImageWrapper>
+      <ImageWrapper className="image-wrapper">
         <StyledImage src={TemplateSampleImage} />
       </ImageWrapper>
       <TemplateContent>
-        <div className="title">{template.title}</div>
-        <div className="categories">{template.functions.join(" • ")}</div>
-        <div className="description">{template.description}</div>
+        <div className="title">{title}</div>
+        <div className="categories">{functions.join(" • ")}</div>
+        <div className="description">{description}</div>
         <TemplateContentFooter>
-          <DatasourceChip>
-            <img
-              className="image"
-              src={"https://assets.appsmith.com/logo/mongodb.svg"}
-            />
-            <span>MongoDB</span>
-          </DatasourceChip>
+          <TemplateDatasources>
+            {datasources.map((pluginPackageName) => {
+              return (
+                <DatasourceChip
+                  key={pluginPackageName}
+                  pluginPackageName={pluginPackageName}
+                />
+              );
+            })}
+          </TemplateDatasources>
           <StyledButton icon={"fork"} size={Size.large} />
         </TemplateContentFooter>
       </TemplateContent>

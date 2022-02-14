@@ -7,7 +7,13 @@ import TemplateView from "./TemplateView";
 import { useDispatch, useSelector } from "react-redux";
 import { setHeaderMeta } from "actions/themeActions";
 import { getAllTemplates } from "actions/templateActions";
-import { getTemplatesSelector } from "selectors/templatesSelectors";
+import {
+  getOrganizationForTemplates,
+  getTemplatesSelector,
+} from "selectors/templatesSelectors";
+import { fetchPlugins } from "actions/pluginActions";
+import { Classes } from "@blueprintjs/core";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TemplateListWrapper = styled.div`
@@ -15,7 +21,7 @@ const TemplateListWrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
 `;
 
-const ResultsCount = styled.span`
+const ResultsCount = styled.div`
   font-size: 18px;
   font-weight: 500;
   color: #090707;
@@ -23,13 +29,35 @@ const ResultsCount = styled.span`
   margin-left: 32px;
 `;
 
+const Loader = styled(TemplateListWrapper)`
+  height: 100vh;
+  .results-count {
+    height: 20px;
+    width: 100px;
+  }
+`;
+
+const LoadingTemplateList = styled.div`
+  margin-top: 24px;
+  height: calc(100% - 200px);
+  margin-right: 20px;
+  margin-left: 32px;
+`;
+
 function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
+  const templateOrganization = useSelector(getOrganizationForTemplates);
 
   useEffect(() => {
     dispatch(setHeaderMeta(true, true));
   }, []);
+
+  useEffect(() => {
+    if (templateOrganization?.organization.id) {
+      dispatch(fetchPlugins(templateOrganization?.organization.id));
+    }
+  }, [templateOrganization?.organization.id]);
 
   return (
     <Switch>
@@ -46,10 +74,20 @@ function Templates() {
   }, []);
 
   const templates = useSelector(getTemplatesSelector);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
       : "Showing 1 template";
+
+  if (isFetchingApplications) {
+    return (
+      <Loader>
+        <ResultsCount className={`results-count ${Classes.SKELETON}`} />
+        <LoadingTemplateList className={Classes.SKELETON} />
+      </Loader>
+    );
+  }
 
   return (
     <TemplateListWrapper>

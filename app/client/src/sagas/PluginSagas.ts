@@ -2,6 +2,7 @@ import { all, takeEvery, call, put, select } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxAction,
 } from "constants/ReduxActionConstants";
 import PluginsApi, { PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -34,9 +35,14 @@ import {
   FormDependencyConfigs,
 } from "utils/DynamicBindingUtils";
 
-function* fetchPluginsSaga() {
+function* fetchPluginsSaga(action: ReduxAction<string | null>) {
   try {
-    const orgId = yield select(getCurrentOrgId);
+    let orgId = yield select(getCurrentOrgId);
+
+    if (!orgId) {
+      orgId = action.payload;
+    }
+
     if (!orgId) {
       throw Error("Org id does not exist");
     }

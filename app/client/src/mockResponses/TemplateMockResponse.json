@@ -28,7 +28,10 @@
         ],
         "datasources": [
           "postgres-plugin",
-          "mongo-plugin"
+          "mongo-plugin",
+          "postgres-plugin",
+          "postgres-plugin",
+          "postgres-plugin"
         ],
         "minVersion": "v1.6.8",
         "minVersionPadded": "000010000600008",

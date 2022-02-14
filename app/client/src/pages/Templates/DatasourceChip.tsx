@@ -1,4 +1,7 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { getPluginByPackageName } from "selectors/entitiesSelector";
 import styled from "styled-components";
 
 const StyledDatasourceChip = styled.div`
@@ -24,16 +27,20 @@ const StyledDatasourceChip = styled.div`
 
 interface DatasourceChipProps {
   className?: string;
+  pluginPackageName: string;
 }
 
 function DatasourceChip(props: DatasourceChipProps) {
+  const plugin = useSelector((state: AppState) =>
+    getPluginByPackageName(state, props.pluginPackageName),
+  );
+
+  if (!plugin) return null;
+
   return (
     <StyledDatasourceChip className={props.className}>
-      <img
-        className="image"
-        src={"https://assets.appsmith.com/logo/mongodb.svg"}
-      />
-      <span>MongoDB</span>
+      <img className="image" src={plugin.iconLocation} />
+      <span>{plugin.name}</span>
     </StyledDatasourceChip>
   );
 }

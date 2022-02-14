@@ -176,7 +176,11 @@ function TemplateView() {
             <Section>
               <Text type={TextType.H1}>Data Sources</Text>
               <div className="section-content">
-                <StyledDatasourceChip />
+                <StyledDatasourceChip
+                  pluginPackageName={
+                    TemplatesMockResponse.data[0].datasources[0]
+                  }
+                />
                 <div className="datasource-note">
                   <Text type={TextType.H2}>Note: </Text>
                   <Text type={TextType.H2} weight={FontWeight.NORMAL}>
