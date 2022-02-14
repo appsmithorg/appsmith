@@ -13,9 +13,6 @@ describe("API Panel request body", function() {
     cy.get(`[data-cy=${testdata.apiContentTypeForm}]`).click();
     cy.get(`[data-cy=${testdata.apiContentTypeMultiPart}]`).click();
 
-    // cy.contains(testdata.apiFormDataBodyType).click();
-    // cy.contains(testdata.apiMultipartBodyType).click();
-
     cy.get(apiwidget.formEncoded).should("be.visible");
     cy.get(apiwidget.multipartTypeDropdown).should("be.visible");
     cy.DeleteAPI();
@@ -46,12 +43,12 @@ describe("API Panel request body", function() {
     cy.contains(apiEditor.headersTab).click({ force: true });
 
     cy.get(apiwidget.headerKey).contains(testdata.headerKey.toLowerCase());
-    cy.get(apiwidget.headerValue).contains(testdata.apiFormDataBodyType);
+    cy.get(apiwidget.headerValue).contains(testdata.apiFormDataHeaderValue);
 
     cy.DeleteAPI();
   });
 
-  it("Checks whether content type is preserved when user selects RAW API body content type", function() {
+  it("Checks whether content type is preserved when user selects None API body content type", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
 
@@ -59,11 +56,11 @@ describe("API Panel request body", function() {
 
     cy.contains(apiEditor.bodyTab).click({ force: true });
     cy.get(`[data-cy=${testdata.apiContentTypeForm}]`).click({ force: true });
-    cy.get(`[data-cy=${testdata.apiContentTypeRaw}]`).click({ force: true });
+    cy.get(`[data-cy=${testdata.apiContentTypeNone}]`).click({ force: true });
     cy.contains(apiEditor.headersTab).click({ force: true });
 
     cy.get(apiwidget.headerKey).contains(testdata.headerKey.toLowerCase());
-    cy.get(apiwidget.headerValue).contains(testdata.apiFormDataBodyType);
+    cy.get(apiwidget.headerValue).contains(testdata.apiFormDataHeaderValue);
 
     cy.DeleteAPI();
   });
