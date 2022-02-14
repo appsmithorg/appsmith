@@ -69,7 +69,7 @@ import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
   SNIPPET_EXECUTION_SUCCESS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";

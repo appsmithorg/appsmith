@@ -20,7 +20,7 @@ import {
   WELCOME_FORM_ROLE,
   WELCOME_FORM_USE_CASE,
   WELCOME_FORM_HEADER,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import FormTextField from "components/ads/formFields/TextField";
 import { DetailsFormValues } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";

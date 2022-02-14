@@ -15,7 +15,7 @@ import {
   ERROR_MESSAGE_NAME_EMPTY,
   createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
