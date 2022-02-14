@@ -1,7 +1,10 @@
 import React, { useCallback, useMemo } from "react";
 import { useActiveAction } from "../hooks";
 import { Entity } from "../Entity/index";
-import { createMessage, ADD_QUERY_JS_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  ADD_QUERY_JS_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
