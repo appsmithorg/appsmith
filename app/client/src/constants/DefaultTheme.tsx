@@ -2905,6 +2905,9 @@ export const theme: Theme = {
       leftPadding: 16,
       rightMargin: 12,
     },
+    main: {
+      marginLeft: 112,
+    },
     search: {
       height: 81, //TODO: Add a field for tab height
       paddingTop: 30,
