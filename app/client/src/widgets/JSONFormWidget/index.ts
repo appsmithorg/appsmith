@@ -14,7 +14,7 @@ export const CONFIG = {
     columns: 25,
     disabledWhenInvalid: true,
     fixedFooter: true,
-    rows: 40,
+    rows: 50,
     schema: {},
     scrollContents: true,
     showReset: true,
@@ -28,6 +28,11 @@ export const CONFIG = {
     resetButtonStyles: {
       buttonColor: Colors.GREEN,
       buttonVariant: ButtonVariantTypes.SECONDARY,
+    },
+    sourceData: {
+      name: "John",
+      date_of_birth: "29/02/1990",
+      employee_id: 1001,
     },
   },
   properties: {
