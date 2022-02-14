@@ -54,6 +54,7 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
+import { onboardingCreateApplication } from "actions/onboardingActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -75,9 +76,6 @@ import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
@@ -88,7 +86,7 @@ import {
   SEARCH_APPS,
   WELCOME_TOUR,
   NO_APPS_FOUND,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
 import { howMuchTimeBeforeText } from "utils/helpers";
@@ -100,6 +98,7 @@ import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -435,8 +434,6 @@ function LeftPane() {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
-  const initiateOnboarding = useIntiateOnboarding();
-
   if (isMobile) return null;
 
   return (
@@ -503,8 +500,7 @@ function LeftPane() {
               icon="guide"
               onSelect={() => {
                 AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-
-                initiateOnboarding();
+                dispatch(onboardingCreateApplication());
               }}
               text={createMessage(WELCOME_TOUR)}
             />
@@ -1006,7 +1002,6 @@ function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {organizationsListComponent}
-      <WelcomeHelper />
       {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );

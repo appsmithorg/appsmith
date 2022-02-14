@@ -15,7 +15,7 @@ import {
   REMOTE_URL_INPUT_PLACEHOLDER,
   CONNECTING_REPO,
   LEARN_MORE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
@@ -46,7 +46,7 @@ import {
   CONNECT_BTN_LABEL,
   PASTE_SSH_URL_INFO,
   GENERATE_KEY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
@@ -62,7 +62,7 @@ import Statusbar, {
 } from "pages/Editor/gitSync/components/Statusbar";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
-import GitSyncError from "../components/GitSyncError";
+import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -500,7 +500,7 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
-            {!isConnectingToGit && <GitSyncError onDisplay={scrolling} />}
+            {!isConnectingToGit && <GitConnectError onDisplay={scrolling} />}
           </ButtonContainer>
         </>
       ) : null}

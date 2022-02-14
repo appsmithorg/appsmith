@@ -32,7 +32,7 @@ import {
   DEPLOY_MENU_OPTION,
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
@@ -125,7 +125,7 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Rename",
+      text: "Edit Name",
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,

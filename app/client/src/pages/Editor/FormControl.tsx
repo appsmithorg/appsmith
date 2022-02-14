@@ -1,7 +1,7 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import { isHidden } from "components/formControls/utils";
-import { useSelector } from "react-redux";
+import { useSelector, shallowEqual } from "react-redux";
 import { getFormValues } from "redux-form";
 import FormControlFactory from "utils/FormControlFactory";
 import Tooltip from "components/ads/Tooltip";
@@ -17,11 +17,11 @@ import {
 import { FormIcons } from "icons/FormIcons";
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
-import _ from "lodash";
 import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { getConfigErrors } from "selectors/formSelectors";
 interface FormControlProps {
   config: ControlProps;
   formName: string;
@@ -33,38 +33,25 @@ function FormControl(props: FormControlProps) {
     getFormValues(props.formName)(state),
   );
 
-  // get the datatree from the state
-  const dataTree = useSelector((state: AppState) => state.evaluations.tree);
-
-  // action that corresponds to this form control
-  let action: any;
-  let configErrors: EvaluationError[] = [];
-
-  // if form value exists, use the name of the form(which is the action's name) to get the action details
-  // from the data tree, then store it in the action variable
-  if (formValues && formValues.name) {
-    if (formValues.name in dataTree) {
-      // get action details from data tree
-      action = dataTree[formValues.name];
-
-      // extract the error object from the action's details object.
-      const actionError = action && action?.__evaluation__?.errors;
-
-      // get the configProperty for this form control and format it to resemble the format used in the action details errors object.
-      const formattedConfig = _.replace(
-        props?.config?.configProperty,
-        "actionConfiguration",
-        "config",
-      );
-
-      // grab the errors specific to this configProperty and store it in configErrors.
-      if (actionError && formattedConfig in actionError) {
-        configErrors = actionError[formattedConfig];
-      }
-    }
-  }
-
   const hidden = isHidden(formValues, props.config.hidden);
+  const configErrors: EvaluationError[] = useSelector(
+    (state: AppState) =>
+      getConfigErrors(state, {
+        configProperty: props?.config?.configProperty,
+        formName: props.formName,
+      }),
+    shallowEqual,
+  );
+
+  const FormConfigMemoizedValue = useMemo(
+    () =>
+      FormControlFactory.createControl(
+        props.config,
+        props.formName,
+        props?.multipleConfig,
+      ),
+    [],
+  );
 
   if (hidden) return null;
 
@@ -76,11 +63,7 @@ function FormControl(props: FormControlProps) {
       multipleConfig={props?.multipleConfig}
     >
       <div className={`t--form-control-${props.config.controlType}`}>
-        {FormControlFactory.createControl(
-          props.config,
-          props.formName,
-          props?.multipleConfig,
-        )}
+        {FormConfigMemoizedValue}
       </div>
     </FormConfig>
   );
@@ -149,7 +132,7 @@ function FormConfig(props: FormConfigProps) {
   );
 }
 
-export default FormControl;
+export default memo(FormControl);
 
 function renderFormConfigTop(props: { config: ControlProps }) {
   const {
@@ -157,6 +140,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
     encrypted,
     isRequired,
     label,
+    nestedFormControl,
     subtitle,
     tooltipText = "",
     url,
@@ -164,27 +148,29 @@ function renderFormConfigTop(props: { config: ControlProps }) {
   } = { ...props.config };
   return (
     <React.Fragment key={props.config.label}>
-      <FormLabel config={props.config}>
-        <p className="label-icon-wrapper">
-          {label} {isRequired && "*"}{" "}
-          {encrypted && (
-            <>
-              <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-              <FormSubtitleText config={props.config}>
-                Encrypted
-              </FormSubtitleText>
-            </>
+      {!nestedFormControl && ( // if the form control is a nested form control hide its label
+        <FormLabel config={props.config}>
+          <p className="label-icon-wrapper">
+            {label} {isRequired && "*"}{" "}
+            {encrypted && (
+              <>
+                <FormIcons.LOCK_ICON height={12} keepColors width={12} />
+                <FormSubtitleText config={props.config}>
+                  Encrypted
+                </FormSubtitleText>
+              </>
+            )}
+            {tooltipText && (
+              <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+                <FormIcons.HELP_ICON height={16} width={16} />
+              </Tooltip>
+            )}
+          </p>
+          {subtitle && (
+            <FormInfoText config={props.config}>{subtitle}</FormInfoText>
           )}
-          {tooltipText && (
-            <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-              <FormIcons.HELP_ICON height={16} width={16} />
-            </Tooltip>
-          )}
-        </p>
-        {subtitle && (
-          <FormInfoText config={props.config}>{subtitle}</FormInfoText>
-        )}
-      </FormLabel>
+        </FormLabel>
+      )}
       {urlText && (
         <FormInputAnchor href={url} target="_blank">
           {urlText}
@@ -203,10 +189,16 @@ function renderFormConfigBottom(props: {
   config: ControlProps;
   configErrors?: EvaluationError[];
 }) {
-  const { info } = { ...props.config };
+  const { controlType, info } = { ...props.config };
   return (
     <>
-      {info && <FormInputHelperText>{info}</FormInputHelperText>}
+      {info && (
+        <FormInputHelperText
+          addMarginTop={controlType === "CHECKBOX" ? "8px" : "2px"} // checkboxes need a higher margin top than others form control types
+        >
+          {info}
+        </FormInputHelperText>
+      )}
       {props.configErrors &&
         props.configErrors.length > 0 &&
         props.configErrors

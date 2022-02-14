@@ -11,7 +11,7 @@ import {
   FETCH_GIT_STATUS,
   IS_MERGING,
   MERGED_SUCCESSFULLY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled from "styled-components";
@@ -19,6 +19,7 @@ import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import {
+  getConflictFoundDocUrlMerge,
   getGitBranches,
   getGitStatus,
   getIsFetchingGitStatus,
@@ -52,6 +53,7 @@ import { Colors } from "constants/Colors";
 
 import { useTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Row = styled.div`
   display: flex;
@@ -159,6 +161,9 @@ export default function Merge() {
   };
 
   const mergeHandler = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_MERGE_CHANGES_BUTTON_CLICK", {
+      source: "GIT_MERGE_MODAL",
+    });
     if (currentBranch && selectedBranchOption.value) {
       dispatch(
         mergeBranchInit({
@@ -224,6 +229,7 @@ export default function Merge() {
   const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
   const showMergeButton =
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
+  const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
 
   return (
     <>
@@ -264,7 +270,10 @@ export default function Merge() {
       </Row>
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
-      <ConflictInfo isConflicting={isConflicting} />
+      <ConflictInfo
+        isConflicting={isConflicting}
+        learnMoreLink={gitConflictDocumentUrl}
+      />
       {showMergeSuccessIndicator ? (
         <MergeSuccessIndicator />
       ) : (

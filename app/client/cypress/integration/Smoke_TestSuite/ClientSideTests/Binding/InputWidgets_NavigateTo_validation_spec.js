@@ -36,7 +36,10 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   });
 
   it("Validate NavigateTo Page functionality ", function() {
-    cy.SearchEntityandOpen("Table1");
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait(4000);
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
@@ -47,11 +50,9 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
         .invoke("attr", "value")
         .should("contain", tabValue);
       cy.get(widgetsPage.chartWidget).should("not.exist");
-
       cy.get(publish.inputGrp)
         .first()
         .type("123");
-
       cy.get(widgetsPage.chartWidget).should("be.visible");
     });
   });

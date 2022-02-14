@@ -7,7 +7,7 @@ import { Toaster } from "./Toast";
 import {
   createMessage,
   ERROR_EMPTY_APPLICATION_NAME,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 type EditableTextWrapperProps = EditableTextProps & {
   variant: "UNDERLINE" | "ICON";

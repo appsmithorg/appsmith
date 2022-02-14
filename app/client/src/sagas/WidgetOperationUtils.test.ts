@@ -1,10 +1,12 @@
 import { get } from "lodash";
+import { WidgetProps } from "widgets/BaseWidget";
 import {
   handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
   doesTriggerPathsContainPropertyPath,
   checkIfPastingIntoListWidget,
   updateListWidgetPropertiesOnChildDelete,
+  purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -579,6 +581,45 @@ describe("WidgetOperationSaga", () => {
       "ButtonWidget1",
     );
 
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("should purge orphaned dynamicTriggerPaths and dynamicBindingPaths from widget", () => {
+    const input = {
+      dynamicBindingPathList: [
+        { key: "primaryColumns.name.computedValue" },
+        { key: "primaryColumns.name.fontStyle" },
+        { key: "primaryColumns.name.nonExistentPath" },
+        { key: "nonExistentKey" },
+      ],
+      dynamicTriggerPathList: [
+        { key: "primaryColumns.name.onClick" },
+        { key: "primaryColumns.name.nonExistentPath" },
+        { key: "nonExistentKey" },
+      ],
+      primaryColumns: {
+        name: {
+          computedValue: "{{currentRow.something}}",
+          fontStyle: "bold",
+          onClick: "{{showAlert('message', 'error')}}",
+        },
+      },
+    };
+    const expected = {
+      dynamicBindingPathList: [
+        { key: "primaryColumns.name.computedValue" },
+        { key: "primaryColumns.name.fontStyle" },
+      ],
+      dynamicTriggerPathList: [{ key: "primaryColumns.name.onClick" }],
+      primaryColumns: {
+        name: {
+          computedValue: "{{currentRow.something}}",
+          fontStyle: "bold",
+          onClick: "{{showAlert('message', 'error')}}",
+        },
+      },
+    };
+    const result = purgeOrphanedDynamicPaths((input as any) as WidgetProps);
     expect(result).toStrictEqual(expected);
   });
 });

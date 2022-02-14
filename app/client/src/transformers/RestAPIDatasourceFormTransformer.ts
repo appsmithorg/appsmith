@@ -36,6 +36,9 @@ export const datasourceToFormValues = (
     isValid: datasource.isValid,
     url: datasource.datasourceConfiguration.url,
     headers: cleanupProperties(datasource.datasourceConfiguration.headers),
+    queryParameters: cleanupProperties(
+      datasource.datasourceConfiguration.queryParameters,
+    ),
     isSendSessionEnabled: isSendSessionEnabled,
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
@@ -89,6 +92,9 @@ const formToDatasourceAuthentication = (
       isTokenHeader: authentication.isTokenHeader,
       audience: authentication.audience,
       resource: authentication.resource,
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -173,6 +179,9 @@ const datasourceToFormAuthentication = (
       isTokenHeader: !!authentication.isTokenHeader,
       audience: authentication.audience || "",
       resource: authentication.resource || "",
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation || "",
     };
     if (isClientCredentials(authType, authentication)) {
       return {

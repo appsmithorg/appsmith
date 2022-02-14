@@ -1,21 +1,19 @@
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { useDispatch } from "react-redux";
-import React, { useState, useCallback, useMemo } from "react";
-import { Route, Switch, matchPath, useLocation } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useCallback } from "react";
+import { Route, Switch } from "react-router";
 
 import EditorsRouter from "./routes";
 import BottomBar from "./BottomBar";
-import {
-  DEFAULT_ENTITY_EXPLORER_WIDTH,
-  DEFAULT_PROPERTY_PANE_WIDTH,
-} from "constants/AppConstants";
+import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
-import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
+import classNames from "classnames";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -29,12 +27,8 @@ const Container = styled.div`
 `;
 function MainContainer() {
   const dispatch = useDispatch();
-  const location = useLocation();
   const [sidebarWidth, setSidebarWidth] = useState(
     DEFAULT_ENTITY_EXPLORER_WIDTH,
-  );
-  const [propertyPaneWidth, setPropertyPaneWidth] = useState(
-    DEFAULT_PROPERTY_PANE_WIDTH,
   );
 
   /**
@@ -55,38 +49,7 @@ function MainContainer() {
     dispatch(updateExplorerWidthAction(sidebarWidth));
   }, [sidebarWidth]);
 
-  /**
-   * on property pane sidebar drag end
-   *
-   * @return void
-   */
-  const onRightSidebarDragEnd = useCallback(() => {
-    dispatch(updateExplorerWidthAction(propertyPaneWidth));
-  }, [propertyPaneWidth]);
-
-  /**
-   * on property pane sidebar width change
-   */
-  const onRightSidebarWidthChange = useCallback((newWidth) => {
-    setPropertyPaneWidth(newWidth);
-  }, []);
-
-  /**
-   * checks if property pane should be rendered or not
-   *
-   * @return boolean
-   */
-  const shouldRenderPropertyPane = useMemo(() => {
-    const match = matchPath(location.pathname, {
-      path: BUILDER_URL,
-      exact: true,
-    });
-
-    // match is found, that means current URL is BUILDER_URL i.e our editor
-    if (match) return true;
-
-    return false;
-  }, [location]);
+  const isPreviewMode = useSelector(previewModeSelector);
 
   return (
     <>
@@ -96,8 +59,11 @@ function MainContainer() {
           onWidthChange={onLeftSidebarWidthChange}
           width={sidebarWidth}
         />
-        <div className="relative flex flex-col w-full overflow-auto">
-          <Switch>
+        <div
+          className="relative flex flex-col w-full overflow-auto"
+          id="app-body"
+        >
+          <Switch key={BUILDER_URL}>
             <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />
             <SentryRoute
               component={OnboardingChecklist}
@@ -107,15 +73,14 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-        {shouldRenderPropertyPane && (
-          <PropertyPaneSidebar
-            onDragEnd={onRightSidebarDragEnd}
-            onWidthChange={onRightSidebarWidthChange}
-            width={propertyPaneWidth}
-          />
-        )}
       </Container>
-      <BottomBar />
+      <BottomBar
+        className={classNames({
+          "translate-y-full fixed bottom-0": isPreviewMode,
+          "translate-y-0 relative opacity-100": !isPreviewMode,
+          "transition-all transform duration-400": true,
+        })}
+      />
     </>
   );
 }

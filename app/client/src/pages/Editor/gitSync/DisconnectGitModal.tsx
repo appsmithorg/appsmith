@@ -29,7 +29,7 @@ import {
   LEARN_MORE,
   NONE_REVERSIBLE_MESSAGE,
   TYPE_PROMO_CODE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Link from "./components/Link";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
