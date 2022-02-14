@@ -185,7 +185,7 @@ public class ApplicationFetcherUnitTest {
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
-        Mockito.when(newPageService.findSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
+        Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
                 .thenReturn(Flux.fromIterable(pageList));
 
         for (Application application : applications) {
@@ -230,7 +230,7 @@ public class ApplicationFetcherUnitTest {
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
-        Mockito.when(newPageService.findSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
+        Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
                 .thenReturn(Flux.fromIterable(pageList));
 
         for (Application application : applications) {
@@ -283,7 +283,7 @@ public class ApplicationFetcherUnitTest {
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
-        Mockito.when(newPageService.findSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
+        Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
                 .thenReturn(Flux.fromIterable(pageList));
 
         for (Application application : applications) {

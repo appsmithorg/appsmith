@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -238,7 +239,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .flatMapMany(auth -> {
                     User user = (User) auth.getPrincipal();
                     Query query = new Query();
-                    if(includeFields != null) {
+                    if(!CollectionUtils.isEmpty(includeFields)) {
                         for(String includeField: includeFields) {
                             query.fields().include(includeField);
                         }

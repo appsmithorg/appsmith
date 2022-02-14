@@ -22,6 +22,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -45,6 +46,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static java.util.stream.Collectors.toMap;
 
 
+@Slf4j
 @RequiredArgsConstructor
 public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
@@ -176,7 +178,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             ).flatMap(Collection::stream).collect(Collectors.toList());
 
                     // fetch the page slugs for the applications
-                    return newPageService.findSlugsByApplicationIds(applicationIds, READ_PAGES)
+                    return newPageService.findPageSlugsByApplicationIds(applicationIds, READ_PAGES)
                             .collectMultimap(NewPage::getApplicationId)
                             .map(applicationPageMap -> {
                                 for (OrganizationApplicationsDTO orgApps : userHomepageDTO.getOrganizationApplications()) {
@@ -219,15 +221,23 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
             Function<NewPage, PageDTO> getPage
     ) {
         List<ApplicationPage> applicationPages = getPages.apply(application);
-        if(applicationPages != null) {
-            ApplicationPage defaultPage = applicationPages.stream().filter(ApplicationPage::isDefault).findFirst().get();
-            Optional<NewPage> first = applicationPageMap.get(application.getId())
-                    .stream()
-                    .filter(newPage -> newPage.getId().equals(defaultPage.getId()))
+        if(!CollectionUtils.isEmpty(applicationPages)) {
+            Optional<ApplicationPage> defaultPageOptional = applicationPages.stream()
+                    .filter(ApplicationPage::isDefault)
                     .findFirst();
-            if(first.isPresent()) {
-                NewPage newPage = first.get();
-                defaultPage.setSlug(getPage.apply(newPage).getSlug());
+
+            if(defaultPageOptional.isPresent()) {
+                ApplicationPage defaultPage = defaultPageOptional.get();
+                Optional<NewPage> newPageDetails = applicationPageMap.get(application.getId()).stream()
+                        .filter(newPage -> newPage.getId().equals(defaultPage.getId()))
+                        .findFirst();
+
+                if(newPageDetails.isPresent()) {
+                    NewPage newPage = newPageDetails.get();
+                    defaultPage.setSlug(getPage.apply(newPage).getSlug());
+                } else {
+                    log.error("page not found for application id {}, page id {}", application.getId(), defaultPage.getId());
+                }
             }
         }
     }
