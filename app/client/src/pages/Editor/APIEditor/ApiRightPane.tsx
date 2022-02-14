@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
@@ -13,9 +13,10 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { useSelector } from "react-redux";
-
 import { Classes } from "components/ads/common";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Colors } from "constants/Colors";
+import { sortedDatasourcesHandler } from "./helpers";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -117,6 +118,32 @@ const DataSourceNameContainer = styled.div`
   }
 `;
 
+const IconContainer = styled.div`
+  display: inherit;
+`;
+
+const SelectedDatasourceInfoContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 2px 8px;
+  background-color: ${Colors.LIGHT_GREEN_CYAN};
+  margin-right: 5px;
+  text-transform: uppercase;
+  & p {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 8px;
+    line-height: 10px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: ${Colors.GREEN};
+  }
+`;
+
 const SomeWrapper = styled.div`
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
@@ -168,7 +195,7 @@ export const getDatasourceInfo = (datasource: any): string => {
   return info.join(" | ");
 };
 
-export default function ApiRightPane(props: any) {
+function ApiRightPane(props: any) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
@@ -178,6 +205,16 @@ export default function ApiRightPane(props: any) {
   }, [props.hasResponse]);
 
   const applicationId = useSelector(getCurrentApplicationId);
+
+  // array of datasources with the current action's datasource first, followed by the rest.
+  const sortedDatasources = useMemo(
+    () =>
+      sortedDatasourcesHandler(
+        props.datasources,
+        props.currentActionDatasourceId,
+      ),
+    [props.datasources, props.currentActionDatasourceId],
+  );
 
   return (
     <DatasourceContainer>
@@ -194,7 +231,7 @@ export default function ApiRightPane(props: any) {
                   <DataSourceListWrapper
                     className={selectedIndex === 0 ? "show" : ""}
                   >
-                    {(props.datasources || []).map((d: any, idx: number) => {
+                    {(sortedDatasources || []).map((d: any, idx: number) => {
                       const dataSourceInfo: string = getDatasourceInfo(d);
                       return (
                         <DatasourceCard
@@ -205,21 +242,28 @@ export default function ApiRightPane(props: any) {
                             <Text type={TextType.H5} weight={FontWeight.BOLD}>
                               {d.name}
                             </Text>
-                            <Icon
-                              name="edit"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                history.push(
-                                  DATA_SOURCES_EDITOR_ID_URL(
-                                    applicationId,
-                                    props.currentPageId,
-                                    d.id,
-                                    getQueryParams(),
-                                  ),
-                                );
-                              }}
-                              size={IconSize.LARGE}
-                            />
+                            <IconContainer>
+                              {d?.id === props.currentActionDatasourceId && (
+                                <SelectedDatasourceInfoContainer>
+                                  <p>In use</p>
+                                </SelectedDatasourceInfoContainer>
+                              )}
+                              <Icon
+                                name="edit"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  history.push(
+                                    DATA_SOURCES_EDITOR_ID_URL(
+                                      applicationId,
+                                      props.currentPageId,
+                                      d.id,
+                                      getQueryParams(),
+                                    ),
+                                  );
+                                }}
+                                size={IconSize.LARGE}
+                              />
+                            </IconContainer>
                           </DataSourceNameContainer>
                           <DatasourceURL>
                             {d.datasourceConfiguration.url}
@@ -278,3 +322,5 @@ export default function ApiRightPane(props: any) {
     </DatasourceContainer>
   );
 }
+
+export default React.memo(ApiRightPane);

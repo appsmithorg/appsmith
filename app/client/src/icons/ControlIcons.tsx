@@ -28,6 +28,8 @@ import { ReactComponent as ItalicsFontIcon } from "assets/icons/control/italics.
 import { ReactComponent as LeftAlignIcon } from "assets/icons/control/left-align.svg";
 import { ReactComponent as CenterAlignIcon } from "assets/icons/control/center-align.svg";
 import { ReactComponent as RightAlignIcon } from "assets/icons/control/right-align.svg";
+import { ReactComponent as VerticalAlignRight } from "assets/icons/control/align_right.svg";
+import { ReactComponent as VerticalAlignLeft } from "assets/icons/control/align_left.svg";
 import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vertical_align_bottom.svg";
 import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
 import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
@@ -236,6 +238,16 @@ export const ControlIcons: {
   RIGHT_ALIGN: (props: IconProps) => (
     <IconWrapper {...props}>
       <RightAlignIcon />
+    </IconWrapper>
+  ),
+  VERTICAL_RIGHT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <VerticalAlignRight />
+    </IconWrapper>
+  ),
+  VERTICAL_LEFT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <VerticalAlignLeft />
     </IconWrapper>
   ),
   VERTICAL_TOP: (props: IconProps) => (

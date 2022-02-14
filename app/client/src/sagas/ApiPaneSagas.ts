@@ -56,7 +56,10 @@ import PerformanceTracker, {
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import {
+  createMessage,
+  ERROR_ACTION_RENAME_FAIL,
+} from "@appsmith/constants/messages";
 import {
   getIndextoUpdate,
   parseUrlForQueryParams,

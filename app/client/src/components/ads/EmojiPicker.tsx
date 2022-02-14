@@ -8,7 +8,11 @@ import { Theme } from "constants/DefaultTheme";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "emoji-mart/css/emoji-mart.css";
 import Tooltip from "components/ads/Tooltip";
-import { ADD_REACTION, createMessage, EMOJI } from "constants/messages";
+import {
+  ADD_REACTION,
+  createMessage,
+  EMOJI,
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 
 const StyledIcon = styled(Icon)<{
