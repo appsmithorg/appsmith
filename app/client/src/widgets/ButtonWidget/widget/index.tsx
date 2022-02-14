@@ -132,7 +132,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         children: [
           {
             helpText:
-              "Disabled if the form is invalid, if this widget exists directly within a Form widget",
+              "Works only inside Form widget. Disables the button if any required widget in form is invalid",
             propertyName: "disabledWhenInvalid",
             label: "Disable for Invalid Forms",
             controlType: "SWITCH",
@@ -143,7 +143,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
           {
             helpText:
-              "Resets the fields of the form, on click, if this widget exists directly within a Form widget",
+              "Works only inside Form widget. Resets the widgets in the form if the On Click event succeeds",
             propertyName: "resetFormOnClick",
             label: "Reset Form on Success",
             controlType: "SWITCH",
