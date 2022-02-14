@@ -1,11 +1,12 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { SettingTypes } from "../SettingsConfig";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import TextComponent from "./Text";
 
 let container: any = null;
 const buttonClickHandler = jest.fn();
 const setting = {
+  id: "SETTING_ID",
   name: "textType",
   text: "download",
   action: buttonClickHandler,

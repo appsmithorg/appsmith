@@ -17,7 +17,7 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import {
   BaseFieldComponentProps,
   FieldComponentBaseProps,

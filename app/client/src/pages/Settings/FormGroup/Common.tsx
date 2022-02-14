@@ -1,10 +1,10 @@
 import Tooltip from "components/ads/Tooltip";
-import { createMessage } from "constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Setting } from "../SettingsConfig";
+import { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { Colors } from "constants/Colors";
 
 type FieldHelperProps = {
@@ -18,7 +18,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 export const StyledFormGroup = styled.div`
-  width: 357px;
+  width: 634px;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
   & span.bp3-popover-target {
     display: inline-block;

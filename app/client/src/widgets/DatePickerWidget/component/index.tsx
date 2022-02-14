@@ -19,7 +19,7 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {

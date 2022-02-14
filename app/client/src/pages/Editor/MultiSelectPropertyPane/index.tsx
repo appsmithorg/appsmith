@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/react";
 import {
   createMessage,
   MULTI_SELECT_PROPERTY_PANE_MESSAGE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { getSelectedWidgets } from "selectors/ui";
