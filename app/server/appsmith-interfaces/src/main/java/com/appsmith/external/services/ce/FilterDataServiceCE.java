@@ -95,6 +95,15 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return filterData(items, conditionList, null);
     }
 
+    /**
+     * Overloaded Method to handle plugin-based DataType conversion.
+     * Plugins implementing this passes parameter 'dataTypeConversionMap' to instruct how their DataTypes to be processed.
+     * Example: GoogleSheet plugin handled it in a way that Integer, Long and Float DataTypes to be treated as Double.
+     * @param items
+     * @param conditionList
+     * @param dataTypeConversionMap - A Map to provide custom Datatype(value) against the actual Datatype(key) found.
+     * @return
+     */
     public ArrayNode filterData(ArrayNode items, List<Condition> conditionList, Map<DataType, DataType> dataTypeConversionMap) {
 
         if (items == null || items.size() == 0) {
@@ -357,7 +366,14 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 .allMatch(sortCondition -> isBlank(sortCondition.get(SORT_BY_COLUMN_NAME_KEY)));
     }
 
-
+    /**
+     * Filter Query before UQI implementation
+     * @param tableName - table name in database
+     * @param conditions - Where Conditions
+     * @param schema    - The Schema
+     * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
+     * @return
+     */
     public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap) {
         Connection conn = checkAndGetConnection();
 
@@ -482,6 +498,13 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         insertAllData( tableName, items, schema, null);
     }
 
+    /**
+     * Overloaded Method to handle plugin-based DataType conversion.
+     * @param tableName - table name in database
+     * @param items     - Data
+     * @param schema    - The Schema
+     * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
+     */
     public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
@@ -678,6 +701,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return generateSchema(items, null);
     }
 
+    /**
+     * Overloaded Method to handle plugin-based DataType conversion.
+     * @param items
+     * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
+     * @return
+     */
     public Map<String, DataType> generateSchema(ArrayNode items, Map<DataType, DataType> dataTypeConversionMap) {
 
         JsonNode item = items.get(0);
@@ -768,10 +797,20 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return setValueInStatement(preparedStatement, index, value, dataType, null);
     }
 
+    /**
+     * Overloaded Method to handle plugin-based DataType conversion.
+     * @param preparedStatement
+     * @param index
+     * @param value
+     * @param topRowDataType
+     * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
+     * @return
+     */
     private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType topRowDataType, Map<DataType, DataType> dataTypeConversionMap) {
 
         DataType dataType = topRowDataType;
         if (dataTypeConversionMap != null) {
+            //The input datatype will be converted to custom DatType as per implementing dataTypeConversionMap
             dataType = dataTypeConversionMap.getOrDefault(topRowDataType, topRowDataType);
         }
 
@@ -783,12 +822,13 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             DataType currentRowDataType = stringToKnownDataTypeConverter(value);
             DataType inputDataType = currentRowDataType;
             if (dataTypeConversionMap != null) {
+                //Datatype of each row be processed, expected to be consistent to column datatype (first row datatype).
                 inputDataType = dataTypeConversionMap.getOrDefault(currentRowDataType, currentRowDataType);
             }
             if (DataType.NULL.equals(inputDataType)) {
                 dataType = DataType.NULL;
             }
-            //Ignore incompatible datatypes after first row
+            //We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error.
             if (dataTypeConversionMap != null && inputDataType != dataType) {
                 log.debug("DataType Error : [" + inputDataType + "] " + value + " is not of type " + dataType + " which is the datatype of the column, hence ignored in filter.");
                 dataType = DataType.NULL;
