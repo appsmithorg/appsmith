@@ -101,6 +101,7 @@ export const getSelectRowIndices = (
   }
 };
 
+//TODO(Balaji): we shouldn't replace special characters
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
@@ -109,23 +110,23 @@ export const removeSpecialChars = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
+/*
+ * Function to get list of columns from the tabledata
+ */
 export const getAllTableColumnKeys = (
   tableData?: Array<Record<string, unknown>>,
 ) => {
-  const columnKeys: string[] = [];
-  if (tableData) {
-    for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
-      const row = tableData[i];
-      for (const key in row) {
-        // Replace all special characters to _, limit key length to 200 characters.
-        const sanitizedKey = removeSpecialChars(key, 200);
-        if (!columnKeys.includes(sanitizedKey)) {
-          columnKeys.push(sanitizedKey);
-        }
-      }
-    }
+  const columnKeys: Set<string> = new Set();
+
+  if (_.isArray(tableData)) {
+    tableData.forEach((row) => {
+      Object.keys(row).forEach((key) => {
+        columnKeys.add(key);
+      });
+    });
   }
-  return columnKeys;
+
+  return Array.from(columnKeys);
 };
 
 export function getTableStyles(props: TableStyles) {
@@ -139,6 +140,7 @@ export function getTableStyles(props: TableStyles) {
   };
 }
 
+//TODO(Balaji): need to evaulate
 export const generateTableColumnId = (accessor: string) => {
   return isNaN(Number(accessor)) ? accessor : `_${accessor}`;
 };
