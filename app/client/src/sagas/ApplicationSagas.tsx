@@ -505,13 +505,13 @@ export function* createApplicationSaga(
           pageURL = BUILDER_PAGE_URL({
             // Comeback
             applicationSlug: application.slug as string,
-            pageSlug: "page-1",
+            pageSlug: "page1",
             pageId: application.defaultPageId as string,
           });
         } else {
           pageURL = getGenerateTemplateURL(
             application.slug as string,
-            "page-1",
+            "page1",
             application.defaultPageId as string,
           );
         }
@@ -561,7 +561,7 @@ export function* forkApplicationSaga(
       const pageURL = BUILDER_PAGE_URL({
         // Comeback
         applicationSlug: application.slug as string,
-        pageSlug: "Page-1",
+        pageSlug: "page1",
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -610,7 +610,7 @@ export function* importApplicationSaga(
         const pageURL = BUILDER_PAGE_URL({
           //Comeback
           applicationSlug,
-          pageSlug: "Page-1",
+          pageSlug: "page1",
           pageId: defaultPage[0].id,
         });
         history.push(pageURL);

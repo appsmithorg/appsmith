@@ -148,7 +148,7 @@ export const BUILDER_PAGE_URL = (props: {
     applicationSlug = "application",
     hash = "",
     pageId,
-    pageSlug = "page-1",
+    pageSlug = "page1",
     params = {},
     suffix,
   } = props;
