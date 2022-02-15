@@ -499,11 +499,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile);
                 })
-                .onErrorMap(error -> {
+                .onErrorResume(error -> {
                     if (error instanceof AppsmithException) {
-                        return error;
+                        return Mono.error(error);
                     }
-                    throw new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage());
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage()));
                 });
 
         return Mono.create(sink -> importedApplicationMono
