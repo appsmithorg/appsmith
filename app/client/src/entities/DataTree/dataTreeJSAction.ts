@@ -44,7 +44,7 @@ export const generateDataTreeJSAction = (
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
       actionsData[action.name] = {
-        data: js.data && js.data[`${action.id}`],
+        data: (js.data && js.data[`${action.id}`]) || {},
       };
     }
   }
