@@ -85,11 +85,6 @@
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "BUTTON_WIDGET": {
-        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
-      },
       "ICON_BUTTON_WIDGET": {
         "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -270,11 +265,6 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "FORM_WIDGET": {
-        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
-      },
-      "BUTTON_WIDGET": {
-        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -461,11 +451,6 @@
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "BUTTON_WIDGET": {
-        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
-      },
       "ICON_BUTTON_WIDGET": {
         "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -646,11 +631,6 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "FORM_WIDGET": {
-        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
-      },
-      "BUTTON_WIDGET": {
-        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
