@@ -125,7 +125,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
    * Function to get the table columns with appropriate render functions
    * based on columnType
    */
-  //TODO(Balaji): Move this to Utility and write test cases.
   getTableColumns = () => {
     const {
       columnWidthMap = {},
@@ -339,7 +338,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return columns.filter((column: ReactTableColumnProps) => !!column.accessor);
   };
 
-  //TODO(Balaji): Move this to utilities and write test cases
   transformData = (
     tableData: Array<Record<string, unknown>>,
     columns: ReactTableColumnProps[],
@@ -422,25 +420,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  //TODO(Balaji): Move this to utilities and write test cases
-  getParsedComputedValues = (value: string | Array<unknown>) => {
-    let computedValues: Array<unknown> = [];
-
-    if (_.isString(value)) {
-      try {
-        computedValues = JSON.parse(value);
-      } catch (e) {
-        log.debug("Error parsing column value: ", value);
-      }
-    } else if (_.isArray(value)) {
-      computedValues = value;
-    } else {
-      log.debug("Error parsing column values:", value);
-    }
-
-    return computedValues;
-  };
-
   updateDerivedColumnsIndex = (
     derivedColumns: Record<string, ColumnProperties>,
     tableColumnCount: number,
@@ -464,7 +443,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
    * Function to create new primary Columns from the sanitizedTableData
    * gets called on component mount and on component update
    */
-  //TODO(Balaji): Move this to utilities and write test cases
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
@@ -646,7 +624,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         (id: string) => !primaryColumns[id].isDerived,
       );
 
-      //TODO(Balaji): Extract this into a function.
       if (xor(newColumnIds, primaryColumnIds).length > 0) {
         const newTableColumns = this.createTablePrimaryColumns();
 
