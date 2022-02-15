@@ -2845,7 +2845,7 @@ Cypress.Commands.add("isSelectRow", (index) => {
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div`;
+  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
