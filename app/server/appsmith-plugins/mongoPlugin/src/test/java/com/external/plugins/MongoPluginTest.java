@@ -580,6 +580,47 @@ public class MongoPluginTest {
                             "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
                     assertEquals(getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT),
                             "SINGLE");
+
+                    // Assert Count Command
+                    DatasourceStructure.Template countTemplate = templates.get(5);
+                    assertEquals(countTemplate.getTitle(), "Count");
+                    assertEquals(countTemplate.getBody(), "{\n" +
+                    "  \"count\": \"users\",\n" +
+                    "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
+                    "}\n");
+                    assertEquals(((Map<String, Object>) countTemplate.getConfiguration()).get(COMMAND), "COUNT");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COUNT_QUERY),
+                    "{\"_id\": {\"$exists\": true}}");
+
+                    // Assert Distinct Command
+                    DatasourceStructure.Template distinctTemplate = templates.get(6);
+                    assertEquals(distinctTemplate.getTitle(), "Distinct");
+                    assertEquals(distinctTemplate.getBody(), "{\n" +
+                    "  \"distinct\": \"users\",\n" +
+                    "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
+                    "  \"key\": \"_id\"," +
+                    "}\n");
+                    assertEquals(((Map<String, Object>) distinctTemplate.getConfiguration()).get(COMMAND), "DISTINCT");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_QUERY),
+                    "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_KEY),
+                    "_id");
+
+                    // Assert Aggregate Command
+                    DatasourceStructure.Template aggregateTemplate = templates.get(7);
+                    assertEquals(aggregateTemplate.getTitle(), "Aggregate");
+                    assertEquals(aggregateTemplate.getBody(), "{\n" +
+                    "  \"aggregate\": \"users\",\n" +
+                    "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
+                    "  \"limit\": 10,\n" +
+                    "  \"explain\": \"true\"\n" +
+                    "}\n");
+
+                    assertEquals(((Map<String, Object>) aggregateTemplate.getConfiguration()).get(COMMAND), "AGGREGATE");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), AGGREGATE_PIPELINE),
+                    "[ {\"$sort\" : {\"_id\": 1} } ]");
+
+
                 })
                 .verifyComplete();
     }
