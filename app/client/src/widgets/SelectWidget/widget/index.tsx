@@ -121,7 +121,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Option",
+            label: "Default Value",
             controlType: "INPUT_TEXT",
             placeholderText: '{ "label": "label1", "value": "value1" }',
             isBindProperty: true,
@@ -137,6 +137,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 },
               },
             },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Sets a Label Text",
@@ -324,56 +326,59 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
+      selectedOptionLabel: `{{_.isPlainObject(this.selectedOption) ? this.selectedOption?.label : this.selectedOption}}`,
+      selectedOptionValue: `{{_.isPlainObject(this.selectedOption) ? this.selectedOption?.value : this.selectedOption}}`,
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
-      selectedOptionLabel: `{{_.isString(this.optionValue) || _.isFinite(this.optionValue)  ? this.optionValue : this.optionValue?.label}}`,
-      selectedOptionValue: `{{_.isString(this.optionValue) || _.isFinite(this.optionValue)  ? this.optionValue : this.optionValue?.value}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      defaultValue: "defaultOptionValue",
-      optionValue: "defaultOptionValue",
+      selectedOption: "defaultOptionValue",
+      filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      defaultValue: undefined,
-      optionValue: undefined,
+      selectedOption: undefined,
+      filterText: "",
     };
   }
 
-  componentDidMount() {
-    this.changeSelectedOption();
-  }
-  componentDidUpdate(prevProps: SelectWidgetProps): void {
-    // removing selectedOptionValue if defaultValueChanges
-    if (
-      this.isStringOrNumber(prevProps.defaultOptionValue) ||
-      this.isStringOrNumber(this.props.defaultOptionValue)
-    ) {
-      if (
-        prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
-        prevProps.option !== this.props.option
-      ) {
-        this.changeSelectedOption();
-      }
-      return;
-    }
-    if (
-      prevProps.defaultOptionValue?.value !==
-        this.props.defaultOptionValue?.value ||
-      prevProps.option !== this.props.option
-    ) {
-      this.changeSelectedOption();
-    }
-  }
+  // componentDidMount() {
+  //   this.changeSelectedOption();
+  // }
+  // componentDidUpdate(prevProps: SelectWidgetProps): void {
+  //   // removing selectedOptionValue if defaultValueChanges
+  //   if (
+  //     this.isStringOrNumber(prevProps.defaultOptionValue) ||
+  //     this.isStringOrNumber(this.props.defaultOptionValue)
+  //   ) {
+  //     if (
+  //       prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
+  //       prevProps.option !== this.props.option
+  //     ) {
+  //       this.changeSelectedOption();
+  //     }
+  //     return;
+  //   }
+  //   if (
+  //     prevProps.defaultOptionValue?.value !==
+  //       this.props.defaultOptionValue?.value ||
+  //     prevProps.option !== this.props.option
+  //   ) {
+  //     this.changeSelectedOption();
+  //   }
+  // }
 
   isStringOrNumber = (value: any): value is string | number =>
     isString(value) || isNumber(value);
   changeSelectedOption = () => {
-    this.props.updateWidgetMetaProperty("optionValue", this.props.optionValue);
+    this.props.updateWidgetMetaProperty(
+      "selectedOption",
+      this.props.selectedOption,
+    );
   };
 
   getPageView() {
@@ -434,9 +439,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
     if (isChanged) {
-      this.props.updateWidgetMetaProperty("optionValue", selectedOption, {
+      this.props.updateWidgetMetaProperty("selectedOption", selectedOption, {
         triggerPropertyName: "onOptionChange",
-        dynamicString: this.props.onOptionChange as string,
+        dynamicString: this.props.onOptionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,
         },
@@ -447,13 +452,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   onFilterChange = (value: string) => {
     this.props.updateWidgetMetaProperty("filterText", value);
 
-    super.executeAction({
-      triggerPropertyName: "onFilterUpdate",
-      dynamicString: this.props.onFilterUpdate,
-      event: {
-        type: EventType.ON_FILTER_UPDATE,
-      },
-    });
+    if (this.props.onFilterUpdate && this.props.serverSideFiltering) {
+      super.executeAction({
+        triggerPropertyName: "onFilterUpdate",
+        dynamicString: this.props.onFilterUpdate,
+        event: {
+          type: EventType.ON_FILTER_UPDATE,
+        },
+      });
+    }
   };
 
   static getWidgetType(): WidgetType {
@@ -465,11 +472,10 @@ export interface SelectWidgetProps extends WidgetProps {
   placeholderText?: string;
   label?: string;
   selectedIndex?: number;
-  selectedOption: DropdownOption;
   options?: DropdownOption[];
   onOptionChange?: string;
   defaultOptionValue?: { label?: string; value?: string } | string;
-  optionValue?: { label?: string; value?: string } | string;
+  selectedOption?: { label?: string; value?: string } | string;
   value?: string;
   isRequired: boolean;
   isFilterable: boolean;

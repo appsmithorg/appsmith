@@ -20,7 +20,7 @@ export const CONFIG = {
     widgetName: "Select",
     defaultOptionValue: "GREEN",
     version: 1,
-    isFilterable: false,
+    isFilterable: true,
     isRequired: false,
     isDisabled: false,
     animateLoading: true,

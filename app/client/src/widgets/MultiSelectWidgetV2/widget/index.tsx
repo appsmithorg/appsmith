@@ -177,7 +177,7 @@ class MultiSelectWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Selects the option with value by default",
+            helpText: "Selects the option(s) with value by default",
             propertyName: "defaultOptionValue",
             label: "Default Value",
             controlType: "INPUT_TEXT",
@@ -463,6 +463,10 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DefaultValueType) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("selectedOptions", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
