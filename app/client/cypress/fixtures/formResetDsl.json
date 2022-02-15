@@ -154,7 +154,7 @@
                 "rightColumn": 16,
                 "topRow": 9,
                 "bottomRow": 10,
-                "type": "DROP_DOWN_WIDGET",
+                "type": "MULTI_SELECT_WIDGET_V2",
                 "version": 1,
                 "widgetId": "dwh49bulj9",
                 "widgetName": "Dropdown1"

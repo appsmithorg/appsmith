@@ -48,7 +48,7 @@ import { fetchGitStatusSuccess } from "actions/gitSyncActions";
 import {
   createMessage,
   GIT_USER_UPDATED_SUCCESSFULLY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
@@ -67,10 +67,14 @@ import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 
 import { getLogToSentryFromResponse } from "utils/helpers";
+import GIT_ERROR_CODES from "constants/GitErrorCodes";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
-  if (responseMeta?.error?.code === 4043) {
+  if (
+    responseMeta?.error?.code ===
+    GIT_ERROR_CODES.PRIVATE_REPO_CONNECTIONS_LIMIT_REACHED
+  ) {
     yield put(setShowRepoLimitErrorModal(true));
     return true;
   }

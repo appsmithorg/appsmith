@@ -38,7 +38,8 @@ export type EditableTextSubComponentProps = CommonComponentProps & {
   defaultSavingState: SavingState;
   savingState: SavingState;
   setSavingState: typeof noop;
-  onBlur?: (value: string) => void;
+  onBlur?: (value: string) => void; // This `Blur` will be called only when there is a change in the value after we unfocus from the input field
+  onBlurEverytime?: (value: string) => void; // This `Blur` will be called everytime we unfocus from the input field
   onTextChanged?: (value: string) => void;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
@@ -159,6 +160,7 @@ export function EditableTextSubComponent(props: EditableTextSubComponentProps) {
     isError,
     isInvalid,
     onBlur,
+    onBlurEverytime,
     onTextChanged,
     savingState,
     setIsEditing,
@@ -204,6 +206,7 @@ export function EditableTextSubComponent(props: EditableTextSubComponentProps) {
   const onConfirm = useCallback(
     (_value: string) => {
       const finalVal: string = _value.trim();
+      onBlurEverytime && onBlurEverytime(finalVal);
       if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
         setValue(lastValidValue);
         onBlur && onBlur(lastValidValue);

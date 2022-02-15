@@ -9,7 +9,9 @@ import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
@@ -42,4 +44,17 @@ public class RedisConfig {
 
         return new ReactiveRedisTemplate<>(factory, context);
     }
+
+    // Lifted from below and turned it into a bean. Wish Spring provided it as a bean.
+    // RedisWebSessionConfiguration.createReactiveRedisTemplate
+    @Bean
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
+        RedisSerializer<String> keySerializer = new StringRedisSerializer();
+        RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer(getClass().getClassLoader());
+        RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
+                .<String, Object>newSerializationContext(defaultSerializer).key(keySerializer).hashKey(keySerializer)
+                .build();
+        return new ReactiveRedisTemplate<>(factory, serializationContext);
+    }
+
 }

@@ -75,8 +75,10 @@ import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
 import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_PAGINATE;
 import static com.external.plugins.constants.FieldName.LIST_PREFIX;
 import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_SORT;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
@@ -627,15 +629,21 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         // Check if where condition is configured
                         Object whereFormObject = getValueSafelyFromFormData(formData, LIST_WHERE);
-
+                        Condition condition = null;
                         if (whereFormObject != null) {
                             Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
-                            Condition condition = parseWhereClause(whereForm);
-                            ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
-                            actionResult = filterDataService.filterDataNew(preFilteringResponse,
-                                    new UQIDataFilterParams(condition, null, null, null));
-
+                            condition = parseWhereClause(whereForm);
                         }
+
+                        List<Map<String, String>> sortBy =
+                                (List<Map<String, String>>) getValueSafelyFromFormData(formData, LIST_SORT);
+
+                        Map<String, String> paginateBy =
+                                (Map<String, String>) getValueSafelyFromFormData(formData, LIST_PAGINATE);
+
+                        ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
+                        actionResult = filterDataService.filterDataNew(preFilteringResponse,
+                                new UQIDataFilterParams(condition, null, sortBy, paginateBy));
 
                         break;
                     case UPLOAD_FILE_FROM_BODY: {

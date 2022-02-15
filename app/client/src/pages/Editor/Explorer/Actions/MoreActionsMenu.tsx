@@ -16,6 +16,9 @@ import { useNewActionName } from "./helpers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
+import { Position } from "@blueprintjs/core";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 type EntityContextMenuProps = {
   id: string;
@@ -64,6 +67,7 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nextEntityName = useNewActionName();
+  const guidedTourEnabled = useSelector(inGuidedTour);
 
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
@@ -90,9 +94,15 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     [dispatch, nextEntityName, props.pageId],
   );
   const deleteActionFromPage = useCallback(
-    (actionId: string, actionName: string) =>
-      dispatch(deleteAction({ id: actionId, name: actionName })),
-    [dispatch],
+    (actionId: string, actionName: string) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+
+      dispatch(deleteAction({ id: actionId, name: actionName }));
+    },
+    [dispatch, guidedTourEnabled],
   );
 
   const menuPages = useSelector((state: AppState) => {
@@ -150,6 +160,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           className: "t--apiFormDeleteBtn",
         },
       ]}
+      position={Position.LEFT_TOP}
       selectedValue=""
       toggle={
         <MoreActionablesContainer

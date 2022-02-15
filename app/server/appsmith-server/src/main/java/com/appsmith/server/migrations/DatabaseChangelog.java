@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
@@ -54,6 +55,7 @@ import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTheme;
+import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Theme;
@@ -127,7 +129,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -4947,6 +4949,80 @@ public class DatabaseChangelog {
                 );
             }
         }
+    }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection and userData to improve the query performance
+     */
+    @ChangeSet(order = "114", id = "update-index-for-newAction-actionCollection-userData", author = "")
+    public void updateNewActionActionCollectionAndUserDataIndexes(MongockTemplate mongockTemplate) {
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(FieldName.APPLICATION_ID)
+                        .named("applicationId")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID)
+                        .named("unpublishedCollection_pageId")
+        );
+
+        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
+                        .named("defaultApplicationId_gitSyncId_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
+                        .named("defaultApplicationId_gitSyncId_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, UserData.class,
+                makeIndex(fieldName(QUserData.userData.userId))
+                        .unique()
+                        .named("userId")
+        );
+    }
+
+    @ChangeSet(order = "115", id = "mark-mssql-crud-unavailable", author = "")
+    public void markMSSQLCrudUnavailable(MongockTemplate mongockTemplate) {
+        Plugin plugin = mongockTemplate.findOne(query(where("packageName").is("mssql-plugin")), Plugin.class);
+        assert plugin != null;
+        plugin.setGenerateCRUDPageComponent(null);
+        mongockTemplate.save(plugin);
+    }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection to improve the query performance for queries like
+     * getResourceByPageId which excludes the deleted entries
+     */
+    @ChangeSet(order = "116", id = "update-index-for-newAction-actionCollection", author = "")
+    public void updateNewActionActionCollectionIndexes(MongockTemplate mongockTemplate) {
+
+        dropIndexIfExists(mongockTemplate, NewAction.class, "unpublishedAction_pageId");
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(fieldName(QNewAction.newAction.unpublishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("unpublishedActionPageId_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(fieldName(QNewAction.newAction.publishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("publishedActionPageId_deleted_compound_index")
+        );
+
+        dropIndexIfExists(mongockTemplate, ActionCollection.class, "unpublishedCollection_pageId");
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("unpublishedCollectionPageId_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("publishedCollectionPageId_deleted_compound_index")
+        );
     }
 
 }

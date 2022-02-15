@@ -1,7 +1,12 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
+import {
+  createMessage,
+  EDIT_APP,
+  FORK_APP,
+  SIGN_IN,
+} from "@appsmith/constants/messages";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Button, { IconPositions } from "components/ads/Button";

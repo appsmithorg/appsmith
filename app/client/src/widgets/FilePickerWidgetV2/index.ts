@@ -11,7 +11,6 @@ export const CONFIG = {
     rows: 4,
     files: [],
     selectedFiles: [],
-    defaultSelectedFiles: [],
     allowedFileTypes: [],
     label: "Select Files",
     columns: 16,
