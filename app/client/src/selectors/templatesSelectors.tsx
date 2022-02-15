@@ -2,6 +2,7 @@ import { Template } from "api/TemplatesApi";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getOrganizationCreateApplication } from "./applicationSelectors";
+import { getPlugins } from "./entitiesSelector";
 
 export const getTemplatesSelector = (state: AppState) =>
   state.ui.templates.templates;
@@ -44,5 +45,17 @@ export const getFilteredTemplateList = createSelector(
     }
 
     return templates;
+  },
+);
+
+export const templatesDatasourceFiltersSelector = createSelector(
+  getPlugins,
+  (plugins) => {
+    return plugins.map((plugin) => {
+      return {
+        label: plugin.name,
+        value: plugin.packageName,
+      };
+    });
   },
 );

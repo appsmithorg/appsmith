@@ -5,7 +5,7 @@
     },
     "data": [
       {
-        "id": "61f447545bf0264436db038e",
+        "id": "61f447545bf0264436db038a",
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
@@ -29,9 +29,7 @@
         "datasources": [
           "postgres-plugin",
           "mongo-plugin",
-          "postgres-plugin",
-          "postgres-plugin",
-          "postgres-plugin"
+          "mysql-plugin"
         ],
         "minVersion": "v1.6.8",
         "minVersionPadded": "000010000600008",
@@ -39,11 +37,11 @@
         "new": false
       },
       {
-        "id": "61f447545bf0264436db038e",
+        "id": "61f447545bf0264436db038b",
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"
@@ -70,11 +68,11 @@
         "new": false
       },
       {
-        "id": "61f447545bf0264436db038e",
+        "id": "61f447545bf0264436db038c",
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"
@@ -101,11 +99,11 @@
         "new": false
       },
       {
-        "id": "61f447545bf0264436db038e",
+        "id": "61f447545bf0264436db038d",
         "userPermissions": [],
         "title": "Updated title",
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"
@@ -123,8 +121,8 @@
           "Legal"
         ],
         "datasources": [
-          "postgres-plugin",
-          "mongo-plugin"
+          "redshift-plugin",
+          "saas-plugin"
         ],
         "minVersion": "v1.6.8",
         "minVersionPadded": "000010000600008",
@@ -136,7 +134,7 @@
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"
@@ -163,11 +161,11 @@
         "new": false
       },
       {
-        "id": "61f447545bf0264436db038e",
+        "id": "61f447545bf0264436db038f",
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"
@@ -194,11 +192,11 @@
         "new": false
       },
       {
-        "id": "61f447545bf0264436db038e",
+        "id": "61f447545bf0264436db038g",
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"
@@ -225,11 +223,11 @@
         "new": false
       },
       {
-        "id": "61f447545bf0264436db038e",
+        "id": "61f447545bf0264436db038h",
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"
@@ -256,11 +254,11 @@
         "new": false
       },
       {
-        "id": "61f447545bf0264436db038e",
+        "id": "61f447545bf0264436db038i",
         "userPermissions": [],
         "title": "Updated title",
         "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "http://app.appsmith.com/applications/hello-nayan",
+        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
         "gifUrl": "http://gif.appsmith.com/images/hello",
         "screenshotUrls": [
           "http://gif.appsmith.com/images/hello"
@@ -268,7 +266,7 @@
         "widgets": [
           "BUTTON_WIDGET",
           "MAP_WIDGET",
-          "CHART_WIDGET"
+          "TABLE_WIDGET"
         ],
         "functions": [
           "Technology", "Health Care"

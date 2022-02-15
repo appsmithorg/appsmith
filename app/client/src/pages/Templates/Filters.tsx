@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
 import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { filterTemplates } from "actions/templateActions";
+import { getWidgetCards } from "selectors/editorSelectors";
+import { templatesDatasourceFiltersSelector } from "selectors/templatesSelectors";
 
 const Wrapper = styled.div`
   overflow: auto;
@@ -111,11 +113,22 @@ const useGetFilterList = (): Record<string, Filter[]> => {
     { label: "Remote work" },
     { label: "Software Development" },
   ];
-  // const widgetConfigs = useSelector(getWidgetCards);
+  const widgetConfigs = useSelector(getWidgetCards);
+  const widgets = useMemo(() => {
+    return widgetConfigs.map((widget) => {
+      return {
+        label: widget.displayName,
+        value: widget.type,
+      };
+    });
+  }, [widgetConfigs]);
+  const datasources = useSelector(templatesDatasourceFiltersSelector);
 
   const filters = {
     functions,
     useCases,
+    widgets,
+    datasources,
   };
 
   return filters;
