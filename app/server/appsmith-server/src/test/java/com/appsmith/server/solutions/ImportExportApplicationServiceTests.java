@@ -329,7 +329,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(applicationJson.getPageList()).hasSize(1);
                     assertThat(applicationJson.getActionList()).isEmpty();
                     assertThat(applicationJson.getDatasourceList()).isEmpty();
-                    assertThat(applicationJson.getDecryptedFields()).isEmpty();
+                    assertThat(applicationJson.getDecryptedFields()).isNull();
                 })
                 .verifyComplete();
     }
@@ -507,14 +507,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasource.getOrganizationId()).isNull();
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
-                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
-                    assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
-
-                    DecryptedSensitiveFields decryptedFields = applicationJson.getDecryptedFields().get(datasource.getName());
-
-                    DBAuth auth = (DBAuth) datasourceMap.get("DS2").getDatasourceConfiguration().getAuthentication();
-                    assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());
-                    assertThat(decryptedFields.getPassword()).isEqualTo("awesome-password");
+                    assertThat(datasource.getDatasourceConfiguration()).isNull();
 
                     assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
                     assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
@@ -749,7 +742,7 @@ public class ImportExportApplicationServiceTests {
                 assertThat(application.getEditModeThemeId()).isNotNull();
                 assertThat(application.getPublishedModeThemeId()).isNotNull();
                 assertThat(isPartialImport).isEqualTo(Boolean.FALSE);
-                assertThat(unConfiguredDatasourceList).isEmpty();
+                assertThat(unConfiguredDatasourceList).isNull();
 
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {

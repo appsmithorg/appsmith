@@ -269,7 +269,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .flatMapMany(datasourceList -> {
                                 datasourceList.forEach(datasource ->
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
-
                                 applicationJson.setDatasourceList(datasourceList);
                                 return actionCollectionRepository
                                         .findByApplicationId(applicationId, MANAGE_ACTIONS, null);
@@ -368,28 +367,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
                                 // Save decrypted fields for datasources
-                                Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                 applicationJson.getDatasourceList().forEach(datasource -> {
-                                    decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
                                     datasource.setId(null);
                                     datasource.setOrganizationId(null);
                                     datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                     datasource.setStructure(null);
-                                    if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
-                                        // If we are exporting the doc for git functionality, remove the datasourceConfiguration
-                                        // object as user will configure it once imported to other instance
-                                        datasource.setDatasourceConfiguration(null);
-                                    } else if (datasource.getDatasourceConfiguration() != null) {
-                                        datasource.getDatasourceConfiguration().setAuthentication(null);
-                                    }
+                                    // Remove the datasourceConfiguration object as user will configure it once imported to other instance
+                                    datasource.setDatasourceConfiguration(null);
                                 });
 
                                 // Caution : Please don't serialise the credentials if we are serialising for git version control
-                                if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
-                                    applicationJson.setDecryptedFields(null);
-                                } else {
-                                    applicationJson.setDecryptedFields(decryptedFields);
-                                }
+                                applicationJson.setDecryptedFields(null);
 
                                 // Update ids for layoutOnLoadAction
                                 for (NewPage newPage : applicationJson.getPageList()) {

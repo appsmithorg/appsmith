@@ -202,7 +202,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
-                .flatMap(this::populateHintMessages);
+                .flatMap(this::populateHintMessages)
+                .map(datasource1 -> {
+                    datasource1.setIsConfigured(!Optional.ofNullable(datasource1.getDatasourceConfiguration()).isEmpty());
+                    return datasource1;
+                });
     }
 
     @Override
