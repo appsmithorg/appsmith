@@ -22,7 +22,7 @@ import {
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,

@@ -128,6 +128,7 @@ import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
 import Trash from "remixicon-react/DeleteBinLineIcon";
 import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
+import WarningLineIcon from "remixicon-react/ErrorWarningLineIcon";
 import EditUnderlineIcon from "remixicon-react/EditLineIcon";
 import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
@@ -309,6 +310,7 @@ export const IconCollection = [
   "view-less",
   "wand",
   "warning",
+  "warning-line",
   "warning-triangle",
   "workspace",
   "git-branch",
@@ -720,6 +722,9 @@ const Icon = forwardRef(
         break;
       case "warning":
         returnIcon = <WarningIcon />;
+        break;
+      case "warning-line":
+        returnIcon = <WarningLineIcon />;
         break;
       case "warning-triangle":
         returnIcon = <WarningTriangleIcon />;

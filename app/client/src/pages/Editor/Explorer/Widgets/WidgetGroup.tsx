@@ -4,7 +4,10 @@ import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import WidgetEntity from "./WidgetEntity";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
+import {
+  ADD_WIDGET_TOOLTIP,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 
