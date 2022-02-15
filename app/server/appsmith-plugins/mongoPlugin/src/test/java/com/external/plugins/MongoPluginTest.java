@@ -187,8 +187,7 @@ public class MongoPluginTest {
     }
 
     /*
-     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization, then
-     *    also, it indicates a successful connection establishment.
+     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization.
      */
     @Test
     public void testDatasourceWithUnauthorizedException() {
@@ -199,8 +198,8 @@ public class MongoPluginTest {
         MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
         when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
         when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
-        when(mockMongoCommandException.getErrorMessage()).thenReturn("Error getting filter : Expected 'filter' to be BSON (or equivalent), but got string instead.\n" +
-                "Doc = [{find newAction} {filter filterx} {limit 10} {$db mobtools} ...]");
+        when(mockMongoCommandException.getErrorMessage()).thenReturn("Mock error  : Expected 'something' , but got something else.\n" +
+                "Doc = [{find mockAction} {filter mockFilter} {limit 10} {$db mockDB} ...]");
 
         /*
          * 1. Spy MongoPluginExecutor class.
@@ -215,7 +214,7 @@ public class MongoPluginTest {
         doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
 
         /*
-         * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
+         * 1. Test that MongoCommandException with error code "Unauthorized" is not successful because of invalid credentials.
          */
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         StepVerifier
