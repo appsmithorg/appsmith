@@ -12,6 +12,9 @@ if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
+  const ev = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+  console.log("------------------------->", ev);
+
 glob("./tests/*.perf.js", {}, async function(er, files) {
   // Initial setup
   await cp.execSync(`node ./tests/initial-setup.js`, { stdio: "inherit" });
