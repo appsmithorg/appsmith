@@ -14,7 +14,7 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";

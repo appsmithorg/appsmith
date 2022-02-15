@@ -5,7 +5,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
-import { WARNING_LINT_ERRORS } from "./constants";
+import { LintTooltipDirection, WARNING_LINT_ERRORS } from "./constants";
 
 export const getIndexOfRegex = (
   str: string,
@@ -134,4 +134,20 @@ export const getLintSeverity = (
   const severity =
     code in WARNING_LINT_ERRORS ? Severity.WARNING : Severity.ERROR;
   return severity;
+};
+
+/* By default, lint tooltips are rendered to the right of the cursor
+if the tooltip overflows out of the page, we want to render it to the left of the cursor
+*/
+export const getLintTooltipDirection = (
+  tooltip: Element,
+): LintTooltipDirection => {
+  if (
+    tooltip.getBoundingClientRect().right >
+    (window.innerWidth || document.documentElement.clientWidth)
+  ) {
+    return LintTooltipDirection.left;
+  } else {
+    return LintTooltipDirection.right;
+  }
 };

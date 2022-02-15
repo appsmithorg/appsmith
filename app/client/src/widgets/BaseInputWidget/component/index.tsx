@@ -29,7 +29,7 @@ import _, { isNil } from "lodash";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.

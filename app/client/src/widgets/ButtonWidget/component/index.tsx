@@ -18,7 +18,7 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ThemeProp, Variant } from "components/ads/common";
 import { Colors } from "constants/Colors";
 import { Toaster } from "components/ads/Toast";

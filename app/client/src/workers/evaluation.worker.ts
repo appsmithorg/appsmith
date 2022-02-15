@@ -274,6 +274,7 @@ ctx.addEventListener(
           functionCall,
           evalTree,
           resolvedFunctions,
+          false,
           undefined,
         );
         return { errors, result };
@@ -285,7 +286,7 @@ ctx.addEventListener(
         // TODO find a way to do this for snippets
         return isTrigger
           ? evaluateAsync(expression, evalTree, "SNIPPET", {})
-          : evaluate(expression, evalTree, {});
+          : evaluate(expression, evalTree, {}, false);
       case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
         const { entity, entityId, entityType } = requestData;
         const replayObject = replayMap[entityId];

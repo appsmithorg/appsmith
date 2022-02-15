@@ -1,9 +1,7 @@
 import ReactPlayer from "react-player";
 import React, { Ref } from "react";
 import styled from "styled-components";
-import { ButtonBorderRadius } from "components/constants";
-import { createMessage, ENTER_VIDEO_URL } from "constants/messages";
-
+import { createMessage, ENTER_VIDEO_URL } from "@appsmith/constants/messages";
 export interface VideoComponentProps {
   url?: string;
   autoplay?: boolean;
@@ -18,7 +16,7 @@ export interface VideoComponentProps {
   onError?: () => void;
   player?: Ref<ReactPlayer>;
   backgroundColor?: string;
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   boxShadow?: string;
 }
 
@@ -31,7 +29,7 @@ const ErrorContainer = styled.div`
 `;
 
 const VideoWrapper = styled.div<{
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   boxShadow?: string;
 }>`
   & video {

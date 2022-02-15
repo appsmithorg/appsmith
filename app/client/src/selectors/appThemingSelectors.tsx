@@ -54,3 +54,13 @@ export const getSelectedAppThemeStylesheet = (state: AppState) => {
 export const getSelectedAppThemeProperties = (state: AppState) => {
   return state.ui.appTheming.selectedTheme.properties;
 };
+
+/**
+ * gets the value of `state.ui.appTheming.isSaving`
+ *
+ * @param state
+ * @returns
+ */
+export const getAppThemeIsChanging = (state: AppState) => {
+  return state.ui.appTheming.isChanging;
+};

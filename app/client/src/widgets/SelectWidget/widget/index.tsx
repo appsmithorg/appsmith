@@ -385,6 +385,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         onOptionSelected={this.onOptionSelected}
         options={options}
         placeholder={this.props.placeholderText}
+        primaryColor={this.props.primaryColor}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
         value={this.props.optionValue?.value}
@@ -453,6 +454,7 @@ export interface SelectWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor?: string;
 }
 
 export default SelectWidget;

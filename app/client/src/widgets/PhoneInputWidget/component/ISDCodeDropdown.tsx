@@ -177,6 +177,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   return (
     <>
       <Dropdown
+        closeOnSpace={false}
         containerClassName="country-type-filter"
         dropdownHeight="139px"
         dropdownTriggerIcon={dropdownTrigger}

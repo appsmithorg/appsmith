@@ -1,7 +1,5 @@
 import * as React from "react";
-import pick from "lodash/pick";
 
-import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -11,7 +9,9 @@ import CircularProgressComponent, {
 
 interface CircularProgressWidgetProps
   extends WidgetProps,
-    CircularProgressComponentProps {}
+    CircularProgressComponentProps {
+  borderRadius?: string;
+}
 
 class CircularProgressWidget extends BaseWidget<
   CircularProgressWidgetProps,
@@ -93,21 +93,12 @@ class CircularProgressWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <WidgetStyleContainer
-        {...pick(this.props, [
-          "widgetId",
-          "containerStyle",
-          "borderColor",
-          "borderWidth",
-        ])}
-      >
-        <CircularProgressComponent
-          counterClockwise={this.props.counterClockwise}
-          fillColor={this.props.fillColor}
-          progress={this.props.progress}
-          showResult={this.props.showResult}
-        />
-      </WidgetStyleContainer>
+      <CircularProgressComponent
+        counterClockwise={this.props.counterClockwise}
+        fillColor={this.props.fillColor}
+        progress={this.props.progress}
+        showResult={this.props.showResult}
+      />
     );
   }
 

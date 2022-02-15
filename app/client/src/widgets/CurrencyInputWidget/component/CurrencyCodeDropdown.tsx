@@ -33,12 +33,12 @@ const CurrencyIconWrapper = styled.span`
   height: 100%;
   display: flex;
   align-items: center;
-  padding: 0px 4px 0px 12px;
+  padding: 0 12px;
   position: absolute;
   left: 0;
   z-index: 16;
   font-size: 14px;
-  line-height: 18px;
+  line-height: inherit;
   letter-spacing: -0.24px;
   color: #090707;
 `;
@@ -68,6 +68,9 @@ export const PopoverStyles = createGlobalStyle<{
     props.portalClassName
   }  .${Classes.INPUT}:active {
       border: 1px solid ${props.primaryColor} !important;
+      box-shadow: 0px 0px 0px 3px ${lightenColor(
+        props.primaryColor,
+      )} !important;
     }
 
     .${props.portalClassName} .t--dropdown-option:hover,
@@ -167,6 +170,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   return (
     <>
       <Dropdown
+        closeOnSpace={false}
         containerClassName="currency-type-filter"
         dropdownHeight="139px"
         dropdownTriggerIcon={dropdownTriggerIcon}

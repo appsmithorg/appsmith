@@ -8,7 +8,7 @@ import {
   createMessage,
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;

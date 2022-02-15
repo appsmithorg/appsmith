@@ -13,7 +13,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 type Props = {
   isModalOpen: boolean;

@@ -74,8 +74,19 @@ const MenuButtonWrapper = styled.div`
   }
 `;
 
-const PopoverStyles = createGlobalStyle`
-  .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
+const PopoverStyles = createGlobalStyle<{
+  borderRadius?: string;
+}>`
+  .button-group-menu-popover, .button-group-menu-popover.${Classes.POPOVER2} {
+      background: none;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 8px !important;
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: none;
+      overflow: hidden;
+    }
+
+  .button-group-menu-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
 `;
@@ -183,6 +194,7 @@ export interface BaseStyleProps {
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   padding: 8px 10px !important;
+  border-radius: 0px;
   ${({ backgroundColor, theme }) =>
     backgroundColor
       ? `
@@ -323,7 +335,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
 
             return (
               <MenuButtonWrapper key={button.id}>
-                <PopoverStyles />
+                <PopoverStyles borderRadius={this.props.borderRadius} />
                 <Popover2
                   content={
                     <PopoverContent
@@ -335,7 +347,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   fill
                   minimal
                   placement="bottom-end"
-                  popoverClassName="menu-button-popover"
+                  popoverClassName="button-group-menu-popover"
                 >
                   <StyledButton
                     borderRadius={this.props.borderRadius}

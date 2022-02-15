@@ -5,6 +5,7 @@ import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export type AppThemingState = {
   isSaving: boolean;
+  isChanging: boolean;
   stack: AppThemingMode[];
   selectedTheme: AppTheme;
   themes: AppTheme[];
@@ -16,6 +17,7 @@ const initialState: AppThemingState = {
   stack: [],
   themes: [],
   isSaving: false,
+  isChanging: true,
   themesLoading: false,
   selectedThemeLoading: false,
   selectedTheme: {
@@ -83,10 +85,16 @@ const themeReducer = createImmerReducer(initialState, {
     state.isSaving = false;
     state.selectedTheme = action.payload;
   },
+  [ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT]: (
+    state: AppThemingState,
+  ) => {
+    state.isChanging = true;
+  },
   [ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<AppTheme>,
   ) => {
+    state.isChanging = false;
     state.selectedTheme = action.payload;
   },
   [ReduxActionTypes.DELETE_APP_THEME_SUCCESS]: (

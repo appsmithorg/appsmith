@@ -64,7 +64,9 @@ function ThemeEditor() {
             <div>
               <Dropdown>
                 <DropdownTrigger>
-                  <MoreIcon />
+                  <button className="p-1 hover:bg-gray-100 active:bg-gray-100">
+                    <MoreIcon className="w-5 h-5" />
+                  </button>
                 </DropdownTrigger>
                 <DropdownList>
                   <DropdownItem
@@ -85,7 +87,7 @@ function ThemeEditor() {
             className="t--change-theme-btn"
             onClick={onClickChangeThemeButton}
             size={Size.medium}
-            text="Choose a Theme"
+            text="Change Theme"
           />
         </div>
         <main className="mt-1">
