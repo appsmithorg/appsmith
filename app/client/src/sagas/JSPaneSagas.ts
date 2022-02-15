@@ -51,7 +51,7 @@ import {
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
   JS_FUNCTION_UPDATE_SUCCESS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";

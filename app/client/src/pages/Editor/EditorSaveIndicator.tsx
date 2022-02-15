@@ -11,7 +11,7 @@ import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import {
   createMessage,
   EDITOR_HEADER_SAVE_INDICATOR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
 

@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
@@ -113,6 +114,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
 
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Export application, with id: " + applicationId);
         /*
             1. Fetch application by id
             2. Fetch pages from the application
@@ -427,6 +430,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                 }
 
+                                processStopwatch.stopAndLogTimeInMillis();
                                 return applicationJson;
                             });
                 })
@@ -494,6 +498,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile);
+                })
+                .onErrorResume(error -> {
+                    if (error instanceof AppsmithException) {
+                        return Mono.error(error);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage()));
                 });
 
         return Mono.create(sink -> importedApplicationMono
@@ -534,6 +544,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             6. Extract and save pages in the application
             7. Extract and save actions in the application
          */
+
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Import application");
+
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         Map<String, String> pluginMap = new HashMap<>();
@@ -613,7 +627,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     // for this instance
                                     datasource.setDatasourceConfiguration(null);
                                     datasource.setPluginId(null);
-                                    BeanCopyUtils.copyNestedNonNullProperties(datasource, existingDatasource);
+                                    AppsmithBeanUtils.copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
                                     return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
@@ -662,7 +676,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
-                                                    BeanCopyUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
+                                                    AppsmithBeanUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // Here we are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
                                                     // rehydrate the application. We are now rehydrating the application with/without
@@ -860,7 +874,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     //Since the resource is already present in DB, just update resource
                                     NewAction existingAction = savedActionsGitIdToActionsMap.get(newAction.getGitSyncId());
                                     newAction.setId(savedActionsGitIdToActionsMap.get(newAction.getGitSyncId()).getId());
-                                    BeanCopyUtils.copyNestedNonNullProperties(newAction, existingAction);
+                                    AppsmithBeanUtils.copyNestedNonNullProperties(newAction, existingAction);
                                     return newActionService.update(newAction.getId(), existingAction);
                                 } else if(importedApplication.getGitApplicationMetadata() != null) {
                                     final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
@@ -983,7 +997,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                     //Since the resource is already present in DB, just update resource
                                     ActionCollection existingActionCollection = savedActionCollectionGitIdToCollectionsMap.get(actionCollection.getGitSyncId());
-                                    BeanCopyUtils.copyNestedNonNullProperties(actionCollection, existingActionCollection);
+                                    AppsmithBeanUtils.copyNestedNonNullProperties(actionCollection, existingActionCollection);
                                     return Mono.zip(
                                             Mono.just(importedActionCollectionId),
                                             actionCollectionService.update(existingActionCollection.getId(), existingActionCollection)
@@ -1070,7 +1084,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return mapActionIdWithPageLayout(newPage, actionIdMap)
                                         .flatMap(newPageService::save);
                             })
-                            .then(applicationService.update(importedApplication.getId(), importedApplication));
+                            .then(applicationService.update(importedApplication.getId(), importedApplication))
+                            .map(application -> {
+                                processStopwatch.stopAndLogTimeInMillis();
+                                return application;
+                            });
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
@@ -1167,7 +1185,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             //Since the resource is already present in DB, just update resource
                             NewPage existingPage = savedPagesGitIdToPageMap.get(newPage.getGitSyncId());
                             newPage.setId(savedPagesGitIdToPageMap.get(newPage.getGitSyncId()).getId());
-                            BeanCopyUtils.copyNestedNonNullProperties(newPage, existingPage);
+                            AppsmithBeanUtils.copyNestedNonNullProperties(newPage, existingPage);
                             return newPageService.update(newPage.getId(), existingPage);
                         } else if(application.getGitApplicationMetadata() != null) {
                             final String defaultApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
@@ -1385,7 +1403,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
         AuthenticationResponse authResponse = new AuthenticationResponse();
         if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
-            BeanCopyUtils.copyNestedNonNullProperties(
+            AppsmithBeanUtils.copyNestedNonNullProperties(
                     datasourceConfig.getAuthentication().getAuthenticationResponse(), authResponse);
             datasourceConfig.getAuthentication().setAuthenticationResponse(null);
             datasourceConfig.getAuthentication().setAuthenticationType(null);
