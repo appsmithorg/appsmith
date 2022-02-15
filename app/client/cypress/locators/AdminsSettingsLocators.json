@@ -16,7 +16,5 @@
   "textInput": ".t--admin-settings-text-input input",
   "instanceName": ".t--admin-settings-APPSMITH_INSTANCE_NAME input",
   "fromAddress": ".t--admin-settings-APPSMITH_MAIL_FROM input",
-  "restartNotice": ".t--admin-settings-restart-notice",
-  "breadcrumbList": ".t--breadcrumb-list",
-  "breadcrumbItem": ".t--breadcrumb-item"
+  "restartNotice": ".t--admin-settings-restart-notice"
 }
