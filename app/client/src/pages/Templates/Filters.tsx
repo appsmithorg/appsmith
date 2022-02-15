@@ -13,7 +13,6 @@ const Wrapper = styled.div`
   box-shadow: 1px 0px 0px #ededed;
   width: ${(props) => props.theme.homePage.sidebar}px;
   padding-left: 32px;
-  padding-top: 34px;
 
   .more {
     padding-left: 10px;
@@ -55,6 +54,10 @@ const ListWrapper = styled.div`
   margin-top: 10px;
 `;
 
+const FilterCategoryWrapper = styled.div`
+  padding-top: 34px;
+`;
+
 type Filter = {
   label: string;
   value?: string;
@@ -92,26 +95,27 @@ const useGetFilterList = (): Record<string, Filter[]> => {
     { label: "Start-up" },
     { label: "textile" },
   ];
-  // const useCases = [
-  //   "Support",
-  //   "Marketing",
-  //   "Sales",
-  //   "Finance",
-  //   "Information Technology (IT)",
-  //   "Human Resources (HR)",
-  //   "Communications",
-  //   "Legal",
-  //   "Public Relations (PR)",
-  //   "Product, design, and UX",
-  //   "Project Management",
-  //   "Personal",
-  //   "Remote work",
-  //   "Software Development",
-  // ];
+  const useCases = [
+    { label: "Support" },
+    { label: "Marketing" },
+    { label: "Sales" },
+    { label: "Finance" },
+    { label: "Information Technology (IT)" },
+    { label: "Human Resources (HR)" },
+    { label: "Communications" },
+    { label: "Legal" },
+    { label: "Public Relations (PR)" },
+    { label: "Product, design, and UX" },
+    { label: "Project Management" },
+    { label: "Personal" },
+    { label: "Remote work" },
+    { label: "Software Development" },
+  ];
   // const widgetConfigs = useSelector(getWidgetCards);
 
   const filters = {
     functions,
+    useCases,
   };
 
   return filters;
@@ -160,7 +164,7 @@ function FilterCategory({ filterList, label }: FilterCategoryProps) {
   };
 
   return (
-    <>
+    <FilterCategoryWrapper>
       <StyledFilterCategory type={TextType.BUTTON_MEDIUM}>
         {label.toLocaleUpperCase()}
       </StyledFilterCategory>
@@ -202,7 +206,7 @@ function FilterCategory({ filterList, label }: FilterCategoryProps) {
           </Text>
         )}
       </ListWrapper>
-    </>
+    </FilterCategoryWrapper>
   );
 }
 

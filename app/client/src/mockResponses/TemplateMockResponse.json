@@ -20,11 +20,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps"
+          "Technology", "Health Care"
         ],
         "useCases": [
           "Support",
-          "Admin"
+          "Marketing"
         ],
         "datasources": [
           "postgres-plugin",
@@ -54,11 +54,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps"
+          "Financials", "Consumer Discretionary"
         ],
         "useCases": [
-          "Support",
-          "Admin"
+          "Sales",
+          "Finance"
         ],
         "datasources": [
           "postgres-plugin",
@@ -85,11 +85,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps", "Test"
+          "Communication Services", "Industrials", "Consumer goods"
         ],
         "useCases": [
-          "Support",
-          "Admin"
+          "Information Technology (IT)",
+          "Human Resources (HR)"
         ],
         "datasources": [
           "postgres-plugin",
@@ -116,11 +116,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps"
+          "Energy", "Utilities"
         ],
         "useCases": [
-          "Support",
-          "Admin"
+          "Communications",
+          "Legal"
         ],
         "datasources": [
           "postgres-plugin",
@@ -147,11 +147,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps"
+          "Real Estate", "Materials"
         ],
         "useCases": [
-          "Support",
-          "Admin"
+          "Public Relations (PR)",
+          "Product, design, and UX"
         ],
         "datasources": [
           "postgres-plugin",
@@ -178,11 +178,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps", "Energy"
+          "Agriculture", "Services", "Energy"
         ],
         "useCases": [
-          "Support",
-          "Admin"
+          "Project Management",
+          "Personal"
         ],
         "datasources": [
           "postgres-plugin",
@@ -209,11 +209,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps"
+          "Other", "E-Commerce"
         ],
         "useCases": [
-          "Support",
-          "Admin"
+          "Remote work",
+          "Software Development"
         ],
         "datasources": [
           "postgres-plugin",
@@ -240,11 +240,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps"
+          "Start-up", "textile"
         ],
         "useCases": [
           "Support",
-          "Admin"
+          "Marketing"
         ],
         "datasources": [
           "postgres-plugin",
@@ -271,11 +271,11 @@
           "CHART_WIDGET"
         ],
         "functions": [
-          "Customer Support", "DevOps"
+          "Technology", "Health Care"
         ],
         "useCases": [
-          "Support",
-          "Admin"
+          "Sales",
+          "Finance"
         ],
         "datasources": [
           "postgres-plugin",

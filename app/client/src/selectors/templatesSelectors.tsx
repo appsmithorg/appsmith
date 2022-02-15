@@ -33,7 +33,7 @@ export const getFilteredTemplateList = createSelector(
   (templates, templatesFilters) => {
     if (Object.keys(templatesFilters).length) {
       return templates.filter((template) => {
-        return Object.keys(templatesFilters).some((filterKey) => {
+        return Object.keys(templatesFilters).every((filterKey) => {
           if (!templatesFilters[filterKey].length) return true;
 
           return templatesFilters[filterKey].every((value: string) =>
