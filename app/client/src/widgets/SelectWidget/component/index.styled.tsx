@@ -92,6 +92,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
 
     & > div {
       height: 100%;
+      overflow: hidden;
     }
   }
   &&&& .${Classes.BUTTON} {
