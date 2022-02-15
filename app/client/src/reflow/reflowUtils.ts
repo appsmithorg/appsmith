@@ -612,7 +612,7 @@ function ShouldAddToCollisionSpacesArray(
   const { [OGStaticSpace.id]: prevStaticSpace } = getModifiedOccupiedSpacesMap(
     { [OGStaticSpace.id]: { ...OGStaticSpace } },
     prevMovementMap,
-    isHorizontal,
+    !isHorizontal,
     gridProps,
     parallelMax,
     parallelMin,

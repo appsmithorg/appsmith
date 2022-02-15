@@ -20,13 +20,13 @@ import {
   VERTICAL_RESIZE_LIMIT,
 } from "./reflowTypes";
 import {
-  compareNumbers,
   filterCommonSpaces,
   flattenArrayToCollisionMap,
   getAccessor,
   getCollidingSpacesInDirection,
   getMaxX,
   getMaxY,
+  getModifiedOccupiedSpacesMap,
   getReflowDistance,
   getResizedDimension,
   getResizedDimensions,
@@ -47,6 +47,7 @@ import {
 export function getMovementMap(
   occupiedSpaces: OccupiedSpace[],
   OccupiedSpacesMap: SpaceMap,
+  OGOccupiedSpacesMap: SpaceMap,
   collidingSpaces: CollidingSpace[],
   collidingSpaceMap: CollisionMap,
   secondaryCollisionMap: SecondaryCollisionMap,
@@ -55,19 +56,23 @@ export function getMovementMap(
   shouldResize = true,
   movingSpacesArray: OccupiedSpace[], //can be named changedSpace
   globalDirection: ReflowDirection,
+  globalIsHorizontal: boolean,
   movingSpaceMap: SpaceMap,
   prevCollidingSpaceMap: CollidingSpaceMap,
   prevSpacesMap?: SpaceMap,
   prevMovementMap?: ReflowedSpaceMap,
   prevSecondaryCollisionMap?: SecondaryCollisionMap,
+  firstMovementMap?: ReflowedSpaceMap,
 ) {
-  const movementMap: ReflowedSpaceMap = {};
+  const movementMap: ReflowedSpaceMap = { ...firstMovementMap };
   const collisionTree = getCollisionTree(
     occupiedSpaces,
     OccupiedSpacesMap,
+    OGOccupiedSpacesMap,
     collidingSpaces,
     secondaryCollisionMap,
     globalDirection,
+    globalIsHorizontal,
     movingSpacesArray,
     collidingSpaceMap,
     prevCollidingSpaceMap,
@@ -202,9 +207,11 @@ export function getMovementMap(
 function getCollisionTree(
   occupiedSpaces: OccupiedSpace[],
   OccupiedSpacesMap: SpaceMap,
+  OGOccupiedSpacesMap: SpaceMap,
   collidingSpaces: CollidingSpace[],
   secondaryCollisionMap: SecondaryCollisionMap,
   globalDirection: ReflowDirection,
+  globalIsHorizontal: boolean,
   movingSpacesArray: OccupiedSpace[],
   collidingSpaceMap: CollisionMap,
   prevCollidingSpaceMap: CollidingSpaceMap,
@@ -215,17 +222,41 @@ function getCollisionTree(
 ) {
   const collisionTree: CollisionTree[] = [];
 
-  //sortCollidingSpacesByDistance(collidingSpaces, false);
-
   const globalCompletedTree: { [key: string]: boolean } = {};
+  let oppositeOrientationOccMap;
   for (let i = 0; i < collidingSpaces.length; i++) {
     const collidingSpace = collidingSpaces[i];
     const directionalAccessors = getAccessor(collidingSpace.direction);
+    let directionalOccupiedSpaces = occupiedSpaces;
+    let directionalOccupiedSpaceMap = OccupiedSpacesMap;
+    if (directionalAccessors.isHorizontal !== globalIsHorizontal) {
+      if (!oppositeOrientationOccMap)
+        oppositeOrientationOccMap = getModifiedOccupiedSpacesMap(
+          OGOccupiedSpacesMap,
+          prevMovementMap,
+          directionalAccessors.isHorizontal,
+          gridProps,
+          directionalAccessors.parallelMax,
+          directionalAccessors.parallelMin,
+        );
+      directionalOccupiedSpaceMap = { ...oppositeOrientationOccMap };
+      filterCommonSpaces(
+        { ...globalCompletedTree },
+        directionalOccupiedSpaceMap,
+      );
+      directionalOccupiedSpaces = Object.values(directionalOccupiedSpaceMap);
+      directionalOccupiedSpaces.sort((a, b) => {
+        return (
+          a[directionalAccessors.direction] - b[directionalAccessors.direction]
+        );
+      });
+    }
 
     if (!globalCompletedTree[collidingSpace.id]) {
       const currentCollisionTree = getCollisionTreeHelper(
-        occupiedSpaces,
-        OccupiedSpacesMap,
+        directionalOccupiedSpaces,
+        directionalOccupiedSpaceMap,
+        OGOccupiedSpacesMap,
         collidingSpace,
         directionalAccessors,
         collidingSpace.direction,
@@ -261,6 +292,7 @@ function getCollisionTree(
 function getCollisionTreeHelper(
   occupiedSpaces: OccupiedSpace[],
   OccupiedSpacesMap: SpaceMap,
+  OGOccupiedSpacesMap: SpaceMap,
   collidingSpace: CollidingSpace,
   accessors: CollisionAccessors,
   direction: ReflowDirection,
@@ -286,13 +318,13 @@ function getCollisionTreeHelper(
   const resizedDimensions = getResizedDimensions(collisionTree, accessors);
 
   const filteredMovingSpaces = movingSpacesArray.filter(
-    (a) =>
-      compareNumbers(
-        a[accessors.direction],
-        prevCollidingValue,
-        accessors.directionIndicator > 0,
-        true,
-      ) && a.id !== collidingSpace.collidingId,
+    (a) => a.id !== collidingSpace.collidingId,
+    // compareNumbers(
+    //   a[accessors.direction],
+    //   prevCollidingValue,
+    //   accessors.directionIndicator > 0,
+    //   true,
+    // ) && a.id !== collidingSpace.collidingId,
   );
   const {
     collidingSpaces,
@@ -342,22 +374,41 @@ function getCollisionTreeHelper(
       const currentDirection = currentCollidingSpace.direction;
       const currentAccessors = getAccessor(currentDirection);
       let currentOccSpaces = occupiedSpacesInDirection;
+      let clonedOccSpacesMap = { ...OccupiedSpacesMap };
+      let localCollidingSpace = { ...currentCollidingSpace };
       if (currentCollidingSpace.direction !== direction) {
-        const clonedOccSpacesMap = { ...OccupiedSpacesMap };
+        if (currentAccessors.isHorizontal !== accessors.isHorizontal) {
+          clonedOccSpacesMap = getModifiedOccupiedSpacesMap(
+            clonedOccSpacesMap,
+            prevMovementMap,
+            currentAccessors.isHorizontal,
+            gridProps,
+            currentAccessors.parallelMax,
+            currentAccessors.parallelMin,
+          );
+        }
+        localCollidingSpace = {
+          ...localCollidingSpace,
+          ...clonedOccSpacesMap[currentCollidingSpace.id],
+        };
         filterCommonSpaces(
           { ...globalProcessedNodes, ...currentProcessedNodes },
           clonedOccSpacesMap,
         );
         currentOccSpaces = Object.values(OccupiedSpacesMap);
+        currentOccSpaces.sort((a, b) => {
+          return a[currentAccessors.direction] - b[currentAccessors.direction];
+        });
       }
       const currentCollisionTree = getCollisionTreeHelper(
         currentOccSpaces,
-        OccupiedSpacesMap,
-        currentCollidingSpace,
+        clonedOccSpacesMap,
+        OGOccupiedSpacesMap,
+        localCollidingSpace,
         currentAccessors,
         currentDirection,
         globalProcessedNodes,
-        movingSpacesArray,
+        filteredMovingSpaces,
         resizedDimensions[accessors.direction],
         globalDirection,
         insertionIndex,

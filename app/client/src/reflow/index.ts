@@ -173,6 +173,7 @@ export function reflow(
     const { movementMap, movementVariablesMap } = getMovementMap(
       filteredOccupiedSpaces,
       directionalOccupiedSpacesMap,
+      OccupiedSpacesMap,
       collidingSpacesArray,
       collidingSpaceMap,
       secondaryCollisionMap,
@@ -181,6 +182,7 @@ export function reflow(
       shouldResize,
       newSpacesArray,
       currentDirection,
+      isHorizontal,
       newPositionsMap,
       prevCollidingSpaces,
       prevSpacesMap,
@@ -274,6 +276,7 @@ export function reflow(
     const { movementMap, movementVariablesMap } = getMovementMap(
       filteredOccupiedSpaces,
       directionalOccupiedSpacesMap,
+      OccupiedSpacesMap,
       secondCollidingSpacesArray,
       secondCollidingSpaceMap,
       secondaryCollisionMap,
@@ -282,11 +285,13 @@ export function reflow(
       shouldResize,
       newSpacesArray,
       currentDirection,
+      !isHorizontal,
       newPositionsMap,
       prevCollidingSpaces,
       prevSpacesMap,
       prevMovementMap,
       prevSecondaryCollisionMap,
+      firstMovementMap,
     );
     secondMovementMap = { ...movementMap };
     globalCollidingSpaces[
