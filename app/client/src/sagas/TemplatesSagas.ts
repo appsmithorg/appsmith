@@ -8,8 +8,8 @@ import { all, put, takeEvery, delay, call } from "redux-saga/effects";
 import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
 import TemplatesAPI from "api/TemplatesApi";
 import { BUILDER_PAGE_URL } from "constants/routes";
-import { getDefaultPageId } from "./selectors";
 import history from "utils/history";
+import { getDefaultPageId } from "./ApplicationSagas";
 
 function* getAllTemplatesSaga() {
   try {
@@ -39,16 +39,15 @@ function* importTemplateToOrganisationSaga(
 ) {
   try {
     const response = yield call(
-      TemplatesAPI.importTemplate(
-        action.payload.templateId,
-        action.payload.organizationId,
-      ),
+      TemplatesAPI.importTemplate,
+      action.payload.templateId,
+      action.payload.organizationId,
     );
     // const isValid = yield validateResponse(response);
     // console.log(isValid, "isValid");
     const application: ApplicationPayload = {
-      ...response.data,
-      defaultPageId: getDefaultPageId(response.data.pages),
+      ...response,
+      defaultPageId: getDefaultPageId(response.pages),
     };
     const pageURL = BUILDER_PAGE_URL({
       applicationId: application.id,
@@ -56,7 +55,7 @@ function* importTemplateToOrganisationSaga(
     });
     yield put({
       type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
-      payload: response.data,
+      payload: response,
     });
     history.push(pageURL);
     // if (isValid) {

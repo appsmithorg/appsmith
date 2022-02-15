@@ -3,6 +3,7 @@ import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Template } from "api/TemplatesApi";
 
 const initialState: TemplatesReduxState = {
+  isImportingTemplate: false,
   gettingAllTemplates: false,
   templates: [],
   filters: {},
@@ -47,6 +48,22 @@ const templateReducer = createReducer(initialState, {
       templateSearchQuery: action.payload,
     };
   },
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_INIT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingTemplate: true,
+    };
+  },
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingTemplate: false,
+    };
+  },
 });
 
 export interface TemplatesReduxState {
@@ -54,6 +71,7 @@ export interface TemplatesReduxState {
   templates: Template[];
   filters: Record<string, string[]>;
   templateSearchQuery: string;
+  isImportingTemplate: boolean;
 }
 
 export default templateReducer;

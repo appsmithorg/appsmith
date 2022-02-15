@@ -2,10 +2,15 @@ import React, { ReactNode, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import Dropdown from "components/ads/Dropdown";
 import Button, { Category, Size } from "components/ads/Button";
-import { useSelector } from "react-redux";
-import { getForkableOrganizations } from "selectors/templatesSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { noop } from "lodash";
+import {
+  getForkableOrganizations,
+  isImportingTemplateSelector,
+} from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import { importTemplateToOrganisation } from "actions/templateActions";
 
 const ButtonsWrapper = styled.div`
   display: flex;
@@ -29,25 +34,30 @@ interface ForkTemplateProps {
   templateId: string;
 }
 
-function ForkTemplate({ children, onClose, showForkModal }: ForkTemplateProps) {
+function ForkTemplate({
+  children,
+  onClose,
+  showForkModal,
+  templateId,
+}: ForkTemplateProps) {
   const organizationList = useSelector(getForkableOrganizations);
   const [selectedOrganization, setSelectedOrganization] = useState(
     organizationList[0],
   );
-
+  const isImportingTemplate = useSelector(isImportingTemplateSelector);
+  const dispatch = useDispatch();
   const onFork = () => {
-    // dispatch(
-    //   importTemplateToOrganisation(templateId, selectedOrganization.value),
-    // );
-    onClose();
+    dispatch(
+      importTemplateToOrganisation(templateId, selectedOrganization.value),
+    );
   };
 
   return (
     <StyledDialog
-      canOutsideClickClose
+      canOutsideClickClose={!isImportingTemplate}
       headerIcon={{ name: "fork", bgColor: "#E7E7E7" }}
       isOpen={showForkModal}
-      onClose={onClose}
+      onClose={isImportingTemplate ? noop : onClose}
       title="Choose where to fork the Template"
       trigger={children}
     >
@@ -66,12 +76,14 @@ function ForkTemplate({ children, onClose, showForkModal }: ForkTemplateProps) {
       <ButtonsWrapper>
         <Button
           category={Category.tertiary}
+          disabled={isImportingTemplate}
           onClick={onClose}
           size={Size.large}
           text="Cancel"
           type="button"
         />
         <Button
+          isLoading={isImportingTemplate}
           onClick={onFork}
           size={Size.large}
           text="FORK TEMPLATE"

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
@@ -18,6 +18,7 @@ import {
   getTemplateById,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
+import ForkTemplate from "./ForkTemplate";
 
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
@@ -146,6 +147,15 @@ function TemplateView() {
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const params = useParams<{ templateId: string }>();
   const currentTemplate = useSelector(getTemplateById(params.templateId));
+  const [showForkModal, setShowForkModal] = useState(false);
+
+  const onForkButtonTrigger = () => {
+    setShowForkModal(true);
+  };
+
+  const onForkModalClose = () => {
+    setShowForkModal(false);
+  };
 
   const navigateToTemplatesPage = () => {
     history.push(TEMPLATES_URL);
@@ -200,14 +210,20 @@ function TemplateView() {
                   {currentTemplate.description}
                 </Text>
               </div>
-              <Button
-                className="fork-button"
-                icon="fork"
-                iconPosition={IconPositions.left}
-                size={Size.large}
-                text="FORK THIS TEMPLATE"
-                width="228px"
-              />
+              <ForkTemplate
+                onClose={onForkModalClose}
+                showForkModal={showForkModal}
+              >
+                <Button
+                  className="fork-button"
+                  icon="fork"
+                  iconPosition={IconPositions.left}
+                  onClick={onForkButtonTrigger}
+                  size={Size.large}
+                  text="FORK THIS TEMPLATE"
+                  width="228px"
+                />
+              </ForkTemplate>
             </Section>
             <Section>
               <Text type={TextType.H1}>Function</Text>

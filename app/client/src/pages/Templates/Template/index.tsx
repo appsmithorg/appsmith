@@ -108,8 +108,8 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   };
 
   return (
-    <TemplateWrapper className={props.className}>
-      <ImageWrapper className="image-wrapper" onClick={onClick}>
+    <TemplateWrapper className={props.className} onClick={onClick}>
+      <ImageWrapper className="image-wrapper">
         <StyledImage src={TemplateSampleImage} />
       </ImageWrapper>
       <TemplateContent>
