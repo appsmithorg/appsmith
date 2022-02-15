@@ -50,7 +50,7 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { ExplorerURLParams } from "../Explorer/helpers";

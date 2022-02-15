@@ -19,7 +19,7 @@ import {
   COMMENTS,
   MARK_ALL_AS_READ,
   NO_NOTIFICATIONS_TO_SHOW,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import Button, { Category } from "components/ads/Button";
 import { getTypographyByKey } from "constants/DefaultTheme";

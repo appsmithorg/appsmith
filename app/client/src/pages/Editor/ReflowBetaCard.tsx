@@ -23,7 +23,7 @@ import {
   REFLOW_INFO_CARD_CONTENT_2,
   REFLOW_INFO_CARD_HEADER,
   REFLOW_LEARN_MORE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
@@ -34,12 +34,11 @@ const ReflowBetaWrapper = styled.div`
   .beta-icon {
     width: 45px;
     height: 25px;
-    fill: #1d9bd1;
     rect {
-      stroke: #1d9bd1;
+      stroke: #191919;
     }
     path {
-      fill: #fff;
+      fill: #191919;
     }
   }
 `;

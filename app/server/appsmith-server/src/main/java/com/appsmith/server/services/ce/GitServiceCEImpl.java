@@ -675,7 +675,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         )
                         .onErrorResume(error -> {
-                            log.error("Error while cloning the remote repo, {}", error.getMessage());
+                            log.error("Error while cloning the remote repo, ", error);
                             return addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CONNECT.getEventName(),
                                     application,
@@ -690,7 +690,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 if (error instanceof InvalidRemoteException) {
                                     return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
                                 }
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                if (error instanceof TimeoutException) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
                             });
                         });
                         return Mono.zip(
@@ -1249,7 +1252,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     return applicationService.save(srcApplication)
                             .flatMap(application1 ->
-                                    fileUtils.reconstructApplicationFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
+                                    fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(application1))
                             );
                 })
@@ -1384,7 +1387,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //3. Hydrate from file system to db
                     Application branchedApplication = objects.getT2();
                     MergeStatusDTO pullStatus = objects.getT1();
-                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationJsonFromGitRepo(
                             branchedApplication.getOrganizationId(),
                             branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                             branchedApplication.getGitApplicationMetadata().getRepoName(),
@@ -1707,7 +1710,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String mergeStatus = mergeStatusTuple.getT1();
 
                     //3. rehydrate from file system to db
-                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationJsonFromGitRepo(
                             defaultApplication.getOrganizationId(),
                             defaultApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                             defaultApplication.getGitApplicationMetadata().getRepoName(),
@@ -1998,7 +2001,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
                     Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
                     Mono<ApplicationJson> applicationJsonMono = fileUtils
-                            .reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
+                            .reconstructApplicationJsonFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
                             .onErrorResume(error -> {
                                 log.error("Error while constructing application from git repo", error);
                                 return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
@@ -2235,18 +2238,24 @@ public class GitServiceCEImpl implements GitServiceCE {
         String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
                 ? ""
                 : gitData.getDefaultApplicationId();
+        String gitHostingProvider = gitData == null
+                ? ""
+                : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
 
+        Map<String, Object> analyticsProps = new HashMap<>(Map.of("applicationId", defaultApplicationId,
+                "organizationId", defaultIfNull(application.getOrganizationId(), ""),
+                "branchApplicationId", defaultIfNull(application.getId(), ""),
+                "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
+                "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
+        ));
 
         return sessionUserService.getCurrentUser()
                 .map(user -> {
-                    final Map<String, Object> analyticsProps = Map.of(
-                            "applicationId", defaultApplicationId,
-                            "organizationId", defaultIfNull(application.getOrganizationId(), ""),
-                            "branchApplicationId", defaultIfNull(application.getId(), ""),
-                            "errorMessage", defaultIfNull(errorMessage, ""),
-                            "errorType", defaultIfNull(errorType, ""),
-                            "isRepoPrivate", defaultIfNull(isRepoPrivate, "")
-                    );
+                    // Do not include the error data points in the map for success states
+                    if(!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
+                        analyticsProps.put("errorMessage", errorMessage);
+                        analyticsProps.put("errorType", errorType);
+                    }
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
                 });
