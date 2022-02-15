@@ -11,7 +11,7 @@ import {
   JS_SETTINGS_ONPAGELOAD_SUBTEXT,
   JS_SETTINGS_CONFIRM_EXECUTION,
   JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const FormRow = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[10] + 1}px;
