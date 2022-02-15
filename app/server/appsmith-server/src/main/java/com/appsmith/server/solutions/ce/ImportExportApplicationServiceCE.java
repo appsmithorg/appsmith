@@ -54,6 +54,6 @@ public interface ImportExportApplicationServiceCE {
                                                       String applicationId,
                                                       String branchName);
 
-    Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId, List<Datasource> datasourceList);
+    Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId, String orgId);
 
 }

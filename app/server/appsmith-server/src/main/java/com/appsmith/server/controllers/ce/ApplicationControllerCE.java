@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -44,6 +45,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @RequestMapping(Url.APPLICATION_URL)
@@ -217,5 +219,11 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId) {
         return themeService.changeCurrentTheme(themeId, applicationId)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
+    }
+
+    @GetMapping("/import/{orgId}/datasources")
+    public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String orgId, @RequestParam String defaultApplicationId) {
+        return importExportApplicationService.findNonConfiguredDatasourceByApplicationId(defaultApplicationId, orgId)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }
