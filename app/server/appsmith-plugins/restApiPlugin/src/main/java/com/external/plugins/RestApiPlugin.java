@@ -71,6 +71,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -296,6 +297,8 @@ public class RestApiPlugin extends BasePlugin {
             // Initializing webClient to be used for http call
             final ConnectionProvider provider = ConnectionProvider
                     .builder("rest-api-provider")
+                    .maxIdleTime(Duration.ofSeconds(600))
+                    .maxLifeTime(Duration.ofSeconds(600))
                     .build();
 
             HttpClient httpClient = HttpClient.create(provider)
