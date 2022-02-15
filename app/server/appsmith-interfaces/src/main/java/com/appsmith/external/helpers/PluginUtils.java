@@ -6,10 +6,12 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ import static com.appsmith.external.constants.FieldName.VALUE;
 
 @Slf4j
 public class PluginUtils {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * - Regex to match everything inside double or single quotes, including the quotes.
@@ -279,5 +283,9 @@ public class PluginUtils {
         }
 
         return condition;
+    }
+
+    public static List<String> parseList(String arrayString) throws IOException {
+        return objectMapper.readValue(arrayString, ArrayList.class);
     }
 }
