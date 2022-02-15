@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -13,6 +14,8 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
@@ -40,6 +43,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -48,6 +52,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
+import reactor.netty.tcp.DefaultSslContextSpec;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
@@ -59,6 +66,9 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -281,7 +291,32 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
+            final ConnectionProvider provider = ConnectionProvider
+                    .builder("rest-api-provider")
+                    .build();
+
+            HttpClient httpClient = HttpClient.create(provider)
+                    .secure(sslContextSpec -> {
+
+                        final DefaultSslContextSpec sslContextSpec1 = DefaultSslContextSpec.forClient();
+
+                        if (datasourceConfiguration.getConnection() != null &&
+                                datasourceConfiguration.getConnection().getSsl() != null &&
+                                datasourceConfiguration.getConnection().getSsl().getAuthType() == SSLDetails.AuthType.SELF_SIGNED_CERTIFICATE) {
+
+                            sslContextSpec1.configure(sslContextBuilder -> {
+                                try {
+                                    final UploadedFile certificateFile = datasourceConfiguration.getConnection().getSsl().getCertificateFile();
+                                    sslContextBuilder.trustManager(SSLHelper.getSslTrustManagerFactory(certificateFile));
+                                } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
+                        sslContextSpec.sslContext(sslContextSpec1);
+                    });
+
+            WebClient.Builder webClientBuilder = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
 
             // Adding headers from datasource
             if (datasourceConfiguration.getHeaders() != null) {
