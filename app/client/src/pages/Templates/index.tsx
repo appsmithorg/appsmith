@@ -1,15 +1,22 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
+import { ControlGroup } from "@blueprintjs/core";
+import { debounce, noop } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
+import SearchInput, { SearchVariant } from "components/ads/SearchInput";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import { useDispatch, useSelector } from "react-redux";
 import { setHeaderMeta } from "actions/themeActions";
-import { getAllTemplates } from "actions/templateActions";
 import {
-  getFilteredTemplateList,
+  getAllTemplates,
+  setTemplateSearchQuery,
+} from "actions/templateActions";
+import {
   getOrganizationForTemplates,
+  getSearchedTemplateList,
+  getTemplateSearchQuery,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import { fetchPlugins } from "actions/pluginActions";
@@ -29,6 +36,7 @@ const ResultsCount = styled.div`
   color: #090707;
   margin-top: 26px;
   margin-left: 32px;
+  padding-bottom: 24px;
 `;
 
 const Loader = styled(TemplateListWrapper)`
@@ -46,6 +54,10 @@ const LoadingTemplateList = styled.div`
   margin-left: 32px;
 `;
 
+const SearchWrapper = styled.div`
+  margin-left: 25px;
+`;
+
 function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
@@ -60,6 +72,7 @@ function TemplateRoutes() {
   useEffect(() => {
     if (templateOrganization?.organization.id) {
       dispatch(fetchPlugins(templateOrganization?.organization.id));
+      dispatch(getAllTemplates());
     }
   }, [templateOrganization?.organization.id]);
 
@@ -72,22 +85,25 @@ function TemplateRoutes() {
 }
 
 function Templates() {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(getAllTemplates());
-  }, []);
-
-  const templates = useSelector(getFilteredTemplateList);
+  const templates = useSelector(getSearchedTemplateList);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
+  const templateSearchQuery = useSelector(getTemplateSearchQuery);
+  const dispatch = useDispatch();
   const resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
       : templates.length === 1
       ? "Showing 1 template"
       : "No templates to show";
+  const isLoading = isFetchingApplications || isFetchingTemplates;
 
-  if (isFetchingApplications || isFetchingTemplates) {
+  const onChange = (query: string) => {
+    dispatch(setTemplateSearchQuery(query));
+  };
+  const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
+
+  if (isLoading) {
     return (
       <Loader>
         <ResultsCount className={`results-count ${Classes.SKELETON}`} />
@@ -98,6 +114,18 @@ function Templates() {
 
   return (
     <TemplateListWrapper>
+      <SearchWrapper>
+        <ControlGroup>
+          <SearchInput
+            cypressSelector={"t--application-search-input"}
+            defaultValue={templateSearchQuery}
+            disabled={isLoading}
+            onChange={debouncedOnChange || noop}
+            placeholder={"Search templates"}
+            variant={SearchVariant.BACKGROUND}
+          />
+        </ControlGroup>
+      </SearchWrapper>
       <ResultsCount>{resultsText}</ResultsCount>
       <TemplateList templates={templates} />
     </TemplateListWrapper>

@@ -1,8 +1,17 @@
 import { Template } from "api/TemplatesApi";
+import Fuse from "fuse.js";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getOrganizationCreateApplication } from "./applicationSelectors";
 import { getPlugins } from "./entitiesSelector";
+
+const fuzzySearchOptions = {
+  keys: ["title"],
+  shouldSort: true,
+  threshold: 0.5,
+  location: 0,
+  distance: 100,
+};
 
 export const getTemplatesSelector = (state: AppState) =>
   state.ui.templates.templates;
@@ -45,6 +54,22 @@ export const getFilteredTemplateList = createSelector(
     }
 
     return templates;
+  },
+);
+
+export const getTemplateSearchQuery = (state: AppState) =>
+  state.ui.templates.templateSearchQuery;
+
+export const getSearchedTemplateList = createSelector(
+  getFilteredTemplateList,
+  getTemplateSearchQuery,
+  (templates, query) => {
+    if (!query) {
+      return templates;
+    }
+
+    const fuzzy = new Fuse(templates, fuzzySearchOptions);
+    return fuzzy.search(query);
   },
 );
 

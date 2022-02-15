@@ -6,6 +6,7 @@ const initialState: TemplatesReduxState = {
   gettingAllTemplates: false,
   templates: [],
   filters: {},
+  templateSearchQuery: "",
 };
 
 const templateReducer = createReducer(initialState, {
@@ -37,12 +38,22 @@ const templateReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.SET_TEMPLATE_SEARCH_QUERY]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      templateSearchQuery: action.payload,
+    };
+  },
 });
 
 export interface TemplatesReduxState {
   gettingAllTemplates: boolean;
   templates: Template[];
   filters: Record<string, string[]>;
+  templateSearchQuery: string;
 }
 
 export default templateReducer;

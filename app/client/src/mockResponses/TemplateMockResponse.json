@@ -67,37 +67,7 @@
         "active": true,
         "new": false
       },
-      {
-        "id": "61f447545bf0264436db038c",
-        "userPermissions": [],
-        "title": "Updated title",
-        "description": "An admin panel for reading from and writing to your customer data, built on PostgreSQL. This app lets you look through, edit, and add users, orders, and products. An admin panel for reading from and writing to your customer data, built on PostgreSQL. ",
-        "appUrl": "https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79",
-        "gifUrl": "http://gif.appsmith.com/images/hello",
-        "screenshotUrls": [
-          "http://gif.appsmith.com/images/hello"
-        ],
-        "widgets": [
-          "BUTTON_WIDGET",
-          "MAP_WIDGET",
-          "CHART_WIDGET"
-        ],
-        "functions": [
-          "Communication Services", "Industrials", "Consumer goods"
-        ],
-        "useCases": [
-          "Information Technology (IT)",
-          "Human Resources (HR)"
-        ],
-        "datasources": [
-          "postgres-plugin",
-          "mongo-plugin"
-        ],
-        "minVersion": "v1.6.8",
-        "minVersionPadded": "000010000600008",
-        "active": true,
-        "new": false
-      },
+      {"id":"620b83e770a9752ffb1ad2db","userPermissions":[],"title":"Fauna CRM","description":"Sample Application to demonstrate Fauna CRM","appUrl":"https://app.appsmith.com/applications/61f3b4ca9d6d6a6720c9844d/pages/61f3b4ca9d6d6a6720c98450","gifUrl":"https://www.animatedimages.org/data/media/202/animated-dog-image-0175.gif","screenshotUrls":["https://www.techsmith.com/blog/wp-content/uploads/2016/12/screenshot-example-show-data.png"],"widgets":["BUTTON_WIDGET","CHART_WIDGET"],"functions":["Customer management"],"useCases":["Admin"],"datasources":["smtp-plugin","google-sheets-plugin","restapi-plugin"],"minVersion":"v1.6.10","minVersionPadded":"000010000600010","downloadCount":0,"active":true,"new":false},
       {
         "id": "61f447545bf0264436db038d",
         "userPermissions": [],

@@ -6,19 +6,19 @@ import { Template as TemplateInterface } from "api/TemplatesApi";
 
 const Wrapper = styled.div`
   padding-top: 24px;
-  height: calc(100vh - ${(props) => props.theme.homePage.search.height}px);
+  height: calc(100vh - 180px);
   overflow: auto;
-  padding-right: 20px;
-  padding-left: 20px;
+  padding-right: 33px;
+  padding-left: 33px;
 
   .grid {
     display: flex;
-    margin-left: -20px;
+    margin-left: -33px;
     margin-top: 32px;
   }
 
   .grid_column {
-    padding-left: 20px;
+    padding-left: 33px;
   }
 `;
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
@@ -13,8 +13,7 @@ import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
 import DatasourceChip from "./DatasourceChip";
 import WidgetInfo from "./WidgetInfo";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllTemplates } from "actions/templateActions";
+import { useSelector } from "react-redux";
 import {
   getTemplateById,
   isFetchingTemplatesSelector,
@@ -144,14 +143,9 @@ const SimilarTemplatesWrapper = styled.div`
 `;
 
 function TemplateView() {
-  const dispatch = useDispatch();
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const params = useParams<{ templateId: string }>();
   const currentTemplate = useSelector(getTemplateById(params.templateId));
-
-  useEffect(() => {
-    dispatch(getAllTemplates());
-  }, []);
 
   const navigateToTemplatesPage = () => {
     history.push(TEMPLATES_URL);

@@ -16,6 +16,7 @@ const SubHeaderWrapper = styled.div`
   background: ${(props) => props.theme.colors.homepageBackground};
   z-index: ${Indices.Layer9};
   margin-left: 20px;
+  margin-top: 26px;
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;

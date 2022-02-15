@@ -11,3 +11,8 @@ export const filterTemplates = (category: string, filterList: string[]) => ({
     filterList,
   },
 });
+
+export const setTemplateSearchQuery = (query: string) => ({
+  type: ReduxActionTypes.SET_TEMPLATE_SEARCH_QUERY,
+  payload: query,
+});
