@@ -84,3 +84,15 @@ export const templatesDatasourceFiltersSelector = createSelector(
     });
   },
 );
+
+export const getForkableOrganizations = createSelector(
+  getOrganizationCreateApplication,
+  (organisations) => {
+    return organisations.map((organization) => {
+      return {
+        label: organization.organization.name,
+        value: organization.organization.id,
+      };
+    });
+  },
+);

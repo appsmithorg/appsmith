@@ -2,6 +2,7 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetType } from "constants/WidgetConstants";
+import { ApplicationResponsePayload } from "./ApplicationApi";
 
 // {
 //     "responseMeta": {
@@ -69,6 +70,10 @@ export interface FetchTemplateResponse extends ApiResponse {
   data: Template;
 }
 
+export interface ImportTemplateResponse extends ApiResponse {
+  data: ApplicationResponsePayload;
+}
+
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
 
@@ -79,6 +84,15 @@ class TemplatesAPI extends Api {
     templateId: string,
   ): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
+  }
+  static importTemplate(
+    templateId: string,
+    organizationId: string,
+  ): AxiosPromise<any> {
+    return Api.post(
+      TemplatesAPI.baseUrl +
+        `/app-templates/${templateId}/import/${organizationId}`,
+    );
   }
 }
 

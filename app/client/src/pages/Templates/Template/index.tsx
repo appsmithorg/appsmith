@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
 import Button, { Size } from "components/ads/Button";
 import { TEMPLATE_ID_URL } from "constants/routes";
+import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import TemplateSampleImage from "./template-test.png";
 import LargeTemplate from "./LargeTemplate";
@@ -92,13 +93,23 @@ export interface TemplateLayoutProps {
 
 export function TemplateLayout(props: TemplateLayoutProps) {
   const { datasources, description, functions, id, title } = props.template;
+  const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
     history.push(TEMPLATE_ID_URL(id));
   };
 
+  const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    setShowForkModal(true);
+  };
+
+  const onForkModalClose = () => {
+    setShowForkModal(false);
+  };
+
   return (
-    <TemplateWrapper className={props.className} onClick={onClick}>
-      <ImageWrapper className="image-wrapper">
+    <TemplateWrapper className={props.className}>
+      <ImageWrapper className="image-wrapper" onClick={onClick}>
         <StyledImage src={TemplateSampleImage} />
       </ImageWrapper>
       <TemplateContent>
@@ -116,7 +127,14 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               );
             })}
           </TemplateDatasources>
-          <StyledButton icon={"fork"} size={Size.large} />
+          <div onClick={onForkButtonTrigger}>
+            <ForkTemplateDialog
+              onClose={onForkModalClose}
+              showForkModal={showForkModal}
+            >
+              <StyledButton icon={"fork"} size={Size.large} />
+            </ForkTemplateDialog>
+          </div>
         </TemplateContentFooter>
       </TemplateContent>
     </TemplateWrapper>
