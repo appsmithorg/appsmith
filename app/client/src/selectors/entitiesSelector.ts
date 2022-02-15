@@ -628,6 +628,10 @@ export const selectAllPages = (state: AppState) => {
   return state.entities.pageList.pages;
 };
 
+export const getIsListing = (state: AppState) => {
+  return state.entities.datasources.isListing;
+};
+
 export const selectFilesForExplorer = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,

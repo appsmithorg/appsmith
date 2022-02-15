@@ -15,6 +15,7 @@ export interface DatasourceDataState {
   loading: boolean;
   isTesting: boolean;
   isDeleting: boolean;
+  isListing: boolean; // fetching unconfigured datasource list
   fetchingDatasourceStructure: boolean;
   isRefreshingStructure: boolean;
   structure: Record<string, DatasourceStructure>;
@@ -30,6 +31,7 @@ const initialState: DatasourceDataState = {
   loading: false,
   isTesting: false,
   isDeleting: false,
+  isListing: false,
   fetchingDatasourceStructure: false,
   isRefreshingStructure: false,
   structure: {},
@@ -351,7 +353,17 @@ const datasourceReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
+      isListing: false,
       unconfiguredList: action.payload,
+    };
+  },
+  [ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      isListing: true,
+      unconfiguredList: [],
     };
   },
 });

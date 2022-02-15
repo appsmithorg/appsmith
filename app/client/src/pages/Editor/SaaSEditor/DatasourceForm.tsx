@@ -88,7 +88,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     } = this.props;
 
     const params: string = location.search;
-    const viewMode = new URLSearchParams(params).get("viewMode");
+    const viewMode =
+      !hiddenHeader && new URLSearchParams(params).get("viewMode");
     return (
       <form
         onSubmit={(e) => {

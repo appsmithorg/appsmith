@@ -33,6 +33,7 @@ import {
 import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceDrafts,
+  getIsListing,
   getIsReconnectingDatasourcesModalOpen,
   getPluginImages,
   getPluginNames,
@@ -53,6 +54,8 @@ import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
+import { getDefaultPageId } from "sagas/ApplicationSagas";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const Container = styled.div`
   height: 804px;
@@ -252,6 +255,7 @@ function ReconnectDatasourceModal() {
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
   const datasourceDrafts = useSelector(getDatasourceDrafts);
+  const isLoading = useSelector(getIsListing);
 
   // getting query from redirection url
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -275,9 +279,25 @@ function ReconnectDatasourceModal() {
       if (queryAppId) {
         for (const org of userOrgs) {
           const { applications, organization } = org;
-          if (applications.find((app: any) => app.id === queryAppId)) {
+          const application = applications.find(
+            (app: any) => app.id === queryAppId,
+          );
+          if (application) {
             dispatch(setOrgIdForImport(organization.id));
             dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+            const defaultPageId = getDefaultPageId(application.pages);
+            if (defaultPageId) {
+              setPageId(defaultPageId);
+            }
+            if (!datasources.length) {
+              dispatch({
+                type: ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
+                payload: {
+                  applicationId: appId,
+                  orgId: organization.id,
+                },
+              });
+            }
             break;
           }
         }
@@ -420,7 +440,7 @@ function ReconnectDatasourceModal() {
                   );
                 })}
               </ListContainer>
-              {isConfigFetched && !datasouce?.isConfigured && (
+              {isConfigFetched && !isLoading && !datasouce?.isConfigured && (
                 <DatasourceForm
                   applicationId={appId}
                   datasourceId={selectedDatasourceId}
