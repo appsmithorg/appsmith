@@ -54,7 +54,7 @@ const Title = styled.div`
   align-items: center;
   padding-right: 4px;
   padding-left: 0.25rem;
-  font-size: 12px;
+  font-size: 14px;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
   }

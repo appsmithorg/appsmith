@@ -30,6 +30,10 @@ const ECAddButton = styled.div`
   svg {
     margin-right: 4px;
   }
+
+  &:hover {
+    background-color: ${Colors.GEYSER_LIGHT};
+  }
 `;
 
 export function EmptyComponent(props: {
