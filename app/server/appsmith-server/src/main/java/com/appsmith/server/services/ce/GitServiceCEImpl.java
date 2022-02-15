@@ -664,7 +664,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
                                                     application.getGitApplicationMetadata().getIsRepoPrivate()
                                             )
-                                            .flatMap(user -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
+                                            .flatMap(ignore -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
                                         }
                                         return Mono.just(application);
                                     });
@@ -1926,6 +1926,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return gitCloudServicesUtils.getPrivateRepoLimitForOrg(organizationId, true)
                             .flatMap(limitCount -> {
+                                // CS will respond with count -1 for unlimited git repos
+                                if (limitCount == -1) {
+                                    return Mono.just(gitAuth).zipWith(applicationMono);
+                                }
                                 // get git connected apps count from db
                                 return this.getApplicationCountWithPrivateRepo(organizationId)
                                         .flatMap(count -> {
