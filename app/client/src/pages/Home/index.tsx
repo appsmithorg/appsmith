@@ -13,11 +13,13 @@ import {
   APPLICATIONS_URL,
   TEMPLATES_URL,
   matchTemplatesPath,
+  TEMPLATES_ID_PATH,
 } from "constants/routes";
 import history from "utils/history";
 import Filters from "pages/Templates/Filters";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import LeftPaneTemplateList from "pages/Templates/LeftPaneTemplateList";
 
 const StyledDiv = styled.div`
   width: 100%;
@@ -55,7 +57,8 @@ function LeftPane() {
   return (
     <Switch>
       <SentryRoute component={ApplicationsLeftPane} path={APPLICATIONS_URL} />
-      <SentryRoute component={Filters} path={TEMPLATES_URL} />
+      <SentryRoute component={Filters} exact path={TEMPLATES_URL} />
+      <SentryRoute component={LeftPaneTemplateList} path={TEMPLATES_ID_PATH} />
     </Switch>
   );
 }

@@ -3,10 +3,8 @@ import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
-import history from "utils/history";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import Button, { IconPositions, Size } from "components/ads/Button";
-import { TEMPLATES_URL } from "constants/routes";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import Template from "./Template";
 import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
@@ -44,19 +42,6 @@ const Wrapper = styled.div`
 const TemplateViewWrapper = styled.div`
   padding-right: 32px;
   padding-left: 32px;
-`;
-
-const BreadCrumbs = styled.div`
-  margin-top: 30px;
-  .templates-text {
-    font-weight: normal;
-    color: #716e6e;
-    cursor: pointer;
-
-    :hover {
-      text-decoration: underline;
-    }
-  }
 `;
 
 const Title = styled(Text)`
@@ -157,10 +142,6 @@ function TemplateView() {
     setShowForkModal(false);
   };
 
-  const navigateToTemplatesPage = () => {
-    history.push(TEMPLATES_URL);
-  };
-
   if (isFetchingTemplates) {
     return (
       <Wrapper>
@@ -184,19 +165,6 @@ function TemplateView() {
   return (
     <Wrapper>
       <TemplateViewWrapper>
-        <BreadCrumbs>
-          <Text
-            className={"templates-text"}
-            onClick={navigateToTemplatesPage}
-            type={TextType.P0}
-          >
-            Templates{" "}
-          </Text>
-          <Text color={"#716E6E"} type={TextType.P0}>
-            &gt;
-          </Text>
-          <Text type={TextType.P0}> Job Application Tracker</Text>
-        </BreadCrumbs>
         <Title type={TextType.H4}>{currentTemplate.title}</Title>
         <IframeWrapper>
           <iframe height={"100%"} src={currentTemplate.appUrl} width={"100%"} />
