@@ -61,7 +61,7 @@ export default {
     if (!_.isNaN(parsedTriggeredRowIndex)) {
       index = parsedTriggeredRowIndex;
     }
-    
+
     const rows = filteredTableData || sanitizedTableData || [];
     const triggeredRow;
 
