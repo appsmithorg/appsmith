@@ -13,6 +13,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
+import _ from "lodash";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -129,6 +130,24 @@ class IconSelectControl extends BaseControl<
     };
   }
 
+  // debouncedSetState is used to fix the following bug:
+  // https://github.com/appsmithorg/appsmith/pull/10460#issuecomment-1022895174
+  private debouncedSetState = _.debounce(
+    (obj: any, callback?: () => void) => {
+      this.setState((prevState: IconSelectControlState) => {
+        return {
+          ...prevState,
+          ...obj,
+        };
+      }, callback);
+    },
+    300,
+    {
+      leading: true,
+      trailing: false,
+    },
+  );
+
   componentDidMount() {
     this.timer = setTimeout(() => {
       const iconSelectTargetElement = this.iconSelectTargetRef.current;
@@ -173,7 +192,8 @@ class IconSelectControl extends BaseControl<
             minimal: true,
             isOpen: this.state.isOpen,
             onInteraction: (state) => {
-              if (this.state.isOpen !== state) this.setState({ isOpen: state });
+              if (this.state.isOpen !== state)
+                this.debouncedSetState({ isOpen: state });
             },
           }}
         >
@@ -212,7 +232,10 @@ class IconSelectControl extends BaseControl<
       switch (e.key) {
         case "Tab":
           e.preventDefault();
-          this.setState({ isOpen: false });
+          this.setState({
+            isOpen: false,
+            activeIcon: this.props.propertyValue ?? NONE,
+          });
           break;
         case "ArrowDown":
         case "Down": {
@@ -265,17 +288,16 @@ class IconSelectControl extends BaseControl<
         case "Enter": {
           if (this.searchInput.current === document.activeElement) break;
           this.handleIconChange(this.filteredItems[this.initialItemIndex]);
-          setTimeout(() => {
-            // setTimeout is used to wait for asynchronous Popover rendering to catchup
-            // refer: Renering delays @ https://blueprintjs.com/docs/#core/components/popover.props
-            this.setState({ isOpen: false });
-          });
+          this.debouncedSetState({ isOpen: false });
           e.preventDefault();
           e.stopPropagation();
           break;
         }
         case "Escape": {
-          this.setState({ isOpen: false });
+          this.setState({
+            isOpen: false,
+            activeIcon: this.props.propertyValue ?? NONE,
+          });
           e.stopPropagation();
         }
       }
@@ -286,7 +308,7 @@ class IconSelectControl extends BaseControl<
         e.key === "ArrowDown" ||
         e.key === "Down")
     ) {
-      this.setState({ isOpen: true }, this.handleButtonClick);
+      this.debouncedSetState({ isOpen: true }, this.handleButtonClick);
     }
   };
 
