@@ -87,12 +87,6 @@ import {
 } from "actions/datasourceActions";
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
-import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
-import { getPluginForm } from "selectors/entitiesSelector";
-import { getConfigInitialValues } from "components/formControls/utils";
-
-import { merge } from "lodash";
-import DatasourcesApi from "api/DatasourcesApi";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
 const getDefaultPageId = (
@@ -588,9 +582,12 @@ function* showReconnectDatasourcesModalSaga(
   const { application, orgId, unConfiguredDatasourceList } = action.payload;
   yield put(getAllApplications());
   yield put(importApplicationSuccess(application));
+  yield put(fetchPlugins({ orgId }));
+
   yield put(
     setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
   );
+
   yield put(setOrgIdForImport(orgId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
@@ -683,26 +680,6 @@ function* fetchReleases() {
   }
 }
 
-function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  if (!datasource.datasourceConfiguration) {
-    yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
-    const formConfig = yield select(getPluginForm, datasource.pluginId);
-    const initialValues = yield call(getConfigInitialValues, formConfig);
-    const payload = merge(initialValues, datasource);
-    const response = yield DatasourcesApi.updateDatasource(
-      payload,
-      datasource.id,
-    );
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS,
-        payload: response.data,
-      });
-    }
-  }
-}
-
 function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
   const orgId = action.payload;
 
@@ -725,16 +702,6 @@ function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
     [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
   );
   if (!pluginFormCall) return;
-
-  const datasources: Array<Datasource> = yield select((state: AppState) => {
-    return state.entities.datasources.list;
-  });
-
-  yield all(
-    datasources.map((datasource: Datasource) =>
-      call(initializeDatasourceWithDefaultValues, datasource),
-    ),
-  );
 
   yield put(initDatasourceConnectionDuringImportSuccess());
 }

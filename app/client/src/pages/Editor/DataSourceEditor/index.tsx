@@ -111,7 +111,7 @@ class DataSourceEditor extends React.Component<Props> {
         pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
         setDatasourceEditorMode={setDatasourceEditorMode}
-        viewMode={viewMode}
+        viewMode={viewMode && !fromImporting}
       />
     );
   }
@@ -126,6 +126,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
+
   return {
     datasourceId,
     pluginImages: getPluginImages(state),
@@ -192,12 +193,14 @@ class DatasourceEditorRouter extends React.Component<Props> {
       return <EntityNotFoundPane />;
     }
 
+    const shouldViewMode = viewMode && !fromImporting;
     // Check for specific form types first
-    if (pluginDatasourceForm === "RestAPIDatasourceForm" && !viewMode) {
+    if (pluginDatasourceForm === "RestAPIDatasourceForm" && !shouldViewMode) {
       return (
         <RestAPIDatasourceForm
           applicationId={this.props.applicationId}
           datasourceId={datasourceId}
+          hiddenHeader={fromImporting}
           isDeleting={isDeleting}
           isNewDatasource={isNewDatasource}
           isSaving={isSaving}

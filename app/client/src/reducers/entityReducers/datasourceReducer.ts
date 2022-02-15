@@ -22,7 +22,7 @@ export interface DatasourceDataState {
   mockDatasourceList: any[];
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
-  unconfiguredList?: Datasource[];
+  unconfiguredList: Datasource[];
 }
 
 const initialState: DatasourceDataState = {
@@ -178,10 +178,17 @@ const datasourceReducer = createReducer(initialState, {
         }
         return datasource;
       });
+      const unconfiguredList = state.unconfiguredList.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, messages: action.payload.messages };
+        }
+        return datasource;
+      });
       return {
         ...state,
         isTesting: false,
         list: list,
+        unconfiguredList: unconfiguredList,
       };
     }
     return {
@@ -219,6 +226,11 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       loading: false,
       list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) return action.payload;
+
+        return datasource;
+      }),
+      unconfiguredList: state.unconfiguredList.map((datasource) => {
         if (datasource.id === action.payload.id) return action.payload;
 
         return datasource;
@@ -282,10 +294,17 @@ const datasourceReducer = createReducer(initialState, {
         }
         return datasource;
       });
+      const unconfiguredList = state.unconfiguredList.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, messages: action.payload.messages };
+        }
+        return datasource;
+      });
       return {
         ...state,
         isTesting: false,
         list: list,
+        unconfiguredList: unconfiguredList,
       };
     }
     return {
