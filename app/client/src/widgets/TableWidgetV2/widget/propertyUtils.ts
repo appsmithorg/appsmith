@@ -156,7 +156,7 @@ export function updateIconAlignment(
 }
 
 /*
- * Hooks that updates columns order when a new column
+ * Hook that updates columns order when a new column
  * gets added to the primaryColumns
  */
 export const updateColumnOrderHook = (
