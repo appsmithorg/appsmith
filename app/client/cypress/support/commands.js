@@ -1708,7 +1708,7 @@ Cypress.Commands.add("editColumn", (colId) => {
 Cypress.Commands.add(
   "readTabledataValidateCSS",
   (rowNum, colNum, cssProperty, cssValue) => {
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`;
     cy.get(selector).should("have.css", cssProperty, cssValue);
   },
 );
@@ -3040,13 +3040,13 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
 });
 
 Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`;
   return selector;
 });
 
 Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
@@ -3063,7 +3063,7 @@ Cypress.Commands.add("tablefirstdataRow", () => {
 });
 
 Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`;
   const tabVal = cy
     .get(selector)
     .scrollIntoView()
@@ -3072,7 +3072,7 @@ Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div .image-cell-wrapper .image-cell`;
   const bgUrl = cy.get(selector).should("have.css", "background-image");
   return bgUrl;
 });
