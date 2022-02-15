@@ -2030,20 +2030,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList()
-                        .flatMap(datasourceList -> importExportApplicationService.findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
-                                .map(datasources -> {
-                                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                                    applicationImportDTO.setApplication(application);
-                                    Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.FALSE)).count();
-                                    if (unConfiguredDatasource != 0) {
-                                        applicationImportDTO.setIsPartialImport(true);
-                                        applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                                    } else {
-                                        applicationImportDTO.setIsPartialImport(false);
-                                    }
-                                    return applicationImportDTO;
-                                })))
+                .flatMap(application -> importExportApplicationService.findNonConfiguredDatasourceByApplicationId(application.getId(), application.getOrganizationId())
+                        .map(datasources -> {
+                            ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                            applicationImportDTO.setApplication(application);
+                            Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.FALSE)).count();
+                            if (unConfiguredDatasource != 0) {
+                                applicationImportDTO.setIsPartialImport(true);
+                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                            } else {
+                                applicationImportDTO.setIsPartialImport(false);
+                            }
+                            return applicationImportDTO;
+                        }))
                 // Add analytics event
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();

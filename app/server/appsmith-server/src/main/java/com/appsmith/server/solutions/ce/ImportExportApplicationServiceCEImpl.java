@@ -496,21 +496,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return importApplicationInOrganization(orgId, jsonFile);
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList()
-                        .flatMap(datasourceList -> {
-                            return findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceList)
-                                    .map(datasources -> {
-                                        ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                                        applicationImportDTO.setApplication(application);
-                                        Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.FALSE)).count();
-                                        if (unConfiguredDatasource != 0) {
-                                            applicationImportDTO.setIsPartialImport(true);
-                                            applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                                        } else {
-                                            applicationImportDTO.setIsPartialImport(false);
-                                        }
-                                        return applicationImportDTO;
-                                    });
+                .flatMap(application -> findNonConfiguredDatasourceByApplicationId(application.getId(), orgId)
+                        .map(datasources -> {
+                            ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                            applicationImportDTO.setApplication(application);
+                            Long unConfiguredDatasource = datasources.stream().filter(datasource -> datasource.getIsConfigured().equals(Boolean.FALSE)).count();
+                            if (unConfiguredDatasource != 0) {
+                                applicationImportDTO.setIsPartialImport(true);
+                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                            } else {
+                                applicationImportDTO.setIsPartialImport(false);
+                            }
+                            return applicationImportDTO;
                         }));
 
         return Mono.create(sink -> importedApplicationMono
@@ -1553,10 +1550,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
     }
 
-    public Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId, List<Datasource> datasourceList) {
+    public Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId, String orgId) {
+        Mono<List<Datasource>> listMono = datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()
-                .flatMap(actionList -> {
+                .zipWith(listMono)
+                .flatMap(objects -> {
+                    List<Datasource> datasourceList = objects.getT2();
+                    List<NewAction> actionList = objects.getT1();
                     List<String> usedDatasource = actionList.stream()
                             .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
                             .collect(Collectors.toList());
