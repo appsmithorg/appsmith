@@ -61,9 +61,8 @@ export default {
     if (!_.isNaN(parsedTriggeredRowIndex)) {
       index = parsedTriggeredRowIndex;
     }
-
-    //TODO(balaji): Should check if we need to include filteredTableData
-    const rows = sanitizedTableData || [];
+    
+    const rows = filteredTableData || sanitizedTableData || [];
     const triggeredRow;
 
     //Note(Balaji): Need to include customColumn values in the triggeredRow (select, rating)
