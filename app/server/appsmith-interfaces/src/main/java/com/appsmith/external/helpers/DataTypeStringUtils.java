@@ -26,8 +26,6 @@ import reactor.core.Exceptions;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -67,7 +65,7 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        input = input.trim();
+        input = input.trim(); //We cannot do the replaceAll() here because it removes the comma of JSON objects too.
 
         if (input.startsWith("[") && input.endsWith("]")) {
             String betweenBraces = input.substring(1, input.length() - 1);
@@ -81,35 +79,32 @@ public class DataTypeStringUtils {
         }
 
         try {
-            Integer.parseInt(input);
+            //To handle comma delimited String Numbers
+            Integer.parseInt(input.replaceAll(",",""));
             return DataType.INTEGER;
         } catch (NumberFormatException e) {
             // Not an integer
         }
 
         try {
-            Long.parseLong(input);
+            Long.parseLong(input.replaceAll(",",""));
             return DataType.LONG;
         } catch (NumberFormatException e1) {
             // Not long
         }
 
         try {
-            Float.parseFloat(input);
+            Float.parseFloat(input.replaceAll(",",""));
             return DataType.FLOAT;
         } catch (NumberFormatException e2) {
             // Not float
         }
 
         try {
-            DecimalFormat decimalFmt = new DecimalFormat("###,###.###"); //to handle like 12,345,678.123456
-            decimalFmt.setParseBigDecimal(true);
-            decimalFmt.parse(input);
+            Double.parseDouble(input.replaceAll(",",""));
             return DataType.DOUBLE;
         } catch (NumberFormatException e3) {
             // Not double
-        } catch (ParseException e) {
-            // Not Double
         }
 
         // Creating a copy of the input in lower case form to do simple string equality to check for boolean/null types.

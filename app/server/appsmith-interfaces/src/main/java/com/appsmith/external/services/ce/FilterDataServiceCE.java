@@ -25,8 +25,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -816,6 +814,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             dataType = dataTypeConversionMap.getOrDefault(topRowDataType, topRowDataType);
         }
 
+        value = value.trim().replaceAll(",","");
+
         // Override datatype to null for empty values
         if (StringUtils.isEmpty(value)) {
             dataType = DataType.NULL;
@@ -830,8 +830,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             if (DataType.NULL.equals(inputDataType)) {
                 dataType = DataType.NULL;
             }
-            //We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error.
-            if (dataTypeConversionMap != null && inputDataType != dataType) {
+            //We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error, Allow String dataType
+            if ( dataTypeConversionMap != null && dataType != DataType.STRING && inputDataType != dataType) {
                 log.debug("DataType Error : [" + inputDataType + "] " + value + " is not of type " + dataType + " which is the datatype of the column, hence ignored in filter.");
                 dataType = DataType.NULL;
             }
@@ -853,9 +853,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 }
                 case FLOAT:
                 case DOUBLE: {
-                    DecimalFormat decimalFmt = new DecimalFormat("###,###.###"); //to handle like 12,345,678.123456
-                    decimalFmt.setParseBigDecimal(true);
-                    preparedStatement.setBigDecimal(index, (BigDecimal) decimalFmt.parse(value));
+                    preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
                     break;
                 }
                 case BOOLEAN: {
@@ -876,11 +874,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         } catch (IllegalArgumentException e) {
             // The data type recognized does not match the data type of the value being set via Prepared Statement
             // Add proper handling here.
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
-                    "Error while interacting with value " + value + " : " + e.getMessage() +
-                            ". The data type value was being parsed to was : " + dataType);
-        } catch (ParseException e) {
-            // To catch when it is not the right datatype
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
                     "Error while interacting with value " + value + " : " + e.getMessage() +
                             ". The data type value was being parsed to was : " + dataType);
