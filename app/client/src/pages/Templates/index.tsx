@@ -8,8 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { setHeaderMeta } from "actions/themeActions";
 import { getAllTemplates } from "actions/templateActions";
 import {
+  getFilteredTemplateList,
   getOrganizationForTemplates,
-  getTemplatesSelector,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import { fetchPlugins } from "actions/pluginActions";
@@ -77,13 +77,15 @@ function Templates() {
     dispatch(getAllTemplates());
   }, []);
 
-  const templates = useSelector(getTemplatesSelector);
+  const templates = useSelector(getFilteredTemplateList);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
-      : "Showing 1 template";
+      : templates.length === 1
+      ? "Showing 1 template"
+      : "No templates to show";
 
   if (isFetchingApplications || isFetchingTemplates) {
     return (

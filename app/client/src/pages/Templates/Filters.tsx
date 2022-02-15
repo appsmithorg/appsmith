@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useDispatch } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
 import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
+import { filterTemplates } from "actions/templateActions";
 
 const Wrapper = styled.div`
   overflow: auto;
@@ -53,40 +55,91 @@ const ListWrapper = styled.div`
   margin-top: 10px;
 `;
 
-interface FilterItemProps {
+type Filter = {
   label: string;
+  value?: string;
+};
+
+interface FilterItemProps {
+  item: Filter;
   onSelect: (item: string, action: string) => void;
 }
 
-function FilterItem({ label, onSelect }: FilterItemProps) {
+interface FilterCategoryProps {
+  label: string;
+  filterList: Filter[];
+}
+
+const useGetFilterList = (): Record<string, Filter[]> => {
+  const functions = [
+    {
+      label: "Technology",
+    },
+    { label: "Health Care" },
+    { label: "Financials" },
+    { label: "Consumer Discretionary" },
+    { label: "Communication Services" },
+    { label: "Industrials" },
+    { label: "Consumer goods" },
+    { label: "Energy" },
+    { label: "Utilities" },
+    { label: "Real Estate" },
+    { label: "Materials" },
+    { label: "Agriculture" },
+    { label: "Services" },
+    { label: "Other" },
+    { label: "E-Commerce" },
+    { label: "Start-up" },
+    { label: "textile" },
+  ];
+  // const useCases = [
+  //   "Support",
+  //   "Marketing",
+  //   "Sales",
+  //   "Finance",
+  //   "Information Technology (IT)",
+  //   "Human Resources (HR)",
+  //   "Communications",
+  //   "Legal",
+  //   "Public Relations (PR)",
+  //   "Product, design, and UX",
+  //   "Project Management",
+  //   "Personal",
+  //   "Remote work",
+  //   "Software Development",
+  // ];
+  // const widgetConfigs = useSelector(getWidgetCards);
+
+  const filters = {
+    functions,
+  };
+
+  return filters;
+};
+
+function FilterItem({ item, onSelect }: FilterItemProps) {
   const [selected, setSelected] = useState(false);
 
   const onClick = () => {
     const action = selected ? "remove" : "add";
-    onSelect(label, action);
+    onSelect(item?.value ?? item.label, action);
     setSelected((selected) => !selected);
   };
 
   return (
     <StyledFilterItem onClick={onClick} selected={selected}>
       <Text color="#121826" type={TextType.P1}>
-        {label}
+        {item.label}
       </Text>
       {selected && <Icon name={"close-x"} size={IconSize.SMALL} />}
     </StyledFilterItem>
   );
 }
 
-function Filters() {
-  const filters: string[] = [
-    "Customer Support",
-    "Data & Analytics",
-    "DevOps",
-    "Api",
-    "DevOps",
-  ];
+function FilterCategory({ filterList, label }: FilterCategoryProps) {
   const [selectedItems, setSelectedItem] = useState<string[]>([]);
   const [expand, setExpand] = useState(false);
+  const dispatch = useDispatch();
   const onSelect = (item: string, type: string) => {
     if (type === "add") {
       setSelectedItem((selectedItems) => [...selectedItems, item]);
@@ -95,20 +148,27 @@ function Filters() {
         selectedItems.filter((selectedItem) => selectedItem !== item),
       );
     }
+    dispatch(filterTemplates(label, selectedItems));
   };
+
+  useEffect(() => {
+    dispatch(filterTemplates(label, selectedItems));
+  }, [selectedItems]);
 
   const toggleExpand = () => {
     setExpand((expand) => !expand);
   };
 
   return (
-    <Wrapper>
+    <>
       <StyledFilterCategory type={TextType.BUTTON_MEDIUM}>
-        FUNCTION
+        {label.toLocaleUpperCase()}
       </StyledFilterCategory>
       <ListWrapper>
-        {filters.slice(0, 3).map((filter) => {
-          return <FilterItem key={filter} label={filter} onSelect={onSelect} />;
+        {filterList.slice(0, 3).map((filter) => {
+          return (
+            <FilterItem item={filter} key={filter.label} onSelect={onSelect} />
+          );
         })}
         {!expand && (
           <Text
@@ -117,13 +177,17 @@ function Filters() {
             type={TextType.BUTTON_SMALL}
             underline
           >
-            + {filters.slice(3).length} MORE
+            + {filterList.slice(3).length} MORE
           </Text>
         )}
         <Collapse isOpen={expand}>
-          {filters.slice(3).map((filter) => {
+          {filterList.slice(3).map((filter) => {
             return (
-              <FilterItem key={filter} label={filter} onSelect={onSelect} />
+              <FilterItem
+                item={filter}
+                key={filter.label}
+                onSelect={onSelect}
+              />
             );
           })}
         </Collapse>
@@ -138,6 +202,24 @@ function Filters() {
           </Text>
         )}
       </ListWrapper>
+    </>
+  );
+}
+
+function Filters() {
+  const filters = useGetFilterList();
+
+  return (
+    <Wrapper>
+      {Object.keys(filters).map((filter) => {
+        return (
+          <FilterCategory
+            filterList={filters[filter]}
+            key={filter}
+            label={filter}
+          />
+        );
+      })}
     </Wrapper>
   );
 }

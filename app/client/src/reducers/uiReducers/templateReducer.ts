@@ -5,6 +5,7 @@ import { Template } from "api/TemplatesApi";
 const initialState: TemplatesReduxState = {
   gettingAllTemplates: false,
   templates: [],
+  filters: {},
 };
 
 const templateReducer = createReducer(initialState, {
@@ -24,11 +25,24 @@ const templateReducer = createReducer(initialState, {
       templates: action.payload,
     };
   },
+  [ReduxActionTypes.UPDATE_TEMPLATE_FILTERS]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<{ category: string; filterList: string[] }>,
+  ) => {
+    return {
+      ...state,
+      filters: {
+        ...state.filters,
+        [action.payload.category]: action.payload.filterList,
+      },
+    };
+  },
 });
 
 export interface TemplatesReduxState {
   gettingAllTemplates: boolean;
   templates: Template[];
+  filters: Record<string, string[]>;
 }
 
 export default templateReducer;
