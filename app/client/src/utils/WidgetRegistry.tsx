@@ -146,6 +146,9 @@ import ProgressWidget, {
 } from "widgets/ProgressWidget";
 import { registerWidget } from "./WidgetRegisterHelpers";
 import { WidgetConfiguration } from "widgets/constants";
+import TableWidgetV2, {
+  CONFIG as TABLE_WIDGET_CONFIG_V2,
+} from "widgets/TableWidgetV2";
 
 export const ALL_WIDGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -203,6 +206,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG],
   [ProgressWidget, PROGRESS_WIDGET_CONFIG],
   [CircularProgressWidget, CIRCULAR_PROGRESS_WIDGET_CONFIG],
+  [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
   /*
    * If a newly added widget works well inside the list widget,
    * please add widget type in the List widget's allowed widget
