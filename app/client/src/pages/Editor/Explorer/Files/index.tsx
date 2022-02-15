@@ -18,6 +18,7 @@ import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { Colors } from "constants/Colors";
 import {
+  comboHelpText,
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
@@ -92,7 +93,12 @@ function Files() {
 
   return (
     <Entity
-      addButtonHelptext={createMessage(ADD_QUERY_JS_TOOLTIP)}
+      addButtonHelptext={
+        <>
+          {createMessage(ADD_QUERY_JS_TOOLTIP)} (
+          {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+        </>
+      }
       alwaysShowRightIcon
       className={`group files`}
       disabled={false}

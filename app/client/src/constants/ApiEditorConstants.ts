@@ -5,7 +5,7 @@ import { zipObject } from "lodash";
 export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
 const HTTP_METHOD_COLORS = [
   "#457AE6",
-  "#EABB0C",
+  "#FEB811",
   "#5BB749",
   "#E22C2C",
   "#6D6D6D",

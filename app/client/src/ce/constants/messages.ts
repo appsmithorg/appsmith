@@ -931,7 +931,7 @@ export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
-export const ADD_QUERY_JS_TOOLTIP = () => "Add a new Query, API or JS Object";
+export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
