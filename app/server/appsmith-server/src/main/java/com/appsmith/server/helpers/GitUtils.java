@@ -21,13 +21,14 @@ public class GitUtils {
      * @param sshUrl ssh url of repo
      * @return https url supported by curl command extracted from ssh repo url
      */
-    public static String convertSshUrlToHttpsCurlSupportedUrl(String sshUrl) {
+    public static String convertSshUrlToBrowserSupportedUrl(String sshUrl) {
         if (StringUtils.isEmptyOrNull(sshUrl)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
         }
         return sshUrl
                 .replaceFirst("git@", "https://")
                 .replaceFirst("\\.com:", ".com/")
+                .replaceFirst("\\.org:", ".org/")
                 .replaceFirst("\\.git", "");
     }
 
@@ -62,5 +63,21 @@ public class GitUtils {
         int responseCode = huc.getResponseCode();
 
         return !(HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_ACCEPTED == responseCode);
+    }
+
+    /**
+     * Sample repo urls :
+     * git@gitPlatform.com:user/repoName.git
+     * gitPlatform
+     *
+     * @param sshUrl ssh url of repo
+     * @return git hosting provider
+     */
+    public static String getGitProviderName(String sshUrl) {
+        if(StringUtils.isEmptyOrNull(sshUrl)) {
+            return "";
+        }
+        return sshUrl.split("\\.")[0]
+                .replaceFirst("git@", "");
     }
 }

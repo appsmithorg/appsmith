@@ -29,7 +29,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
       <ButtonTabComponent
         options={options}
         selectButton={this.selectButton}
-        values={propertyValue ? propertyValue : []}
+        values={propertyValue ? propertyValue.split(",") : []}
       />
     );
   }

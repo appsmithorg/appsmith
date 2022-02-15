@@ -122,6 +122,8 @@ export const getIsMergeInProgress = (state: AppState) =>
 export const getTempRemoteUrl = (state: AppState) =>
   state.ui.gitSync.tempRemoteUrl;
 
+export const getMergeError = (state: AppState) => state.ui.gitSync.mergeError;
+
 export const getCountOfChangesToCommit = (state: AppState) => {
   const gitStatus = getGitStatus(state);
   const { modifiedPages = 0, modifiedQueries = 0 } = gitStatus || {};
@@ -136,3 +138,38 @@ export const getDisconnectingGitApplication = (state: AppState) =>
 
 export const getUseGlobalProfile = (state: AppState) =>
   state.ui.gitSync.useGlobalProfile;
+
+const FALLBACK_GIT_SYNC_DOCS_URL =
+  "https://docs.appsmith.com/core-concepts/git-sync";
+
+// git connect ssh key deploy url
+export const getSSHKeyDeployDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  FALLBACK_GIT_SYNC_DOCS_URL;
+
+// git connect remote url
+export const getRemoteUrlDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  FALLBACK_GIT_SYNC_DOCS_URL;
+
+// git deploy conflict doc url
+export const getConflictFoundDocUrlDeploy = (state: AppState) =>
+  state.ui.gitSync.pullError?.error?.referenceDoc || FALLBACK_GIT_SYNC_DOCS_URL;
+
+// git deploy conflict doc url
+export const getConflictFoundDocUrlMerge = (state: AppState) =>
+  state.ui.gitSync.mergeStatus?.referenceDoc ||
+  state.ui.gitSync.mergeError?.error?.referenceDoc ||
+  FALLBACK_GIT_SYNC_DOCS_URL;
+
+// git disconnect learn more doc url
+export const getDisconnectDocUrl = () =>
+  "https://docs.appsmith.com/core-concepts/git-sync#disconnecting-the-git-repository";
+
+export const getConnectingErrorDocUrl = (state: AppState) =>
+  state.ui.gitSync.connectError?.error.referenceDoc ||
+  FALLBACK_GIT_SYNC_DOCS_URL;
+
+export const getUpstreamErrorDocUrl = (state: AppState) =>
+  state.ui.gitSync.commitAndPushError?.error?.referenceDoc ||
+  FALLBACK_GIT_SYNC_DOCS_URL;

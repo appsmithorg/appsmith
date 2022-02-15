@@ -182,7 +182,7 @@ export const createDummyJSCollectionActions = (
   organizationId: string,
 ) => {
   const body =
-    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: () => {\n\t\t//write code here\n\t}\n}";
+    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//do async stuff here or use JS promises\n\t}\n}";
 
   const actions = [
     {

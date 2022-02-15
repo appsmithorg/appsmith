@@ -8,7 +8,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
-
+const clone = require("rfdc/default");
 declare global {
   interface Window {
     ALLOW_ASYNC?: boolean;
@@ -120,34 +120,37 @@ const DATA_TREE_FUNCTIONS: Record<
         onError?: () => unknown,
         params = {},
       ): ActionDescriptionWithExecutionType {
-        const isOldSignature =
-          typeof onSuccessOrParams === "function" ||
-          typeof onError === "function";
+        const noArguments =
+          !onSuccessOrParams && !onError && isTrueObject(params);
+        const isNewSignature = noArguments || isTrueObject(onSuccessOrParams);
 
-        if (isOldSignature) {
-          // Backwards compatibility
+        const actionParams = isTrueObject(onSuccessOrParams)
+          ? onSuccessOrParams
+          : params;
+
+        if (isNewSignature) {
           return {
             type: ActionTriggerType.RUN_PLUGIN_ACTION,
             payload: {
               actionId: isAction(entity) ? entity.actionId : "",
-              onSuccess: onSuccessOrParams
-                ? onSuccessOrParams.toString()
-                : undefined,
-              onError: onError ? onError.toString() : undefined,
-              params,
-            },
-            executionType: ExecutionType.TRIGGER,
-          };
-        } else {
-          return {
-            type: ActionTriggerType.RUN_PLUGIN_ACTION,
-            payload: {
-              actionId: isAction(entity) ? entity.actionId : "",
-              params: isTrueObject(onSuccessOrParams) ? onSuccessOrParams : {},
+              params: actionParams,
             },
             executionType: ExecutionType.PROMISE,
           };
         }
+        // Backwards compatibility
+        return {
+          type: ActionTriggerType.RUN_PLUGIN_ACTION,
+          payload: {
+            actionId: isAction(entity) ? entity.actionId : "",
+            onSuccess: onSuccessOrParams
+              ? onSuccessOrParams.toString()
+              : undefined,
+            onError: onError ? onError.toString() : undefined,
+            params: actionParams,
+          },
+          executionType: ExecutionType.TRIGGER,
+        };
       },
   },
   clear: {
@@ -260,9 +263,8 @@ export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
   requestId = "",
 ): DataTree => {
-  const withFunction: DataTree = _.cloneDeep(dataTree);
+  const clonedDT = clone(dataTree);
   self.TRIGGER_COLLECTOR = [];
-
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
       typeof funcOrFuncCreator === "object" &&
@@ -274,7 +276,7 @@ export const enhanceDataTreeWithFunctions = (
           const funcName = `${funcOrFuncCreator.path ||
             `${entityName}.${name}`}`;
           _.set(
-            withFunction,
+            clonedDT,
             funcName,
             pusher.bind(
               {
@@ -288,7 +290,7 @@ export const enhanceDataTreeWithFunctions = (
       });
     } else {
       _.set(
-        withFunction,
+        clonedDT,
         name,
         pusher.bind(
           {
@@ -301,7 +303,7 @@ export const enhanceDataTreeWithFunctions = (
     }
   });
 
-  return withFunction;
+  return clonedDT;
 };
 
 /**

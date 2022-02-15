@@ -13,6 +13,7 @@ describe("Dropdown Widget Functionality", function() {
   });
 
   it("1. Dropdown-Modal Validation", function() {
+    cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
     cy.testJsontext("options", JSON.stringify(data.input));
     //creating the Modal and verify Modal name
@@ -44,6 +45,7 @@ describe("Dropdown Widget Functionality", function() {
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
+    cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
     // Adding the api in the onClickAction of the button widget.
     cy.addAPIFromLightningMenu("dropdownApi");
@@ -96,7 +98,7 @@ describe("Dropdown Widget Functionality", function() {
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("selectwidget");
     // Adding the query in the onClickAction of the button widget.
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
@@ -154,7 +156,7 @@ describe("Dropdown Widget Functionality", function() {
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
     cy.get(publish.backToEditor).click();
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("selectwidget");
     // Click on onOptionChange JS button
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
     cy.get(commonlocators.dropdownSelectButton)

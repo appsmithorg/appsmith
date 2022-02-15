@@ -25,6 +25,7 @@ module.exports = {
     "^worker-loader!": "<rootDir>/test/__mocks__/workerMock.js",
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
+    "@appsmith/(.*)": "<rootDir>/src/ee/$1",
   },
   globals: {
     "ts-jest": {
@@ -41,6 +42,8 @@ module.exports = {
       },
       enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__"),
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
+      disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
+      disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),

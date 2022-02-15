@@ -11,7 +11,7 @@ import {
   FETCH_GIT_STATUS,
   IS_MERGING,
   MERGED_SUCCESSFULLY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled from "styled-components";
@@ -19,9 +19,11 @@ import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import {
+  getConflictFoundDocUrlMerge,
   getGitBranches,
   getGitStatus,
   getIsFetchingGitStatus,
+  getMergeError,
   getMergeStatus,
 } from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
@@ -51,6 +53,7 @@ import { Colors } from "constants/Colors";
 
 import { useTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Row = styled.div`
   display: flex;
@@ -87,6 +90,7 @@ export default function Merge() {
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
   const gitStatus: any = useSelector(getGitStatus);
+  const mergeError = useSelector(getMergeError);
   const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   let mergeStatusMessage = !gitStatus?.isClean
@@ -157,6 +161,9 @@ export default function Merge() {
   };
 
   const mergeHandler = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_MERGE_CHANGES_BUTTON_CLICK", {
+      source: "GIT_MERGE_MODAL",
+    });
     if (currentBranch && selectedBranchOption.value) {
       dispatch(
         mergeBranchInit({
@@ -191,6 +198,7 @@ export default function Merge() {
           destinationBranch: selectedBranchOption.value,
         }),
       );
+      setShowMergeSuccessIndicator(false);
     }
   }, [currentBranch, selectedBranchOption.value, dispatch]);
 
@@ -212,10 +220,16 @@ export default function Merge() {
     status = MERGE_STATUS_STATE.MERGEABLE;
   } else if (mergeStatus && !mergeStatus?.isMergeAble) {
     status = MERGE_STATUS_STATE.NOT_MERGEABLE;
+  } else if (mergeError) {
+    status = MERGE_STATUS_STATE.ERROR;
+    mergeStatusMessage = mergeError.error.message;
   }
 
+  // should check after added error code for conflicting
   const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
-  const showMergeButton = !isConflicting && !isFetchingGitStatus && !isMerging;
+  const showMergeButton =
+    !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
+  const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
 
   return (
     <>
@@ -256,7 +270,10 @@ export default function Merge() {
       </Row>
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
-      <ConflictInfo isConflicting={isConflicting} />
+      <ConflictInfo
+        isConflicting={isConflicting}
+        learnMoreLink={gitConflictDocumentUrl}
+      />
       {showMergeSuccessIndicator ? (
         <MergeSuccessIndicator />
       ) : (

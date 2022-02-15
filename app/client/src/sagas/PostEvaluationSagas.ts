@@ -3,6 +3,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
+  getDataTreeWithoutPrivateWidgets,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -33,7 +34,7 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
 import { getAppMode } from "selectors/applicationSelectors";
@@ -367,7 +368,13 @@ export function* updateTernDefinitions(
   }
   if (shouldUpdate) {
     const start = performance.now();
-    const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
+    // remove private widgets from dataTree used for autocompletion
+    const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+      dataTree,
+    );
+    const { def, entityInfo } = dataTreeTypeDefCreator(
+      treeWithoutPrivateWidgets,
+    );
     TernServer.updateDef("DATA_TREE", def, entityInfo);
     const end = performance.now();
     log.debug("Tern", { updates });

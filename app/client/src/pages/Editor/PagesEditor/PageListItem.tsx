@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
-import React, { useCallback } from "react";
+import React, { useCallback, DragEvent } from "react";
 
 import {
   updatePage,
@@ -25,7 +25,7 @@ import {
   DEFAULT_PAGE_TOOLTIP,
   DELETE_TOOLTIP,
   HIDDEN_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 
@@ -83,6 +83,15 @@ export interface PageListItemProps {
   item: Page;
 }
 
+const disableDrag = {
+  // Draggable true is required to invoke onDragStart
+  draggable: true,
+  onDragStart: (e: DragEvent<HTMLDivElement>) => {
+    // Stop drag event propagation to prevent click events
+    e.stopPropagation();
+  },
+};
+
 function PageListItem(props: PageListItemProps) {
   const theme = useTheme();
   const { item } = props;
@@ -139,7 +148,10 @@ function PageListItem(props: PageListItemProps) {
           width={20}
         />
         <EditName page={item} />
-        <Actions>
+        {/* Disabling drag on action items as attempting to drag also invokes the click event.
+         Clicks events in child elements could be disabled once we upgrade react-use-gesture to
+         the latest version */}
+        <Actions {...disableDrag}>
           {item.isDefault && (
             <TooltipComponent
               content={createMessage(DEFAULT_PAGE_TOOLTIP)}

@@ -141,7 +141,7 @@ const pageWidgetUIInitialState = {
       version: 1,
       resetOnSubmit: true,
       placeholderText: "Type your update and hit enter!",
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       isLoading: false,
       leftColumn: 5,
       rightColumn: 11,

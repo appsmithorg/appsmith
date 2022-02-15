@@ -6,7 +6,7 @@ import {
   createMessage,
   ERROR_MESSAGE_NAME_EMPTY,
   NAME_SPACE_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { AppState } from "reducers";
 import {
   CreateApplicationFormValues,

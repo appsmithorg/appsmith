@@ -12,7 +12,7 @@ import { User } from "constants/userConstants";
 import { takeLatest, all, call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "./ErrorSagas";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -20,7 +20,7 @@ import {
   TEST_EMAIL_FAILURE,
   TEST_EMAIL_SUCCESS,
   TEST_EMAIL_SUCCESS_TROUBLESHOOT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
