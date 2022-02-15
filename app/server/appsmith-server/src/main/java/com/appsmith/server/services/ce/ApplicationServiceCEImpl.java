@@ -538,8 +538,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Flux<Application> getGitConnectedApplicationsWithPrivateRepoByOrgId(String organizationId) {
-        return repository.getGitConnectedApplicationWithPrivateRepo(organizationId);
+    public Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId) {
+        return repository.getGitConnectedApplicationByOrganizationId(organizationId);
     }
 
     public String getRandomAppCardColor() {

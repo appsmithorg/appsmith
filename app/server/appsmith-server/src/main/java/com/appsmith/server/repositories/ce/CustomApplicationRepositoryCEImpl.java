@@ -177,11 +177,14 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Flux<Application> getGitConnectedApplicationWithPrivateRepo(String organizationId){
+    public Flux<Application> getGitConnectedApplicationByOrganizationId(String organizationId) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
-        Criteria privateRepoCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE);
+        // isRepoPrivate and gitAuth will be stored only with default application which ensures we will have only single
+        // application per repo
+        Criteria repoCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).exists(Boolean.TRUE);
+        Criteria gitAuthCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.gitAuth)).exists(Boolean.TRUE);
         Criteria organizationIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
-        return queryAll(List.of(privateRepoCriteria, organizationIdCriteria), AclPermission.MANAGE_APPLICATIONS);
+        return queryAll(List.of(organizationIdCriteria, repoCriteria, gitAuthCriteria), AclPermission.MANAGE_APPLICATIONS);
     }
 
     @Override

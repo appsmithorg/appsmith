@@ -44,5 +44,5 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String organizationId);
 
-    Flux<Application> getGitConnectedApplicationWithPrivateRepo(String organizationId);
+    Flux<Application> getGitConnectedApplicationByOrganizationId(String organizationId);
 }

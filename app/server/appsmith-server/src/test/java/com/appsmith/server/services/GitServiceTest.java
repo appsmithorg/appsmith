@@ -271,7 +271,8 @@ public class GitServiceTest {
         page.setApplicationId(application1.getId());
         applicationPageService.createPage(page).block();
 
-        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        String repoUrl = String.format("git@github.com:test/%s.git", name);
+        GitConnectDTO gitConnectDTO = getConnectRequest(repoUrl, testUserProfile);
         return gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
     }
 
@@ -747,21 +748,16 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono = gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
 
-        StepVerifier
-                .create(applicationMono)
-                .expectErrorMatches(error -> error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage()))
-                .verify();
-
-        // Now change the accessibility for application1 to public and try to connect the application again
-        application1.getGitApplicationMetadata().setIsRepoPrivate(false);
+        // Use any dummy url so as to get 2xx response
+        application1.getGitApplicationMetadata().setBrowserSupportedRemoteUrl("https://www.google.com/");
         applicationService.save(application1).block();
+
         StepVerifier
-                .create(applicationMono)
-                .assertNext(connectedApp -> {
-                    assertThat(connectedApp.getId()).isNotEmpty();
-                })
-                .verifyComplete();
+            .create(applicationMono)
+            .assertNext(connectedApp -> {
+                assertThat(connectedApp.getId()).isNotEmpty();
+            })
+            .verifyComplete();
     }
 
     @Test

@@ -58,7 +58,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId);
 
-    Flux<Application> getGitConnectedApplicationsWithPrivateRepoByOrgId(String organizationId);
+    Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId);
 
     String getRandomAppCardColor();
 
