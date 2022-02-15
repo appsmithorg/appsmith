@@ -50,6 +50,7 @@ export const EditorWrapper = styled.div<{
   hoverInteraction?: boolean;
   fill?: boolean;
   className?: string;
+  codeEditorVisibleOverflow?: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -273,6 +274,18 @@ export const EditorWrapper = styled.div<{
       return `height: ${height}`;
     }}
   }
+
+  ${(props) =>
+    props.codeEditorVisibleOverflow &&
+    `
+    &&&&&&&& .CodeMirror-scroll {
+      overflow: visible;
+    }
+   
+    & .CodeEditorTarget {
+      height: ${props.isFocused ? "auto" : "35px"};
+    }
+  `}
 `;
 
 export const IconContainer = styled.div`

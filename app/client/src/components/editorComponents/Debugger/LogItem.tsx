@@ -13,7 +13,10 @@ import { SeverityIcon } from "./helpers";
 import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
+import {
+  createMessage,
+  TROUBLESHOOT_ISSUE,
+} from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
