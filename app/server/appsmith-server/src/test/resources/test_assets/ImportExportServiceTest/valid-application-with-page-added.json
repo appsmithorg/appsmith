@@ -1,0 +1,194 @@
+{
+  "clientSchemaVersion": 1,
+  "serverSchemaVersion": 1,
+  "exportedApplication": {
+    "name": "importApplicationIntoOrganization_pageAddedInBranchApplication_Success",
+    "isPublic": false,
+    "appIsExample": false,
+    "unreadCommentThreads": 0,
+    "color": "#EAEDFB",
+    "icon": "stars",
+    "slug": "untitled-application-1",
+    "evaluationVersion": 2,
+    "new": true
+  },
+  "datasourceList": [],
+  "pageList": [
+    {
+      "userPermissions": [
+        "read:pages",
+        "manage:pages"
+      ],
+      "gitSyncId": "61fa464e2cd3d95ca414929f_61fa464e2cd3d95ca41492a1",
+      "unpublishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "id": "Page1",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 4896,
+              "snapColumns": 64,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 5016,
+              "containerStyle": "none",
+              "snapRows": 125,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 51,
+              "minHeight": 1292,
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": []
+            },
+            "layoutOnLoadActions": [],
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "publishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "id": "Page1",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224,
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 1254,
+              "containerStyle": "none",
+              "snapRows": 33,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 4,
+              "minHeight": 1292,
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": []
+            },
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "new": true
+    },
+    {
+      "userPermissions": [
+        "read:pages",
+        "manage:pages"
+      ],
+      "gitSyncId": "61fa464e2cd3d95ca414929f_61fa4f272cd3d95ca4149301",
+      "unpublishedPage": {
+        "name": "Page2",
+        "slug": "page2",
+        "layouts": [
+          {
+            "id": "Page2",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224,
+              "snapColumns": 64,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 1240,
+              "containerStyle": "none",
+              "snapRows": 124,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 51,
+              "minHeight": 1250,
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": []
+            },
+            "layoutOnLoadActions": [],
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "new": true
+    },
+    {
+      "userPermissions": [
+        "read:pages",
+        "manage:pages"
+      ],
+      "gitSyncId": "61fa464e2cd3d95ca414929f_61fa4f282cd3d95ca4149304",
+      "unpublishedPage": {
+        "name": "Page3",
+        "slug": "page3",
+        "layouts": [
+          {
+            "id": "Page3",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224,
+              "snapColumns": 64,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 1240,
+              "containerStyle": "none",
+              "snapRows": 124,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 51,
+              "minHeight": 1250,
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": []
+            },
+            "layoutOnLoadActions": [],
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "new": true
+    }
+  ],
+  "publishedDefaultPageName": "Page1",
+  "unpublishedDefaultPageName": "Page1",
+  "actionList": [],
+  "actionCollectionList": [],
+  "decryptedFields": {},
+  "editModeTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
+  "publishedTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
+  "publishedLayoutmongoEscapedWidgets": {},
+  "unpublishedLayoutmongoEscapedWidgets": {}
+}
