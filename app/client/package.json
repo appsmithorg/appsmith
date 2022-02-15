@@ -69,7 +69,7 @@
     "interweave-autolink": "^4.4.2",
     "js-beautify": "^1.14.0",
     "js-sha256": "^0.9.0",
-    "jshint": "^2.13.1",
+    "jshint": "^2.13.4",
     "json-fn": "^1.1.1",
     "libphonenumber-js": "^1.9.44",
     "lint-staged": "^9.2.5",

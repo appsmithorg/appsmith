@@ -4,7 +4,7 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -1248,7 +1248,7 @@ public class GitServiceTest {
         mergeStatusDTO.setMergeAble(true);
 
         ApplicationJson applicationJson = new ApplicationJson();
-        BeanCopyUtils.copyNewFieldValuesIntoOldObject(validAppJson, applicationJson);
+        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(validAppJson, applicationJson);
         applicationJson.getExportedApplication().setName("upstreamChangesAvailable_pullSuccess");
 
         GitStatusDTO gitStatusDTO = new GitStatusDTO();

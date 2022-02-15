@@ -269,7 +269,7 @@ export const EDIT_DATASOURCE_MESSAGE = () =>
   "Edit Datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
-export const ADD = () => "ADD";
+export const ENABLE = () => "ENABLE";
 export const UPGRADE = () => "UPGRADE";
 export const EDIT = () => "EDIT";
 
@@ -927,6 +927,9 @@ export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
+
+// API Pane
+export const API_PANE_NO_BODY = () => "This request does not have a body";
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";

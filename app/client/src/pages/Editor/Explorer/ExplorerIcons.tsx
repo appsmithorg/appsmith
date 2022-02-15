@@ -6,10 +6,7 @@ import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
-import {
-  HTTP_METHODS,
-  HTTP_METHOD_COLOR_MAP,
-} from "constants/ApiEditorConstants";
+import { HTTP_METHOD, HTTP_METHODS_COLOR } from "constants/ApiEditorConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
@@ -185,11 +182,9 @@ const StyledTag = styled.div<{ color: string }>`
   line-height: 16px;
 `;
 
-export function MethodTag(props: { type: typeof HTTP_METHODS[number] }) {
+export function MethodTag(props: { type: keyof typeof HTTP_METHOD }) {
   return (
-    <StyledTag color={HTTP_METHOD_COLOR_MAP[props.type]}>
-      {props.type}
-    </StyledTag>
+    <StyledTag color={HTTP_METHODS_COLOR[props.type]}>{props.type}</StyledTag>
   );
 }
 
@@ -294,10 +289,10 @@ export { EntityIcon };
 
 /** ======= Entity Icon components ends ====== */
 
-export function ApiMethodIcon(props: { type: typeof HTTP_METHODS[number] }) {
+export function ApiMethodIcon(props: { type: keyof typeof HTTP_METHOD }) {
   return (
-    <EntityIcon borderColor={HTTP_METHOD_COLOR_MAP[props.type]} width={"36px"}>
-      <EntityIcon.textIcon textColor={HTTP_METHOD_COLOR_MAP[props.type]}>
+    <EntityIcon borderColor={HTTP_METHODS_COLOR[props.type]} width={"36px"}>
+      <EntityIcon.textIcon textColor={HTTP_METHODS_COLOR[props.type]}>
         {props.type}
       </EntityIcon.textIcon>
     </EntityIcon>

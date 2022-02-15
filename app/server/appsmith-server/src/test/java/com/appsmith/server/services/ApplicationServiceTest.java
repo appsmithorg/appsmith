@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -572,7 +572,7 @@ public class ApplicationServiceTest {
 
         Application branchedApplication = new Application();
         GitApplicationMetadata childBranchGitData = new GitApplicationMetadata();
-        BeanCopyUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
+        AppsmithBeanUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
         childBranchGitData.setBranchName("childBranch");
         branchedApplication.setGitApplicationMetadata(childBranchGitData);
         branchedApplication.setOrganizationId(orgId);
