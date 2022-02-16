@@ -533,8 +533,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
-        return repository.getGitConnectedApplicationCount(organizationId);
+    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId) {
+        return repository.getGitConnectedApplicationWithPrivateRepoCount(organizationId);
+    }
+
+    @Override
+    public Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId) {
+        return repository.getGitConnectedApplicationByOrganizationId(organizationId);
     }
 
     public String getRandomAppCardColor() {
