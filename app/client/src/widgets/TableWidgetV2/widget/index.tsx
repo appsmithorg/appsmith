@@ -10,7 +10,6 @@ import _, {
   without,
   isBoolean,
   isArray,
-  sortBy,
   xorWith,
   isEmpty,
 } from "lodash";
@@ -586,12 +585,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const {
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
-      multiRowSelection,
       onPageSizeChange,
       pageNo,
       pageSize,
       primaryColumns = {},
-      selectedRowIndex,
       serverSidePaginationEnabled,
       totalRecordsCount,
     } = this.props;
