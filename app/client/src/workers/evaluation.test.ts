@@ -272,14 +272,13 @@ const dependencyMap = {
   Dropdown1: [
     "Dropdown1.defaultOptionValue",
     "Dropdown1.isValid",
+    "Dropdown1.meta",
     "Dropdown1.selectedOption",
     "Dropdown1.selectedOptionLabel",
     "Dropdown1.selectedOptionValue",
-    "Dropdown1.filterText",
   ],
   "Dropdown1.isValid": [],
   "Dropdown1.filterText": ["Dropdown1.meta.filterText"],
-  "Dropdown1.value": [],
   "Dropdown1.meta": [
     "Dropdown1.meta.filterText",
     "Dropdown1.meta.selectedOption",
