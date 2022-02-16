@@ -38,7 +38,12 @@ function TemplateList(props: TemplateListProps) {
     <Wrapper>
       <FirstRow>
         {props.templates.slice(0, 2).map((template) => (
-          <Template key={template.id} size="large" template={template} />
+          <Template
+            key={template.id}
+            openInNewTab
+            size="large"
+            template={template}
+          />
         ))}
       </FirstRow>
       <Masonry
@@ -47,7 +52,7 @@ function TemplateList(props: TemplateListProps) {
         columnClassName="grid_column"
       >
         {props.templates.slice(2).map((template) => (
-          <Template key={template.id} template={template} />
+          <Template key={template.id} openInNewTab template={template} />
         ))}
       </Masonry>
     </Wrapper>
