@@ -23,7 +23,6 @@ const actionRows = Object.keys(actions).map((action) => ({
   name: actions[action],
 }));
 
-// These two are failing when there are duplicates
 const createActions = async () => {
   const errors = [];
 
