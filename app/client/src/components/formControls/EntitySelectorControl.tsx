@@ -61,7 +61,7 @@ function EntitySelectorComponent(props: any) {
   };
 
   return (
-    <EntitySelectorContainer>
+    <EntitySelectorContainer key={`ES_${configProperty}`}>
       {schema &&
         schema.length > 0 &&
         schema.map(
@@ -74,8 +74,7 @@ function EntitySelectorComponent(props: any) {
                       ...dropDownFieldConfig,
                       ...singleSchema,
                       customStyles,
-                      configProperty: `${configProperty}.column_${index + 1}`,
-                      key: `${configProperty}.column_${index + 1}`,
+                      key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
@@ -85,14 +84,14 @@ function EntitySelectorComponent(props: any) {
                       ...inputFieldConfig,
                       ...singleSchema,
                       customStyles,
-                      configProperty: `${configProperty}.column_${index + 1}`,
-                      key: `${configProperty}.column_${index + 1}`,
+                      key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
                 )}
                 {index < schema.length - 1 && (
                   <CenteredIcon
+                    key={`ES_ICON_${configProperty}`}
                     name="double-arrow-right"
                     size={IconSize.SMALL}
                   />
@@ -117,7 +116,7 @@ export default function EntitySelectorControl(
     <EntitySelectorComponent
       configProperty={configProperty}
       formName={formName}
-      key={configProperty}
+      key={`ES_PARENT_${configProperty}`}
       name={configProperty}
       schema={schema}
     />
