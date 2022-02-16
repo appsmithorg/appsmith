@@ -8,10 +8,11 @@ interface SettingSectionProps {
   className?: string;
   title: string;
   children?: React.ReactNode;
+  collapsible?: boolean;
 }
 
 export function SettingSection(props: SettingSectionProps) {
-  const { className = "" } = props;
+  const { className = "", collapsible = true } = props;
   const [isOpen, setOpen] = useState(props.isOpen);
 
   /**
@@ -28,11 +29,15 @@ export function SettingSection(props: SettingSectionProps) {
         onClick={toggleCollapse}
       >
         <div className="font-normal">{props.title}</div>
-        <div>
-          <ArrowRight
-            className={` transform transition-all ${isOpen ? "rotate-90" : ""}`}
-          />
-        </div>
+        {collapsible && (
+          <div>
+            <ArrowRight
+              className={` transform transition-all ${
+                isOpen ? "-rotate-90" : "rotate-90"
+              }`}
+            />
+          </div>
+        )}
       </div>
       <Collapse isOpen={isOpen}>
         <div className="pt-2 space-y-3">{props.children}</div>

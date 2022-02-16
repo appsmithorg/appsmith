@@ -5,28 +5,30 @@ import {
   MenuItem,
   IMenuProps,
   IMenuItemProps,
+  IPopoverProps,
 } from "@blueprintjs/core";
 
 type Props = {
   children: React.ReactElement[] | React.ReactElement;
 };
 
-function Dropdown(props: Props) {
+function Dropdown(props: IPopoverProps & Props) {
+  const { children, ...rest } = props;
+
   const menus =
-    (Array.isArray(props.children) &&
-      props.children.find(
+    (Array.isArray(children) &&
+      children.find(
         (child: any) => child.type.displayName === "DropdownList",
       )) ||
     undefined;
 
   const trigger =
-    Array.isArray(props.children) &&
-    props.children.find(
-      (child: any) => child.type.displayName === "DropdownTrigger",
-    );
+    Array.isArray(children) &&
+    children.find((child: any) => child.type.displayName === "DropdownTrigger");
 
   return (
     <Popover
+      {...rest}
       content={menus}
       popoverClassName="dropdown-v2"
       transitionDuration={-1}

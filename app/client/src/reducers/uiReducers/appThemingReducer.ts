@@ -17,7 +17,7 @@ const initialState: AppThemingState = {
   stack: [],
   themes: [],
   isSaving: false,
-  isChanging: true,
+  isChanging: false,
   themesLoading: false,
   selectedThemeLoading: false,
   selectedTheme: {

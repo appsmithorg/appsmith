@@ -91,7 +91,7 @@ function CanvasContainer() {
     >
       {isAppThemeChanging && (
         <div className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white z-2 bg-opacity-70">
-          <Spinner size={IconSize.XL} />
+          <Spinner size={IconSize.XXL} />
         </div>
       )}
       {node}

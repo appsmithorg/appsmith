@@ -41,14 +41,19 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
         <TooltipComponent content={optionKey} key={optionKey}>
           <button
             className={classNames({
-              "flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-gray-800 cursor-pointer hover:bg-trueGray-50": true,
-              "ring-1": selectedOption === options[optionKey],
+              "flex items-center justify-center w-8 h-8 bg-white ring-1 cursor-pointer hover:bg-trueGray-50": true,
+              "ring-gray-800": selectedOption === options[optionKey],
+              "ring-gray-300": selectedOption !== options[optionKey],
               [`t--theme-${sectionName}`]: true,
             })}
             onClick={() => onChangeBorder(optionKey)}
           >
             <div
-              className="w-4 h-4 border-t-2 border-l-2 border-gray-600"
+              className={classNames({
+                "w-5 h-5 border-t-2 border-l-2": true,
+                "border-gray-800": selectedOption === options[optionKey],
+                "border-gray-500": selectedOption !== options[optionKey],
+              })}
               style={{
                 borderTopLeftRadius: options[optionKey],
               }}

@@ -174,7 +174,7 @@ export function ThemeCard(props: ThemeCard) {
                   borderColor="transparent"
                   borderRadius={primaryBorderRadius}
                   boxShadow={primaryBoxShadow}
-                  className="px-4 py-1"
+                  className="px-3 py-0.5 text-sm"
                 >
                   Button
                 </ThemeColorButton>
@@ -183,7 +183,7 @@ export function ThemeCard(props: ThemeCard) {
                   borderColor={primaryColor}
                   borderRadius={primaryBorderRadius}
                   boxShadow={primaryBoxShadow}
-                  className="px-4 py-1 border"
+                  className="px-3 py-0.5 border text-sm"
                 >
                   Button
                 </ThemeColorButton>

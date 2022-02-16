@@ -28,6 +28,7 @@ import {
   DropdownItem,
   DropdownTrigger,
 } from "components/ads/DropdownV2";
+import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
@@ -62,7 +63,7 @@ function ThemeEditor() {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-normal capitalize">Theme Properties</h3>
             <div>
-              <Dropdown>
+              <Dropdown position="bottom-right">
                 <DropdownTrigger>
                   <button className="p-1 hover:bg-gray-100 active:bg-gray-100">
                     <MoreIcon className="w-5 h-5" />
@@ -70,6 +71,8 @@ function ThemeEditor() {
                 </DropdownTrigger>
                 <DropdownList>
                   <DropdownItem
+                    className="flex items-center"
+                    icon={<DownloadLineIcon className="w-4 h-4" />}
                     onClick={() => {
                       setSaveModalOpen(true);
                     }}
@@ -91,8 +94,34 @@ function ThemeEditor() {
           />
         </div>
         <main className="mt-1">
+          {/* FONT  */}
+          <SettingSection className="px-3 py-3" title="Font">
+            {Object.keys(selectedTheme.config.fontFamily).map(
+              (fontFamilySectionName: string, index: number) => {
+                return (
+                  <section className="space-y-2" key={index}>
+                    <h3>{startCase(fontFamilySectionName)}</h3>
+                    <ThemeFontControl
+                      options={get(
+                        selectedTheme,
+                        `config.fontFamily.${fontFamilySectionName}`,
+                        {},
+                      )}
+                      sectionName={fontFamilySectionName}
+                      selectedOption={get(
+                        selectedTheme,
+                        `properties.fontFamily.${fontFamilySectionName}`,
+                      )}
+                      theme={selectedTheme}
+                      updateTheme={updateSelectedTheme}
+                    />
+                  </section>
+                );
+              },
+            )}
+          </SettingSection>
           {/* COLORS */}
-          <SettingSection className="px-3 py-3 " title="Colour">
+          <SettingSection className="px-3 py-3 border-t" title="Colour">
             <section className="space-y-2">
               <ThemeColorControl
                 theme={selectedTheme}
@@ -102,7 +131,7 @@ function ThemeEditor() {
           </SettingSection>
 
           {/* BORDER RADIUS */}
-          <SettingSection className="px-3 py-3 border-t " title="Border Radius">
+          <SettingSection className="px-3 py-3 border-t " title="Border">
             {Object.keys(selectedTheme.config.borderRadius).map(
               (borderRadiusSectionName: string, index: number) => {
                 return (
@@ -129,7 +158,7 @@ function ThemeEditor() {
           </SettingSection>
 
           {/* BOX SHADOW */}
-          <SettingSection className="px-3 py-3 border-t " title="Box Shadow">
+          <SettingSection className="px-3 py-3 border-t " title="Shadow">
             {Object.keys(selectedTheme.config.boxShadow).map(
               (boxShadowSectionName: string, index: number) => {
                 return (
@@ -145,33 +174,6 @@ function ThemeEditor() {
                       selectedOption={get(
                         selectedTheme,
                         `properties.boxShadow.${boxShadowSectionName}`,
-                      )}
-                      theme={selectedTheme}
-                      updateTheme={updateSelectedTheme}
-                    />
-                  </section>
-                );
-              },
-            )}
-          </SettingSection>
-
-          {/* FONT  */}
-          <SettingSection className="px-3 py-3 border-t" title="Font">
-            {Object.keys(selectedTheme.config.fontFamily).map(
-              (fontFamilySectionName: string, index: number) => {
-                return (
-                  <section className="space-y-2" key={index}>
-                    <h3>{startCase(fontFamilySectionName)}</h3>
-                    <ThemeFontControl
-                      options={get(
-                        selectedTheme,
-                        `config.fontFamily.${fontFamilySectionName}`,
-                        {},
-                      )}
-                      sectionName={fontFamilySectionName}
-                      selectedOption={get(
-                        selectedTheme,
-                        `properties.fontFamily.${fontFamilySectionName}`,
                       )}
                       theme={selectedTheme}
                       updateTheme={updateSelectedTheme}
