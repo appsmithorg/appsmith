@@ -66,9 +66,6 @@ export * from "./Icon";
 export { default as IconSelector } from "./IconSelector";
 export * from "./IconSelector";
 
-export { default as IconTabsComponent } from "./IconTabsComponent";
-export * from "./IconTabsComponent";
-
 export { default as ListSegmentHeader } from "./ListSegmentHeader";
 
 export { default as MentionsInput } from "./MentionsInput";
