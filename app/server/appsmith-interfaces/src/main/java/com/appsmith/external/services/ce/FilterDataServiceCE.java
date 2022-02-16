@@ -857,7 +857,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                     break;
                 }
                 case BOOLEAN: {
-                    preparedStatement.setBoolean(index, Boolean.parseBoolean(strNumericValue));
+                    preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
                     break;
                 }
                 case STRING:

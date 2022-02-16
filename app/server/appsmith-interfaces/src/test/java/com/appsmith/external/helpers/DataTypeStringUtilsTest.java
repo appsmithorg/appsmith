@@ -58,15 +58,7 @@ public class DataTypeStringUtilsTest {
     }
 
     @Test
-    public void checkCommaDelimitedNumbers() {
-        String floatData = "54,024,464,177.345300";
-        DataType dataType = stringToKnownDataTypeConverter(floatData);
-
-        assertThat(dataType).isEqualByComparingTo(DataType.FLOAT);
-    }
-
-    @Test
-    public void checkCommaDelimitedNumbers1() {
+    public void checkCommaDelimitedIntegerValues() {
         String strData = "54,024,464";
         DataType dataType = stringToKnownDataTypeConverter(strData);
 
@@ -74,11 +66,19 @@ public class DataTypeStringUtilsTest {
     }
 
     @Test
-    public void checkCommaDelimitedNumbers2() {
-        String strData = "55,876,987.33324E+25";
-        DataType dataType = stringToKnownDataTypeConverter(strData);
+    public void checkCommaDelimitedFloatValues() {
+        String floatData = "54,024,464,177.345300";
+        DataType dataType = stringToKnownDataTypeConverter(floatData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.FLOAT);
+    }
+
+    @Test
+    public void checkCommaDelimitedLongValues() {
+        String strData = "454,024,464,454,987,777";
+        DataType dataType = stringToKnownDataTypeConverter(strData);
+
+        assertThat(dataType).isEqualByComparingTo(DataType.LONG);
     }
 
     @Test

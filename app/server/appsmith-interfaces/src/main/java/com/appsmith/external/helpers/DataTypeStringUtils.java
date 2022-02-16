@@ -65,7 +65,7 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        String strNumericValue = input.trim().replaceAll(",","");
+        String strNumericValue = input.trim().replaceAll(",", "");
 
         if (input.startsWith("[") && input.endsWith("]")) {
             String betweenBraces = input.substring(1, input.length() - 1);
