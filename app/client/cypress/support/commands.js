@@ -3072,7 +3072,7 @@ Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div .image-cell-wrapper .image-cell`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
   const bgUrl = cy.get(selector).should("have.css", "background-image");
   return bgUrl;
 });
