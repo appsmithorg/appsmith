@@ -16,7 +16,6 @@ import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import { Layers } from "constants/Layers";
 import {
   BaseFieldComponentProps,
-  ComponentDefaultValuesFnProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
@@ -59,34 +58,8 @@ const StyledMultiSelectWrapper = styled.div`
   width: 100%;
 `;
 
-const componentDefaultValues = ({
-  bindingTemplate,
-  sourceDataPath,
-}: ComponentDefaultValuesFnProps<string>): Omit<
-  MultiSelectComponentProps,
-  "defaultValue"
-> & {
-  defaultValue: string;
-} => {
-  const { endTemplate, startTemplate } = bindingTemplate;
-
-  const defaultValue = `${startTemplate}${sourceDataPath}.map((item) => ({ "label": item, "value": item }))${endTemplate}`;
-
-  return {
-    ...COMPONENT_DEFAULT_VALUES,
-    defaultValue,
-  };
-};
-
 const isValid = (schemaItem: MultiSelectFieldProps["schemaItem"], value = []) =>
   schemaItem.isRequired ? Boolean(value.length) : true;
-
-const defaultValueValidator = (value: any) => {
-  if (!Array.isArray(value)) return false;
-  if (!value.every((v) => typeof v === "string")) return false;
-
-  return true;
-};
 
 const DEFAULT_DROPDOWN_STYLES = {
   zIndex: Layers.dropdownModalWidget,
@@ -158,10 +131,11 @@ function MultiSelectField({
       if (
         schemaItem.defaultValue !== undefined &&
         validateOptions(schemaItem.defaultValue)
-      )
+      ) {
         return schemaItem.defaultValue;
+      }
 
-      if (validateOptions(fieldDefaultValue)) return fieldDefaultValue;
+      if (validateOptions(passedDefaultValue)) return passedDefaultValue;
 
       return [];
     })();
@@ -250,20 +224,26 @@ function MultiSelectField({
       </StyledMultiSelectWrapper>
     );
   }, [
-    schemaItem,
-    isValueValid,
+    componentValues,
+    filterText,
     isDirty,
+    isValueValid,
+    name,
     onBlurHandler,
-    onOptionChange,
     onFilterChange,
     onFocusHandler,
-    value,
+    onOptionChange,
+    schemaItem.allowSelectAll,
+    schemaItem.isDisabled,
+    schemaItem.isFilterable,
+    schemaItem.options,
+    schemaItem.placeholderText,
+    schemaItem.serverSideFiltering,
   ]);
 
   return (
     <Field
       defaultValue={fieldDefaultValue}
-      defaultValueValidatorFn={defaultValueValidator}
       fieldClassName={fieldClassName}
       isRequiredField={isRequired}
       label={schemaItem.label}
@@ -278,6 +258,6 @@ function MultiSelectField({
   );
 }
 
-MultiSelectField.componentDefaultValues = componentDefaultValues;
+MultiSelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default MultiSelectField;

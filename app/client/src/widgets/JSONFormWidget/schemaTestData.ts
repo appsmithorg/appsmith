@@ -126,7 +126,7 @@ const initialDataset = {
           ],
           children: {},
           dataType: DataType.ARRAY,
-          defaultValue: `{{((sourceData, formData, fieldState) => (sourceData.hobbies.map((item) => ({ "label": item, "value": item }))))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}`,
+          defaultValue: `{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}`,
           fieldType: FieldType.MULTISELECT,
           isFilterable: false,
           sourceData: ["travelling", "skating", "off-roading"],
@@ -488,7 +488,7 @@ const withRemovedKeyFromInitialDataset = {
           children: {},
           dataType: DataType.ARRAY,
           defaultValue:
-            '{{((sourceData, formData, fieldState) => (sourceData.hobbies.map((item) => ({ "label": item, "value": item }))))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+            "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.MULTISELECT,
           isFilterable: false,
           sourceData: ["travelling", "skating", "off-roading"],
@@ -829,7 +829,7 @@ const withRemovedAddedKeyToInitialDataset = {
           children: {},
           dataType: DataType.ARRAY,
           defaultValue:
-            '{{((sourceData, formData, fieldState) => (sourceData.hobbies.map((item) => ({ "label": item, "value": item }))))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+            "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.MULTISELECT,
           isFilterable: false,
           sourceData: ["travelling", "skating", "off-roading"],

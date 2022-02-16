@@ -10,7 +10,6 @@ import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 type FieldProps<TValue> = React.PropsWithChildren<
   {
     defaultValue: TValue;
-    defaultValueValidatorFn?: (value: TValue) => boolean;
     fieldClassName: string;
     hideLabel?: boolean;
     inlineLabel?: boolean;
@@ -35,7 +34,6 @@ function Field<TValue>({
   alignField,
   children,
   defaultValue,
-  defaultValueValidatorFn,
   fieldClassName,
   hideLabel = false,
   inlineLabel = false,
@@ -54,10 +52,7 @@ function Field<TValue>({
     if (!equal(refDefaultValue.current, defaultValue)) {
       refDefaultValue.current = defaultValue;
 
-      const isValid = defaultValueValidatorFn?.(defaultValue) ?? true;
-      if (isValid) {
-        setValue(name, cloneDeep(defaultValue));
-      }
+      setValue(name, cloneDeep(defaultValue));
     }
   }, [defaultValue, setValue]);
 

@@ -1,13 +1,11 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
+const jsonFormDslWithoutSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form Widget Field Render", () => {
-  beforeEach(() => {
-    cy.addDsl(dslWithoutSchema);
-  });
-
   it("generates fields with valid source data json", () => {
+    cy.addDsl(dslWithoutSchema);
     const sourceData = {
       name: "John",
       age: 30,
@@ -102,39 +100,7 @@ describe("JSON Form Widget Field Render", () => {
   });
 
   it("modifies field when source data changes", () => {
-    const sourceData = {
-      name: "John",
-      age: 30,
-      dob: "10/12/1992",
-      migrant: false,
-      address: {
-        street: "Koramangala",
-        city: "Bangalore",
-      },
-      education: [
-        {
-          college: "MIT",
-          year: "20/10/2014",
-        },
-      ],
-    };
-
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
-    cy.closePropertyPane();
-
-    cy.get(`${fieldPrefix}-name label`).contains("Name");
-    cy.get(`${fieldPrefix}-age label`).contains("Age");
-    cy.get(`${fieldPrefix}-dob label`).contains("Dob");
-    cy.get(`${fieldPrefix}-migrant label`).contains("Migrant");
-    cy.get(`${fieldPrefix}-address`)
-      .find("label")
-      .should("have.length", 3);
-    cy.get(`${fieldPrefix}-address-street label`).contains("Street");
-    cy.get(`${fieldPrefix}-address-city label`).contains("City");
-    cy.get(`${fieldPrefix}-education label`).should("have.length", 3);
-    cy.get(`${fieldPrefix}-education-0--college label`).contains("College");
-    cy.get(`${fieldPrefix}-education-0--year label`).contains("Year");
+    cy.addDsl(jsonFormDslWithoutSchemaAndWithoutSourceData);
 
     const modifiedSourceData = {
       name: "John",

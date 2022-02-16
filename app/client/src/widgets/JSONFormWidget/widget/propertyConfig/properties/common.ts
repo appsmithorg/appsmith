@@ -189,7 +189,7 @@ const COMMON_PROPERTIES = {
       },
       hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
         const parentPath = getParentPropertyPath(propertyPath);
-        const schemaItem: SchemaItem = get(props, parentPath);
+        const schemaItem: SchemaItem = get(props, parentPath, {});
         const isArrayItem = schemaItem.identifier === ARRAY_ITEM_KEY;
 
         if (isArrayItem) return true;

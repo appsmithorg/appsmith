@@ -69,7 +69,7 @@ function generatePanelPropertyConfig(
         sectionName: "Styles",
         children: [...COMMON_PROPERTIES.styles],
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-          const schemaItem: SchemaItem = get(props, propertyPath);
+          const schemaItem: SchemaItem = get(props, propertyPath, {});
 
           if (
             schemaItem.identifier === ARRAY_ITEM_KEY &&
@@ -88,7 +88,7 @@ function generatePanelPropertyConfig(
         sectionName: "Label Styles",
         children: [...COMMON_PROPERTIES.labelStyles],
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-          const schemaItem: SchemaItem = get(props, propertyPath);
+          const schemaItem: SchemaItem = get(props, propertyPath, {});
 
           return schemaItem.identifier === ARRAY_ITEM_KEY;
         },
@@ -106,7 +106,7 @@ function generatePanelPropertyConfig(
           ...COMMON_PROPERTIES.actions,
         ],
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-          const schemaItem: SchemaItem = get(props, propertyPath);
+          const schemaItem: SchemaItem = get(props, propertyPath, {});
 
           return (
             schemaItem.fieldType === FieldType.OBJECT ||

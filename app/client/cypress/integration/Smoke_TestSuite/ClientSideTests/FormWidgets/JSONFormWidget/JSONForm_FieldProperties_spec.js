@@ -252,7 +252,7 @@ describe("Multi-Select Field Property Control", () => {
 
   it("has valid default value", () => {
     cy.get(".t--property-control-defaultvalue").contains(
-      '{{sourceData.hobbies.map((item) => ({ "label": item, "value": item }))}}',
+      "{{sourceData.hobbies}}",
     );
     cy.closePropertyPane();
   });

@@ -1,4 +1,5 @@
 import { isPlainObject, merge } from "lodash";
+import { LabelValueType } from "rc-select/lib/interface/generator";
 
 import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
 
@@ -87,7 +88,9 @@ export function isPrimitive(val: unknown): val is number | string | boolean {
   return val === null || /^[sbn]/.test(typeof val);
 }
 
-export const validateOptions = (values: unknown) => {
+export const validateOptions = (
+  values: unknown,
+): values is LabelValueType["value"][] | LabelValueType[] => {
   if (!Array.isArray(values)) return false;
 
   let hasPrimitive = false;
@@ -104,7 +107,7 @@ export const validateOptions = (values: unknown) => {
     }
   }
 
-  if (hasPrimitive && hasObject) return [];
+  if (hasPrimitive && hasObject) return false;
 
   return true;
 };
