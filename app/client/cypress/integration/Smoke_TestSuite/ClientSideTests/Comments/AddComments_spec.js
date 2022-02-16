@@ -110,7 +110,7 @@ describe("Comments", function() {
 
   // create another comment since the first one is a private bot thread
   it("another comment can be created after dismissing the first one", () => {
-    cy.get(commonLocators.canvas).click(10, 10);
+    cy.get(commonLocators.canvas).click(60, 10);
     // wait for transition to be completed
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
@@ -137,8 +137,8 @@ describe("Comments", function() {
   it("unread indicator is visible for another app user when a new comment is added", () => {
     // share app with TESTUSERNAME2
     cy.get(homePage.shareApp).click({ force: true });
-    cy.shareApp(Cypress.env("TESTUSERNAME2"), homePage.adminRole);
-    cy.LogintoApp(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
+    cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.adminRole);
+    cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
 
     // launch the editor
     cy.get(homePage.searchInput).type(appName);

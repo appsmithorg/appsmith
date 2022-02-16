@@ -27,7 +27,7 @@ import {
   DISCONNECT_EXISTING_REPOSITORIES,
   DISCONNECT_EXISTING_REPOSITORIES_INFO,
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
 import { get } from "lodash";
