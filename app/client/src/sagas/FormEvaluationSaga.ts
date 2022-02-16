@@ -116,7 +116,7 @@ function* fetchDynamicValuesSaga(
       fetchDynamicValueSaga,
       queueOfValuesToBeFetched[key],
       key,
-      evalOutput,
+      Object.assign({}, evalOutput),
     );
   }
   // Set the values to the state once all values are fetched
