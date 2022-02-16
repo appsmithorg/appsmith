@@ -8,7 +8,8 @@ import {
   createMessage,
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
+import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;
@@ -24,10 +25,11 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
       canOutsideClickClose
       isOpen={isOpen}
       onClose={onClose}
-      width="500px"
+      width="600px"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-xl">
+        <h2 className="flex items-center gap-2 text-xl font-medium">
+          <DeleteIcon className="w-6 h-6 p-1 text-red-600 bg-red-100 rounded-full" />
           {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
         </h2>
         <button onClick={onClose} type="button">

@@ -312,16 +312,33 @@ const StyledPagination = styled(Pagination)<{
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     color:  ${({ primaryColor }) => primaryColor} !important;
-    border-color:  ${({ primaryColor }) => primaryColor} !important;
+    border-color:  transparent !important;
 
   }
 
   .rc-pagination-prev .rc-pagination-item-link, .rc-pagination-next .rc-pagination-item-link  {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-    border-color:  ${({ primaryColor }) => primaryColor} !important;
+    border-color:  transparent !important;
     color:  ${({ primaryColor }) => primaryColor} !important;
   }
+
+  .rc-pagination-item:hover {
+    background-color: ${({ primaryColor }) => primaryColor} !important;
+    a {
+      color: white;
+    }
+  }
+
+  .rc-pagination-item-active {
+    background-color: ${({ primaryColor }) => primaryColor} !important;
+    a {
+      color: white;
+    }
+
+    .rc-pagination-item-active:hover a {
+      color: white !important;
+    }
 `;
 
 interface ListPaginationProps {

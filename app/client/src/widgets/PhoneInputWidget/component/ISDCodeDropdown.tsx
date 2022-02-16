@@ -42,10 +42,7 @@ const FlagWrapper = styled.span`
   line-height: 19px;
 `;
 
-const Code = styled.span`
-  margin-left: 5px;
-  width: calc(100% - 40px);
-`;
+const Code = styled.span``;
 
 const StyledIcon = styled(Icon)`
   margin-left: 2px;
@@ -177,6 +174,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   return (
     <>
       <Dropdown
+        closeOnSpace={false}
         containerClassName="country-type-filter"
         dropdownHeight="139px"
         dropdownTriggerIcon={dropdownTrigger}

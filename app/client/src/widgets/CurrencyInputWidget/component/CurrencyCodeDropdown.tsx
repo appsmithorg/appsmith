@@ -29,20 +29,6 @@ const DropdownTriggerIconWrapper = styled.div`
   }
 `;
 
-const CurrencyIconWrapper = styled.span`
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding: 0px 4px 0px 12px;
-  position: absolute;
-  left: 0;
-  z-index: 16;
-  font-size: 14px;
-  line-height: 18px;
-  letter-spacing: -0.24px;
-  color: #090707;
-`;
-
 export const PopoverStyles = createGlobalStyle<{
   borderRadius?: string;
   portalClassName: string;
@@ -68,6 +54,9 @@ export const PopoverStyles = createGlobalStyle<{
     props.portalClassName
   }  .${Classes.INPUT}:active {
       border: 1px solid ${props.primaryColor} !important;
+      box-shadow: 0px 0px 0px 3px ${lightenColor(
+        props.primaryColor,
+      )} !important;
     }
 
     .${props.portalClassName} .t--dropdown-option:hover,
@@ -148,28 +137,29 @@ interface CurrencyDropdownProps {
 export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const selectedOption = getSelectedCurrency(props.selected);
   const selectedCurrency = selectedOption.id;
-  if (!props.allowCurrencyChange) {
-    return (
-      <CurrencyIconWrapper className="currency-type-trigger">
-        {selectedCurrency}
-      </CurrencyIconWrapper>
-    );
-  }
-  const dropdownTriggerIcon = (
+  const dropdownTrigger = (
     <DropdownTriggerIconWrapper
       className="h-full gap-2 px-3 t--input-currency-change focus:bg-gray-50"
       tabIndex={0}
     >
       {selectedCurrency}
-      <Icon className="dropdown" name="downArrow" size={IconSize.XXS} />
+      {props.allowCurrencyChange && (
+        <Icon className="dropdown" name="downArrow" size={IconSize.XXS} />
+      )}
     </DropdownTriggerIconWrapper>
   );
+
+  if (!props.allowCurrencyChange) {
+    return dropdownTrigger;
+  }
+
   return (
     <>
       <Dropdown
+        closeOnSpace={false}
         containerClassName="currency-type-filter"
         dropdownHeight="139px"
-        dropdownTriggerIcon={dropdownTriggerIcon}
+        dropdownTriggerIcon={dropdownTrigger}
         enableSearch
         height="36px"
         onSelect={props.onCurrencyTypeChange}

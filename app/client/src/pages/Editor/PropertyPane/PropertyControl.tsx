@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useMemo } from "react";
 import _, { get, isEqual } from "lodash";
+import * as log from "loglevel";
+
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -38,8 +40,9 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import * as log from "loglevel";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import TooltipComponent from "components/ads/Tooltip";
+import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -439,7 +442,7 @@ const PropertyControl = memo((props: Props) => {
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-${className}`}
+          className={`t--property-control-${className} group`}
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
@@ -449,7 +452,7 @@ const PropertyControl = memo((props: Props) => {
               : "VERTICAL"
           }
         >
-          <ControlPropertyLabelContainer>
+          <ControlPropertyLabelContainer className="gap-1">
             <PropertyHelpLabel
               label={label}
               theme={props.theme}
@@ -465,10 +468,23 @@ const PropertyControl = memo((props: Props) => {
               </JSToggleButton>
             )}
             {isPropertyDeviatedFromTheme && (
-              <div
-                className="w-2 h-2 rounded-full cursor-pointer bg-primary-500"
-                onClick={resetPropertyValueToTheme}
-              />
+              <>
+                <TooltipComponent content="Value deviated from theme">
+                  <div className="w-2 h-2 rounded-full bg-primary-500" />
+                </TooltipComponent>
+                <button
+                  className="hidden ml-auto group-hover:block"
+                  onClick={resetPropertyValueToTheme}
+                >
+                  <TooltipComponent
+                    boundary="viewport"
+                    content="Reset value"
+                    position="top-right"
+                  >
+                    <ResetIcon className="w-5 h-5" />
+                  </TooltipComponent>
+                </button>
+              </>
             )}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(

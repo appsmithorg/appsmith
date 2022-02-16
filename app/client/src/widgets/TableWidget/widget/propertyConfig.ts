@@ -19,7 +19,7 @@ import {
 import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { IconNames } from "@blueprintjs/icons";
 
 const ICON_NAMES = Object.keys(IconNames).map(
@@ -850,7 +850,17 @@ export default [
                   propertyName: "iconAlign",
                   label: "Icon Alignment",
                   helpText: "Sets the icon alignment of the menu button",
-                  controlType: "ICON_ALIGN",
+                  controlType: "ICON_TABS",
+                  options: [
+                    {
+                      icon: "VERTICAL_LEFT",
+                      value: "left",
+                    },
+                    {
+                      icon: "VERTICAL_RIGHT",
+                      value: "right",
+                    },
+                  ],
                   isBindProperty: false,
                   isTriggerProperty: false,
                   updateHook: updateDerivedColumnsHook,
@@ -1339,7 +1349,17 @@ export default [
                             propertyName: "iconAlign",
                             label: "Icon alignment",
                             helpText: "Sets the icon alignment of a menu item",
-                            controlType: "ICON_ALIGN",
+                            controlType: "ICON_TABS",
+                            options: [
+                              {
+                                icon: "VERTICAL_LEFT",
+                                value: "left",
+                              },
+                              {
+                                icon: "VERTICAL_RIGHT",
+                                value: "right",
+                              },
+                            ],
                             isBindProperty: false,
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.TEXT },

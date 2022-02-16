@@ -12,6 +12,7 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
@@ -82,6 +83,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor?: string;
   value: string;
   isValid: boolean;
   hasError?: boolean;
@@ -97,48 +99,48 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
       height: 100%;
     }
   }
-  &&&& .${Classes.BUTTON} {
+
+  & .${Classes.BUTTON} {
     display: flex;
     width: 100%;
     height: 100%;
     align-items: center;
     justify-content: space-between;
-    box-shadow: none;
     background: ${({ backgroundColor }) =>
       `${backgroundColor || Colors.WHITE}`} !important;
-    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     border-radius: ${({ borderRadius }) => borderRadius} !important;
-    min-height: 36px;
-    padding-left: 12px;
-    border: 1.2px solid
-      ${(props) => (props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3)};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    padding: 0px 10px;
+    border: 1px solid;
+    line-height: 30px;
+    min-height: 32px;
+    border-color: ${(props) =>
+      props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
     ${(props) =>
       props.isValid
         ? `
-        &:hover {
-          border: 1.2px solid ${Colors.GREY_5};
-        }
-        &:focus {
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          outline: 0;
-        }
-      `
+      &:hover { border: 1px solid ${Colors.GREY_5}; }
+      &:focus { outline: 0; }
+    `
         : ""};
   }
 
-  &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
+  & .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
     outline: 0;
     ${(props) =>
       !props.hasError
         ? `
-        border: 1.2px solid ${Colors.GREEN_SOLID};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
-      `
-        : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+      border: 1px solid ${props.primaryColor};
+      box-shadow: 0px 0px 0px 3px ${lightenColor(
+        props.primaryColor,
+      )} !important;
+    `
+        : `border: 1px solid ${Colors.DANGER_SOLID};`}
   }
-  &&&&& .${Classes.DISABLED} {
+
+  & .${Classes.DISABLED} {
     background-color: ${Colors.GREY_1};
-    border: 1.2px solid ${Colors.GREY_3};
+    border: 1px solid ${Colors.GREY_3};
     .${Classes.BUTTON_TEXT} {
       color: ${Colors.GREY_7};
     }
@@ -151,8 +153,9 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     color: ${(props) => (props.value ? Colors.GREY_10 : Colors.GREY_6)};
+    line-height: normal;
   }
-  && {
+  & {
     .${Classes.ICON} {
       width: fit-content;
       color: ${Colors.SLATE_GRAY};
@@ -164,6 +167,7 @@ export const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
   borderRadius: string;
   dropDownWidth: number;
+  primaryColor?: string;
   id: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
@@ -180,6 +184,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: ${({ borderRadius }) => borderRadius} !important;
     background: white;
+    overflow: hidden;
 
     & .${Classes.INPUT_GROUP} {
       padding: 12px 12px 8px 12px;
@@ -228,24 +233,27 @@ ${({ dropDownWidth, id, parentWidth }) => `
         }
       }
     }
-    && .${Classes.MENU} {
-      margin-top: -3px;
-      max-width: 100%;
+    & .${Classes.MENU} {
+      max-width: 100% !important;
       max-height: auto;
       min-width: 0px !important;
+      padding-top: 0px !important;
+      border-radius: 0px;
     }
-    &&&& .${Classes.MENU_ITEM} {
+
+    & .${Classes.MENU_ITEM} {
       min-height: 38px;
       padding: 9px 12px;
+      border-radius: 0px;
       color: ${Colors.GREY_8};
       &:hover{
-        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
       }
       &.is-focused{
-        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
       }
       &.${Classes.ACTIVE} {
-        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
         color: ${Colors.GREY_10};
         position:relative;
       }

@@ -11,14 +11,18 @@ import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
 
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { Spinner } from "@blueprintjs/core";
 import Canvas from "../Canvas";
 import { useParams } from "react-router";
 import classNames from "classnames";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { useDispatch } from "react-redux";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import {
+  getAppThemeIsChanging,
+  getSelectedAppTheme,
+} from "selectors/appThemingSelectors";
+import Spinner from "components/ads/Spinner";
 import useGoogleFont from "utils/hooks/useGoogleFont";
+import { IconSize } from "components/ads/Icon";
 
 const Container = styled.section`
   width: 100%;
@@ -36,6 +40,7 @@ const Container = styled.section`
 `;
 
 function CanvasContainer() {
+  const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgets = useSelector(getCanvasWidgetDsl);
@@ -44,7 +49,7 @@ function CanvasContainer() {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
-  const dispatch = useDispatch();
+  const isAppThemeChanging = useSelector(getAppThemeIsChanging);
 
   useEffect(() => {
     return () => {
@@ -84,6 +89,11 @@ function CanvasContainer() {
           : "initial",
       }}
     >
+      {isAppThemeChanging && (
+        <div className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white z-2 bg-opacity-70">
+          <Spinner size={IconSize.XXL} />
+        </div>
+      )}
       {node}
     </Container>
   );

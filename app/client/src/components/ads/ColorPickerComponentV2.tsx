@@ -176,7 +176,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
               <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
               <section className="space-y-2">
                 <h3 className="text-xs">Theme Colors</h3>
-                <div className="flex space-x-1">
+                <div className="grid grid-cols-10 gap-2">
                   {Object.keys(themeColors).map((colorKey) => (
                     <div
                       className={`${COLOR_BOX_CLASSES} ${
@@ -209,7 +209,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           {props.showApplicationColors && applicationColors.length > 0 && (
             <section className="space-y-2">
               <h3 className="text-xs">Application Colors</h3>
-              <div className="flex space-x-1">
+              <div className="grid grid-cols-10 gap-2">
                 {Object.values(applicationColors).map((colorCode: string) => (
                   <div
                     className={`${COLOR_BOX_CLASSES} ring-gray-500 ${

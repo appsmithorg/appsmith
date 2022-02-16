@@ -13,7 +13,10 @@ import Entity from "./Entity";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import EntityPlaceholder from "./Entity/Placeholder";
-import { createMessage, CREATE_DATASOURCE_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  CREATE_DATASOURCE_TOOLTIP,
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";

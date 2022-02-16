@@ -3,6 +3,7 @@ import * as React from "react";
 import TooltipComponent from "components/ads/Tooltip";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
+import classNames from "classnames";
 
 /**
  * ----------------------------------------------------------------------------
@@ -45,15 +46,21 @@ class BorderRadiusOptionsControl extends BaseControl<
         key={optionKey}
       >
         <button
-          className={`flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-gray-700 cursor-pointer hover:bg-trueGray-50 ${
-            this.props.evaluatedValue === optionValue ? "ring-1" : ""
-          }`}
+          className={classNames({
+            "flex items-center justify-center w-8 h-8 bg-white ring-1 cursor-pointer hover:bg-trueGray-50": true,
+            "ring-gray-800": this.props.evaluatedValue === optionValue,
+            "ring-gray-300": this.props.evaluatedValue !== optionValue,
+          })}
           onClick={() => {
             this.updateProperty(this.props.propertyName, optionValue);
           }}
         >
           <div
-            className="w-4 h-4 border-t-2 border-l-2 border-gray-600 rounded-"
+            className={classNames({
+              "w-5 h-5 border-t-2 border-l-2": true,
+              "border-gray-800": this.props.evaluatedValue === optionValue,
+              "border-gray-500": this.props.evaluatedValue !== optionValue,
+            })}
             style={{ borderTopLeftRadius: twSuffix }}
           />
         </button>

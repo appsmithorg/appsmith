@@ -2906,6 +2906,9 @@ export const theme: Theme = {
       leftPadding: 16,
       rightMargin: 12,
     },
+    main: {
+      marginLeft: 112,
+    },
     search: {
       height: 68,
       paddingTop: 30,

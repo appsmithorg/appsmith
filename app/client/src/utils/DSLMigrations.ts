@@ -51,6 +51,7 @@ import { DSLWidget } from "widgets/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1052,8 +1053,12 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 51) {
-    currentDSL = migrateStylingPropertiesForTheming(currentDSL);
+    currentDSL = migratePhoneInputWidgetAllowFormatting(currentDSL);
+    currentDSL.version = 52;
+  }
 
+  if (currentDSL.version === 52) {
+    currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

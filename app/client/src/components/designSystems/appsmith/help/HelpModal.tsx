@@ -20,7 +20,10 @@ import { User } from "constants/userConstants";
 import { bootIntercom } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
-import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  HELP_RESOURCE_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const { algolia } = getAppsmithConfigs();

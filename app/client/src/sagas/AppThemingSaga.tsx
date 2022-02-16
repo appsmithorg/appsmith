@@ -21,13 +21,13 @@ import {
   CHANGE_APP_THEME,
   createMessage,
   DELETE_APP_THEME,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { undoAction, updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import store from "store";
-// import { getAppMode } from "selectors/applicationSelectors";
-// import { APP_MODE } from "entities/App";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 
 // eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
@@ -118,6 +118,22 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
+      CIRCULAR_PROGRESS_WIDGET: {
+        fillColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
+      CURRENCY_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      PHONE_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -163,6 +179,12 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
+      INPUT_WIDGET_V2: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       LIST_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -172,6 +194,10 @@ const dummyThemes: AppTheme[] = [
       MAP_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      },
+      MAP_CHART_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MENU_BUTTON_WIDGET: {
@@ -230,6 +256,12 @@ const dummyThemes: AppTheme[] = [
       },
       SWITCH_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      SELECT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -359,6 +391,10 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
+      CIRCULAR_PROGRESS_WIDGET: {
+        fillColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
       CURRENCY_INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -433,6 +469,10 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
+      MAP_CHART_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      },
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -489,6 +529,12 @@ const dummyThemes: AppTheme[] = [
       },
       SWITCH_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      SELECT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -619,6 +665,22 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
+      CIRCULAR_PROGRESS_WIDGET: {
+        fillColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
+      CURRENCY_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      PHONE_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -664,6 +726,12 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
+      INPUT_WIDGET_V2: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       LIST_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -673,6 +741,10 @@ const dummyThemes: AppTheme[] = [
       MAP_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      },
+      MAP_CHART_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MENU_BUTTON_WIDGET: {
@@ -731,6 +803,12 @@ const dummyThemes: AppTheme[] = [
       },
       SWITCH_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      SELECT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -860,6 +938,22 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
+      CIRCULAR_PROGRESS_WIDGET: {
+        fillColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
+      CURRENCY_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      PHONE_INPUT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -922,6 +1016,10 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
+      MAP_CHART_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      },
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -979,6 +1077,12 @@ const dummyThemes: AppTheme[] = [
       SWITCH_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
+      SELECT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -1031,12 +1135,12 @@ const dummyThemes: AppTheme[] = [
 // eslint-disable-next-line
 export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
-    // const { applicationId } = action.payload;
-    // const response = yield ThemingApi.fetchThemes(applicationId);
+    const { applicationId } = action.payload;
+    const response = yield ThemingApi.fetchThemes(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: dummyThemes,
+      payload: response.data,
     });
   } catch (error) {
     yield put({
@@ -1056,16 +1160,16 @@ export function* fetchAppSelectedTheme(
   // eslint-disable-next-line
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
-  // const { applicationId } = action.payload;
-  // const mode: APP_MODE = yield select(getAppMode);
+  const { applicationId } = action.payload;
+  const mode: APP_MODE = yield select(getAppMode);
 
   try {
     // eslint-disable-next-line
-    // const response = yield ThemingApi.fetchSelected(applicationId, mode);
+    const response = yield ThemingApi.fetchSelected(applicationId, mode);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: dummyThemes[1],
+      payload: response.data,
     });
   } catch (error) {
     yield put({
@@ -1084,11 +1188,11 @@ export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
   // eslint-disable-next-line
-  const { shouldReplay = true, theme } = action.payload;
+  const { shouldReplay = true, theme, applicationId } = action.payload;
   const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
-    // const response = yield ThemingApi.updateTheme(applicationId, theme);
+    yield ThemingApi.updateTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
@@ -1127,7 +1231,7 @@ export function* changeSelectedTheme(
     yield ThemingApi.changeTheme(applicationId, theme);
 
     yield put({
-      type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
+      type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
       payload: theme,
     });
 

@@ -99,6 +99,7 @@ class SelectComponent extends React.Component<
           dropDownWidth={this.props.dropDownWidth}
           id={widgetId}
           parentWidth={this.props.width - WidgetContainerDiff}
+          primaryColor={this.props.primaryColor}
         />
         {labelText && (
           <TextLabelWrapper compactMode={compactMode}>
@@ -156,6 +157,7 @@ class SelectComponent extends React.Component<
               },
               popoverClassName: `select-popover-wrapper select-popover-width-${widgetId}`,
             }}
+            primaryColor={this.props.primaryColor}
             query={this.state.query}
             scrollToActiveItem
             value={this.props.value as string}
@@ -268,6 +270,7 @@ export interface SelectComponentProps extends ComponentProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor?: string;
 }
 
 export default SelectComponent;
