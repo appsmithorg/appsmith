@@ -1,7 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
-import { Colors } from "constants/Colors";
 import _, { get } from "lodash";
 
 export enum ColumnTypes {
@@ -132,18 +131,7 @@ export function updateIconAlignment(
 ) {
   const property = getBasePropertyPath(propertyPath);
   const iconAlign = get(props, `${property}.iconAlign`, "");
-  let propertiesToUpdate = [{ propertyPath, propertyValue }];
-  const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-    props,
-    propertyPath,
-    propertyValue,
-  );
-  if (updateDerivedColumnsHookArr) {
-    propertiesToUpdate = [
-      ...updateDerivedColumnsHookArr,
-      ...propertiesToUpdate,
-    ];
-  }
+  const propertiesToUpdate = [{ propertyPath, propertyValue }];
 
   if (iconAlign) {
     propertiesToUpdate.push({

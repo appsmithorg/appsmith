@@ -1,4 +1,4 @@
-import { uniq, without, isNaN } from "lodash";
+import { uniq, without } from "lodash";
 import { ColumnProperties } from "./Constants";
 
 export const reorderColumns = (
