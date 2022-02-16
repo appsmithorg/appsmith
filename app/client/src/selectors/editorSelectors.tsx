@@ -137,9 +137,9 @@ export const selectURLSlugs = createSelector(
   getPageList,
   getCurrentPageId,
   (application, pages, pageId) => {
-    const applicationSlug = application?.slug || application?.name || "";
+    const applicationSlug = application?.slug || "application";
     const currentPage = pages.find((page) => page.pageId === pageId);
-    const pageSlug = currentPage?.slug || currentPage?.pageName || "";
+    const pageSlug = currentPage?.slug || "page";
     return { applicationSlug, pageSlug };
   },
 );

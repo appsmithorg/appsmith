@@ -3,7 +3,10 @@ import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { GitApplicationMetadata } from "../api/ApplicationApi";
+import {
+  ApplicationPagePayload,
+  GitApplicationMetadata,
+} from "../api/ApplicationApi";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -928,6 +931,7 @@ export interface ApplicationPayload {
   applicationId?: string;
   modifiedBy?: string;
   modifiedAt?: string;
+  pages: ApplicationPagePayload[];
 }
 
 export interface CurrentApplicationData extends ApplicationPayload {

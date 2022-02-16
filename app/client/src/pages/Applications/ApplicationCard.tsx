@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState, useRef, useContext, useMemo } from "react";
 import styled, { ThemeContext } from "styled-components";
 import {
   getApplicationViewerPageURL,
@@ -420,6 +420,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
+  const defaultPageSlug = useMemo(() => {
+    const pages = props.application.pages;
+    const defaultPage = pages.find((page) => page.isDefault);
+    return defaultPage?.slug || defaultPage?.name;
+  }, [props.application]);
+
   useEffect(() => {
     let colorCode;
     if (props.application.color) {
@@ -569,12 +575,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const viewApplicationURL = getApplicationViewerPageURL({
     applicationSlug: props.application.slug as string,
-    pageSlug: "page1",
+    pageSlug: defaultPageSlug || "page",
     pageId: props.application.defaultPageId as string,
   });
   const editApplicationURL = BUILDER_PAGE_URL({
     applicationSlug: props.application.slug as string,
-    pageSlug: "page1",
+    pageSlug: defaultPageSlug || "page",
     pageId: props.application.defaultPageId as string,
   });
 

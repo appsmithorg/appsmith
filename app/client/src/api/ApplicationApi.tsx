@@ -24,6 +24,7 @@ export interface ApplicationPagePayload {
   id: string;
   name: string;
   isDefault: boolean;
+  slug?: string;
 }
 
 export type GitApplicationMetadata =
@@ -44,7 +45,7 @@ export interface ApplicationResponsePayload {
   name: string;
   organizationId: string;
   evaluationVersion?: EvaluationVersion;
-  pages?: ApplicationPagePayload[];
+  pages: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
