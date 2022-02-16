@@ -9,11 +9,9 @@ import { ExplorerURLParams } from "../../Explorer/helpers";
 import {
   GENERATE_PAGE_ACTION_SUBTITLE,
   GENERATE_PAGE_ACTION_TITLE,
-} from "../../../../constants/messages";
-import {
   BUILD_FROM_SCRATCH_ACTION_TITLE,
   BUILD_FROM_SCRATCH_ACTION_SUBTITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
