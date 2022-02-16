@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { ControlGroup } from "@blueprintjs/core";
-import { debounce, noop } from "lodash";
+import { ControlGroup, Classes } from "@blueprintjs/core";
+import { debounce, noop, isNull } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
 import SearchInput, { SearchVariant } from "components/ads/SearchInput";
+import Icon, { IconSize } from "components/ads/Icon";
+import Text, { TextType } from "components/ads/Text";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,11 +20,13 @@ import {
   getSearchedTemplateList,
   getTemplateSearchQuery,
   isFetchingTemplatesSelector,
+  showTemplateNotificationSelector,
 } from "selectors/templatesSelectors";
 import { fetchPlugins } from "actions/pluginActions";
-import { Classes } from "@blueprintjs/core";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { editorInitializer } from "utils/EditorUtils";
+import { TabItemProps, DefaultTabItem } from "components/ads/Tabs";
+import { Popover2 } from "@blueprintjs/popover2";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TemplateListWrapper = styled.div`
@@ -57,6 +61,57 @@ const LoadingTemplateList = styled.div`
 const SearchWrapper = styled.div`
   margin-left: 25px;
 `;
+
+const NotificationWrapper = styled.div`
+  background-color: #f1f1f1;
+  padding: 8px 18px;
+  display: flex;
+  flex-direction: row;
+
+  .text-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-left: 18px;
+  }
+
+  .description {
+    margin-top: 2px;
+  }
+`;
+
+export function TemplateFeatureNotification() {
+  return (
+    <NotificationWrapper>
+      <Icon name={"info"} size={IconSize.XXL} />
+      <div className={"text-wrapper"}>
+        <Text type={TextType.H4}>Introducing Templates</Text>
+        <Text className="description" type={TextType.P1}>
+          You can browse, fork, and make them your own here
+        </Text>
+      </div>
+    </NotificationWrapper>
+  );
+}
+
+export function TemplatesTabItem(props: TabItemProps) {
+  const showTemplateNotification = useSelector(
+    showTemplateNotificationSelector,
+  );
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const hideNotification =
+    isFetchingApplications || isNull(showTemplateNotification);
+
+  return (
+    <Popover2
+      content={<TemplateFeatureNotification />}
+      isOpen={hideNotification ? false : !showTemplateNotification}
+      minimal
+      placement="bottom-start"
+    >
+      <DefaultTabItem {...props} />
+    </Popover2>
+  );
+}
 
 function TemplateRoutes() {
   const { path } = useRouteMatch();

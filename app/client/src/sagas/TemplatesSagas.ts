@@ -10,6 +10,11 @@ import TemplatesAPI from "api/TemplatesApi";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
+import { setTemplateNotificationSeenAction } from "actions/templateActions";
+import {
+  getTemplateNotificationSeen,
+  setTemplateNotificationSeen,
+} from "utils/storage";
 
 function* getAllTemplatesSaga() {
   try {
@@ -81,12 +86,34 @@ function* importTemplateToOrganisationSaga(
   }
 }
 
+function* setTemplateNotificationSeenSaga(action: ReduxAction<boolean>) {
+  yield setTemplateNotificationSeen(action.payload);
+}
+
+function* getTemplateNotificationSeenSaga() {
+  const showTemplateNotification = yield getTemplateNotificationSeen();
+
+  if (showTemplateNotification) {
+    yield put(setTemplateNotificationSeenAction(true));
+  } else {
+    yield put(setTemplateNotificationSeenAction(false));
+  }
+}
+
 export default function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.GET_ALL_TEMPLATES_INIT, getAllTemplatesSaga),
     takeEvery(
       ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_INIT,
       importTemplateToOrganisationSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.GET_TEMPLATE_NOTIFICATION_SEEN,
+      getTemplateNotificationSeenSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN,
+      setTemplateNotificationSeenSaga,
     ),
   ]);
 }

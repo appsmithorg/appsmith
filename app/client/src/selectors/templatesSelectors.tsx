@@ -19,6 +19,9 @@ export const getTemplatesSelector = (state: AppState) =>
 export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
 
+export const showTemplateNotificationSelector = (state: AppState) =>
+  state.ui.templates.showTemplateNotification;
+
 export const getOrganizationForTemplates = createSelector(
   getOrganizationCreateApplication,
   (organizationList) => {

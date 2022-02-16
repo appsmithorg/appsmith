@@ -8,6 +8,7 @@ const initialState: TemplatesReduxState = {
   templates: [],
   filters: {},
   templateSearchQuery: "",
+  showTemplateNotification: null,
 };
 
 const templateReducer = createReducer(initialState, {
@@ -64,6 +65,15 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplate: false,
     };
   },
+  [ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showTemplateNotification: action.payload,
+    };
+  },
 });
 
 export interface TemplatesReduxState {
@@ -72,6 +82,7 @@ export interface TemplatesReduxState {
   filters: Record<string, string[]>;
   templateSearchQuery: string;
   isImportingTemplate: boolean;
+  showTemplateNotification: boolean | null;
 }
 
 export default templateReducer;

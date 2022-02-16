@@ -27,3 +27,12 @@ export const importTemplateToOrganisation = (
     organizationId,
   },
 });
+
+export const setTemplateNotificationSeenAction = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN,
+  payload,
+});
+
+export const getTemplateNotificationSeenAction = () => ({
+  type: ReduxActionTypes.GET_TEMPLATE_NOTIFICATION_SEEN,
+});

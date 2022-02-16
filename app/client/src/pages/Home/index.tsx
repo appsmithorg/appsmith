@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useRouteMatch, Route, Switch } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { Classes } from "@blueprintjs/core";
-import { TabComponent, DefaultTabItem } from "components/ads/Tabs";
+import {
+  TabComponent,
+  DefaultTabItem,
+  TabItemProps,
+} from "components/ads/Tabs";
 import ApplicationLoader from "pages/Applications/loader";
 import TemplatesLoader from "pages/Templates/loader";
 import PageWrapper from "pages/common/PageWrapper";
@@ -20,6 +24,11 @@ import Filters from "pages/Templates/Filters";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import LeftPaneTemplateList from "pages/Templates/LeftPaneTemplateList";
+import { TemplatesTabItem } from "pages/Templates";
+import {
+  getTemplateNotificationSeenAction,
+  setTemplateNotificationSeenAction,
+} from "actions/templateActions";
 
 const StyledDiv = styled.div`
   width: 100%;
@@ -85,6 +94,14 @@ const HomeTabs = [
   },
 ];
 
+function TabItem(props: TabItemProps) {
+  if (props.tab.key === HomePageTabsKeys.TEMPLATES) {
+    return <TemplatesTabItem {...props} />;
+  }
+
+  return <DefaultTabItem {...props} />;
+}
+
 function HomeScreenTabs() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { path } = useRouteMatch();
@@ -92,11 +109,16 @@ function HomeScreenTabs() {
 
   useEffect(() => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
+    dispatch(getTemplateNotificationSeenAction());
   }, []);
 
   const onSelect = (tabIndex: number) => {
     setSelectedIndex(selectedIndex);
     history.push(HomeTabs[tabIndex].path);
+
+    if (HomeTabs[tabIndex].key === HomePageTabsKeys.TEMPLATES) {
+      dispatch(setTemplateNotificationSeenAction(true));
+    }
   };
 
   return (
@@ -106,7 +128,7 @@ function HomeScreenTabs() {
         <TabComponent
           onSelect={onSelect}
           selectedIndex={matchTemplatesPath(path) ? 1 : 0}
-          tabItemComponent={DefaultTabItem}
+          tabItemComponent={TabItem}
           tabs={HomeTabs}
         />
       </TabsWrapper>
