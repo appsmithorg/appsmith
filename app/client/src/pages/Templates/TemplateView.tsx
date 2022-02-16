@@ -175,7 +175,11 @@ function TemplateView() {
       <TemplateViewWrapper>
         <Title type={TextType.H4}>{currentTemplate.title}</Title>
         <IframeWrapper>
-          <iframe height={"100%"} src={currentTemplate.appUrl} width={"100%"} />
+          <iframe
+            height={"100%"}
+            src={`${currentTemplate.appUrl}?embed=true`}
+            width={"100%"}
+          />
         </IframeWrapper>
         <DescriptionWrapper>
           <DescriptionColumn>
