@@ -1,7 +1,6 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { SnipablePropertyValueType } from "../BaseWidget";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,8 +9,8 @@ export const CONFIG = {
   hideCard: true,
   defaults: {
     widgetName: "Icon",
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 1 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 4,
     version: 1,
   },
   properties: {

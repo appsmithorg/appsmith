@@ -1,7 +1,6 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { SnipablePropertyValueType } from "../BaseWidget";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,8 +8,9 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 3 * GRID_DENSITY_MIGRATION_V1,
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 6,
+    columns: 16,
+    animateLoading: true,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
@@ -18,10 +18,11 @@ export const CONFIG = {
     ],
     defaultSelectedValues: "BLUE",
     isDisabled: false,
+    isInline: true,
     isRequired: false,
     isVisible: true,
     widgetName: "CheckboxGroup",
-    version: 1,
+    version: 2,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

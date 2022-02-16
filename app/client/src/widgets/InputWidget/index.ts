@@ -1,18 +1,18 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { SnipablePropertyValueType } from "../BaseWidget";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  hideCard: true,
   defaults: {
     inputType: "TEXT",
-    rows: GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
     label: "",
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    columns: 20,
     widgetName: "Input",
     version: 1,
     defaultText: "",
@@ -23,6 +23,7 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     allowCurrencyChange: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

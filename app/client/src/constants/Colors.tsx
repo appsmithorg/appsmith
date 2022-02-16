@@ -42,6 +42,7 @@ export const Colors = {
 
   FOAM: "#D9FDED",
   GREEN: "#03B365",
+  LIGHT_GREEN_CYAN: "#e5f6ec",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
   FERN_GREEN: "#50AF6C",
@@ -92,6 +93,8 @@ export const Colors = {
   DANUBE: "#6A86CE",
   FAIR_PINK: "#FFE9E9",
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
+  PALE_BLUE: "#E8F5FA",
+  CURIOUS_BLUE: "#1D9BD1",
   RATE_ACTIVE: "#FFCB45",
   MALIBU: "#7DBCFF",
   ALABASTER_ALT: "#FAFAFA",
@@ -159,5 +162,12 @@ export const Colors = {
   // error warning
   CRIMSON: "#D71010",
   ALTO_3: "#D6D6D6",
+  YELLOW_LIGHT: "#F4AF0A",
+  BROWN: "#864C17",
+
+  GRAY_900: "#101828",
+  SCORPION: "#575757",
+
+  COD_GRAY: "#191919",
 };
 export type Color = typeof Colors[keyof typeof Colors];

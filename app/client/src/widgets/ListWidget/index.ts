@@ -1,18 +1,16 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
 import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
-  GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
 import { SnipablePropertyValueType, WidgetProps } from "widgets/BaseWidget";
 import { cloneDeep, get, indexOf, isString } from "lodash";
-
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { SNIPING_FOR_LIST_FAILED } from "../../constants/messages";
+import { SNIPING_FOR_LIST_FAILED } from "@appsmith/constants/messages";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -31,8 +29,9 @@ export const CONFIG = {
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
-    rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 40,
+    columns: 24,
+    animateLoading: true,
     gridType: "vertical",
     template: {},
     enhancements: {
@@ -121,8 +120,8 @@ export const CONFIG = {
                 {
                   type: "CONTAINER_WIDGET",
                   size: {
-                    rows: 3 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 16 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 12,
+                    cols: 64,
                   },
                   position: { top: 0, left: 0 },
                   props: {
@@ -150,8 +149,8 @@ export const CONFIG = {
                                 {
                                   type: "IMAGE_WIDGET",
                                   size: {
-                                    rows: 2.1 * GRID_DENSITY_MIGRATION_V1,
-                                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    rows: 8,
+                                    cols: 16,
                                   },
                                   position: { top: 0, left: 0 },
                                   props: {
@@ -171,12 +170,12 @@ export const CONFIG = {
                                 {
                                   type: "TEXT_WIDGET",
                                   size: {
-                                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                                    rows: 4,
+                                    cols: 12,
                                   },
                                   position: {
                                     top: 0,
-                                    left: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    left: 16,
                                   },
                                   props: {
                                     text: "{{currentItem.name}}",
@@ -193,12 +192,12 @@ export const CONFIG = {
                                 {
                                   type: "TEXT_WIDGET",
                                   size: {
-                                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                                    cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                                    rows: 4,
+                                    cols: 8,
                                   },
                                   position: {
-                                    top: 1 * GRID_DENSITY_MIGRATION_V1,
-                                    left: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    top: 4,
+                                    left: 16,
                                   },
                                   props: {
                                     text: "{{currentItem.id}}",
@@ -327,15 +326,38 @@ export const CONFIG = {
             const parent = { ...widgets[parentId] };
             const logBlackList: { [key: string]: boolean } = {};
 
-            const disallowedWidgets = [
-              "TABLE_WIDGET",
-              "LIST_WIDGET",
-              "TABS_WIDGET",
-              "FORM_WIDGET",
-              "CONTAINER_WIDGET",
+            /*
+             * Only widgets that don't have derived or meta properties
+             * work well inside the current version of List widget.
+             * Widgets like Input, Select maintain the state on meta properties,
+             * which won't be available in List.selectedItem object. Hence we're
+             * restricting them from being placed inside the List widget.
+             */
+            const allowedWidgets = [
+              "AUDIO_WIDGET",
+              "BUTTON_GROUP_WIDGET",
+              "BUTTON_WIDGET",
+              "CHART_WIDGET",
+              "CHECKBOX_WIDGET",
+              "CHECKBOX_GROUP_WIDGET",
+              "CIRCULAR_PROGRESS_WIDGET",
+              "DIVIDER_WIDGET",
+              "ICON_BUTTON_WIDGET",
+              "IFRAME_WIDGET",
+              "IMAGE_WIDGET",
+              "INPUT_WIDGET_V2",
+              "MAP_CHART_WIDGET",
+              "MAP_WIDGET",
+              "MENU_BUTTON_WIDGET",
+              "PROGRESSBAR_WIDGET",
+              "STATBOX_WIDGET",
+              "SWITCH_WIDGET",
+              "SWITCH_GROUP_WIDGET",
+              "TEXT_WIDGET",
+              "VIDEO_WIDGET",
             ];
 
-            if (indexOf(disallowedWidgets, widget.type) > -1) {
+            if (indexOf(allowedWidgets, widget.type) === -1) {
               const widget = widgets[widgetId];
               if (widget.children && widget.children.length > 0) {
                 widget.children.forEach((childId: string) => {
@@ -361,7 +383,6 @@ export const CONFIG = {
               ...get(parent, "template", {}),
               [widget.widgetName]: widget,
             };
-
             parent.template = template;
 
             // add logBlackList for the children being added

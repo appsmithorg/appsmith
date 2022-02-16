@@ -1,13 +1,12 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import { SnipablePropertyValueType } from "../BaseWidget";
 import {
   createMessage,
   SNIPING_FOR_CHART_FAILED,
-} from "../../constants/messages";
+} from "@appsmith/constants/messages";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -23,13 +22,14 @@ export const CONFIG = {
     errorMessage: createMessage(SNIPING_FOR_CHART_FAILED),
   },
   defaults: {
-    rows: 8 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 32,
+    columns: 24,
     widgetName: "Chart",
     chartType: "COLUMN_CHART",
     chartName: "Sales Report",
     allowScroll: false,
     version: 1,
+    animateLoading: true,
     chartData: {
       [generateReactKey()]: {
         seriesName: "Sales",

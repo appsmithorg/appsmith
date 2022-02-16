@@ -8,6 +8,11 @@ export enum AuthType {
   bearerToken = "bearerToken",
 }
 
+export enum SSLType {
+  DEFAULT = "DEFAULT",
+  SELF_SIGNED_CERTIFICATE = "SELF_SIGNED_CERTIFICATE",
+}
+
 export enum ApiKeyAuthType {
   QueryParams = "queryParams",
   Header = "header",
@@ -25,6 +30,20 @@ export type Authentication =
   | ApiKey
   | BearerToken;
 
+export interface Connection {
+  ssl: SSL;
+}
+
+export interface SSL {
+  authType: SSLType;
+  certificateFile: Certificate;
+}
+
+export interface Certificate {
+  name: string;
+  base64Content: string | ArrayBuffer | null;
+}
+
 export interface ApiDatasourceForm {
   datasourceId: string;
   pluginId: string;
@@ -32,10 +51,12 @@ export interface ApiDatasourceForm {
   isValid: boolean;
   url: string;
   headers?: Property[];
+  queryParameters?: Property[];
   isSendSessionEnabled: boolean;
   sessionSignatureKey: string;
   authType: AuthType;
   authentication?: Authentication;
+  connection?: Connection;
 }
 
 export interface Oauth2Common {
@@ -48,10 +69,13 @@ export interface Oauth2Common {
   isTokenHeader: boolean;
   audience: string;
   resource: string;
+  sendScopeWithRefreshToken: string;
+  refreshTokenClientCredentialsLocation: string;
 }
 
 export interface ClientCredentials extends Oauth2Common {
   grantType: GrantType.ClientCredentials;
+  customTokenParameters: Property[];
 }
 
 export interface AuthorizationCode extends Oauth2Common {

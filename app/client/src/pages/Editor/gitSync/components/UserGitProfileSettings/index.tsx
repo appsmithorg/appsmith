@@ -5,10 +5,11 @@ import {
   USER_PROFILE_SETTINGS_TITLE,
   AUTHOR_NAME,
   AUTHOR_EMAIL,
-} from "constants/messages";
+  FORM_VALIDATION_INVALID_EMAIL,
+  AUTHOR_NAME_CANNOT_BE_EMPTY,
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
-import { Classes as GitSyncClasses } from "../../constants";
 import Checkbox from "components/ads/Checkbox";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
 import history from "utils/history";
@@ -19,6 +20,8 @@ import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -26,19 +29,16 @@ const LabelContainer = styled.div`
   margin-bottom: 8px;
 `;
 
-const InputContainer = styled.div`
+const InputContainer = styled.div<{ isValid: boolean }>`
   display: flex;
   align-items: center;
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  .${GitSyncClasses.OPTION_SELECTOR_WRAPPER} {
-    display: flex;
-    align-items: center;
-    padding-top: 5px;
+  margin-bottom: ${(props) => props.theme.spaces[props.isValid ? 7 : 12]}px;
+  & > div {
+    ${(props) =>
+      !props.isValid ? `border: 1px solid ${Colors.ERROR_RED};` : ""}
+    input {
+      ${(props) => (!props.isValid ? `color: ${Colors.ERROR_RED};` : "")}
+    }
   }
 `;
 
@@ -66,7 +66,13 @@ const IconWrapper = styled.div`
 const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
-  margin-top: ${(props) => props.theme.spaces[2]}px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
+`;
+
+const SectionTitle = styled.span`
+  ${(props) => getTypographyByKey(props, "u1")};
+  text-transform: uppercase;
+  color: ${Colors.GRAY_900};
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };
@@ -114,19 +120,16 @@ type UserGitProfileSettingsProps = {
   setAuthorInfo: SetAuthorInfo;
   useGlobalConfig: boolean;
   toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
-  isLocalConfigDefined: boolean;
-  isGlobalConfigDefined: boolean;
   triedSubmit: boolean;
 };
 
 const goToGitProfile = () => {
+  AnalyticsUtil.logEvent("GS_DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK");
   history.push(GIT_PROFILE_ROUTE);
 };
 
 function UserGitProfileSettings({
   authorInfo,
-  isGlobalConfigDefined,
-  isLocalConfigDefined,
   setAuthorInfo,
   toggleUseDefaultConfig,
   triedSubmit,
@@ -149,7 +152,7 @@ function UserGitProfileSettings({
     [authorInfo, setAuthorInfo],
   );
 
-  const disableInput = isGlobalConfigDefined && useGlobalConfig;
+  const disableInput = useGlobalConfig;
 
   const isValidEmail = useMemo(
     () =>
@@ -160,16 +163,26 @@ function UserGitProfileSettings({
   const isFetchingConfig =
     isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
 
-  const showDefaultConfig =
-    !isFetchingConfig && !isLocalConfigDefined && isGlobalConfigDefined;
+  const showDefaultConfig = !isFetchingConfig;
+  const nameInvalid =
+    !isFetchingConfig &&
+    !useGlobalConfig &&
+    !authorInfo.authorName &&
+    !nameInputFocused &&
+    triedSubmit;
+
+  const emailInvalid =
+    !isFetchingConfig &&
+    !useGlobalConfig &&
+    !isValidEmail &&
+    !emailInputFocused &&
+    triedSubmit;
 
   return (
     <MainContainer>
-      <TitleWrapper>
-        <span className="label">
-          {createMessage(USER_PROFILE_SETTINGS_TITLE)}
-        </span>
-      </TitleWrapper>
+      <SectionTitle className="label">
+        {createMessage(USER_PROFILE_SETTINGS_TITLE)}
+      </SectionTitle>
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
@@ -194,15 +207,12 @@ function UserGitProfileSettings({
           <span className="label">{createMessage(AUTHOR_NAME)}</span>
         </LabelContainer>
 
-        <InputContainer>
+        <InputContainer isValid={!nameInvalid}>
           <TextInput
             dataType="text"
-            defaultValue={authorInfo.authorName}
             disabled={disableInput}
             errorMsg={
-              !authorInfo.authorName && !nameInputFocused && triedSubmit
-                ? "Author name cannot be empty"
-                : ""
+              nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
             }
             fill
             isLoading={isFetchingConfig}
@@ -210,22 +220,18 @@ function UserGitProfileSettings({
             onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
             onFocus={() => setNameInputFocused(true)}
             trimValue={false}
+            value={authorInfo.authorName}
           />
         </InputContainer>
-
-        <Space size={7} />
-
         <LabelContainer>
           <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
         </LabelContainer>
-        <InputContainer>
+        <InputContainer isValid={!emailInvalid}>
           <TextInput
             dataType="email"
             disabled={disableInput}
             errorMsg={
-              !isValidEmail && !emailInputFocused && triedSubmit
-                ? "Please enter a valid email"
-                : ""
+              emailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
             }
             fill
             isLoading={isFetchingConfig}

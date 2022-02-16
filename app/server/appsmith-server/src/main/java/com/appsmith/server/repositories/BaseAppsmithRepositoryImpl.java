@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -83,6 +84,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected Criteria getIdCriteria(Object id) {
         return where("id").is(id);
+    }
+
+    private Criteria getBranchCriteria(String branchName) {
+        return where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME).is(branchName);
     }
 
     protected DBObject getDbObject(Object o) {
@@ -179,6 +184,18 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
+    protected Mono<T> queryFirst(List<Criteria> criterias, AclPermission aclPermission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMap(auth -> {
+                    User user = (User) auth.getPrincipal();
+                    return mongoOperations.query(this.genericDomain)
+                            .matching(createQueryWithPermission(criterias, user, aclPermission))
+                            .first()
+                            .map(obj -> (T) setUserPermissionsInObject(obj, user));
+                });
+    }
+
     protected Query createQueryWithPermission(List<Criteria> criterias, User user, AclPermission aclPermission) {
         Query query = new Query();
         criterias.stream()
@@ -201,17 +218,32 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 );
     }
 
+    protected Mono<Long> count(List<Criteria> criteriaList) {
+        return mongoOperations.count(
+                createQueryWithPermission(criteriaList, null, null), this.genericDomain
+        );
+    }
+
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
         return queryAll(criterias, aclPermission, null);
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
+        return queryAll(criterias, null, aclPermission, sort);
+    }
+
+    public Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMapMany(auth -> {
                     User user = (User) auth.getPrincipal();
                     Query query = new Query();
+                    if(!CollectionUtils.isEmpty(includeFields)) {
+                        for(String includeField: includeFields) {
+                            query.fields().include(includeField);
+                        }
+                    }
                     Criteria andCriteria = new Criteria();
 
                     criteriaList.add(notDeleted());
@@ -234,24 +266,22 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public T setUserPermissionsInObject(T obj, User user) {
-
         Set<String> permissions = new HashSet<>();
+        if(obj.getPolicies() != null) {
+            for (Policy policy : obj.getPolicies()) {
+                Set<String> policyUsers = policy.getUsers();
+                Set<String> policyGroups = policy.getGroups();
+                if (policyUsers != null &&
+                        (policyUsers.contains(user.getUsername()) || policyUsers.contains(FieldName.ANONYMOUS_USER))) {
+                    permissions.add(policy.getPermission());
+                }
 
-        for (Policy policy : obj.getPolicies()) {
-            Set<String> policyUsers = policy.getUsers();
-            Set<String> policyGroups = policy.getGroups();
-
-
-            if (policyUsers != null &&
-                    (policyUsers.contains(user.getUsername()) || policyUsers.contains(FieldName.ANONYMOUS_USER))) {
-                permissions.add(policy.getPermission());
-            }
-
-            if (user.getGroupIds() != null) {
-                for (String groupId : user.getGroupIds()) {
-                    if (policyGroups != null && policyGroups.contains(groupId)) {
-                        permissions.add(policy.getPermission());
-                        break;
+                if (user.getGroupIds() != null) {
+                    for (String groupId : user.getGroupIds()) {
+                        if (policyGroups != null && policyGroups.contains(groupId)) {
+                            permissions.add(policy.getPermission());
+                            break;
+                        }
                     }
                 }
             }
@@ -261,4 +291,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return obj;
     }
 
+    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
 }

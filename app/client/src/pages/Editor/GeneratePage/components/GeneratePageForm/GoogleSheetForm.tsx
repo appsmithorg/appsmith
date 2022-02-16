@@ -27,7 +27,7 @@ import {
   GEN_CRUD_COLUMN_HEADER_TITLE,
   GEN_CRUD_NO_COLUMNS,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 type Props = {
   googleSheetPluginId: string;
@@ -289,7 +289,7 @@ function GoogleSheetForm(props: Props) {
   return (
     <>
       {selectedSpreadsheet.value ? (
-        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+        <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>
             Select sheet from <Bold>{selectedSpreadsheet.label}</Bold>
           </Label>
@@ -310,7 +310,7 @@ function GoogleSheetForm(props: Props) {
 
       {selectedSheet.value ? (
         <>
-          <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+          <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
             <Row>
               <RowHeading>
                 {createMessage(GEN_CRUD_TABLE_HEADER_LABEL)}

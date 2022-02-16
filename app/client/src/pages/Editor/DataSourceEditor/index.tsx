@@ -56,7 +56,10 @@ type Props = ReduxStateProps &
 
 class DataSourceEditor extends React.Component<Props> {
   componentDidUpdate(prevProps: Props) {
+    //Fix to prevent restapi datasource from being set in DatasourceDBForm in view mode
+    //TODO: Needs cleanup
     if (
+      this.props.pluginDatasourceForm !== "RestAPIDatasourceForm" &&
       this.props.match.params.datasourceId &&
       this.props.match.params.datasourceId !==
         prevProps.match.params.datasourceId
@@ -65,7 +68,12 @@ class DataSourceEditor extends React.Component<Props> {
     }
   }
   componentDidMount() {
-    if (this.props.match.params.datasourceId) {
+    //Fix to prevent restapi datasource from being set in DatasourceDBForm in datasource view mode
+    //TODO: Needs cleanup
+    if (
+      this.props.match.params.datasourceId &&
+      this.props.pluginDatasourceForm !== "RestAPIDatasourceForm"
+    ) {
       this.props.switchDatasource(this.props.match.params.datasourceId);
     }
   }

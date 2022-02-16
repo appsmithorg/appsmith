@@ -23,5 +23,7 @@
   "currentNameField": "//div[@type='FORM_WIDGET']//span[text()='name:']//ancestor::div[contains(@class,'t--widget-textwidget')]/preceding-sibling::div[contains(@class, 't--widget-inputwidget')][1]//input",
   "deleteofSelectedRow": "//div[@class='tr selected-row']//span[text()='Delete']",
   "confirmBtn": "span:contains('Confirm')",
-  "deleteMenuItem": "//div[text()='Delete']/parent::a[contains(@class, 'single-select')]"
+  "deleteMenuItem": "//div[text()='Delete']/parent::a[contains(@class, 'single-select')]",
+  "uploadFilesS3":"div.uppy-Dashboard-AddFiles input",
+  "uploadBtn": "button.uppy-StatusBar-actionBtn--upload"
 }

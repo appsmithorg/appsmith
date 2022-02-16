@@ -33,4 +33,6 @@ public interface Url {
     String NOTIFICATION_URL = BASE_URL + VERSION + "/notifications";
     String INSTANCE_ADMIN_URL = BASE_URL + VERSION + "/admin";
     String GIT_URL = BASE_URL + VERSION + "/git";
+    String THEME_URL = BASE_URL + VERSION + "/themes";
+    String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
 }

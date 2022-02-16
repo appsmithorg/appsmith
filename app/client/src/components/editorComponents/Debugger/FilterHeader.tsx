@@ -10,7 +10,7 @@ import { clearLogs } from "actions/debuggerActions";
 import { Classes } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
-import { CLEAR_LOG_TOOLTIP, createMessage } from "constants/messages";
+import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 

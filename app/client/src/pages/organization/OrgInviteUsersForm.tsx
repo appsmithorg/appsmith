@@ -22,13 +22,13 @@ import {
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Button, { Size } from "components/ads/Button";
@@ -273,7 +273,7 @@ function OrgInviteUsersForm(props: any) {
         <>
           <Divider />
           <OrgInviteTitle>
-            <Text type={TextType.H5}>Invite Users to {currentOrg?.name} </Text>
+            <Text type={TextType.H5}>Invite users to {currentOrg?.name} </Text>
           </OrgInviteTitle>
         </>
       )}

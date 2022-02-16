@@ -1,0 +1,39 @@
+{
+  "command" : {
+    "label": "Commands",
+    "description": "Choose method you would like to use",
+    "configProperty": "actionConfiguration.formData.command",
+    "controlType": "DROP_DOWN",
+    "initialValue": "GET_DOCUMENT",
+    "options": [
+      {
+        "label": "Get Single Document",
+        "fileName": "getDocument.json"
+      },
+      {
+        "label": "Get Documents in Collection",
+        "fileName": "getCollection.json"
+      },
+      {
+        "label": "Set Document",
+        "fileName": "setDocument.json"
+      },
+      {
+        "label": "Create Document",
+        "fileName": "createDocument.json"
+      },
+      {
+        "label": "Add Document to Collection",
+        "fileName": "addToCollection.json"
+      },
+      {
+        "label": "Update Document",
+        "fileName": "updateDocument.json"
+      },
+      {
+        "label": "Delete Document",
+        "fileName": "deleteDocument.json"
+      }
+    ]
+  }
+}

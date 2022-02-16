@@ -1,10 +1,7 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
 import { SnipablePropertyValueType, WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  GRID_DENSITY_MIGRATION_V1,
-} from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -20,10 +17,11 @@ export const CONFIG = {
     snipablePropertyValueType: SnipablePropertyValueType.NONE,
   },
   defaults: {
-    rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 40,
+    columns: 24,
     shouldScrollContents: false,
     widgetName: "Tabs",
+    animateLoading: true,
     tabsObj: {
       tab1: {
         label: "Tab 1",

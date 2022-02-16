@@ -19,7 +19,7 @@ import {
   createMessage,
   SNIPING_NOT_SUPPORTED,
   SNIPING_SELECT_WIDGET_AGAIN,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import log from "loglevel";
 import WidgetFactory from "utils/WidgetFactory";

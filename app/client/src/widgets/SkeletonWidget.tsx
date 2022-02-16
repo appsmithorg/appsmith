@@ -5,7 +5,6 @@ import BaseWidget, {
   WidgetState,
 } from "./BaseWidget";
 import styled from "styled-components";
-import { GRID_DENSITY_MIGRATION_V1 } from "./constants";
 
 const SkeletonWrapper = styled.div`
   height: 100%;
@@ -31,8 +30,8 @@ export const CONFIG = {
   hideCard: true,
   defaults: {
     isLoading: true,
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 1 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 4,
     widgetName: "Skeleton",
     version: 1,
   },

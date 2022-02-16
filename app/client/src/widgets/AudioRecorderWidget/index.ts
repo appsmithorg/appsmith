@@ -1,6 +1,5 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { SnipablePropertyValueType } from "../BaseWidget";
 
 export const CONFIG = {
@@ -13,10 +12,11 @@ export const CONFIG = {
     iconColor: "white",
     isDisabled: false,
     isVisible: true,
-    rows: 2 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 8,
+    columns: 16,
     widgetName: "AudioRecorder",
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

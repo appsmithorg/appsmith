@@ -13,12 +13,12 @@ import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
 
-import { useScript, ScriptStatus } from "utils/hooks/useScript";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ThemeProp, Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 
@@ -32,12 +32,17 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariant,
   ButtonVariantTypes,
+  RecaptchaType,
+  RecaptchaTypes,
+  ButtonPlacement,
 } from "components/constants";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  getCustomJustifyContent,
+  getAlignText,
 } from "widgets/WidgetUtils";
 
 const RecaptchaWrapper = styled.div`
@@ -180,6 +185,16 @@ const StyledButton = styled((props) => (
       ? `-2px -2px 0px ${boxShadowColor ||
           theme.colors.button.boxShadow.default.variant5}`
       : "none"} !important;
+
+  ${({ placement }) =>
+    placement
+      ? `
+      justify-content: ${getCustomJustifyContent(placement)};
+      & > span.bp3-button-text {
+        flex: unset !important;
+      }
+    `
+      : ""}
 `;
 
 type ButtonStyleProps = {
@@ -190,6 +205,7 @@ type ButtonStyleProps = {
   borderRadius?: ButtonBorderRadius;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 };
 
 // To be used in any other part of the app
@@ -207,35 +223,16 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     iconName,
     loading,
     onClick,
+    placement,
     rightIcon,
     text,
   } = props;
 
-  if (iconAlign === Alignment.RIGHT) {
-    return (
-      <StyledButton
-        alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        className={className}
-        data-test-variant={buttonVariant}
-        disabled={disabled}
-        fill
-        icon={icon}
-        loading={loading}
-        onClick={onClick}
-        rightIcon={iconName || rightIcon}
-        text={text}
-      />
-    );
-  }
+  const isRightAlign = iconAlign === Alignment.RIGHT;
 
   return (
     <StyledButton
-      alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
+      alignText={getAlignText(isRightAlign, iconName)}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       boxShadowColor={boxShadowColor}
@@ -245,10 +242,11 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       data-test-variant={buttonVariant}
       disabled={disabled}
       fill
-      icon={iconName || icon}
+      icon={isRightAlign ? icon : iconName || icon}
       loading={loading}
       onClick={onClick}
-      rightIcon={rightIcon}
+      placement={placement}
+      rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
       text={text}
     />
   );
@@ -272,7 +270,7 @@ interface RecaptchaProps {
   googleRecaptchaKey?: string;
   clickWithRecaptcha: (token: string) => void;
   handleRecaptchaV2Loading?: (isLoading: boolean) => void;
-  recaptchaV2?: boolean;
+  recaptchaType?: RecaptchaType;
 }
 
 interface ButtonComponentProps extends ComponentProps {
@@ -291,13 +289,14 @@ interface ButtonComponentProps extends ComponentProps {
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 }
 
 function RecaptchaV2Component(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-    recaptchaV2?: boolean;
+    recaptchaType?: RecaptchaType;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -346,7 +345,7 @@ function RecaptchaV3Component(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-    recaptchaV2?: boolean;
+    recaptchaType?: RecaptchaType;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -390,6 +389,7 @@ function RecaptchaV3Component(
   }
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
+    AddScriptTo.HEAD,
   );
   return <div onClick={handleBtnClick}>{props.children}</div>;
 }
@@ -413,7 +413,7 @@ function BtnWrapper(
       });
       props.onClick && props.onClick(event);
     };
-    if (props.recaptchaV2) {
+    if (props.recaptchaType === RecaptchaTypes.V2) {
       return <RecaptchaV2Component {...props} handleError={handleError} />;
     } else {
       return <RecaptchaV3Component {...props} handleError={handleError} />;
@@ -429,7 +429,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       googleRecaptchaKey={props.googleRecaptchaKey}
       handleRecaptchaV2Loading={props.handleRecaptchaV2Loading}
       onClick={props.onClick}
-      recaptchaV2={props.recaptchaV2}
+      recaptchaType={props.recaptchaType}
     >
       <ButtonContainer disabled={props.isDisabled}>
         <BaseButton
@@ -443,6 +443,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           iconAlign={props.iconAlign}
           iconName={props.iconName}
           loading={props.isLoading}
+          placement={props.placement}
           rightIcon={props.rightIcon}
           text={props.text}
           type={props.type}

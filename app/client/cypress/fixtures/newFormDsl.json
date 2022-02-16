@@ -58,7 +58,7 @@
                 "label": "",
                 "iconAlign": "left",
                 "widgetName": "Input1",
-                "type": "INPUT_WIDGET",
+                "type": "INPUT_WIDGET_V2",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "parentRowSpace": 38,
@@ -75,7 +75,7 @@
                 "selectionType": "SINGLE_SELECT",
                 "options": "",
                 "widgetName": "Dropdown1",
-                "type": "DROP_DOWN_WIDGET",
+                "type": "SELECT_WIDGET",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "parentRowSpace": 38,
@@ -97,12 +97,18 @@
                 "rightColumn": 15,
                 "isVisible": true,
                 "label": "",
-                "type": "MULTI_SELECT_WIDGET",
+                "type": "MULTI_SELECT_WIDGET_V2",
                 "parentId": "zizrooqfps",
                 "isLoading": false,
                 "defaultOptionValue": [
-                  "First",
-                  "Seventh"
+                  {
+                    "label": "Hashirama Senju",
+                    "value": "First"
+                  },
+                  {
+                    "label": "Naruto Uzumaki",
+                    "value": "Seventh"
+                  }
                 ],
                 "parentColumnSpace": 71.75,
                 "leftColumn": 10,
@@ -307,6 +313,45 @@
                 "bottomRow": 17,
                 "parentId": "kipfh779n5",
                 "widgetId": "zbzrlbiose"
+              },
+              {
+                "widgetName": "SwitchGroup1",
+                "isCanvas": false,
+                "displayName": "Switch Group",
+                "iconSVG": "/static/media/icon.086a7201.svg",
+                "topRow": 8,
+                "bottomRow": 14,
+                "parentRowSpace": 10,
+                "type": "SWITCH_GROUP_WIDGET",
+                "hideCard": false,
+                "parentColumnSpace": 6.6856445312499995,
+                "leftColumn": 2,
+                "options": [
+                    {
+                        "label": "Blue",
+                        "value": "BLUE"
+                    },
+                    {
+                        "label": "Green",
+                        "value": "GREEN"
+                    },
+                    {
+                        "label": "Red",
+                        "value": "RED"
+                    }
+                ],
+                "isDisabled": false,
+                "key": "vrhzyvir7s",
+                "isRequired": false,
+                "rightColumn": 20,
+                "defaultSelectedValues": "BLUE",
+                "widgetId": "egtjazr1wh",
+                "isVisible": true,
+                "version": 1,
+                "parentId": "xbbqrz2ncf",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "isInline": true
               }
             ],
             "widgetId": "e3tq9qwta6",
