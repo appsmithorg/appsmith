@@ -8,7 +8,7 @@ type Props = {
 };
 
 /**
- * render visible components in preview mode
+ * render only visible components in preview mode
  */
 function PreviewModeComponent({ children, isVisible }: Props) {
   const isPreviewMode = useSelector(previewModeSelector);

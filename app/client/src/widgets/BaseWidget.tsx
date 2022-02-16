@@ -329,7 +329,7 @@ abstract class BaseWidget<
       case RenderModes.CANVAS:
         content = this.getCanvasView();
         content = this.addPreviewModeWidget(content);
-        // NOTE: if content not available, we don't have to show widget
+        // NOTE: in preview mode, we are showing only visible widgets so content can be null for invisible widgets
         if (!content) {
           return null;
         }
