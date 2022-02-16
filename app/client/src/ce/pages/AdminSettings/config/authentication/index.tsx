@@ -57,6 +57,16 @@ const Form_Auth: AdminConfigType = {
         }
       },
     },
+    {
+      id: "APPSMITH_FORM_CALLOUT_BANNER",
+      category: SettingCategories.FORM_AUTH,
+      subCategory: "form signup",
+      controlType: SettingTypes.LINK,
+      label:
+        "User emails are not verified. This can lead to a breach in your application.",
+      url: GOOGLE_SIGNUP_SETUP_DOC,
+      calloutType: "Warning",
+    },
   ],
 };
 
