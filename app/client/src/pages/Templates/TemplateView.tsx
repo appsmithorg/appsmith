@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
+import { useSelector } from "react-redux";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import Button, { IconPositions, Size } from "components/ads/Button";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
@@ -11,7 +12,6 @@ import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
 import DatasourceChip from "./DatasourceChip";
 import WidgetInfo from "./WidgetInfo";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import { useSelector } from "react-redux";
 import {
   getTemplateById,
   isFetchingTemplatesSelector,
@@ -21,6 +21,7 @@ import ForkTemplate from "./ForkTemplate";
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   height: calc(100vh - ${(props) => props.theme.homePage.search.height}px);
+  overflow: auto;
 
   .breadcrumb-placeholder {
     margin-top: 30px;
@@ -133,6 +134,7 @@ function TemplateView() {
   const params = useParams<{ templateId: string }>();
   const currentTemplate = useSelector(getTemplateById(params.templateId));
   const [showForkModal, setShowForkModal] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const onForkButtonTrigger = () => {
     setShowForkModal(true);
@@ -141,6 +143,12 @@ function TemplateView() {
   const onForkModalClose = () => {
     setShowForkModal(false);
   };
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [params.templateId]);
 
   if (isFetchingTemplates) {
     return (
@@ -163,7 +171,7 @@ function TemplateView() {
   }
 
   return (
-    <Wrapper>
+    <Wrapper ref={containerRef}>
       <TemplateViewWrapper>
         <Title type={TextType.H4}>{currentTemplate.title}</Title>
         <IframeWrapper>
