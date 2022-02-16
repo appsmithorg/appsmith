@@ -1,7 +1,75 @@
-import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
 import { HiddenFnParams, getSchemaItem } from "../helper";
+import { JSONFormWidgetProps } from "../..";
+import { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
+export function defaultOptionValueValidation(
+  inputValue: unknown,
+  props: JSONFormWidgetProps,
+  _: any,
+): ValidationResponse {
+  const DEFAULT_ERROR_MESSAGE =
+    'value should match: string | { "label": "label1", "value": "value1" }';
+  let value = inputValue;
+
+  const hasLabelValueProperties = (
+    obj: any,
+  ): obj is { value: string | number; label: string } => {
+    return (
+      _.isPlainObject(obj) &&
+      obj.hasOwnProperty("label") &&
+      obj.hasOwnProperty("value") &&
+      _.isString(obj.label) &&
+      (_.isString(obj.value) || _.isFinite(obj.value))
+    );
+  };
+
+  // If input value is empty string then we can fairly assume that the input
+  // was cleared out and can be treated as undefined.
+  if (inputValue === undefined || inputValue === null || inputValue === "") {
+    return {
+      isValid: true,
+      parsed: inputValue,
+      messages: [""],
+    };
+  }
+
+  if (typeof inputValue === "string") {
+    try {
+      value = JSON.parse(inputValue);
+    } catch (e) {}
+  }
+
+  if (_.isString(value) || _.isFinite(value)) {
+    // When value is "", "green", 444
+    return {
+      isValid: true,
+      parsed: value,
+      messages: [""],
+    };
+  }
+
+  if (hasLabelValueProperties(value)) {
+    // When value is {label: "green", value: "green"}
+    return {
+      isValid: true,
+      parsed: value,
+      messages: [""],
+    };
+  }
+
+  return {
+    isValid: false,
+    parsed: {},
+    messages: [DEFAULT_ERROR_MESSAGE],
+  };
+}
 
 const PROPERTIES = {
   general: [
@@ -14,28 +82,17 @@ const PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.OBJECT,
+        type: ValidationTypes.FUNCTION,
         params: {
-          allowedKeys: [
-            {
-              name: "label",
-              type: ValidationTypes.TEXT,
-              params: {
-                default: "",
-                requiredKey: true,
-              },
-            },
-            {
-              name: "value",
-              type: ValidationTypes.TEXT,
-              params: {
-                default: "",
-                requiredKey: true,
-              },
-            },
-          ],
+          fn: defaultOptionValueValidation,
+          expected: {
+            type: 'value1 or { "label": "label1", "value": "value1" }',
+            example: `value1 | { "label": "label1", "value": "value1" }`,
+            autocompleteDataType: AutocompleteDataType.STRING,
+          },
         },
       },
+      evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.SELECT),
       dependencies: ["schema"],

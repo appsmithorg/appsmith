@@ -22,13 +22,7 @@ type MetaProps = {
   filterText?: string;
 };
 
-type DefaultValue =
-  | string
-  | number
-  | boolean
-  | DropdownOption
-  | null
-  | undefined;
+type DefaultValue = string | number | DropdownOption | null | undefined;
 
 type SelectComponentProps = FieldComponentBaseProps &
   MetaProps & {
@@ -76,9 +70,8 @@ const composeDefaultValue = (
   schemaItemDefaultValue: DefaultValue,
   passedDefaultValue: DefaultValue,
 ) => {
-  if (isPrimitive(schemaItemDefaultValue) || isPrimitive(passedDefaultValue)) {
-    return schemaItemDefaultValue ?? passedDefaultValue;
-  }
+  if (isPrimitive(schemaItemDefaultValue)) return schemaItemDefaultValue;
+  if (isPrimitive(passedDefaultValue)) return passedDefaultValue;
 
   return schemaItemDefaultValue?.value ?? passedDefaultValue?.value;
 };
