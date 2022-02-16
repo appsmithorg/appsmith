@@ -120,7 +120,7 @@ describe("DynamicBindingPathlist", () => {
       ],
       isValid: true,
       invalids: [],
-      // messages: [],
+      messages: [],
       jsonPathKeys: ["Create_users.data", "Button1.text"],
       confirmBeforeExecute: false,
       // userPermissions: ["read:actions", "execute:actions", "manage:actions"],

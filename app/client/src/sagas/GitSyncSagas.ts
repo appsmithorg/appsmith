@@ -402,7 +402,9 @@ function* fetchGitStatusSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const gitMetaData = yield select(getCurrentAppGitMetaData);
+    const gitMetaData: GitApplicationMetadata = yield select(
+      getCurrentAppGitMetaData,
+    );
     response = yield GitSyncAPI.getGitStatus({
       applicationId,
       branch: gitMetaData?.branchName || "",
@@ -490,7 +492,9 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
       yield put(fetchMergeStatusSuccess(response?.data));
     }
   } catch (error) {
-    yield put(fetchMergeStatusFailure({ error, show: false }));
+    yield put(
+      fetchMergeStatusFailure({ error: (error as Error).message, show: false }),
+    );
     if (!response || response?.responseMeta?.success) {
       throw error;
     }
@@ -511,8 +515,8 @@ function* gitPullSaga(
       false,
       getLogToSentryFromResponse(response),
     );
-    const currentBranch = yield select(getCurrentGitBranch);
-    const currentPageId = yield select(getCurrentPageId);
+    const currentBranch: string | undefined = yield select(getCurrentGitBranch);
+    const currentPageId: string = yield select(getCurrentPageId);
     if (isValidResponse) {
       const { mergeStatus } = response?.data;
       yield put(gitPullSuccess(mergeStatus));

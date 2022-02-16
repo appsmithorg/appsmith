@@ -66,10 +66,14 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { User } from "constants/userConstants";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
-  const currentUser = yield select(getCurrentUser);
+  const currentUser: User | undefined = yield select(getCurrentUser);
+  // @ts-expect-error: Type mismatch currentUser can be undefined
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
   if (!currentOrganizationId) {
@@ -98,7 +102,7 @@ function* createApplication() {
 }
 
 function* setCurrentStepSaga(action: ReduxAction<number>) {
-  const hadReachedStep = yield select(getHadReachedStep);
+  const hadReachedStep: number = yield select(getHadReachedStep);
   // Log only once when we reach that step
   if (action.payload > hadReachedStep) {
     AnalyticsUtil.logEvent("GUIDED_TOUR_REACHED_STEP", {
@@ -128,6 +132,7 @@ function* setUpTourAppSaga() {
   });
 
   yield delay(500);
+  // @ts-expect-error: No type declared for getTableWidgetSelector.
   const tableWidget = yield select(getTableWidget);
   yield put(
     batchUpdateMultipleWidgetProperties([
@@ -154,7 +159,7 @@ function* setUpTourAppSaga() {
   );
   yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   yield put(clearActionResponse(query?.config.id ?? ""));
-  const applicationId = yield select(getCurrentApplicationId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   history.push(
     QUERIES_EDITOR_ID_URL(
       applicationId,
@@ -182,8 +187,8 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
   const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
 
-  const evalTree = yield select(getDataTree);
-  const widgets = yield select(getWidgets);
+  const evalTree: DataTree = yield select(getDataTree);
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
     prefix: widgetConfig.widgetName,
@@ -315,7 +320,7 @@ function* setFirstTimeUserOnboardingIntroModalVisibility(
 }
 
 function* endFirstTimeUserOnboardingSaga() {
-  const firstTimeUserExperienceAppId = yield select(
+  const firstTimeUserExperienceAppId: string = yield select(
     getFirstTimeUserOnboardingApplicationId,
   );
   yield put({

@@ -17,7 +17,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import {
+  JSCollectionData,
+  JSCollectionDataState,
+} from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
@@ -31,7 +34,10 @@ import {
   pushLogsForObjectUpdate,
   createDummyJSCollectionActions,
 } from "../utils/JSPaneUtils";
-import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
+import JSActionAPI, {
+  JSCollectionCreateUpdateResponse,
+  RefactorAction,
+} from "../api/JSActionAPI";
 import {
   updateJSCollectionSuccess,
   refactorJSCollectionAction,
@@ -56,21 +62,22 @@ import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import PageApi from "api/PageApi";
+import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { updateReplayEntity } from "actions/pageActions";
+import { ApiResponse } from "api/ApiResponses";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
-  const applicationId = yield select(getCurrentApplicationId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
     JS_PLUGIN_PACKAGE_NAME,
   );
   if (pageId && pluginId) {
-    const jsActions = yield select(getJSCollections);
+    const jsActions: JSCollectionDataState = yield select(getJSCollections);
     const pageJSActions = jsActions.filter(
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
@@ -108,8 +115,8 @@ function* handleJSCollectionCreatedSaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
   const { id } = actionPayload.payload;
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string | undefined = yield select(getCurrentPageId);
   history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
 }
 
@@ -219,8 +226,10 @@ function* updateJSCollection(data: {
   try {
     const { deletedActions, jsCollection, newActions, updatedActions } = data;
     if (jsCollection) {
-      const response = yield JSActionAPI.updateJSCollection(jsCollection);
-      const isValidResponse = yield validateResponse(response);
+      const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.updateJSCollection(
+        jsCollection,
+      );
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         if (newActions && newActions.length) {
           pushLogsForObjectUpdate(
@@ -258,7 +267,10 @@ function* handleJSObjectNameChangeSuccessSaga(
   action: ReduxAction<{ actionId: string }>,
 ) {
   const { actionId } = action.payload;
-  const actionObj = yield select(getJSCollection, actionId);
+  const actionObj: JSCollection | undefined = yield select(
+    getJSCollection,
+    actionId,
+  );
   yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
@@ -269,13 +281,14 @@ function* handleJSObjectNameChangeSuccessSaga(
 
     return;
   }
-  if (actionObj.pluginType === PluginType.API) {
+
+  if (actionObj.pluginType === PluginType.JS) {
     const params = getQueryParams();
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string | undefined = yield select(getCurrentPageId);
     history.push(JS_COLLECTION_ID_URL(applicationId, pageId, actionId, params));
   }
 }
@@ -309,7 +322,7 @@ function* handleExecuteJSFunctionSaga(
       },
       state: { response: result },
     });
-  } catch (e) {
+  } catch (error) {
     AppsmithConsole.addError({
       id: actionId,
       logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
@@ -321,13 +334,14 @@ function* handleExecuteJSFunctionSaga(
       },
       messages: [
         {
-          message: e.message,
+          message: (error as Error).message,
           type: PLATFORM_ERROR.PLUGIN_EXECUTION,
         },
       ],
     });
     Toaster.show({
-      text: e.message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
+      text:
+        (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
       variant: Variant.danger,
       showDebugButton: true,
     });
@@ -337,12 +351,18 @@ function* handleExecuteJSFunctionSaga(
 function* handleUpdateJSCollectionBody(
   actionPayload: ReduxAction<{ body: string; id: string; isReplay: boolean }>,
 ) {
-  const jsCollection = yield select(getJSCollection, actionPayload.payload.id);
-  jsCollection.body = actionPayload.payload.body;
+  const jsCollection: JSCollection | undefined = yield select(
+    getJSCollection,
+    actionPayload.payload.id,
+  );
+
   try {
     if (jsCollection) {
-      const response = yield JSActionAPI.updateJSCollection(jsCollection);
-      const isValidResponse = yield validateResponse(response);
+      jsCollection.body = actionPayload.payload.body;
+      const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.updateJSCollection(
+        jsCollection,
+      );
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(updateJSCollectionBodySuccess({ data: response?.data }));
       }
@@ -372,10 +392,10 @@ function* handleRefactorJSActionNameSaga(
     actionCollection: JSCollection;
   }>,
 ) {
-  const pageResponse = yield call(PageApi.fetchPage, {
+  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
     id: data.payload.refactorAction.pageId,
   });
-  const isPageRequestSuccessful = yield validateResponse(pageResponse);
+  const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
@@ -388,13 +408,15 @@ function* handleRefactorJSActionNameSaga(
     };
     // call to refactor action
     try {
-      const refactorResponse = yield JSActionAPI.updateJSCollectionActionRefactor(
+      const refactorResponse: ApiResponse = yield JSActionAPI.updateJSCollectionActionRefactor(
         requestData,
       );
 
-      const isRefactorSuccessful = yield validateResponse(refactorResponse);
+      const isRefactorSuccessful: boolean = yield validateResponse(
+        refactorResponse,
+      );
 
-      const currentPageId = yield select(getCurrentPageId);
+      const currentPageId: string | undefined = yield select(getCurrentPageId);
 
       if (isRefactorSuccessful) {
         yield put({

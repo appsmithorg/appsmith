@@ -1,7 +1,7 @@
 import { call, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
-import { Page } from "constants/ReduxActionConstants";
+import { Page, PageListPayload } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -37,8 +37,8 @@ const isValidUrlScheme = (url: string): boolean => {
 export default function* navigateActionSaga(
   action: NavigateActionDescription["payload"],
 ) {
-  const pageList = yield select(getPageList);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageList: PageListPayload = yield select(getPageList);
+  const applicationId: string = yield select(getCurrentApplicationId);
   const {
     pageNameOrUrl,
     params,
@@ -49,12 +49,12 @@ export default function* navigateActionSaga(
     (page: Page) => page.pageName === pageNameOrUrl,
   );
   if (page) {
-    const currentPageId = yield select(getCurrentPageId);
+    const currentPageId: string | undefined = yield select(getCurrentPageId);
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: pageNameOrUrl,
       pageParams: params,
     });
-    const appMode = yield select(getAppMode);
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
     // uses query BUILDER_PAGE_URL
     const path =
       appMode === APP_MODE.EDIT

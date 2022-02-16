@@ -249,6 +249,7 @@ const BASE_ACTION: DataTreeAction = {
   clear: {},
   logBlackList: {},
   actionId: "randomId",
+  pluginId: "",
   name: "randomActionName",
   datasourceUrl: "",
   config: {
@@ -266,7 +267,6 @@ const BASE_ACTION: DataTreeAction = {
     data: EvaluationSubstitutionType.TEMPLATE,
   },
   dependencyMap: {},
-  datasourceUrl: "",
 };
 
 const metaMock = jest.spyOn(WidgetFactory, "getWidgetMetaPropertiesMap");

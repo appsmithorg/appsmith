@@ -20,9 +20,10 @@ import {
 import { Variant } from "components/ads/common";
 import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { User } from "constants/userConstants";
 
 export default function* handleAppLevelSocketEvents(event: any) {
-  const currentUser = yield select(getCurrentUser);
+  const currentUser: User | undefined = yield select(getCurrentUser);
 
   switch (event.type) {
     // comments
@@ -90,9 +91,7 @@ export default function* handleAppLevelSocketEvents(event: any) {
         Toaster.show({
           text: createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST),
           variant: Variant.info,
-          actionElement: (
-            <span onClick={() => location.reload(true)}>REFRESH</span>
-          ),
+          actionElement: <span onClick={() => location.reload()}>REFRESH</span>,
           autoClose: false,
         });
       }

@@ -1,8 +1,10 @@
 import React, { memo, useEffect } from "react";
 import EntityProperty, { EntityPropertyProps } from "./EntityProperty";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { WidgetType } from "constants/WidgetConstants";
+import {
+  entityDefinitions,
+  EntityDefinitionsOptions,
+} from "utils/autocomplete/EntityDefinitions";
 import {
   ENTITY_TYPE,
   DataTreeAction,
@@ -67,7 +69,7 @@ export const CurrentPageEntityProperties = memo(
         break;
       case ENTITY_TYPE.WIDGET:
         const type: Exclude<
-          Partial<WidgetType>,
+          EntityDefinitionsOptions,
           | "CANVAS_WIDGET"
           | "ICON_WIDGET"
           | "SKELETON_WIDGET"

@@ -9,6 +9,7 @@ describe("Add functions", () => {
   const dataTree: DataTree = {
     action1: {
       actionId: "123",
+      pluginId: "",
       data: {},
       config: {},
       datasourceUrl: "",

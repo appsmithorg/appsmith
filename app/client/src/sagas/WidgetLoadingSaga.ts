@@ -6,7 +6,10 @@ import {
 } from "../selectors/dataTreeSelectors";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "../selectors/entitiesSelector";
-import { ActionData } from "../reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "../reducers/entityReducers/actionsReducer";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -81,9 +84,11 @@ const ACTION_EXECUTION_REDUX_ACTIONS = [
 ];
 
 function* setWidgetsLoadingSaga() {
-  const inverseMap = yield select(getEvaluationInverseDependencyMap);
+  const inverseMap: DependencyMap = yield select(
+    getEvaluationInverseDependencyMap,
+  );
   const entityDependencyMap = createEntityDependencyMap(inverseMap);
-  const actions = yield select(getActions);
+  const actions: ActionDataState = yield select(getActions);
   const isLoadingActions: string[] = actions
     .filter((action: ActionData) => action.isLoading)
     .map((action: ActionData) => action.config.name);

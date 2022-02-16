@@ -36,6 +36,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { omit } from "lodash";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type GeneratedWidgetPayload = {
@@ -49,7 +50,7 @@ type WidgetAddTabChild = {
 };
 
 function* getEntityNames() {
-  const evalTree = yield select(getDataTree);
+  const evalTree: DataTree = yield select(getDataTree);
   return Object.keys(evalTree);
 }
 
@@ -222,7 +223,7 @@ export function* getUpdateDslAfterCreatingChild(
   const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
   // const parent = Object.assign({}, stateParent);
   // Get all the widgets from the canvasWidgetsReducer
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = Object.assign({}, stateWidgets);
   // Generate the full WidgetProps of the widget to be added.
   const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
@@ -312,10 +313,10 @@ export function* addChildrenSaga(
 ) {
   try {
     const { children, widgetId } = addChildrenAction.payload;
-    const stateWidgets = yield select(getWidgets);
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
+    const entityNames: string[] = yield call(getEntityNames);
 
     children.forEach((child) => {
       // Create only if it doesn't already exist
@@ -329,6 +330,7 @@ export function* addChildrenSaga(
         ]);
         // update the list of widget names for the next iteration
         widgetNames.push(newWidgetName);
+        // @ts-expect-error: Type mismatch for widgets Rahul Ramesh
         widgets[child.widgetId] = {
           ...child,
           widgetName: newWidgetName,

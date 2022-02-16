@@ -36,6 +36,9 @@ describe("dataTreeTypeDefCreator", () => {
       },
       validationPaths: {},
       logBlackList: {},
+      propertyOverrideDependency: {},
+      overridingPropertyPaths: {},
+      privateWidgets: {},
     };
     const { def, entityInfo } = dataTreeTypeDefCreator({
       Input1: dataTreeEntity,

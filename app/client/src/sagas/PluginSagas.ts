@@ -36,12 +36,15 @@ import {
 
 function* fetchPluginsSaga() {
   try {
-    const orgId = yield select(getCurrentOrgId);
+    const orgId: string = yield select(getCurrentOrgId);
     if (!orgId) {
       throw Error("Org id does not exist");
     }
-    const pluginsResponse = yield call(PluginsApi.fetchPlugins, orgId);
-    const isValid = yield validateResponse(pluginsResponse);
+    const pluginsResponse: GenericApiResponse<Plugin[]> = yield call(
+      PluginsApi.fetchPlugins,
+      orgId,
+    );
+    const isValid: boolean = yield validateResponse(pluginsResponse);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
@@ -73,10 +76,16 @@ function* fetchPluginFormConfigsSaga() {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
     for (const id of pluginIdFormsToFetch) {
-      pluginFormRequests.push(yield call(PluginsApi.fetchFormConfig, id));
+      const response: GenericApiResponse<PluginFormPayload> = yield call(
+        PluginsApi.fetchFormConfig,
+        id,
+      );
+      pluginFormRequests.push(response);
     }
     const pluginFormData: PluginFormPayload[] = [];
-    const pluginFormResponses = yield all(pluginFormRequests);
+    const pluginFormResponses: GenericApiResponse<
+      PluginFormPayload
+    >[] = yield all(pluginFormRequests);
     for (const response of pluginFormResponses) {
       yield validateResponse(response);
       pluginFormData.push(response.data);
@@ -140,7 +149,10 @@ function* fetchPluginFormConfigsSaga() {
 export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
   try {
     const plugin: Plugin = yield select(getPlugin, pluginId);
-    const formConfig = yield select(getPluginForm, pluginId);
+    const formConfig: Record<string, unknown> = yield select(
+      getPluginForm,
+      pluginId,
+    );
     if (!formConfig) {
       const formConfigResponse: GenericApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
         pluginId,

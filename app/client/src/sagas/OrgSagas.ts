@@ -35,11 +35,12 @@ import { APPLICATIONS_URL } from "constants/routes";
 import { getAllApplications } from "actions/applicationActions";
 import log from "loglevel";
 import { createMessage, DELETE_ORG_SUCCESSFUL } from "constants/messages";
+import { User } from "constants/userConstants";
 
 export function* fetchRolesSaga() {
   try {
     const response: FetchOrgRolesResponse = yield call(OrgApi.fetchRoles);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ORG_ROLES_SUCCESS,
@@ -61,7 +62,7 @@ export function* fetchOrgSaga(action: ReduxAction<FetchOrgRequest>) {
   try {
     const request: FetchOrgRequest = action.payload;
     const response: FetchOrgResponse = yield call(OrgApi.fetchOrg, request);
-    const isValidResponse = yield request.skipValidation ||
+    const isValidResponse: boolean = yield request.skipValidation ||
       validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -86,7 +87,7 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
       OrgApi.fetchAllUsers,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const users = response.data.map((user) => ({
         ...user,
@@ -114,7 +115,7 @@ export function* changeOrgUserRoleSaga(
   try {
     const request: ChangeUserRoleRequest = action.payload;
     const response: ApiResponse = yield call(OrgApi.changeOrgUserRole, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CHANGE_ORG_USER_ROLE_SUCCESS,
@@ -135,9 +136,9 @@ export function* deleteOrgUserSaga(action: ReduxAction<DeleteOrgUserRequest>) {
   try {
     const request: DeleteOrgUserRequest = action.payload;
     const response: ApiResponse = yield call(OrgApi.deleteOrgUser, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const currentUser = yield select(getCurrentUser);
+      const currentUser: User | undefined = yield select(getCurrentUser);
       if (currentUser?.username == action.payload.username) {
         history.replace(APPLICATIONS_URL);
       } else {
@@ -170,7 +171,7 @@ export function* fetchAllRolesSaga(action: ReduxAction<FetchAllRolesRequest>) {
       OrgApi.fetchAllRoles,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ALL_ROLES_SUCCESS,
@@ -188,7 +189,7 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
   try {
     const request: SaveOrgRequest = action.payload;
     const response: ApiResponse = yield call(OrgApi.saveOrg, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.SAVE_ORG_SUCCESS,
@@ -199,7 +200,7 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_ORG_ERROR,
       payload: {
-        error: error.message,
+        error: (error as Error).message,
       },
     });
   }
@@ -212,7 +213,7 @@ export function* deleteOrgSaga(action: ReduxAction<string>) {
     });
     const orgId: string = action.payload;
     const response: ApiResponse = yield call(OrgApi.deleteOrg, orgId);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_ORG_SUCCESS,
@@ -227,7 +228,7 @@ export function* deleteOrgSaga(action: ReduxAction<string>) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ORG_ERROR,
       payload: {
-        error: error.message,
+        error: (error as Error).message,
       },
     });
   }
@@ -240,9 +241,11 @@ export function* createOrgSaga(
   try {
     const request: CreateOrgRequest = { name };
     const response: ApiResponse = yield callAPI(OrgApi.createOrg, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage = yield getResponseErrorMessage(response);
+      const errorMessage: string | undefined = yield getResponseErrorMessage(
+        response,
+      );
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -258,7 +261,7 @@ export function* createOrgSaga(
     const slug = response.data.slug;
     history.push(`${window.location.pathname}#${slug}`);
   } catch (error) {
-    yield call(reject, { _error: error.message });
+    yield call(reject, { _error: (error as Error).message });
     yield put({
       type: ReduxActionErrorTypes.CREATE_ORGANIZATION_ERROR,
       payload: {
@@ -272,9 +275,9 @@ export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
   try {
     const request = action.payload;
     const response: ApiResponse = yield call(OrgApi.saveOrgLogo, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allOrgs = yield select(getCurrentOrg);
+      const allOrgs: Org[] = yield select(getCurrentOrg);
       const currentOrg = allOrgs.filter((el: Org) => el.id === request.id);
       if (currentOrg.length > 0) {
         yield put({
@@ -299,9 +302,9 @@ export function* deleteOrgLogoSaga(action: ReduxAction<{ id: string }>) {
   try {
     const request = action.payload;
     const response: ApiResponse = yield call(OrgApi.deleteOrgLogo, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allOrgs = yield select(getCurrentOrg);
+      const allOrgs: Org[] = yield select(getCurrentOrg);
       const currentOrg = allOrgs.filter((el: Org) => el.id === request.id);
       if (currentOrg.length > 0) {
         yield put({

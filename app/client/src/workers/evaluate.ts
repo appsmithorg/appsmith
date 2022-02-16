@@ -230,8 +230,10 @@ export default function evaluateSync(
 
     try {
       result = eval(script);
-    } catch (e) {
-      const errorMessage = `${e.name}: ${e.message}`;
+    } catch (error) {
+      const errorMessage = `${(error as Error).name}: ${
+        (error as Error).message
+      }`;
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
@@ -288,7 +290,9 @@ export async function evaluateAsync(
     try {
       result = await eval(script);
     } catch (error) {
-      const errorMessage = `UncaughtPromiseRejection: ${error.message}`;
+      const errorMessage = `UncaughtPromiseRejection: ${
+        (error as Error).message
+      }`;
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,

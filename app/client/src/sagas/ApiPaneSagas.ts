@@ -41,7 +41,10 @@ import { Property } from "api/ActionAPI";
 import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import {
   createActionRequest,
   setActionProperty,
@@ -64,6 +67,8 @@ import {
 } from "utils/ApiPaneUtils";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { AppState } from "reducers";
+import { Plugin } from "api/PluginApi";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -193,10 +198,9 @@ function* handleUpdateBodyContentType(
 }
 
 function* initializeExtraFormDataSaga() {
-  const state = yield select();
+  const state: AppState = yield select();
   const { extraformData } = state.ui.apiPane;
-  const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
-  const { values } = formData;
+  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   const headers = get(values, "actionConfiguration.headers");
 
   if (!extraformData[values.id]) {
@@ -386,8 +390,8 @@ function* formValueChangeSaga(
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginType } = actionPayload.payload;
-  const action = yield select(getAction, id);
-  const data = { ...action };
+  const action: Action | undefined = yield select(getAction, id);
+  const data = action ? { ...action } : {};
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
@@ -403,12 +407,15 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 }
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
-  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  const plugin: Plugin | undefined = yield select(
+    getPlugin,
+    actionPayload.payload.pluginId,
+  );
   // Only look at API plugins
-  if (plugin.type !== PluginType.API) return;
+  if (plugin && plugin.type !== PluginType.API) return;
 
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageId: string | undefined = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
 
   history.push(
     DATA_SOURCES_EDITOR_ID_URL(
@@ -426,14 +433,14 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
-  const organizationId = yield select(getCurrentOrgId);
-  const pluginId = yield select(
+  const organizationId: string = yield select(getCurrentOrgId);
+  const pluginId: string | undefined = yield select(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
   const { pageId } = action.payload;
   if (pageId && pluginId) {
-    const actions = yield select(getActions);
+    const actions: ActionDataState = yield select(getActions);
     const pageActions = actions.filter(
       (a: ActionData) => a.config.pageId === pageId,
     );
@@ -468,7 +475,7 @@ function* handleApiNameChangeSuccessSaga(
   action: ReduxAction<{ actionId: string }>,
 ) {
   const { actionId } = action.payload;
-  const actionObj = yield select(getAction, actionId);
+  const actionObj: Action | undefined = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
@@ -492,8 +499,8 @@ function* handleApiNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string | undefined = yield select(getCurrentPageId);
     history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
   }
 }

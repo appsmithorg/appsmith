@@ -9,7 +9,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 
-type GetFormData = (
+export type GetFormData = (
   state: AppState,
   formName: string,
 ) => { initialValues: any; values: any; valid: boolean };

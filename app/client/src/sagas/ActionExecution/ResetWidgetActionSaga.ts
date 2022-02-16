@@ -14,6 +14,7 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
+import { FlattenedWidgetProps } from "widgets/constants";
 
 export default function* resetWidgetActionSaga(
   payload: ResetWidgetDescription["payload"],
@@ -28,7 +29,10 @@ export default function* resetWidgetActionSaga(
     );
   }
 
-  const widget = yield select(getWidgetByName, widgetName);
+  const widget: FlattenedWidgetProps | undefined = yield select(
+    getWidgetByName,
+    widgetName,
+  );
   if (!widget) {
     throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }

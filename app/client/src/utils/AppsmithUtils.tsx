@@ -23,6 +23,7 @@ import {
   getApplicationEditorPageURL,
   getApplicationViewerPageURL,
 } from "constants/routes";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 export const createReducer = (
   initialState: any,
@@ -174,7 +175,7 @@ export const createNewApiName = (actions: ActionDataState, pageId: string) => {
 };
 
 export const createNewJSFunctionName = (
-  jsActions: ActionDataState,
+  jsActions: JSCollectionData[],
   pageId: string,
 ) => {
   const pageJsFunctionNames = jsActions
@@ -349,7 +350,7 @@ export const isBlobUrl = (url: string) => {
  * @param type string file type
  * @returns string containing blob id and type
  */
-export const createBlobUrl = (data: Blob | string, type: string) => {
+export const createBlobUrl = (data: Blob | MediaSource, type: string) => {
   let url = URL.createObjectURL(data);
   url = url.replace(
     `${window.location.protocol}//${window.location.hostname}/`,

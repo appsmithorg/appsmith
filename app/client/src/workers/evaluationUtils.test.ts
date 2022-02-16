@@ -33,6 +33,8 @@ const BASE_WIDGET: DataTreeWidget = {
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   privateWidgets: {},
+  overridingPropertyPaths: {},
+  propertyOverrideDependency: {},
 };
 
 const testDataTree: Record<string, DataTreeWidget> = {

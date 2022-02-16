@@ -466,10 +466,10 @@ export default class DataTreeEvaluator {
         dependencyMap[key].map((path) => {
           try {
             return extractReferencesFromBinding(path, this.allKeys);
-          } catch (e) {
+          } catch (error) {
             this.errors.push({
               type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-              message: e.message,
+              message: (error as Error).message,
               context: {
                 script: path,
               },
@@ -627,10 +627,10 @@ export default class DataTreeEvaluator {
                 undefined,
                 fullPropertyPath,
               );
-            } catch (e) {
+            } catch (error) {
               this.errors.push({
                 type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
-                message: e.message,
+                message: (error as Error).message,
                 context: {
                   propertyPath: fullPropertyPath,
                 },
@@ -704,10 +704,10 @@ export default class DataTreeEvaluator {
         },
         tree,
       );
-    } catch (e) {
+    } catch (error) {
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
-        message: e.message,
+        message: (error as Error).message,
       });
       return tree;
     }
@@ -738,11 +738,13 @@ export default class DataTreeEvaluator {
       return toposort(dependencyTree)
         .reverse()
         .filter((d) => !!d);
-    } catch (e) {
+    } catch (error) {
       // Cyclic dependency found. Extract all node and entity type
-      const node = e.message.match(
+      const cyclicNodes = (error as Error).message.match(
         new RegExp('Cyclic dependency, node was:"(.*)"'),
-      )[1];
+      );
+
+      const node = cyclicNodes?.length ? cyclicNodes[1] : "";
 
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
@@ -764,7 +766,7 @@ export default class DataTreeEvaluator {
       });
       logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
       this.hasCyclicalDependency = true;
-      throw new CrashingError(e.message);
+      throw new CrashingError((error as Error).message);
     }
   }
 
@@ -830,14 +832,14 @@ export default class DataTreeEvaluator {
           values,
           evaluationSubstitutionType,
         );
-      } catch (e) {
+      } catch (error) {
         if (fullPropertyPath) {
           addErrorToEntityProperty(
             [
               {
                 raw: dynamicBinding,
                 errorType: PropertyEvaluationErrorType.PARSE,
-                errorMessage: e.message,
+                errorMessage: (error as Error).message,
                 severity: Severity.ERROR,
               },
             ],
@@ -886,7 +888,7 @@ export default class DataTreeEvaluator {
         contextData,
         callbackData,
       );
-    } catch (e) {
+    } catch (error) {
       return {
         result: undefined,
         errors: [
@@ -894,7 +896,7 @@ export default class DataTreeEvaluator {
             errorType: PropertyEvaluationErrorType.PARSE,
             raw: js,
             severity: Severity.ERROR,
-            errorMessage: e.message,
+            errorMessage: (error as Error).message,
           },
         ],
       };
@@ -1065,14 +1067,14 @@ export default class DataTreeEvaluator {
             id: entity.actionId,
           });
         }
-      } catch (e) {
+      } catch (error) {
         const errors = {
           type: EvalErrorTypes.PARSE_JS_ERROR,
           context: {
             entity: entity,
             propertyPath: entity.name + ".body",
           },
-          message: e.message,
+          message: (error as Error).message,
         };
         this.errors.push(errors);
       }
@@ -1377,10 +1379,10 @@ export default class DataTreeEvaluator {
             this.dependencyMap[key].map((path) => {
               try {
                 return extractReferencesFromBinding(path, this.allKeys);
-              } catch (e) {
+              } catch (error) {
                 this.errors.push({
                   type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                  message: e.message,
+                  message: (error as Error).message,
                   context: {
                     script: path,
                   },
@@ -1531,10 +1533,10 @@ export default class DataTreeEvaluator {
               {
                 try {
                   return extractReferencesFromBinding(binding, this.allKeys);
-                } catch (e) {
+                } catch (error) {
                   this.errors.push({
                     type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                    message: e.message,
+                    message: (error as Error).message,
                     context: {
                       script: binding,
                     },

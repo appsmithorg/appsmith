@@ -31,7 +31,7 @@ import {
   getSettingConfig,
   getActions,
 } from "selectors/entitiesSelector";
-import { PluginType, QueryAction } from "entities/Action";
+import { Action, PluginType, QueryAction } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
@@ -56,6 +56,7 @@ import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
+import { Plugin } from "api/PluginApi";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -67,7 +68,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     history.push(APPLICATIONS_URL);
     return;
   }
-  const action = yield select(getAction, id);
+  const action: Action | undefined = yield select(getAction, id);
   if (!action) {
     history.push(
       INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
@@ -94,7 +95,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 
   if (currentSettingConfig) {
-    const settingInitialValues = yield call(
+    const settingInitialValues: Record<string, unknown> = yield call(
       getConfigInitialValues,
       currentSettingConfig,
     );
@@ -127,7 +128,10 @@ function* formValueChangeSaga(
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
 
   if (field === "datasource.id") {
-    const datasource = yield select(getDatasource, actionPayload.payload);
+    const datasource: Datasource | undefined = yield select(
+      getDatasource,
+      actionPayload.payload,
+    );
 
     // Update the datasource not just the datasource id.
     yield put(
@@ -179,7 +183,9 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);
-    const pluginTemplates = yield select(getPluginTemplates);
+    const pluginTemplates: Record<string, unknown> = yield select(
+      getPluginTemplates,
+    );
     const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates
     const showTemplate = !(
@@ -196,13 +202,20 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 }
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
-  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  const plugin: Plugin | undefined = yield select(
+    getPlugin,
+    actionPayload.payload.pluginId,
+  );
   // Only look at db plugins
-  if (plugin.type !== PluginType.DB && plugin.type !== PluginType.REMOTE)
+  if (
+    plugin &&
+    plugin.type !== PluginType.DB &&
+    plugin.type !== PluginType.REMOTE
+  )
     return;
 
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageId: string | undefined = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
 
   yield put(
     initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
@@ -227,7 +240,7 @@ function* handleNameChangeSuccessSaga(
   action: ReduxAction<{ actionId: string }>,
 ) {
   const { actionId } = action.payload;
-  const actionObj = yield select(getAction, actionId);
+  const actionObj: Action | undefined = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
@@ -251,8 +264,8 @@ function* handleNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string | undefined = yield select(getCurrentPageId);
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
     );

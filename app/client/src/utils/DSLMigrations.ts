@@ -1469,6 +1469,7 @@ export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultTemplate;
+  //@ts-expect-error: version does not exists on currentDSL type
   return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 

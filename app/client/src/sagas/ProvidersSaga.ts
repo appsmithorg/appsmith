@@ -51,7 +51,7 @@ export function* fetchProviderTemplatesSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
@@ -72,7 +72,7 @@ export function* fetchProviderTemplatesSaga(
 export function* addApiToPageSaga(
   action: ReduxActionWithPromise<AddApiToPageRequest>,
 ) {
-  const organizationId = yield select(getCurrentOrgId);
+  const organizationId: string = yield select(getCurrentOrgId);
   const request: AddApiToPageRequest = {
     ...action.payload,
     organizationId,
@@ -82,7 +82,7 @@ export function* addApiToPageSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       const { payload } = action;
@@ -103,7 +103,7 @@ export function* addApiToPageSaga(
         data: response.data,
       });
 
-      const applicationId = yield select(getCurrentApplicationId);
+      const applicationId: string = yield select(getCurrentApplicationId);
       yield put(fetchActions({ applicationId }, []));
     }
   } catch (error) {
@@ -126,7 +126,7 @@ export function* fetchProvidersWithCategorySaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       if (response.data.providers.length === 0) {
@@ -180,7 +180,7 @@ export function* fetchProviderDetailsByProviderIdSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
@@ -207,7 +207,7 @@ export function* searchApiOrProviderSaga(
       action.payload,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({

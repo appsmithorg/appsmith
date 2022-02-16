@@ -9,6 +9,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
+  CurrentApplicationData,
   InitializeEditorPayload,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -80,7 +81,7 @@ function* failFastApiCalls(
     successEffects.push(take(successAction));
   }
   yield all(triggerEffects);
-  const effectRaceResult = yield race({
+  const effectRaceResult: { success: unknown; failure: unknown } = yield race({
     success: all(successEffects),
     failure: take(failureActions),
   });
@@ -136,7 +137,7 @@ function* initializeEditorSaga(
       ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
     ];
-    const jsActionsCall = yield failFastApiCalls(
+    const jsActionsCall: unknown = yield failFastApiCalls(
       [fetchJSCollections({ applicationId })],
       [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
@@ -148,7 +149,7 @@ function* initializeEditorSaga(
       failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
     }
 
-    const applicationAndLayoutCalls = yield failFastApiCalls(
+    const applicationAndLayoutCalls: unknown = yield failFastApiCalls(
       initCalls,
       successEffects,
       failureEffects,
@@ -156,14 +157,13 @@ function* initializeEditorSaga(
 
     if (!applicationAndLayoutCalls) return;
 
-    let fetchPageCallResult;
-    const defaultPageId = yield select(getDefaultPageId);
+    const defaultPageId: string | undefined = yield select(getDefaultPageId);
     const toLoadPageId = pageId || defaultPageId;
 
     if (!pageId) {
       if (!toLoadPageId) return;
 
-      fetchPageCallResult = yield failFastApiCalls(
+      const fetchPageCallResult: unknown = yield failFastApiCalls(
         [fetchPage(toLoadPageId, true)],
         [ReduxActionTypes.FETCH_PAGE_SUCCESS],
         [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
@@ -171,7 +171,7 @@ function* initializeEditorSaga(
       if (!fetchPageCallResult) return;
     }
 
-    const pluginsAndDatasourcesCalls = yield failFastApiCalls(
+    const pluginsAndDatasourcesCalls: unknown = yield failFastApiCalls(
       [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
       [
         ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
@@ -186,24 +186,26 @@ function* initializeEditorSaga(
     );
     if (!pluginsAndDatasourcesCalls) return;
 
-    const pluginFormCall = yield failFastApiCalls(
+    const pluginFormCall: unknown = yield failFastApiCalls(
       [fetchPluginFormConfigs()],
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
     if (!pluginFormCall) return;
 
-    const actionsCall = yield failFastApiCalls(
+    const actionsCall: unknown = yield failFastApiCalls(
       [fetchActions({ applicationId }, [executePageLoadActions()])],
       [ReduxActionTypes.FETCH_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR],
     );
     if (!actionsCall) return;
 
-    const currentApplication = yield select(getCurrentApplication);
+    const currentApplication: CurrentApplicationData | undefined = yield select(
+      getCurrentApplication,
+    );
     const appName = currentApplication ? currentApplication.name : "";
     const appId = currentApplication ? currentApplication.id : "";
-    const branchInStore = yield select(getCurrentGitBranch);
+    const branchInStore: string | undefined = yield select(getCurrentGitBranch);
 
     yield put(
       restoreRecentEntitiesRequest({
@@ -280,7 +282,7 @@ export function* initializeAppViewerSaga(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
-  const jsActionsCall = yield failFastApiCalls(
+  const jsActionsCall: unknown = yield failFastApiCalls(
     [fetchJSCollectionsForView({ applicationId })],
     [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
     [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
@@ -313,7 +315,10 @@ export function* initializeAppViewerSaga(
 
   yield all(initCalls);
 
-  const resultOfPrimaryCalls = yield race({
+  const resultOfPrimaryCalls: {
+    success: unknown;
+    failure: unknown;
+  } = yield race({
     success: all(initSuccessEffects),
     failure: take(initFailureEffects),
   });
@@ -332,13 +337,16 @@ export function* initializeAppViewerSaga(
     return;
   }
 
-  const defaultPageId = yield select(getDefaultPageId);
+  const defaultPageId: string | undefined = yield select(getDefaultPageId);
   const toLoadPageId = pageId || defaultPageId;
 
   if (toLoadPageId) {
     yield put(fetchPublishedPage(toLoadPageId, true));
 
-    const resultOfFetchPage = yield race({
+    const resultOfFetchPage: {
+      success: unknown;
+      failure: unknown;
+    } = yield race({
       success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
       failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
     });
@@ -381,8 +389,8 @@ function* resetEditorSaga() {
 }
 
 export function* waitForInit() {
-  const isEditorInitialised = yield select(getIsEditorInitialized);
-  const isViewerInitialized = yield select(getIsViewerInitialized);
+  const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+  const isViewerInitialized: boolean = yield select(getIsViewerInitialized);
   if (!isEditorInitialised && !isViewerInitialized) {
     yield take([
       ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,

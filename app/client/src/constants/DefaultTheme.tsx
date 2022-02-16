@@ -1,4 +1,5 @@
 import * as styledComponents from "styled-components";
+import { ThemedStyledComponentsModule } from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
@@ -9,13 +10,21 @@ import { JSXElementConstructor } from "react";
 import { typography, Typography, TypographyKeys } from "./typography";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
+const themedStyled = {
+  default: styledComponents.default,
+  css: styledComponents.css,
+  createGlobalStyle: styledComponents.createGlobalStyle,
+  keyframes: styledComponents.keyframes,
+  ThemeProvider: styledComponents.ThemeProvider,
+} as ThemedStyledComponentsModule<Theme>;
+
 const {
   createGlobalStyle,
   css,
   default: styled,
   keyframes,
   ThemeProvider,
-} = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
+} = themedStyled;
 
 export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,

@@ -31,22 +31,22 @@ export interface PageLayout {
   layoutActions: PageAction[];
 }
 
-export type FetchPageResponse = ApiResponse & {
+export interface FetchPageResponse extends ApiResponse {
   data: {
     id: string;
     name: string;
     applicationId: string;
     layouts: Array<PageLayout>;
   };
-};
+}
 
-export type FetchPublishedPageResponse = ApiResponse & {
+export interface FetchPublishedPageResponse extends ApiResponse {
   data: {
     id: string;
     dsl: Partial<DSLWidget>;
     pageId: string;
   };
-};
+}
 
 export interface SavePageResponse extends ApiResponse {
   data: {
@@ -124,14 +124,14 @@ export interface GenerateTemplatePageRequest {
   pluginSpecificParams?: Record<any, any>;
 }
 
-export type GenerateTemplatePageRequestResponse = ApiResponse & {
+export interface GenerateTemplatePageRequestResponse extends ApiResponse {
   data: {
     id: string;
     name: string;
     applicationId: string;
     layouts: Array<PageLayout>;
   };
-};
+}
 
 class PageApi extends Api {
   static url = "v1/pages";

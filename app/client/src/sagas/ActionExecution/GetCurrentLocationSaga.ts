@@ -65,6 +65,7 @@ let errorChannel: Channel<any> | undefined;
 function* successCallbackHandler() {
   if (successChannel) {
     while (true) {
+      // @ts-expect-error: paylod can be undefined not handled
       const payload = yield take(successChannel);
       const { callback, eventType, location, triggerMeta } = payload;
       const currentLocation = extractGeoLocation(location);
@@ -85,6 +86,7 @@ function* successCallbackHandler() {
 function* errorCallbackHandler() {
   if (errorChannel) {
     while (true) {
+      // @ts-expect-error: paylod can be undefined not handled
       const payload = yield take(errorChannel);
       const { callback, error, eventType, triggerMeta } = payload;
       if (callback) {
@@ -117,9 +119,9 @@ export function* getCurrentLocationSaga(
 
     yield put(setUserCurrentGeoLocation(currentLocation));
     return [currentLocation];
-  } catch (e) {
+  } catch (error) {
     logActionExecutionError(
-      e.message,
+      (error as Error).message,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );

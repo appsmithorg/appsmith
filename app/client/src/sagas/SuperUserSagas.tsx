@@ -25,8 +25,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 function* FetchAdminSettingsSaga() {
-  const response = yield call(UserApi.fetchAdminSettings);
-  const isValidResponse = yield validateResponse(response);
+  const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
+  const isValidResponse: boolean = yield validateResponse(response);
 
   if (isValidResponse) {
     const { appVersion } = getAppsmithConfigs();
@@ -54,8 +54,11 @@ function* FetchAdminSettingsErrorSaga() {
 function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
   const settings = action.payload;
   try {
-    const response = yield call(UserApi.saveAdminSettings, settings);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      UserApi.saveAdminSettings,
+      settings,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       Toaster.show({
@@ -108,8 +111,11 @@ function* RestartServerPoll() {
 
 function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   try {
-    const response = yield call(UserApi.sendTestEmail, action.payload);
-    const currentUser = yield select(getCurrentUser);
+    const response: ApiResponse = yield call(
+      UserApi.sendTestEmail,
+      action.payload,
+    );
+    const currentUser: User | undefined = yield select(getCurrentUser);
     let actionElement;
     if (response.data) {
       actionElement = (
@@ -123,9 +129,11 @@ function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
     }
     Toaster.show({
       actionElement,
+
       text: createMessage(
         response.data
-          ? TEST_EMAIL_SUCCESS(currentUser?.email)
+          ? // @ts-expect-error: Balaji type mismatch for TEST_EMAIL_SUCCESS()
+            TEST_EMAIL_SUCCESS(currentUser?.email)
           : TEST_EMAIL_FAILURE,
       ),
       hideProgressBar: true,

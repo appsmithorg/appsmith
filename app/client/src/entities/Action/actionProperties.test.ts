@@ -19,6 +19,7 @@ const DEFAULT_ACTION: Action = {
   pageId: "",
   pluginId: "",
   pluginType: PluginType.DB,
+  messages: [],
 };
 
 describe("getBindingPathsOfAction", () => {

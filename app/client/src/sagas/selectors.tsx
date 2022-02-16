@@ -1,6 +1,9 @@
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
@@ -9,9 +12,7 @@ import { Page } from "constants/ReduxActionConstants";
 import { getActions, getPlugins } from "../selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 
-export const getWidgets = (
-  state: AppState,
-): { [widgetId: string]: FlattenedWidgetProps } => {
+export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
 
@@ -138,7 +139,9 @@ export const getDragDetails = (state: AppState) => {
   return state.ui.widgetDragResize.dragDetails;
 };
 
-export const getSelectedWidget = (state: AppState) => {
+export const getSelectedWidget = (
+  state: AppState,
+): FlattenedWidgetProps | undefined => {
   const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];

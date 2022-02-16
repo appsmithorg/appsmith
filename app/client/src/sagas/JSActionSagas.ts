@@ -50,23 +50,28 @@ import {
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
-import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import PageApi from "api/PageApi";
+import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { GenericApiResponse } from "api/ApiResponses";
+import {
+  JSCollectionData,
+  JSCollectionDataState,
+} from "reducers/entityReducers/jsActionsReducer";
+import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
+import { AxiosResponse } from "axios";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
   const { applicationId } = action.payload;
   try {
-    const response = yield JSActionAPI.fetchJSCollections(applicationId);
+    const response: GenericApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollections(
+      applicationId,
+    );
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data || [],
@@ -87,7 +92,7 @@ export function* createJSCollectionSaga(
     const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.createJSCollection(
       payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const actionName = actionPayload.payload.name
         ? actionPayload.payload.name
@@ -140,10 +145,15 @@ function* copyJSCollectionSaga(
       });
       copyJSCollection.actions = newJSSubActions;
     }
-    const response = yield JSActionAPI.copyJSCollection(copyJSCollection);
+    const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.copyJSCollection(
+      copyJSCollection,
+    );
 
-    const isValidResponse = yield validateResponse(response);
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+    const isValidResponse: boolean = yield validateResponse(response);
+    const pageName: string = yield select(
+      getPageNameByPageId,
+      response.data.pageId,
+    );
     if (isValidResponse) {
       Toaster.show({
         text: createMessage(
@@ -170,7 +180,7 @@ function* copyJSCollectionSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSCollection = yield select(getJSCollection, id);
-  const applicationId = yield select(getCurrentApplicationId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   history.push(
     JS_COLLECTION_ID_URL(applicationId, jsAction.pageId, jsAction.id),
   );
@@ -188,14 +198,17 @@ function* moveJSCollectionSaga(
     action.payload.id,
   );
   try {
-    const response = yield JSActionAPI.moveJSCollection({
+    const response: AxiosResponse = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
       name: action.payload.name,
     });
 
-    const isValidResponse = yield validateResponse(response);
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+    const isValidResponse: boolean = yield validateResponse(response);
+    const pageName: string = yield select(
+      getPageNameByPageId,
+      response.data.pageId,
+    );
     if (isValidResponse) {
       Toaster.show({
         text: createMessage(
@@ -222,7 +235,7 @@ function* moveJSCollectionSaga(
 }
 
 export const getIndexToBeRedirected = (
-  jsActions: Array<DataTreeJSAction>,
+  jsActions: JSCollectionDataState,
   id: string,
 ): number | undefined => {
   let resultIndex = undefined;
@@ -247,12 +260,12 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const jsActions = yield select(getJSCollections);
+    const jsActions: JSCollectionDataState = yield select(getJSCollections);
 
-    const response = yield JSActionAPI.deleteJSCollection(id);
-    const isValidResponse = yield validateResponse(response);
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
+    const isValidResponse: boolean = yield validateResponse(response);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string | undefined = yield select(getCurrentPageId);
     if (isValidResponse) {
       Toaster.show({
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
@@ -296,11 +309,12 @@ export function* deleteJSCollectionSaga(
 function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const collectionId = action.payload.id;
-  const collection = yield select((state) =>
+  const collection: JSCollectionData | undefined = yield select((state) =>
     state.entities.jsActions.find(
       (jsAction: JSCollectionData) => jsAction.config.id === collectionId,
     ),
   );
+  if (!collection) return;
   try {
     yield refactorJSObjectName(
       collection.config.id,
@@ -330,26 +344,30 @@ export function* refactorJSObjectName(
   oldName: string,
   newName: string,
 ) {
-  const pageResponse = yield call(PageApi.fetchPage, {
+  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
     id: pageId,
   });
   // check if page request is successful
-  const isPageRequestSuccessful = yield validateResponse(pageResponse);
+  const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     // call to refactor action
-    const refactorResponse = yield JSActionAPI.updateJSCollectionOrActionName({
-      layoutId,
-      actionCollectionId: id,
-      pageId: pageId,
-      oldName: oldName,
-      newName: newName,
-    });
+    const refactorResponse: AxiosResponse = yield JSActionAPI.updateJSCollectionOrActionName(
+      {
+        layoutId,
+        actionCollectionId: id,
+        pageId: pageId,
+        oldName: oldName,
+        newName: newName,
+      },
+    );
 
-    const isRefactorSuccessful = yield validateResponse(refactorResponse);
+    const isRefactorSuccessful: boolean = yield validateResponse(
+      refactorResponse,
+    );
 
-    const currentPageId = yield select(getCurrentPageId);
+    const currentPageId: string | undefined = yield select(getCurrentPageId);
 
     if (isRefactorSuccessful) {
       yield put({
@@ -376,7 +394,7 @@ export function* fetchJSCollectionsForPageSaga(
       JSActionAPI.fetchJSCollectionsByPageId,
       pageId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(fetchJSCollectionsForPageSuccess(response.data));
     }
@@ -397,7 +415,7 @@ export function* fetchJSCollectionsForViewModeSaga(
       applicationId,
     );
     const resultJSCollections = response.data;
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,

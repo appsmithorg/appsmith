@@ -23,7 +23,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   let { curl } = action.payload;
   try {
     curl = transformCurlImport(curl);
-    const organizationId = yield select(getCurrentOrgId);
+    const organizationId: string = yield select(getCurrentOrgId);
     const request: CurlImportRequest = {
       type,
       pageId,
@@ -33,8 +33,8 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
     };
 
     const response: ApiResponse = yield CurlImportApi.curlImport(request);
-    const isValidResponse = yield validateResponse(response);
-    const applicationId = yield select(getCurrentApplicationId);
+    const isValidResponse: boolean = yield validateResponse(response);
+    const applicationId: string = yield select(getCurrentApplicationId);
 
     if (isValidResponse) {
       AnalyticsUtil.logEvent("IMPORT_API", {

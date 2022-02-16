@@ -217,11 +217,8 @@ function* evaluateActionParams(
   if (_.isNil(bindings) || bindings.length === 0) return [];
 
   // Evaluated all bindings of the actions. Pass executionParams if any
-  const values: any = yield call(
-    evaluateActionBindings,
-    bindings,
-    executionParams,
-  );
+  // @ts-expect-error: Values can take many types
+  const values = yield call(evaluateActionBindings, bindings, executionParams);
 
   // Convert to object and transform non string values
   const actionParams: Record<string, string> = {};
@@ -230,6 +227,7 @@ function* evaluateActionParams(
     let value = values[i];
     if (typeof value === "object") value = JSON.stringify(value);
     if (isBlobUrl(value)) {
+      // @ts-expect-error: Values can take many types
       value = yield call(readBlob, value);
     }
     actionParams[key] = value;
@@ -269,13 +267,13 @@ export default function* executePluginActionTriggerSaga(
     },
     actionId,
   );
-  const appMode = yield select(getAppMode);
-  const action: Action = yield select(getAction, actionId);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+  const action: Action | undefined = yield select(getAction, actionId);
   const currentApp: ApplicationPayload = yield select(getCurrentApplication);
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-    type: action.pluginType,
-    name: action.name,
-    pageId: action.pageId,
+    type: action?.pluginType,
+    name: action?.name,
+    pageId: action?.pageId,
     appId: currentApp.id,
     appMode: appMode,
     appName: currentApp.name,
@@ -291,13 +289,16 @@ export default function* executePluginActionTriggerSaga(
     text: "Execution started from widget request",
     source: {
       type: ENTITY_TYPE.ACTION,
+      // @ts-expect-error: action can be undefined
       name: action.name,
       id: actionId,
     },
+    // @ts-expect-error: action can be undefined
     state: action.actionConfiguration,
   });
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
+    // @ts-expect-error: action can be undefined
     action.id,
     pagination,
     params,
@@ -311,6 +312,7 @@ export default function* executePluginActionTriggerSaga(
       text: `Execution failed with status ${payload.statusCode}`,
       source: {
         type: ENTITY_TYPE.ACTION,
+        // @ts-expect-error: action can be undefined
         name: action.name,
         id: actionId,
       },
@@ -336,6 +338,7 @@ export default function* executePluginActionTriggerSaga(
       });
     } else {
       throw new PluginTriggerFailureError(
+        // @ts-expect-error: action can be undefined
         createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
         [payload.body, params],
       );
@@ -347,6 +350,7 @@ export default function* executePluginActionTriggerSaga(
       timeTaken: payload.duration,
       source: {
         type: ENTITY_TYPE.ACTION,
+        // @ts-expect-error: action can be undefined
         name: action.name,
         id: actionId,
       },
@@ -406,28 +410,32 @@ function* runActionSaga(
   }>,
 ) {
   const actionId = reduxAction.payload.id;
-  const isSaving = yield select(isActionSaving(actionId));
-  const isDirty = yield select(isActionDirty(actionId));
-  const isSavingEntity = yield select(getIsSavingEntity);
+  const isSaving: boolean = yield select(isActionSaving(actionId));
+  const isDirty: boolean = yield select(isActionDirty(actionId));
+  const isSavingEntity: boolean = yield select(getIsSavingEntity);
   if (isSaving || isDirty || isSavingEntity) {
     if (isDirty && !isSaving) {
       yield put(updateAction({ id: actionId }));
     }
     yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   }
-  const actionObject = yield select(getAction, actionId);
+  const actionObject: Action | undefined = yield select(getAction, actionId);
+
   const datasourceUrl = get(
     actionObject,
     "datasource.datasourceConfiguration.url",
   );
+
   AppsmithConsole.info({
     text: "Execution started from user request",
     source: {
       type: ENTITY_TYPE.ACTION,
+      // @ts-expect-error: actionObject can be undefined
       name: actionObject.name,
       id: actionId,
     },
     state: {
+      // @ts-expect-error: action can be undefined
       ...actionObject.actionConfiguration,
       ...(datasourceUrl && {
         url: datasourceUrl,
@@ -455,7 +463,7 @@ function* runActionSaga(
       return;
     }
     log.error(e);
-    error = e.message;
+    error = (e as Error).message;
   }
 
   // Error should be readable error if present.
@@ -503,6 +511,7 @@ function* runActionSaga(
       }`,
       source: {
         type: ENTITY_TYPE.ACTION,
+        // @ts-expect-error: action can be undefined
         name: actionObject.name,
         id: actionId,
       },
@@ -511,6 +520,7 @@ function* runActionSaga(
     });
 
     Toaster.show({
+      // @ts-expect-error: action can be undefined
       text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
       variant: Variant.danger,
     });
@@ -522,17 +532,20 @@ function* runActionSaga(
     return;
   }
 
-  const pageName = yield select(getCurrentPageNameByActionId, actionId);
+  const pageName: string = yield select(getCurrentPageNameByActionId, actionId);
   let eventName: EventName = "RUN_API";
+  // @ts-expect-error: action can be undefined
   if (actionObject.pluginType === PluginType.DB) {
     eventName = "RUN_QUERY";
   }
+  // @ts-expect-error: action can be undefined
   if (actionObject.pluginType === PluginType.SAAS) {
     eventName = "RUN_SAAS_API";
   }
 
   AnalyticsUtil.logEvent(eventName, {
     actionId,
+    // @ts-expect-error: action can be undefined
     actionName: actionObject.name,
     pageName: pageName,
     responseTime: payload.duration,
@@ -550,6 +563,7 @@ function* runActionSaga(
       timeTaken: payload.duration,
       source: {
         type: ENTITY_TYPE.ACTION,
+        // @ts-expect-error: action can be undefined
         name: actionObject.name,
         id: actionId,
       },
@@ -562,10 +576,10 @@ function* runActionSaga(
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
-  const pageId = yield select(getCurrentPageId);
+  const pageId: string | undefined = yield select(getCurrentPageId);
   let currentApp: ApplicationPayload = yield select(getCurrentApplication);
   currentApp = currentApp || {};
-  const appMode = yield select(getAppMode);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: pageAction.pluginType,
     name: pageAction.name,
@@ -653,6 +667,7 @@ function* executePageLoadActionsSaga() {
     );
     for (const actionSet of pageActions) {
       // Load all sets in parallel
+      // @ts-expect-error: no idea how to type this
       yield* yield all(
         actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
       );
@@ -692,6 +707,7 @@ function* executePluginActionSaga(
   let pluginAction;
   let actionId;
   if (isString(actionOrActionId)) {
+    // @ts-expect-error: plugin Action can take many types
     pluginAction = yield select(getAction, actionOrActionId);
     actionId = actionOrActionId;
   } else {
@@ -700,7 +716,7 @@ function* executePluginActionSaga(
   }
 
   if (pluginAction.confirmBeforeExecute) {
-    const confirmed = yield call(confirmRunActionSaga);
+    const confirmed: boolean = yield call(confirmRunActionSaga);
     if (!confirmed) {
       yield put({
         type: ReduxActionTypes.RUN_ACTION_CANCELLED,
@@ -724,8 +740,8 @@ function* executePluginActionSaga(
     params,
   );
 
-  const appMode = yield select(getAppMode);
-  const timeout = yield select(getActionTimeout, actionId);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+  const timeout: number | undefined = yield select(getActionTimeout, actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
     actionId: actionId,

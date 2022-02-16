@@ -105,16 +105,16 @@ export function* publishApplicationSaga(
       ApplicationApi.publishApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
       });
 
-      const applicationId = yield select(getCurrentApplicationId);
-      const currentPageId = yield select(getCurrentPageId);
-      const guidedTour = yield select(inGuidedTour);
-      const currentStep = yield select(getCurrentStep);
+      const applicationId: string = yield select(getCurrentApplicationId);
+      const currentPageId: string | undefined = yield select(getCurrentPageId);
+      const guidedTour: boolean = yield select(inGuidedTour);
+      const currentStep: number = yield select(getCurrentStep);
       let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationId,
         pageId: currentPageId,
@@ -154,7 +154,7 @@ export function* getAllApplicationSaga() {
     const response: FetchUsersApplicationsOrgsResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
         (userOrgs: OrganizationApplicationObject) => ({
@@ -226,7 +226,7 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
       },
     });
     if (action.onErrorCallback) {
-      action.onErrorCallback(error);
+      action.onErrorCallback((error as Error).message);
     }
   }
 }
@@ -235,7 +235,7 @@ export function* setDefaultApplicationPageSaga(
   action: ReduxAction<SetDefaultPageRequest>,
 ) {
   try {
-    const defaultPageId = yield select(
+    const defaultPageId: string | undefined = yield select(
       (state: AppState) => state.entities.pageList.defaultPageId,
     );
     if (defaultPageId !== action.payload.id) {
@@ -244,7 +244,7 @@ export function* setDefaultApplicationPageSaga(
         ApplicationApi.setDefaultApplicationPage,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(
           setDefaultApplicationPageSuccess(request.id, request.applicationId),
@@ -326,7 +326,7 @@ export function* deleteApplicationSaga(
       ApplicationApi.deleteApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
@@ -356,7 +356,7 @@ export function* duplicateApplicationSaga(
       ApplicationApi.duplicateApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
         ...response.data,
@@ -391,7 +391,7 @@ export function* changeAppViewAccessSaga(
       ApplicationApi.changeAppViewAccess,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
@@ -423,7 +423,7 @@ export function* createApplicationSaga(
 ) {
   const { applicationName, color, icon, orgId, reject } = action.payload;
   try {
-    const userOrgs = yield select(getUserApplicationsOrgsList);
+    const userOrgs: Organization[] = yield select(getUserApplicationsOrgsList);
     const existingOrgs = userOrgs.filter(
       (org: Organization) => org.organization.id === orgId,
     )[0];
@@ -457,7 +457,7 @@ export function* createApplicationSaga(
         ApplicationApi.createApplication,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         const application: ApplicationPayload = {
           ...response.data,
@@ -479,10 +479,10 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const isFirstTimeUserOnboardingEnabled = yield select(
+        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
           getEnableFirstTimeUserOnboarding,
         );
-        const FirstTimeUserOnboardingApplicationId = yield select(
+        const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
@@ -534,7 +534,7 @@ export function* forkApplicationSaga(
       ApplicationApi.forkApplication,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
@@ -572,9 +572,9 @@ export function* importApplicationSaga(
       ApplicationApi.importApplicationToOrg,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allOrgs = yield select(getCurrentOrg);
+      const allOrgs: Org[] = yield select(getCurrentOrg);
       const currentOrg = allOrgs.filter(
         (el: Org) => el.id === action.payload.orgId,
       );
@@ -598,7 +598,7 @@ export function* importApplicationSaga(
           pageId: defaultPage[0].id,
         });
         history.push(pageURL);
-        const guidedTour = yield select(inGuidedTour);
+        const guidedTour: boolean = yield select(inGuidedTour);
 
         if (guidedTour) return;
 
@@ -625,7 +625,7 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
       ApplicationApi.getSSHKeyPair,
       applicationId,
     );
-    const isValidResponse = yield validateResponse(response, false);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (isValidResponse) {
       yield put(getSSHKeyPairSuccess(response.data));
       if (action.onSuccessCallback) {
@@ -633,9 +633,11 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
       }
     }
   } catch (error) {
-    yield put(getSSHKeyPairError({ error, show: false }));
+    yield put(
+      getSSHKeyPairError({ error: (error as Error).message, show: false }),
+    );
     if (action.onErrorCallback) {
-      action.onErrorCallback(error);
+      action.onErrorCallback((error as Error).message);
     }
   }
 }
@@ -658,7 +660,7 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error);
+      action.onErrorCallback((error as Error).message);
     }
     yield call(handleRepoLimitReachedError, response);
   }
@@ -669,7 +671,7 @@ function* fetchReleases() {
     const response: FetchUsersApplicationsOrgsResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const { newReleasesCount, releaseItems } = response.data || {};
       yield put({

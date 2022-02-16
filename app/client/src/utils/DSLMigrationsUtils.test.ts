@@ -1156,7 +1156,6 @@ describe("correctly migrate dsl", () => {
       snapRows: 125,
       topRow: 0,
       type: "CANVAS_WIDGET",
-      version: nextVersion,
       widgetId: "0",
       widgetName: "MainContainer",
       renderMode: RenderModes.CANVAS,

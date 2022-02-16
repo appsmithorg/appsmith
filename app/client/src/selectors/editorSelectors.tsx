@@ -142,7 +142,7 @@ export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
     pageList.pages.find((page) => page.pageId === pageList.currentPageId)
-      ?.pageName,
+      ?.pageName || "PAGE_NAME_NOT_FOUND",
 );
 
 export const getWidgetCards = createSelector(

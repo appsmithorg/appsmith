@@ -37,6 +37,7 @@ export const extractCurrentDSL = (
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
+  //@ts-expect-error: type mismatch
   return transformDSL(currentDSL, newPage);
 };
 
