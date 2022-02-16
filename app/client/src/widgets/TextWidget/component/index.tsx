@@ -200,7 +200,7 @@ export interface TextComponentProps extends ComponentProps {
 }
 
 type State = {
-  displayTextLength: number; // Maximum length of text that can be displayed without truncation.
+  displayText: string | undefined; // Maximum length of text that can be displayed without truncation.
   isTruncated: boolean;
   showModal: boolean;
 };
@@ -209,42 +209,45 @@ type TextRef = React.Ref<Text> | undefined;
 
 class TextComponent extends React.Component<TextComponentProps, State> {
   state = {
-    displayTextLength: -1,
+    displayText: "",
     isTruncated: false,
     showModal: false,
   };
 
   textRef = React.createRef() as TextRef;
 
-  getTruncate = (element: any) => {
-    const { isTruncated } = this.state;
-    // add ELLIPSIS_HEIGHT and check content content is overflowing or not
-    return (
-      element.scrollHeight >
-      element.offsetHeight + (isTruncated ? ELLIPSIS_HEIGHT : 0)
-    );
-  };
-
-  getMaxTruncatedLength = () => {
-    const { fontSize, height, width } = this.props;
-    const area: number = (height || 0) * (width || 0);
-    const textSize: number = parseInt(
+  getDisplayTextLength = (): number => {
+    let res = 0;
+    const { fontSize, height, text, width } = this.props;
+    const textLength: number = text?.length || 0; // Length of given text
+    const area: number = (height || 0) * (width || 0); // Area of the widget
+    const charSize: number = parseInt(
       TEXT_SIZES[fontSize || "PARAGRAPH"]?.split("px")[0],
     );
-    const charArea = textSize * textSize;
-    return Math.round(area / charArea);
+    const charArea = charSize * charSize; // Rough area of an individual character
+    if (area && charArea) {
+      const maxLength: number = Math.round(area / charArea);
+      res = Math.min(maxLength, textLength);
+    }
+    return res;
+  };
+
+  getDisplayText = (): string => {
+    const { text } = this.props;
+    return text?.substring(0, this.getDisplayTextLength()) || "";
   };
 
   componentDidMount = () => {
     const textRef = get(this.textRef, "current.textRef");
     if (textRef && this.props.shouldTruncate) {
-      const isTruncated = this.getTruncate(textRef);
-      const displayTextLength: number = this.getMaxTruncatedLength();
+      const displayText: string = this.getDisplayText();
       this.setState({
-        displayTextLength,
-        isTruncated,
+        displayText,
+        isTruncated: this.props?.text
+          ? displayText?.length < this.props?.text?.length
+          : false,
       });
-    }
+    } else this.setState({ displayText: this.props?.text });
   };
 
   componentDidUpdate = (prevProps: TextComponentProps) => {
@@ -252,12 +255,19 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       if (this.props.shouldTruncate) {
         const textRef = get(this.textRef, "current.textRef");
         if (textRef) {
-          const isTruncated = this.getTruncate(textRef);
-          const displayTextLength: number = this.getMaxTruncatedLength();
-          this.setState({ displayTextLength, isTruncated });
+          const displayText: string = this.getDisplayText();
+          this.setState({
+            displayText,
+            isTruncated: this.props?.text
+              ? displayText?.length < this.props?.text?.length
+              : false,
+          });
         }
       } else if (prevProps.shouldTruncate && !this.props.shouldTruncate) {
-        this.setState({ isTruncated: false });
+        this.setState({
+          displayText: this.props?.text,
+          isTruncated: false,
+        });
       }
     }
   };
@@ -302,11 +312,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             truncate={!!shouldTruncate}
           >
             <Interweave
-              content={
-                this.state.isTruncated
-                  ? text?.slice(0, this.state.displayTextLength)
-                  : text
-              }
+              content={this.state.displayText}
               matchers={
                 disableLink
                   ? []
