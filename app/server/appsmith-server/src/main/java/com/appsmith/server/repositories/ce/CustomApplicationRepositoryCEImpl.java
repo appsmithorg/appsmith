@@ -170,13 +170,24 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
+    public Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String organizationId) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         Query query = new Query();
         query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
         query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
-        query.addCriteria(where(fieldName(QApplication.application.deleted)).is(Boolean.FALSE));
+        query.addCriteria(notDeleted());
         return mongoOperations.count(query, Application.class);
+    }
+
+    @Override
+    public Flux<Application> getGitConnectedApplicationByOrganizationId(String organizationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+        // isRepoPrivate and gitAuth will be stored only with default application which ensures we will have only single
+        // application per repo
+        Criteria repoCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).exists(Boolean.TRUE);
+        Criteria gitAuthCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.gitAuth)).exists(Boolean.TRUE);
+        Criteria organizationIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
+        return queryAll(List.of(organizationIdCriteria, repoCriteria, gitAuthCriteria), AclPermission.MANAGE_APPLICATIONS);
     }
 
     @Override
