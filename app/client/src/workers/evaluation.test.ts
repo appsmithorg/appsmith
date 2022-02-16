@@ -271,8 +271,8 @@ const mockDerived = jest.spyOn(WidgetFactory, "getWidgetDerivedPropertiesMap");
 const dependencyMap = {
   Dropdown1: [
     "Dropdown1.defaultOptionValue",
-    "Dropdown1.isValid",
     "Dropdown1.filterText",
+    "Dropdown1.isValid",
     "Dropdown1.meta",
     "Dropdown1.selectedOption",
     "Dropdown1.selectedOptionLabel",

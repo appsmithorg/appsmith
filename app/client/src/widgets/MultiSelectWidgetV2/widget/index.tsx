@@ -67,7 +67,7 @@ export function defaultOptionValueValidation(
     }
   }
 
-  if (_.isString(value) && (value as string).trim() !== "") {
+  if (_.isString(value) && (value as string).trim() === "") {
     isValid = true;
     parsed = [];
     message = "";
