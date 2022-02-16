@@ -16,7 +16,7 @@ export const CONFIG = {
     columns: 16,
     widgetName: "Text",
     shouldScroll: false,
-    shouldTruncate: false,
+    shouldTruncate: true,
     version: 1,
     animateLoading: true,
   },

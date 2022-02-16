@@ -157,11 +157,14 @@ export interface TextComponentProps extends ComponentProps {
   // helpers to detect and re-calculate content width
   bottomRow?: number;
   leftColumn?: number;
+  height?: number;
   rightColumn?: number;
   topRow?: number;
+  width?: number;
 }
 
 type State = {
+  displayTextLength: number; // Maximum length of text that can be displayed without truncation.
   isTruncated: boolean;
   showModal: boolean;
 };
@@ -170,6 +173,7 @@ type TextRef = React.Ref<Text> | undefined;
 
 class TextComponent extends React.Component<TextComponentProps, State> {
   state = {
+    displayTextLength: -1,
     isTruncated: false,
     showModal: false,
   };
@@ -185,11 +189,25 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     );
   };
 
+  getMaxTruncatedLength = () => {
+    const { fontSize, height, width } = this.props;
+    const area: number = (height || 0) * (width || 0);
+    const textSize: number = parseInt(
+      TEXT_SIZES[fontSize || "PARAGRAPH"]?.split("px")[0],
+    );
+    const charArea = textSize * textSize;
+    return Math.round(area / charArea);
+  };
+
   componentDidMount = () => {
     const textRef = get(this.textRef, "current.textRef");
     if (textRef && this.props.shouldTruncate) {
       const isTruncated = this.getTruncate(textRef);
-      this.setState({ isTruncated });
+      const displayTextLength: number = this.getMaxTruncatedLength();
+      this.setState({
+        displayTextLength,
+        isTruncated,
+      });
     }
   };
 
@@ -199,7 +217,8 @@ class TextComponent extends React.Component<TextComponentProps, State> {
         const textRef = get(this.textRef, "current.textRef");
         if (textRef) {
           const isTruncated = this.getTruncate(textRef);
-          this.setState({ isTruncated });
+          const displayTextLength: number = this.getMaxTruncatedLength();
+          this.setState({ displayTextLength, isTruncated });
         }
       } else if (prevProps.shouldTruncate && !this.props.shouldTruncate) {
         this.setState({ isTruncated: false });
@@ -247,7 +266,11 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             truncate={!!shouldTruncate}
           >
             <Interweave
-              content={text}
+              content={
+                this.state.isTruncated
+                  ? text?.slice(0, this.state.displayTextLength)
+                  : text
+              }
               matchers={
                 disableLink
                   ? []
