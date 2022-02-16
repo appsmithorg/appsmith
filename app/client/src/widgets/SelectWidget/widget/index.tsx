@@ -70,6 +70,17 @@ export function defaultOptionValueValidation(
   };
 }
 
+// function defaultOptionValueValidation(value: unknown): ValidationResponse {
+//   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
+//   if (value === undefined || value === null)
+//     return {
+//       isValid: false,
+//       parsed: "",
+//       messages: ["This value does not evaluate to type: string"],
+//     };
+//   return { isValid: true, parsed: value };
+// }
+
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -326,9 +337,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabel: `{{_.isPlainObject(this.selectedOption) ? this.selectedOption?.label : this.selectedOption}}`,
-      selectedOptionValue: `{{_.isPlainObject(this.selectedOption) ? this.selectedOption?.value : this.selectedOption}}`,
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
+      selectedOptionLabel: `{{(()=>{const label = _.isPlainObject(this.selectedOption) ? this.selectedOption?.label : this.selectedOption; return label; })()}}`,
+      selectedOptionValue: `{{(()=>{const value = _.isPlainObject(this.selectedOption) ? this.selectedOption?.value : this.selectedOption; return value; })()}}`,
     };
   }
 
@@ -346,40 +357,30 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
-  // componentDidMount() {
-  //   this.changeSelectedOption();
-  // }
-  // componentDidUpdate(prevProps: SelectWidgetProps): void {
-  //   // removing selectedOptionValue if defaultValueChanges
-  //   if (
-  //     this.isStringOrNumber(prevProps.defaultOptionValue) ||
-  //     this.isStringOrNumber(this.props.defaultOptionValue)
-  //   ) {
-  //     if (
-  //       prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
-  //       prevProps.option !== this.props.option
-  //     ) {
-  //       this.changeSelectedOption();
-  //     }
-  //     return;
-  //   }
-  //   if (
-  //     prevProps.defaultOptionValue?.value !==
-  //       this.props.defaultOptionValue?.value ||
-  //     prevProps.option !== this.props.option
-  //   ) {
-  //     this.changeSelectedOption();
-  //   }
-  // }
+  componentDidMount() {
+    this.changeSelectedOption();
+  }
+  componentDidUpdate(prevProps: SelectWidgetProps): void {
+    // removing selectedOptionValue if defaultValueChanges
+    if (
+      this.isStringOrNumber(prevProps.defaultOptionValue) ||
+      this.isStringOrNumber(this.props.defaultOptionValue)
+    ) {
+      if (prevProps.defaultOptionValue !== this.props.defaultOptionValue) {
+        this.changeSelectedOption();
+      }
+      return;
+    }
+    if (
+      prevProps.defaultOptionValue?.value !==
+      this.props.defaultOptionValue?.value
+    ) {
+      this.changeSelectedOption();
+    }
+  }
 
   isStringOrNumber = (value: any): value is string | number =>
     isString(value) || isNumber(value);
-  changeSelectedOption = () => {
-    this.props.updateWidgetMetaProperty(
-      "selectedOption",
-      this.props.selectedOption,
-    );
-  };
 
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
@@ -439,14 +440,30 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
     if (isChanged) {
-      this.props.updateWidgetMetaProperty("selectedOption", selectedOption, {
-        triggerPropertyName: "onOptionChange",
-        dynamicString: this.props.onOptionChange,
-        event: {
-          type: EventType.ON_OPTION_CHANGE,
+      this.props.updateWidgetMetaProperty(
+        "selectedOption",
+        selectedOption.value,
+        {
+          triggerPropertyName: "onOptionChange",
+          dynamicString: this.props.onOptionChange,
+          event: {
+            type: EventType.ON_OPTION_CHANGE,
+          },
         },
-      });
+      );
     }
+  };
+
+  changeSelectedOption = () => {
+    // this.props.updateWidgetMetaProperty(
+    //   "selectedOption",
+    //   this.props.selectedOption,
+    // );
+    const index = findIndex(this.props.options, {
+      value: this.props.selectedOptionValue ?? this.props.defaultOptionValue,
+    });
+    const value = this.props.options?.[index]?.value;
+    this.props.updateWidgetMetaProperty("selectedOption", value);
   };
 
   onFilterChange = (value: string) => {
