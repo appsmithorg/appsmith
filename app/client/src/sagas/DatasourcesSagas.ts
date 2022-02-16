@@ -73,7 +73,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
   OAUTH_AUTHORIZATION_SUCCESSFUL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import localStorage from "utils/localStorage";
@@ -295,7 +295,7 @@ export function* deleteDatasourceSaga(
       text: error.message,
       source: {
         id: actionPayload.payload.id,
-        name: datasource.name,
+        name: datasource?.name ?? "Datasource name is not set",
         type: ENTITY_TYPE.DATASOURCE,
       },
     });

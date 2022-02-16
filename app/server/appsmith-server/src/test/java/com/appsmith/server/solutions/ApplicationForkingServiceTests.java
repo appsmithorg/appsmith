@@ -379,7 +379,7 @@ public class ApplicationForkingServiceTests {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, testUserOrgId)))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, testUserOrgId)))
                 .verify();
     }
 
@@ -489,7 +489,7 @@ public class ApplicationForkingServiceTests {
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
-                .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
+                .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
 }

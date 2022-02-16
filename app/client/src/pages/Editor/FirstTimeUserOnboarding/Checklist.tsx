@@ -51,7 +51,7 @@ import {
   ONBOARDING_CHECKLIST_FOOTER,
   ONBOARDING_CHECKLIST_BANNER_BUTTON,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Datasource } from "entities/Datasource";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

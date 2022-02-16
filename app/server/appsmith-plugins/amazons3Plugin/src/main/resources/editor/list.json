@@ -110,6 +110,16 @@
               "value": "NO"
             }
           ]
+        },
+        {
+          "label": "Sort By",
+          "configProperty": "actionConfiguration.formData.list.sortBy",
+          "controlType": "SORTING"
+        },
+        {
+          "label": "Paginate By",
+          "configProperty": "actionConfiguration.formData.list.pagination",
+          "controlType": "PAGINATION"
         }
       ]
     }

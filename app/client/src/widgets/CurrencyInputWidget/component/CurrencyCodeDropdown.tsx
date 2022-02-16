@@ -156,6 +156,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   return (
     <DropdownContainer>
       <Dropdown
+        closeOnSpace={false}
         containerClassName="currency-type-filter"
         dropdownHeight="139px"
         dropdownTriggerIcon={dropdownTriggerIcon}

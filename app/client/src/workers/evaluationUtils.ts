@@ -27,7 +27,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
-import { cloneDeep } from "lodash";
+const clone = require("rfdc/default");
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -361,7 +361,7 @@ export function validateActionProperty(
       parsed: value,
     };
   }
-  return validate(config, value, undefined);
+  return validate(config, value, {});
 }
 
 export function getValidatedTree(tree: DataTree) {
@@ -800,15 +800,16 @@ export const overrideWidgetProperties = (
   value: unknown,
   currentTree: DataTree,
 ) => {
-  const clonedValue = cloneDeep(value);
+  const clonedValue = clone(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
 
-    overridingPropertyPaths.forEach((overriddenPropertyKey) => {
+    overridingPropertyPaths.forEach((overriddenPropertyPath) => {
+      const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
       _.set(
         currentTree,
-        `${entity.widgetName}.${overriddenPropertyKey}`,
+        [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
     });
@@ -822,11 +823,12 @@ export const overrideWidgetProperties = (
       entity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
-      const clonedDefaultValue = cloneDeep(defaultValue);
+      const clonedDefaultValue = clone(defaultValue);
       if (defaultValue !== undefined) {
+        const propertyPathArray = propertyPath.split(".");
         _.set(
           currentTree,
-          `${entity.widgetName}.${propertyPath}`,
+          [entity.widgetName, ...propertyPathArray],
           clonedDefaultValue,
         );
         return {
