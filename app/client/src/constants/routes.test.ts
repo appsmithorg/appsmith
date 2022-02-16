@@ -10,7 +10,8 @@ describe("BUILDER_PAGE_URL", () => {
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
     const pageURL = BUILDER_PAGE_URL({
-      applicationId: ":applicationId",
+      applicationSlug: ":applicationSlug",
+      pageSlug: ":pageSlug",
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -20,7 +21,8 @@ describe("BUILDER_PAGE_URL", () => {
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
     const pageURL = BUILDER_PAGE_URL({
-      applicationId: ":applicationId",
+      applicationSlug: ":applicationSlug",
+      pageSlug: ":pageSlug",
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -42,7 +44,8 @@ describe("getApplicationViewerPageURL", () => {
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
     const pageURL = getApplicationViewerPageURL({
-      applicationId: ":applicationId",
+      applicationSlug: ":applicationSlug",
+      pageSlug: ":pageSlug",
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -52,7 +55,8 @@ describe("getApplicationViewerPageURL", () => {
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
     const pageURL = getApplicationViewerPageURL({
-      applicationId: ":applicationId",
+      applicationSlug: ":applicationSlug",
+      pageSlug: ":pageSlug",
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);

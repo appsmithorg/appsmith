@@ -5,7 +5,6 @@ import {
 } from "constants/ReduxActionConstants";
 
 export const initEditor = (
-  applicationId: string,
   pageId: string,
   branch?: string,
 ): ReduxAction<InitializeEditorPayload> => ({

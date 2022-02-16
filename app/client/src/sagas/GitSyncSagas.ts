@@ -516,7 +516,7 @@ function* gitPullSaga(
     if (isValidResponse) {
       const { mergeStatus } = response?.data;
       yield put(gitPullSuccess(mergeStatus));
-      yield put(initEditor(applicationId, currentPageId, currentBranch));
+      yield put(initEditor(currentPageId, currentBranch));
     }
   } catch (e) {
     // todo check based on error type
