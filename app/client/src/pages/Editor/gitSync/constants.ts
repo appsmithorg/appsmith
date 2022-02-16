@@ -3,7 +3,7 @@ import {
   GIT_CONNECTION,
   DEPLOY,
   MERGE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 export enum MENU_ITEM {
   GIT_CONNECTION = "GIT_CONNECTION",
