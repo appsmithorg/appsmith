@@ -138,6 +138,7 @@ public enum AppsmithError {
     GIT_GENERIC_ERROR(504, 5016, "Git command execution error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
     GENERIC_JSON_IMPORT_ERROR(400, 4049, "Unable to import application in organization {0} with error {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     FILE_PART_DATA_BUFFER_ERROR(500, 5017, "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
+    UNKNOWN_SERVER_VARIABLE_TYPE(500, 5018, "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     ;
 
     private final Integer httpErrorCode;
