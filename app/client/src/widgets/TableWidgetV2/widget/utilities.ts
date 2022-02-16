@@ -8,7 +8,7 @@ import {
   TableStyles,
   VerticalAlignmentTypes,
 } from "../component/Constants";
-import { ORIGINAL_INDEX_KEY, PRIMARY_COLUMN_KEY_VALUE } from "../constants";
+import { ORIGINAL_INDEX_KEY } from "../constants";
 
 type TableData = Array<Record<string, unknown>>;
 
