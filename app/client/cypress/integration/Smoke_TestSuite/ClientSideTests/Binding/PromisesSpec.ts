@@ -31,8 +31,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
   });
 
   it("1.1. Verify resetWidget via .then direct Promises", () => {
-    cy.fixture("promisesBtn").then((val: any) => {
-      agHelper.AddDsl(val);
+    cy.fixture("promisesBtn").then((dsl: any) => {
+      agHelper.AddDsl(dsl);
     });
     agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
     agHelper.SelectEntityByName("Button1");
