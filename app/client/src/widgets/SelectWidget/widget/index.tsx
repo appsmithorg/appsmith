@@ -44,23 +44,16 @@ export function defaultOptionValueValidation(
     } catch (e) {}
   }
 
-  if (_.isString(value) || _.isFinite(value)) {
+  if (_.isString(value) || _.isFinite(value) || hasLabelValue(value)) {
     /*
-     * When value is "", "green", 444
-     */
-    isValid = true;
-
-    parsed = value;
-  } else if (hasLabelValue(value)) {
-    /*
-     * When value is {label: "green", value: "green"}
+     * When value is "", "green", 444, {label: "green", value: "green"}
      */
     isValid = true;
     parsed = value;
   } else {
     isValid = false;
     parsed = {};
-    message = `value does not evaluate to type: string | { "label": "label1", "value": "value1" }'`;
+    message = `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`;
   }
 
   return {
