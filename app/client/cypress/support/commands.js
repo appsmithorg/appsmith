@@ -3117,6 +3117,7 @@ Cypress.Commands.add("ValidatePublishTableData", (value) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
+  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
@@ -3696,6 +3697,25 @@ Cypress.Commands.add("isInViewport", (element) => {
 
 Cypress.Commands.add("validateEvaluatedValue", (value) => {
   cy.get(".t-property-evaluated-value").should("contain", value);
+});
+
+Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
+  cy.xpath("//div[contains(@class, 't--entity-name')][text()='" + item + "']")
+    .parents(commonlocators.entityItem)
+    .first()
+    .children(commonlocators.entityCollapseToggle)
+    .invoke("attr", "name")
+    .then((name) => {
+      if (name === "arrow-right") {
+        cy.xpath(
+          "//div[contains(@class, 't--entity-name')][text()='" + item + "']",
+        )
+          .parents(commonlocators.entityItem)
+          .first()
+          .children(commonlocators.entityCollapseToggle)
+          .click({ force: true });
+      }
+    });
 });
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
