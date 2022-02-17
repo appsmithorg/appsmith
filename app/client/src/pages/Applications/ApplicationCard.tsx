@@ -21,7 +21,7 @@ import {
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import { omit } from "lodash";
+import { noop, omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -718,7 +718,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
 
   return (
-    <Container isMobile={props.isMobile} onClick={LaunchAppInMobile}>
+    <Container
+      isMobile={props.isMobile}
+      onClick={props.isMobile ? LaunchAppInMobile : noop}
+    >
       <NameWrapper
         className="t--application-card"
         hasReadPermission={hasReadPermission}
