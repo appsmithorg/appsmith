@@ -172,6 +172,50 @@ export const updateColumnOrderHook = (
   }
 };
 
+const ACCESSOR_PATH_REGEX = /^primaryColumns\.(\w+)\.accessor$/;
+/*
+ * Hook that updates accesor map and computedValue when a accessor
+ * is updated.
+ */
+export const updateColumnAccessorHook = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  if (props && propertyValue && ACCESSOR_PATH_REGEX.test(propertyPath)) {
+    const match = ACCESSOR_PATH_REGEX.exec(propertyPath) || [];
+    const columnId = match[1];
+
+    if (columnId) {
+      const propertiesToUpdate = [];
+      propertiesToUpdate.push({
+        propertyPath: "accessorMap",
+        propertyValue: { ...props.accessorMap, [columnId]: propertyValue },
+      });
+
+      // if (props.primaryColumns && props.primaryColumns[columnId]) {
+      //   const computedValue = props.primaryColumns[columnId].computedValue;
+      //   const oldPropertyValue = props.primaryColumns[columnId].accessor;
+
+      //   const newComputedValue = computedValue
+      //     .split(`currentRow.${oldPropertyValue}`)
+      //     .join(`currentRow.${propertyValue}`);
+
+      //   propertiesToUpdate.push({
+      //     propertyPath: `primaryColumns.${columnId}.computedValue`,
+      //     propertyValue: newComputedValue,
+      //   });
+      // }
+
+      return propertiesToUpdate;
+    } else {
+      return;
+    }
+  } else {
+    return;
+  }
+};
+
 /*
  * Gets the base property path excluding the current property.
  * For example, for  `primaryColumns[5].computedValue` it will return

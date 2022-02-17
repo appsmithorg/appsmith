@@ -209,6 +209,7 @@ export interface ColumnProperties {
   iconButtonStyle?: ButtonStyleType;
   isCellVisible?: boolean;
   isAscOrder?: boolean;
+  accessor?: string;
 }
 
 export const ConditionFunctions: {
