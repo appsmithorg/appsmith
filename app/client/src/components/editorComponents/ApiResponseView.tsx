@@ -68,7 +68,11 @@ const ResponseMetaWrapper = styled.div`
   display: flex;
   position: absolute;
   right: ${(props) => props.theme.spaces[12]}px;
-  top: ${(props) => props.theme.spaces[4]}px;
+  top: ${(props) => props.theme.spaces[3]}px;
+
+  @media (max-width: 1406px) {
+    left: ${(props) => props.theme.spaces[5]}px;
+  }
 `;
 
 const ResponseTabWrapper = styled.div`
@@ -78,12 +82,20 @@ const ResponseTabWrapper = styled.div`
   width: 100%;
 `;
 
-const TabbedViewWrapper = styled.div`
+const TabbedViewWrapper = styled.div<{ isResponseAvailable: boolean }>`
   height: 100%;
+  height: 400px;
 
   &&& {
     ul.react-tabs__tab-list {
       padding: 0px ${(props) => props.theme.spaces[12]}px;
+
+      @media (max-width: 1406px) {
+        padding: ${({ isResponseAvailable, theme }) =>
+            isResponseAvailable ? `${theme.spaces[12]}px` : "0"}
+          ${(props) => props.theme.spaces[12]}px 0
+          ${(props) => props.theme.spaces[12]}px;
+      }
     }
   }
 
@@ -391,7 +403,7 @@ function ApiResponseView(props: Props) {
           Sending Request
         </LoadingOverlayScreen>
       )}
-      <TabbedViewWrapper>
+      <TabbedViewWrapper isResponseAvailable={!!response.statusCode}>
         {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
@@ -433,6 +445,7 @@ function ApiResponseView(props: Props) {
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
+
         <EntityBottomTabs defaultIndex={0} tabs={tabs} />
       </TabbedViewWrapper>
     </ResponseContainer>
