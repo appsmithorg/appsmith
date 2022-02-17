@@ -10,7 +10,7 @@ import {
 import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import panelConfig from "./PanelConfig";
 
 export default {
