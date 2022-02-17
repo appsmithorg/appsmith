@@ -3,40 +3,35 @@
 export default {
   getSelectedRow: (props, moment, _) => {
     let index = -1;
-    const {
-      filteredTableData,
-      multiRowSelection,
-      sanitizedTableData,
-      selectedRowIndex,
-      selectedRowIndices,
-    } = props;
 
     /*
      * If multiRowSelection is turned on, use the last index to
      * populate the selectedRowIndex
      */
-    if (multiRowSelection) {
+    if (props.multiRowSelection) {
       if (
-        _.isArray(selectedRowIndices) &&
-        selectedRowIndices.length &&
-        selectedRowIndices.every((i) => _.isNumber(i))
+        _.isArray(props.selectedRowIndices) &&
+        props.selectedRowIndices.length &&
+        props.selectedRowIndices.every((i) => _.isNumber(i))
       ) {
-        index = selectedRowIndices[selectedRowIndices.length - 1];
-      } else if (_.isNumber(selectedRowIndices)) {
-        index = selectedRowIndices;
+        index = props.selectedRowIndices[props.selectedRowIndices.length - 1];
+      } else if (_.isNumber(props.selectedRowIndices)) {
+        index = props.selectedRowIndices;
       }
     } else if (
-      !_.isNil(selectedRowIndex) &&
-      !_.isNaN(parseInt(selectedRowIndex))
+      !_.isNil(props.selectedRowIndex) &&
+      !_.isNaN(parseInt(props.selectedRowIndex))
     ) {
-      index = parseInt(selectedRowIndex);
+      index = parseInt(props.selectedRowIndex);
     }
 
-    const rows = filteredTableData || sanitizedTableData || [];
+    const rows = props.filteredTableData || props.sanitizedTableData || [];
     let selectedRow;
 
-    //Note(Balaji): Need to include customColumn values in the selectedRow (select, rating)
-    // It should have updated values.
+    /*
+     * Note(Balaji): Need to include customColumn values in the selectedRow (select, rating)
+     * It should have updated values.
+     */
     if (index > -1) {
       selectedRow = { ...rows[index] };
     } else {
@@ -55,18 +50,19 @@ export default {
   //
   getTriggeredRow: (props, moment, _) => {
     let index = -1;
-    const { sanitizedTableData, triggeredRowIndex } = props;
-    const parsedTriggeredRowIndex = parseInt(triggeredRowIndex);
+    const parsedTriggeredRowIndex = parseInt(props.triggeredRowIndex);
 
     if (!_.isNaN(parsedTriggeredRowIndex)) {
       index = parsedTriggeredRowIndex;
     }
 
-    const rows = filteredTableData || sanitizedTableData || [];
+    const rows = props.filteredTableData || props.sanitizedTableData || [];
     const triggeredRow;
 
-    //Note(Balaji): Need to include customColumn values in the triggeredRow (select, rating)
-    // It should have updated values.
+    /*
+     * Note(Balaji): Need to include customColumn values in the triggeredRow (select, rating)
+     * It should have updated values.
+     */
     if (index > -1) {
       triggeredRow = { ...rows[index] };
     } else {
@@ -84,23 +80,24 @@ export default {
   },
   //
   getSelectedRows: (props, moment, _) => {
-    const { filteredTableData, sanitizedTableData, selectedRowIndices } = props;
     let indices = [];
 
     if (
-      _.isArray(selectedRowIndices) &&
-      selectedRowIndices.every((i) => _.isNumber(i))
+      _.isArray(props.selectedRowIndices) &&
+      props.selectedRowIndices.every((i) => _.isNumber(i))
     ) {
-      indices = selectedRowIndices;
+      indices = props.selectedRowIndices;
     }
 
-    const rows = filteredTableData || sanitizedTableData || [];
+    const rows = props.filteredTableData || props.sanitizedTableData || [];
 
     return indices.map((index) => rows[index]);
   },
   //
   getPageSize: (props, moment, _) => {
-    //TODO(Balaji): Refactor this
+    /*
+     * TODO(Balaji): Refactor this
+     */
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
@@ -144,12 +141,12 @@ export default {
   },
   //
   getSanitizedTableData: (props, moment, _) => {
-    const { tableData } = props;
-
-    //TODO(Balaji): We need to take the inline edited cells and custom column values
-    // from meta and inject that into sanitised data
-    if (tableData && _.isArray(tableData)) {
-      return tableData;
+    /*
+     * TODO(Balaji): We need to take the inline edited cells and custom column values
+     * from meta and inject that into sanitised data
+     */
+    if (props.tableData && _.isArray(props.tableData)) {
+      return props.tableData;
     } else {
       return [];
     }
@@ -160,18 +157,12 @@ export default {
      * existing columns - primaryColumns
      * new columns - sanitizedTableData columns
      */
-    const {
-      columnOrder,
-      primaryColumns,
-      sanitizedTableData,
-      sortOrder,
-    } = props;
-    const data = sanitizedTableData || [];
+    const data = props.sanitizedTableData || [];
 
     let columns = [];
 
     /* Shallow copy primaryColumns */
-    let existingColumns = Object.assign({}, primaryColumns || {});
+    let existingColumns = Object.assign({}, props.primaryColumns || {});
 
     /*
      * Add colummns from sanitizedTableData to existingColumns if they're not already preset
@@ -180,7 +171,9 @@ export default {
     if (data.length > 0) {
       const columnIdSet = new Set();
 
-      // Create a unigue column ids list from newColumns
+      /*
+       * Create a unigue column ids list from newColumns
+       */
       data.forEach((row) => {
         Object.keys(row).forEach((key) => {
           columnIdSet.add(key);
@@ -189,15 +182,17 @@ export default {
 
       const newColumnIds = Array.from(columnIdSet);
 
-      // Create columns that are not already present in the primaryColumns list
+      /*
+       * Create columns that are not already present in the primaryColumns list
+       */
       newColumnIds.forEach((id) => {
         if (!existingColumns[id]) {
           const currIndex = Object.keys(existingColumns).length;
           existingColumns[id] = {
             index: currIndex,
             width: 150,
-            accessor: id,
             id,
+            accessor: id,
             horizontalAlignment: "LEFT",
             verticalAlignment: "CENTER",
             columnType: "text",
@@ -238,13 +233,13 @@ export default {
      * Need to reassign index keys to columns in existing columns
      * since we have added/removed columns from it
      */
-    if (_.isArray(columnOrder) && columnOrder.length > 0) {
+    if (_.isArray(props.columnOrder) && props.columnOrder.length > 0) {
       const newColumnsInOrder = {};
 
       let index = 0;
 
       /* Assign index for the columns that are already present */
-      _.uniq(columnOrder).forEach((columnId) => {
+      _.uniq(props.columnOrder).forEach((columnId) => {
         if (existingColumns[columnId]) {
           newColumnsInOrder[columnId] = {
             ...existingColumns[columnId],
@@ -267,8 +262,8 @@ export default {
       existingColumns = newColumnsInOrder;
     }
 
-    const sortByColumn = sortOrder.column;
-    const isAscOrder = sortOrder.order === "asc";
+    const sortByColumn = props.sortOrder.column;
+    const isAscOrder = props.sortOrder.order === "asc";
 
     /* set sorting flags and convert the existing columns into an array */
     Object.values(existingColumns).forEach((column) => {
@@ -284,14 +279,15 @@ export default {
   //
   getFilteredTableData: (props, moment, _) => {
     /* Make a shallow copy */
-    const sanitizedTableData = [...props.sanitizedTableData];
-    const {
-      derivedColumns,
-      primaryColumnId,
-      primaryColumns,
-      sortOrder,
-      tableColumns,
-    } = props;
+    const primaryColumns = props.primaryColumns || {};
+    let sanitizedTableData = [...props.sanitizedTableData];
+    const derivedColumns = {};
+
+    Object.keys(primaryColumns).forEach((id) => {
+      if (primaryColumns[id] && primaryColumns[id].isDerived) {
+        derivedColumns[id] = primaryColumns[id];
+      }
+    });
 
     if (!sanitizedTableData || !sanitizedTableData.length) {
       return [];
@@ -322,12 +318,12 @@ export default {
         }
 
         /* for derived columns inject empty strings */
-        if (computedValues.length === 0) {
-          if (props.derivedColumns) {
-            if (derivedColumns[id]) {
-              computedValues = Array(sanitizedTableData.length).fill("");
-            }
-          }
+        if (
+          computedValues.length === 0 &&
+          derivedColumns &&
+          derivedColumns[id]
+        ) {
+          computedValues = Array(sanitizedTableData.length).fill("");
         }
 
         computedValues.forEach((computedValue, index) => {
@@ -343,11 +339,13 @@ export default {
     sanitizedTableData = sanitizedTableData.map((row, index) => ({
       ...row,
       __originalIndex__: index,
-      __primaryKey__: primaryColumnId ? row[primaryColumnId] : undefined,
+      __primaryKey__: props.primaryColumnId
+        ? row[props.primaryColumnId]
+        : undefined,
     }));
 
-    const columns = tableColumns;
-    const sortByColumnId = sortOrder.column;
+    const columns = props.tableColumns;
+    const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
 
@@ -363,7 +361,7 @@ export default {
       const isEmptyOrNil = (value) => {
         return _.isNil(value) || value === "";
       };
-      const isAscOrder = sortOrder.order === "asc";
+      const isAscOrder = props.sortOrder.order === "asc";
       const sortByOrder = (isAGreaterThanB) => {
         if (isAGreaterThanB) {
           return isAscOrder ? 1 : -1;
@@ -495,18 +493,14 @@ export default {
         return moment(a).isBefore(moment(b), "minute");
       },
     };
-
-    const {
-      enableClientSideSearch,
-      filters,
-      onSearchTextChanged,
-      searchText,
-    } = props;
     let searchKey;
 
     /* skipping search when client side search is turned off */
-    if (searchText && (!onSearchTextChanged || enableClientSideSearch)) {
-      searchKey = searchText.toLowerCase();
+    if (
+      props.searchText &&
+      (!props.onSearchTextChanged || props.enableClientSideSearch)
+    ) {
+      searchKey = props.searchText.toLowerCase();
     } else {
       searchKey = "";
     }
@@ -518,7 +512,7 @@ export default {
         isSearchKeyFound = Object.values(row)
           .join(", ")
           .toLowerCase()
-          .includes(getSearchKey());
+          .includes(searchKey);
       }
 
       if (!isSearchKeyFound) {
@@ -526,20 +520,22 @@ export default {
       }
 
       /* when there is no filter defined */
-      if (!filters || filters.length === 0) {
+      if (!props.filters || props.filters.length === 0) {
         return true;
       }
 
-      const filterOperator = filters.length >= 2 ? filters[1].operator : "OR";
+      const filterOperator =
+        props.filters.length >= 2 ? props.filters[1].operator : "OR";
       let isSatisfyingFilters = filterOperator === "AND";
-      for (let i = 0; i < filters.length; i++) {
+      for (let i = 0; i < props.filters.length; i++) {
         let filterResult = true;
         try {
-          const conditionFunction = ConditionFunctions[filters[i].condition];
+          const conditionFunction =
+            ConditionFunctions[props.filters[i].condition];
           if (conditionFunction) {
             filterResult = conditionFunction(
-              row[filters[i].column],
-              filters[i].value,
+              row[props.filters[i].column],
+              props.filters[i].value,
             );
           }
         } catch (e) {

@@ -151,6 +151,7 @@ export interface TableColumnMetaProps {
 }
 
 export interface TableColumnProps {
+  id: string;
   Header: string;
   accessor: string;
   width?: number;

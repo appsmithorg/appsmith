@@ -14,7 +14,7 @@ import CascadeFields from "./CascadeFields";
 import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ControlIcons } from "icons/ControlIcons";
 import Icon, { IconSize } from "components/ads/Icon";
 
