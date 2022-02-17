@@ -38,12 +38,18 @@ export const CONFIG = {
         key: "primaryColumns.action.computedValue",
       },
     ],
+    accessorMap: {
+      step: "step1",
+      task: "task",
+      status: "status",
+      action: "action",
+    },
     primaryColumns: {
       step: {
         index: 0,
         width: 150,
         id: "step",
-        accessor: "step",
+        accessor: "step1",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
@@ -55,7 +61,7 @@ export const CONFIG = {
         isDerived: false,
         label: "step",
         computedValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step1))}}",
       },
       task: {
         index: 1,
@@ -152,7 +158,7 @@ export const CONFIG = {
               set(
                 primaryColumns,
                 `${columnId}.computedValue`,
-                `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
+                `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${primaryColumns[columnId].accessor}))}}`,
               );
               set(primaryColumns, `${columnId}.buttonColor`, Colors.GREEN);
               set(primaryColumns, `${columnId}.menuColor`, Colors.GREEN);

@@ -5,6 +5,7 @@ import {
   ColumnTypes,
   getBasePropertyPath,
   hideByColumnType,
+  updateColumnAccessorHook,
 } from "../../propertyUtils";
 
 export default {
@@ -72,6 +73,26 @@ export default {
       isTriggerProperty: false,
     },
     {
+      helpText: "The accessor that you use in selectedrowindex",
+      propertyName: "accessor",
+      label: "Accessor",
+      controlType: "INPUT_TEXT",
+      updateHook: updateColumnAccessorHook,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.DATE,
+          ColumnTypes.IMAGE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.TEXT,
+          ColumnTypes.VIDEO,
+          ColumnTypes.URL,
+        ]);
+      },
+      dependencies: ["primaryColumns", "accessorMap"],
+      isBindProperty: false,
+      isTriggerProperty: false,
+    },
+    {
       helpText:
         "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
       propertyName: "computedValue",
@@ -89,25 +110,6 @@ export default {
       },
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
-      isTriggerProperty: false,
-    },
-    {
-      helpText: "The accessor that you use in selectedrowindex",
-      propertyName: "accessor",
-      label: "Accessor",
-      controlType: "INPUT_TEXT",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.DATE,
-          ColumnTypes.IMAGE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.TEXT,
-          ColumnTypes.VIDEO,
-          ColumnTypes.URL,
-        ]);
-      },
-      dependencies: ["primaryColumns"],
-      isBindProperty: false,
       isTriggerProperty: false,
     },
     {

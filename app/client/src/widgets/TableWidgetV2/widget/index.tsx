@@ -141,7 +141,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { componentWidth } = this.getComponentDimensions();
     let totalColumnWidth = 0;
 
-    tableColumns.forEach((column: any) => {
+    Object.values(primaryColumns).forEach((column: any) => {
       const isHidden = !column.isVisible;
       const accessor = column.accessor;
       const columnData = {
@@ -352,8 +352,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const newRow: { [key: string]: any } = {};
 
       columns.forEach((column) => {
-        const { id } = column;
-        let value = row[id];
+        const { accessor } = column;
+        let value = row[accessor];
 
         if (column.metaProperties) {
           switch (column.metaProperties.type) {
@@ -391,17 +391,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     value = 1000 * Number(value);
                   }
 
-                  newRow[id] = moment(value as MomentInput, inputFormat).format(
-                    outputFormat,
-                  );
+                  newRow[accessor] = moment(
+                    value as MomentInput,
+                    inputFormat,
+                  ).format(outputFormat);
                 } catch (e) {
                   log.debug("Unable to parse Date:", { e });
-                  newRow[id] = "";
+                  newRow[accessor] = "";
                 }
               } else if (value) {
-                newRow[id] = "Invalid Value";
+                newRow[accessor] = "Invalid Value";
               } else {
-                newRow[id] = "";
+                newRow[accessor] = "";
               }
               break;
             default:
@@ -415,7 +416,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 data = JSON.stringify(value);
               }
 
-              newRow[id] = data;
+              newRow[accessor] = data;
               break;
           }
         }
@@ -445,22 +446,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   /*
-   * Function to create new primary Columns from the sanitizedTableData
+   * Function to create new primary Columns from the tableData
    * gets called on component mount and on component update
    */
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
-    const { sanitizedTableData = [], primaryColumns = {} } = this.props;
+    const { tableData = [], primaryColumns = {} } = this.props;
 
-    if (!_.isArray(sanitizedTableData) || sanitizedTableData.length === 0) {
+    if (!_.isArray(tableData) || tableData.length === 0) {
       return;
     }
 
     const existingColumnIds = Object.keys(primaryColumns);
     const newTableColumns: Record<string, ColumnProperties> = {};
     const tableStyles = getTableStyles(this.props);
-    const columnKeys: string[] = getAllTableColumnKeys(sanitizedTableData);
+    const columnKeys: string[] = getAllTableColumnKeys(tableData);
 
     /*
      * Generate default column properties for all columns
@@ -553,6 +554,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
 
+        const accessorMap: Record<string, string> = {};
+
+        Object.entries(tableColumns).forEach(([id, column]) => {
+          accessorMap[id] = column.accessor || id;
+        });
+
+        propertiesToAdd["accessorMap"] = accessorMap;
+
         const propertiesToUpdate: BatchPropertyUpdatePayload = {
           modify: propertiesToAdd,
         };
@@ -575,9 +584,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
-    const { sanitizedTableData } = this.props;
+    const { tableData } = this.props;
 
-    if (_.isArray(sanitizedTableData) && !!sanitizedTableData.length) {
+    if (_.isArray(tableData) && !!tableData.length) {
       const newPrimaryColumns = this.createTablePrimaryColumns();
 
       // When the Table data schema changes
@@ -600,14 +609,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
 
     // Bail out if santizedTableData is a string. This signifies an error in evaluations
-    if (isString(this.props.sanitizedTableData)) {
+    if (isString(this.props.tableData)) {
       return;
     }
 
     // Check if tableData is modifed
     const isTableDataModified = !equal(
-      this.props.sanitizedTableData,
-      prevProps.sanitizedTableData,
+      this.props.tableData,
+      prevProps.tableData,
     );
 
     // If the user has changed the tableData OR
@@ -621,7 +630,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.resetWidgetDefault();
 
       const newColumnIds: string[] = getAllTableColumnKeys(
-        this.props.sanitizedTableData,
+        this.props.tableData,
       );
       const primaryColumnIds = Object.keys(primaryColumns).filter(
         (id: string) => !primaryColumns[id].isDerived,
