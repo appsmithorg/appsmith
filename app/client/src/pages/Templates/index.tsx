@@ -28,6 +28,8 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 const TemplateListWrapper = styled.div`
   padding-top: 26px;
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  overflow: auto;
 `;
 
 const ResultsCount = styled.div`

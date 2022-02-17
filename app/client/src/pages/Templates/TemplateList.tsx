@@ -6,8 +6,6 @@ import { Template as TemplateInterface } from "api/TemplatesApi";
 
 const Wrapper = styled.div`
   padding-top: 24px;
-  height: calc(100vh - 180px);
-  overflow: auto;
   padding-right: 33px;
   padding-left: 33px;
 
