@@ -4,6 +4,9 @@ export interface AppTheme {
   created_by: string;
   created_at: string;
   isSystemTheme?: boolean;
+  // available values for particular type
+  // NOTE: config represents options available and
+  // properties represents the selected option
   config: {
     colors: {
       primaryColor: string;
@@ -24,11 +27,13 @@ export interface AppTheme {
       [key: string]: string[];
     };
   };
+  // styles for specific widgets
   stylesheet: {
     [key: string]: {
       [key: string]: string;
     };
   };
+  // current values for the theme
   properties: {
     colors: {
       primaryColor: string;
