@@ -47,7 +47,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.function.Tuple2;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -61,9 +60,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -874,23 +873,37 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            final Consumer<Tuple2<MongoClient, Document>> closeClient = tuple -> tuple.getT1().close();
 
             Function<TimeoutException, Throwable> timeoutExceptionThrowableFunction = error -> new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
                     "Connection timed out. Please check if the datasource configuration fields have " +
                             "been filled correctly."
             );
+            final String defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
                         Publisher<Document> result = mongoClient.getDatabase("admin").runCommand(new Document(
                                 "listDatabases", 1));
-
-
                         return Mono.zip(Mono.just(mongoClient), Mono.from(result));
                     })
-                    .doOnSuccess(closeClient)
-                    .then(Mono.just(new DatasourceTestResult()))
+                    .flatMap(tuple2 -> {
+                        // close the connection
+                        tuple2.getT1().close();
+
+                        // this lambda checks if default database name is valid or not
+                        Document document = tuple2.getT2();
+                        List<Document> databases = document.getList("databases", Document.class);
+                        Optional<Document> defaultDB = databases.stream()
+                                .filter(d -> d.getString("name").trim().equals(defaultDatabaseName))
+                                .findFirst();
+
+                        log.debug("list databases:{}",document.toJson());
+                        if (defaultDB.isEmpty()) {
+                            // value entered in default database name is invalid
+                            return Mono.just(new DatasourceTestResult("Default Database Name is invalid, no database found with this name."));
+                        }
+                        return Mono.just(new DatasourceTestResult());
+                    })
                     .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
                     .onErrorMap(TimeoutException.class, timeoutExceptionThrowableFunction)
                     .onErrorResume(error -> {
@@ -904,8 +917,7 @@ public class MongoPlugin extends BasePlugin {
                                 ((MongoCommandException) error).getErrorCodeName().equals("Unauthorized")) {
                             return datasourceCreate(datasourceConfiguration)
                                     .flatMap(mongoClient -> {
-                                        if (datasourceConfiguration.getConnection() != null && datasourceConfiguration.getConnection().getDefaultDatabaseName() != null) {
-                                            final String defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+                                        if (datasourceConfiguration.getConnection() != null && defaultDatabaseName != null) {
                                             Publisher<Document> result = mongoClient.getDatabase(defaultDatabaseName).runCommand(new Document(
                                                     "listCollections", 1).append("nameOnly", TRUE));
                                             return Mono.zip(Mono.just(mongoClient), Mono.from(result));
@@ -915,7 +927,13 @@ public class MongoPlugin extends BasePlugin {
                                                 "Not enough information to test the Datasource. " +
                                                         "Please provide the default database name."));
 
-                                    }).doOnSuccess(closeClient).then(Mono.just(new DatasourceTestResult()))
+                                    })
+                                    .flatMap(tuple2 -> {
+                                        Document document = tuple2.getT2();
+                                        log.debug("list collections:{}",document.toJson());
+                                        return Mono.just(tuple2.getT1());
+                                    })
+                                    .doOnSuccess(MongoClient::close).then(Mono.just(new DatasourceTestResult()))
                                     .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
                                     .onErrorMap(TimeoutException.class, timeoutExceptionThrowableFunction)
                                     .onErrorResume(err -> Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(err))));
