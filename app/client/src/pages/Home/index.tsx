@@ -21,14 +21,19 @@ import {
 } from "constants/routes";
 import history from "utils/history";
 import Filters from "pages/Templates/Filters";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import LeftPaneTemplateList from "pages/Templates/LeftPaneTemplateList";
-import { TemplatesTabItem } from "pages/Templates";
 import {
   getTemplateNotificationSeenAction,
   setTemplateNotificationSeenAction,
 } from "actions/templateActions";
+import Icon, { IconSize } from "components/ads/Icon";
+import Text, { TextType } from "components/ads/Text";
+import { showTemplateNotificationSelector } from "selectors/templatesSelectors";
+import { Popover2 } from "@blueprintjs/popover2";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { isNull } from "lodash";
 
 const StyledDiv = styled.div`
   width: 100%;
@@ -93,6 +98,57 @@ const HomeTabs = [
     path: TEMPLATES_URL,
   },
 ];
+
+const NotificationWrapper = styled.div`
+  background-color: #f1f1f1;
+  padding: 8px 18px;
+  display: flex;
+  flex-direction: row;
+
+  .text-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-left: 18px;
+  }
+
+  .description {
+    margin-top: 2px;
+  }
+`;
+
+export function TemplateFeatureNotification() {
+  return (
+    <NotificationWrapper>
+      <Icon name={"info"} size={IconSize.XXL} />
+      <div className={"text-wrapper"}>
+        <Text type={TextType.H4}>Introducing Templates</Text>
+        <Text className="description" type={TextType.P1}>
+          You can browse, fork, and make them your own here
+        </Text>
+      </div>
+    </NotificationWrapper>
+  );
+}
+
+export function TemplatesTabItem(props: TabItemProps) {
+  const showTemplateNotification = useSelector(
+    showTemplateNotificationSelector,
+  );
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const hideNotification =
+    isFetchingApplications || isNull(showTemplateNotification);
+
+  return (
+    <Popover2
+      content={<TemplateFeatureNotification />}
+      isOpen={hideNotification ? false : !showTemplateNotification}
+      minimal
+      placement="bottom-start"
+    >
+      <DefaultTabItem {...props} />
+    </Popover2>
+  );
+}
 
 function TabItem(props: TabItemProps) {
   if (props.tab.key === HomePageTabsKeys.TEMPLATES) {
