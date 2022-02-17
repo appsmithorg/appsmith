@@ -18,7 +18,7 @@ import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getDefaultColumnProperties,
   getTableStyles,
-} from "widgets/TableWidget/component/TableUtilities";
+} from "widgets/TableWidgetV2/widget/utilities";
 import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
