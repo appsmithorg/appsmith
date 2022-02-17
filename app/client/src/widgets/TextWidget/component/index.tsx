@@ -95,7 +95,6 @@ const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
 
 export const StyledText = styled(Text)<{
   scroll: boolean;
-  truncate: boolean;
   isTruncated: boolean;
   textAlign: string;
   backgroundColor?: string;
@@ -114,7 +113,7 @@ export const StyledText = styled(Text)<{
   justify-content: flex-start;
   flex-direction: ${(props) => (props.isTruncated ? "column" : "unset")};
   align-items: ${(props) =>
-    props.scroll || props.truncate ? "flex-start" : "center"};
+    props.scroll || props.isTruncated ? "flex-start" : "center"};
   background: ${(props) => props?.backgroundColor};
   color: ${(props) => props?.textColor};
   font-style: ${(props) =>
@@ -239,8 +238,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   };
 
   componentDidMount = () => {
-    const textRef = get(this.textRef, "current.textRef");
-    if (textRef && this.props.shouldTruncate) {
+    if (this.props.shouldTruncate) {
       const displayText: string = this.getDisplayText();
       this.setState({
         displayText,
@@ -254,16 +252,13 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   componentDidUpdate = (prevProps: TextComponentProps) => {
     if (!isEqual(prevProps, this.props)) {
       if (this.props.shouldTruncate) {
-        const textRef = get(this.textRef, "current.textRef");
-        if (textRef) {
-          const displayText: string = this.getDisplayText();
-          this.setState({
-            displayText,
-            isTruncated: this.props?.text
-              ? displayText?.length < this.props?.text?.length
-              : false,
-          });
-        }
+        const displayText: string = this.getDisplayText();
+        this.setState({
+          displayText,
+          isTruncated: this.props?.text
+            ? displayText?.length < this.props?.text?.length
+            : false,
+        });
       } else if (prevProps.shouldTruncate && !this.props.shouldTruncate) {
         this.setState({
           displayText: this.props?.text,
@@ -289,7 +284,6 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       fontSize,
       fontStyle,
       shouldScroll,
-      shouldTruncate,
       text,
       textAlign,
       textColor,
@@ -310,7 +304,6 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             scroll={!!shouldScroll}
             textAlign={textAlign}
             textColor={textColor}
-            truncate={!!shouldTruncate}
           >
             <Interweave
               content={this.state.displayText}
