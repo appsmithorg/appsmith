@@ -40,12 +40,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -61,6 +63,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -870,29 +874,25 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            final Consumer<Tuple2<MongoClient, Document>> closeClient = tuple -> tuple.getT1().close();
+
+            Function<TimeoutException, Throwable> timeoutExceptionThrowableFunction = error -> new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
+                    "Connection timed out. Please check if the datasource configuration fields have " +
+                            "been filled correctly."
+            );
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
-                        return Mono.zip(Mono.just(mongoClient),
-                                Mono.from(mongoClient.getDatabase("admin").runCommand(new Document(
-                                        "listDatabases", 1))));
-                    })
-                    .doOnSuccess(tuple -> {
-                        MongoClient mongoClient = tuple.getT1();
+                        Publisher<Document> result = mongoClient.getDatabase("admin").runCommand(new Document(
+                                "listDatabases", 1));
 
-                        if (mongoClient != null) {
-                            mongoClient.close();
-                        }
+
+                        return Mono.zip(Mono.just(mongoClient), Mono.from(result));
                     })
+                    .doOnSuccess(closeClient)
                     .then(Mono.just(new DatasourceTestResult()))
                     .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
-                    .onErrorMap(
-                            TimeoutException.class,
-                            error -> new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
-                                    "Connection timed out. Please check if the datasource configuration fields have " +
-                                            "been filled correctly."
-                            )
-                    )
+                    .onErrorMap(TimeoutException.class, timeoutExceptionThrowableFunction)
                     .onErrorResume(error -> {
                         /**
                          * 1. Return OK response on "Unauthorized" exception.
@@ -902,7 +902,23 @@ public class MongoPlugin extends BasePlugin {
                          */
                         if (error instanceof MongoCommandException &&
                                 ((MongoCommandException) error).getErrorCodeName().equals("Unauthorized")) {
-                            return Mono.just(new DatasourceTestResult());
+                            return datasourceCreate(datasourceConfiguration)
+                                    .flatMap(mongoClient -> {
+                                        if (datasourceConfiguration.getConnection() != null && datasourceConfiguration.getConnection().getDefaultDatabaseName() != null) {
+                                            final String defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+                                            Publisher<Document> result = mongoClient.getDatabase(defaultDatabaseName).runCommand(new Document(
+                                                    "listCollections", 1).append("nameOnly", TRUE));
+                                            return Mono.zip(Mono.just(mongoClient), Mono.from(result));
+                                        }
+                                        return Mono.error(new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR,
+                                                "Not enough information to test the Datasource. " +
+                                                        "Please provide the default database name."));
+
+                                    }).doOnSuccess(closeClient).then(Mono.just(new DatasourceTestResult()))
+                                    .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
+                                    .onErrorMap(TimeoutException.class, timeoutExceptionThrowableFunction)
+                                    .onErrorResume(err -> Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(err))));
                         }
 
                         return Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(error)));
