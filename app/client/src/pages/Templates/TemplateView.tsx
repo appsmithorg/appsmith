@@ -20,7 +20,7 @@ import ForkTemplate from "./ForkTemplate";
 
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
-  height: calc(100vh - ${(props) => props.theme.homePage.search.height}px);
+  height: calc(100vh - 36px);
   overflow: auto;
 
   .breadcrumb-placeholder {
