@@ -81,4 +81,18 @@ describe("Addwidget from Query and bind with other widgets", function() {
         .should("contain", tabValue);
     });
   });
+
+  it("5. Input widget test with default value from table widget[Bug#4136", () => {
+    cy.openPropertyPane("tablewidget");
+    cy.widgetText(
+      "TableUpdated",
+      widgetsPage.tableWidget,
+      commonlocators.tableInner,
+    );
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  });
 });
