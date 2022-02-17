@@ -1,5 +1,5 @@
-const modalWidgetPage = require("../../../../locators/ModalWidget.json");
-const dsl = require("../../../../fixtures/CameraDsl.json");
+const modalWidgetPage = require("../../../locators/ModalWidget.json");
+const dsl = require("../../../fixtures/CameraDsl.json");
 
 describe("Camera Widget", () => {
   before(() => {
@@ -15,7 +15,7 @@ describe("Camera Widget", () => {
   });
 
   it("Property: onImageSave, show modal", () => {
-    const widgetName = `camerawidget`;
+    //const widgetName = `camerawidget`;
     const modalName = `modal`;
     //const mainControlSelector = `.t--widget-${widgetName} [class*="MainControlContainer"] button`;
 
