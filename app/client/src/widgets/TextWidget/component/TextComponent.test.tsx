@@ -1,8 +1,5 @@
 import React from "react";
-import configureStore from "redux-mock-store";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { Provider } from "react-redux";
-import { ThemeProvider, theme, dark } from "constants/DefaultTheme";
+import { render } from "@testing-library/react";
 import TextComponent, { TextComponentProps } from ".";
 
 const defaultProps: TextComponentProps = {
@@ -79,7 +76,10 @@ describe("Text Component", () => {
     expect(queryByTestId("icon:showMore")).toBeTruthy();
   });
   it("should not truncate text if text length is less than what can fit in the widget", () => {
-    const { queryByTestId } = renderComponent();
+    const { queryByTestId } = renderComponent({
+      ...defaultProps,
+      text: "test",
+    });
     expect(queryByTestId("icon:showMore")).toBeFalsy();
   });
 });
