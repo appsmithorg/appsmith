@@ -6,6 +6,13 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/replay.json");
 
 describe("App Theming funtionality", function() {
+  /**
+   * Test cases; Check:
+   * 1. If theme can be changed*
+   * 2. If the theme can edited*
+   * 4. If the save theme can be used.
+   * 5. If the theme can be deleled
+   */
   before(() => {
     cy.addDsl(dsl);
   });
@@ -21,7 +28,7 @@ describe("App Theming funtionality", function() {
     // check for alert
     cy.get(`${commonlocators.themeCard}`)
       .last()
-      .siblings("h3")
+      .siblings("div")
       .first()
       .invoke("text")
       .then((text) => {
@@ -51,7 +58,7 @@ describe("App Theming funtionality", function() {
     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
 
     //Click the border radius toggle
-    cy.contains("Border Radius").click({ force: true });
+    cy.contains("Border").click({ force: true });
 
     // change app border radius
     cy.get(commonlocators.themeAppBorderRadiusBtn)
@@ -70,12 +77,139 @@ describe("App Theming funtionality", function() {
         );
 
         // publish the app
-        cy.PublishtheApp();
+        // cy.PublishtheApp();
         cy.get(widgetsPage.widgetBtn).should(
           "have.css",
           "border-radius",
           borderRadius,
         );
       });
+
+    //Change the color:
+    cy.contains("Colour").click({ force: true });
+
+    //Change the primary color:
+    cy.get(".border-2")
+      .first()
+      .click({ force: true });
+    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true });
+    cy.get(widgetsPage.colorPickerV2Color)
+      .eq(-3)
+      .then(($elem) => {
+        cy.get($elem).click({ force: true });
+        cy.get(widgetsPage.widgetBtn).should(
+          "have.css",
+          "background-color",
+          $elem.css("background-color"),
+        );
+      });
+
+    //Change the background color:
+    cy.get(".border-2")
+      .last()
+      .click({ force: true });
+    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true });
+    cy.get(widgetsPage.colorPickerV2Color)
+      .first()
+      .then(($elem) => {
+        cy.get($elem).click({ force: true });
+        cy.get(commonlocators.canvas).should(
+          "have.css",
+          "background-color",
+          $elem.css("background-color"),
+        );
+      });
+
+    //Change the shadow
+    cy.contains("Shadow").click({ force: true });
+    cy.contains("App Box Shadow")
+      .siblings("div")
+      .children("span")
+      .last()
+      .then(($elem) => {
+        cy.get($elem).click({ force: true });
+        cy.get(widgetsPage.widgetBtn).should(
+          "have.css",
+          "box-shadow",
+          $elem.css("box-shadow"),
+        );
+      });
+
+    //Change the font
+    cy.contains("Font").click({ force: true });
+
+    cy.get("span[name='expand-more']").then(($elem) => {
+      cy.get($elem).click({ force: true });
+      cy.wait(250);
+      cy.get(".ads-dropdown-options-wrapper div")
+        .children()
+        .eq(2)
+        .then(($childElem) => {
+          cy.get($childElem).click({ force: true });
+          cy.get(widgetsPage.widgetBtn).should(
+            "have.css",
+            "font-family",
+            $childElem
+              .children()
+              .last()
+              .text(),
+          );
+        });
+    });
+  });
+
+  it("Checks if the theme can be saved", () => {
+    //Click on dropDown elipses
+    cy.contains("Theme Properties")
+      .siblings()
+      .first()
+      .find("button")
+      .click({ force: true });
+    // .then(($elem) => {
+    //   cy.get(`${$elem} button`).click({ force: true });
+    // })
+
+    cy.wait(300);
+
+    //Click on save theme dropdown option
+    cy.contains("Save theme").click({ force: true });
+
+    cy.wait(200);
+
+    //Type the name of the theme:
+    cy.get("input[placeholder='My theme']").type("test theme");
+
+    //Click on save theme button
+    cy.get("a[type='submit']").click({ force: true });
+
+    cy.wait(200);
+
+    //Click on change theme:
+    cy.get(commonlocators.changeThemeBtn).click({ force: true });
+
+    //Check if the saved theme is present under 'Yours Themes' section
+    cy.contains("Your Themes")
+      .siblings()
+      .find(".t--theme-card")
+      .parent()
+      .should("contain.text", "test theme");
+  });
+
+  it("Checks if the theme can be deleted", () => {
+    cy.wait(300);
+
+    //Check if the saved theme is present under 'Yours Themes' section
+    cy.contains("Your Themes")
+      .siblings()
+      .find(".t--theme-card")
+      .parent()
+      .find("button")
+      .click({ force: true });
+
+    cy.contains("Delete").click({ force: true });
+
+    //check for delete alert
+    cy.wait(300);
+    cy.get(commonlocators.toastMsg).contains("Theme test theme Deleted");
   });
 });
