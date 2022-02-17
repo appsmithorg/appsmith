@@ -163,7 +163,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     Set<String> actionNames = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
-                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNames);
+                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNames,
+                            explicitUserSetOnLoadActions);
                 })
                 .map(onPageLoadActionsSchedulingOrder -> {
                     // Find all explicitly turned on actions which haven't found their way into the scheduling order
@@ -517,13 +518,15 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * Breadth First level by level traversal is used to compute each set of such independent actions.
      *
      * @param dag                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
+     * @param pageLoadActionSet
      * @param onPageLoadActionSet
      * @param actionNames           : All the action names for the page
      * @return
      */
     private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
                                                                       Set<String> onPageLoadActionSet,
-                                                                      Set<String> actionNames) {
+                                                                      Set<String> actionNames,
+                                                                      Set<String> explicitUserSetOnLoadActions) {
         Map<String, Integer> pageLoadActionAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadActions = new ArrayList<>();
 
@@ -544,7 +547,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 onPageLoadActions.add(new HashSet<>());
             }
 
-            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, vertex, pageLoadActionAndLevelMap, onPageLoadActions);
+            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, vertex,
+                    pageLoadActionAndLevelMap, onPageLoadActions, explicitUserSetOnLoadActions);
             onPageLoadActions.get(level).addAll(actionsFromBinding);
             for (String action : actionsFromBinding) {
                 pageLoadActionAndLevelMap.put(action, level);
@@ -908,7 +912,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
     private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames,
                                                                String vertex,
                                                                Map<String, Integer> pageLoadActionsLevelMap,
-                                                               List<Set<String>> existingPageLoadActions) {
+                                                               List<Set<String>> existingPageLoadActions,
+                                                               Set<String> explicitUserSetOnLoadActions) {
 
         Set<String> onPageLoadCandidates = new HashSet<>();
 
@@ -921,10 +926,21 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
-                // Only add it for page load if it is not a function call. Aka the data
-                // of this call is being referred to in the binding.
+                /**
+                 * Add action for page load if:
+                 *  o it has been explicitly set to run on page load by the user (even if its data is not
+                 *  referenced in any widget or action)
+                 *  o or, it is not a function call i.e. the data of this call is being referred to in the binding.
+                 */
 
-                String validBinding = entity + "." + "data";
+                String validBinding;
+                if (explicitUserSetOnLoadActions.contains(entity)) {
+                    validBinding = entity + "." + "actionConfiguration";
+                }
+                else {
+                    validBinding = entity + "." + "data";
+                }
+
                 if (!vertex.contains(validBinding)) {
                     isCandidateForPageLoad = FALSE;
                 }

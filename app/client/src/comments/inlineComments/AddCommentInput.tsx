@@ -26,7 +26,7 @@ import {
   CANCEL,
   POST,
   INVALID_EMAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,7 +46,7 @@ import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
 import { getCanCreateApplications } from "utils/helpers";
 
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 

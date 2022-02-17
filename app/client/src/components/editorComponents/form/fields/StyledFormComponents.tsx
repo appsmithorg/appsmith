@@ -32,7 +32,7 @@ font-size: 12px;
 `;
 
 //Styled help text, intended to be used with Form Fields
-const FormInputHelperText = styled.p`
+const FormInputHelperText = styled.p<{ addMarginTop?: string }>`
   color: #858282;
   font-style: normal;
   font-weight: normal;
@@ -40,6 +40,12 @@ const FormInputHelperText = styled.p`
   line-height: 16px;
   letter-spacing: -0.221538px;
   margin: 0px;
+
+  ${(props) =>
+    props.addMarginTop &&
+    `
+    margin-top: ${props.addMarginTop};
+  `}
 `;
 
 //Styled error text, intended to be used with Form Fields
@@ -90,7 +96,7 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
     props.config?.controlType === "SWITCH" ||
     props.config?.controlType === "CHECKBOX"
       ? "auto;"
-      : "50vh;"} 
+      : "20vw;"} 
   margin-left: ${(props) =>
     // margin required for CHECKBOX
     props.config?.controlType === "CHECKBOX" ? "0px;" : "16px;"} 
@@ -115,6 +121,12 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   .label-icon-wrapper svg path {
     fill: #939090;
   }
+`;
+
+const FormEncrytedSection = styled.div`
+  display: flex;
+  margin-left: 12px;
+  align-items: center;
 `;
 
 interface FormLabelProps {
@@ -144,4 +156,5 @@ export {
   FormInputHelperText,
   FormInfoText,
   FormSubtitleText,
+  FormEncrytedSection,
 };

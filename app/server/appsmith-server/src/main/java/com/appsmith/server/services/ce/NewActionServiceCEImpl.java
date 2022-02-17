@@ -94,7 +94,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -214,7 +214,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             if (newAction.getPublishedAction() != null) {
                 action = newAction.getPublishedAction();
             } else {
-                // We are trying to fetch published action but it doesnt exist because the action hasn't been published yet
+                // We are trying to fetch published action but it doesn't exist because the action hasn't been published yet
                 return Mono.empty();
             }
         } else {
@@ -551,35 +551,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .cache();
 
         Mono<ActionDTO> actionDTOMono = actionMono
-                .flatMap(dbAction -> {
-                    ActionDTO action;
-                    if (TRUE.equals(executeActionDTO.getViewMode())) {
-                        action = dbAction.getPublishedAction();
-                        // If the action has not been published, return error
-                        if (action == null) {
-                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
-                        }
-                    } else {
-                        action = dbAction.getUnpublishedAction();
-                    }
-
-                    // Now check for erroneous situations which would deter the execution of the action :
-
-                    // Error out with in case of an invalid action
-                    if (FALSE.equals(action.getIsValid())) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_ACTION,
-                                action.getName(),
-                                ArrayUtils.toString(action.getInvalids().toArray())
-                        ));
-                    }
-
-                    // Error out in case of JS Plugin (this is currently client side execution only)
-                    if (dbAction.getPluginType() == PluginType.JS) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-                    return Mono.just(action);
-                })
+                .flatMap(action -> getValidActionForExecution(executeActionDTO, actionId, action))
                 .cache();
 
         // 3. Instantiate the implementation class based on the query type
@@ -839,8 +811,43 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         })
                 )
                 .flatMap(this::executeAction);
-
     }
+
+    @Override
+    public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction) {
+        Mono<ActionDTO> actionDTOMono = Mono.just(newAction)
+                .flatMap(dbAction -> {
+                    ActionDTO action;
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        action = dbAction.getPublishedAction();
+                        // If the action has not been published, return error
+                        if (action == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
+                        }
+                    } else {
+                        action = dbAction.getUnpublishedAction();
+                    }
+
+                    // Now check for erroneous situations which would deter the execution of the action :
+
+                    // Error out with in case of an invalid action
+                    if (FALSE.equals(action.getIsValid())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_ACTION,
+                                action.getName(),
+                                ArrayUtils.toString(action.getInvalids().toArray())
+                        ));
+                    }
+
+                    // Error out in case of JS Plugin (this is currently client side execution only)
+                    if (dbAction.getPluginType() == PluginType.JS) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                    return Mono.just(action);
+                });
+        return actionDTOMono;
+    }
+
     /*
      * - Get label for request params.
      * - Transform request params list: [""] to a map: {"label": {"value": ...}}
@@ -1254,11 +1261,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return applicationService
                     .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
                     .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
-                    .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
-                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -1292,6 +1297,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params) {
         return this.getUnpublishedActions(params)
+                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
+        return this.getUnpublishedActions(params, branchName)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
@@ -1387,7 +1398,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.just(FALSE);
                     }
 
-                    // Extract names of existing pageload actions and new page load actions for quick lookup.
+                    // Extract names of existing page load actions and new page load actions for quick lookup.
                     Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions
                             .stream()
                             .map(ActionDTO::getValidName)

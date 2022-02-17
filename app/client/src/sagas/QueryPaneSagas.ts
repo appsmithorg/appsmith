@@ -29,17 +29,24 @@ import {
   getPlugin,
   getEditorConfig,
   getSettingConfig,
+  getActions,
 } from "selectors/entitiesSelector";
 import { PluginType, QueryAction } from "entities/Action";
-import { setActionProperty } from "actions/pluginActionActions";
-import { getQueryParams } from "utils/AppsmithUtils";
+import {
+  createActionRequest,
+  setActionProperty,
+} from "actions/pluginActionActions";
+import { getNextEntityName, getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
 import _ from "lodash";
-import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import {
+  createMessage,
+  ERROR_ACTION_RENAME_FAIL,
+} from "@appsmith/constants/messages";
 import get from "lodash/get";
 import {
   initFormEvaluations,
@@ -47,6 +54,11 @@ import {
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { EventLocation } from "utils/AnalyticsUtil";
+import {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -66,14 +78,10 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
 
-  const currentEditorConfig: any[] = yield select(
-    getEditorConfig,
-    action.datasource.pluginId,
-  );
-  const currentSettingConfig: any[] = yield select(
-    getSettingConfig,
-    action.datasource.pluginId,
-  );
+  // fetching pluginId and the consequent configs from the action
+  const pluginId = action.pluginId;
+  const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
+  const currentSettingConfig: any[] = yield select(getSettingConfig, pluginId);
 
   // Update the evaluations when the queryID is changed by changing the
   // URL or selecting new query from the query pane
@@ -254,6 +262,39 @@ function* handleNameChangeSuccessSaga(
   }
 }
 
+function* createNewQueryForDatasourceSaga(
+  action: ReduxAction<{
+    pageId: string;
+    datasourceId: string;
+    from: EventLocation;
+  }>,
+) {
+  const { datasourceId, pageId } = action.payload;
+  if (!datasourceId) return;
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
+  const actions: ActionDataState = yield select(getActions);
+
+  const pageApiNames = actions
+    .filter((a: ActionData) => a.config.pageId === pageId)
+    .map((a: ActionData) => a.config.name);
+  const newQueryName = getNextEntityName("Query", pageApiNames);
+  const createActionPayload = {
+    name: newQueryName,
+    pageId,
+    datasource: {
+      id: datasourceId,
+    },
+    eventData: {
+      actionType: "Query",
+      from: action.payload.from,
+      dataSource: datasource.name,
+    },
+    actionConfiguration: {},
+  };
+
+  yield put(createActionRequest(createActionPayload));
+}
+
 function* handleNameChangeFailureSaga(
   action: ReduxAction<{ oldName: string }>,
 ) {
@@ -281,5 +322,9 @@ export default function* root() {
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeEvery(
+      ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
+      createNewQueryForDatasourceSaga,
+    ),
   ]);
 }

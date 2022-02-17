@@ -130,7 +130,39 @@ export const entityDefinitions: Record<string, unknown> = {
   },
   DROP_DOWN_WIDGET: {
     "!doc":
-      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
+      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    isVisible: isVisible,
+    filterText: {
+      "!type": "[string]",
+      "!doc": "The filter text for Server side filtering",
+    },
+    selectedOptionValue: {
+      "!type": "string",
+      "!doc": "The value selected in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    isDisabled: "bool",
+    options: "[dropdownOption]",
+  },
+  SELECT_WIDGET: {
+    "!doc":
+      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
@@ -182,6 +214,28 @@ export const entityDefinitions: Record<string, unknown> = {
     isDisabled: "bool",
     options: "[dropdownOption]",
   },
+  MULTI_SELECT_WIDGET_V2: {
+    "!doc":
+      "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    isVisible: isVisible,
+    filterText: {
+      "!type": "[string]",
+      "!doc": "The filter text for Server side filtering",
+    },
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    isDisabled: "bool",
+    options: "[dropdownOption]",
+  },
   IMAGE_WIDGET: {
     "!doc":
       "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",
@@ -203,6 +257,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -283,6 +338,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
@@ -447,6 +503,79 @@ export const entityDefinitions: Record<string, unknown> = {
     videoDataURL: "string",
     videoRawBinary: "string",
   },
+  MAP_CHART_WIDGET: {
+    "!doc":
+      "Map Chart widget shows the graphical representation of your data on the map.",
+    "!url": "https://docs.appsmith.com/widget-reference/map-chart",
+    isVisible: isVisible,
+    selectedDataPoint: "mapChartDataPoint",
+  },
+  INPUT_WIDGET_V2: {
+    "!doc":
+      "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+  },
+  CURRENCY_INPUT_WIDGET: {
+    "!doc":
+      "An input text field is used to capture a currency value. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The formatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    value: {
+      "!type": "number",
+      "!doc": "The value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Currency",
+    },
+    currencyCode: {
+      "!type": "string",
+      "!doc": "Selected Currency code",
+    },
+  },
+  PHONE_INPUT_WIDGET: {
+    "!doc":
+      "An input text field is used to capture a phone number. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number",
+    },
+    dialCode: {
+      "!type": "string",
+      "!doc": "Selected dialing code for Phone Number",
+    },
+  },
+  CIRCULAR_PROGRESS_WIDGET: {
+    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    progress: "number",
+  },
 };
 
 export const GLOBAL_DEFS = {
@@ -480,6 +609,13 @@ export const GLOBAL_DEFS = {
     data: "string",
     name: "text",
     type: "file",
+  },
+  mapChartDataPoint: {
+    id: "string",
+    label: "string",
+    originalId: "string",
+    shortLabel: "string",
+    value: "number",
   },
 };
 

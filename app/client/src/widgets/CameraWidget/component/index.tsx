@@ -9,6 +9,7 @@ import {
   FullScreenHandle,
   useFullScreenHandle,
 } from "react-full-screen";
+import log from "loglevel";
 
 import { ThemeProp } from "components/ads/common";
 import {
@@ -44,8 +45,10 @@ import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera
 const overlayerMixin = css`
   position: absolute;
   width: 100%;
-  left: 0;
-  top: 0;
+  object-fit: contain;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,7 +56,6 @@ const overlayerMixin = css`
 
 export interface CameraContainerProps {
   disabled: boolean;
-  scaleAxis: "x" | "y";
 }
 
 const CameraContainer = styled.div<CameraContainerProps>`
@@ -62,7 +64,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  ${({ disabled }) => disabled && `background: ${Colors.GREY_3}`};
+  background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};
 
   .fullscreen {
     position: relative;
@@ -79,8 +81,8 @@ const CameraContainer = styled.div<CameraContainerProps>`
   }
 
   video {
-    max-width: none;
-    ${({ scaleAxis }) => (scaleAxis === "x" ? `width: 100%` : `height: 100%`)};
+    width: 100%;
+    object-fit: contain;
   }
 
   .fullscreen-enabled {
@@ -104,7 +106,6 @@ const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
 
 const PhotoViewer = styled.img`
   ${overlayerMixin}
-  height: 100%;
 `;
 
 const VideoPlayer = styled.video`
@@ -192,7 +193,8 @@ export interface ControlPanelProps {
   status: MediaCaptureStatus;
   appLayoutType?: SupportedLayouts;
   fullScreenHandle: FullScreenHandle;
-  onCaptureImage: () => void;
+  onImageCapture: () => void;
+  onImageSave: () => void;
   onError: (errorMessage: string) => void;
   onMediaInputChange: (mediaDeviceInfo: MediaDeviceInfo) => void;
   onRecordingStart: () => void;
@@ -203,6 +205,7 @@ export interface ControlPanelProps {
   onToggleVideo: (isMute: boolean) => void;
   onVideoPlay: () => void;
   onVideoPause: () => void;
+  onVideoSave: () => void;
 }
 
 function ControlPanel(props: ControlPanelProps) {
@@ -212,8 +215,9 @@ function ControlPanel(props: ControlPanelProps) {
     audioMuted,
     fullScreenHandle,
     mode,
-    onCaptureImage,
     onError,
+    onImageCapture,
+    onImageSave,
     onMediaInputChange,
     onRecordingStart,
     onRecordingStop,
@@ -223,6 +227,7 @@ function ControlPanel(props: ControlPanelProps) {
     onToggleVideo,
     onVideoPause,
     onVideoPlay,
+    onVideoSave,
     status,
     videoInputs,
     videoMuted,
@@ -236,7 +241,7 @@ function ControlPanel(props: ControlPanelProps) {
           navigator.mediaDevices
             .getUserMedia({ video: true, audio: false })
             .then(() => {
-              onCaptureImage();
+              onImageCapture();
               onStatusChange(MediaCaptureStatusTypes.IMAGE_CAPTURED);
             })
             .catch((err) => {
@@ -245,7 +250,9 @@ function ControlPanel(props: ControlPanelProps) {
 
           break;
         case MediaCaptureActionTypes.IMAGE_SAVE:
+          onImageSave();
           onStatusChange(MediaCaptureStatusTypes.IMAGE_SAVED);
+
           break;
         case MediaCaptureActionTypes.IMAGE_DISCARD:
           onResetMedia();
@@ -278,6 +285,7 @@ function ControlPanel(props: ControlPanelProps) {
           onStatusChange(MediaCaptureStatusTypes.VIDEO_DEFAULT);
           break;
         case MediaCaptureActionTypes.RECORDING_SAVE:
+          onVideoSave();
           onStatusChange(MediaCaptureStatusTypes.VIDEO_SAVED);
           break;
         case MediaCaptureActionTypes.VIDEO_PLAY:
@@ -848,21 +856,20 @@ function DevicePopover(props: DevicePopoverProps) {
 function CameraComponent(props: CameraComponentProps) {
   const {
     disabled,
-    height,
     mirrored,
     mode,
     onImageCapture,
+    onImageSave,
     onRecordingStart,
     onRecordingStop,
+    onVideoSave,
     videoBlobURL,
-    width,
   } = props;
 
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder>();
   const videoElementRef = useRef<HTMLVideoElement>(null);
 
-  const [scaleAxis, setScaleAxis] = useState<"x" | "y">("x");
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
   const [audioConstraints, setAudioConstraints] = useState<
@@ -891,27 +898,10 @@ function CameraComponent(props: CameraComponentProps) {
   const fullScreenHandle = useFullScreenHandle();
 
   useEffect(() => {
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then(handleDeviceInputs)
-      .catch((err) => {
-        setError(err.message);
-      });
-  }, []);
-
-  useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {
       updateMediaTracksEnabled(webcamRef.current.stream);
     }
   }, [isAudioMuted, isVideoMuted]);
-
-  useEffect(() => {
-    if (width > height) {
-      setScaleAxis("x");
-      return;
-    }
-    setScaleAxis("y");
-  }, [height, width]);
 
   useEffect(() => {
     setIsReadyPlayerTimer(false);
@@ -976,6 +966,19 @@ function CameraComponent(props: CameraComponentProps) {
     },
     [setAudioInputs, setVideoInputs],
   );
+
+  const updateDeviceInputs = useCallback(() => {
+    try {
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then(handleDeviceInputs)
+        .catch((err) => {
+          setError(err.message);
+        });
+    } catch (e) {
+      log.debug("Error in calling enumerateDevices");
+    }
+  }, [handleDeviceInputs]);
 
   const handleMediaDeviceChange = useCallback(
     (mediaDeviceInfo: MediaDeviceInfo) => {
@@ -1089,6 +1092,7 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   const handleUserMedia = (stream: MediaStream) => {
+    updateDeviceInputs();
     updateMediaTracksEnabled(stream);
   };
 
@@ -1164,8 +1168,9 @@ function CameraComponent(props: CameraComponentProps) {
           audioMuted={isAudioMuted}
           fullScreenHandle={fullScreenHandle}
           mode={mode}
-          onCaptureImage={captureImage}
           onError={setError}
+          onImageCapture={captureImage}
+          onImageSave={onImageSave}
           onMediaInputChange={handleMediaDeviceChange}
           onRecordingStart={handleRecordingStart}
           onRecordingStop={handleRecordingStop}
@@ -1175,6 +1180,7 @@ function CameraComponent(props: CameraComponentProps) {
           onToggleVideo={setIsVideoMuted}
           onVideoPause={handleVideoPause}
           onVideoPlay={handleVideoPlay}
+          onVideoSave={onVideoSave}
           status={mediaCaptureStatus}
           videoInputs={videoInputs}
           videoMuted={isVideoMuted}
@@ -1186,7 +1192,7 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   return (
-    <CameraContainer disabled={!!error || disabled} scaleAxis={scaleAxis}>
+    <CameraContainer disabled={!!error || disabled}>
       <FullScreen handle={fullScreenHandle}>{renderComponent()}</FullScreen>
     </CameraContainer>
   );
@@ -1198,8 +1204,10 @@ export interface CameraComponentProps {
   mirrored: boolean;
   mode: CameraMode;
   onImageCapture: (image?: string | null) => void;
+  onImageSave: () => void;
   onRecordingStart: () => void;
   onRecordingStop: (video: Blob | null) => void;
+  onVideoSave: () => void;
   videoBlobURL?: string;
   width: number;
 }

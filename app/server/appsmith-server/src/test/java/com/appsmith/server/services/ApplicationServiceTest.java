@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -362,7 +362,7 @@ public class ApplicationServiceTest {
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("randomBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId())))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId() + "," + "randomBranch")))
                 .verify();
     }
 
@@ -572,7 +572,7 @@ public class ApplicationServiceTest {
 
         Application branchedApplication = new Application();
         GitApplicationMetadata childBranchGitData = new GitApplicationMetadata();
-        BeanCopyUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
+        AppsmithBeanUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
         childBranchGitData.setBranchName("childBranch");
         branchedApplication.setGitApplicationMetadata(childBranchGitData);
         branchedApplication.setOrganizationId(orgId);
@@ -990,6 +990,9 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication.getOrganizationId().equals(orgId));
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
+                    assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
+                    assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
+
                     List<ApplicationPage> pages = clonedApplication.getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
@@ -1906,7 +1909,9 @@ public class ApplicationServiceTest {
                 .assertNext(applicationPagesDTO -> {
                     assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toList());
+                    List<String> slugNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getSlug()).collect(Collectors.toList());
                     assertThat(pageNames).containsExactly("Page1", "Page2", "Page3", "Page4");
+                    assertThat(slugNames).containsExactly("page1", "page2", "page3", "page4");
                 })
                 .verifyComplete();
     }

@@ -142,6 +142,7 @@ class CurlImportForm extends React.Component<Props> {
               </CurlLabel>
               <CurlImportFormContainer>
                 <Field
+                  autoFocus
                   className="textAreaStyles"
                   component="textarea"
                   name="curl"

@@ -17,7 +17,8 @@ import {
   DURING_ONBOARDING_TOUR,
   createMessage,
   GIT_SETTINGS,
-} from "constants/messages";
+  CONNECT_GIT_BETA,
+} from "@appsmith/constants/messages";
 
 import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
@@ -41,7 +42,7 @@ import {
   getCountOfChangesToCommit,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
-import { inOnboarding } from "sagas/OnboardingSagas";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -219,7 +220,7 @@ const PlaceholderButton = styled.div`
 
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
-  const isInOnboarding = useSelector(inOnboarding);
+  const isInOnboarding = useSelector(inGuidedTour);
 
   const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
   const tooltipContent = !isInOnboarding ? (
@@ -250,13 +251,13 @@ function ConnectGitPlaceholder() {
             <Button
               category={Category.tertiary}
               onClick={() => {
-                AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
-                  source: "Buttom bar connect to git button",
+                AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+                  source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });
                 dispatch(showConnectGitModal());
               }}
               size={Size.small}
-              text={createMessage(CONNECT_GIT)}
+              text={createMessage(CONNECT_GIT_BETA)}
             />
           ) : (
             <PlaceholderButton>{createMessage(CONNECT_GIT)}</PlaceholderButton>
@@ -291,6 +292,9 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.DEPLOY,
         }),
       );
+      AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {
+        source: "BOTTOM_BAR_GIT_COMMIT_BUTTON",
+      });
     },
     connect: () => {
       dispatch(
@@ -299,12 +303,20 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.GIT_CONNECTION,
         }),
       );
-      AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
-        source: "Buttom bar connect to git button(from setting menu)",
+      AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
+        source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });
     },
-    pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
+    pull: () => {
+      AnalyticsUtil.logEvent("GS_PULL_GIT_CLICK", {
+        source: "BOTTOM_BAR_GIT_PULL_BUTTON",
+      });
+      dispatch(gitPullInit({ triggeredFromBottomBar: true }));
+    },
     merge: () => {
+      AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
+        source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
+      });
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: true,

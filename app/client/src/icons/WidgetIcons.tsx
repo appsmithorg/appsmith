@@ -12,6 +12,7 @@ import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
 import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
 import { ReactComponent as MultiSelectIcon } from "assets/icons/widget/multiselect.svg";
+import { ReactComponent as MultiSelectV2Icon } from "assets/icons/widget/multiselect.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
 import { ReactComponent as InputIcon } from "assets/icons/widget/input.svg";
@@ -40,6 +41,10 @@ import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-gr
 import { ReactComponent as ProgressBarIcon } from "assets/icons/widget/progressbar-icon.svg";
 import { ReactComponent as SwitchGroupIcon } from "assets/icons/widget/switch-group.svg";
 import { ReactComponent as CameraIcon } from "assets/icons/widget/camera.svg";
+import { ReactComponent as MapChartIcon } from "assets/icons/widget/map-chart.svg";
+import { ReactComponent as PhoneInput } from "assets/icons/widget/phoneInput.svg";
+import { ReactComponent as CurrencyInput } from "assets/icons/widget/currencyInput.svg";
+import { ReactComponent as CircularProgressIcon } from "assets/icons/widget/circular-progress.svg";
 
 /* eslint-disable react/display-name */
 
@@ -104,12 +109,27 @@ export const WidgetIcons: {
       <MultiSelectIcon />
     </StyledIconWrapper>
   ),
+  SELECT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <DropDownIcon />
+    </StyledIconWrapper>
+  ),
+  MULTI_SELECT_WIDGET_V2: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MultiSelectV2Icon />
+    </StyledIconWrapper>
+  ),
   RADIO_GROUP_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <RadioGroupIcon />
     </StyledIconWrapper>
   ),
   INPUT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <InputIcon />
+    </StyledIconWrapper>
+  ),
+  INPUT_WIDGET_V2: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <InputIcon />
     </StyledIconWrapper>
@@ -242,6 +262,26 @@ export const WidgetIcons: {
   CAMERA_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <CameraIcon />
+    </StyledIconWrapper>
+  ),
+  MAP_CHART_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MapChartIcon />
+    </StyledIconWrapper>
+  ),
+  PHONE_INPUT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <PhoneInput />
+    </StyledIconWrapper>
+  ),
+  CURRENCY_INPUT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CurrencyInput />
+    </StyledIconWrapper>
+  ),
+  CIRCULAR_PROGRESS_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CircularProgressIcon />
     </StyledIconWrapper>
   ),
 };

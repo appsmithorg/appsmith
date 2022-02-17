@@ -2,20 +2,20 @@ import {
   actionChannel,
   all,
   call,
+  delay,
   fork,
   put,
   select,
   spawn,
   take,
-  delay,
 } from "redux-saga/effects";
 
 import {
   EvaluationReduxAction,
+  AnyReduxAction,
   ReduxAction,
   ReduxActionType,
   ReduxActionTypes,
-  ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import {
   getDataTree,
@@ -69,7 +69,7 @@ import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
   SNIPPET_EXECUTION_SUCCESS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
@@ -83,17 +83,23 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import { FormEvalActionPayload } from "./FormEvaluationSaga";
+import { updateMetaState } from "actions/metaActions";
+import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
 function* evaluateTreeSaga(
-  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  postEvalActions?: Array<AnyReduxAction>,
   shouldReplay?: boolean,
 ) {
+  const allActionValidationConfig = yield select(getAllActionValidationConfig);
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
+
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -106,8 +112,10 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
       widgets,
       shouldReplay,
+      allActionValidationConfig,
     },
   );
+
   const {
     dataTree,
     dependencies,
@@ -131,6 +139,8 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+
+  yield put(updateMetaState(updates, dataTree));
 
   const updatedDataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
@@ -206,7 +216,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       keepAlive = false;
       /* Handle errors during evaluation
        * A finish event with errors means that the error was not caught by the user code.
-       * We raise an error telling the user that an uncaught error has occured
+       * We raise an error telling the user that an uncaught error has occurred
        * */
       if (requestData.result.errors.length) {
         throw new UncaughtPromiseError(
@@ -296,12 +306,6 @@ export function* clearEvalCache() {
   return true;
 }
 
-export function* clearEvalPropertyCache(propertyPath: string) {
-  yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE, {
-    propertyPath,
-  });
-}
-
 export function* executeFunction(collectionName: string, action: JSAction) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
@@ -331,21 +335,6 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   return result;
 }
 
-/**
- * clears all cache keys of a widget
- *
- * @param widgetName
- */
-export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
-  yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET,
-    {
-      widgetName,
-    },
-  );
-}
-
 export function* validateProperty(
   property: string,
   value: any,
@@ -363,11 +352,11 @@ export function* validateProperty(
 
 function evalQueueBuffer() {
   let canTake = false;
-  let postEvalActions: any = [];
+  let collectedPostEvalActions: any = [];
   const take = () => {
     if (canTake) {
-      const resp = postEvalActions;
-      postEvalActions = [];
+      const resp = collectedPostEvalActions;
+      collectedPostEvalActions = [];
       canTake = false;
       return { postEvalActions: resp, type: "BUFFERED_ACTION" };
     }
@@ -386,10 +375,8 @@ function evalQueueBuffer() {
     }
     canTake = true;
 
-    // TODO: If the action is the same as before, we can send only one and ignore duplicates.
-    if (action.postEvalActions) {
-      postEvalActions.push(...action.postEvalActions);
-    }
+    const postEvalActions = getPostEvalActions(action);
+    collectedPostEvalActions.push(...postEvalActions);
   };
 
   return {
@@ -400,6 +387,33 @@ function evalQueueBuffer() {
     },
     flush,
   };
+}
+
+/**
+ * Extract the post eval actions from an evaluation action
+ * Batched actions have post eval actions inside them, extract that
+ *
+ * **/
+function getPostEvalActions(
+  action: EvaluationReduxAction<unknown | unknown[]>,
+): AnyReduxAction[] {
+  const postEvalActions: AnyReduxAction[] = [];
+  if (action.postEvalActions) {
+    postEvalActions.push(...action.postEvalActions);
+  }
+  if (
+    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+    Array.isArray(action.payload)
+  ) {
+    action.payload.forEach((batchedAction) => {
+      if (batchedAction.postEvalActions) {
+        postEvalActions.push(
+          ...(batchedAction.postEvalActions as AnyReduxAction[]),
+        );
+      }
+    });
+  }
+  return postEvalActions;
 }
 
 function* evaluationChangeListenerSaga() {
@@ -419,9 +433,10 @@ function* evaluationChangeListenerSaga() {
       evtActionChannel,
     );
     if (shouldProcessBatchedAction(action)) {
+      const postEvalActions = getPostEvalActions(action);
       yield call(
         evaluateTreeSaga,
-        action.postEvalActions,
+        postEvalActions,
         get(action, "payload.shouldReplay"),
       );
     }
@@ -552,23 +567,32 @@ export function* updateReplayEntitySaga(
   //Delay updates to replay object to not persist every keystroke
   yield delay(REPLAY_DELAY);
   const { entity, entityId, entityType } = actionPayload.payload;
-  const workerResponse = yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
-    {
-      entityId,
-      entity,
-      entityType,
-    },
-  );
-  return workerResponse;
+  return yield call(worker.request, EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT, {
+    entityId,
+    entity,
+    entityType,
+  });
 }
 
 export function* workerComputeUndoRedo(operation: string, entityId: string) {
-  const workerResponse: any = yield call(worker.request, operation, {
+  return yield call(worker.request, operation, {
     entityId,
   });
-  return workerResponse;
+}
+
+// Type to represent the state of the evaluation reducer
+export interface FormEvaluationConfig
+  extends ReduxAction<FormEvalActionPayload> {
+  currentEvalState: FormEvaluationState;
+}
+
+// Function to trigger the form eval job in the worker
+export function* evalFormConfig(formEvaluationConfigObj: FormEvaluationConfig) {
+  return yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.INIT_FORM_EVAL,
+    formEvaluationConfigObj,
+  );
 }
 
 export function* setAppVersionOnWorkerSaga(action: {

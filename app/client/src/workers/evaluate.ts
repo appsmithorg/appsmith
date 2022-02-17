@@ -96,6 +96,7 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export const createGlobalData = (
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  isTriggerBased: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) => {
@@ -114,15 +115,21 @@ export const createGlobalData = (
       });
     }
   }
-  //// Add internal functions to dataTree;
-  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
-    dataTree,
-    context?.requestId,
-  );
-  ///// Adding Data tree with functions
-  Object.keys(dataTreeWithFunctions).forEach((datum) => {
-    GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-  });
+  if (isTriggerBased) {
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+      dataTree,
+      context?.requestId,
+    );
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+  } else {
+    Object.keys(dataTree).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTree[datum];
+    });
+  }
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
@@ -148,6 +155,7 @@ export function sanitizeScript(js: string) {
 /** Define a context just for this script
  * thisContext will define it on the `this`
  * globalContext will define it globally
+ * requestId is used for completing promises
  */
 export type EvaluateContext = {
   thisContext?: Record<string, any>;
@@ -187,6 +195,7 @@ export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
@@ -197,6 +206,7 @@ export default function evaluateSync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      isJSCollection,
       context,
       evalArguments,
     );
@@ -265,6 +275,7 @@ export async function evaluateAsync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      true,
       { ...context, requestId },
       evalArguments,
     );
@@ -310,7 +321,11 @@ export async function evaluateAsync(
   })();
 }
 
-export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
+export function isFunctionAsync(
+  userFunction: unknown,
+  dataTree: DataTree,
+  resolvedFunctions: Record<string, any>,
+) {
   return (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
@@ -323,6 +338,17 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
     });
+    if (!isEmpty(resolvedFunctions)) {
+      Object.keys(resolvedFunctions).forEach((datum: any) => {
+        const resolvedObject = resolvedFunctions[datum];
+        Object.keys(resolvedObject).forEach((key: any) => {
+          const dataTreeKey = GLOBAL_DATA[datum];
+          if (dataTreeKey) {
+            dataTreeKey[key] = resolvedObject[key];
+          }
+        });
+      });
+    }
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
@@ -331,6 +357,7 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
+
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();
