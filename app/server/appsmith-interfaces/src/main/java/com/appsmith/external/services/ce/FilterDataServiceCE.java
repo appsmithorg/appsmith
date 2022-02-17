@@ -457,7 +457,14 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
             sb.append("\"" + path + "\"");
             sb.append(" ");
-            sb.append(sqlOp);
+            boolean isPrepareStmt = true;
+            if ((value.length() == 2 && StringUtils.contains(value, 39) &&
+                    StringUtils.contains(value.substring(1), 39))) { //Check if value contains two single quotes
+                sb.append("IS NULL");
+                isPrepareStmt = false;
+            } else {
+                sb.append(sqlOp);
+            }
             sb.append(" ");
 
             // These are array operations. Convert value into appropriate format and then append
@@ -485,7 +492,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 value = valueBuilder.toString();
                 sb.append(value);
 
-            } else {
+            } else if (isPrepareStmt) {
                 // Not an array. Simply add a placeholder
                 sb.append("?");
                 values.add(new PreparedStatementValueDTO(value, schema.get(path)));
@@ -815,7 +822,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         // Override datatype to null for empty values
-        if (StringUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value) || (value.length() == 2 && StringUtils.contains(value, 39) &&
+                StringUtils.contains(value.substring(1), 39))) { //Check if value contains two single quotes
             dataType = DataType.NULL;
         } else {
             // value is not empty.
