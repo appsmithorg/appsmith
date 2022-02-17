@@ -74,7 +74,7 @@ describe("Unit tests for ColorPicker v2", () => {
   });
 
   it("Check if changeColor handler is called", () => {
-    const mockFn = jest.fn((color: string) => console.log(color));
+    const mockFn = jest.fn();
     render(
       <ColorPickerComponent
         changeColor={mockFn}
