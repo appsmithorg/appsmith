@@ -8,19 +8,32 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { filterTemplates } from "actions/templateActions";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { templatesDatasourceFiltersSelector } from "selectors/templatesSelectors";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 
-const Wrapper = styled.div`
+const FilterWrapper = styled.div`
+  padding-left: 25px;
   overflow: auto;
-  height: 100%;
-  box-shadow: 1px 0px 0px #ededed;
-  width: ${(props) => props.theme.homePage.sidebar}px;
-  padding-left: 32px;
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 213}px);
 
   .more {
     padding-left: 10px;
     margin-top: 7px;
     cursor: pointer;
   }
+`;
+
+const Wrapper = styled.div`
+  width: ${(props) => props.theme.homePage.sidebar}px;
+  height: 100%;
+  display: flex;
+  padding-left: 16px;
+  padding-top: 16px;
+  flex-direction: column;
+  box-shadow: 1px 0px 0px #ededed;
+`;
+
+const SecondWrapper = styled.div`
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 24}px);
 `;
 
 const StyledFilterItem = styled.div<{ selected: boolean }>`
@@ -228,15 +241,20 @@ function Filters() {
 
   return (
     <Wrapper>
-      {Object.keys(filters).map((filter) => {
-        return (
-          <FilterCategory
-            filterList={filters[filter]}
-            key={filter}
-            label={filter}
-          />
-        );
-      })}
+      <SecondWrapper>
+        <FilterWrapper>
+          {Object.keys(filters).map((filter) => {
+            return (
+              <FilterCategory
+                filterList={filters[filter]}
+                key={filter}
+                label={filter}
+              />
+            );
+          })}
+        </FilterWrapper>
+        <LeftPaneBottomSection />
+      </SecondWrapper>
     </Wrapper>
   );
 }
