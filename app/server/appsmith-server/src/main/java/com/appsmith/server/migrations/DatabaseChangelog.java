@@ -4995,4 +4995,69 @@ public class DatabaseChangelog {
         );
     }
 
+    @ChangeSet(order = "117", id = "create-system-themes-v2", author = "")
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        Index systemThemeIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index")
+                .background();
+
+        Index applicationIdIndex = new Index()
+                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
+                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
+                .named("application_id_index")
+                .background();
+
+        dropIndexIfExists(mongockTemplate, Theme.class, "system_theme_index");
+        dropIndexIfExists(mongockTemplate, Theme.class, "application_id_index");
+        ensureIndexes(mongockTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
+
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme legacyTheme = null;
+        boolean themeExists = false;
+
+        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEME.getValue())
+                .users(Set.of(FieldName.ANONYMOUS_USER)).build();
+
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            theme.setCreatedAt(Instant.now());
+            theme.setPolicies(Set.of(policyWithCurrentPermission));
+            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
+                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
+
+            Theme savedTheme = mongockTemplate.findOne(query, Theme.class);
+            if(savedTheme == null) {  // this theme does not exist, create it
+                savedTheme = mongockTemplate.save(theme);
+            } else { // theme already found, update
+                themeExists = true;
+                savedTheme.setPolicies(theme.getPolicies());
+                savedTheme.setConfig(theme.getConfig());
+                savedTheme.setProperties(theme.getProperties());
+                savedTheme.setStylesheet(theme.getStylesheet());
+                if(savedTheme.getCreatedAt() == null) {
+                    savedTheme.setCreatedAt(Instant.now());
+                }
+                mongockTemplate.save(savedTheme);
+            }
+
+            if(theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+        }
+
+        if(!themeExists) { // this is the first time we're running the migration
+            // migrate all applications and set legacy theme to them in both mode
+            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+            mongockTemplate.updateMulti(
+                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+            );
+        }
+    }
 }
