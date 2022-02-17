@@ -2317,48 +2317,6 @@
   version "1.0.3"
   resolved "https://registry.npmjs.org/@open-draft/until/-/until-1.0.3.tgz"
 
-"@optimizely/js-sdk-datafile-manager@^0.9.1":
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/@optimizely/js-sdk-datafile-manager/-/js-sdk-datafile-manager-0.9.1.tgz#46eef70bf59c93bdba481908994b9cec550d3049"
-  integrity sha512-AaAu1zPtPY3/qsVp5UwGS77aB8gxyQ1GxvzzOlN/40Y5MbBN8ul2HnUVwl9ZfUlPVunBhe1cw5o1H5/T0IrZYA==
-  dependencies:
-    "@optimizely/js-sdk-logging" "^0.3.1"
-    "@optimizely/js-sdk-utils" "^0.4.0"
-    decompress-response "^4.2.1"
-
-"@optimizely/js-sdk-event-processor@^0.9.2":
-  version "0.9.2"
-  resolved "https://registry.yarnpkg.com/@optimizely/js-sdk-event-processor/-/js-sdk-event-processor-0.9.2.tgz#900f11703fb55695104bf6952f65978583f58d5b"
-  integrity sha512-9qkvGlvUYytGtQhJExOcjS0pgd04ABlmbQ/ZOdOEZA0pgtAiCwG+LaDnksQQdqAKgyEm/vc5A2ndXJEVy2nP0A==
-  dependencies:
-    "@optimizely/js-sdk-logging" "^0.3.1"
-    "@optimizely/js-sdk-utils" "^0.4.0"
-
-"@optimizely/js-sdk-logging@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@optimizely/js-sdk-logging/-/js-sdk-logging-0.3.1.tgz#358b48f4ce2ce22b1969d9e3e929caac1e6e6351"
-  integrity sha512-K71Jf283FP0E4oXehcXTTM3gvgHZHr7FUrIsw//0mdJlotHJT4Nss4hE0CWPbBxO7LJAtwNnO+VIA/YOcO4vHg==
-  dependencies:
-    "@optimizely/js-sdk-utils" "^0.4.0"
-
-"@optimizely/js-sdk-utils@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.npmjs.org/@optimizely/js-sdk-utils/-/js-sdk-utils-0.4.0.tgz"
-  dependencies:
-    uuid "^3.3.2"
-
-"@optimizely/optimizely-sdk@^4.8.0":
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/@optimizely/optimizely-sdk/-/optimizely-sdk-4.8.0.tgz#c29e6840342ca56948656c873660b5dcea06aebe"
-  integrity sha512-x64O4XJG1Xux7i+sBR0kqpQ17AD9XhQ5rhSl0/pdlIBVSyU/HUXwAuFUv9O1ZgnKw6Am2LsLAEckrbkYt6q00g==
-  dependencies:
-    "@optimizely/js-sdk-datafile-manager" "^0.9.1"
-    "@optimizely/js-sdk-event-processor" "^0.9.2"
-    "@optimizely/js-sdk-logging" "^0.3.1"
-    "@optimizely/js-sdk-utils" "^0.4.0"
-    json-schema "^0.4.0"
-    murmurhash "0.0.2"
-
 "@pmmmwh/react-refresh-webpack-plugin@0.4.2":
   version "0.4.2"
   resolved "https://registry.npmjs.org/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.4.2.tgz"
@@ -6593,7 +6551,7 @@ decode-uri-component@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/decode-uri-component/-/decode-uri-component-0.2.0.tgz"
 
-decompress-response@^4.2.0, decompress-response@^4.2.1:
+decompress-response@^4.2.0:
   version "4.2.1"
   resolved "https://registry.npmjs.org/decompress-response/-/decompress-response-4.2.1.tgz"
   dependencies:
@@ -10512,11 +10470,6 @@ json-schema@0.2.3:
   version "0.2.3"
   resolved "https://registry.npmjs.org/json-schema/-/json-schema-0.2.3.tgz"
 
-json-schema@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/json-schema/-/json-schema-0.4.0.tgz#f7de4cf6efab838ebaeb3236474cbba5a1930ab5"
-  integrity sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==
-
 json-stable-stringify-without-jsonify@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz"
@@ -11730,10 +11683,6 @@ multicast-dns@^6.0.1:
   dependencies:
     dns-packet "^1.3.1"
     thunky "^1.0.2"
-
-murmurhash@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.npmjs.org/murmurhash/-/murmurhash-0.0.2.tgz"
 
 mutationobserver-shim@^0.3.5:
   version "0.3.7"
