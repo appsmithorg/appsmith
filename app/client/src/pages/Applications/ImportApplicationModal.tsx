@@ -26,7 +26,7 @@ import { getIsImportingApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const TextWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[11]}px;
+  padding-top: ${(props) => props.theme.spaces[7]}px;
   padding-bottom: ${(props) => props.theme.spaces[12] + 2}px;
 `;
 
