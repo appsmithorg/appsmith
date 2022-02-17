@@ -217,7 +217,8 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   textRef = React.createRef() as TextRef;
 
   getDisplayTextLength = (): number => {
-    let res = 0;
+    let res = 0,
+      maxLength = 0;
     const { fontSize, height, text, width } = this.props;
     const textLength: number = text?.length || 0; // Length of given text
     const area: number = (height || 0) * (width || 0); // Area of the widget
@@ -226,9 +227,9 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     );
     const charArea = charSize * charSize; // Rough area of an individual character
     if (area && charArea) {
-      const maxLength: number = Math.round(area / charArea);
-      res = Math.min(maxLength, textLength);
+      maxLength = Math.round(area / charArea);
     }
+    res = Math.min(maxLength, textLength);
     return res;
   };
 
