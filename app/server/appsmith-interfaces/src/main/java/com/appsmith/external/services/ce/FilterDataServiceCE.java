@@ -821,6 +821,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             dataType = dataTypeConversionMap.getOrDefault(topRowDataType, topRowDataType);
         }
 
+        String strNumericValue = value.trim().replaceAll(",","");
+
         // Override datatype to null for empty values
         if (StringUtils.isEmpty(value) || (value.length() == 2 && StringUtils.contains(value, 39) &&
                 StringUtils.contains(value.substring(1), 39))) { //Check if value contains two single quotes
@@ -850,16 +852,16 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                     break;
                 }
                 case INTEGER: {
-                    preparedStatement.setInt(index, Integer.parseInt(value));
+                    preparedStatement.setInt(index, Integer.parseInt(strNumericValue));
                     break;
                 }
                 case LONG: {
-                    preparedStatement.setLong(index, Long.parseLong(value));
+                    preparedStatement.setLong(index, Long.parseLong(strNumericValue));
                     break;
                 }
                 case FLOAT:
                 case DOUBLE: {
-                    preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
+                    preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(strNumericValue)));
                     break;
                 }
                 case BOOLEAN: {
