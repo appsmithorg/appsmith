@@ -92,6 +92,25 @@ export default {
       isTriggerProperty: false,
     },
     {
+      helpText: "The accessor that you use in selectedrowindex",
+      propertyName: "accessor",
+      label: "Accessor",
+      controlType: "INPUT_TEXT",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.DATE,
+          ColumnTypes.IMAGE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.TEXT,
+          ColumnTypes.VIDEO,
+          ColumnTypes.URL,
+        ]);
+      },
+      dependencies: ["primaryColumns"],
+      isBindProperty: false,
+      isTriggerProperty: false,
+    },
+    {
       propertyName: "isCellVisible",
       dependencies: ["primaryColumns", "columnType"],
       label: "Visible",
