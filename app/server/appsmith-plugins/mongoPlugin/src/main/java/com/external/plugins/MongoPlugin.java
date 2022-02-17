@@ -897,7 +897,6 @@ public class MongoPlugin extends BasePlugin {
                                 .filter(d -> d.getString("name").trim().equals(defaultDatabaseName))
                                 .findFirst();
 
-                        log.debug("list databases:{}",document.toJson());
                         if (defaultDB.isEmpty()) {
                             // value entered in default database name is invalid
                             return Mono.just(new DatasourceTestResult("Default Database Name is invalid, no database found with this name."));
@@ -928,11 +927,7 @@ public class MongoPlugin extends BasePlugin {
                                                         "Please provide the default database name."));
 
                                     })
-                                    .flatMap(tuple2 -> {
-                                        Document document = tuple2.getT2();
-                                        log.debug("list collections:{}",document.toJson());
-                                        return Mono.just(tuple2.getT1());
-                                    })
+                                    .flatMap(tuple2 -> Mono.just(tuple2.getT1()))
                                     .doOnSuccess(MongoClient::close).then(Mono.just(new DatasourceTestResult()))
                                     .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
                                     .onErrorMap(TimeoutException.class, timeoutExceptionThrowableFunction)
