@@ -829,13 +829,13 @@ function ApplicationsSection(props: any) {
                             {enableImportExport && (
                               <MenuItem
                                 cypressSelector="t--org-import-app"
-                                icon="upload"
+                                icon="download"
                                 onSelect={() =>
                                   setSelectedOrgIdForImportApplication(
                                     organization.id,
                                   )
                                 }
-                                text="Import Application"
+                                text="Import"
                               />
                             )}
                             <MenuItem
