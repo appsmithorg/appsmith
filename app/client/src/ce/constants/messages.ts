@@ -475,7 +475,7 @@ export const ADD_MISSING_DATASOURCES = () => "Add missing Datasources";
 export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
   "This action is irreversible.";
 export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
-  `You can always reconnect the datasources later but until then the application might be unusable.`;
+  `You can always reconnect the datasources later but until then the application might be unuseable.`;
 export const SKIP_TO_APPLICATION = () => "Skip to Application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
