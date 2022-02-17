@@ -37,9 +37,9 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   closedFunction.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
-  function callback (script) {
+  async function callback (script) {
     const userFunction = script;
-    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    const result = await userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
     return result;
   }
   callback(${ScriptTemplate})
