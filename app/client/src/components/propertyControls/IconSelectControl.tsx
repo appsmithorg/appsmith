@@ -170,6 +170,11 @@ class IconSelectControl extends BaseControl<
     document.body.removeEventListener("keydown", this.handleKeydown);
   }
 
+  private handleQueryChange = _.debounce(() => {
+    if (this.filteredItems.length === 2)
+      this.setState({ activeIcon: this.filteredItems[1] });
+  }, 200);
+
   public render() {
     const { defaultIconName, propertyValue: iconName } = this.props;
     const { activeIcon, popoverTargetWidth } = this.state;
@@ -187,6 +192,7 @@ class IconSelectControl extends BaseControl<
           itemRenderer={this.renderIconItem}
           items={ICON_NAMES}
           onItemSelect={this.handleIconChange}
+          onQueryChange={this.handleQueryChange}
           popoverProps={{
             enforceFocus: false,
             minimal: true,
@@ -286,7 +292,11 @@ class IconSelectControl extends BaseControl<
         }
         case " ":
         case "Enter": {
-          if (this.searchInput.current === document.activeElement) break;
+          if (
+            this.searchInput.current === document.activeElement &&
+            this.filteredItems.length !== 2
+          )
+            break;
           this.handleIconChange(this.filteredItems[this.initialItemIndex]);
           this.debouncedSetState({ isOpen: false });
           e.preventDefault();
