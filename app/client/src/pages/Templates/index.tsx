@@ -22,6 +22,7 @@ import {
 import { fetchPlugins } from "actions/pluginActions";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { editorInitializer } from "utils/EditorUtils";
+import { AppState } from "reducers";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TemplateListWrapper = styled.div`
@@ -61,6 +62,9 @@ function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
   const templateOrganization = useSelector(getOrganizationForTemplates);
+  const templatesCount = useSelector(
+    (state: AppState) => state.ui.templates.templates.length,
+  );
 
   useEffect(() => {
     dispatch(setHeaderMeta(true, true));
@@ -69,9 +73,14 @@ function TemplateRoutes() {
   }, []);
 
   useEffect(() => {
+    if (!templatesCount) {
+      dispatch(getAllTemplates());
+    }
+  }, [templatesCount]);
+
+  useEffect(() => {
     if (templateOrganization?.organization.id) {
       dispatch(fetchPlugins(templateOrganization?.organization.id));
-      dispatch(getAllTemplates());
     }
   }, [templateOrganization?.organization.id]);
 

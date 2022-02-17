@@ -15,10 +15,8 @@ const fuzzySearchOptions = {
 
 export const getTemplatesSelector = (state: AppState) =>
   state.ui.templates.templates;
-
 export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
-
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.showTemplateNotification;
 
