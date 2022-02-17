@@ -7,22 +7,33 @@ import Text, { TextType } from "components/ads/Text";
 import { TEMPLATE_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { Classes } from "components/ads/common";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 
 const Wrapper = styled.div`
-  overflow: auto;
-  height: 100%;
-  box-shadow: 1px 0px 0px #ededed;
   width: ${(props) => props.theme.homePage.sidebar}px;
-  padding-left: 32px;
-  padding-top: 34px;
+  height: 100%;
+  display: flex;
+  padding-left: 16px;
+  padding-top: 16px;
+  flex-direction: column;
+  box-shadow: 1px 0px 0px #ededed;
+`;
 
+const TempelateListWrapper = styled.div`
+  padding-left: 25px;
   .title {
     margin-bottom: 10px;
   }
 
   .list-wrapper {
     margin-top: 10px;
+    overflow: auto;
+    height: calc(100vh - ${(props) => props.theme.homePage.header + 244}px);
   }
+`;
+
+const SecondWrapper = styled.div`
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 24}px);
 `;
 
 const TemplateItem = styled.div<{ selected: boolean }>`
@@ -60,24 +71,29 @@ function LeftPaneTemplateList() {
 
   return (
     <Wrapper>
-      <Text className={"title"} type={TextType.BUTTON_MEDIUM}>
-        TEMPLATES
-      </Text>
-      <div className="list-wrapper">
-        {templates.map((template) => {
-          return (
-            <TemplateItem
-              key={template.id}
-              onClick={() => onClick(template.id)}
-              selected={template.id === params.templateId}
-            >
-              <Text color="#121826" type={TextType.P1}>
-                {template.title}
-              </Text>
-            </TemplateItem>
-          );
-        })}
-      </div>
+      <SecondWrapper>
+        <TempelateListWrapper>
+          <Text className={"title"} type={TextType.BUTTON_MEDIUM}>
+            TEMPLATES
+          </Text>
+          <div className="list-wrapper">
+            {templates.map((template) => {
+              return (
+                <TemplateItem
+                  key={template.id}
+                  onClick={() => onClick(template.id)}
+                  selected={template.id === params.templateId}
+                >
+                  <Text color="#121826" type={TextType.P1}>
+                    {template.title}
+                  </Text>
+                </TemplateItem>
+              );
+            })}
+          </div>
+        </TempelateListWrapper>
+        <LeftPaneBottomSection />
+      </SecondWrapper>
     </Wrapper>
   );
 }
