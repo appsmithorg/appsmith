@@ -201,5 +201,11 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
+    @GetMapping("/test-connection/{defaultApplicationId}")
+    public Mono<ResponseDTO<Boolean>> testGitConnection(@PathVariable String defaultApplicationId) {
+        return service.testConnection(defaultApplicationId)
+                .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
+    }
+
 
 }

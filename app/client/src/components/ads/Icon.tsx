@@ -83,6 +83,7 @@ import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
 import ChevronRight from "remixicon-react/ArrowRightSFillIcon";
+import CheckLineIcon from "remixicon-react/CheckLineIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
@@ -115,6 +116,7 @@ import KeyIcon from "remixicon-react/Key2LineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import LeftArrowIcon from "remixicon-react/ArrowLeftLineIcon";
+import More2FillIcon from "remixicon-react/More2FillIcon";
 import NewsPaperLine from "remixicon-react/NewspaperLineIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
@@ -141,6 +143,7 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import MagicLineIcon from "remixicon-react/MagicLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -213,6 +216,7 @@ export const IconCollection = [
   "card-context-menu",
   "chat",
   "checkbox-circle-line",
+  "check-line",
   "chevron-left",
   "chevron-right",
   "close",
@@ -238,6 +242,7 @@ export const IconCollection = [
   "edit-line",
   "edit-box-line",
   "emoji",
+  "enterprise",
   "error",
   "expand-less",
   "expand-more",
@@ -266,7 +271,9 @@ export const IconCollection = [
   "link-2",
   "logout",
   "manage",
+  "magic-line",
   "mobile",
+  "more-2-fill",
   "news-paper",
   "no-response",
   "open",
@@ -434,6 +441,9 @@ const Icon = forwardRef(
       case "chat":
         returnIcon = <Chat />;
         break;
+      case "check-line":
+        returnIcon = <CheckLineIcon />;
+        break;
       case "chevron-left":
         returnIcon = <ChevronLeft />;
         break;
@@ -506,6 +516,9 @@ const Icon = forwardRef(
         break;
       case "emoji":
         returnIcon = <Emoji />;
+        break;
+      case "enterprise":
+        returnIcon = <MagicLineIcon />;
         break;
       case "error":
         returnIcon = <ErrorIcon />;
@@ -591,8 +604,14 @@ const Icon = forwardRef(
       case "manage":
         returnIcon = <ManageIcon />;
         break;
+      case "magic-line":
+        returnIcon = <MagicLineIcon />;
+        break;
       case "mobile":
         returnIcon = <MobileIcon />;
+        break;
+      case "more-2-fill":
+        returnIcon = <More2FillIcon />;
         break;
       case "news-paper":
         returnIcon = <NewsPaperLine />;

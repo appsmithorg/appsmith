@@ -20,7 +20,6 @@
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
     "@manaflair/redux-batch": "^1.0.0",
-    "@optimizely/optimizely-sdk": "^4.8.0",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
     "@sentry/webpack-plugin": "^1.12.1",
