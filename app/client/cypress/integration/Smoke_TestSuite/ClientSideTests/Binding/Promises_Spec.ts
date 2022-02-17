@@ -2,7 +2,6 @@ import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
 import { JSEditor } from "../../../../support/Pages/JSEditor";
 import { CommonLocators } from "../../../../support/Objects/CommonLocators";
 import { ApiPage } from "../../../../support/Pages/ApiPage";
-import publish from "../../../../locators/publishWidgetspage.json";
 
 const agHelper = new AggregateHelper();
 const jsEditor = new JSEditor();
@@ -26,29 +25,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       .should("contain.text", date);
   })
 
-  it("2. Verify resetWidget via .then direct Promises", () => {
-    cy.fixture("promisesBtn").then((dsl: any) => {
-      agHelper.AddDsl(dsl);
-    });
-    agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
-    agHelper.SelectEntityByName("Button1");
-    jsEditor.EnterJSContext(
-      "onclick",
-      "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
-      true,
-      true,
-    );
-    agHelper.DeployApp();
-    cy.get(publish.inputWidget + " " + "input").type("Update value");
-
-    agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .should("contain.text", "Test");
-  })
-
-  it("3. Verify resolve & chaining via direct Promises", () => {
-    cy.fixture("promisesBtn").then((val: any) => {
+  it("2. Verify resolve & chaining via direct Promises", () => {
+    cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     agHelper.SelectEntityByName("WIDGETS");
@@ -70,8 +48,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       .should("contain.text", "We are on planet Earth");
   });
 
-  it("4. Verify Async Await in direct Promises", () => {
-    cy.fixture("promisesBtn").then((val: any) => {
+  it("3. Verify Async Await in direct Promises", () => {
+    cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser");
@@ -107,8 +85,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       .contains(/male|female|null/g);
   });
 
-  it("5. Verify .then & .catch via direct Promises", () => {
-    cy.fixture("promisesBtnImg").then((val: any) => {
+  it("4. Verify .then & .catch via direct Promises", () => {
+    cy.fixture("promisesBtnImgDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     apiPage.CreateAndFillApi(
@@ -141,8 +119,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       .contains(/You have a beautiful picture|Oops!/g);
   });
 
-  it("6. Verify .then & .catch via JS Objects in Promises", () => {
-    cy.fixture("promisesBtn").then((val: any) => {
+  it("5. Verify .then & .catch via JS Objects in Promises", () => {
+    cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
@@ -150,7 +128,9 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
     agHelper.SelectEntityByName("Button1");
-    jsEditor.EnterJSContext("onclick", `{ { JSObject1.myFun1() } } `, true, true);
+    cy.get("@jsObjName").then((jsObjName) => {
+    jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
+    })
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg)
       .should("have.length", 1)
@@ -158,7 +138,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
   });
 
   //Skipping until this bug is closed!
-  it.skip("7. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
+  it.skip("6. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
     });
@@ -172,7 +152,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     cy.get(locator._toastMsg).should("have.length", 1).should("contain.text", "Today's quote for You");
   });
 
-  it("8. Verify Promise.race via direct Promises", () => {
+  it("7. Verify Promise.race via direct Promises", () => {
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
     });
@@ -180,13 +160,13 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     apiPage.ValidateQueryParams({ key: "name", value: "{{this.params.person}}" }); // verifies Bug 10055
     agHelper.SelectEntityByName("WIDGETS")
     agHelper.SelectEntityByName("Button1");
-    jsEditor.EnterJSContext('onclick', `{ { Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) } } `, true, true);
+    jsEditor.EnterJSContext('onclick', `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `, true, true);
     agHelper.ClickButton('Submit')
     cy.get(locator._toastMsg).should("have.length", 1).contains(/Melinda|Trump/g)
   })
 
-  it("9. Verify maintaining context via direct Promises", () => {
-    cy.fixture("promisesBtnList").then((val: any) => {
+  it("8. Verify maintaining context via direct Promises", () => {
+    cy.fixture("promisesBtnListDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     apiPage.CreateAndFillApi(
@@ -223,15 +203,13 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     agHelper.SelectEntityByName("Button1");
     jsEditor.EnterJSContext(
       "onclick",
-      `{
-  {
+      `{{
     (function () {
       const anime = "fruits basket : the final";
       return GetAnime.run({ name: anime })
         .then(() => showAlert("Showing results for : " + anime, 'success'))
     })()
-  }
-} `,
+  }} `,
       true,
       true,
     );
@@ -241,14 +219,13 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
       .should("have.text", "Showing results for : fruits basket : the final");
   });
 
-  it("10: Verify Promise.all via direct Promises", () => {
+  it("9: Verify Promise.all via direct Promises", () => {
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
     });
     agHelper.SelectEntityByName("WIDGETS")//to expand widgets
     agHelper.SelectEntityByName("Button1");
-    jsEditor.EnterJSContext('onclick', `{
-  {
+    jsEditor.EnterJSContext('onclick', `{{
     (function () {
       let agifyy = [];
       let animals = ['cat', 'dog', 'camel', 'rabbit', 'rat'];
@@ -258,15 +235,14 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
       return Promise.all(agifyy)
         .then((responses) => showAlert(responses.map((res) => res.name).join(',')))
     })()
-  }
-} `, true, true);
+  }} `, true, true);
     agHelper.ClickButton('Submit')
     cy.get(locator._toastMsg).should("have.length", 1).should("have.text", "cat,dog,camel,rabbit,rat")
   });
 
   //Skipping until this bug is closed!
 
-  it.skip("11. Bug 10150: Verify Promise.all via JSObjects", () => {
+  it.skip("10. Bug 10150: Verify Promise.all via JSObjects", () => {
     let date = new Date().toDateString();
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
@@ -295,26 +271,46 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
   });
 
   //To skip until clarified
-  it.skip("12. Verify Promises.any via direct Promises", () => {
+  it.skip("11. Verify Promises.any via direct Promises", () => {
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
     });
     agHelper.SelectEntityByName("Button1");
-    jsEditor.EnterJSContext('onclick', `{
-  {
+    jsEditor.EnterJSContext('onclick', `{{
     const promise1 = Promise.reject(0);
     const promise2 = new Promise((resolve) => setTimeout(resolve, 100, 'quick'));
     const promise3 = new Promise((resolve) => setTimeout(resolve, 500, 'slow'));
     const promises = [promise1, promise2, promise3];
     Promise.any(promises).then((value) => showAlert("Resolved promise is:" + value));
-  }
-} `, true, true);
+  }} `, true, true);
     agHelper.ClickButton('Submit')
     cy.get(locator._toastMsg)
       .should("have.length", 1)
       .should("contain.text", "We are on planet Earth");
   });
-  
+
+  it("12. Verify resetWidget via .then direct Promises", () => {
+    cy.fixture("promisesBtnDsl").then((dsl: any) => {
+      agHelper.AddDsl(dsl);
+    });
+    agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
+    agHelper.SelectEntityByName("Button1");
+    jsEditor.EnterJSContext(
+      "onclick",
+      "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
+      true,
+      true,
+    );
+    agHelper.DeployApp();
+    cy.get(locator._inputWidgetInDeployed).type("Update value");
+    agHelper.ClickButton("Submit");
+    cy.get(locator._toastMsg)
+      .should("have.length", 1)
+      .should("contain.text", "Test");
+
+    agHelper.NavigateBacktoEditor()
+  })
+
 })
 
 
