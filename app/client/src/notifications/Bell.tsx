@@ -21,7 +21,10 @@ import {
   isNotificationsListVisibleSelector,
 } from "selectors/notificationSelectors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, NOTIFICATIONS_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  NOTIFICATIONS_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 

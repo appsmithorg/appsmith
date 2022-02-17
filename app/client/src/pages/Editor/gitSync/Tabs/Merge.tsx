@@ -11,7 +11,7 @@ import {
   FETCH_GIT_STATUS,
   IS_MERGING,
   MERGED_SUCCESSFULLY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled from "styled-components";
@@ -53,6 +53,7 @@ import { Colors } from "constants/Colors";
 
 import { useTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Row = styled.div`
   display: flex;
@@ -160,6 +161,9 @@ export default function Merge() {
   };
 
   const mergeHandler = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_MERGE_CHANGES_BUTTON_CLICK", {
+      source: "GIT_MERGE_MODAL",
+    });
     if (currentBranch && selectedBranchOption.value) {
       dispatch(
         mergeBranchInit({

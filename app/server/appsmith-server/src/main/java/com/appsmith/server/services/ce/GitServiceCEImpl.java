@@ -675,7 +675,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         )
                         .onErrorResume(error -> {
-                            log.error("Error while cloning the remote repo, {}", error.getMessage());
+                            log.error("Error while cloning the remote repo, ", error);
                             return addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CONNECT.getEventName(),
                                     application,
@@ -690,7 +690,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 if (error instanceof InvalidRemoteException) {
                                     return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
                                 }
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                if (error instanceof TimeoutException) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
                             });
                         });
                         return Mono.zip(
@@ -2217,18 +2220,24 @@ public class GitServiceCEImpl implements GitServiceCE {
         String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
                 ? ""
                 : gitData.getDefaultApplicationId();
+        String gitHostingProvider = gitData == null
+                ? ""
+                : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
 
+        Map<String, Object> analyticsProps = new HashMap<>(Map.of("applicationId", defaultApplicationId,
+                "organizationId", defaultIfNull(application.getOrganizationId(), ""),
+                "branchApplicationId", defaultIfNull(application.getId(), ""),
+                "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
+                "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
+        ));
 
         return sessionUserService.getCurrentUser()
                 .map(user -> {
-                    final Map<String, Object> analyticsProps = Map.of(
-                            "applicationId", defaultApplicationId,
-                            "organizationId", defaultIfNull(application.getOrganizationId(), ""),
-                            "branchApplicationId", defaultIfNull(application.getId(), ""),
-                            "errorMessage", defaultIfNull(errorMessage, ""),
-                            "errorType", defaultIfNull(errorType, ""),
-                            "isRepoPrivate", defaultIfNull(isRepoPrivate, "")
-                    );
+                    // Do not include the error data points in the map for success states
+                    if(!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
+                        analyticsProps.put("errorMessage", errorMessage);
+                        analyticsProps.put("errorType", errorType);
+                    }
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
                 });

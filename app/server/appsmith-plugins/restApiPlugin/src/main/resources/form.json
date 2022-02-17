@@ -194,6 +194,40 @@
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           }
+        },
+        {
+          "label": "Send scope with refresh token",
+          "configProperty": "datasourceConfiguration.authentication.sendScopeWithRefreshToken",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": false,
+          "options": [
+            {
+              "label": "Yes",
+              "value": true
+            },
+            {
+              "label": "No",
+              "value": false
+            }
+          ]
+        },
+        {
+          "label": "Send client credentials with (on refresh token)",
+          "configProperty": "datasourceConfiguration.authentication.refreshTokenClientCredentialsLocation",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "BODY",
+          "options": [
+            {
+              "label": "Body",
+              "value": "BODY"
+            },
+            {
+              "label": "Header",
+              "value": "HEADER"
+            }
+          ]
         }
       ]
     }

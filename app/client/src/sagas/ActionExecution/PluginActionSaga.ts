@@ -51,7 +51,7 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
   ERROR_PLUGIN_ACTION_EXECUTE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import {
   EventType,

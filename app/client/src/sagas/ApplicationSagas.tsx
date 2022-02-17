@@ -22,6 +22,7 @@ import ApplicationApi, {
   ImportApplicationRequest,
   FetchApplicationResponse,
   ApplicationResponsePayload,
+  FetchUnconfiguredDatasourceListResponse,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -51,7 +52,7 @@ import {
   createMessage,
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
 import { Organization } from "constants/orgConstants";
@@ -89,7 +90,7 @@ import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
-const getDefaultPageId = (
+export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
   let defaultPage: ApplicationPagePayload | undefined = undefined;
@@ -680,6 +681,31 @@ function* fetchReleases() {
   }
 }
 
+export function* fetchUnconfiguredDatasourceList(
+  action: ReduxAction<{
+    applicationId: string;
+    orgId: string;
+  }>,
+) {
+  try {
+    // Get endpoint based on app mode
+    const response: FetchUnconfiguredDatasourceListResponse = yield call(
+      ApplicationApi.fetchUnconfiguredDatasourceList,
+      action.payload,
+    );
+
+    yield put(setUnconfiguredDatasourcesDuringImport(response.data || []));
+  } catch (error) {
+    yield put(setUnconfiguredDatasourcesDuringImport([]));
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
   const orgId = action.payload;
 
@@ -743,6 +769,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
       showReconnectDatasourcesModalSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
+      fetchUnconfiguredDatasourceList,
     ),
   ]);
 }

@@ -4,10 +4,7 @@ import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
 import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
-import {
-  importApplication,
-  // setIsReconnectingDatasourcesModalOpen,
-} from "actions/applicationActions";
+import { importApplication } from "actions/applicationActions";
 import {
   createMessage,
   IMPORT_APPLICATION_MODAL_LABEL,
@@ -16,7 +13,7 @@ import {
   IMPORT_APP_FROM_FILE_TITLE,
   IMPORT_APP_FROM_GIT_MESSAGE,
   IMPORT_APP_FROM_GIT_TITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
 import Text, { TextType } from "components/ads/Text";

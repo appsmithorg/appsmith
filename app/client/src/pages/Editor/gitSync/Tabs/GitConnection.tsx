@@ -18,7 +18,7 @@ import {
   IMPORT_FROM_GIT_REPOSITORY,
   IMPORT_BTN_LABEL,
   IMPORTING_APP_FROM_GIT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
@@ -51,7 +51,7 @@ import {
   CONNECT_BTN_LABEL,
   PASTE_SSH_URL_INFO,
   GENERATE_KEY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import {
   getGitConnectError,
   getGlobalGitConfig,

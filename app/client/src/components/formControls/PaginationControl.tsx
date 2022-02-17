@@ -17,7 +17,8 @@ export const StyledFormLabel = styled(FormLabel)`
 export const FormControlContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  width: 20vw;
+  margin-right: 1rem;
 `;
 
 // using query dynamic input text for both so user can dynamically change these values.
@@ -48,11 +49,17 @@ export function Pagination(props: {
   customStyles?: any;
   configProperty: string;
   formName: string;
+  initialValue?: Record<string, string>;
 }) {
-  const { configProperty, customStyles, formName, name } = props;
+  const { configProperty, customStyles, formName, initialValue, name } = props;
 
   return (
-    <div data-cy={name} style={{ width: "20vw" }}>
+    <div
+      data-cy={name}
+      style={{
+        display: "flex",
+      }}
+    >
       {/*  form control for Limit field */}
       <FormControlContainer>
         <FormControl
@@ -61,6 +68,8 @@ export function Pagination(props: {
             label: "Limit",
             customStyles,
             configProperty: `${configProperty}.limit`,
+            initialValue:
+              typeof initialValue === "object" ? initialValue.limit : null,
           }}
           formName={formName}
         />
@@ -75,6 +84,8 @@ export function Pagination(props: {
             label: "Offset",
             customStyles,
             configProperty: `${configProperty}.offset`,
+            initialValue:
+              typeof initialValue === "object" ? initialValue.offset : null,
           }}
           formName={formName}
         />

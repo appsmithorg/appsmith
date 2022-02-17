@@ -86,7 +86,7 @@ import {
   SEARCH_APPS,
   WELCOME_TOUR,
   NO_APPS_FOUND,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
 import { howMuchTimeBeforeText } from "utils/helpers";
@@ -829,13 +829,13 @@ function ApplicationsSection(props: any) {
                             {enableImportExport && (
                               <MenuItem
                                 cypressSelector="t--org-import-app"
-                                icon="upload"
+                                icon="download"
                                 onSelect={() =>
                                   setSelectedOrgIdForImportApplication(
                                     organization.id,
                                   )
                                 }
-                                text="Import Application"
+                                text="Import"
                               />
                             )}
                             <MenuItem
