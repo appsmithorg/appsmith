@@ -34,14 +34,18 @@ export class AggregateHelper {
         this.Sleep(2000)//settling time for dsl
     }
 
-    public NavigateToCreateNewTabPage() {
-        cy.get(locator._addEntityAPI).last()
-            .should("be.visible")
-            .click({ force: true });
+    public NavigateToDSCreateNew() {
+        this.NavigateToDSAdd()
         cy.get(locator._integrationCreateNew)
             .should("be.visible")
             .click({ force: true });
         cy.get(locator._loading).should("not.exist");
+    }
+
+    public NavigateToDSAdd() {
+        cy.get(locator._addNewDataSource).last()
+            .should("be.visible")
+            .click({ force: true });
     }
 
     public StartServerAndRoutes() {
@@ -50,10 +54,12 @@ export class AggregateHelper {
         //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
     }
 
-    public RenameWithInPane(renameVal: string) {
-        cy.get(locator._queryName).click({ force: true });
-        cy.get(locator._queryNameTxt)
-            .clear()
+    public RenameWithInPane(renameVal: string, query = true) {
+        let name = query ? locator._queryName : locator._dsName;
+        let text = query ? locator._queryNameTxt : locator._dsNameTxt;
+        cy.get(name).click({ force: true });
+        cy.get(text)
+            .clear({ force: true })
             .type(renameVal, { force: true })
             .should("have.value", renameVal)
             .blur();
@@ -208,11 +214,15 @@ export class AggregateHelper {
         })
     }
 
-    public ClickElement(selector: string) {
+    public XpathNClick(selector: string) {
         cy.xpath(selector)
             .first()
             .click({ force: true });
         this.Sleep()
+    }
+
+    public GetNClick(selector: string) {
+        cy.get(selector).click({ force: true });
     }
 
     public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
@@ -222,9 +232,9 @@ export class AggregateHelper {
             .trigger("dragstart", { force: true })
             .trigger("mousemove", x, y, { force: true });
         cy.get(locator._dropHere)
-            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent"})
-            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent"})
-            .trigger("mouseup", x, y, { eventConstructor: "MouseEvent"});
+            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+            .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
         this.WaitAutoSave()//settling time for widget on canvas!
         cy.get(locator._widgetInCanvas(widgetType)).should('exist')
     }
@@ -280,6 +290,7 @@ export class AggregateHelper {
             201,
         );
     }
+
     public ActionContextMenuByEntityName(
         entityNameinLeftSidebar: string,
         action = "Delete",
@@ -299,5 +310,49 @@ export class AggregateHelper {
 
     public ValidateEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
         cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar)).should('not.exist');
+    }
+
+    public TypeValueNValidate(valueToType: string, fieldName = "") {
+        this.EnterValue(valueToType, fieldName)
+        this.VerifyEvaluatedValue(valueToType);
+    }
+
+    public EnterValue(valueToType: string, fieldName = "") {
+        if (fieldName) {
+            cy.xpath(locator._inputFieldByName(fieldName)).then(($field: any) => {
+                this.UpdateCodeInput($field, valueToType);
+            });
+        } else {
+            cy.xpath(locator._codeEditorTarget).then(($field: any) => {
+                this.UpdateCodeInput($field, valueToType);
+            });
+        }
+    }
+
+    public UpdateCodeInput($selector: string, value: string) {
+        cy.get($selector)
+            .find(".CodeMirror")
+            .first()
+            .then((ins: any) => {
+                const input = ins[0].CodeMirror;
+                input.focus();
+                this.Sleep(200)
+                input.setValue(value);
+                this.Sleep(200)
+            });
+    }
+
+    public VerifyEvaluatedValue(currentValue: string) {
+        this.Sleep(3000);
+        cy.get(locator._evaluatedCurrentValue)
+            .first()
+            .should("be.visible")
+            .should("not.have.text", "undefined");
+        cy.get(locator._evaluatedCurrentValue)
+            .first()
+            .click({ force: true })
+            .then(($text) => {
+                if ($text.text()) expect($text.text()).to.eq(currentValue);
+            });
     }
 }

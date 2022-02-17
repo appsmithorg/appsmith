@@ -31,7 +31,7 @@ describe("Input widget test with default value from chart datapoint", () => {
         agHelper.SelectEntityByName("Chart1")
         agHelper.SelectPropertiesDropDown("ondatapointclick", "Show message")
         agHelper.EnterActionValue("Message", dataSet.bindingDataPoint)
-        agHelper.ClickElement("(//*[local-name()='rect'])[13]")
+        agHelper.XpathNClick("(//*[local-name()='rect'])[13]")
         cy.get(locator._inputWidget).first().invoke('val').then($value => {
             let inputVal = ($value as string).replace(/\s/g, "")
             //cy.get(locator._toastMsg).invoke('text').then(toastTxt => expect(toastTxt.trim()).to.eq(inputVal))
@@ -39,7 +39,7 @@ describe("Input widget test with default value from chart datapoint", () => {
         })
     })
 
-    it("Chart with seriesTitle feature validation", function () {
+    it("3. Chart with seriesTitle feature validation", function () {
         agHelper.SelectEntityByName("Input2")
         jsEditor.EnterJSContext("defaulttext", dataSet.bindingSeriesTitle + "}}");
         cy.get(locator._inputWidget).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);

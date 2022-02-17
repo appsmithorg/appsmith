@@ -19,9 +19,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("1. Creates a new Postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
 
     cy.generateUUID().then((uid) => {

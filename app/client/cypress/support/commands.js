@@ -2919,6 +2919,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   cy.server();
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("GET", "/api/v1/applications/new").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
   cy.route("GET", "/api/v1/plugins").as("getPlugins");

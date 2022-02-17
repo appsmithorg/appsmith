@@ -122,6 +122,7 @@ export class JSEditor {
     cy.get(this._jsObjName).invoke("text").then((text) => cy.wrap(text).as("jsObjName")
     );
   }
+
   public validateDefaultJSObjProperties(jsObjName: string) {
     agHelper.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
@@ -139,4 +140,5 @@ export class JSEditor {
     });
     cy.get(this._bindingsClose).click({ force: true });
   }
+  
 }
