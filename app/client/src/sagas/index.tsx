@@ -34,9 +34,9 @@ import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
-import selectionCanvasSagas from "./SelectionCanvasSagas";
 import replaySaga from "./ReplaySaga";
-import draggingCanvasSagas from "./DraggingCanvasSagas";
+import selectionCanvasSagas from "./CanvasSagas/SelectionCanvasSagas";
+import draggingCanvasSagas from "./CanvasSagas/DraggingCanvasSagas";
 import gitSyncSagas from "./GitSyncSagas";
 
 import log from "loglevel";

@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
@@ -60,6 +60,7 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import javax.validation.Validator;
 import java.net.URLEncoder;
@@ -368,6 +369,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     )))
                                     .flatMap(passwordResetTokenRepository::delete)
                                     .then(repository.save(userFromDb))
+                                    .doOnSuccess(result ->
+                                            // In a separate thread, we delete all other sessions of this user.
+                                            sessionUserService.logoutAllSessions(userFromDb.getEmail())
+                                                    .subscribeOn(Schedulers.boundedElastic())
+                                                    .subscribe()
+                                    )
                                     .thenReturn(true);
                         }));
     }
@@ -604,7 +611,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         return userFromRepository
                 .map(existingUser -> {
-                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
                     return existingUser;
                 })
                 .flatMap(repository::save)

@@ -27,7 +27,9 @@ public enum AnalyticsEvents {
     GIT_PRUNE,
     GIT_DISCONNECT,
     GIT_CHECKOUT_BRANCH,
-    GIT_CHECKOUT_REMOTE_BRANCH
+    GIT_CHECKOUT_REMOTE_BRANCH,
+    GIT_IMPORT,
+    GIT_TEST_CONNECTION
     ;
 
     private final String eventName;
