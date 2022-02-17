@@ -145,19 +145,31 @@ export default {
      * TODO(Balaji): We need to take the inline edited cells and custom column values
      * from meta and inject that into sanitised data
      */
-    if (props.tableData && _.isArray(props.tableData)) {
-      return props.tableData;
+    let data;
+
+    if (_.isArray(props.tableData)) {
+      const accessorMap = props.accessorMap || {};
+      data = props.tableData.map((row) => {
+        const newRow = {};
+        Object.entries(row).forEach((entry) => {
+          newRow[accessorMap[entry[0]] || entry[0]] = entry[1];
+        });
+
+        return newRow;
+      });
     } else {
-      return [];
+      data = [];
     }
+
+    return data;
   },
   //
   getTableColumns: (props, moment, _) => {
     /*
      * existing columns - primaryColumns
-     * new columns - sanitizedTableData columns
+     * new columns - tableData columns
      */
-    const data = props.sanitizedTableData || [];
+    const data = props.tableData || [];
 
     let columns = [];
 
@@ -165,8 +177,8 @@ export default {
     let existingColumns = Object.assign({}, props.primaryColumns || {});
 
     /*
-     * Add colummns from sanitizedTableData to existingColumns if they're not already preset
-     * Remove columns from existingColumns if they're not present in the sanitizedTableData
+     * Add colummns from tableData to existingColumns if they're not already preset
+     * Remove columns from existingColumns if they're not present in the tableData
      */
     if (data.length > 0) {
       const columnIdSet = new Set();
@@ -204,15 +216,13 @@ export default {
             isVisible: true,
             isDerived: false,
             label: id,
-            computedValue: props.sanitizedTableData.map(
-              (currentRow) => currentRow[id],
-            ),
+            computedValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
           };
         }
       });
 
       /* We need to delete the columns, which are not present in the
-       * new sanitizedTableData, from existing columns.
+       * new tableData, from existing columns.
        */
       const existingColumnIds = Object.keys(existingColumns);
 
@@ -329,7 +339,7 @@ export default {
         computedValues.forEach((computedValue, index) => {
           sanitizedTableData[index] = {
             ...sanitizedTableData[index],
-            [id]: computedValue,
+            [column.accessor]: computedValue,
           };
         });
       });
