@@ -4,7 +4,7 @@ import { SettingCategories } from "../types";
 import styled from "styled-components";
 import Button, { Category } from "components/ads/Button";
 import {
-  ADD,
+  ENABLE,
   ADMIN_AUTH_SETTINGS_SUBTITLE,
   ADMIN_AUTH_SETTINGS_TITLE,
   createMessage,
@@ -13,14 +13,13 @@ import {
   UPGRADE_TO_EE,
 } from "@appsmith/constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
-import SettingsBreadcrumbs from "pages/Settings/SettingsBreadcrumbs";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { bootIntercom } from "utils/helpers";
 import { Colors } from "constants/Colors";
+import Icon from "components/ads/Icon";
 
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -75,6 +74,11 @@ const MethodTitle = styled.div`
   display: flex;
   align-items: center;
   margin: 0 0 4px;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 `;
 
 const MethodDets = styled.div`
@@ -102,20 +106,10 @@ export type AuthMethodType = {
   calloutBanner?: banner;
 };
 
-const EditButton = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-`;
-
-const AddButton = styled(Button)`
+const StyledAuthButton = styled(Button)`
   height: 30px;
+  width: 94px;
   padding: 8px 16px;
-`;
-
-const ButtonTitle = styled.span`
-  margin-right: 2px;
-  font-size: 11px;
 `;
 
 const Label = styled.span<{ enterprise?: boolean }>`
@@ -154,7 +148,6 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
 
   return (
     <Wrapper>
-      <SettingsBreadcrumbs category={SettingCategories.AUTHENTICATION} />
       <SettingsFormWrapper>
         <SettingsHeader>
           {createMessage(ADMIN_AUTH_SETTINGS_TITLE)}
@@ -170,9 +163,14 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                 <MethodDetailsWrapper>
                   <MethodTitle>
                     {method.label}&nbsp;
-                    {method.isConnected && <Label>Enabled</Label>}
                     {method.needsUpgrade && (
-                      <Label enterprise>Enterprise</Label>
+                      <>
+                        <Label enterprise>Enterprise</Label>
+                        &nbsp;
+                      </>
+                    )}
+                    {method.isConnected && (
+                      <Icon fillColor="#03B365" name="oval-check" />
                     )}
                   </MethodTitle>
                   <MethodDets>{method.subText}</MethodDets>
@@ -184,41 +182,32 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     />
                   )}
                 </MethodDetailsWrapper>
-                {method.isConnected ? (
-                  <EditButton
-                    className={`t--settings-sub-category-${method.category}`}
-                    onClick={() =>
-                      history.push(
-                        getAdminSettingsCategoryUrl(
-                          SettingCategories.AUTHENTICATION,
-                          method.category,
-                        ),
-                      )
-                    }
-                  >
-                    <ButtonTitle>{createMessage(EDIT)}</ButtonTitle>
-                    <Icon name="right-arrow" size={IconSize.XL} />
-                  </EditButton>
-                ) : (
-                  <AddButton
-                    category={Category.tertiary}
-                    className={`add-button t--settings-sub-category-${
-                      method.needsUpgrade ? "upgrade" : method.category
-                    }`}
-                    data-cy="add-auth-account"
-                    onClick={() =>
-                      !method.needsUpgrade
-                        ? history.push(
-                            getAdminSettingsCategoryUrl(
-                              SettingCategories.AUTHENTICATION,
-                              method.category,
-                            ),
-                          )
-                        : triggerIntercom(method.label)
-                    }
-                    text={createMessage(!!method.needsUpgrade ? UPGRADE : ADD)}
-                  />
-                )}
+                <StyledAuthButton
+                  category={
+                    method.isConnected ? Category.primary : Category.tertiary
+                  }
+                  className={`t--settings-sub-category-${
+                    method.needsUpgrade ? "upgrade" : method.category
+                  }`}
+                  data-cy="btn-auth-account"
+                  onClick={() =>
+                    !method.needsUpgrade || method.isConnected
+                      ? history.push(
+                          getAdminSettingsCategoryUrl(
+                            SettingCategories.AUTHENTICATION,
+                            method.category,
+                          ),
+                        )
+                      : triggerIntercom(method.label)
+                  }
+                  text={createMessage(
+                    method.isConnected
+                      ? EDIT
+                      : !!method.needsUpgrade
+                      ? UPGRADE
+                      : ENABLE,
+                  )}
+                />
               </MethodCard>
             );
           })}

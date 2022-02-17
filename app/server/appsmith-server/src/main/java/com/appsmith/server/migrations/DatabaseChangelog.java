@@ -4963,69 +4963,36 @@ public class DatabaseChangelog {
         mongockTemplate.save(plugin);
     }
 
-    @ChangeSet(order = "116", id = "create-system-themes-v2", author = "")
-    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
-        Index systemThemeIndex = new Index()
-                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
-                .named("system_theme_index")
-                .background();
+    /**
+     * This migration introduces indexes on newAction, actionCollection to improve the query performance for queries like
+     * getResourceByPageId which excludes the deleted entries
+     */
+    @ChangeSet(order = "116", id = "update-index-for-newAction-actionCollection", author = "")
+    public void updateNewActionActionCollectionIndexes(MongockTemplate mongockTemplate) {
 
-        Index applicationIdIndex = new Index()
-                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
-                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
-                .named("application_id_index")
-                .background();
+        dropIndexIfExists(mongockTemplate, NewAction.class, "unpublishedAction_pageId");
 
-        dropIndexIfExists(mongockTemplate, Theme.class, "system_theme_index");
-        dropIndexIfExists(mongockTemplate, Theme.class, "application_id_index");
-        ensureIndexes(mongockTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
-
-        final String themesJson = StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
-                Charset.defaultCharset()
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(fieldName(QNewAction.newAction.unpublishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("unpublishedActionPageId_deleted_compound_index")
         );
-        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
 
-        Theme legacyTheme = null;
-        boolean themeExists = false;
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(fieldName(QNewAction.newAction.publishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("publishedActionPageId_deleted_compound_index")
+        );
 
-        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEME.getValue())
-                .users(Set.of(FieldName.ANONYMOUS_USER)).build();
+        dropIndexIfExists(mongockTemplate, ActionCollection.class, "unpublishedCollection_pageId");
 
-        for (Theme theme : themes) {
-            theme.setSystemTheme(true);
-            theme.setCreatedAt(Instant.now());
-            theme.setPolicies(Set.of(policyWithCurrentPermission));
-            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
-                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("unpublishedCollectionPageId_deleted_compound_index")
+        );
 
-            Theme savedTheme = mongockTemplate.findOne(query, Theme.class);
-            if(savedTheme == null) {  // this theme does not exist, create it
-                savedTheme = mongockTemplate.save(theme);
-            } else { // theme already found, update
-                themeExists = true;
-                savedTheme.setPolicies(theme.getPolicies());
-                savedTheme.setConfig(theme.getConfig());
-                savedTheme.setProperties(theme.getProperties());
-                savedTheme.setStylesheet(theme.getStylesheet());
-                if(savedTheme.getCreatedAt() == null) {
-                    savedTheme.setCreatedAt(Instant.now());
-                }
-                mongockTemplate.save(savedTheme);
-            }
-
-            if(theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
-                legacyTheme = savedTheme;
-            }
-        }
-
-        if(!themeExists) { // this is the first time we're running the migration
-            // migrate all applications and set legacy theme to them in both mode
-            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
-                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
-            mongockTemplate.updateMulti(
-                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
-            );
-        }
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("publishedCollectionPageId_deleted_compound_index")
+        );
     }
+
 }
