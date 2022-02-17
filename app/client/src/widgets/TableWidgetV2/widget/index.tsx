@@ -66,6 +66,7 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
+import { is } from "immer/dist/internal";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -132,6 +133,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex,
       selectedRowIndices,
       tableColumns = [],
+      primaryColumns = {},
     } = this.props;
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -141,11 +143,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     tableColumns.forEach((column: any) => {
       const isHidden = !column.isVisible;
-      const accessor = column.id;
+      const accessor = column.accessor;
       const columnData = {
+        id: column.id,
         Header: column.label,
         accessor: accessor,
-        width: columnWidthMap[accessor] || DEFAULT_COLUMN_WIDTH,
+        width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
         minWidth: COLUMN_MIN_WIDTH,
         draggable: true,
         isHidden: false,
@@ -322,11 +325,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const lastColumnIndex = columns.length - 1;
 
       if (columns[lastColumnIndex]) {
+        const lastColumnWidth =
+          columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
         const remainingWidth = componentWidth - totalColumnWidth;
+
         columns[lastColumnIndex].width =
-          remainingWidth < DEFAULT_COLUMN_WIDTH
+          lastColumnWidth +
+          (remainingWidth < DEFAULT_COLUMN_WIDTH
             ? DEFAULT_COLUMN_WIDTH
-            : remainingWidth;
+            : remainingWidth);
       }
     }
 
@@ -334,7 +341,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       columns = columns.concat(hiddenColumns);
     }
 
-    return columns.filter((column: ReactTableColumnProps) => !!column.accessor);
+    return columns.filter((column: ReactTableColumnProps) => !!column.id);
   };
 
   transformData = (
@@ -345,8 +352,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const newRow: { [key: string]: any } = {};
 
       columns.forEach((column) => {
-        const { accessor } = column;
-        let value = row[accessor];
+        const { id } = column;
+        let value = row[id];
 
         if (column.metaProperties) {
           switch (column.metaProperties.type) {
@@ -384,18 +391,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     value = 1000 * Number(value);
                   }
 
-                  newRow[accessor] = moment(
-                    value as MomentInput,
-                    inputFormat,
-                  ).format(outputFormat);
+                  newRow[id] = moment(value as MomentInput, inputFormat).format(
+                    outputFormat,
+                  );
                 } catch (e) {
                   log.debug("Unable to parse Date:", { e });
-                  newRow[accessor] = "";
+                  newRow[id] = "";
                 }
               } else if (value) {
-                newRow[accessor] = "Invalid Value";
+                newRow[id] = "Invalid Value";
               } else {
-                newRow[accessor] = "";
+                newRow[id] = "";
               }
               break;
             default:
@@ -409,7 +415,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 data = JSON.stringify(value);
               }
 
-              newRow[accessor] = data;
+              newRow[id] = data;
               break;
           }
         }

@@ -146,16 +146,16 @@ export const generateTableColumnId = (accessor: string) => {
 };
 
 export function getDefaultColumnProperties(
-  accessor: string,
+  id: string,
   index: number,
   widgetName: string,
   isDerived?: boolean,
 ): ColumnProperties {
-  const id = generateTableColumnId(accessor);
   const columnProps = {
     index: index,
     width: 150,
     id,
+    accessor: id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
@@ -168,7 +168,7 @@ export function getDefaultColumnProperties(
     isDisabled: false,
     isCellVisible: true,
     isDerived: !!isDerived,
-    label: accessor,
+    label: id,
     computedValue: isDerived
       ? ""
       : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
