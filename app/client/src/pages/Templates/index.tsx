@@ -36,7 +36,7 @@ const ResultsCount = styled.div`
   font-size: 18px;
   font-weight: 500;
   color: #090707;
-  margin-top: 26px;
+  margin-top: 13px;
   margin-left: 32px;
   padding-bottom: 24px;
 `;

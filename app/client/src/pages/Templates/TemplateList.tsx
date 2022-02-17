@@ -5,14 +5,12 @@ import Template from "./Template";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 
 const Wrapper = styled.div`
-  padding-top: 24px;
   padding-right: 33px;
   padding-left: 33px;
 
   .grid {
     display: flex;
     margin-left: -33px;
-    margin-top: 32px;
   }
 
   .grid_column {

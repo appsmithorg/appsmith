@@ -71,7 +71,7 @@ const ListWrapper = styled.div`
 `;
 
 const FilterCategoryWrapper = styled.div`
-  padding-top: 34px;
+  padding-bottom: 34px;
 `;
 
 type Filter = {
