@@ -61,6 +61,7 @@ const TabsWrapper = styled.div`
     padding-bottom: 15px;
     .tab-title {
       font-size: 16px;
+      font-weight: normal;
     }
   }
 `;
@@ -119,6 +120,16 @@ const NotificationWrapper = styled.div`
   }
 `;
 
+const StyledTabItem = styled.div<{ selected: boolean }>`
+  .tab-title {
+    ${(props) =>
+      props.selected &&
+      `
+    color: #191919;
+    `}
+  }
+`;
+
 export function TemplateFeatureNotification() {
   return (
     <NotificationWrapper>
@@ -155,10 +166,18 @@ export function TemplatesTabItem(props: TabItemProps) {
 
 function TabItem(props: TabItemProps) {
   if (props.tab.key === HomePageTabsKeys.TEMPLATES) {
-    return <TemplatesTabItem {...props} />;
+    return (
+      <StyledTabItem selected={props.selected}>
+        <TemplatesTabItem {...props} />
+      </StyledTabItem>
+    );
   }
 
-  return <DefaultTabItem {...props} />;
+  return (
+    <StyledTabItem selected={props.selected}>
+      <DefaultTabItem {...props} />
+    </StyledTabItem>
+  );
 }
 
 function HomeScreenTabs() {
