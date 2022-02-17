@@ -10,7 +10,7 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 import Icon, { IconSize } from "components/ads/Icon";
-import { isEqual, get } from "lodash";
+import { isEqual } from "lodash";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
 
