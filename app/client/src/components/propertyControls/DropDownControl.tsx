@@ -2,6 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
+import { isNil } from "lodash";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
@@ -47,7 +48,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   }
 
   onItemSelect = (value?: string): void => {
-    if (value) {
+    if (!isNil(value)) {
       this.updateProperty(this.props.propertyName, value);
     }
   };

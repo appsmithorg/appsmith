@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -524,4 +524,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 
+    @Override
+    public Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
+        return repository.findSlugsByApplicationIds(applicationIds, aclPermission);
+    }
 }
