@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -200,6 +201,5 @@ public class GitControllerCE {
         return service.importApplicationFromGit(organizationId, gitConnectDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
-
 
 }

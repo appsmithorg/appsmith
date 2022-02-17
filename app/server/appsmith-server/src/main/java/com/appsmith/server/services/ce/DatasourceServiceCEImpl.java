@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
@@ -202,7 +202,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
-                .flatMap(this::populateHintMessages);
+                .flatMap(this::populateHintMessages)
+                .map(datasource1 -> {
+                    datasource1.setIsConfigured(!Optional.ofNullable(datasource1.getDatasourceConfiguration()).isEmpty());
+                    return datasource1;
+                });
     }
 
     @Override
@@ -256,7 +260,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (datasource.getGitSyncId() == null) {
             datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
         }
-        return repository.save(datasource);
+        return repository.save(datasource)
+                .map(datasource1 -> {
+                    datasource1.setIsConfigured(!Optional.ofNullable(datasource1.getDatasourceConfiguration()).isEmpty());
+                    return datasource1;
+                });
     }
 
     private Datasource sanitizeDatasource(Datasource datasource) {
@@ -302,7 +310,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 datasource.getDatasourceConfiguration().getAuthentication() != null) {
             datasourceMono = getById(datasource.getId())
                     .map(datasource1 -> {
-                        BeanCopyUtils.copyNestedNonNullProperties(datasource, datasource1);
+                        AppsmithBeanUtils.copyNestedNonNullProperties(datasource, datasource1);
                         return datasource1;
                     })
                     .switchIfEmpty(Mono.just(datasource));
@@ -337,17 +345,29 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission) {
-        return repository.findByNameAndOrganizationId(name, organizationId, permission);
+        return repository.findByNameAndOrganizationId(name, organizationId, permission)
+                .map(datasource -> {
+                    datasource.setIsConfigured(!Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                    return datasource;
+                });
     }
 
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
+        return repository.findById(id, aclPermission)
+                .map(datasource -> {
+                    datasource.setIsConfigured(!Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                    return datasource;
+                });
     }
 
     @Override
     public Mono<Datasource> findById(String id) {
-        return repository.findById(id);
+        return repository.findById(id)
+                .map(datasource -> {
+                    datasource.setIsConfigured(!Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                    return datasource;
+                });
     }
 
     @Override
@@ -380,7 +400,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
         return repository.findAllByOrganizationId(organizationId, permission)
-                .flatMap(this::populateHintMessages);
+                .flatMap(this::populateHintMessages)
+                .map(datasource -> {
+                    datasource.setIsConfigured(!Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
+                    return datasource;
+                });
     }
 
     @Override

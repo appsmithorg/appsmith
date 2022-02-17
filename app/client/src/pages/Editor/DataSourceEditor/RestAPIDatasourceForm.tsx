@@ -38,13 +38,14 @@ import {
   ApiKeyAuthType,
   AuthType,
   GrantType,
+  SSLType,
 } from "entities/Datasource/RestAPIForm";
 import {
   createMessage,
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Collapsible from "./Collapsible";
 import _, { merge } from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -235,6 +236,28 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
+      }
+    }
+
+    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
+      if (
+        _.get(authentication, "sendScopeWithRefreshToken") === undefined ||
+        _.get(authentication, "sendScopeWithRefreshToken") === ""
+      ) {
+        this.props.change("authentication.sendScopeWithRefreshToken", false);
+      }
+    }
+
+    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
+      if (
+        _.get(authentication, "refreshTokenClientCredentialsLocation") ===
+          undefined ||
+        _.get(authentication, "refreshTokenClientCredentialsLocation") === ""
+      ) {
+        this.props.change(
+          "authentication.refreshTokenClientCredentialsLocation",
+          "BODY",
+        );
       }
     }
   };
@@ -468,8 +491,46 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         {this.renderAuthFields()}
+        <FormInputContainer data-replay-id={btoa("ssl")}>
+          {this.renderDropdownControlViaFormControl(
+            "connection.ssl.authType",
+            [
+              {
+                label: "No",
+                value: "DEFAULT",
+              },
+              {
+                label: "Yes",
+                value: "SELF_SIGNED_CERTIFICATE",
+              },
+            ],
+            "Use Self-signed certificate",
+            "",
+            true,
+            "",
+            "DEFAULT",
+          )}
+        </FormInputContainer>
+        {this.renderSelfSignedCertificateFields()}
       </>
     );
+  };
+
+  renderSelfSignedCertificateFields = () => {
+    const { connection } = this.props.formData;
+    if (connection?.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE) {
+      return (
+        <Collapsible defaultIsOpen title="Certificate Details">
+          {this.renderFilePickerControlViaFormControl(
+            "connection.ssl.certificateFile",
+            "Upload Certificate",
+            "",
+            false,
+            true,
+          )}
+        </Collapsible>
+      );
+    }
   };
 
   renderAuthFields = () => {
@@ -723,6 +784,57 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
+  renderOauth2AdvancedSettings = () => {
+    return (
+      <>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.sendScopeWithRefreshToken")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.sendScopeWithRefreshToken",
+            [
+              {
+                label: "Yes",
+                value: true,
+              },
+              {
+                label: "No",
+                value: false,
+              },
+            ],
+            "Send scope with refresh token",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa(
+            "authentication.refreshTokenClientCredentialsLocation",
+          )}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.refreshTokenClientCredentialsLocation",
+            [
+              {
+                label: "Body",
+                value: "BODY",
+              },
+              {
+                label: "Header",
+                value: "HEADER",
+              },
+            ],
+            "Send client credentials with",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2CommonAdvanced = () => {
     return (
       <>
@@ -826,8 +938,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
           )}
         </FormInputContainer>
+
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
           this.renderOauth2CommonAdvanced()}
+        <Collapsible title="Advanced Settings">
+          {this.renderOauth2AdvancedSettings()}
+        </Collapsible>
         <FormInputContainer>
           <AuthorizeButton
             disabled={this.disableSave()}
@@ -888,6 +1004,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     placeholderText: string,
     isRequired: boolean,
     subtitle?: string,
+    initialValue?: any,
   ) {
     const config = {
       id: "",
@@ -901,6 +1018,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       conditionals: {},
       placeholderText: placeholderText,
       formName: DATASOURCE_REST_API_FORM,
+      initialValue: initialValue,
     };
     return (
       <FormControl
@@ -923,6 +1041,34 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       isValid: false,
       controlType: "KEYVALUE_ARRAY",
       placeholderText: placeholderText,
+      label: label,
+      conditionals: {},
+      formName: DATASOURCE_REST_API_FORM,
+      isRequired: isRequired,
+    };
+    return (
+      <FormControl
+        config={config}
+        formName={DATASOURCE_REST_API_FORM}
+        multipleConfig={[]}
+      />
+    );
+  }
+
+  renderFilePickerControlViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+    encrypted: boolean,
+  ) {
+    const config = {
+      id: "",
+      configProperty: configProperty,
+      isValid: false,
+      controlType: "FILE_PICKER",
+      placeholderText: placeholderText,
+      encrypted: encrypted,
       label: label,
       conditionals: {},
       formName: DATASOURCE_REST_API_FORM,

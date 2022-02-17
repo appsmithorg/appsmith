@@ -39,7 +39,7 @@ interface ComponentState {
 interface ComponentProps {
   children: any;
   title: string;
-  defaultIsOpen: boolean;
+  defaultIsOpen?: boolean;
   // header icon props of collapse header
   headerIcon?: {
     name: IconName;

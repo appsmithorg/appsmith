@@ -1,35 +1,32 @@
 ---
+
+- name: Check if docker is installed
+  package_facts:
+    manager: auto
+
+- name: Check running container
+  shell: docker inspect --format={{ '{{.State.Running}}' }} appsmith
+  register: container_running
+  ignore_errors: True
+
 - name: Check folder installation exist and empty
-  find:
-    paths: '{{ install_dir }}'
-  register: filesFound
+  stat:
+    path: '{{ install_dir }}'
+  register: installDir
 
-- fail:
-    msg: 'The {{ install_dir }} folder is existed and not empty'
-  when: filesFound.matched > 0
+- name: Check docker-compose.yml file exists 
+  stat:
+    path: '{{ install_dir }}/{{ template_file_name }}'
+  register: template_file
 
-- name: Check port 80 is listening
-  wait_for:
-    port: 80
-    delay: 2
-    timeout: 5
-    msg: 'Timeout waiting for 80 to respond'
-  register: port_80
-  ignore_errors: yes
-
-- fail:
-    msg: 'Port 80 is running'
-  when: port_80.failed == false
-
-- name: Check port 443 is listening
-  wait_for:
-    port: 443
-    delay: 2
-    timeout: 5
-    msg: 'Timeout waiting for 443 to respond'
-  register: port_443
-  ignore_errors: yes
-
-- fail:
-    msg: 'Port 443 is running'
-  when: port_443.failed == false
+- name: Health check running container
+  uri:
+    url: http://localhost/api/v1/users/me
+    method: GET
+    status_code:
+      - 200
+      - 502
+      - 503
+  register: http_request
+  when:
+    - container_running.stdout == 'true'
