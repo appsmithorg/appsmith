@@ -879,22 +879,24 @@ public class MongoPlugin extends BasePlugin {
                     "Connection timed out. Please check if the datasource configuration fields have " +
                             "been filled correctly."
             );
-            final String defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+
+            final String defaultDatabaseName;
+            if (datasourceConfiguration.getConnection() != null) {
+                defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+            } else defaultDatabaseName = null;
+
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
-                        Publisher<Document> result = mongoClient.getDatabase("admin").runCommand(new Document(
-                                "listDatabases", 1));
-                        return Mono.zip(Mono.just(mongoClient), Mono.from(result));
+                        final Publisher<String> result = mongoClient.listDatabaseNames();
+                        final Mono<List<String>> documentMono = Flux.from(result).collectList().cache();
+                        return documentMono.doFinally(ignored -> mongoClient.close()).then(documentMono);
                     })
-                    .flatMap(tuple2 -> {
-                        // close the connection
-                        tuple2.getT1().close();
-
-                        // this lambda checks if default database name is valid or not
-                        Document document = tuple2.getT2();
-                        List<Document> databases = document.getList("databases", Document.class);
-                        Optional<Document> defaultDB = databases.stream()
-                                .filter(d -> d.getString("name").trim().equals(defaultDatabaseName))
+                    .flatMap(names -> {
+                        if (defaultDatabaseName == null || defaultDatabaseName.isBlank()) {
+                            return Mono.just(new DatasourceTestResult());
+                        }
+                        final Optional<String> defaultDB = names.stream()
+                                .filter(name -> name.equals(defaultDatabaseName))
                                 .findFirst();
 
                         if (defaultDB.isEmpty()) {
@@ -905,37 +907,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
                     .onErrorMap(TimeoutException.class, timeoutExceptionThrowableFunction)
-                    .onErrorResume(error -> {
-                        /**
-                         * 1. Return OK response on "Unauthorized" exception.
-                         * 2. If we get an exception with error code "Unauthorized" then it means that the connection to
-                         *    the MongoDB instance is valid. It also means we don't have access to the admin database,
-                         *    but that's okay for our purposes here.
-                         */
-                        if (error instanceof MongoCommandException &&
-                                ((MongoCommandException) error).getErrorCodeName().equals("Unauthorized")) {
-                            return datasourceCreate(datasourceConfiguration)
-                                    .flatMap(mongoClient -> {
-                                        if (datasourceConfiguration.getConnection() != null && defaultDatabaseName != null) {
-                                            Publisher<Document> result = mongoClient.getDatabase(defaultDatabaseName).runCommand(new Document(
-                                                    "listCollections", 1).append("nameOnly", TRUE));
-                                            return Mono.zip(Mono.just(mongoClient), Mono.from(result));
-                                        }
-                                        return Mono.error(new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR,
-                                                "Not enough information to test the Datasource. " +
-                                                        "Please provide the default database name."));
-
-                                    })
-                                    .flatMap(tuple2 -> Mono.just(tuple2.getT1()))
-                                    .doOnSuccess(MongoClient::close).then(Mono.just(new DatasourceTestResult()))
-                                    .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
-                                    .onErrorMap(TimeoutException.class, timeoutExceptionThrowableFunction)
-                                    .onErrorResume(err -> Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(err))));
-                        }
-
-                        return Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(error)));
-                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(error))))
                     .subscribeOn(scheduler);
         }
 
