@@ -19,6 +19,9 @@ import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 const Wrapper = styled.div`
   padding-bottom: 8px;
   background-color: #fff;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 
   & .ads-dialog-trigger {
     margin-top: 4px;

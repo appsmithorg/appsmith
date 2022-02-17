@@ -34,6 +34,7 @@ const Wrapper = styled.div`
 
 const SecondWrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.header + 24}px);
+  position: relative;
 `;
 
 const StyledFilterItem = styled.div<{ selected: boolean }>`
