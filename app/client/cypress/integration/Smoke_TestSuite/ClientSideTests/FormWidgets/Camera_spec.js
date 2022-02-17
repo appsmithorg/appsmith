@@ -22,7 +22,7 @@ describe("Camera Widget", () => {
     cy.createModal(modalName);
     // Take photo
     cy.get(mainControlSelector).click();
-    cy.wait(200);
+    cy.wait(2000);
     // Save photo
     cy.get(mainControlSelector)
       .first()
