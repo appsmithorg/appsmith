@@ -111,5 +111,5 @@ export const confirmationPromise = function(
     type: ActionTriggerType.CONFIRMATION_MODAL,
     payload: {},
   };
-  return promisifyAction(requestId, payload).then(func(...args));
+  return promisifyAction(requestId, payload).then(() => func(...args));
 };

@@ -195,20 +195,6 @@ function* initiateActionTriggerExecution(
   }
 }
 
-export function* getConfirmModalFlag(source: any) {
-  if (source && source?.collectionId) {
-    const collection: JSCollection = yield select(
-      getJSCollection,
-      source?.collectionId,
-    );
-    const settings =
-      collection &&
-      collection.actions.find((js: JSAction) => js.id === source.actionId);
-    return settings && settings.confirmBeforeExecute;
-  }
-  return false;
-}
-
 export function* watchActionExecutionSagas() {
   yield all([
     takeEvery(
