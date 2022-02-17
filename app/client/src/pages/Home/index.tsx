@@ -48,17 +48,20 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 
 const TabsWrapper = styled.div`
   position: fixed;
-  top: 2px;
+  top: 0px;
   left: ${(props) => props.theme.homePage.sidebar}px;
   z-index: ${Indices.Layer9};
-  margin-top: 8px;
 
   .react-tabs__tab-list {
     border-bottom: 1px solid #ededed;
     padding-left: 32px;
   }
   .tab-title-wrapper {
-    padding-bottom: 17px;
+    padding-top: 16px;
+    padding-bottom: 15px;
+    .tab-title {
+      font-size: 16px;
+    }
   }
 `;
 

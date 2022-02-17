@@ -57,8 +57,8 @@ const BellIndicatorIcon = styled.div`
 `;
 
 const StyledBellIcon = styled(BellIcon)`
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 `;
 
 function Bell() {
