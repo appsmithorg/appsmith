@@ -31,7 +31,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.springframework.data.mongodb.core.query.Query;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -79,8 +78,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 /**
  * Unit tests for MongoPlugin
@@ -190,11 +187,10 @@ public class MongoPluginTest {
     }
 
     /*
-     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization, then
-     *    also, it indicates a successful connection establishment.
+     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization.
      */
     @Test
-    public void testDatasourceWithUnauthorizedException() throws NoSuchFieldException {
+    public void testDatasourceWithUnauthorizedException() {
         /*
          * 1. Create mock exception of type: MongoCommandException.
          *      - mock method getErrorCodeName() to return String "Unauthorized".
@@ -202,6 +198,8 @@ public class MongoPluginTest {
         MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
         when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
         when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
+        when(mockMongoCommandException.getErrorMessage()).thenReturn("Mock error  : Expected 'something' , but got something else.\n" +
+                "Doc = [{find mockAction} {filter mockFilter} {limit 10} {$db mockDB} ...]");
 
         /*
          * 1. Spy MongoPluginExecutor class.
@@ -216,13 +214,13 @@ public class MongoPluginTest {
         doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
 
         /*
-         * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
+         * 1. Test that MongoCommandException with error code "Unauthorized" is not successful because of invalid credentials.
          */
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         StepVerifier
                 .create(spyMongoPluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
-                    assertTrue(datasourceTestResult.isSuccess());
+                    assertFalse(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }
@@ -580,6 +578,47 @@ public class MongoPluginTest {
                             "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
                     assertEquals(getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT),
                             "SINGLE");
+
+                    // Assert Count Command
+                    DatasourceStructure.Template countTemplate = templates.get(5);
+                    assertEquals(countTemplate.getTitle(), "Count");
+                    assertEquals(countTemplate.getBody(), "{\n" +
+                    "  \"count\": \"users\",\n" +
+                    "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
+                    "}\n");
+                    assertEquals(((Map<String, Object>) countTemplate.getConfiguration()).get(COMMAND), "COUNT");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COUNT_QUERY),
+                    "{\"_id\": {\"$exists\": true}}");
+
+                    // Assert Distinct Command
+                    DatasourceStructure.Template distinctTemplate = templates.get(6);
+                    assertEquals(distinctTemplate.getTitle(), "Distinct");
+                    assertEquals(distinctTemplate.getBody(), "{\n" +
+                    "  \"distinct\": \"users\",\n" +
+                    "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
+                    "  \"key\": \"_id\"," +
+                    "}\n");
+                    assertEquals(((Map<String, Object>) distinctTemplate.getConfiguration()).get(COMMAND), "DISTINCT");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_QUERY),
+                    "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_KEY),
+                    "_id");
+
+                    // Assert Aggregate Command
+                    DatasourceStructure.Template aggregateTemplate = templates.get(7);
+                    assertEquals(aggregateTemplate.getTitle(), "Aggregate");
+                    assertEquals(aggregateTemplate.getBody(), "{\n" +
+                    "  \"aggregate\": \"users\",\n" +
+                    "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
+                    "  \"limit\": 10,\n" +
+                    "  \"explain\": \"true\"\n" +
+                    "}\n");
+
+                    assertEquals(((Map<String, Object>) aggregateTemplate.getConfiguration()).get(COMMAND), "AGGREGATE");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), AGGREGATE_PIPELINE),
+                    "[ {\"$sort\" : {\"_id\": 1} } ]");
+
+
                 })
                 .verifyComplete();
     }

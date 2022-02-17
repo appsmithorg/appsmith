@@ -246,11 +246,23 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
+          activeColor={this.props.activeColor}
+          bottomRow={this.props.bottomRow}
+          inactiveColor={this.props.inactiveColor}
+          isAllowHalf={this.props.isAllowHalf}
+          isDisabled={this.props.isDisabled}
+          isLoading={this.props.isLoading}
+          key={this.props.widgetId}
+          leftColumn={this.props.leftColumn}
+          maxCount={this.props.maxCount}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isDisabled}
+          rightColumn={this.props.rightColumn}
+          size={this.props.size}
+          tooltips={this.props.tooltips}
+          topRow={this.props.topRow}
           value={this.props.rate}
-          {...this.props}
-          key={this.props.widgetId}
+          widgetId={this.props.widgetId}
         />
       )
     );

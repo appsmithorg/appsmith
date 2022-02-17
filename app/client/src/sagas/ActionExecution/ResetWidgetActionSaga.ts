@@ -1,4 +1,4 @@
-import { put, select } from "redux-saga/effects";
+import { put, select, take } from "redux-saga/effects";
 import { getWidgetByName } from "sagas/selectors";
 import {
   resetChildrenMetaProperty,
@@ -14,6 +14,7 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export default function* resetWidgetActionSaga(
   payload: ResetWidgetDescription["payload"],
@@ -37,6 +38,8 @@ export default function* resetWidgetActionSaga(
   if (payload.resetChildren) {
     yield put(resetChildrenMetaProperty(widget.widgetId));
   }
+
+  yield take(ReduxActionTypes.RESET_WIDGET_META_EVALUATED);
 
   AppsmithConsole.info({
     text: `resetWidget('${payload.widgetName}', ${payload.resetChildren}) was triggered`,

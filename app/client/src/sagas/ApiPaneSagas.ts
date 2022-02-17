@@ -140,7 +140,7 @@ function* handleUpdateBodyContentType(
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   // this is a previous value gotten before the updated content type has been set
   const previousContentType =
-    values.actionConfiguration.formData.apiContentType;
+    values.actionConfiguration?.formData?.apiContentType;
 
   const displayFormatValue = POST_BODY_FORMAT_OPTIONS_ARRAY.find(
     (el) => el === title,
