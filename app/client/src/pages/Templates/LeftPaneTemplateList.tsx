@@ -8,6 +8,7 @@ import { TEMPLATE_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { Classes } from "components/ads/common";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const Wrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
@@ -20,7 +21,6 @@ const Wrapper = styled.div`
 `;
 
 const TempelateListWrapper = styled.div`
-  padding-left: 25px;
   .title {
     margin-bottom: 10px;
   }
@@ -29,6 +29,7 @@ const TempelateListWrapper = styled.div`
     margin-top: 10px;
     overflow: auto;
     height: calc(100vh - ${(props) => props.theme.homePage.header + 244}px);
+    ${thinScrollbar}
   }
 `;
 

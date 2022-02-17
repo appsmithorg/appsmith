@@ -9,11 +9,12 @@ import { filterTemplates } from "actions/templateActions";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { templatesDatasourceFiltersSelector } from "selectors/templatesSelectors";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const FilterWrapper = styled.div`
-  padding-left: 25px;
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 213}px);
+  ${thinScrollbar}
 
   .more {
     padding-left: 10px;
@@ -43,7 +44,6 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-left: 10px;
   padding: 7px 15px 7px 10px;
   .${Classes.TEXT} {
     color: #121826;
