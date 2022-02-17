@@ -671,11 +671,11 @@
     ],
     "decryptedFields": {
         "mockdata": {
-            "password": "postgres",
+            "password": "docker",
             "authType": "com.appsmith.external.models.DBAuth",
             "dbAuth": {
                 "authenticationType": "dbAuth",
-                "username": "postgres",
+                "username": "docker",
                 "databaseName": "fakeapi"
             }
         }
