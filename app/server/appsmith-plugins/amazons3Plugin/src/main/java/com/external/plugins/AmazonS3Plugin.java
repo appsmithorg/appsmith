@@ -1,9 +1,11 @@
 package com.external.plugins;
 
 import com.amazonaws.HttpMethod;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -68,19 +70,22 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
+import static com.appsmith.external.helpers.PluginUtils.parseList;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
 import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_PAGINATE;
 import static com.external.plugins.constants.FieldName.LIST_PREFIX;
 import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_SORT;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
+import static com.external.utils.TemplateUtils.getTemplates;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static java.lang.Boolean.TRUE;
 
@@ -91,12 +96,13 @@ public class AmazonS3Plugin extends BasePlugin {
     public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
     public static final String SMART_SUBSTITUTION = "smartSubstitution";
     public static final int CUSTOM_ENDPOINT_INDEX = 0;
-    private static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
-    private static final String YES = "YES";
-    private static final String NO = "NO";
+    public static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
+    public static final String YES = "YES";
+    public static final String NO = "NO";
     private static final String BASE64_DELIMITER = ";base64,";
     private static final String OTHER_S3_SERVICE_PROVIDER = "other";
     private static final String AWS_S3_SERVICE_PROVIDER = "amazon-s3";
+    public static String DEFAULT_FILE_NAME = "MyFile.txt";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -625,15 +631,21 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         // Check if where condition is configured
                         Object whereFormObject = getValueSafelyFromFormData(formData, LIST_WHERE);
-
+                        Condition condition = null;
                         if (whereFormObject != null) {
                             Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
-                            Condition condition = parseWhereClause(whereForm);
-                            ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
-                            actionResult = filterDataService.filterDataNew(preFilteringResponse,
-                                    new UQIDataFilterParams(condition, null, null, null));
-
+                            condition = parseWhereClause(whereForm);
                         }
+
+                        List<Map<String, String>> sortBy =
+                                (List<Map<String, String>>) getValueSafelyFromFormData(formData, LIST_SORT);
+
+                        Map<String, String> paginateBy =
+                                (Map<String, String>) getValueSafelyFromFormData(formData, LIST_PAGINATE);
+
+                        ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
+                        actionResult = filterDataService.filterDataNew(preFilteringResponse,
+                                new UQIDataFilterParams(condition, null, sortBy, paginateBy));
 
                         break;
                     case UPLOAD_FILE_FROM_BODY: {
@@ -760,14 +772,26 @@ public class AmazonS3Plugin extends BasePlugin {
                         connection.deleteObject(bucketName, path);
                         actionResult = Map.of("status", "File deleted successfully");
                         break;
-                    case LIST_BUCKETS:
+                    case DELETE_MULTIPLE_FILES:
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
+
+                        deleteMultipleObjects(connection, bucketName, path);
+                        actionResult = Map.of("status", "All files deleted successfully");
+                        break;
+                    /**
+                     * Commenting out this code section since we have not decided to expose this action to users
+                     * as of now. In the future, if we do decide to expose this action to the users, just uncommenting this
+                     * code should take care of gathering the list of buckets. Hence, leaving this commented but
+                     * intact for future use.
+
+                     case LIST_BUCKETS:
                         List<String> bucketNames = connection.listBuckets()
-                            .stream()
-                            .map(Bucket::getName)
-                            .collect(Collectors.toList());
+                                .stream()
+                                .map(Bucket::getName)
+                                .collect(Collectors.toList());
                         actionResult = Map.of("bucketList", bucketNames);
                         break;
-
+                    */
                     default:
                         return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
@@ -812,6 +836,36 @@ public class AmazonS3Plugin extends BasePlugin {
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void deleteMultipleObjects(AmazonS3 connection, String bucketName, String path) throws AppsmithPluginException {
+            List<String> listOfFiles;
+            try {
+                listOfFiles = parseList(path);
+            } catch (IOException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Appsmith server failed to parse the list of files. Please provide the list of files in the " +
+                                "correct format e.g. [\"file1\", \"file2\"]."
+                );
+            }
+
+            DeleteObjectsRequest deleteObjectsRequest = getDeleteObjectsRequest(bucketName, listOfFiles);
+            try {
+                connection.deleteObjects(deleteObjectsRequest);
+            } catch (SdkClientException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "One or more files could not be deleted. " + e.getMessage()
+                );
+            }
+        }
+
+        private DeleteObjectsRequest getDeleteObjectsRequest(String bucketName, List<String> listOfFiles) {
+            DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName);
+
+            /* Ref: https://stackoverflow.com/questions/9863742/how-to-pass-an-arraylist-to-a-varargs-method-parameter */
+            return deleteObjectsRequest.withKeys(listOfFiles.toArray(new String[0]));
         }
 
         @Override
@@ -951,30 +1005,48 @@ public class AmazonS3Plugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        /**
+         * Since S3 storage is not like a regular database, this method returns a list of buckets as the datasource
+         * structure.
+         */
         @Override
         public Mono<DatasourceStructure> getStructure(AmazonS3 connection, DatasourceConfiguration datasourceConfiguration) {
-            /*
-             * Not sure if it make sense to list all buckets as part of structure ? Leaving it empty for now.
-             */
-            return Mono.empty();
+
+            return Mono.fromSupplier(() -> {
+                List<DatasourceStructure.Table> tableList;
+                try {
+                    tableList = connection.listBuckets()
+                            .stream()
+                            /* Get name of each bucket */
+                            .map(Bucket::getName)
+                            /* Get command templates and use it to create Table object */
+                            .map(bucketName -> new DatasourceStructure.Table(DatasourceStructure.TableType.BUCKET, "",
+                                    bucketName, new ArrayList<>(), new ArrayList<>(), getTemplates(bucketName,
+                                    DEFAULT_FILE_NAME)))
+                            /* Collect all Table objects in a list */
+                            .collect(Collectors.toList());
+                } catch (SdkClientException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                            "Appsmith server has failed to fetch list of buckets from database. Please check if " +
+                                    "the database credentials are valid and/or you have the required permissions."
+                    );
+                }
+
+                return new DatasourceStructure(tableList);
+            })
+                    .subscribeOn(scheduler);
         }
 
-        // This function executes the DB query to fetch details about the datasource from plugin specified templates
-        // when we don't want to create new action just to get the information about the datasource in this case we can
-        // get list of S3 buckets etc.
-        @Override
-        public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
-                                                                 DatasourceConfiguration datasourceConfiguration) {
+        private String getOneFileNameOrDefault(AmazonS3 connection, String bucketName, String defaultFileName) {
+            ArrayList<String> listOfFiles;
+            try {
+                listOfFiles = listAllFilesInBucket(connection, bucketName, "");
+            } catch (AppsmithPluginException e) {
+                return defaultFileName;
+            }
 
-            // TODO : Ignore the plugin specified templates. Once trigger functionality is implemented for UQI, replace
-            // this as well with trigger functions
-            Map<String, Object> configMap = new HashMap<>();
-            setValueSafelyInFormData(configMap, COMMAND, "LIST_BUCKETS");
-
-            ActionConfiguration actionConfiguration = new ActionConfiguration();
-            actionConfiguration.setFormData(configMap);
-            return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> executeParameterized(connection, new ExecuteActionDTO(), datasourceConfiguration, actionConfiguration));
+            return CollectionUtils.isEmpty(listOfFiles) ? defaultFileName : listOfFiles.get(0);
         }
 
         @Override

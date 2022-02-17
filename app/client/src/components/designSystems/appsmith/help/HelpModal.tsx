@@ -8,7 +8,7 @@ import {
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
 import { HelpIcons } from "icons/HelpIcons";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -20,7 +20,10 @@ import { User } from "constants/userConstants";
 import { bootIntercom } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
-import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  HELP_RESOURCE_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const { algolia } = getAppsmithConfigs();

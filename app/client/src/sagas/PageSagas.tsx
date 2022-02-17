@@ -53,7 +53,7 @@ import {
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
-import { isNameValid } from "utils/helpers";
+import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
@@ -89,7 +89,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
@@ -104,10 +104,12 @@ import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import {
   getIsFirstTimeUserOnboardingEnabled,
   getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
 } from "selectors/onboardingSelectors";
 import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -354,6 +356,7 @@ export function* fetchAllPublishedPagesSaga() {
 function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets = yield select(getWidgets);
   const editorConfigs = yield select(getEditorConfigs) as any;
+  const guidedTourEnabled = yield select(inGuidedTour);
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SAVE_PAGE_API,
@@ -376,6 +379,12 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       payload: savePageRequest.dsl,
     });
 
+    captureInvalidDynamicBindingPath(
+      CanvasWidgetsNormalizer.denormalize("0", {
+        canvasWidgets: widgets,
+      }),
+    );
+
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
       savePageRequest,
@@ -383,8 +392,9 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     const isValidResponse: boolean = yield validateResponse(savePageResponse);
     if (isValidResponse) {
       const { actionUpdates, messages } = savePageResponse.data;
+      // We do not want to show these toasts in guided tour
       // Show toast messages from the server
-      if (messages && messages.length) {
+      if (messages && messages.length && !guidedTourEnabled) {
         savePageResponse.data.messages.forEach((message) => {
           Toaster.show({
             text: message,
@@ -505,6 +515,12 @@ export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
+    const guidedTourEnabled = yield select(inGuidedTour);
+    // Prevent user from creating a new page during the guided tour
+    if (guidedTourEnabled) {
+      yield put(toggleShowDeviationDialog(true));
+      return;
+    }
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -657,6 +673,7 @@ export function* clonePageSaga(
       });
 
       yield put(fetchActionsForPage(response.data.id));
+      yield put(fetchJSCollectionsForPage(response.data.id));
       yield put(selectMultipleWidgetsAction([]));
 
       if (!clonePageAction.payload.blockNavigation) {

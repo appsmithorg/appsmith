@@ -10,7 +10,7 @@ import { Organization, OrgUser } from "constants/orgConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
@@ -405,6 +405,17 @@ const applicationsReducer = createReducer(initialState, {
         ...state.currentApplication,
         SSHKeyPair: action.payload.publicKey,
         deployKeyDocUrl: action.payload.docUrl,
+      },
+    };
+  },
+  [ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        SSHKeyPair: null,
       },
     };
   },

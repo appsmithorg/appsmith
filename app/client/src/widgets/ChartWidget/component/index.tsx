@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   ChartDataPoint,
   ChartType,
@@ -50,6 +50,7 @@ export interface ChartComponentProps {
   chartType: ChartType;
   customFusionChartConfig: CustomFusionChartConfig;
   isVisible?: boolean;
+  isLoading: boolean;
   setAdaptiveYMin: boolean;
   labelOrientation?: LabelOrientation;
   onDataPointClick: (selectedDataPoint: ChartSelectedDataPoint) => void;
@@ -469,7 +470,13 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   render() {
     //eslint-disable-next-line  @typescript-eslint/no-unused-vars
     const { onDataPointClick, ...rest } = this.props;
-    return <CanvasContainer {...rest} id={this.chartContainerId} />;
+    return (
+      <CanvasContainer
+        className={this.props.isLoading ? "bp3-skeleton" : ""}
+        {...rest}
+        id={this.chartContainerId}
+      />
+    );
   }
 }
 

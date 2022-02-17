@@ -18,6 +18,8 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -206,11 +208,13 @@ public class BulkAppendMethod implements Method {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + range
-                        + ":append");
+                        + URLEncoder.encode(range, StandardCharsets.UTF_8)
+                        + ":append",
+                true);
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
+        uriBuilder.queryParam("insertDataOption", "INSERT_ROWS");
 
         final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
         List<List<Object>> collect = body1.stream()

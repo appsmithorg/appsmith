@@ -6,7 +6,7 @@ import { Variant } from "components/ads/common";
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   DELETE_CONFIRMATION_MODAL_SUBTITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";

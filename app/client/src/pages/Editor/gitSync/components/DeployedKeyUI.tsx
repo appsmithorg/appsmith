@@ -3,7 +3,7 @@ import {
   createMessage,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
   LEARN_MORE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
@@ -96,7 +96,9 @@ type DeployedKeyUIProps = {
 function DeployedKeyUI(props: DeployedKeyUIProps) {
   const { copyToClipboard, deployKeyDocUrl, showCopied, SSHKeyPair } = props;
   const clickHandler = () => {
-    AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_SSH_CLICK");
+    AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+      source: "SSH_KEY_ON_GIT_CONNECTION_TAB",
+    });
     window.open(deployKeyDocUrl, "_blank");
   };
   return (

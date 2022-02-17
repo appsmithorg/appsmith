@@ -52,9 +52,9 @@ import {
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
-import { CONNECTED_TO_GIT, createMessage } from "constants/messages";
+import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -418,7 +418,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   const applicationId = props.application?.id;
-  const showGitBadge = props.application?.gitApplicationMetadata;
+  const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
   useEffect(() => {
     let colorCode;

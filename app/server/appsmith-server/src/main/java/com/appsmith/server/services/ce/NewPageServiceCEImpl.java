@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -298,19 +298,20 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                             return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", pageFromDb.getId()));
                         }
                         pageNameIdDTO.setDefaultPageId(pageFromDb.getDefaultResources().getPageId());
-
+                        PageDTO pageDTO;
                         if (Boolean.TRUE.equals(view)) {
                             if (pageFromDb.getPublishedPage() == null) {
                                 // We are trying to fetch published page but it doesnt exist because the page hasn't been published yet
                                 return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                                         FieldName.PAGE, pageFromDb.getId()));
                             }
-                            pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
-                            pageNameIdDTO.setIsHidden(pageFromDb.getPublishedPage().getIsHidden());
+                            pageDTO = pageFromDb.getPublishedPage();
                         } else {
-                            pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
-                            pageNameIdDTO.setIsHidden(pageFromDb.getUnpublishedPage().getIsHidden());
+                            pageDTO = pageFromDb.getUnpublishedPage();
                         }
+                        pageNameIdDTO.setName(pageDTO.getName());
+                        pageNameIdDTO.setIsHidden(pageDTO.getIsHidden());
+                        pageNameIdDTO.setSlug(pageDTO.getSlug());
 
                         if (pageNameIdDTO.getId().equals(defaultPageId)) {
                             pageNameIdDTO.setIsDefault(true);

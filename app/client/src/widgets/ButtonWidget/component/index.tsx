@@ -13,12 +13,12 @@ import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
 
-import { useScript, ScriptStatus } from "utils/hooks/useScript";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ThemeProp, Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 
@@ -389,6 +389,7 @@ function RecaptchaV3Component(
   }
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
+    AddScriptTo.HEAD,
   );
   return <div onClick={handleBtnClick}>{props.children}</div>;
 }

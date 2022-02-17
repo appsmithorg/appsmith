@@ -10,6 +10,7 @@ export interface JSCollectionCreateUpdateResponse extends ApiResponse {
 export interface MoveJSCollectionRequest {
   collectionId: string;
   destinationPageId: string;
+  name: string;
 }
 export interface UpdateJSObjectNameRequest {
   pageId: string;

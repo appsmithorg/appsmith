@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
+  getDisconnectDocUrl,
   getDisconnectingGitApplication,
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
@@ -28,11 +29,11 @@ import {
   LEARN_MORE,
   NONE_REVERSIBLE_MESSAGE,
   TYPE_PROMO_CODE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Link from "./components/Link";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
 
 const Container = styled.div`
@@ -75,7 +76,7 @@ function DisconnectGitModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsDisconnectGitModalOpen);
   const disconnectingApp = useSelector(getDisconnectingGitApplication);
-
+  const gitDisconnectDocumentUrl = useSelector(getDisconnectDocUrl);
   const [appName, setAppName] = useState("");
 
   const handleClose = useCallback(() => {
@@ -116,7 +117,13 @@ function DisconnectGitModal() {
               </Text>
               <Link
                 color={Colors.CRIMSON}
-                link={DOCS_BASE_URL}
+                link={gitDisconnectDocumentUrl}
+                onClick={() => {
+                  AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                    source: "GIT_DISCONNECTION_MODAL",
+                  });
+                  window.open(gitDisconnectDocumentUrl, "_blank");
+                }}
                 text={createMessage(LEARN_MORE)}
               />
             </div>
@@ -138,6 +145,15 @@ function DisconnectGitModal() {
           <TextInput
             className="t--git-app-name-input"
             fill
+            onBlur={(event) => {
+              AnalyticsUtil.logEvent(
+                "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
+                {
+                  value: event.target.value,
+                  expecting: disconnectingApp.name,
+                },
+              );
+            }}
             onChange={(value) => setAppName(value)}
             trimValue={false}
             value={appName}

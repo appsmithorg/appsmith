@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
@@ -19,6 +18,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -28,9 +28,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.KeyPair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -393,26 +390,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      */
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId) {
-        JSch jsch = new JSch();
-        KeyPair kpair;
-        try {
-            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
-        } catch (JSchException e) {
-            log.error("failed to generate RSA key pair", e);
-            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
-        }
-
-        StringOutputStream privateKeyOutput = new StringOutputStream();
-        StringOutputStream publicKeyOutput = new StringOutputStream();
-
-        kpair.writePrivateKey(privateKeyOutput);
-        kpair.writePublicKey(publicKeyOutput, "appsmith");
-
-        GitAuth gitAuth = new GitAuth();
-        gitAuth.setPublicKey(publicKeyOutput.toString());
-        gitAuth.setPrivateKey(privateKeyOutput.toString());
-        gitAuth.setGeneratedAt(Instant.now());
-        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
@@ -500,12 +478,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
                     );
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
                 );
     }
 
@@ -536,7 +514,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
                 )
                 .map(Application::getId);
     }
