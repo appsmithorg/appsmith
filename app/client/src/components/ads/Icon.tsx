@@ -143,6 +143,7 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
 
 export enum IconSize {
@@ -356,6 +357,7 @@ const ICON_LOOKUP = {
   warning: <WarningIcon />,
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
+  hamburger: <HamburgerIcon />,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);
