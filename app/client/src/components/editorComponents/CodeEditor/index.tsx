@@ -152,6 +152,7 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
+  isScrolling: boolean;
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -166,6 +167,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  handleScroll: (event: any) => void;
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -174,10 +176,18 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
+      isScrolling: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.handleScroll = function(event) {
+      this.setState({
+        isScrolling: true,
+      });
+    };
   }
   componentDidMount(): void {
+    window.addEventListener("scroll", this.handleScroll);
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
         mode: this.props.mode,
@@ -306,6 +316,7 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    window.removeEventListener("scroll", this.handleScroll);
     // return if component unmounts before editor is created
     if (!this.editor) return;
 
@@ -634,6 +645,7 @@ class CodeEditor extends Component<Props, State> {
     const showEvaluatedValue =
       this.state.isFocused &&
       !hideEvaluatedValue &&
+      !this.state.isScrolling &&
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!dataTreePath));
 
