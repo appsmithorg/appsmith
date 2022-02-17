@@ -376,6 +376,7 @@ class SchemaParser {
     options: SchemaItemsByFieldOptions,
   ) => {
     const { schema, schemaItem, schemaItemPath, widgetName } = options;
+
     const sourceDataPath = getSourceDataPathFromSchemaItemPath(
       schema,
       schemaItemPath,
@@ -429,6 +430,7 @@ class SchemaParser {
     if (!schemaItem.isCustomField) {
       newSchemaItem.dataType = schemaItem.dataType;
       newSchemaItem.sourceData = schemaItem.sourceData;
+      newSchemaItem.defaultValue = schemaItem.defaultValue;
     }
 
     return merge(newSchemaItem, oldSchemaItemProperties);
