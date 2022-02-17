@@ -325,6 +325,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             <StyledIcon
               backgroundColor={backgroundColor}
               className="t--widget-textwidget-truncate"
+              data-testid="icon:showMore"
               fillColor={truncateButtonColor}
               name="context-menu"
               onClick={this.handleModelOpen}
