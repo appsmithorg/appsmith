@@ -54,6 +54,23 @@
             }
           ],
           "dynamicPropertyPathList": []
+        },
+        {
+          "isVisible": true,
+          "inputType": "TEXT",
+          "label": "",
+          "widgetName": "Input1",
+          "type": "INPUT_WIDGET_V2",
+          "isLoading": false,
+          "parentColumnSpace": 74,
+          "parentRowSpace": 40,
+          "leftColumn": 2,
+          "rightColumn": 7,
+          "topRow": 0,
+          "bottomRow": 1,
+          "parentId": "0",
+          "defaultText": "Test",
+          "widgetId": "2lhsjdd5sg"
         }
       ]
     }
