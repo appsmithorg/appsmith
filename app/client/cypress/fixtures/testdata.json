@@ -28,6 +28,7 @@
   "methodpost": "echo/post",
   "methodpatch": "echo/patch",
   "methoddelete": "echo/delete",
+  "getAction": "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'GET')]",
   "putAction": "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'PUT')]",
   "postAction": "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'POST')]",
   "patchAction": "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'PATCH')]",
@@ -43,7 +44,8 @@
   "buttonName": "TestNew",
   "next": "?page=2&pageSize=10",
   "prev": "?page=1&pageSize=10",
-  "apiFormDataBodyType": "x-www-form-urlencoded",
+  "apiFormDataBodyType": "FORM_URLENCODED",
+  "apiFormDataHeaderValue": "application/x-www-form-urlencoded",
   "apiMultipartBodyType": "multi-part",
   "defaultMoustacheData": "{{Input1.text",
   "defaultInputWidget": "{{Table1.selectedRow.id",
@@ -128,5 +130,12 @@
   "oauthResponse": "169444434892406",
   "authorizationURL": "https://oauth.mocklab.io/oauth/authorize",
   "basicURl": "https://envyenksqii9nf3.m.pipedream.net",
-  "methodWithQueryParam": "users?q=mimeType='application/vnd.google-apps.spreadsheet'"
+  "methodWithQueryParam": "users?q=mimeType='application/vnd.google-apps.spreadsheet'",
+  "apiContentTypeNone": "tab--NONE",
+  "apiContentTypeRaw": "tab--RAW",
+  "apiContentTypeJson": "tab--JSON",
+  "apiContentTypeForm": "tab--FORM_URLENCODED",
+  "apiContentTypeMultiPart": "tab--MULTIPART_FORM_DATA",
+  "noBodyErrorMessageDiv": "#NoBodyMessageDiv",
+  "noBodyErrorMessage": "This request does not have a body"
 }
