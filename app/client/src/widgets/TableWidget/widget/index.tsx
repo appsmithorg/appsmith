@@ -893,7 +893,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       );
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{(currentRow) => { ${next} }}} `;
+        return prev + `{{(currentRow) => { return (${next}) }}} `;
       }, "");
       if (modifiedAction) {
         super.executeAction({
