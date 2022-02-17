@@ -29,7 +29,7 @@ import {
   SKIP_TO_APPLICATION,
   SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION,
   SKIP_TO_APPLICATION_TOOLTIP_HEADER,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceDrafts,
