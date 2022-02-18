@@ -13,7 +13,7 @@
     "copyWidget": ".t--copy-widget svg",
     "removeWidget": ".t--delete-widget svg",
     "propertypaneText": ".t--propertypane .t--property-pane-view",
-    "formButtonWidget": ".t--widget-formbuttonwidget",
+    "formButtonWidget": ".t--widget-buttonwidget",
     "selectwidget": ".t--widget-selectwidget",
     "textWidget": ".t--draggable-textwidget",
     "tableWidget": ".t--draggable-tablewidget",
