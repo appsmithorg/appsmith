@@ -214,12 +214,14 @@ export function* deleteDatasourceSaga(
 ) {
   try {
     // request confirmation from user before deleting datasource.
-    const confirmed = yield call(requestModalConfirmationSaga);
+    const confirmed: boolean = yield call(requestModalConfirmationSaga);
 
     if (!confirmed) {
-      return yield put({
+      const actionRepsonse: unknown = yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_CANCELLED,
       });
+
+      return actionRepsonse;
     }
 
     const id = actionPayload.payload.id;
