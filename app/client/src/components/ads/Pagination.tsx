@@ -1,5 +1,7 @@
 import React from "react";
-import usePagination, { UsePaginationProps } from "../../hooks/usePagination";
+import usePagination, {
+  UsePaginationProps,
+} from "../../pages/Editor/hooks/usePagination";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 
