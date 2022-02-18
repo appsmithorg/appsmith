@@ -144,6 +144,7 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import FileListLineIcon from "remixicon-react/FileListLineIcon";
 import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
 
@@ -359,6 +360,7 @@ const ICON_LOOKUP = {
   warning: <WarningIcon />,
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
+  "file-list-line": <FileListLineIcon />,
   hamburger: <HamburgerIcon />,
 };
 

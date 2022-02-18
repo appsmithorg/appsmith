@@ -568,6 +568,7 @@ const lightShades = [
   "#000000",
   "#F86A2B",
   "#FFDEDE",
+  "#575757",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -2538,7 +2539,7 @@ export const light: ColorType = {
       message: lightShades[9],
       desc: lightShades[7],
     },
-    manageUser: lightShades[6],
+    manageUser: lightShades[19],
     scrollbar: lightShades[5],
     separator: lightShades[4],
     title: lightShades[8],
@@ -2915,7 +2916,7 @@ export const theme: Theme = {
     sidebar: 256,
   },
   headerHeight: "48px",
-  smallHeaderHeight: "34px",
+  smallHeaderHeight: "32px",
   bottomBarHeight: "34px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
