@@ -30,29 +30,6 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       .should("contain.text", date);
   });
 
-  it("1.1. Verify resetWidget via .then direct Promises", () => {
-    cy.fixture("promisesBtn").then((dsl: any) => {
-      agHelper.AddDsl(dsl);
-    });
-    agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
-    agHelper.SelectEntityByName("Button1");
-    jsEditor.EnterJSContext(
-      "onclick",
-      "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
-      true,
-      true,
-    );
-    agHelper.DeployApp();
-    cy.get(publish.inputWidget + " " + "input").type("Update value");
-
-    agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .should("contain.text", "Test");
-
-    cy.get(publish.backToEditor).click({ force: true });
-  });
-
   it("2. Verify resolve & chaining via direct Promises", () => {
     cy.fixture("promisesBtn").then((val: any) => {
       agHelper.AddDsl(val);
@@ -267,4 +244,28 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       .should("have.length", 1)
       .contains(/Melinda|Trump|null/g);
   });
+
+  it("1.1. Verify resetWidget via .then direct Promises", () => {
+    cy.fixture("promisesBtn").then((dsl: any) => {
+      agHelper.AddDsl(dsl);
+    });
+    agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
+    agHelper.SelectEntityByName("Button1");
+    jsEditor.EnterJSContext(
+      "onclick",
+      "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
+      true,
+      true,
+    );
+    agHelper.DeployApp();
+    cy.get(publish.inputWidget + " " + "input").type("Update value");
+
+    agHelper.ClickButton("Submit");
+    cy.get(locator._toastMsg)
+      .should("have.length", 1)
+      .should("contain.text", "Test");
+
+    cy.get(publish.backToEditor).click({ force: true });
+  });
+  
 });
