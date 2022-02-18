@@ -75,7 +75,7 @@ function LeftPaneTemplateList() {
     <Wrapper>
       <SecondWrapper>
         <TempelateListWrapper>
-          <Text className={"title"} type={TextType.BUTTON_MEDIUM}>
+          <Text className={"title"} type={TextType.SIDE_HEAD}>
             TEMPLATES
           </Text>
           <div className="list-wrapper">

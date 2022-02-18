@@ -192,7 +192,7 @@ function FilterCategory({ filterList, label }: FilterCategoryProps) {
 
   return (
     <FilterCategoryWrapper>
-      <StyledFilterCategory type={TextType.BUTTON_MEDIUM}>
+      <StyledFilterCategory type={TextType.SIDE_HEAD}>
         {label.toLocaleUpperCase()}
       </StyledFilterCategory>
       <ListWrapper>
