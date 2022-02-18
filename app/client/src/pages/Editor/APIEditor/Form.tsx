@@ -8,7 +8,6 @@ import {
 } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
-  HTTP_METHODS,
   API_EDITOR_TABS,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
@@ -47,6 +46,7 @@ import {
   API_EDITOR_TAB_TITLES,
   createMessage,
   WIDGET_BIND_HELP,
+  API_PANE_NO_BODY,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
@@ -550,8 +550,7 @@ function ApiEditorForm(props: Props) {
     updateDatasource,
   } = props;
   const dispatch = useDispatch();
-  const allowPostBody =
-    httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
+  const allowPostBody = httpMethodFromForm;
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -713,7 +712,7 @@ function ApiEditorForm(props: Props) {
                     ) : (
                       <NoBodyMessage>
                         <Text type={TextType.P2}>
-                          This request does not have a body
+                          {createMessage(API_PANE_NO_BODY)}
                         </Text>
                       </NoBodyMessage>
                     ),
