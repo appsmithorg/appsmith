@@ -11,7 +11,6 @@ import {
 } from "react-select";
 import { Datasource } from "entities/Datasource";
 import { Colors } from "constants/Colors";
-import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
@@ -82,6 +81,7 @@ import {
   FormEvalOutput,
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import PaginatedJsonViewer from "../PaginatedJsonViewer";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -827,7 +827,7 @@ export function EditorJSONtoForm(props: Props) {
             (isTableResponse ? (
               <Table data={output} tableBodyHeight={tableBodyHeight} />
             ) : (
-              <JSONViewer src={output} />
+              <PaginatedJsonViewer data={output} />
             ))}
           {!output && !error && (
             <NoResponseContainer>

@@ -36,6 +36,7 @@ import Button, { Size } from "components/ads/Button";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
+import PaginatedJsonViewer from "pages/Editor/PaginatedJsonViewer";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -294,15 +295,7 @@ function ApiResponseView(props: Props) {
                 </Text>
               </NoResponseContainer>
             ) : (
-              <ReadOnlyEditor
-                folding
-                height={"100%"}
-                input={{
-                  value: response.body
-                    ? JSON.stringify(response.body, null, 2)
-                    : "",
-                }}
-              />
+              <PaginatedJsonViewer data={response.body} />
             )}
           </ResponseDataContainer>
         </ResponseTabWrapper>
