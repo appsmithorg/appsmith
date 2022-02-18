@@ -81,10 +81,8 @@ function PageTabName({
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
     <StyleTabText>
-      <div className="relative flex ">
-        <div className="relative flex items-center justify-center flex-grow">
-          <span ref={tabNameRef}>{name}</span>
-        </div>
+      <div className="relative flex items-center justify-center flex-grow">
+        <span ref={tabNameRef}>{name}</span>
         {ellipsisActive && "..."}
       </div>
       <StyledBottomBorder primaryColor={primaryColor} />

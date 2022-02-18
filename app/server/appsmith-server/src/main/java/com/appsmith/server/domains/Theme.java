@@ -17,7 +17,7 @@ import java.util.Map;
 @Document
 public class Theme extends BaseDomain {
     public static final String LEGACY_THEME_NAME = "classic";
-    public static final String DEFAULT_THEME_NAME = "default";
+    public static final String DEFAULT_THEME_NAME = "classic";
 
     @NotNull
     private String name;
