@@ -35,7 +35,7 @@ describe("Import, Export and Fork application and validate data binding", functi
       // validating data binding for the imported application
       cy.xpath("//input[@value='Submit']").should("be.visible");
       cy.xpath("//div[text()='schema_name']").should("be.visible");
-      cy.xpath("//div[text()='information_schema']").should("be.visible");
+      cy.xpath("//div[text()='pg_toast']").should("be.visible");
       cy.xpath("//div[text()='title']").should("be.visible");
       cy.xpath("//div[text()='Recusan']").should("be.visible");
     });
