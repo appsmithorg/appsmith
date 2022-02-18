@@ -48,7 +48,7 @@ import {
   JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";

@@ -15,7 +15,7 @@ import { LogLevelDesc } from "loglevel";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { createMessage, ERROR_500 } from "../constants/messages";
+import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import localStorage from "utils/localStorage";
 import { APP_MODE } from "entities/App";
 import { trimQueryString } from "./helpers";

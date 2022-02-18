@@ -43,7 +43,10 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
 import _ from "lodash";
-import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import {
+  createMessage,
+  ERROR_ACTION_RENAME_FAIL,
+} from "@appsmith/constants/messages";
 import get from "lodash/get";
 import {
   initFormEvaluations,

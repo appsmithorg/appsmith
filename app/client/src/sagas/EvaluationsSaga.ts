@@ -12,6 +12,7 @@ import {
 
 import {
   EvaluationReduxAction,
+  AnyReduxAction,
   ReduxAction,
   ReduxActionType,
   ReduxActionTypes,
@@ -70,7 +71,7 @@ import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
   SNIPPET_EXECUTION_SUCCESS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
@@ -86,7 +87,7 @@ import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
-import { updateMetaState } from "../actions/metaActions";
+import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -98,7 +99,7 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 const worker = new GracefulWorkerService(Worker);
 
 function* evaluateTreeSaga(
-  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  postEvalActions?: Array<AnyReduxAction>,
   shouldReplay?: boolean,
 ) {
   const allActionValidationConfig: {
@@ -368,11 +369,11 @@ export function* validateProperty(
 
 function evalQueueBuffer() {
   let canTake = false;
-  let postEvalActions: any = [];
+  let collectedPostEvalActions: any = [];
   const take = () => {
     if (canTake) {
-      const resp = postEvalActions;
-      postEvalActions = [];
+      const resp = collectedPostEvalActions;
+      collectedPostEvalActions = [];
       canTake = false;
       return { postEvalActions: resp, type: "BUFFERED_ACTION" };
     }
@@ -391,10 +392,8 @@ function evalQueueBuffer() {
     }
     canTake = true;
 
-    // TODO: If the action is the same as before, we can send only one and ignore duplicates.
-    if (action.postEvalActions) {
-      postEvalActions.push(...action.postEvalActions);
-    }
+    const postEvalActions = getPostEvalActions(action);
+    collectedPostEvalActions.push(...postEvalActions);
   };
 
   return {
@@ -405,6 +404,33 @@ function evalQueueBuffer() {
     },
     flush,
   };
+}
+
+/**
+ * Extract the post eval actions from an evaluation action
+ * Batched actions have post eval actions inside them, extract that
+ *
+ * **/
+function getPostEvalActions(
+  action: EvaluationReduxAction<unknown | unknown[]>,
+): AnyReduxAction[] {
+  const postEvalActions: AnyReduxAction[] = [];
+  if (action.postEvalActions) {
+    postEvalActions.push(...action.postEvalActions);
+  }
+  if (
+    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+    Array.isArray(action.payload)
+  ) {
+    action.payload.forEach((batchedAction) => {
+      if (batchedAction.postEvalActions) {
+        postEvalActions.push(
+          ...(batchedAction.postEvalActions as AnyReduxAction[]),
+        );
+      }
+    });
+  }
+  return postEvalActions;
 }
 
 function* evaluationChangeListenerSaga() {
@@ -426,9 +452,10 @@ function* evaluationChangeListenerSaga() {
       evtActionChannel,
     );
     if (shouldProcessBatchedAction(action)) {
+      const postEvalActions = getPostEvalActions(action);
       yield call(
         evaluateTreeSaga,
-        action.postEvalActions,
+        postEvalActions,
         get(action, "payload.shouldReplay"),
       );
     }
@@ -591,6 +618,7 @@ export function* evalFormConfig(formEvaluationConfigObj: FormEvaluationConfig) {
     EVAL_WORKER_ACTIONS.INIT_FORM_EVAL,
     formEvaluationConfigObj,
   );
+
   return workerResponse;
 }
 

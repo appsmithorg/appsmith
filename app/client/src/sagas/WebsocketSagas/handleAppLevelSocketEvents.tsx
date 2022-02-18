@@ -16,7 +16,7 @@ import { Toaster } from "components/ads/Toast";
 import {
   createMessage,
   INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";

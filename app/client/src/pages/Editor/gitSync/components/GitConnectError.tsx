@@ -4,7 +4,10 @@ import { Classes } from "components/ads/common";
 import Text, { Case, FontWeight, TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
-import { createMessage, READ_DOCUMENTATION } from "constants/messages";
+import {
+  createMessage,
+  READ_DOCUMENTATION,
+} from "@appsmith/constants/messages";
 import { useSelector } from "store";
 import {
   getConnectingErrorDocUrl,

@@ -3,6 +3,7 @@ import { PluginType, ApiAction } from "entities/Action";
 import {
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
+  // POST_BODY_FORMAT_OPTIONS_ENUM,
 } from "constants/ApiEditorConstants";
 
 // jest.mock("POST_");
@@ -27,6 +28,9 @@ const BASE_ACTION: ApiAction = {
     encodeParamsToggle: true,
     path: "users",
     headers: [],
+    formData: {
+      apiContentType: "none",
+    },
     timeoutInMillisecond: 5000,
   },
   jsonPathKeys: [],
@@ -139,7 +143,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
         ],
         bodyFormData: [
           {
@@ -160,7 +167,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
         ],
         body: "{ name: 'test' }",
         bodyFormData: [
@@ -186,7 +196,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
         ],
         bodyFormData: [
           {
@@ -206,7 +219,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
         ],
         body: "",
         bodyFormData: [
@@ -255,7 +271,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[2].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+          },
         ],
         body: "",
         bodyFormData: [
@@ -287,7 +306,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[2].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+          },
         ],
         body: "",
         bodyFormData: [

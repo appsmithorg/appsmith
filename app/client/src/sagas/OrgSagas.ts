@@ -34,8 +34,11 @@ import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 import { getAllApplications } from "actions/applicationActions";
 import log from "loglevel";
-import { createMessage, DELETE_ORG_SUCCESSFUL } from "constants/messages";
 import { User } from "constants/userConstants";
+import {
+  createMessage,
+  DELETE_ORG_SUCCESSFUL,
+} from "@appsmith/constants/messages";
 
 export function* fetchRolesSaga() {
   try {
