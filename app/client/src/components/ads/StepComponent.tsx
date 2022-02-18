@@ -41,12 +41,16 @@ const StepWrapper = styled.div`
       fill: ${(props) => props.theme.colors.propertyPane.radioGroupText};
     }
   }
+
+  &:focus {
+    border: 1px solid var(--appsmith-input-focus-border-color);
+  }
 `;
 
 const InputWrapper = styled.div`
   width: calc(100% - 120px);
-  height: 32px;
-  line-height: 32px;
+  height: 30px;
+  line-height: 30px;
   font-size: 14px;
   text-align: center;
   letter-spacing: 1.44px;
@@ -78,8 +82,30 @@ export function StepComponent(props: StepComponentProps) {
     const value = props.value + props.steps;
     props.onChange(value);
   }
+  function handleKeydown(e: React.KeyboardEvent) {
+    switch (e.key) {
+      case "ArrowUp":
+      case "Up":
+      case "ArrowRight":
+      case "Right":
+        increase();
+        e.preventDefault();
+        break;
+      case "ArrowDown":
+      case "Down":
+      case "ArrowLeft":
+      case "Left":
+        decrease();
+        e.preventDefault();
+        break;
+    }
+  }
   return (
-    <StepWrapper>
+    <StepWrapper
+      data-testid="step-wrapper"
+      onKeyDown={handleKeydown}
+      tabIndex={0}
+    >
       <StyledDecreaseIcon height={2} onClick={decrease} width={12} />
       <InputWrapper>{props.displayFormat(props.value)}</InputWrapper>
       <StyledIncreaseIcon height={12} onClick={increase} width={12} />

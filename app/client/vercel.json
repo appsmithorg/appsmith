@@ -11,10 +11,6 @@
       {
         "source": "/login/:slug*",
         "destination": "https://release.app.appsmith.com/login/:slug*"
-      },
-      {
-        "source": "/f/:slug*",
-        "destination": "https://cdn.optimizely.com/:slug*"
       }
     ]
   }

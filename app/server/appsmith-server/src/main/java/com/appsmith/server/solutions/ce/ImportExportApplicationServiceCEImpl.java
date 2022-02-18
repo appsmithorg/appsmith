@@ -1,6 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
@@ -189,17 +189,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Refactor application to remove the ids
                     final String organizationId = application.getOrganizationId();
-                    application.setOrganizationId(null);
-                    application.setPages(null);
-                    application.setPublishedPages(null);
-                    application.setModifiedBy(null);
-                    application.setUpdatedAt(null);
-                    application.setLastDeployedAt(null);
-                    application.setLastEditedAt(null);
-                    application.setUpdatedAt(null);
-                    application.setGitApplicationMetadata(null);
-                    application.setPolicies(null);
-                    application.setUserPermissions(null);
+                    removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
 
@@ -499,7 +489,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile);
                 })
-                .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage())));
+                .onErrorResume(error -> {
+                    if (error instanceof AppsmithException) {
+                        return Mono.error(error);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage()));
+                });
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -622,7 +617,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     // for this instance
                                     datasource.setDatasourceConfiguration(null);
                                     datasource.setPluginId(null);
-                                    BeanCopyUtils.copyNestedNonNullProperties(datasource, existingDatasource);
+                                    AppsmithBeanUtils.copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
                                     return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
@@ -671,7 +666,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
-                                                    BeanCopyUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
+                                                    AppsmithBeanUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // Here we are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
                                                     // rehydrate the application. We are now rehydrating the application with/without
@@ -869,7 +864,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     //Since the resource is already present in DB, just update resource
                                     NewAction existingAction = savedActionsGitIdToActionsMap.get(newAction.getGitSyncId());
                                     newAction.setId(savedActionsGitIdToActionsMap.get(newAction.getGitSyncId()).getId());
-                                    BeanCopyUtils.copyNestedNonNullProperties(newAction, existingAction);
+                                    AppsmithBeanUtils.copyNestedNonNullProperties(newAction, existingAction);
                                     return newActionService.update(newAction.getId(), existingAction);
                                 } else if(importedApplication.getGitApplicationMetadata() != null) {
                                     final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
@@ -992,7 +987,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                     //Since the resource is already present in DB, just update resource
                                     ActionCollection existingActionCollection = savedActionCollectionGitIdToCollectionsMap.get(actionCollection.getGitSyncId());
-                                    BeanCopyUtils.copyNestedNonNullProperties(actionCollection, existingActionCollection);
+                                    AppsmithBeanUtils.copyNestedNonNullProperties(actionCollection, existingActionCollection);
                                     return Mono.zip(
                                             Mono.just(importedActionCollectionId),
                                             actionCollectionService.update(existingActionCollection.getId(), existingActionCollection)
@@ -1180,7 +1175,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             //Since the resource is already present in DB, just update resource
                             NewPage existingPage = savedPagesGitIdToPageMap.get(newPage.getGitSyncId());
                             newPage.setId(savedPagesGitIdToPageMap.get(newPage.getGitSyncId()).getId());
-                            BeanCopyUtils.copyNestedNonNullProperties(newPage, existingPage);
+                            AppsmithBeanUtils.copyNestedNonNullProperties(newPage, existingPage);
                             return newPageService.update(newPage.getId(), existingPage);
                         } else if(application.getGitApplicationMetadata() != null) {
                             final String defaultApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
@@ -1398,7 +1393,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
         AuthenticationResponse authResponse = new AuthenticationResponse();
         if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
-            BeanCopyUtils.copyNestedNonNullProperties(
+            AppsmithBeanUtils.copyNestedNonNullProperties(
                     datasourceConfig.getAuthentication().getAuthenticationResponse(), authResponse);
             datasourceConfig.getAuthentication().setAuthenticationResponse(null);
             datasourceConfig.getAuthentication().setAuthenticationType(null);
@@ -1547,5 +1542,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         } else {
             return themeRepository.save(theme);
         }
+    }
+
+    private void removeUnwantedFieldsFromApplicationDuringExport(Application application) {
+            application.setOrganizationId(null);
+            application.setPages(null);
+            application.setPublishedPages(null);
+            application.setModifiedBy(null);
+            application.setUpdatedAt(null);
+            application.setLastDeployedAt(null);
+            application.setLastEditedAt(null);
+            application.setUpdatedAt(null);
+            application.setGitApplicationMetadata(null);
+            application.setPolicies(null);
+            application.setUserPermissions(null);
+            application.setEditModeThemeId(null);
+            application.setPublishedModeThemeId(null);
     }
 }

@@ -87,31 +87,42 @@ import { setHeaderMeta } from "actions/themeActions";
 import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { Indices } from "constants/Layers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import MediaQuery from "react-responsive";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 
-const OrgDropDown = styled.div`
+const OrgDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[4]}px;
+  padding: ${(props) => (props.isMobile ? `10px 16px` : `10px 10px`)};
   font-size: ${(props) => props.theme.fontSizes[1]}px;
   justify-content: space-between;
   align-items: center;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: ${Indices.Layer8};
+  `}
 `;
 
-const ApplicationCardsWrapper = styled.div`
+const ApplicationCardsWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: ${({ isMobile }) => (isMobile ? 12 : 20)}px;
   font-size: ${(props) => props.theme.fontSizes[4]}px;
-  padding: 10px;
+  padding: ${({ isMobile }) => (isMobile ? `10px 16px` : `10px`)};
 `;
 
-const OrgSection = styled.div`
-  margin-bottom: 40px;
+const OrgSection = styled.div<{ isMobile?: boolean }>`
+  margin-bottom: ${({ isMobile }) => (isMobile ? `8` : `40`)}px;
 `;
 
-const PaddingWrapper = styled.div`
+const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   align-items: baseline;
   justify-content: center;
@@ -176,6 +187,12 @@ const PaddingWrapper = styled.div`
       height: ${(props) => props.theme.card.minHeight - 15}px;
     }
   }
+
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    width: 100% !important;
+  `}
 `;
 
 const LeftPaneWrapper = styled.div`
@@ -236,7 +253,7 @@ const NoAppsFound = styled.div`
   }
 `;
 
-const ApplicationsWrapper = styled.div`
+const ApplicationsWrapper = styled.div<{ isMobile?: boolean }>`
   padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   height: calc(100vh - 36px);
   overflow: auto;
@@ -249,6 +266,13 @@ const ApplicationsWrapper = styled.div`
   );
   scroll-behavior: smooth;
   margin-left: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    margin-left: 0;
+    width: 100%;
+    padding: 0;
+  `}
 `;
 
 function Item(props: {
@@ -363,6 +387,7 @@ export function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isMobile = useIsMobileDevice();
   let userOrgs;
   if (!isFetchingApplications) {
     userOrgs = fetchedUserOrgs;
@@ -372,6 +397,8 @@ export function LeftPane() {
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);
+
+  if (isMobile) return null;
 
   return (
     <LeftPaneWrapper>
@@ -418,8 +445,8 @@ const CreateNewLabel = styled(Text)`
   margin-top: 18px;
 `;
 
-const OrgNameElement = styled(Text)`
-  max-width: 500px;
+const OrgNameElement = styled(Text)<{ isMobile?: boolean }>`
+  max-width: ${({ isMobile }) => (isMobile ? 220 : 500)}px;
   ${truncateTextUsingEllipsis}
 `;
 
@@ -462,6 +489,7 @@ function ApplicationsSection(props: any) {
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
+  const isMobile = useIsMobileDevice();
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -533,6 +561,7 @@ function ApplicationsSection(props: any) {
         >
           <OrgNameElement
             className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            isMobile={isMobile}
             type={TextType.H1}
           >
             {orgName}
@@ -595,8 +624,12 @@ function ApplicationsSection(props: any) {
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
         );
         return (
-          <OrgSection className="t--org-section" key={index}>
-            <OrgDropDown>
+          <OrgSection
+            className="t--org-section"
+            isMobile={isMobile}
+            key={index}
+          >
+            <OrgDropDown isMobile={isMobile}>
               {(currentUser || isFetchingApplications) &&
                 OrgMenuTarget({
                   orgName: organization.name,
@@ -629,25 +662,28 @@ function ApplicationsSection(props: any) {
                 !isFetchingApplications && (
                   <OrgShareUsers>
                     <SharedUserList orgId={organization.id} />
-                    <FormDialogComponent
-                      Form={OrgInviteUsersForm}
-                      canOutsideClickClose
-                      orgId={organization.id}
-                      title={`Invite Users to ${organization.name}`}
-                      trigger={
-                        <Button
-                          category={Category.tertiary}
-                          icon={"share"}
-                          size={Size.medium}
-                          tag="button"
-                          text={"Share"}
-                        />
-                      }
-                    />
+                    {!isMobile && (
+                      <FormDialogComponent
+                        Form={OrgInviteUsersForm}
+                        canOutsideClickClose
+                        orgId={organization.id}
+                        title={`Invite Users to ${organization.name}`}
+                        trigger={
+                          <Button
+                            category={Category.tertiary}
+                            icon={"share"}
+                            size={Size.medium}
+                            tag="button"
+                            text={"Share"}
+                          />
+                        }
+                      />
+                    )}
                     {isPermitted(
                       organization.userPermissions,
                       PERMISSION_TYPE.CREATE_APPLICATION,
                     ) &&
+                      !isMobile &&
                       !isFetchingApplications &&
                       applications.length !== 0 && (
                         <Button
@@ -678,7 +714,7 @@ function ApplicationsSection(props: any) {
                           text={"New"}
                         />
                       )}
-                    {(currentUser || isFetchingApplications) && (
+                    {(currentUser || isFetchingApplications) && !isMobile && (
                       <Menu
                         className="t--org-name"
                         cypressSelector="t--org-name"
@@ -825,15 +861,16 @@ function ApplicationsSection(props: any) {
                   </OrgShareUsers>
                 )}
             </OrgDropDown>
-            <ApplicationCardsWrapper key={organization.id}>
+            <ApplicationCardsWrapper isMobile={isMobile} key={organization.id}>
               {applications.map((application: any) => {
                 return (
-                  <PaddingWrapper key={application.id}>
+                  <PaddingWrapper isMobile={isMobile} key={application.id}>
                     <ApplicationCard
                       application={application}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}
+                      isMobile={isMobile}
                       key={application.id}
                       update={updateApplicationDispatch}
                     />
@@ -845,32 +882,34 @@ function ApplicationsSection(props: any) {
                   <NoAppsFoundIcon />
                   <span>There’s nothing inside this organization</span>
                   {/* below component is duplicate. This is because of cypress test were failing */}
-                  <Button
-                    className="t--new-button createnew"
-                    icon={"plus"}
-                    isLoading={
-                      creatingApplicationMap &&
-                      creatingApplicationMap[organization.id]
-                    }
-                    onClick={() => {
-                      if (
-                        Object.entries(creatingApplicationMap).length === 0 ||
-                        (creatingApplicationMap &&
-                          !creatingApplicationMap[organization.id])
-                      ) {
-                        createNewApplication(
-                          getNextEntityName(
-                            "Untitled application ",
-                            applications.map((el: any) => el.name),
-                          ),
-                          organization.id,
-                        );
+                  {!isMobile && (
+                    <Button
+                      className="t--new-button createnew"
+                      icon={"plus"}
+                      isLoading={
+                        creatingApplicationMap &&
+                        creatingApplicationMap[organization.id]
                       }
-                    }}
-                    size={Size.medium}
-                    tag="button"
-                    text={"New"}
-                  />
+                      onClick={() => {
+                        if (
+                          Object.entries(creatingApplicationMap).length === 0 ||
+                          (creatingApplicationMap &&
+                            !creatingApplicationMap[organization.id])
+                        ) {
+                          createNewApplication(
+                            getNextEntityName(
+                              "Untitled application ",
+                              applications.map((el: any) => el.name),
+                            ),
+                            organization.id,
+                          );
+                        }
+                      }}
+                      size={Size.medium}
+                      tag="button"
+                      text={"New"}
+                    />
+                  )}
                 </NoAppsFound>
               )}
             </ApplicationCardsWrapper>
@@ -934,16 +973,20 @@ class Applications extends Component<
 
   public render() {
     return (
-      <ApplicationsWrapper>
-        <SubHeader
-          search={{
-            placeholder: createMessage(SEARCH_APPS),
-            queryFn: this.props.searchApplications,
-            defaultValue: this.props.searchKeyword,
-          }}
-        />
-        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
-      </ApplicationsWrapper>
+      <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
+        {(matches: boolean) => (
+          <ApplicationsWrapper isMobile={matches}>
+            <SubHeader
+              search={{
+                placeholder: createMessage(SEARCH_APPS),
+                queryFn: this.props.searchApplications,
+                defaultValue: this.props.searchKeyword,
+              }}
+            />
+            <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+          </ApplicationsWrapper>
+        )}
+      </MediaQuery>
     );
   }
 }
