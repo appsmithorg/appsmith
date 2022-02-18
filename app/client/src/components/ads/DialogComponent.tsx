@@ -99,6 +99,7 @@ type DialogComponentProps = {
   canOutsideClickClose?: boolean;
   title?: string;
   headerIcon?: {
+    clickable?: boolean;
     name: IconName;
     fillColor?: string;
     hoverColor?: string;
@@ -138,6 +139,7 @@ export function DialogComponent(props: DialogComponentProps) {
   const headerIcon = props.headerIcon ? (
     <HeaderIconWrapper bgColor={props.headerIcon.bgColor}>
       <Icon
+        clickable={props.headerIcon?.clickable}
         fillColor={props.headerIcon.fillColor}
         hoverFillColor={props.headerIcon.hoverColor}
         name={props.headerIcon.name}
