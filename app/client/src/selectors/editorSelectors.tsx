@@ -106,7 +106,7 @@ export const getPageById = (pageId: string) =>
   );
 
 export const getCurrentPageId = (state: AppState) =>
-  state.entities.pageList.currentPageId || "";
+  state.entities.pageList.currentPageId;
 
 export const selectCurrentPageSlug = createSelector(
   getCurrentPageId,
