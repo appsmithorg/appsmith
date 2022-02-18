@@ -10,6 +10,7 @@ export enum SettingTypes {
   GROUP = "GROUP",
   TEXT = "TEXT",
   PAGE = "PAGE",
+  REDIRECT = "REDIRECT",
 }
 
 export enum SettingSubtype {
