@@ -36,7 +36,7 @@ describe("RichTextEditor Widget Functionality in Form", function() {
       "1px solid rgb(242, 43, 43)",
     );
 
-    cy.get(".t--draggable-formbuttonwidget button").should("be.disabled");
+    cy.get(".t--draggable-buttonwidget button").should("be.disabled");
   });
   afterEach(() => {
     cy.goToEditFromPublish();
