@@ -12,7 +12,7 @@ import {
   createMessage,
   SUGGESTED_WIDGETS,
   SUGGESTED_WIDGET_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { SuggestedWidget } from "api/ActionAPI";
 
 import { useSelector } from "store";
@@ -138,7 +138,12 @@ function getWidgetProps(
         type: suggestedWidget.type,
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
-          defaultOptionValue: `{{${widgetName}.options[0].value}}`,
+          defaultOptionValue: `{{
+            {
+              label: ${widgetName}.options[0].label,
+              value: ${widgetName}.options[0].value
+            }
+          }}`,
           dynamicBindingPathList: [
             { key: widgetInfo.propertyName },
             { key: "defaultOptionValue" },

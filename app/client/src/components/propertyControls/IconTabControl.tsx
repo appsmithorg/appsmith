@@ -1,8 +1,8 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import IconTabsComponent, {
-  IconTabOption,
-} from "components/ads/IconTabsComponent";
+import ButtonTabComponent, {
+  ButtonTabOption,
+} from "components/ads/ButtonTabComponent";
 
 class IconTabControl extends BaseControl<IconTabControlProps> {
   selectOption = (value: string) => {
@@ -16,10 +16,10 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
   render() {
     const { options, propertyValue } = this.props;
     return (
-      <IconTabsComponent
+      <ButtonTabComponent
         options={options}
-        selectOption={this.selectOption}
-        value={propertyValue}
+        selectButton={this.selectOption}
+        values={[propertyValue]}
       />
     );
   }
@@ -30,7 +30,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
 }
 
 export interface IconTabControlProps extends ControlProps {
-  options: IconTabOption[];
+  options: ButtonTabOption[];
   defaultValue: string;
 }
 

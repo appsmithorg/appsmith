@@ -21,7 +21,7 @@ import {
   RATING_DESCRIPTION,
   RATING_TEXT,
   RATING_TITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 const Container = styled.div`

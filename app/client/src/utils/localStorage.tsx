@@ -6,7 +6,7 @@ import {
   LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE,
   LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 class LocalStorageNotSupportedError extends Error {
   name: string;
