@@ -271,6 +271,7 @@ export interface SelectComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
   primaryColor?: string;
+  fontFamily?: string;
 }
 
 export default SelectComponent;

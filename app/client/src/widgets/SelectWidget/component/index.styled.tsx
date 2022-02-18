@@ -13,6 +13,7 @@ import {
   createGlobalStyle,
 } from "constants/DefaultTheme";
 import { lightenColor } from "widgets/WidgetUtils";
+import { DEFAULT_FONT_NAME } from "utils/hooks/useGoogleFont";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
@@ -168,6 +169,7 @@ export const DropdownStyles = createGlobalStyle<{
   borderRadius: string;
   dropDownWidth: number;
   primaryColor?: string;
+  fontFamily?: string;
   id: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
@@ -182,19 +184,26 @@ ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-wrapper {
     width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-    border-radius: ${({ borderRadius }) => borderRadius} !important;
     background: white;
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+    font-family: ${({ fontFamily }) =>
+      fontFamily === DEFAULT_FONT_NAME ? "inherit" : fontFamily} !important;
     overflow: hidden;
 
+    & .${Classes.POPOVER_CONTENT} {
+      background: transparent;
+    }
+
     & .${Classes.INPUT_GROUP} {
-      padding: 12px 12px 8px 12px;
-      min-width: 180px;
+      padding: 0;
+      margin: 10px !important;
 
       & > .${Classes.ICON} {
         &:first-child {
-          left: 12px;
-          top: 14px;
-          margin: 9px;
+          margin: 0 10px;
+          height: 100%;
+          display: flex;
+          align-items: center;
           color: ${Colors.GREY_7};
 
           & > svg {
@@ -203,14 +212,17 @@ ${({ dropDownWidth, id, parentWidth }) => `
           }
         }
       }
+
       & > .${Classes.INPUT_ACTION} {
         &:last-child {
-          right: 13px;
-          top: 13px;
+          margin: 0 10px;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          color: ${Colors.GREY_7};
 
           .${Classes.BUTTON} {
-            min-height: 34px;
-            min-width: 35px;
+            min-width: auto;
             margin: 0px;
             color: ${Colors.GREY_6} !important;
 
@@ -222,14 +234,16 @@ ${({ dropDownWidth, id, parentWidth }) => `
           }
         }
       }
+
       .${Classes.INPUT} {
-        height: 36px;
-        border: 1.2px solid ${Colors.GREY_3};
+        height: 32px;
+        padding-left: 32px;
+        border: 1px solid ${Colors.GREY_3};
         color: ${Colors.GREY_10};
         border-radius: ${({ borderRadius }) => borderRadius} !important;
         &:focus {
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+          border: ${({ primaryColor }) => `1px solid ${primaryColor}`};
+          box-shadow: none;
         }
       }
     }
@@ -266,9 +280,11 @@ export const DropdownContainer = styled.div<{ compactMode: boolean }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  justify-content: end;
+  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
 
   label.select-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+    margin-bottom: 0px;
+    margin-right: 0px;
   }
 `;
