@@ -70,7 +70,11 @@ const TemplateDatasources = styled.div`
 
 const StyledButton = styled(Button)`
   border-radius: 18px;
-  width: 38px;
+  && {
+    & > span {
+      margin-right: 0px;
+    }
+  }
 `;
 
 export interface TemplateProps {
@@ -138,7 +142,12 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               onClose={onForkModalClose}
               showForkModal={showForkModal}
             >
-              <StyledButton icon={"fork"} size={Size.large} />
+              <StyledButton
+                className="fork-button"
+                icon="fork-2"
+                size={Size.medium}
+                tag="button"
+              />
             </ForkTemplateDialog>
           </div>
         </TemplateContentFooter>

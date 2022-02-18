@@ -17,6 +17,16 @@ const LargeTemplate = styled(TemplateLayout)`
     width: 100%;
     min-height: 250px;
   }
+
+  .fork-button {
+    height: 36px;
+    width: 36px;
+
+    svg {
+      height: 17px;
+      width: 17px;
+    }
+  }
 `;
 
 export default LargeTemplate;

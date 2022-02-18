@@ -196,10 +196,11 @@ function TemplateView() {
               >
                 <Button
                   className="fork-button"
-                  icon="fork"
+                  icon="fork-2"
                   iconPosition={IconPositions.left}
                   onClick={onForkButtonTrigger}
                   size={Size.large}
+                  tag="button"
                   text="FORK THIS TEMPLATE"
                   width="228px"
                 />
