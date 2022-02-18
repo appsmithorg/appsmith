@@ -110,12 +110,39 @@ export const getBindingPathsOfAction = (
             );
           });
         }
+      } else if (formConfig.controlType === "PAGINATION") {
+        bindingPaths[
+          `${configPath}.limit`
+        ] = getCorrectEvaluationSubstitutionType(
+          formConfig.evaluationSubstitutionType,
+        );
+        bindingPaths[
+          `${configPath}.offset`
+        ] = getCorrectEvaluationSubstitutionType(
+          formConfig.evaluationSubstitutionType,
+        );
+      } else if (formConfig.controlType === "SORTING") {
+        const actionValue = _.get(action, formConfig.configProperty);
+        if (Array.isArray(actionValue)) {
+          actionValue.forEach((fieldConfig: any, index: number) => {
+            bindingPaths[
+              `${configPath}[${index}].column`
+            ] = getCorrectEvaluationSubstitutionType(
+              formConfig.evaluationSubstitutionType,
+            );
+            bindingPaths[
+              `${configPath}[${index}].order`
+            ] = getCorrectEvaluationSubstitutionType(
+              formConfig.evaluationSubstitutionType,
+            );
+          });
+        }
+      } else if (formConfig.controlType === "ENTITY_SELECTOR") {
       }
     }
   };
 
   formConfig.forEach(recursiveFindBindingPaths);
-
   return bindingPaths;
 };
 
