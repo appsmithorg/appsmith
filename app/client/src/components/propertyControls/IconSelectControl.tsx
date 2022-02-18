@@ -173,7 +173,7 @@ class IconSelectControl extends BaseControl<
   private handleQueryChange = _.debounce(() => {
     if (this.filteredItems.length === 2)
       this.setState({ activeIcon: this.filteredItems[1] });
-  }, 200);
+  }, 100);
 
   public render() {
     const { defaultIconName, propertyValue: iconName } = this.props;
