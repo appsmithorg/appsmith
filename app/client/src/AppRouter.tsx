@@ -21,8 +21,8 @@ import {
   ADMIN_SETTINGS_URL,
   ADMIN_SETTINGS_CATEGORY_URL,
   ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
-  BUILDER_URL_DEP,
-  VIEWER_URL_DEP,
+  BUILDER_URL_DEPRECATED,
+  VIEWER_URL_DEPRECATED,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -147,7 +147,7 @@ class AppRouter extends React.Component<any, any> {
                       pageId: string;
                     }>,
                   ) => <RedirectToV2Route {...props} mode={APP_MODE.EDIT} />}
-                  path={BUILDER_URL_DEP}
+                  path={BUILDER_URL_DEPRECATED}
                 />
                 <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <SentryRoute
@@ -159,7 +159,7 @@ class AppRouter extends React.Component<any, any> {
                   ) => (
                     <RedirectToV2Route {...props} mode={APP_MODE.PUBLISHED} />
                   )}
-                  path={VIEWER_URL_DEP}
+                  path={VIEWER_URL_DEPRECATED}
                 />
                 <Redirect
                   exact

@@ -31,10 +31,10 @@ export const SIGNUP_SUCCESS_URL = `/signup-success`;
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
 
-export const BUILDER_URL_DEP = `/applications/:applicationId/(pages)?/:pageId?/edit`;
+export const BUILDER_URL_DEPRECATED = `/applications/:applicationId/(pages)?/:pageId?/edit`;
 export const BUILDER_URL = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_URL = `/:applicationSlug/:pageSlug(.*\-):pageId`;
-export const VIEWER_URL_DEP = `/applications/:applicationId/(pages)?/:pageId?`;
+export const VIEWER_URL_DEPRECATED = `/applications/:applicationId/(pages)?/:pageId?`;
 
 export const VIEWER_FORK_PATH = `${VIEWER_URL}/fork`;
 

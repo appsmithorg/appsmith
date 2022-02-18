@@ -29,9 +29,9 @@ import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
   BUILDER_URL,
-  BUILDER_URL_DEP,
+  BUILDER_URL_DEPRECATED,
   VIEWER_URL,
-  VIEWER_URL_DEP,
+  VIEWER_URL_DEPRECATED,
 } from "constants/routes";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
@@ -705,7 +705,10 @@ export const captureInvalidDynamicBindingPath = (
 
 export const isURLDeprecated = (url: string) => {
   return matchPath(url, {
-    path: [trimQueryString(BUILDER_URL_DEP), trimQueryString(VIEWER_URL_DEP)],
+    path: [
+      trimQueryString(BUILDER_URL_DEPRECATED),
+      trimQueryString(VIEWER_URL_DEPRECATED),
+    ],
     strict: false,
     exact: false,
   });
