@@ -1,10 +1,8 @@
-import {
-  addPrivateWidgetsToAllListWidgets,
-  transformDSL,
-} from "./DSLMigrations";
-import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
+import { addPrivateWidgetsToAllListWidgets } from "./DSLMigrations";
+import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
+import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 
 describe("correctly migrate dsl", () => {
   it("AddsPrivateWidgetsToAllListWidgets", () => {
@@ -1484,7 +1482,7 @@ describe("correctly migrate dsl", () => {
         },
       ],
     };
-    const expectedDSL: ContainerWidgetProps<WidgetProps> = {
+    const expectedNextDSL: ContainerWidgetProps<WidgetProps> = {
       widgetName: "MainContainer",
       renderMode: RenderModes.CANVAS,
       isLoading: false,
@@ -1500,7 +1498,7 @@ describe("correctly migrate dsl", () => {
       parentRowSpace: 1,
       type: "CANVAS_WIDGET",
       canExtend: true,
-      version: LATEST_PAGE_VERSION,
+      version: currentVersion,
       minHeight: 690,
       parentColumnSpace: 1,
       dynamicBindingPathList: [],
@@ -1801,7 +1799,7 @@ describe("correctly migrate dsl", () => {
       ],
     };
 
-    const transformedDSL = transformDSL(currentDSL, false);
-    expect(transformedDSL).toEqual(expectedDSL);
+    const actualNextDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+    expect(actualNextDSL).toEqual(expectedNextDSL);
   });
 });

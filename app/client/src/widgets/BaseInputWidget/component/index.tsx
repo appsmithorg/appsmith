@@ -439,7 +439,7 @@ class BaseInputComponent extends React.Component<
   componentWillUnmount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element: any = document.querySelectorAll(
-        `[class*=StyledNumericInput] .bp3-button`,
+        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
       );
 
       if (element !== null && element.childNodes) {
