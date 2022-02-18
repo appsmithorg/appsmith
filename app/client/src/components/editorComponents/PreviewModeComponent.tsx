@@ -12,12 +12,8 @@ type Props = {
  */
 function PreviewModeComponent({ children, isVisible }: Props) {
   const isPreviewMode = useSelector(previewModeSelector);
-
-  if (isPreviewMode && !isVisible) {
-    return null as any;
-  } else {
-    return children;
-  }
+  if (!(isPreviewMode && !isVisible)) return children;
+  return null as any;
 }
 
 export default PreviewModeComponent;

@@ -324,15 +324,10 @@ abstract class BaseWidget<
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
-
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
         content = this.addPreviewModeWidget(content);
-        // NOTE: in preview mode, we are showing only visible widgets so content can be null for invisible widgets
-        if (!content) {
-          return null;
-        }
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {
