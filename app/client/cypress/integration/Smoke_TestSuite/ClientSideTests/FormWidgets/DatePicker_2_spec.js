@@ -117,7 +117,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       const parentColumnSpace = 11.9375;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label`;
-      const containerSelector = `${widgetSelector} [class*="StyledControlGroup"]`;
+      const containerSelector = `${widgetSelector} [data-testid="datepicker-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

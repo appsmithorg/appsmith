@@ -137,7 +137,7 @@ describe("Checkbox Group Widget Functionality", function() {
       const parentColumnSpace = 11.9375;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label.checkboxgroup-label`;
-      const containerSelector = `${widgetSelector} [class*="CheckboxGroupContainer"]`;
+      const containerSelector = `${widgetSelector} [data-testid="checkboxgroup-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

@@ -246,6 +246,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
   return (
     <SwitchGroupContainer
       compactMode={compactMode}
+      data-testid="switchgroup-container"
       labelPosition={labelPosition}
       ref={containerRef}
     >

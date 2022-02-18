@@ -173,7 +173,7 @@ describe("Input widget V2 - ", () => {
       const parentColumnSpace = 11.9375;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label`;
-      const containerSelector = `${widgetSelector} [class*="InputComponentWrapper"]`;
+      const containerSelector = `${widgetSelector} [data-testid="input-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

@@ -159,6 +159,7 @@ function SingleSelectTreeComponent({
   return (
     <TreeSelectContainer
       compactMode={compactMode}
+      data-testid="treeselect-container"
       isValid={isValid}
       labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}

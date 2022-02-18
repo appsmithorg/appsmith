@@ -62,7 +62,7 @@ describe("Radiogroup Widget Functionality", function() {
       const parentColumnSpace = 11.9375;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label.radiogroup-label`;
-      const containerSelector = `${widgetSelector} [class*="RadioGroupContainer"]`;
+      const containerSelector = `${widgetSelector} [data-testid="radiogroup-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

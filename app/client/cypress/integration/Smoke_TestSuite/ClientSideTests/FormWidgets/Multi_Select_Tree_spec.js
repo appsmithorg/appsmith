@@ -49,7 +49,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       const parentColumnSpace = 11.9375;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label.multitree-select-label`;
-      const containerSelector = `${widgetSelector} [class*="TreeSelectContainer"]`;
+      const containerSelector = `${widgetSelector} [data-testid="multitreeselect-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

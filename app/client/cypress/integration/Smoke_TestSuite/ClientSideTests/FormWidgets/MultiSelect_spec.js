@@ -98,7 +98,7 @@ describe("MultiSelect Widget Functionality", function() {
       const parentColumnSpace = 10.87890625;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label.tree-multiselect-label`;
-      const containerSelector = `${widgetSelector} [class*="MultiSelectContainer"]`;
+      const containerSelector = `${widgetSelector} [data-testid="multiselect-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

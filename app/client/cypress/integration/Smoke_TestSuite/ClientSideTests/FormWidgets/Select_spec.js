@@ -12,7 +12,7 @@ describe("Select Widget", () => {
       const parentColumnSpace = 10.87890625;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label.select-label`;
-      const containerSelector = `${widgetSelector} [class*="DropdownContainer"]`;
+      const containerSelector = `${widgetSelector} [data-testid="select-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

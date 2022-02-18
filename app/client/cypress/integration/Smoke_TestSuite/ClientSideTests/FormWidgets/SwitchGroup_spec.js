@@ -108,7 +108,7 @@ describe("Switch Group Widget Functionality", function() {
       const parentColumnSpace = 11.9375;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label.switchgroup-label`;
-      const containerSelector = `${widgetSelector} [class*="SwitchGroupContainer"]`;
+      const containerSelector = `${widgetSelector} [data-testid="switchgroup-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

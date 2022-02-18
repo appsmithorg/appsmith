@@ -135,7 +135,7 @@ describe("RichTextEditor Widget Functionality", function() {
       const parentColumnSpace = 11.625;
       const widgetSelector = `.t--widget-${widgetName}`;
       const labelSelector = `${widgetSelector} label`;
-      const containerSelector = `${widgetSelector} [class*="StyledRTEditor"]`;
+      const containerSelector = `${widgetSelector} [data-testid="rte-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
       const labelWidthSelector =

@@ -278,6 +278,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   return (
     <CheckboxGroupContainer
       compactMode={compactMode}
+      data-testid="checkboxgroup-container"
       labelPosition={labelPosition}
     >
       {labelText && (

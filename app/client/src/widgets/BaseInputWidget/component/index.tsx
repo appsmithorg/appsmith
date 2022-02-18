@@ -657,6 +657,7 @@ class BaseInputComponent extends React.Component<
     return (
       <InputComponentWrapper
         compactMode={compactMode}
+        data-testid="input-container"
         disabled={disabled}
         fill
         hasError={isInvalid}

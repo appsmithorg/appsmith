@@ -244,6 +244,7 @@ class RadioGroupComponent extends React.Component<
     return (
       <RadioGroupContainer
         compactMode={compactMode}
+        data-testid="radiogroup-container"
         labelPosition={labelPosition}
         ref={this.containerRef}
       >

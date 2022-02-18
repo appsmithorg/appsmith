@@ -264,6 +264,7 @@ class DatePickerComponent extends React.Component<
     return (
       <StyledControlGroup
         compactMode={this.props.compactMode}
+        data-testid="datepicker-container"
         fill
         isValid={isValid}
         labelPosition={this.props.labelPosition}

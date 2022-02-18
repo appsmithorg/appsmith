@@ -214,6 +214,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     <StyledRTEditor
       className={`container-${props.widgetId}`}
       compactMode={compactMode}
+      data-testid="rte-container"
       isValid={props.isValid}
       labelPosition={labelPosition}
     >
