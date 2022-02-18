@@ -138,6 +138,18 @@ export const getBindingPathsOfAction = (
           });
         }
       } else if (formConfig.controlType === "ENTITY_SELECTOR") {
+        if (Array.isArray(formConfig.schema)) {
+          const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
+          formConfig.schema.forEach((schemaField: any, index: number) => {
+            if (allowedControlTypes.includes(schemaField.controlType)) {
+              bindingPaths[
+                `${configPath}.column_${index + 1}`
+              ] = getCorrectEvaluationSubstitutionType(
+                formConfig.evaluationSubstitutionType,
+              );
+            }
+          });
+        }
       }
     }
   };
