@@ -314,7 +314,7 @@ abstract class BaseWidget<
     );
   }
 
-  addPreviewModeWidget(content: ReactNode) {
+  addPreviewModeWidget(content: ReactNode): React.ReactElement {
     return (
       <PreviewModeComponent isVisible={this.props.isVisible}>
         {content}

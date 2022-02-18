@@ -10,10 +10,13 @@ type Props = {
 /**
  * render only visible components in preview mode
  */
-function PreviewModeComponent({ children, isVisible }: Props) {
+function PreviewModeComponent({
+  children,
+  isVisible,
+}: Props): React.ReactElement {
   const isPreviewMode = useSelector(previewModeSelector);
-  if (!(isPreviewMode && !isVisible)) return children;
-  return null as any;
+  if (!isPreviewMode || isVisible) return children as React.ReactElement;
+  else return <div />;
 }
 
 export default PreviewModeComponent;
