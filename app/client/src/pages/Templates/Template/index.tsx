@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
 import Button, { Size } from "components/ads/Button";
+import Tooltip from "components/ads/Tooltip";
 import { TEMPLATE_ID_URL } from "constants/routes";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
@@ -142,12 +143,14 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               onClose={onForkModalClose}
               showForkModal={showForkModal}
             >
-              <StyledButton
-                className="fork-button"
-                icon="fork-2"
-                size={Size.medium}
-                tag="button"
-              />
+              <Tooltip content={"Fork this template"}>
+                <StyledButton
+                  className="fork-button"
+                  icon="fork-2"
+                  size={Size.medium}
+                  tag="button"
+                />
+              </Tooltip>
             </ForkTemplateDialog>
           </div>
         </TemplateContentFooter>
