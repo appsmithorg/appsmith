@@ -72,7 +72,7 @@ public class DataUtils {
             case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
             default:
-                return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
+                return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -156,7 +156,7 @@ public class DataUtils {
                         final MultipartFormDataType multipartFormDataType =
                                 MultipartFormDataType.valueOf(property.getType().toUpperCase(Locale.ROOT));
                         if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
-                            bodyBuilder.part(key, property.getValue());
+                            bodyBuilder.part(key, String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1));
                         } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
                             try {
                                 populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);

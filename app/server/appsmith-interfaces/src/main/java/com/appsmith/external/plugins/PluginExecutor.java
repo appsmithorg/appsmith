@@ -16,6 +16,8 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -170,7 +172,7 @@ public interface PluginExecutor<C> extends ExtensionPoint {
                             // We also add a backslash before every double-quote or backslash character
                             // because we apply the template replacing in a JSON-stringified version of
                             // these properties, where these two characters are escaped.
-                            p -> p.getKey().trim(), // .replaceAll("[\"\n\\\\]", "\\\\$0"),
+                            p -> URLDecoder.decode(p.getKey().trim(), StandardCharsets.UTF_8), // .replaceAll("[\"\n\\\\]", "\\\\$0"),
                             Param::getValue,
                             // In case of a conflict, we pick the older value
                             (oldValue, newValue) -> oldValue)

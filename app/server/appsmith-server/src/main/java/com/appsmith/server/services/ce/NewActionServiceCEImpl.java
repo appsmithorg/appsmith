@@ -791,7 +791,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 byte[] bytes = new byte[dataBuffer.readableByteCount()];
                                 dataBuffer.read(bytes);
                                 DataBufferUtils.release(dataBuffer);
-                                param.setValue(new String(bytes, StandardCharsets.ISO_8859_1));
+                                param.setValue(new String(bytes, StandardCharsets.UTF_8));
                                 return param;
                             });
                 })
