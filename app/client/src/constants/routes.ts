@@ -1,10 +1,10 @@
 const { compile, match } = require("path-to-regexp");
 
-import {
-  getQueryParamsObject,
-  PLACEHOLDER_APP_SLUG,
-  PLACEHOLDER_PAGE_SLUG,
-} from "utils/helpers";
+import { getQueryParamsObject } from "utils/helpers";
+
+export const PLACEHOLDER_APP_SLUG = "application";
+export const PLACEHOLDER_PAGE_ID = "pageId";
+export const PLACEHOLDER_PAGE_SLUG = "page";
 
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
@@ -64,9 +64,11 @@ export const matchApiPath = match(API_EDITOR_ID_PATH);
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
-export const matchBuilderPath = match(BUILDER_URL);
+export const matchBuilderPath = (pathName: string) =>
+  match(BUILDER_URL)(pathName) || match(BUILDER_URL_DEPRECATED)(pathName);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
-export const matchViewerPath = match(VIEWER_URL);
+export const matchViewerPath = (pathName: string) =>
+  match(VIEWER_URL)(pathName) || match(VIEWER_URL_DEPRECATED)(pathName);
 export const matchViewerForkPath = match(VIEWER_FORK_PATH);
 
 export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;
@@ -110,12 +112,12 @@ const fetchParamsToPersist = () => {
 
 export type BuilderRouteParams = {
   pageId: string;
-  applicationSlug?: string;
+  applicationId: string;
 };
 
 export type AppViewerRouteParams = {
   pageId: string;
-  applicationSlug?: string;
+  applicationId?: string;
 };
 
 export type APIEditorRouteParams = {

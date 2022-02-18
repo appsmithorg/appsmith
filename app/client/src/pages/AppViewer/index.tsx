@@ -88,7 +88,7 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 
 export type AppViewerProps = {
   initializeAppViewer: (params: {
-    applicationSlug?: string;
+    applicationId?: string;
     pageId?: string;
     branch?: string;
   }) => void;
@@ -127,7 +127,7 @@ class AppViewer extends Component<Props> {
       this.setState({ registered: true });
     });
 
-    const { applicationSlug, pageId } = this.props.match.params;
+    const { applicationId, pageId } = this.props.match.params;
     const {
       location: { search },
     } = this.props;
@@ -135,13 +135,13 @@ class AppViewer extends Component<Props> {
 
     this.props.initializeAppViewer({
       branch: branch,
-      applicationSlug,
+      applicationId,
       pageId,
     });
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { applicationSlug, pageId } = this.props.match.params;
+    const { applicationId, pageId } = this.props.match.params;
     const {
       location: { search: prevSearch },
     } = prevProps;
@@ -152,9 +152,9 @@ class AppViewer extends Component<Props> {
     const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (branch && branch !== prevBranch && (applicationSlug || pageId)) {
+    if (branch && branch !== prevBranch && (applicationId || pageId)) {
       this.props.initializeAppViewer({
-        applicationSlug,
+        applicationId,
         pageId,
         branch: branch,
       });

@@ -42,7 +42,7 @@ export function SignupSuccess() {
           const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
             redirectUrl,
           );
-          if (applicationId && pageId) {
+          if (applicationId || pageId) {
             dispatch(firstTimeUserOnboardingInit(applicationId, pageId));
           }
         } else if (getIsSafeRedirectURL(redirectUrl)) {

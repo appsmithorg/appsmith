@@ -1,7 +1,8 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { BuilderRouteParams } from "constants/routes";
 
-export type InitializeEditorPayload = BuilderRouteParams & {
+export type InitializeEditorPayload = {
+  applicationId?: string;
+  pageId?: string;
   branch?: string;
 };
 

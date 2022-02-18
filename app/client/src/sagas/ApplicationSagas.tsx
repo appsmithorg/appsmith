@@ -81,7 +81,7 @@ import {
 } from "selectors/onboardingSelectors";
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { PLACEHOLDER_PAGE_SLUG } from "utils/helpers";
+import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -473,6 +473,8 @@ export function* createApplicationSaga(
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
         });
+        const defaultPage = response.data.pages.find((page) => page.isDefault);
+        const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
@@ -504,15 +506,14 @@ export function* createApplicationSaga(
             payload: application.id,
           });
           pageURL = BUILDER_PAGE_URL({
-            // Comeback
             applicationSlug: application.slug as string,
-            pageSlug: PLACEHOLDER_PAGE_SLUG,
+            pageSlug: defaultPageSlug,
             pageId: application.defaultPageId as string,
           });
         } else {
           pageURL = getGenerateTemplateURL(
             application.slug as string,
-            PLACEHOLDER_PAGE_SLUG,
+            defaultPageSlug,
             application.defaultPageId as string,
           );
         }

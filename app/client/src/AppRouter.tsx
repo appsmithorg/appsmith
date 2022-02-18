@@ -51,9 +51,6 @@ import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
-import RedirectToV2Route from "pages/RedirectToV2Route";
-import { RouteComponentProps } from "react-router";
-import { APP_MODE } from "entities/App";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -141,24 +138,12 @@ class AppRouter extends React.Component<any, any> {
                 <SentryRoute component={Setup} exact path={SETUP} />
                 <SentryRoute component={EditorLoader} path={BUILDER_URL} />
                 <SentryRoute
-                  component={(
-                    props: RouteComponentProps<{
-                      applicationId: string;
-                      pageId: string;
-                    }>,
-                  ) => <RedirectToV2Route {...props} mode={APP_MODE.EDIT} />}
+                  component={EditorLoader}
                   path={BUILDER_URL_DEPRECATED}
                 />
                 <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <SentryRoute
-                  component={(
-                    props: RouteComponentProps<{
-                      applicationId: string;
-                      pageId: string;
-                    }>,
-                  ) => (
-                    <RedirectToV2Route {...props} mode={APP_MODE.PUBLISHED} />
-                  )}
+                  component={AppViewerLoader}
                   path={VIEWER_URL_DEPRECATED}
                 />
                 <Redirect

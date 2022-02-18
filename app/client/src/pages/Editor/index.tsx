@@ -96,8 +96,8 @@ class Editor extends Component<Props> {
     } = this.props;
     const branch = getSearchQuery(search, "branch");
 
-    const { applicationSlug, pageId } = this.props.match.params;
-    this.props.initEditor({ applicationSlug, pageId, branch });
+    const { applicationId, pageId } = this.props.match.params;
+    this.props.initEditor({ applicationId, pageId, branch });
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
 
@@ -144,7 +144,7 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { applicationSlug, pageId } = this.props.match.params || {};
+    const { applicationId, pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
     const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
 
@@ -155,7 +155,7 @@ class Editor extends Component<Props> {
 
     // to prevent re-init during connect
     if (prevBranch && isBranchUpdated) {
-      this.props.initEditor({ pageId, branch, applicationSlug });
+      this.props.initEditor({ pageId, branch, applicationId });
     } else {
       /**
        * First time load is handled by init sagas

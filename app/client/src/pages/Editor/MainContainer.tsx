@@ -9,7 +9,11 @@ import BottomBar from "./BottomBar";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
-import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
+import {
+  BUILDER_CHECKLIST_URL,
+  BUILDER_URL,
+  BUILDER_URL_DEPRECATED,
+} from "constants/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
@@ -65,6 +69,11 @@ function MainContainer() {
         >
           <Switch key={BUILDER_URL}>
             <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={BUILDER_URL_DEPRECATED}
+            />
             <SentryRoute
               component={OnboardingChecklist}
               exact
