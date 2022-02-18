@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -35,6 +36,7 @@ import reactor.util.function.Tuple2;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -931,7 +933,6 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
-    @Test
     public void testQueryParamsInDatasource() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("https://postman-echo.com/post");
@@ -1003,4 +1004,32 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testGetApiWithBody() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/get");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(
+                new Property("content-type", "application/json")
+        ));
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setFormData(new HashMap<>());
+        PluginUtils.setValueSafelyInFormData(actionConfig.getFormData(), "apiContentType", "application/json");
+
+        String requestBody = "{\"key\":\"value\"}";
+        actionConfig.setBody(requestBody);
+
+        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getRequest().getBody());
+                    System.out.println(result.getRequest().getBody());
+                })
+                .verifyComplete();
+    }
 }
+
