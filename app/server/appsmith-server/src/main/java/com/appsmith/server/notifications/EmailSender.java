@@ -38,11 +38,11 @@ public class EmailSender {
         REPLY_TO = makeReplyTo();
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text) {
-        return sendMail(to, subject, text, null);
+    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
+        return sendMail(to, subject, text, params, null);
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
+    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params, String replyTo) {
 
         /**
          * Creating a publisher which sends email in a blocking fashion, subscribing on the bounded elastic
@@ -59,7 +59,7 @@ public class EmailSender {
                     }
                 })
                 .doOnNext(emailBody -> {
-                    sendMailSync(to, subject, emailBody);
+                    sendMailSync(to, subject, emailBody, replyTo);
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
