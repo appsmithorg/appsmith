@@ -53,11 +53,16 @@ const SearchInputWrapper = styled(InputGroup)`
       box-shadow: none;
       font-size: 12px;
       color: ${Colors.GREY_10};
+      padding-right: 20px;
+      text-overflow: ellipsis;
+      width: 100%;
     }
     input:focus {
       border: 1.2px solid ${Colors.FERN_GREEN};
       box-sizing: border-box;
+      width: 100%;
     }
+
     input:active {
       box-shadow: 0px 0px 0px 3px ${Colors.JAGGED_ICE};
     }

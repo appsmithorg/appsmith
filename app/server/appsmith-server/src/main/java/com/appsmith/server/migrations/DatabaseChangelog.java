@@ -4993,4 +4993,36 @@ public class DatabaseChangelog {
         mongockTemplate.save(plugin);
     }
 
+    /**
+     * This migration introduces indexes on newAction, actionCollection to improve the query performance for queries like
+     * getResourceByPageId which excludes the deleted entries
+     */
+    @ChangeSet(order = "116", id = "update-index-for-newAction-actionCollection", author = "")
+    public void updateNewActionActionCollectionIndexes(MongockTemplate mongockTemplate) {
+
+        dropIndexIfExists(mongockTemplate, NewAction.class, "unpublishedAction_pageId");
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(fieldName(QNewAction.newAction.unpublishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("unpublishedActionPageId_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(fieldName(QNewAction.newAction.publishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("publishedActionPageId_deleted_compound_index")
+        );
+
+        dropIndexIfExists(mongockTemplate, ActionCollection.class, "unpublishedCollection_pageId");
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("unpublishedCollectionPageId_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                        .named("publishedCollectionPageId_deleted_compound_index")
+        );
+    }
+
 }
