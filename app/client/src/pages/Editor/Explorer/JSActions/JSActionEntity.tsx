@@ -32,15 +32,17 @@ export const ExplorerJSCollectionEntity = memo(
       getJSCollection(state, props.id),
     ) as JSCollection;
     const navigateToJSCollection = useCallback(() => {
-      history.push(
-        JS_COLLECTION_ID_URL(
-          applicationSlug,
-          pageSlug,
-          pageId,
-          jsAction.id,
-          {},
-        ),
-      );
+      if (jsAction.id) {
+        history.push(
+          JS_COLLECTION_ID_URL(
+            applicationSlug,
+            pageSlug,
+            pageId,
+            jsAction.id,
+            {},
+          ),
+        );
+      }
     }, [pageId]);
     const contextMenu = (
       <JSCollectionEntityContextMenu
