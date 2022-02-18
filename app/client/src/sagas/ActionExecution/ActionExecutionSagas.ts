@@ -5,14 +5,7 @@ import {
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
-import {
-  all,
-  call,
-  put,
-  takeEvery,
-  takeLatest,
-  select,
-} from "redux-saga/effects";
+import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   evaluateArgumentSaga,
   evaluateAndExecuteDynamicTrigger,
@@ -45,8 +38,6 @@ import {
   clearIntervalSaga,
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
-import { JSAction, JSCollection } from "entities/JSCollection";
-import { getJSCollection } from "selectors/entitiesSelector";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { confirmRunActionSaga } from "sagas/ActionExecution/PluginActionSaga";
 import {
