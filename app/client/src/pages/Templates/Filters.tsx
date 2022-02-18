@@ -162,7 +162,7 @@ function FilterItem({ item, onSelect }: FilterItemProps) {
       <Text color="#121826" type={TextType.P1}>
         {item.label}
       </Text>
-      {selected && <Icon name={"close-x"} size={IconSize.SMALL} />}
+      {selected && <Icon name={"close-x"} size={IconSize.XXL} />}
     </StyledFilterItem>
   );
 }
