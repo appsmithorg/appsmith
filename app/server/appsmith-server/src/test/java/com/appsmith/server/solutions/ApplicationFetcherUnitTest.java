@@ -2,12 +2,15 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -28,8 +31,11 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringRunner.class)
 public class ApplicationFetcherUnitTest {
@@ -54,6 +60,9 @@ public class ApplicationFetcherUnitTest {
     @MockBean
     ResponseUtils responseUtils;
 
+    @MockBean
+    NewPageService newPageService;
+
     ApplicationFetcher applicationFetcher;
 
     User testUser;
@@ -68,7 +77,9 @@ public class ApplicationFetcherUnitTest {
                 organizationService,
                 applicationRepository,
                 releaseNotesService,
-                responseUtils);
+                responseUtils,
+                newPageService
+                );
     }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {
@@ -80,15 +91,51 @@ public class ApplicationFetcherUnitTest {
                 application.setId("org-" + i + "-app-" + j); // e.g. org-1-app-3
                 application.setName(application.getId()); // e.g. org-1-app-3
                 // Set dummy applicationPages
-                ApplicationPage applicationPage = new ApplicationPage();
-                applicationPage.setId("page" + j);
-                applicationPage.setDefaultPageId(defaultPageId);
-                application.setPages(List.of(applicationPage));
-                application.setPublishedPages(List.of(applicationPage));
+                ApplicationPage unpublishedPage = new ApplicationPage();
+                unpublishedPage.setId("page" + j);
+                unpublishedPage.setDefaultPageId("page" + j);
+                unpublishedPage.setIsDefault(true);
+
+                ApplicationPage publishedPage = new ApplicationPage();
+                publishedPage.setId("page" + j);
+                publishedPage.setDefaultPageId("page" + j);
+                publishedPage.setIsDefault(true);
+
+                application.setPages(List.of(unpublishedPage));
+                application.setPublishedPages(List.of(publishedPage));
                 applicationList.add(application);
             }
         }
         return applicationList;
+    }
+
+    private List<NewPage> createDummyPages(int orgCount, int appCount) {
+        List<NewPage> newPageList = new ArrayList<>(orgCount * appCount);
+        for(int i = 1; i <= orgCount; i++) {
+            for (int j = 1; j <= appCount; j++) {
+                String applicationId = "org-" + i + "-app-" + j;
+                String pageId = "page" + j;
+                // Set dummy applicationPages
+                ApplicationPage applicationPage = new ApplicationPage();
+                applicationPage.setId(pageId);
+                applicationPage.setDefaultPageId(defaultPageId);
+                applicationPage.setIsDefault(true);
+
+                PageDTO unpublishedPageDTO = new PageDTO();
+                unpublishedPageDTO.setSlug(pageId + "-unpublished-slug");
+
+                PageDTO publishedPageDTO = new PageDTO();
+                publishedPageDTO.setSlug(pageId + "-published-slug");
+
+                NewPage newPage = new NewPage();
+                newPage.setApplicationId(applicationId);
+                newPage.setId(pageId);
+                newPage.setUnpublishedPage(unpublishedPageDTO);
+                newPage.setPublishedPage(publishedPageDTO);
+                newPageList.add(newPage);
+            }
+        }
+        return newPageList;
     }
 
     private Application updateDefaultPageIdsWithinApplication(Application application) {
@@ -132,9 +179,14 @@ public class ApplicationFetcherUnitTest {
 
         // mock the list of applications
         List<Application> applications = createDummyApplications(4,4);
+        List<NewPage> pageList = createDummyPages(4, 4);
+
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
+
+        Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
+                .thenReturn(Flux.fromIterable(pageList));
 
         for (Application application : applications) {
             Mockito
@@ -150,11 +202,12 @@ public class ApplicationFetcherUnitTest {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
-                            List<ApplicationPage> pages = application.getPages();
-                            pages.forEach(page -> assertThat(page.getId()).isEqualTo(defaultPageId));
-
-                            pages = application.getPublishedPages();
-                            pages.forEach(page -> assertThat(page.getId()).isEqualTo(defaultPageId));
+                            application.getPages().forEach(
+                                    page -> assertThat(page.getSlug()).isEqualTo(page.getId()+"-unpublished-slug")
+                            );
+                            application.getPublishedPages().forEach(
+                                    page -> assertThat(page.getSlug()).isEqualTo(page.getId()+"-published-slug")
+                            );
                         }
                     }
                 }).verifyComplete();
@@ -171,9 +224,15 @@ public class ApplicationFetcherUnitTest {
 
         // mock the list of applications
         List<Application> applications = createDummyApplications(4,4);
+        List<NewPage> pageList = createDummyPages(4, 4);
+
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
+
+        Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
+                .thenReturn(Flux.fromIterable(pageList));
+
         for (Application application : applications) {
             Mockito
                     .when(responseUtils.updateApplicationWithDefaultResources(application))
@@ -218,9 +277,15 @@ public class ApplicationFetcherUnitTest {
 
         // mock the list of applications
         List<Application> applications = createDummyApplications(3,3);
+        List<NewPage> pageList = createDummyPages(4, 4);
+
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
                 testUser.getOrganizationIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
+
+        Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
+                .thenReturn(Flux.fromIterable(pageList));
+
         for (Application application : applications) {
             Mockito
                     .when(responseUtils.updateApplicationWithDefaultResources(application))

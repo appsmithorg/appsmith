@@ -190,17 +190,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Refactor application to remove the ids
                     final String organizationId = application.getOrganizationId();
-                    application.setOrganizationId(null);
-                    application.setPages(null);
-                    application.setPublishedPages(null);
-                    application.setModifiedBy(null);
-                    application.setUpdatedAt(null);
-                    application.setLastDeployedAt(null);
-                    application.setLastEditedAt(null);
-                    application.setUpdatedAt(null);
-                    application.setGitApplicationMetadata(null);
-                    application.setPolicies(null);
-                    application.setUserPermissions(null);
+                    removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
 
@@ -500,7 +490,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile);
                 })
-                .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage())));
+                .onErrorResume(error -> {
+                    if (error instanceof AppsmithException) {
+                        return Mono.error(error);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage()));
+                });
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -1545,5 +1540,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
             ).thenReturn(application);
         });
+    }
+
+    private void removeUnwantedFieldsFromApplicationDuringExport(Application application) {
+            application.setOrganizationId(null);
+            application.setPages(null);
+            application.setPublishedPages(null);
+            application.setModifiedBy(null);
+            application.setUpdatedAt(null);
+            application.setLastDeployedAt(null);
+            application.setLastEditedAt(null);
+            application.setUpdatedAt(null);
+            application.setGitApplicationMetadata(null);
+            application.setPolicies(null);
+            application.setUserPermissions(null);
+            application.setEditModeThemeId(null);
+            application.setPublishedModeThemeId(null);
     }
 }

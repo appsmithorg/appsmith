@@ -266,6 +266,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
+                    assertThat(exportedApplication.getEditModeThemeId()).isNull();
+                    assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
                 })
                 .verifyComplete();
     }

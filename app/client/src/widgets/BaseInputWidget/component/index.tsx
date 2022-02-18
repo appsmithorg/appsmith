@@ -199,7 +199,7 @@ const InputComponentWrapper = styled((props) => (
         margin: 0;
         display: flex;
         align-items: center;
-        margin: 0 10px;
+        padding: 0 10px;
 
         svg {
           width: 14px;

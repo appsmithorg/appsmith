@@ -86,6 +86,7 @@ export const Colors = {
   LIGHT_GREY2: "#C4C4C4",
   Gallery: "#F0F0F0",
   GALLERY_1: "#EBEBEB",
+  GALLERY_2: "#EDEDED",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
   ALTO2: "#E0DEDE",

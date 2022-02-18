@@ -12,7 +12,7 @@ import {
   getCanvasWidgetDsl,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
   isPermitted,
@@ -102,7 +102,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
         pageId={match.params.pageId}
         pageName={currentPageName}
       />
-      <ConfirmRunModal />
+      <RequestConfirmationModal />
     </Section>
   );
 }

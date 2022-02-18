@@ -168,22 +168,22 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 subText: "1rem",
               },
               {
-                label: "xl",
+                label: "lg",
                 value: "1.25rem",
                 subText: "1.25rem",
               },
               {
-                label: "3xl",
+                label: "xl",
                 value: "1.875rem",
                 subText: "1.875rem",
               },
               {
-                label: "5xl",
+                label: "2xl",
                 value: "3rem",
                 subText: "3rem",
               },
               {
-                label: "6xl",
+                label: "3xl",
                 value: "3.75rem",
                 subText: "3.75rem",
               },

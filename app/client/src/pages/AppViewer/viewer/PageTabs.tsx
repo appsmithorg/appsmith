@@ -83,6 +83,7 @@ function PageTabName({
     <StyleTabText>
       <div className="relative flex items-center justify-center flex-grow">
         <span ref={tabNameRef}>{name}</span>
+        {ellipsisActive && "..."}
       </div>
       <StyledBottomBorder primaryColor={primaryColor} />
     </StyleTabText>
