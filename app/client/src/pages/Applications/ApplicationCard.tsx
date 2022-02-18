@@ -434,7 +434,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     const pages = props.application.pages;
     const defaultPage = pages.find((page) => page.isDefault);
     return defaultPage?.slug || defaultPage?.name;
-  }, [props.application]);
+  }, []);
 
   useEffect(() => {
     let colorCode;
