@@ -1054,7 +1054,7 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 52) {
-    currentDSL = currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+    currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
