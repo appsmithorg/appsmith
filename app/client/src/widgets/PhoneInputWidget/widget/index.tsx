@@ -29,6 +29,7 @@ import {
 } from "libphonenumber-js";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -281,7 +282,13 @@ class PhoneInputWidget extends BaseInputWidget<
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         countryCode={countryCode}
         defaultValue={this.props.defaultText}
         dialCode={this.props.dialCode}

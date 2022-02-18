@@ -32,6 +32,7 @@ import {
   parseLocaleFormattedStringToNumber,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -330,7 +331,13 @@ class CurrencyInputWidget extends BaseInputWidget<
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         currencyCode={currencyCode}
         decimals={this.props.decimals}
         defaultValue={this.props.defaultText}
