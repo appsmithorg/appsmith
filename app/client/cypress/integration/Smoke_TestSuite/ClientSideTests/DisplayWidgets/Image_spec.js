@@ -65,6 +65,22 @@ describe("Image Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(publish.imageWidget).should("be.visible");
   });
+
+  it("In case of an image loading error, show off error message", () => {
+    cy.get(publish.backToEditor).click();
+    cy.openPropertyPane("imagewidget");
+    // Invalid image url
+    const invalidImageUrl = "https://www.example.com/does-not-exist.jpg";
+    cy.testCodeMirror(invalidImageUrl);
+    cy.wait(5000);
+    // Show off error message
+    cy.get(
+      `${viewWidgetsPage.imageWidget} div[data-testid=styledImage]`,
+    ).should("not.exist");
+    cy.get(`${viewWidgetsPage.imageWidget} [class*="ErrorContainer"]`).contains(
+      "Image load error",
+    );
+  });
 });
 afterEach(() => {
   // put your clean up code if any
