@@ -192,19 +192,7 @@ const LeftPaneWrapper = styled.div`
 `;
 
 const ApplicationContainer = styled.div`
-  height: calc(100vh - ${(props) => props.theme.homePage.search.height}px);
-  overflow: auto;
-  padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   padding-top: 16px;
-  margin-left: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
-  width: calc(
-    100% -
-      ${(props) =>
-        props.theme.homePage.leftPane.width +
-        props.theme.homePage.leftPane.rightMargin +
-        props.theme.homePage.leftPane.leftPadding}px
-  );
-  scroll-behavior: smooth;
 `;
 
 const ItemWrapper = styled.div`
@@ -246,6 +234,21 @@ const NoAppsFound = styled.div`
   & > span {
     margin-bottom: 24px;
   }
+`;
+
+const ApplicationsWrapper = styled.div`
+  padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
+  height: calc(100vh - 36px);
+  overflow: auto;
+  width: calc(
+    100% -
+      ${(props) =>
+        props.theme.homePage.leftPane.width +
+        props.theme.homePage.leftPane.rightMargin +
+        props.theme.homePage.leftPane.leftPadding}px
+  );
+  scroll-behavior: smooth;
+  margin-left: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
 `;
 
 function Item(props: {
@@ -931,7 +934,7 @@ class Applications extends Component<
 
   public render() {
     return (
-      <>
+      <ApplicationsWrapper>
         <SubHeader
           search={{
             placeholder: createMessage(SEARCH_APPS),
@@ -940,7 +943,7 @@ class Applications extends Component<
           }}
         />
         <ApplicationsSection searchKeyword={this.props.searchKeyword} />
-      </>
+      </ApplicationsWrapper>
     );
   }
 }

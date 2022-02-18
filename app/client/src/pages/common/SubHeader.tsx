@@ -15,7 +15,7 @@ const SubHeaderWrapper = styled.div`
   justify-content: space-between;
   background: ${(props) => props.theme.colors.homepageBackground};
   z-index: ${Indices.Layer9};
-  margin-left: 20px;
+  margin-left: 10px;
   margin-top: 26px;
 `;
 const SearchContainer = styled.div`
