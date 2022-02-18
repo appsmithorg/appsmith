@@ -15,7 +15,7 @@ import {
   getCurrentPageName,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
   isPermitted,
@@ -114,7 +114,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
             pageId={this.props.match.params.pageId}
             pageName={this.props.currentPageName}
           />
-          <ConfirmRunModal />
+          <RequestConfirmationModal />
         </Section>
       );
     }

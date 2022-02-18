@@ -460,7 +460,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               canOutsideClickClose
               headerIcon={{
                 name: "right-arrow",
-                bgColor: "transparent",
+                bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
               orgId={orgId}
