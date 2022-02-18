@@ -76,7 +76,7 @@ const Section = styled.div`
     margin-top: 20px;
   }
 
-  .fork-button {
+  .template-fork-button {
     margin-top: 16px;
   }
 
@@ -173,7 +173,7 @@ function TemplateView() {
   return (
     <Wrapper ref={containerRef}>
       <TemplateViewWrapper>
-        <Title type={TextType.H4}>{currentTemplate.title}</Title>
+        <Title type={TextType.DANGER_HEADING}>{currentTemplate.title}</Title>
         <IframeWrapper>
           <iframe
             height={"100%"}
@@ -186,7 +186,7 @@ function TemplateView() {
             <Section>
               <Text type={TextType.H1}>Overview</Text>
               <div className="section-content">
-                <Text type={TextType.H2} weight={FontWeight.NORMAL}>
+                <Text type={TextType.H4} weight={FontWeight.NORMAL}>
                   {currentTemplate.description}
                 </Text>
               </div>
@@ -195,7 +195,7 @@ function TemplateView() {
                 showForkModal={showForkModal}
               >
                 <Button
-                  className="fork-button"
+                  className="template-fork-button"
                   icon="fork-2"
                   iconPosition={IconPositions.left}
                   onClick={onForkButtonTrigger}
@@ -238,8 +238,8 @@ function TemplateView() {
                   })}
                 </TemplateDatasources>
                 <div className="datasource-note">
-                  <Text type={TextType.H2}>Note: </Text>
-                  <Text type={TextType.H2} weight={FontWeight.NORMAL}>
+                  <Text type={TextType.H4}>Note: </Text>
+                  <Text type={TextType.H4} weight={FontWeight.NORMAL}>
                     You can add your data sources as well
                   </Text>
                 </div>
@@ -263,7 +263,9 @@ function TemplateView() {
 
       <SimilarTemplatesWrapper>
         <Section>
-          <Text type={TextType.H1}>Similar Templates</Text>
+          <Text type={TextType.H1} weight={FontWeight.BOLD}>
+            Similar Templates
+          </Text>
           <Masonry
             breakpointCols={3}
             className="grid"

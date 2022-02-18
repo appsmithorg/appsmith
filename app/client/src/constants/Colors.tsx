@@ -1,5 +1,6 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
 export const Colors = {
+  EBONY_CLAY: "#2A2F3D",
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",

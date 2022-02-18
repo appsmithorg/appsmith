@@ -9,6 +9,8 @@ import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import TemplateSampleImage from "./template-test.png";
 import LargeTemplate from "./LargeTemplate";
+import { getTypographyByKey } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 const TemplateWrapper = styled.div`
   border: 1px solid #e7e7e7;
@@ -37,22 +39,18 @@ const TemplateContent = styled.div`
   padding: 16px 25px;
 
   .title {
-    font-weight: bold;
-    font-size: 18px;
-    line-height: 24px;
-    letter-spacing: -0.24px;
-    color: #191919;
+    ${(props) => getTypographyByKey(props, "h4")}
+    color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 19px;
-    letter-spacing: -0.24px;
-    color: #393939;
+    ${(props) => getTypographyByKey(props, "p3")}
+    color: var(--appsmith-color-black-800);
     margin-top: 4px;
   }
   .description {
     margin-top: 6px;
+    color: var(--appsmith-color-black-700);
+    ${(props) => getTypographyByKey(props, "p3")}
   }
 `;
 

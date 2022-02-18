@@ -17,6 +17,7 @@ export enum TextType {
   BUTTON_MEDIUM = "btnMedium",
   BUTTON_SMALL = "btnSmall",
   SIDE_HEAD = "sideHeading",
+  DANGER_HEADING = "dangerHeading",
 }
 
 export enum Case {
