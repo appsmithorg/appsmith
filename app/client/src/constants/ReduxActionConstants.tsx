@@ -6,7 +6,7 @@ import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import {
   ApplicationPagePayload,
   GitApplicationMetadata,
-} from "../api/ApplicationApi";
+} from "api/ApplicationApi";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -412,6 +412,7 @@ export const ReduxActionTypes = {
   SET_META_PROP: "SET_META_PROP",
   RESET_CHILDREN_WIDGET_META: "RESET_CHILDREN_WIDGET_META",
   RESET_WIDGET_META: "RESET_WIDGET_META",
+  RESET_WIDGET_META_EVALUATED: "RESET_WIDGET_META_EVALUATED",
   UPDATE_WIDGET_NAME_INIT: "UPDATE_WIDGET_NAME_INIT",
   UPDATE_WIDGET_NAME_SUCCESS: "UPDATE_WIDGET_NAME_SUCCESS",
   FETCH_ACTIONS_FOR_PAGE_INIT: "FETCH_ACTIONS_FOR_PAGE_INIT",
@@ -494,6 +495,7 @@ export const ReduxActionTypes = {
     "TOGGLE_PROPERTY_PANE_WIDGET_NAME_EDIT",
   UPDATE_APP_PERSISTENT_STORE: "UPDATE_APP_PERSISTENT_STORE",
   UPDATE_APP_TRANSIENT_STORE: "UPDATE_APP_TRANSIENT_STORE",
+  UPDATE_APP_STORE_EVALUATED: "UPDATE_APP_STORE_EVALUATED",
   SET_ACTION_TO_EXECUTE_ON_PAGELOAD: "SET_ACTION_TO_EXECUTE_ON_PAGELOAD",
   TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS:
     "TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS",
@@ -861,8 +863,10 @@ export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
   onErrorCallback?: (error: E) => void;
 }
 
+export type AnyReduxAction = ReduxAction<unknown> | ReduxActionWithoutPayload;
+
 export interface EvaluationReduxAction<T> extends ReduxAction<T> {
-  postEvalActions?: Array<ReduxAction<any> | ReduxActionWithoutPayload>;
+  postEvalActions?: Array<AnyReduxAction>;
 }
 
 export interface PromisePayload {
