@@ -371,11 +371,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
         }
 
-        if (contentType == null && !dataParts.isEmpty()) {
-            contentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-            headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
-
-        } else if (contentType == null && !formParts.isEmpty()) {
+        if (contentType == null && !formParts.isEmpty()) {
             contentType = MediaType.MULTIPART_FORM_DATA_VALUE;
             headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
         }
