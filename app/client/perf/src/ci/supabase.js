@@ -95,8 +95,8 @@ const saveData = async (results) => {
       const runs = results[action][metric];
       runs.forEach((value, i) => {
         row["value"] = value;
+        rows.push(row);
       });
-      rows.push(row);
     });
   });
 
