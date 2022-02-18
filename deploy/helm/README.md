@@ -215,7 +215,7 @@ helm install stable-appsmith/appsmith --generate-name \
 --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
 --set service.type=ClusterIP
 ```
-- If you have installed Appsmith Helm chart, please run the `Helm Upgrade` command to upgrade the existing installation
+- If you have installed Appsmith Helm chart, please run the `helm upgrade` command to upgrade the existing installation
 ```
 helm upgrade --set ingress.enabled=true stable-appsmith/appsmith appsmith
 
