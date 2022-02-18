@@ -402,7 +402,9 @@ function* fetchGitStatusSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const gitMetaData = yield select(getCurrentAppGitMetaData);
+    const gitMetaData: GitApplicationMetadata = yield select(
+      getCurrentAppGitMetaData,
+    );
     response = yield GitSyncAPI.getGitStatus({
       applicationId,
       branch: gitMetaData?.branchName || "",
@@ -516,7 +518,12 @@ function* gitPullSaga(
     if (isValidResponse) {
       const { mergeStatus } = response?.data;
       yield put(gitPullSuccess(mergeStatus));
-      yield put(initEditor(currentPageId, currentBranch));
+      yield put(
+        initEditor({
+          pageId: currentPageId,
+          branch: currentBranch,
+        }),
+      );
     }
   } catch (e) {
     // todo check based on error type

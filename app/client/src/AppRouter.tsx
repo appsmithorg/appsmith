@@ -142,14 +142,20 @@ class AppRouter extends React.Component<any, any> {
                 <SentryRoute component={EditorLoader} path={BUILDER_URL} />
                 <SentryRoute
                   component={(
-                    props: RouteComponentProps<{ pageId: string }>,
+                    props: RouteComponentProps<{
+                      applicationId: string;
+                      pageId: string;
+                    }>,
                   ) => <RedirectToV2Route {...props} mode={APP_MODE.EDIT} />}
                   path={BUILDER_URL_DEP}
                 />
                 <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <SentryRoute
                   component={(
-                    props: RouteComponentProps<{ pageId: string }>,
+                    props: RouteComponentProps<{
+                      applicationId: string;
+                      pageId: string;
+                    }>,
                   ) => (
                     <RedirectToV2Route {...props} mode={APP_MODE.PUBLISHED} />
                   )}

@@ -88,7 +88,7 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 
 export type AppViewerProps = {
   initializeAppViewer: (params: {
-    applicationId: string;
+    applicationSlug?: string;
     pageId?: string;
     branch?: string;
   }) => void;
@@ -127,7 +127,7 @@ class AppViewer extends Component<Props> {
       this.setState({ registered: true });
     });
 
-    const { applicationId, pageId } = this.props.match.params;
+    const { applicationSlug, pageId } = this.props.match.params;
     const {
       location: { search },
     } = this.props;
@@ -135,13 +135,13 @@ class AppViewer extends Component<Props> {
 
     this.props.initializeAppViewer({
       branch: branch,
-      applicationId,
+      applicationSlug,
       pageId,
     });
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { applicationId, pageId } = this.props.match.params;
+    const { applicationSlug, pageId } = this.props.match.params;
     const {
       location: { search: prevSearch },
     } = prevProps;
@@ -152,9 +152,9 @@ class AppViewer extends Component<Props> {
     const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (branch && branch !== prevBranch && applicationId && pageId) {
+    if (branch && branch !== prevBranch && (applicationSlug || pageId)) {
       this.props.initializeAppViewer({
-        applicationId,
+        applicationSlug,
         pageId,
         branch: branch,
       });
@@ -240,7 +240,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
   initializeAppViewer: (params: {
-    applicationId: string;
+    applicationId?: string;
     pageId?: string;
     branch?: string;
   }) => {

@@ -1,18 +1,15 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-  InitializeEditorPayload,
-} from "constants/ReduxActionConstants";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { BuilderRouteParams } from "constants/routes";
+
+export type InitializeEditorPayload = BuilderRouteParams & {
+  branch?: string;
+};
 
 export const initEditor = (
-  pageId: string,
-  branch?: string,
+  payload: InitializeEditorPayload,
 ): ReduxAction<InitializeEditorPayload> => ({
   type: ReduxActionTypes.INITIALIZE_EDITOR,
-  payload: {
-    pageId,
-    branch,
-  },
+  payload,
 });
 
 export const resetEditorRequest = () => ({

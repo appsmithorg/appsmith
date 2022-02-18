@@ -1,6 +1,10 @@
 const { compile, match } = require("path-to-regexp");
 
-import { getQueryParamsObject } from "utils/helpers";
+import {
+  getQueryParamsObject,
+  PLACEHOLDER_APP_SLUG,
+  PLACEHOLDER_PAGE_SLUG,
+} from "utils/helpers";
 
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
@@ -27,7 +31,7 @@ export const SIGNUP_SUCCESS_URL = `/signup-success`;
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
 
-export const BUILDER_URL_DEP = `/applications/:applicationId/(pages)?/:pageId/edit`;
+export const BUILDER_URL_DEP = `/applications/:applicationId/(pages)?/:pageId?/edit`;
 export const BUILDER_URL = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_URL = `/:applicationSlug/:pageSlug(.*\-):pageId`;
 export const VIEWER_URL_DEP = `/applications/:applicationId/(pages)?/:pageId?`;
@@ -106,11 +110,12 @@ const fetchParamsToPersist = () => {
 
 export type BuilderRouteParams = {
   pageId: string;
-  applicationId: string;
+  applicationSlug?: string;
 };
 
 export type AppViewerRouteParams = {
-  pageId?: string;
+  pageId: string;
+  applicationSlug?: string;
 };
 
 export type APIEditorRouteParams = {
@@ -145,10 +150,10 @@ export const BUILDER_PAGE_URL = (props: {
   suffix?: string;
 }): string => {
   const {
-    applicationSlug = "application",
+    applicationSlug = PLACEHOLDER_APP_SLUG,
     hash = "",
     pageId,
-    pageSlug = "page1",
+    pageSlug = PLACEHOLDER_PAGE_SLUG,
     params = {},
     suffix,
   } = props;
@@ -337,9 +342,9 @@ export const JS_COLLECTION_ID_URL = (
 };
 
 export const getApplicationEditorPageURL = (
-  applicationSlug = ":applicationSlug",
-  pageSlug = ":pageSlug",
-  pageId = ":pageId",
+  applicationSlug: string,
+  pageSlug: string,
+  pageId: string,
   params: Record<string, string> = {},
 ): string => {
   const url = `/${applicationSlug}/${pageSlug}-${pageId}/edit`;

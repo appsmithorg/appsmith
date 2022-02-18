@@ -951,8 +951,3 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type InitializeEditorPayload = {
-  pageId: string;
-  branch?: string;
-};

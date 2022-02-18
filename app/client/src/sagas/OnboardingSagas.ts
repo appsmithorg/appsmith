@@ -70,6 +70,7 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "utils/helpers";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -373,8 +374,8 @@ function* firstTimeUserOnboardingInitSaga(
     BUILDER_PAGE_URL({
       // Comeback
       // applicationId: action.payload.applicationId,
-      applicationSlug: "application",
-      pageSlug: "page",
+      applicationSlug: PLACEHOLDER_APP_SLUG,
+      pageSlug: PLACEHOLDER_PAGE_SLUG,
       pageId: action.payload.pageId,
     }),
   );

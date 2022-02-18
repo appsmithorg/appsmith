@@ -10,7 +10,6 @@ import {
 } from "redux-saga/effects";
 import {
   CurrentApplicationData,
-  InitializeEditorPayload,
   Page,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -50,7 +49,10 @@ import {
   resetRecentEntities,
   restoreRecentEntitiesRequest,
 } from "actions/globalSearchActions";
-import { resetEditorSuccess } from "actions/initActions";
+import {
+  InitializeEditorPayload,
+  resetEditorSuccess,
+} from "actions/initActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -64,7 +66,6 @@ import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   addBranchParam,
-  BUILDER_PAGE_URL,
   getApplicationEditorPageURL,
   getApplicationViewerPageURL,
 } from "constants/routes";
@@ -77,7 +78,11 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import PageApi, { FetchPageResponse } from "api/PageApi";
-import { isURLDeprecated, updateRoute } from "utils/helpers";
+import {
+  isPlaceholderPageId,
+  isURLDeprecated,
+  updateRoute,
+} from "utils/helpers";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -117,12 +122,25 @@ function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   yield put(resetEditorSuccess());
-  const { branch, pageId } = initializeEditorAction.payload;
+
+  // For old urls without pageId like /applications/:applicationId, we redirect users to /applicationId/page-:pageId
+  // In such scenarios where we do not know pageId in advance,
+  // we need to fallback on the applicationId which takes the place of :applicationSlug in the new route
+  const { applicationSlug, branch, pageId } = initializeEditorAction.payload;
+
+  // We set the applicationId as applicationSlug for urls which holds placeholder pageId in it.
+  // We can trust to find a valid applicationId in the applicationSlug property here.
+  let applicationId = isPlaceholderPageId(pageId) ? applicationSlug : "";
+
   try {
-    const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
-      id: pageId,
-    });
-    const applicationId = currentPageInfo.data.applicationId;
+    // applicationId will be set only for old urls which do not have pageId in it.
+    // We need the following api when we do not have applicationId info, which will be the case with all the new urls.
+    if (!applicationId) {
+      const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
+        id: pageId as string,
+      });
+      applicationId = currentPageInfo.data.applicationId;
+    }
 
     yield put(updateBranchLocally(branch || ""));
 
@@ -160,7 +178,7 @@ function* initializeEditorSaga(
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
     if (!jsActionsCall) return;
-    if (pageId) {
+    if (!isPlaceholderPageId(pageId)) {
       initCalls.push(fetchPage(pageId, true) as any);
       successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
       failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
@@ -175,10 +193,12 @@ function* initializeEditorSaga(
     if (!applicationAndLayoutCalls) return;
 
     let fetchPageCallResult;
-    const defaultPageId = yield select(getDefaultPageId);
-    const toLoadPageId = pageId || defaultPageId;
+    const defaultPageId: string = yield select(getDefaultPageId);
+    const toLoadPageId: string = isPlaceholderPageId(pageId)
+      ? defaultPageId
+      : pageId;
 
-    if (!pageId) {
+    if (isPlaceholderPageId(pageId)) {
       if (!toLoadPageId) return;
 
       fetchPageCallResult = yield failFastApiCalls(
@@ -228,18 +248,25 @@ function* initializeEditorSaga(
     //Comeback
     const pageSlug = currentPage?.slug as string;
 
+    // Check if the the current route is a deprecated URL or if it has placeholder pageId,
+    // generate a new route with the v2 structure.
     let originalUrl = "";
-    if (isURLDeprecated(window.location.pathname)) {
+    if (
+      isURLDeprecated(window.location.pathname) ||
+      isPlaceholderPageId(pageId)
+    ) {
       originalUrl = getApplicationEditorPageURL(
         applicationSlug,
         pageSlug,
-        pageId,
+        toLoadPageId,
       );
     } else {
+      // For urls which has pageId in it,
+      // replace the placeholder values of application slug and page slug with real slug names.
       originalUrl = updateRoute(window.location.pathname, {
         applicationSlug,
         pageSlug,
-        pageId,
+        pageId: toLoadPageId,
       });
     }
 
@@ -273,17 +300,6 @@ function* initializeEditorSaga(
 
     yield call(populatePageDSLsSaga);
 
-    // redirect to the /pages route
-    if (!pageId) {
-      const pathname = BUILDER_PAGE_URL({
-        applicationSlug,
-        pageSlug,
-        pageId: toLoadPageId,
-      });
-
-      history.replace(pathname);
-    }
-
     // add branch query to path and fetch status
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
@@ -308,14 +324,19 @@ export function* initializeAppViewerSaga(
   action: ReduxAction<{
     branch: string;
     pageId: string;
+    applicationSlug: string;
   }>,
 ) {
-  const { branch, pageId } = action.payload;
+  const { applicationSlug: appSlug, branch, pageId } = action.payload;
 
-  const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
-    id: pageId,
-  });
-  const applicationId = currentPageInfo.data.applicationId;
+  let applicationId = isPlaceholderPageId(pageId) ? appSlug : "";
+
+  if (!applicationId) {
+    const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
+      id: pageId,
+    });
+    applicationId = currentPageInfo.data.applicationId;
+  }
 
   if (branch) yield put(updateBranchLocally(branch));
 
@@ -381,7 +402,9 @@ export function* initializeAppViewerSaga(
   }
 
   const defaultPageId: string = yield select(getDefaultPageId);
-  const toLoadPageId = pageId || defaultPageId;
+  const toLoadPageId: string = isPlaceholderPageId(pageId)
+    ? defaultPageId
+    : pageId;
 
   if (toLoadPageId) {
     yield put(fetchPublishedPage(toLoadPageId, true));
@@ -414,17 +437,20 @@ export function* initializeAppViewerSaga(
   const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
   let originalUrl = "";
-  if (isURLDeprecated(window.location.pathname)) {
+  if (
+    isURLDeprecated(window.location.pathname) ||
+    isPlaceholderPageId(pageId)
+  ) {
     originalUrl = getApplicationViewerPageURL({
       applicationSlug,
       pageSlug,
-      pageId,
+      pageId: toLoadPageId,
     });
   } else {
     originalUrl = updateRoute(window.location.pathname, {
       applicationSlug,
       pageSlug,
-      pageId,
+      pageId: toLoadPageId,
     });
   }
 
@@ -451,8 +477,8 @@ function* resetEditorSaga() {
 }
 
 export function* waitForInit() {
-  const isEditorInitialised = yield select(getIsEditorInitialized);
-  const isViewerInitialized = yield select(getIsViewerInitialized);
+  const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+  const isViewerInitialized: boolean = yield select(getIsViewerInitialized);
   if (!isEditorInitialised && !isViewerInitialized) {
     yield take([
       ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,

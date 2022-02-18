@@ -33,6 +33,7 @@ import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "constants/ReduxActionConstants";
 import { BUILDER_PAGE_URL } from "constants/routes";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "utils/helpers";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -137,9 +138,9 @@ export const selectURLSlugs = createSelector(
   getPageList,
   getCurrentPageId,
   (application, pages, pageId) => {
-    const applicationSlug = application?.slug || "application";
+    const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
     const currentPage = pages.find((page) => page.pageId === pageId);
-    const pageSlug = currentPage?.slug || "page";
+    const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     return { applicationSlug, pageSlug };
   },
 );

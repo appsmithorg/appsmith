@@ -81,6 +81,7 @@ import {
 } from "selectors/onboardingSelectors";
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
+import { PLACEHOLDER_PAGE_SLUG } from "utils/helpers";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -505,13 +506,13 @@ export function* createApplicationSaga(
           pageURL = BUILDER_PAGE_URL({
             // Comeback
             applicationSlug: application.slug as string,
-            pageSlug: "page1",
+            pageSlug: PLACEHOLDER_PAGE_SLUG,
             pageId: application.defaultPageId as string,
           });
         } else {
           pageURL = getGenerateTemplateURL(
             application.slug as string,
-            "page1",
+            PLACEHOLDER_PAGE_SLUG,
             application.defaultPageId as string,
           );
         }
@@ -561,7 +562,7 @@ export function* forkApplicationSaga(
       const pageURL = BUILDER_PAGE_URL({
         // Comeback
         applicationSlug: application.slug as string,
-        pageSlug: "page1",
+        pageSlug: PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -610,7 +611,7 @@ export function* importApplicationSaga(
         const pageURL = BUILDER_PAGE_URL({
           //Comeback
           applicationSlug,
-          pageSlug: "page1",
+          pageSlug: PLACEHOLDER_PAGE_SLUG,
           pageId: defaultPage[0].id,
         });
         history.push(pageURL);

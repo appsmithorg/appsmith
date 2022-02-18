@@ -726,3 +726,9 @@ export const updateRoute = (path: string, params: Record<string, string>) => {
   }
   return updatedPath;
 };
+
+export const PLACEHOLDER_APP_SLUG = "application";
+export const PLACEHOLDER_PAGE_ID = "pageId";
+export const PLACEHOLDER_PAGE_SLUG = "page";
+export const isPlaceholderPageId = (pageId?: string) =>
+  !pageId || pageId === PLACEHOLDER_PAGE_ID;
