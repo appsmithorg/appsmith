@@ -128,7 +128,11 @@ class ImageComponent extends React.Component<
     if (this.props.onClick) cursor = "pointer";
 
     if (imageUrl && imageError)
-      return <ErrorContainer>Image load error</ErrorContainer>;
+      return (
+        <ErrorContainer data-testid="error-container">
+          Image load error
+        </ErrorContainer>
+      );
 
     return (
       <Wrapper

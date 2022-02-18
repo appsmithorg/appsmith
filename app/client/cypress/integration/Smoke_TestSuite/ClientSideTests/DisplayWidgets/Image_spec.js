@@ -77,9 +77,9 @@ describe("Image Widget Functionality", function() {
     cy.get(
       `${viewWidgetsPage.imageWidget} div[data-testid=styledImage]`,
     ).should("not.exist");
-    cy.get(`${viewWidgetsPage.imageWidget} [class*="ErrorContainer"]`).contains(
-      "Image load error",
-    );
+    cy.get(
+      `${viewWidgetsPage.imageWidget} [data-testid="error-container"]`,
+    ).contains("Image load error");
   });
 });
 afterEach(() => {
