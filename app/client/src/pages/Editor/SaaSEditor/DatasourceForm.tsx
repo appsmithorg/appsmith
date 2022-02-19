@@ -166,14 +166,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   }
   merge(initialValues, datasource);
 
-  if (datasource && !datasource.datasourceConfiguration) {
-    const formConfig = state.entities.plugins.formConfigs[datasource.pluginId];
-    const initialValues = getConfigInitialValues(formConfig);
-    const temp = merge(initialValues, datasource);
-    if (temp.datasourceConfiguration) {
-      datasource.datasourceConfiguration = temp.datasourceConfiguration;
-    }
-  }
   return {
     datasource,
     datasourceId,

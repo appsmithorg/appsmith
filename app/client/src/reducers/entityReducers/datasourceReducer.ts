@@ -251,6 +251,11 @@ const datasourceReducer = createReducer(initialState, {
 
         return datasource;
       }),
+      unconfiguredList: state.unconfiguredList.map((datasource) => {
+        if (datasource.id === action.payload.id) return action.payload;
+
+        return datasource;
+      }),
     };
   },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (

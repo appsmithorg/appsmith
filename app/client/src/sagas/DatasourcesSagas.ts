@@ -316,6 +316,7 @@ function* updateDatasourceSaga(
   try {
     const queryParams = getQueryParams();
     const datasourcePayload = _.omit(actionPayload.payload, "name");
+    datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
       datasourcePayload.id,
@@ -665,7 +666,6 @@ function* updateDraftsSaga() {
 
   if (!values.id) return;
   const datasource = yield select(getDatasource, values.id);
-
   if (_.isEqual(values, datasource)) {
     yield put({
       type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,

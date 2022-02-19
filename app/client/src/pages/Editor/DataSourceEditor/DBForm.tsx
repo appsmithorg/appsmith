@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import _, { merge } from "lodash";
+import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
@@ -27,7 +27,6 @@ import {
   PluginImage,
 } from "./JSONtoForm";
 import DatasourceAuth from "../../common/datasourceAuth";
-import { getConfigInitialValues } from "components/formControls/utils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -180,15 +179,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   const datasource = state.entities.datasources.list.find(
     (e) => e.id === props.datasourceId,
   ) as Datasource;
-
-  if (datasource && !datasource.datasourceConfiguration) {
-    const formConfig = state.entities.plugins.formConfigs[datasource.pluginId];
-    const initialValues = getConfigInitialValues(formConfig);
-    const temp = merge(initialValues, datasource);
-    if (temp.datasourceConfiguration) {
-      datasource.datasourceConfiguration = temp.datasourceConfiguration;
-    }
-  }
 
   const hintMessages = datasource && datasource.messages;
 

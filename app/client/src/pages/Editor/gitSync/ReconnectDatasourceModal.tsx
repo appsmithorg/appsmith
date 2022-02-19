@@ -68,6 +68,7 @@ const Container = styled.div`
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  width: calc(100% - 206px);
 `;
 
 const BodyContainer = styled.div`
@@ -178,7 +179,6 @@ const ContentWrapper = styled.div`
   .t--message-container {
     display: flex;
     flex-direction: column;
-    width: 100%;
     justify-content: center;
   }
 `;
