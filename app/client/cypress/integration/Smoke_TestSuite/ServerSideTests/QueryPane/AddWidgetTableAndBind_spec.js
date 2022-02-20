@@ -82,13 +82,12 @@ describe("Addwidget from Query and bind with other widgets", function() {
     });
   });
 
-  it("5. Input widget test with default value from table widget[Bug#4136", () => {
+  it("5. Input widget test with default value from table widget[Bug#4136]", () => {
     cy.openPropertyPane("tablewidget");
-    cy.widgetText(
-      "TableUpdated",
-      widgetsPage.tableWidget,
-      commonlocators.tableInner,
-    );
+    cy.get(".t--propery-page-title").click({ force: true });
+    cy.get(".t--propery-page-title")
+      .type("TableUpdated", { delay: 300 })
+      .type("{enter}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
