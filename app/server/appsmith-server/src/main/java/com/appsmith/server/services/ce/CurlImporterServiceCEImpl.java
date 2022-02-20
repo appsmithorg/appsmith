@@ -15,6 +15,9 @@ import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
@@ -32,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 
@@ -52,15 +56,20 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private final LayoutActionService layoutActionService;
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
+    private final ObjectMapper objectMapper;
 
-    public CurlImporterServiceCEImpl(PluginService pluginService,
-                                     LayoutActionService layoutActionService,
-                                     NewPageService newPageService,
-                                     ResponseUtils responseUtils) {
+    public CurlImporterServiceCEImpl(
+            PluginService pluginService,
+            LayoutActionService layoutActionService,
+            NewPageService newPageService,
+            ResponseUtils responseUtils,
+            ObjectMapper objectMapper
+    ) {
         this.pluginService = pluginService;
         this.layoutActionService = layoutActionService;
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -371,9 +380,11 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
         }
 
-        if (contentType == null && !formParts.isEmpty()) {
-            contentType = MediaType.MULTIPART_FORM_DATA_VALUE;
-            headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
+        if (contentType == null) {
+            contentType = guessTheContentType(dataParts, formParts);
+            if (contentType != null) {
+                headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
+            }
         }
 
         if (!headers.isEmpty()) {
@@ -417,6 +428,28 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         }
 
         return action;
+    }
+
+    private String guessTheContentType(List<String> dataParts, List<String> formParts) {
+        if (!dataParts.isEmpty()) {
+            final String data = dataParts.get(0);
+            final Pattern urlEncodedPattern = Pattern.compile("([A-Za-z0-9%./]+=[^\\s]+)");
+            // if it's form url encoded?
+            if (urlEncodedPattern.matcher(data).matches()) {
+                return MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+            } else {
+                // or if it's JSON
+                try {
+                    objectMapper.readTree(data);
+                    return MediaType.APPLICATION_JSON_VALUE;
+                } catch (JsonProcessingException e) {
+                    // ignore exception it's not JSON
+                }
+            }
+        } else if (!formParts.isEmpty()) {
+            return MediaType.MULTIPART_FORM_DATA_VALUE;
+        }
+        return null;
     }
 
     private void trySaveURL(ActionDTO action, String token) throws MalformedURLException, URISyntaxException {
