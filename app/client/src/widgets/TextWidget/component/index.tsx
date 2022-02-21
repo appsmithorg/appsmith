@@ -84,13 +84,25 @@ export const TextContainer = styled.div`
 `;
 
 const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
+  position: absolute;
+  justify-content: flex-end;
   cursor: pointer;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 2px;
+  right: 2px;
   height: ${ELLIPSIS_HEIGHT}px;
   background: ${(props) =>
     props.backgroundColor ? props.backgroundColor : "transparent"};
+
+  background: #ffc13d;
+  border-color: transparent;
+  border-width: 1px;
+  border-radius: 2px;
+  z-index: 2;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);
+
+  svg > path {
+    fill: white;
+  }
 `;
 
 export const StyledText = styled(Text)<{
@@ -102,8 +114,7 @@ export const StyledText = styled(Text)<{
   fontStyle?: string;
   fontSize?: TextSize;
 }>`
-  height: ${(props) =>
-    props.isTruncated ? `calc(100% - ${ELLIPSIS_HEIGHT}px)` : "100%"};
+  height: 100%;
   overflow-y: ${(props) =>
     props.scroll ? (props.isTruncated ? "hidden" : "auto") : "hidden"};
   text-overflow: ellipsis;
