@@ -146,10 +146,6 @@ describe("JSON Form Widget Field Change", () => {
   it("modifies field type text to Object", () => {
     cy.openPropertyPane("jsonformwidget");
 
-    // cy.get(`${fieldPrefix}-name`)
-    //   .find("input")
-    //   .should("have.value", "John");
-
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Object");
     cy.get(`${fieldPrefix}-name`)

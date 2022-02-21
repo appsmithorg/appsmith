@@ -171,7 +171,7 @@ function ArrayField({
 
   // When the default value changes, the ArrayField
   // need to generate the correct number of items
-  // So we we check if the there are more number of items (keys) than
+  // So we check if the there are more number of items (keys) than
   // the default value, then we remove extra else we add if more is required
   useDeepEffect(() => {
     if (defaultValue.length > keys.length) {
@@ -309,7 +309,7 @@ function ArrayField({
   );
 }
 
-const MemoedArrayField: FieldComponent = React.memo(ArrayField);
-MemoedArrayField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const MemoizedArrayField: FieldComponent = React.memo(ArrayField);
+MemoizedArrayField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
-export default MemoedArrayField;
+export default MemoizedArrayField;

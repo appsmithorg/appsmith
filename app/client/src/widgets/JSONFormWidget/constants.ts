@@ -113,8 +113,8 @@ export type ComponentDefaultValuesFnProps<TSourceData = any> = {
   sourceDataPath?: string;
   fieldType: FieldType;
   bindingTemplate: {
-    endTemplate: string;
-    startTemplate: string;
+    suffixTemplate: string;
+    prefixTemplate: string;
   };
   isCustomField: boolean;
   sourceData: TSourceData;
@@ -262,8 +262,8 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
 };
 
 export const getBindingTemplate = (widgetName: string) => {
-  const startTemplate = `{{((sourceData, formData, fieldState) => (`;
-  const endTemplate = `))(${widgetName}.sourceData, ${widgetName}.formData, ${widgetName}.fieldState)}}`;
+  const prefixTemplate = `{{((sourceData, formData, fieldState) => (`;
+  const suffixTemplate = `))(${widgetName}.sourceData, ${widgetName}.formData, ${widgetName}.fieldState)}}`;
 
-  return { startTemplate, endTemplate };
+  return { prefixTemplate, suffixTemplate };
 };

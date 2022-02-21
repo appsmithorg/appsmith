@@ -5,12 +5,13 @@ import {
   LabelValueType,
 } from "rc-select/lib/interface/generator";
 import { useController } from "react-hook-form";
+import { isNil } from "lodash";
 
 import Field from "../component/Field";
 import FormContext from "../FormContext";
 import MultiSelect from "widgets/MultiSelectWidgetV2/component";
 import useDeepEffect from "utils/hooks/useDeepEffect";
-import useEvents from "./useEvents";
+import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import { Layers } from "constants/Layers";
@@ -59,7 +60,7 @@ const StyledMultiSelectWrapper = styled.div`
 `;
 
 const isValid = (schemaItem: MultiSelectFieldProps["schemaItem"], value = []) =>
-  schemaItem.isRequired ? Boolean(value.length) : true;
+  !schemaItem.isRequired || Boolean(value.length);
 
 const DEFAULT_DROPDOWN_STYLES = {
   zIndex: Layers.dropdownModalWidget,
@@ -72,8 +73,7 @@ const fieldValuesToComponentValues = (
   return values.map((value) => {
     const option = options.find((option) => option.value === value);
 
-    if (option) return option;
-    return { value, label: value };
+    return option ? option : { value, label: value };
   });
 };
 
@@ -129,7 +129,7 @@ function MultiSelectField({
 
     const values: LabelValueType["value"][] | LabelValueType[] = (() => {
       if (
-        schemaItem.defaultValue !== undefined &&
+        !isNil(schemaItem.defaultValue) &&
         validateOptions(schemaItem.defaultValue)
       ) {
         return schemaItem.defaultValue;

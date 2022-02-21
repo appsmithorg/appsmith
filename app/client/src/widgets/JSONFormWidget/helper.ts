@@ -1,4 +1,4 @@
-import { isPlainObject, merge } from "lodash";
+import { isNil, isPlainObject, merge } from "lodash";
 import { LabelValueType } from "rc-select/lib/interface/generator";
 
 import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
@@ -96,7 +96,7 @@ export const validateOptions = (
   let hasPrimitive = false;
   let hasObject = false;
   for (const value of values) {
-    if (value === undefined || value === null || Number.isNaN(value)) {
+    if (isNil(value) || Number.isNaN(value)) {
       return false;
     } else if (isPrimitive(value)) {
       hasPrimitive = true;

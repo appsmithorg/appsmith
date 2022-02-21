@@ -31,7 +31,7 @@ export const CONFIG = {
     },
     sourceData: {
       name: "John",
-      date_of_birth: "29/02/1990",
+      date_of_birth: "20/02/1990",
       employee_id: 1001,
     },
   },

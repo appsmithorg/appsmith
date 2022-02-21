@@ -1885,7 +1885,7 @@ Cypress.Commands.add("Createpage", (Pagename) => {
   cy.xpath(apiwidget.popover)
     .last()
     .click({ force: true });
-  /*  
+  /*
   cy.xpath(pages.popover)
     .last()
     .click({ force: true });
@@ -2685,6 +2685,8 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   )
     .first()
     .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {

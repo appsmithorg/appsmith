@@ -32,7 +32,7 @@ const COMPONENT_DEFAULT_VALUES: RadioGroupComponentProps = {
 const isValid = (
   schemaItem: RadioGroupFieldProps["schemaItem"],
   value?: string,
-) => (schemaItem.isRequired ? Boolean(value) : true);
+) => !schemaItem.isRequired || Boolean(value);
 
 function RadioGroupField({
   fieldClassName,

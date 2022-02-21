@@ -35,7 +35,7 @@ type ParserOptions = {
   schemaItem?: SchemaItem;
   // - skipDefaultValueProcessing
   // When an array type is detected, by default we want to process default value
-  // only for the array level and keep every every field below it as empty default.
+  // only for the array field and keep every field below it as empty default.
   skipDefaultValueProcessing: boolean;
   sourceDataPath?: string;
   widgetName: string;
@@ -85,7 +85,7 @@ export const getSourcePath = (name: string | number, basePath?: string) => {
   let nameWithNotation = name;
 
   if (typeof name === "string") {
-    const sanitizedName = typeof name === "string" && sanitizeKey(name);
+    const sanitizedName = sanitizeKey(name);
     nameWithNotation = `.${name}`;
 
     if (sanitizedName !== name) {
@@ -463,10 +463,10 @@ class SchemaParser {
     const defaultValue = (() => {
       if (isCustomField || skipDefaultValueProcessing) return;
 
-      const { endTemplate, startTemplate } = bindingTemplate;
+      const { prefixTemplate, suffixTemplate } = bindingTemplate;
 
       const path = sourceDataPath
-        ? `${startTemplate}${sourceDataPath}${endTemplate}`
+        ? `${prefixTemplate}${sourceDataPath}${suffixTemplate}`
         : "";
 
       return `${path}`;

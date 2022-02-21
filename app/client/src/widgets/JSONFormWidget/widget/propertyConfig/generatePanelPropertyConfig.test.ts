@@ -1,5 +1,5 @@
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
-import generatePanelPropertyConfig from "./generatePanePropertyConfig";
+import generatePanelPropertyConfig from "./generatePanelPropertyConfig";
 
 describe(".generatePanelPropertyConfig", () => {
   it("generates nested panel property config based on level", () => {

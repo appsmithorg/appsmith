@@ -27,7 +27,6 @@ type DefaultValue = string | number | DropdownOption | null | undefined;
 type SelectComponentProps = FieldComponentBaseProps &
   MetaProps & {
     placeholderText?: string;
-
     options: DropdownOption[];
     onOptionChange?: string;
     serverSideFiltering: boolean;

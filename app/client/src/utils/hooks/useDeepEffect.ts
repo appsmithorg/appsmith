@@ -1,14 +1,10 @@
 import equal from "fast-deep-equal/es6";
-import {
-  DependencyList,
-  EffectCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { DependencyList, EffectCallback, useEffect, useRef } from "react";
+
+const STARTS_WITH_PRIMITIVE_REGEX = /^[sbn]/;
 
 function isPrimitive(val: unknown) {
-  return val === null || /^[sbn]/.test(typeof val);
+  return val === null || STARTS_WITH_PRIMITIVE_REGEX.test(typeof val);
 }
 
 function checkDeps(deps?: DependencyList) {
@@ -29,7 +25,10 @@ function useDeepEffect(effectFn: EffectCallback, deps?: DependencyList) {
   const depsRef = useRef(deps);
   const signalRef = useRef<number>(0);
 
-  if (process.env.NODE_ENV === "development") {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === "test"
+  ) {
     checkDeps(deps);
   }
 
@@ -38,9 +37,7 @@ function useDeepEffect(effectFn: EffectCallback, deps?: DependencyList) {
     signalRef.current += 1;
   }
 
-  const memoDeps = useMemo(() => depsRef.current, [signalRef.current]);
-
-  return useEffect(effectFn, memoDeps);
+  return useEffect(effectFn, [signalRef.current]);
 }
 
 export default useDeepEffect;

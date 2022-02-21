@@ -83,7 +83,7 @@ const initialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATEPICKER,
           timePrecision: "minute",
           sourceData: "10/12/2021",
@@ -463,7 +463,7 @@ const withRemovedKeyFromInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATEPICKER,
           timePrecision: "minute",
           sourceData: "10/12/2021",
@@ -804,7 +804,7 @@ const withRemovedAddedKeyToInitialDataset = {
           dataType: DataType.STRING,
           convertToISO: false,
           defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATEPICKER,
           timePrecision: "minute",
           sourceData: "10/12/2021",

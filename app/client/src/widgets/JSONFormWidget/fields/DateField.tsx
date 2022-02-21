@@ -5,7 +5,7 @@ import { useController } from "react-hook-form";
 import DateComponent from "widgets/DatePickerWidget2/component";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
-import useEvents from "./useEvents";
+import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import {
   FieldComponentBaseProps,
@@ -46,14 +46,13 @@ const COMPONENT_DEFAULT_VALUES = {
 };
 
 const componentDefaultValues = ({
-  // bindingTemplate,
+  bindingTemplate,
   isCustomField,
-  // skipDefaultValueProcessing,
-  // sourceDataPath,
+  skipDefaultValueProcessing,
   sourceData,
+  sourceDataPath,
 }: ComponentDefaultValuesFnProps<string>): DateComponentProps => {
-  // let defaultValue;
-  // const { endTemplate, startTemplate } = bindingTemplate;
+  let defaultValue;
   let dateFormat = COMPONENT_DEFAULT_VALUES.dateFormat;
 
   if (!isCustomField) {
@@ -65,15 +64,16 @@ const componentDefaultValues = ({
       dateFormat = format.value;
     }
 
-    // if (sourceDataPath && !skipDefaultValueProcessing) {
-    //   const { endTemplate, startTemplate } = bindingTemplate;
-    //   const defaultValueString = `moment(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
-    //   defaultValue = `${startTemplate}${defaultValueString}${endTemplate}`;
-    // }
+    if (sourceDataPath && !skipDefaultValueProcessing) {
+      const { prefixTemplate, suffixTemplate } = bindingTemplate;
+      const defaultValueString = `moment(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
+      defaultValue = `${prefixTemplate}${defaultValueString}${suffixTemplate}`;
+    }
   }
 
   return {
     ...COMPONENT_DEFAULT_VALUES,
+    defaultValue,
     dateFormat,
   };
 };
@@ -86,7 +86,7 @@ export const isValidType = (value: string) =>
   );
 
 const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
-  schemaItem.isRequired ? Boolean(value?.trim()) : true;
+  !schemaItem.isRequired || Boolean(value?.trim());
 
 function DateField({
   fieldClassName,

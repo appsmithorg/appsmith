@@ -89,7 +89,6 @@ function MultiSelectComponent({
   widgetId,
   width,
 }: MultiSelectProps): JSX.Element {
-  console.log("MULTI WIDGET values", value);
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);

@@ -1,4 +1,6 @@
 import React from "react";
+import { isString } from "lodash";
+
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import CodeEditor, {
@@ -12,7 +14,6 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
-import { isString } from "utils/helpers";
 import {
   JSToString,
   stringToJS,
@@ -39,6 +40,7 @@ const CurlyBraces = styled.span`
   font-size: 10px;
 `;
 
+// Auxiliary function for processArray, which returns the value for an object field
 function processObject(schema: Schema, defaultValue?: any) {
   const obj: Record<string, any> = {};
 
@@ -49,6 +51,7 @@ function processObject(schema: Schema, defaultValue?: any) {
   return obj;
 }
 
+// Auxiliary function for processArray, which returns the value for an array field
 function processArray(schema: Schema, defaultValue?: any): any[] {
   if (schema[ARRAY_ITEM_KEY]) {
     return [processSchemaItem(schema[ARRAY_ITEM_KEY], defaultValue)];
@@ -57,6 +60,7 @@ function processArray(schema: Schema, defaultValue?: any): any[] {
   return [];
 }
 
+// Auxiliary function for generateAutoCompleteStructure, which returns the value for a field
 function processSchemaItem(schemaItem: SchemaItem, defaultValue?: any) {
   if (schemaItem.dataType === DataType.OBJECT) {
     return processObject(schemaItem.children, defaultValue);
@@ -69,6 +73,32 @@ function processSchemaItem(schemaItem: SchemaItem, defaultValue?: any) {
   return defaultValue || FIELD_TYPE_TO_POTENTIAL_DATA[schemaItem.fieldType];
 }
 
+/**
+ * This function takes a schema, traverses through it and creates an object out of it. This
+ * object would look like the form data and this object would be used for autocomplete.
+ * Eg - schema {
+ *  __root_schema__: {
+ *    fieldType: object,
+ *    children: {
+ *      name: {
+ *        fieldType: string
+ *      },
+ *      age: {
+ *        fieldType: number
+ *      }
+ *    }
+ *  }
+ * }
+ *
+ * @returns
+ * {
+ *  name: "",
+ *  age: 0
+ * }
+ *
+ * @param schema
+ * @param defaultValue Values that the autocomplete should show for a particular field
+ */
 function generateAutoCompleteStructure(
   schema: Schema,
   defaultValue?: any,
@@ -136,11 +166,11 @@ export function InputText(props: {
 class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
   getInputComputedValue = (propertyValue: string) => {
     const { widgetName } = this.props.widgetProperties;
-    const { endTemplate, startTemplate } = getBindingTemplate(widgetName);
+    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 
     const value = propertyValue.substring(
-      startTemplate.length,
-      propertyValue.length - endTemplate.length,
+      prefixTemplate.length,
+      propertyValue.length - suffixTemplate.length,
     );
 
     return JSToString(value);
@@ -149,29 +179,20 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
   getComputedValue = (value: string) => {
     const { widgetName } = this.props.widgetProperties;
     const stringToEvaluate = stringToJS(value);
-    const { endTemplate, startTemplate } = getBindingTemplate(widgetName);
+    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
 
-    return `${startTemplate}${stringToEvaluate}${endTemplate}`;
+    return `${prefixTemplate}${stringToEvaluate}${suffixTemplate}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
-    let value = "";
-    if (typeof event !== "string") {
-      value = event.target?.value;
-    } else {
-      value = event;
-    }
-    if (isString(value)) {
-      const output = this.getComputedValue(value);
+    const value = isString(event) ? event : event.target?.value;
+    const output = this.getComputedValue(value);
 
-      this.updateProperty(this.props.propertyName, output);
-    } else {
-      this.updateProperty(this.props.propertyName, value);
-    }
+    this.updateProperty(this.props.propertyName, output);
   };
 
   render() {
@@ -196,6 +217,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
         isVisible: true,
         isDisabled: true,
         isRequired: true,
+        isValid: true,
       },
     );
 

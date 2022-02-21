@@ -30,8 +30,8 @@ function FieldRenderer({
 
   return (
     <FieldComponent
-      fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")}
-      name={fieldName} // replace [,],. with -
+      fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")} // replace [,],. with -
+      name={fieldName}
       passedDefaultValue={passedDefaultValue}
       propertyPath={propertyPath}
       schemaItem={schemaItem}

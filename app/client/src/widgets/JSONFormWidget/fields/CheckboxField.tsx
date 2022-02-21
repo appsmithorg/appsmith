@@ -5,7 +5,7 @@ import { useController } from "react-hook-form";
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import FormContext from "../FormContext";
 import Field from "../component/Field";
-import useEvents from "./useEvents";
+import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { AlignWidget } from "widgets/constants";
 import {
@@ -40,7 +40,7 @@ const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
 const isValid = (
   value: boolean,
   schemaItem: CheckboxFieldProps["schemaItem"],
-) => (schemaItem.isRequired ? Boolean(value) : true);
+) => !schemaItem.isRequired || Boolean(value);
 
 function CheckboxField({
   fieldClassName,

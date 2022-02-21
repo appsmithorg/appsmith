@@ -175,38 +175,6 @@ describe("Select Field Property Control", () => {
     );
   });
 
-  // it("changes dropdown options", () => {
-  //   const options = [
-  //     { label: "Karnataka", value: "Karnataka" },
-  //     { label: "Delhi", value: "Delhi" },
-  //     { label: "Nagaland", value: "Nagaland" },
-  //     { label: "Mizoram", value: "Mizoram" },
-  //   ];
-  //   cy.testJsontext("options", JSON.stringify(options));
-  //   // click select field and check of select options match with options entered.
-  //   cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
-  //   cy.get(".bp3-menu-item").each(($el, index) => {
-  //     cy.wrap($el).contains(options[index].label);
-  //   });
-  //   cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
-  // });
-
-  // it("adds placeholder text", () => {
-  //   cy.testJsontext("placeholder", "Select placeholder");
-  //   cy.testJsontext("defaultvalue", "");
-
-  //   cy.get(`${fieldPrefix}-state .bp3-popover-target`).contains(
-  //     "Select placeholder",
-  //   );
-
-  //   // click select field, select the "Nagaland" option and check if Nagaland selected
-  //   cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
-  //   cy.get(".bp3-select-popover")
-  //     .contains("Nagaland")
-  //     .click();
-  //   cy.get(`${fieldPrefix}-state .bp3-popover-target`).contains("Nagaland");
-  // });
-
   it("makes select filterable", () => {
     // click select field and filter input should not exist
     cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
@@ -257,27 +225,6 @@ describe("Multi-Select Field Property Control", () => {
     cy.closePropertyPane();
   });
 
-  // it("changes dropdown options", () => {
-  //   const options = [
-  //     { label: "Swimming", value: "Swimming" },
-  //     { label: "Hiking", value: "Hiking" },
-  //     { label: "Travelling", value: "Travelling" },
-  //   ];
-  //   cy.testJsontext("options", JSON.stringify(options));
-
-  //   cy.closePropertyPane();
-
-  //   // click multi-select field and check of select options match with options entered.
-  //   cy.get(`${fieldPrefix}-hobbies`)
-  //     .find(".rc-select-selection-search-input")
-  //     .first()
-  //     .focus({ force: true })
-  //     .type("{uparrow}", { force: true });
-  //   cy.get(".rc-select-item-option-content").each(($el, index) => {
-  //     cy.wrap($el).contains(options[index].label);
-  //   });
-  // });
-
   it("adds placeholder text", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("hobbies");
@@ -326,19 +273,6 @@ describe("Radio group Field Property Control", () => {
     cy.get(`${fieldPrefix}-radio input`).should("have.value", "Y");
   });
 
-  // it("changes radio group options", () => {
-  //   const options = [
-  //     { label: "Yes", value: "Y" },
-  //     { label: "No", value: "N" },
-  //     { label: "Both", value: "B" },
-  //   ];
-  //   cy.testJsontext("options", JSON.stringify(options));
-
-  //   cy.get(`${fieldPrefix}-radio .bp3-control.bp3-radio`).each(($el, index) => {
-  //     cy.wrap($el).contains(options[index].label);
-  //   });
-  // });
-
   it("hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-radio`).should("not.exist");
@@ -346,13 +280,4 @@ describe("Radio group Field Property Control", () => {
     cy.togglebar(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-radio`).should("exist");
   });
-
-  // it("disables field when disabled switched on", () => {
-  //   cy.togglebar(`.t--property-control-disabled input`);
-  //   cy.get(`${fieldPrefix}-radio input`).each(($el) => {
-  //     cy.wrap($el).should("have.attr", "disabled");
-  //   });
-
-  //   cy.togglebarDisable(`.t--property-control-disabled input`);
-  // });
 });

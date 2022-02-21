@@ -1,4 +1,4 @@
-import generatePanelPropertyConfig from "./propertyConfig/generatePanePropertyConfig";
+import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";

@@ -1,5 +1,6 @@
 import React from "react";
-import { cloneDeep, isEmpty, maxBy, set, sortBy } from "lodash";
+import { cloneDeep, isEmpty, isString, maxBy, set, sortBy } from "lodash";
+import log from "loglevel";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -79,7 +80,6 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   onDeleteOption = (index: number) => {
     const { propertyName } = this.props;
-
     const schemaItem = this.findSchemaItem(index);
 
     if (schemaItem) {
@@ -150,15 +150,14 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
   };
 
   onInputChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
-    let value = event;
-    if (typeof event !== "string") {
-      value = event.target.value;
-    }
+    const value = isString(event) ? event : event.target.value;
 
     try {
-      const parsedValue = JSON.parse(value as string);
+      const parsedValue = JSON.parse(value);
       this.updateProperty(this.props.propertyName, parsedValue);
-    } catch {}
+    } catch (e) {
+      log.error(e);
+    }
   };
 
   updateItems = (items: DroppableItem[]) => {
@@ -205,7 +204,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     const sortedSchemaItems = sortBy(schemaItems, ({ position }) => position);
 
-    const isMaxLevelReached = Boolean(!panelConfig);
+    const isMaxLevelReached = !panelConfig;
 
     const draggableComponentColumns: DroppableItem[] = sortedSchemaItems.map(
       ({ identifier, isCustomField, isVisible, label }, index) => ({

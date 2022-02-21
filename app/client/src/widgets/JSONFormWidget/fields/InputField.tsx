@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 
 import BaseInputField, {
   BaseInputComponentProps,
+  EMAIL_REGEX,
   parseRegex,
 } from "./BaseInputField";
 import { BaseFieldComponentProps, FieldType } from "../constants";
@@ -26,8 +27,6 @@ const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isVisible: true,
   label: "",
 };
-
-const EMAIL_REGEX = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 
 const getInputHTMLType = (fieldType: FieldType) => {
   switch (fieldType) {

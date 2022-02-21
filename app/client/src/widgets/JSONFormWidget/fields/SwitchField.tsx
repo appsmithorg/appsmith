@@ -3,7 +3,7 @@ import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
-import useEvents from "./useEvents";
+import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { AlignWidget } from "widgets/constants";
 import {
@@ -31,7 +31,7 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
 };
 
 const isValid = (value: boolean, schemaItem: SwitchFieldProps["schemaItem"]) =>
-  schemaItem.isRequired ? Boolean(value) : true;
+  !schemaItem.isRequired || value;
 
 function SwitchField({
   fieldClassName,

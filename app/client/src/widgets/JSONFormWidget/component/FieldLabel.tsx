@@ -54,9 +54,11 @@ const TOOLTIP_CLASSNAME = "tooltip-wrapper";
 // Default spacing between elements like label/tooltip etc
 const DEFAULT_GAP = 10;
 
-// align-items: flex-start is to keep fields like checkbox to always be
-// at the start even when the field label breaks to new line, otherwise
-// the checkbox might center align.
+/**
+ * align-items: flex-start is to keep fields like checkbox to always be
+ * at the start even when the field label breaks to new line, otherwise
+ * the checkbox might center align.
+ */
 const StyledLabel = styled.label<StyledLabelProps>`
   align-items: flex-start;
   display: flex;

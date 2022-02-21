@@ -15,7 +15,7 @@ type UseEventsProps = {
   onBlurDynamicString?: string;
 };
 
-function useEvents<TElement extends BaseEvents>({
+function useBlurAndFocusEvents<TElement extends BaseEvents>({
   fieldBlurHandler,
   onBlurDynamicString,
   onFocusDynamicString,
@@ -84,4 +84,4 @@ function useEvents<TElement extends BaseEvents>({
   };
 }
 
-export default useEvents;
+export default useBlurAndFocusEvents;

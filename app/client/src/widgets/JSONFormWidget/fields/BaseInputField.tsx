@@ -10,7 +10,7 @@ import { useController } from "react-hook-form";
 
 import Field from "../component/Field";
 import FormContext from "../FormContext";
-import useEvents from "./useEvents";
+import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -76,7 +76,9 @@ const COMPONENT_DEFAULT_VALUES: BaseInputComponentProps = {
   label: "",
 };
 
-const EMAIL_REGEX = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
+export const EMAIL_REGEX = new RegExp(
+  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+);
 
 export const parseRegex = (regex?: string) => {
   try {
