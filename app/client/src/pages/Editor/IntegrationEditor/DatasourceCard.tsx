@@ -43,8 +43,10 @@ const Wrapper = styled.div`
   padding: 18px;
   /* margin-top: 18px; */
   cursor: pointer;
+
   &:hover {
     background: ${Colors.Gallery};
+
     .bp3-collapse-body {
       background: ${Colors.Gallery};
     }
@@ -75,6 +77,7 @@ const DatasourceImage = styled.img`
 const GenerateTemplateButton = styled(Button)`
   padding: 10px 10px;
   font-size: 12px;
+
   &&&& {
     height: 36px;
     max-width: 200px;
@@ -136,6 +139,7 @@ const RedMenuItem = styled(MenuItem)`
   && .cs-text {
     color: ${Colors.DANGER_SOLID};
   }
+
   &&,
   &&:hover {
     svg,
@@ -343,20 +347,20 @@ function DatasourceCard(props: DatasourceCardProps) {
                       />
                     </MoreOptionsContainer>
                   }
-               > 
+                >
                   <MenuItem
-                  className="t--datasource-option-edit"
-                  icon="edit"
-                  onSelect={editDatasource}
-                  text="Edit"
-                />
-                <RedMenuItem
-                  className="t--datasource-option-delete"
-                  icon="delete"
-                  isLoading={isDeletingDatasource}
-                  onSelect={deleteAction}
-                  text="Delete"
-                />
+                    className="t--datasource-option-edit"
+                    icon="edit"
+                    onSelect={editDatasource}
+                    text="Edit"
+                  />
+                  <RedMenuItem
+                    className="t--datasource-option-delete"
+                    icon="delete"
+                    isLoading={isDeletingDatasource}
+                    onSelect={deleteAction}
+                    text="Delete"
+                  />
                 </MenuComponent>
               </MenuWrapper>
             </ButtonsWrapper>
