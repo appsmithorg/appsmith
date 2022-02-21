@@ -94,6 +94,11 @@ export const WidgetIcons: {
       <TableIcon />
     </StyledIconWrapper>
   ),
+  TABLE_WIDGET_V2: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <TableIcon />
+    </StyledIconWrapper>
+  ),
   VIDEO_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <VideoIcon />
