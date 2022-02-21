@@ -85,10 +85,10 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     Authentication authentication = context.getAuthentication();
                     if (authentication instanceof OAuth2AuthenticationToken) {
                         // Add the ID claims here as metadata which can be exposed by the client to appsmith developers
-                        profile.setMetadata(userData.getUserClaims());
+                        profile.setIdToken(userData.getUserClaims());
                     } else {
                         // Do not return the field metadata otherwise.
-                        profile.setMetadata(null);
+                        profile.setIdToken(null);
                     }
 
                     return profile;

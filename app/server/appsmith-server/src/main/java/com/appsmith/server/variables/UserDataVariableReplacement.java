@@ -23,7 +23,7 @@ public class UserDataVariableReplacement implements ServerSideVariableReplacemen
                     .getForCurrentUser()
                     .flatMap(userData -> {
                         switch (userDataVariableType) {
-                            case APPSMITH_USER_OAUTH2_TOKEN:
+                            case APPSMITH_USER_OAUTH2_ACCESS_TOKEN:
                                 return Mono.just(userData.getAccessToken());
                             default:
                                 break;
