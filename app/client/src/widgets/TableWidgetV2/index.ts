@@ -7,7 +7,7 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Table",
+  name: "Table V2",
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
@@ -17,7 +17,7 @@ export const CONFIG = {
     defaultSelectedRowIndex: "0",
     defaultSelectedRowIndices: ["0"],
     label: "Data",
-    widgetName: "Table",
+    widgetName: "Table_V2",
     searchKey: "",
     textSize: "PARAGRAPH",
     horizontalAlignment: "LEFT",
@@ -26,30 +26,31 @@ export const CONFIG = {
     defaultPageSize: 0,
     dynamicBindingPathList: [
       {
-        key: "primaryColumns.step.computedValue",
+        key: "primaryColumns._7564271686515424.computedValue",
       },
       {
-        key: "primaryColumns.task.computedValue",
+        key: "primaryColumns._3356042849650782.computedValue",
       },
       {
-        key: "primaryColumns.status.computedValue",
+        key: "primaryColumns._2413015321063834.computedValue",
       },
       {
-        key: "primaryColumns.action.computedValue",
+        key: "primaryColumns._7359744396795533.computedValue",
       },
     ],
     accessorMap: {
-      step: "step1",
+      step: "step",
       task: "task",
       status: "status",
       action: "action",
     },
     primaryColumns: {
-      step: {
+      _7564271686515424: {
         index: 0,
         width: 150,
-        id: "step",
-        accessor: "step1",
+        id: "_7564271686515424",
+        originalId: "step",
+        accessor: "step",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
@@ -61,12 +62,13 @@ export const CONFIG = {
         isDerived: false,
         label: "step",
         computedValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step1))}}",
+          "{{Table1.processedTableData.map((currentRow) => ( currentRow.step))}}",
       },
-      task: {
+      _3356042849650782: {
         index: 1,
         width: 150,
-        id: "task",
+        id: "_3356042849650782",
+        originalId: "task",
         accessor: "task",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
@@ -79,12 +81,13 @@ export const CONFIG = {
         isDerived: false,
         label: "task",
         computedValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.task))}}",
+          "{{Table1.processedTableData.map((currentRow) => ( currentRow.task))}}",
       },
-      status: {
+      _2413015321063834: {
         index: 2,
         width: 150,
-        id: "status",
+        id: "_2413015321063834",
+        originalId: "status",
         accessor: "status",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
@@ -97,12 +100,13 @@ export const CONFIG = {
         isDerived: false,
         label: "status",
         computedValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}",
+          "{{Table1.processedTableData.map((currentRow) => ( currentRow.status))}}",
       },
-      action: {
+      _7359744396795533: {
         index: 3,
         width: 150,
-        id: "action",
+        id: "_7359744396795533",
+        originalId: "action",
         accessor: "action",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
@@ -118,7 +122,7 @@ export const CONFIG = {
         onClick:
           "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
         computedValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
+          "{{Table1.processedTableData.map((currentRow) => ( currentRow.action))}}",
       },
     },
     tableData: [
@@ -142,11 +146,16 @@ export const CONFIG = {
       },
     ],
     columnWidthMap: {
-      task: 245,
-      step: 62,
-      status: 75,
+      _3356042849650782: 245,
+      _7564271686515424: 62,
+      _2413015321063834: 75,
     },
-    columnOrder: ["step", "task", "status", "action"],
+    columnOrder: [
+      "_7564271686515424",
+      "_3356042849650782",
+      "_2413015321063834",
+      "_7359744396795533",
+    ],
     blueprint: {
       operations: [
         {
@@ -158,7 +167,7 @@ export const CONFIG = {
               set(
                 primaryColumns,
                 `${columnId}.computedValue`,
-                `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${primaryColumns[columnId].accessor}))}}`,
+                `{{${widget.widgetName}.processedTableData.map((currentRow) => ( currentRow.${primaryColumns[columnId].accessor}))}}`,
               );
               set(primaryColumns, `${columnId}.buttonColor`, Colors.GREEN);
               set(primaryColumns, `${columnId}.menuColor`, Colors.GREEN);
