@@ -25,7 +25,7 @@ export default {
       index = parseInt(props.selectedRowIndex);
     }
 
-    const rows = props.filteredTableData || props.sanitizedTableData || [];
+    const rows = props.filteredTableData || props.processedTableData || [];
     let selectedRow;
 
     /*
@@ -56,7 +56,7 @@ export default {
       index = parsedTriggeredRowIndex;
     }
 
-    const rows = props.filteredTableData || props.sanitizedTableData || [];
+    const rows = props.filteredTableData || props.processedTableData || [];
     const triggeredRow;
 
     /*
@@ -89,7 +89,7 @@ export default {
       indices = props.selectedRowIndices;
     }
 
-    const rows = props.filteredTableData || props.sanitizedTableData || [];
+    const rows = props.filteredTableData || props.processedTableData || [];
 
     return indices.map((index) => rows[index]);
   },
@@ -140,7 +140,7 @@ export default {
     return pageSize;
   },
   //
-  getSanitizedTableData: (props, moment, _) => {
+  getProcessedTableData: (props, moment, _) => {
     /*
      * TODO(Balaji): We need to take the inline edited cells and custom column values
      * from meta and inject that into sanitised data
@@ -164,117 +164,40 @@ export default {
     return data;
   },
   //
-  getTableColumns: (props, moment, _) => {
-    /*
-     * existing columns - primaryColumns
-     * new columns - tableData columns
-     */
-    const data = props.tableData || [];
-
+  getOrderedTableColumns: (props, moment, _) => {
     let columns = [];
-
-    /* Shallow copy primaryColumns */
-    let existingColumns = Object.assign({}, props.primaryColumns || {});
+    let existingColumns = props.primaryColumns || {};
 
     /*
-     * Add colummns from tableData to existingColumns if they're not already preset
-     * Remove columns from existingColumns if they're not present in the tableData
+     * Assign index based on the columnOrder
      */
-    if (data.length > 0) {
-      const columnIdSet = new Set();
-
-      /*
-       * Create a unigue column ids list from newColumns
-       */
-      data.forEach((row) => {
-        Object.keys(row).forEach((key) => {
-          columnIdSet.add(key);
-        });
-      });
-
-      const newColumnIds = Array.from(columnIdSet);
-
-      /*
-       * Create columns that are not already present in the primaryColumns list
-       */
-      newColumnIds.forEach((id) => {
-        if (!existingColumns[id]) {
-          const currIndex = Object.keys(existingColumns).length;
-          existingColumns[id] = {
-            index: currIndex,
-            width: 150,
-            id,
-            accessor: id,
-            horizontalAlignment: "LEFT",
-            verticalAlignment: "CENTER",
-            columnType: "text",
-            textColor: "#231F20",
-            textSize: "PARAGRAPH",
-            fontStyle: "REGULAR",
-            enableFilter: true,
-            enableSort: true,
-            isVisible: true,
-            isDerived: false,
-            label: id,
-            computedValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
-          };
-        }
-      });
-
-      /* We need to delete the columns, which are not present in the
-       * new tableData, from existing columns.
-       */
-      const existingColumnIds = Object.keys(existingColumns);
-
-      _.without(existingColumnIds, ...newColumnIds)
-        .filter((excludedId) => {
-          /*
-           * only remove the non derived columns, since sanitized tabledata
-           * doesn't have the derived columns
-           */
-          const column = existingColumns[excludedId];
-
-          return column && !column.isDerived;
-        })
-        .forEach((id) => delete existingColumns[id]);
-    }
-
-    /*
-     * Need to reassign index keys to columns in existing columns
-     * since we have added/removed columns from it
-     */
-    if (_.isArray(props.columnOrder) && props.columnOrder.length > 0) {
+    if (
+      _.isArray(props.columnOrder) &&
+      props.columnOrder.length > 0 &&
+      Object.keys(existingColumns).length > 0
+    ) {
       const newColumnsInOrder = {};
-
       let index = 0;
 
-      /* Assign index for the columns that are already present */
       _.uniq(props.columnOrder).forEach((columnId) => {
         if (existingColumns[columnId]) {
-          newColumnsInOrder[columnId] = {
-            ...existingColumns[columnId],
-            index,
-          };
+          newColumnsInOrder[columnId] = Object.assign(
+            {},
+            existingColumns[columnId],
+            {
+              index,
+            },
+          );
+
           index++;
         }
-      });
-
-      const len = Object.keys(newColumnsInOrder).length;
-
-      /* Assign index for the new columns */
-      _.without(
-        Object.keys(existingColumns),
-        ...Object.keys(newColumnsInOrder),
-      ).forEach((id, index) => {
-        newColumnsInOrder[id] = { ...existingColumns[id], index: len + index };
       });
 
       existingColumns = newColumnsInOrder;
     }
 
-    const sortByColumn = props.sortOrder.column;
-    const isAscOrder = props.sortOrder.order === "asc";
-
+    const sortByColumn = props.sortOrder && props.sortOrder.column;
+    const isAscOrder = props.sortOrder && props.sortOrder.order === "asc";
     /* set sorting flags and convert the existing columns into an array */
     Object.values(existingColumns).forEach((column) => {
       /* guard to not allow columns without id */
@@ -290,7 +213,7 @@ export default {
   getFilteredTableData: (props, moment, _) => {
     /* Make a shallow copy */
     const primaryColumns = props.primaryColumns || {};
-    let sanitizedTableData = [...props.sanitizedTableData];
+    let processedTableData = [...props.processedTableData];
     const derivedColumns = {};
 
     Object.keys(primaryColumns).forEach((id) => {
@@ -299,11 +222,11 @@ export default {
       }
     });
 
-    if (!sanitizedTableData || !sanitizedTableData.length) {
+    if (!processedTableData || !processedTableData.length) {
       return [];
     }
 
-    /* extend sanitizedTableData with values from
+    /* extend processedTableData with values from
      *  - computedValues, in case of normal column
      *  - empty values, in case of derived column
      */
@@ -333,12 +256,12 @@ export default {
           derivedColumns &&
           derivedColumns[id]
         ) {
-          computedValues = Array(sanitizedTableData.length).fill("");
+          computedValues = Array(processedTableData.length).fill("");
         }
 
         computedValues.forEach((computedValue, index) => {
-          sanitizedTableData[index] = {
-            ...sanitizedTableData[index],
+          processedTableData[index] = {
+            ...processedTableData[index],
             [column.accessor]: computedValue,
           };
         });
@@ -346,7 +269,7 @@ export default {
     }
 
     /* Populate meta keys (__originalIndex__, __primaryKey__) */
-    sanitizedTableData = sanitizedTableData.map((row, index) => ({
+    processedTableData = processedTableData.map((row, index) => ({
       ...row,
       __originalIndex__: index,
       __primaryKey__: props.primaryColumnId
@@ -354,7 +277,7 @@ export default {
         : undefined,
     }));
 
-    const columns = props.tableColumns;
+    const columns = props.orderedTableColumns;
     const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
@@ -363,6 +286,8 @@ export default {
       const sortBycolumn = columns.find(
         (column) => column.id === sortByColumnId,
       );
+      const sortByColumnOriginalId = sortBycolumn.originalId;
+
       const columnType =
         sortBycolumn && sortBycolumn.columnType
           ? sortBycolumn.columnType
@@ -380,25 +305,26 @@ export default {
         }
       };
 
-      sortedTableData = sanitizedTableData.sort((a, b) => {
+      sortedTableData = processedTableData.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
           if (
-            isEmptyOrNil(a[sortByColumnId]) ||
-            isEmptyOrNil(b[sortByColumnId])
+            isEmptyOrNil(a[sortByColumnOriginalId]) ||
+            isEmptyOrNil(b[sortByColumnOriginalId])
           ) {
             /* push null, undefined and "" values to the bottom. */
-            return isEmptyOrNil(a[sortByColumnId]) ? 1 : -1;
+            return isEmptyOrNil(a[sortByColumnOriginalId]) ? 1 : -1;
           } else {
             switch (columnType) {
               case "number":
                 return sortByOrder(
-                  Number(a[sortByColumnId]) > Number(b[sortByColumnId]),
+                  Number(a[sortByColumnOriginalId]) >
+                    Number(b[sortByColumnOriginalId]),
                 );
               case "date":
                 try {
                   return sortByOrder(
-                    moment(a[sortByColumnId], inputFormat).isAfter(
-                      moment(b[sortByColumnId], inputFormat),
+                    moment(a[sortByColumnOriginalId], inputFormat).isAfter(
+                      moment(b[sortByColumnOriginalId], inputFormat),
                     ),
                   );
                 } catch (e) {
@@ -406,8 +332,8 @@ export default {
                 }
               default:
                 return sortByOrder(
-                  a[sortByColumnId].toString().toLowerCase() >
-                    b[sortByColumnId].toString().toLowerCase(),
+                  a[sortByColumnOriginalId].toString().toLowerCase() >
+                    b[sortByColumnOriginalId].toString().toLowerCase(),
                 );
             }
           }
@@ -416,7 +342,7 @@ export default {
         }
       });
     } else {
-      sortedTableData = [...sanitizedTableData];
+      sortedTableData = [...processedTableData];
     }
 
     const ConditionFunctions = {
