@@ -8,7 +8,7 @@ const initialState: TemplatesReduxState = {
   templates: [],
   filters: {},
   templateSearchQuery: "",
-  showTemplateNotification: null,
+  templateNotificationSeen: null,
 };
 
 const templateReducer = createReducer(initialState, {
@@ -71,7 +71,7 @@ const templateReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      showTemplateNotification: action.payload,
+      templateNotificationSeen: action.payload,
     };
   },
 });
@@ -82,7 +82,7 @@ export interface TemplatesReduxState {
   filters: Record<string, string[]>;
   templateSearchQuery: string;
   isImportingTemplate: boolean;
-  showTemplateNotification: boolean | null;
+  templateNotificationSeen: boolean | null;
 }
 
 export default templateReducer;

@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
@@ -24,6 +24,8 @@ import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-ha
 import MobileSideBar from "./MobileSidebar";
 import { Indices } from "constants/Layers";
 import Icon, { IconSize } from "components/ads/Icon";
+import { TemplatesTabItem } from "pages/Templates/TemplatesTabItem";
+import { getTemplateNotificationSeenAction } from "actions/templateActions";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -100,6 +102,7 @@ type PageHeaderProps = {
 export function PageHeader(props: PageHeaderProps) {
   const { user } = props;
   const location = useLocation();
+  const dispatch = useDispatch();
   const queryParams = new URLSearchParams(location.search);
   const isMobile = useIsMobileDevice();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -108,6 +111,11 @@ export function PageHeader(props: PageHeaderProps) {
     loginUrl += `?redirectUrl
     =${queryParams.get("redirectUrl")}`;
   }
+
+  useEffect(() => {
+    dispatch(getTemplateNotificationSeenAction());
+  }, []);
+
   const tabs = [
     {
       title: "Apps",
@@ -138,18 +146,24 @@ export function PageHeader(props: PageHeaderProps) {
       </HeaderSection>
 
       <Tabs>
-        {showTabs &&
-          tabs.map((tab) => {
-            return (
+        {showTabs && (
+          <>
+            <TabName
+              isSelected={matchApplicationPath(location.pathname)}
+              onClick={() => history.push(APPLICATIONS_URL)}
+            >
+              <div>APPS</div>
+            </TabName>
+            <TemplatesTabItem>
               <TabName
-                isSelected={tab.matcher(location.pathname)}
-                key={tab.title}
-                onClick={() => history.push(tab.path)}
+                isSelected={matchTemplatesPath(location.pathname)}
+                onClick={() => history.push(TEMPLATES_URL)}
               >
-                <div>{tab.title}</div>
+                <div>TEMPLATES</div>
               </TabName>
-            );
-          })}
+            </TemplatesTabItem>
+          </>
+        )}
       </Tabs>
 
       {user && !isMobile && (

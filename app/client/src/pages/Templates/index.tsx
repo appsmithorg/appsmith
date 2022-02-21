@@ -23,7 +23,11 @@ import {
 import { fetchPlugins } from "actions/pluginActions";
 import { editorInitializer } from "utils/EditorUtils";
 import { AppState } from "reducers";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import {
+  getIsFetchingApplications,
+  getUserApplicationsOrgsList,
+} from "selectors/applicationSelectors";
+import { getAllApplications } from "actions/applicationActions";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -70,6 +74,9 @@ const SearchWrapper = styled.div`
 function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
+  const organizationListLength = useSelector(
+    (state: AppState) => getUserApplicationsOrgsList(state).length,
+  );
   const templateOrganization = useSelector(getOrganizationForTemplates);
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
@@ -86,6 +93,12 @@ function TemplateRoutes() {
       dispatch(getAllTemplates());
     }
   }, [templatesCount]);
+
+  useEffect(() => {
+    if (!organizationListLength) {
+      dispatch(getAllApplications());
+    }
+  }, [organizationListLength]);
 
   useEffect(() => {
     if (templateOrganization?.organization.id) {
