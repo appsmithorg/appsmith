@@ -51,7 +51,7 @@ const Title = styled(Text)`
 `;
 
 const IframeWrapper = styled.div`
-  border: 2px dashed #6eb9f0;
+  border: 1px solid #6eb9f0;
   background: rgba(110, 185, 240, 0.08);
   height: 734px;
   width: 100%;
