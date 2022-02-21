@@ -74,6 +74,8 @@ export const ContainerDiv = styled.div<{
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+    background-origin: content-box;
+    padding: 8px;
   }
 
   .centered {
