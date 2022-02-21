@@ -52,6 +52,7 @@ export interface Category {
   title: string;
   slug: string;
   subText?: string;
+  isConnected?: boolean;
   children?: Category[];
 }
 
@@ -76,4 +77,5 @@ export type AdminConfigType = {
   component?: React.ElementType;
   children?: AdminConfigType[];
   canSave: boolean;
+  isConnected?: boolean;
 };

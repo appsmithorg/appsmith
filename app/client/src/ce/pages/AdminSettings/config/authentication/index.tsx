@@ -28,6 +28,7 @@ const Form_Auth: AdminConfigType = {
   title: "Form Login",
   subText: "Enable your organization to sign in with Appsmith Form.",
   canSave: true,
+  isConnected: false,
   settings: [
     {
       id: "APPSMITH_FORM_LOGIN_DISABLED",
@@ -76,6 +77,7 @@ const Google_Auth: AdminConfigType = {
   title: "Google Authentication",
   subText: "Enable your organization to sign in with Google (OAuth).",
   canSave: true,
+  isConnected: enableGoogleOAuth,
   settings: [
     {
       id: "APPSMITH_OAUTH2_GOOGLE_READ_MORE",
@@ -120,6 +122,7 @@ const Github_Auth: AdminConfigType = {
   subText:
     "Enable your organization to sign in with Github SAML single sign-on (SSO).",
   canSave: true,
+  isConnected: enableGithubOAuth,
   settings: [
     {
       id: "APPSMITH_OAUTH2_GITHUB_READ_MORE",

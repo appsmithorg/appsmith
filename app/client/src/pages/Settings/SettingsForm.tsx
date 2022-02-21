@@ -19,6 +19,7 @@ import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import { DisconnectService } from "./DisconnectService";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -79,6 +80,9 @@ export function SettingsForm(
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
   );
+  const pageTitle = getSettingLabel(
+    details?.title || (subCategory ?? category),
+  );
 
   const onSave = () => {
     dispatch(saveSettings(props.settings));
@@ -111,13 +115,15 @@ export function SettingsForm(
     });
   }, []);
 
+  const disconnect = () => {
+    console.log("hello");
+  };
+
   return (
     <Wrapper>
       <SettingsFormWrapper>
         <HeaderWrapper>
-          <SettingsHeader>
-            {getSettingLabel(details?.title || (subCategory ?? category))}
-          </SettingsHeader>
+          <SettingsHeader>{pageTitle}</SettingsHeader>
           {details?.subText && (
             <SettingsSubHeader>{details.subText}</SettingsSubHeader>
           )}
@@ -134,6 +140,14 @@ export function SettingsForm(
             onSave={onSave}
             settings={props.settings}
             valid={props.valid}
+          />
+        )}
+        {details?.isConnected && (
+          <DisconnectService
+            disconnect={disconnect}
+            subHeader="Changes to this section can disrupt user authentication. Proceed with
+          caution"
+            warning={`${pageTitle} will be removed as primary method of authentication`}
           />
         )}
         <BottomSpace />
