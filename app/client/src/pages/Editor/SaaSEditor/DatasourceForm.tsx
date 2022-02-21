@@ -70,22 +70,6 @@ const EditDatasourceButton = styled(AdsButton)`
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props> {
-  // componentDidMount() {
-  //   if (
-  //     this.props.match.params.datasourceId === TEMP_DATASOURCE_ID &&
-  //     this.props.formValues &&
-  //     !this.props.formValues
-  //   ) {
-  //     this.props.history.push(
-  //       INTEGRATION_EDITOR_URL(
-  //         this.props.applicationId,
-  //         this.props.match.params.pageId,
-  //         INTEGRATION_TABS.ACTIVE,
-  //       ),
-  //     );
-  //   }
-  // }
-
   render() {
     const { formConfig, pluginId } = this.props;
     if (!pluginId) {

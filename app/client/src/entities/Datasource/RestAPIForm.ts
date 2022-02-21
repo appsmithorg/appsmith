@@ -57,7 +57,7 @@ export interface ApiDatasourceForm {
   authType: AuthType;
   authentication?: Authentication;
   connection?: Connection;
-  name: string;
+  name?: string;
 }
 
 export interface Oauth2Common {

@@ -42,7 +42,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   pluginType: string;
   messages?: Array<string>;
   datasource: Datasource;
-  datasourceName: string;
+  datasourceName?: string;
 }
 
 type Props = DatasourceDBEditorProps &

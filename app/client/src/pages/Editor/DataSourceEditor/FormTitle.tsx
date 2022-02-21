@@ -81,12 +81,15 @@ function FormTitle(props: FormTitleProps) {
 
   const handleDatasourceNameChange = useCallback(
     (name: string) => {
+      // Check if the datasource name equals "Untitled Datasource X" if no , use the name passed.
       const datsourceName = name !== "Untitled Datasource X" ? name : "";
       if (
         !isInvalidDatasourceName(name) &&
         currentDatasource &&
         currentDatasource.name !== name
       ) {
+        // if the currentDatasource id equals the temp datasource id,
+        // it means that you are about to create a new datasource hemce saveDatasourceName would be dispatch
         if (currentDatasource.id === TEMP_DATASOURCE_ID) {
           return dispatch(
             saveDatasourceName({
