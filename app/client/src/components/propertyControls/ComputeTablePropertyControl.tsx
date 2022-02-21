@@ -131,7 +131,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   static getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.sanitizedTableData.map((currentRow) => ( `.length,
+      `{{${tableId}.processedTableData.map((currentRow) => ( `.length,
       propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
@@ -144,7 +144,7 @@ class ComputeTablePropertyControl extends BaseControl<
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
+    return `{{${tableId}.processedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
