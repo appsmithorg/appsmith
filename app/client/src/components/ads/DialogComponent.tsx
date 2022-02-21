@@ -92,6 +92,10 @@ const HeaderIconWrapper = styled.div<{ bgColor?: string }>`
   border-radius: 50%;
   margin-right: 10px;
   background: ${(props) => props.bgColor || props.theme.colors.modal.iconBg};
+  cursor: default;
+  .cs-icon svg {
+    cursor: default;
+  }
 `;
 
 type DialogComponentProps = {
