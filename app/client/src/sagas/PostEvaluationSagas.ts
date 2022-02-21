@@ -38,6 +38,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
+import { UncaughtPromiseError } from "sagas/ActionExecution/errorUtils";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -283,7 +284,9 @@ export function* evalErrorHandler(
         break;
       }
       default: {
-        Sentry.captureException(error);
+        if (!(error instanceof UncaughtPromiseError)) {
+          Sentry.captureException(error);
+        }
         log.debug(error);
       }
     }
