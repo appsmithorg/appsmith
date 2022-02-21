@@ -343,15 +343,20 @@ function DatasourceCard(props: DatasourceCardProps) {
                       />
                     </MoreOptionsContainer>
                   }
-                >
-                  <RedMenuItem
-                    className="t--datasource-option-delete"
-                    icon="delete"
-                    isLoading={isDeletingDatasource}
-                    onSelect={deleteAction}
-                    text="Delete Datasource"
-                  />
-                  <div />
+               > 
+                  <MenuItem
+                  className="t--datasource-option-edit"
+                  icon="edit"
+                  onSelect={editDatasource}
+                  text="Edit"
+                />
+                <RedMenuItem
+                  className="t--datasource-option-delete"
+                  icon="delete"
+                  isLoading={isDeletingDatasource}
+                  onSelect={deleteAction}
+                  text="Delete"
+                />
                 </MenuComponent>
               </MenuWrapper>
             </ButtonsWrapper>

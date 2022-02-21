@@ -139,4 +139,23 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return queryOne(List.of(defaultPageIdCriteria, branchCriteria), permission);
     }
+
+    @Override
+    public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
+        Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.applicationId)).in(applicationIds);
+        String unpublishedSlugFieldPath = String.format(
+                "%s.%s", fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.slug)
+        );
+        String publishedSlugFieldPath = String.format(
+                "%s.%s", fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.slug)
+        );
+        String applicationIdFieldPath = fieldName(QNewPage.newPage.applicationId);
+
+        return queryAll(
+                List.of(applicationIdCriteria),
+                List.of(unpublishedSlugFieldPath, publishedSlugFieldPath, applicationIdFieldPath),
+                aclPermission,
+                null
+        );
+    }
 }
