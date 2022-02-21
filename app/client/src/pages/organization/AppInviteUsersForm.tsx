@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
@@ -15,20 +15,38 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { Colors } from "constants/Colors";
+
+const CommonTitleTextStyle = css`
+  color: ${Colors.CHARCOAL};
+  font-weight: normal;
+`;
 
 const Title = styled.div`
-  padding: 10px 0px;
+  padding: 0 0 10px 0;
+  & > span[type="h5"] {
+    ${CommonTitleTextStyle}
+  }
+`;
+
+const StyledCopyToClipBoard = styled(CopyToClipBoard)`
+  margin-bottom: 24px;
 `;
 
 const ShareWithPublicOption = styled.div`
   display: flex;
-  margin-bottom: 15px;
+  margin-bottom: 24px;
   align-items: center;
   justify-content: space-between;
+
+  & > span[type="h5"] {
+    ${CommonTitleTextStyle}
+    color: ${Colors.COD_GRAY};
+  }
 `;
 
 const ShareToggle = styled.div`
-  flex-basis: 48px;
+  flex-basis: 46px;
   height: 23px;
 `;
 
@@ -95,7 +113,7 @@ function AppInviteUsersForm(props: any) {
       <Title>
         <Text type={TextType.H5}>Get shareable link for this application</Text>
       </Title>
-      <CopyToClipBoard
+      <StyledCopyToClipBoard
         btnWidth={InviteButtonWidth}
         copyText={getViewApplicationURL()}
       />
