@@ -131,4 +131,16 @@ hello! how are you?
     const expectedResult = "a\nb\nc\nhello! how are you?\n";
     expect(result).toStrictEqual(expectedResult);
   });
+
+  it.only("validate object with value having special characters", () => {
+    const testData = {
+      task: "Drop a t'able", // having single quote in value
+      action: "'",
+    };
+    const testString = JSON.stringify(testData);
+    const result = escapeSpecialChars(testString);
+    const parsedResult = JSON.parse(result);
+
+    expect(parsedResult).toStrictEqual(testData);
+  });
 });

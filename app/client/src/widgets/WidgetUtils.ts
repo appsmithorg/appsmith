@@ -168,7 +168,6 @@ export const getAlignText = (isRightAlign: boolean, iconName?: IconName) =>
 
 export const escapeSpecialChars = (stringifiedJSONObject: string) => {
   return stringifiedJSONObject
-    .replace(/"/g, `\\"`)
     .replace(/'/g, `\\'`)
     .replace(/\\n/g, "\\\\n") // new line char
     .replace(/\\b/g, "\\\\b") //
