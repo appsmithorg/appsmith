@@ -48,6 +48,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -667,6 +668,21 @@ public class GitExecutorImpl implements GitExecutor {
                 return git.getRepository().getBranch();
             }
         }).subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<Boolean> testConnection(String publicKey, String privateKey, String remoteUrl) {
+        return Mono.fromCallable(() -> {
+            TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
+            Git.lsRemoteRepository()
+                    .setTransportConfigCallback(transportConfigCallback)
+                    .setRemote(remoteUrl)
+                    .setHeads(true)
+                    .setTags(true)
+                    .call();
+            return true;
+        }).timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
     }
 
 
