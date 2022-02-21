@@ -191,6 +191,10 @@ describe("Tern server sorting", () => {
     type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
   });
+  defEntityInformation.set("sameEntity", {
+    type: ENTITY_TYPE.WIDGET,
+    subType: "TABLE_WIDGET_V2",
+  });
 
   const sameTypeCompletion: Completion = {
     text: "sameType.selectedRow",
@@ -203,6 +207,10 @@ describe("Tern server sorting", () => {
   defEntityInformation.set("sameType", {
     type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
+  });
+  defEntityInformation.set("sameType", {
+    type: ENTITY_TYPE.WIDGET,
+    subType: "TABLE_WIDGET_V2",
   });
 
   const diffTypeCompletion: Completion = {
@@ -217,6 +225,10 @@ describe("Tern server sorting", () => {
   defEntityInformation.set("diffType", {
     type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
+  });
+  defEntityInformation.set("diffType", {
+    type: ENTITY_TYPE.WIDGET,
+    subType: "TABLE_WIDGET_V2",
   });
 
   const sameTypeDiffEntityTypeCompletion: Completion = {

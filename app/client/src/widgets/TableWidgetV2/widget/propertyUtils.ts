@@ -184,7 +184,11 @@ export const updateColumnAccessorHook = (
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   if (props && propertyValue && ACCESSOR_PATH_REGEX.test(propertyPath)) {
     const match = ACCESSOR_PATH_REGEX.exec(propertyPath) || [];
-    const columnId = match[1];
+    const columnIdHash = match[1];
+    const columnId =
+      props.primaryColumns &&
+      props.primaryColumns[columnIdHash] &&
+      props.primaryColumns[columnIdHash].originalId;
 
     if (columnId) {
       const propertiesToUpdate = [];

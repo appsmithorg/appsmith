@@ -169,6 +169,7 @@ export interface ReactTableColumnProps extends TableColumnProps {
 
 export interface ColumnProperties {
   id: string;
+  originalId: string;
   label?: string;
   columnType: string;
   isVisible: boolean;
