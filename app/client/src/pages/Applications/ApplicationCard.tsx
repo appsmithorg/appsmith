@@ -21,7 +21,7 @@ import {
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import { omit } from "lodash";
+import { noop, omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -52,8 +52,9 @@ import {
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
+import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -160,6 +161,7 @@ const Wrapper = styled(
     props: ICardProps & {
       hasReadPermission?: boolean;
       backgroundColor: string;
+      isMobile?: boolean;
     },
   ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
 )`
@@ -190,6 +192,13 @@ const Wrapper = styled(
       }
     }
   }
+
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    width: 100% !important;
+    height: 126px !important;
+  `}
 `;
 
 const ApplicationImage = styled.div`
@@ -282,6 +291,7 @@ type ApplicationCardProps = {
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
+  isMobile?: boolean;
 };
 
 const EditButton = styled(Button)`
@@ -363,6 +373,39 @@ const MenuItemWrapper = styled(MenuItem)`
   }
 `;
 
+const StyledGitConnectedBadge = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.07);
+  background: ${Colors.WHITE};
+`;
+
+function GitConnectedBadge() {
+  return (
+    <StyledGitConnectedBadge>
+      <TooltipComponent
+        content={createMessage(CONNECTED_TO_GIT)}
+        maxWidth="400px"
+      >
+        <Icon fillColor={Colors.GREY_7} name="fork" size={IconSize.XXL} />
+      </TooltipComponent>
+    </StyledGitConnectedBadge>
+  );
+}
+
+const Container = styled.div<{ isMobile?: boolean }>`
+  position: relative;
+  overflow: visible;
+  ${({ isMobile }) => isMobile && `width: 100%;`}
+`;
+
 export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
@@ -385,6 +428,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   const applicationId = props.application?.id;
+  const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
   useEffect(() => {
     let colorCode;
@@ -669,83 +713,97 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
+  const LaunchAppInMobile = () => {
+    window.location.href = viewApplicationURL;
+  };
+
   return (
-    <NameWrapper
-      className="t--application-card"
-      hasReadPermission={hasReadPermission}
-      isMenuOpen={isMenuOpen}
-      onMouseEnter={() => {
-        !isFetchingApplications && setShowOverlay(true);
-      }}
-      onMouseLeave={() => {
-        // If the menu is not open, then setOverlay false
-        // Set overlay false on outside click.
-        !isMenuOpen && setShowOverlay(false);
-      }}
-      showOverlay={showOverlay}
+    <Container
+      isMobile={props.isMobile}
+      onClick={props.isMobile ? LaunchAppInMobile : noop}
     >
-      <Wrapper
-        backgroundColor={selectedColor}
-        className={
-          isFetchingApplications
-            ? Classes.SKELETON
-            : "t--application-card-background"
-        }
+      <NameWrapper
+        className="t--application-card"
         hasReadPermission={hasReadPermission}
-        key={props.application.id}
+        isMenuOpen={isMenuOpen}
+        onMouseEnter={() => {
+          !isFetchingApplications && setShowOverlay(true);
+        }}
+        onMouseLeave={() => {
+          // If the menu is not open, then setOverlay false
+          // Set overlay false on outside click.
+          !isMenuOpen && setShowOverlay(false);
+        }}
+        showOverlay={showOverlay}
       >
-        <CircleAppIcon name={appIcon} size={Size.large} />
-        <AppNameWrapper
-          className={isFetchingApplications ? Classes.SKELETON : ""}
-          isFetching={isFetchingApplications}
-          ref={appNameWrapperRef}
+        <Wrapper
+          backgroundColor={selectedColor}
+          className={
+            isFetchingApplications
+              ? Classes.SKELETON
+              : "t--application-card-background"
+          }
+          hasReadPermission={hasReadPermission}
+          isMobile={props.isMobile}
+          key={props.application.id}
         >
-          {isEllipsisActive(appNameWrapperRef?.current) ? (
-            <TooltipComponent content={props.application.name} maxWidth="400px">
-              {appNameText}
-            </TooltipComponent>
-          ) : (
-            appNameText
+          <CircleAppIcon name={appIcon} size={Size.large} />
+          <AppNameWrapper
+            className={isFetchingApplications ? Classes.SKELETON : ""}
+            isFetching={isFetchingApplications}
+            ref={appNameWrapperRef}
+          >
+            {isEllipsisActive(appNameWrapperRef?.current) ? (
+              <TooltipComponent
+                content={props.application.name}
+                maxWidth="400px"
+              >
+                {appNameText}
+              </TooltipComponent>
+            ) : (
+              appNameText
+            )}
+          </AppNameWrapper>
+          {showOverlay && !props.isMobile && (
+            <div className="overlay">
+              <div className="overlay-blur" />
+              <ApplicationImage className="image-container">
+                <Control className="control">
+                  {hasEditPermission && !isMenuOpen && (
+                    <EditButton
+                      className="t--application-edit-link"
+                      fill
+                      href={editApplicationURL}
+                      icon={"edit"}
+                      iconPosition={IconPositions.left}
+                      size={Size.medium}
+                      text="Edit"
+                    />
+                  )}
+                  {!isMenuOpen && (
+                    <Button
+                      category={Category.tertiary}
+                      className="t--application-view-link"
+                      fill
+                      href={viewApplicationURL}
+                      icon={"rocket"}
+                      iconPosition={IconPositions.left}
+                      size={Size.medium}
+                      text="Launch"
+                    />
+                  )}
+                </Control>
+              </ApplicationImage>
+            </div>
           )}
-        </AppNameWrapper>
-        {showOverlay && (
-          <div className="overlay">
-            <div className="overlay-blur" />
-            <ApplicationImage className="image-container">
-              <Control className="control">
-                {hasEditPermission && !isMenuOpen && (
-                  <EditButton
-                    className="t--application-edit-link"
-                    fill
-                    href={editApplicationURL}
-                    icon={"edit"}
-                    iconPosition={IconPositions.left}
-                    size={Size.medium}
-                    text="Edit"
-                  />
-                )}
-                {!isMenuOpen && (
-                  <Button
-                    category={Category.tertiary}
-                    className="t--application-view-link"
-                    fill
-                    href={viewApplicationURL}
-                    icon={"rocket"}
-                    iconPosition={IconPositions.left}
-                    size={Size.medium}
-                    text="Launch"
-                  />
-                )}
-              </Control>
-            </ApplicationImage>
-          </div>
-        )}
-      </Wrapper>
-      <CardFooter>
-        <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-        {!!moreActionItems.length && ContextMenu}
-      </CardFooter>
-    </NameWrapper>
+        </Wrapper>
+        <CardFooter>
+          <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
+          {!!moreActionItems.length && !props.isMobile && ContextMenu}
+        </CardFooter>
+      </NameWrapper>
+      {showGitBadge && <GitConnectedBadge />}
+    </Container>
   );
 }
 

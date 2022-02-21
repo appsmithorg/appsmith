@@ -29,6 +29,7 @@ describe("Page Load tests", () => {
       .parent()
       .parent()
       .parent()
+      .parent()
       .should("have.class", "is-active");
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
@@ -40,6 +41,7 @@ describe("Page Load tests", () => {
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")
+      .parent()
       .parent()
       .parent()
       .parent()
@@ -59,6 +61,7 @@ describe("Page Load tests", () => {
       .parent()
       .parent()
       .parent()
+      .parent()
       .should("have.class", "is-active");
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
@@ -66,7 +69,8 @@ describe("Page Load tests", () => {
       "This is Page 1",
     );
   });
-  it("Hide Page and validate published app", () => {
+
+  it.skip("Hide Page and validate published app", () => {
     cy.get(publish.backToEditor).click();
     cy.GlobalSearchEntity("Page1");
     cy.xpath(pages.popover)

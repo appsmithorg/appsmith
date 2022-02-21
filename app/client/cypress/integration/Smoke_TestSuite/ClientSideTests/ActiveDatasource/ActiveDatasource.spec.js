@@ -10,13 +10,8 @@ describe("Google Sheet datasource test cases", function() {
     cy.fillGoogleSheetsDatasourceForm();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
+      cy.NavigateToActiveDSQueryPane(datasourceName);
     });
-    cy.NavigateToApiEditor();
-    cy.get(
-      `${datasourceEditor.datasourceCard} ${datasourceEditor.createQuerty}`,
-    )
-      .last()
-      .click();
     cy.wait("@createNewApi").then((httpResponse) => {
       actionName = httpResponse.response.body.data.name;
     });
@@ -24,6 +19,7 @@ describe("Google Sheet datasource test cases", function() {
   });
 
   it("Create a new query from the datasource editor", function() {
+    cy.NavigateToActiveTab();
     cy.get(
       `.t--datasource-name:contains('${datasourceName}') .t--queries-for-SAAS`,
     ).should("have.text", "1 query on this page");

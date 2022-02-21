@@ -9,18 +9,18 @@ describe("Dropdown Widget Functionality", function() {
 
   it("Verify dropdown width of Select widgets and menu button", function() {
     // Select
-    cy.get(formWidgetsPage.dropdownWidget)
+    cy.get(formWidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .invoke("outerWidth")
       .should("eq", 147.1875);
-    cy.get(formWidgetsPage.dropdownWidget)
+    cy.get(formWidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({
         force: true,
       });
     cy.get(".select-popover-wrapper")
       .invoke("outerWidth")
-      .should("eq", 147.1875);
+      .should("eq", 180);
 
     // Menu Button
     cy.get(formWidgetsPage.menuButtonWidget)
@@ -37,18 +37,18 @@ describe("Dropdown Widget Functionality", function() {
       .should("eq", 147.1875);
 
     // MultiSelect
-    cy.get(formWidgetsPage.multiselectWidget)
+    cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-multiple")
       .invoke("width")
       .should("eq", 147.1875);
-    cy.get(formWidgetsPage.multiselectWidget)
+    cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-search-input")
       .first()
       .focus({ force: true })
       .type("{uparrow}", { force: true });
     cy.get(".multi-select-dropdown")
       .invoke("width")
-      .should("eq", 147.1875);
+      .should("eq", 147);
 
     //Multi tree Select
     cy.get(formWidgetsPage.multiselecttreeWidget)

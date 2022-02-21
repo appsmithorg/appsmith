@@ -1,0 +1,21 @@
+---
+- include_tasks: preflight.yml
+
+- name: Throw error when finding out properly running container
+  fail:
+    msg: "Appsmith may already run on this server. Please check out from this address http://{{ansible_host}}"
+  when:
+    - container_running.stdout == 'true'
+    - http_request.status == 200
+
+- name: Throw error when existing container not reachable
+  fail:
+    msg: "Appsmith may be installed but not work properly. Please check on server (IP: {{ansible_host}})"
+  when: container_running.stdout == 'true'
+
+- include_tasks: "{{ ansible_distribution }}-setup-docker.yml"
+  when: "'docker' not in ansible_facts.packages"
+
+- include_tasks: start-docker.yml
+
+- include_tasks: setup-appsmith.yml

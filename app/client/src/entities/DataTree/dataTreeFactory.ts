@@ -21,11 +21,11 @@ import {
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
-import { AppsmithPromise } from "workers/Actions";
+import { PluginId } from "api/PluginApi";
 
 export type ActionDispatcher = (
   ...args: any[]
-) => ActionDescription | AppsmithPromise;
+) => Promise<unknown> | ActionDescription;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -40,12 +40,18 @@ export enum EvaluationSubstitutionType {
   SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
 }
 
+// Private widgets do not get evaluated
+// For example, for widget Button1 in a List widget List1, List1.template.Button1.text gets evaluated,
+// so there is no need to evaluate Button1.text
+export type PrivateWidgets = Record<string, true>;
+
 export interface DataTreeAction
   extends Omit<ActionDataWithMeta, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
   config: Partial<ActionConfig>;
   pluginType: PluginType;
+  pluginId: PluginId;
   name: string;
   run: ActionDispatcher | RunPluginActionDescription | Record<string, unknown>;
   clear:
@@ -57,6 +63,7 @@ export interface DataTreeAction
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   logBlackList: Record<string, true>;
+  datasourceUrl: string;
 }
 
 export interface DataTreeJSAction {
@@ -75,12 +82,35 @@ export interface DataTreeJSAction {
 export interface MetaArgs {
   arguments: Variable[];
 }
+/**
+ *  Map of overriding property as key and overridden property as values
+ */
+export type OverridingPropertyPaths = Record<string, string[]>;
+
+export enum OverridingPropertyType {
+  META = "META",
+  DEFAULT = "DEFAULT",
+}
+/**
+ *  Map of property name as key and value as object with defaultPropertyName and metaPropertyName which it depends on.
+ */
+export type PropertyOverrideDependency = Record<
+  string,
+  {
+    DEFAULT: string | undefined;
+    META: string | undefined;
+  }
+>;
+
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
   logBlackList: Record<string, true>;
+  propertyOverrideDependency: PropertyOverrideDependency;
+  overridingPropertyPaths: OverridingPropertyPaths;
+  privateWidgets: PrivateWidgets;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {

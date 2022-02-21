@@ -15,12 +15,20 @@
         "fileName" : "create.json"
       },
       {
+        "label": "Create multiple new files",
+        "fileName" : "create_many.json"
+      },
+      {
         "label": "Read file",
         "fileName" : "read.json"
       },
       {
         "label": "Delete file",
         "fileName" : "delete.json"
+      },
+      {
+        "label": "Delete multiple files",
+        "fileName" : "delete_many.json"
       }
     ]
   }

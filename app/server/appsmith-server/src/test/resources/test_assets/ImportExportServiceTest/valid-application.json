@@ -517,11 +517,42 @@
         "userPermissions": []
       },
       "publishedAction": {
+        "name": "api_wo_auth",
         "datasource": {
+          "id": "api_ds_wo_auth",
           "userPermissions": [],
           "isValid": true,
-          "new": true
+          "new": false
         },
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "path": "/params",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "encodeParamsToggle": true,
+          "queryParameters": [],
+          "body": "",
+          "httpMethod": "GET",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": false
+            }
+          ]
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [],
+        "isValid": true,
+        "invalids": [],
+        "jsonPathKeys": [],
         "confirmBeforeExecute": false,
         "userPermissions": []
       },
@@ -602,6 +633,45 @@
           }
         ]
       },
+      "publishedCollection": {
+        "name": "JSObject1_Published",
+        "pageId": "Page1",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tresults: [],\n\trunMethod: () => {\n\t\t//write code here\n\t\treturn \"Hi\"\n\t}\n}",
+        "variables": [
+          {
+            "name": "results",
+            "value": []
+          }
+        ]
+      },
+      "new": false
+    },
+    {
+      "id": "collection_wo_action",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "unpublishedCollection": {
+        "name": "JSObject2",
+        "pageId": "Page1",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {results: []}",
+        "variables": [
+          {
+            "name": "results",
+            "value": []
+          }
+        ]
+      },
       "new": false
     }
   ],
@@ -628,5 +698,15 @@
     "60aca056136c4b7178f67906": [
       "Table1"
     ]
+  },
+  "editModeTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
+  "publishedTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
   }
 }

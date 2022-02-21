@@ -19,10 +19,10 @@ export const PopoverStyles = createGlobalStyle`
       min-width: 233px !important ;
     }
   }
-  .comments-onboarding-carousel .${Classes.OVERLAY_CONTENT} {
+  .onboarding-carousel .${Classes.OVERLAY_CONTENT} {
     filter: drop-shadow(0px 6px 20px rgba(0, 0, 0, 0.15));
   }
-  .bp3-modal-widget.comments-onboarding-carousel-portal {
+  .bp3-modal-widget.onboarding-carousel-portal {
     z-index: ${Layers.help} !important; 
   }
 

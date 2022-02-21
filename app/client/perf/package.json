@@ -1,0 +1,19 @@
+{
+  "name": "ui-performance-infra",
+  "version": "1.0.0",
+  "description": "Tools to automate chrome performance profiling",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^1.30.2",
+    "median": "^0.0.2",
+    "node-stdev": "^1.0.1",
+    "puppeteer": "^12.0.1",
+    "sanitize-filename": "^1.6.3",
+    "tracelib": "^1.0.1"
+  }
+}

@@ -15,7 +15,7 @@ import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
-import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
 import {
   isPermitted,
@@ -32,8 +32,10 @@ import {
   DEPLOY_MENU_OPTION,
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { redoAction, undoAction } from "actions/pageActions";
+import { redoShortCut, undoShortCut } from "utils/helpers";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -123,10 +125,31 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Rename",
+      text: "Edit Name",
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,
+    },
+    {
+      text: "Edit",
+      type: MenuTypes.PARENT,
+      isVisible: true,
+      children: [
+        {
+          text: "Undo",
+          labelElement: undoShortCut(),
+          onClick: () => dispatch(undoAction()),
+          type: MenuTypes.MENU,
+          isVisible: true,
+        },
+        {
+          text: "Redo",
+          labelElement: redoShortCut(),
+          onClick: () => dispatch(redoAction()),
+          type: MenuTypes.MENU,
+          isVisible: true,
+        },
+      ],
     },
     {
       text: "Pages",

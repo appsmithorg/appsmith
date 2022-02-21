@@ -8,6 +8,7 @@ export type ParsedJSSubAction = {
   name: string;
   body: string;
   arguments: Array<Variable>;
+  isAsync: boolean;
 };
 
 export type ParsedBody = {
@@ -36,13 +37,17 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        if (preExisted.actionConfiguration.body !== action.body) {
+        if (
+          preExisted.actionConfiguration.body !== action.body ||
+          preExisted.actionConfiguration.isAsync !== action.isAsync
+        ) {
           toBeUpdatedActions.push({
             ...preExisted,
             actionConfiguration: {
               ...preExisted.actionConfiguration,
               body: action.body,
               jsArguments: action.arguments,
+              isAsync: action.isAsync,
             },
           });
         }
@@ -133,7 +138,12 @@ export const getDifferenceInJSCollection = (
       const existedVar = varList.find((item) => item.name === newVar.name);
       if (!!existedVar) {
         const existedValue = existedVar.value;
-        if (existedValue.toString() !== newVar.value.toString()) {
+        if (
+          (!!existedValue &&
+            existedValue.toString() !==
+              (newVar.value && newVar.value.toString())) ||
+          (!existedValue && !!newVar.value)
+        ) {
           changedVariables.push(newVar);
         }
       } else {
@@ -175,7 +185,7 @@ export const createDummyJSCollectionActions = (
   organizationId: string,
 ) => {
   const body =
-    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: () => {\n\t\t//write code here\n\t}\n}";
+    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}";
 
   const actions = [
     {

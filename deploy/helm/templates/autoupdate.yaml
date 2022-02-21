@@ -30,9 +30,10 @@ metadata:
   namespace: {{ include "appsmith.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
   name: imago
+  namespace: {{ include "appsmith.namespace" . }}
 rules:
   - apiGroups:
       - ""
@@ -64,12 +65,13 @@ rules:
       - list
       - update
 ---
-kind: ClusterRoleBinding
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: imago
+  namespace: {{ include "appsmith.namespace" . }}
 roleRef:
-  kind: ClusterRole
+  kind: Role
   name: imago
   apiGroup: rbac.authorization.k8s.io
 subjects:

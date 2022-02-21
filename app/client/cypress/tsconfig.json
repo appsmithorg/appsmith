@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+      "es5",
+      "es2015.collection",
+      "es2015.iterable",
+      "es2020.string"
+    ],
+    "strict": true,
+    "outDir": "./out/js/cypress",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react",
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types"
+    ],
+    "sourceMap": true,
+    "baseUrl": "./cypress",
+    "noFallthroughCasesInSwitch": true,
+    "types": ["cypress", "cypress-xpath"]
+  },
+  "include": ["/**/*.ts"]
+}

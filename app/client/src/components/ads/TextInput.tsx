@@ -15,11 +15,12 @@ import {
   ERROR_MESSAGE_NAME_EMPTY,
   createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type InputType = "text" | "password" | "number" | "email" | "tel";
 
@@ -71,6 +72,8 @@ export type TextInputProps = CommonComponentProps & {
   onFocus?: EventHandler<FocusEvent<any>>;
   errorMsg?: string;
   trimValue?: boolean;
+  $padding?: string;
+  useTextArea?: boolean;
 };
 
 type boxReturnType = {
@@ -145,7 +148,10 @@ const StyledInput = styled((props) => {
     "noCaret",
     "fill",
     "errorMsg",
+    "useTextArea",
   ];
+
+  const HtmlTag = props.useTextArea ? "textarea" : "input";
 
   return props.asyncControl ? (
     <AsyncControllableInput
@@ -154,7 +160,7 @@ const StyledInput = styled((props) => {
       inputRef={inputRef}
     />
   ) : (
-    <input ref={inputRef} {..._.omit(inputProps, omitProps)} />
+    <HtmlTag ref={inputRef} {..._.omit(inputProps, omitProps)} />
   );
 })<
   TextInputProps & {
@@ -177,6 +183,7 @@ const StyledInput = styled((props) => {
   box-shadow: none;
   border: none;
   padding: 0px ${(props) => props.theme.spaces[6]}px;
+  ${(props) => (props.$padding ? `padding: ${props.$padding}` : "")};
   padding-right: ${(props) =>
     props.rightSideComponentWidth + props.theme.spaces[6]}px;
   background-color: transparent;
@@ -224,7 +231,7 @@ const InputWrapper = styled.div<{
       border: 1.2px solid
       ${
         props.isValid
-          ? props.theme.colors.info.main
+          ? "var(--appsmith-input-focus-border-color)"
           : props.theme.colors.danger.main
       };
       `
@@ -315,8 +322,8 @@ const TextInput = forwardRef(
         setInputValue(inputValue);
         const inputValueValidation =
           props.validator && props.validator(inputValue);
-        if (inputValueValidation) {
-          props.validator && setValidation(validation);
+        if (inputValueValidation && inputValueValidation.isValid) {
+          props.validator && setValidation(inputValueValidation);
           return (
             inputValueValidation.isValid &&
             props.onChange &&
@@ -367,6 +374,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper
         $isLoading={props.isLoading}
+        className={replayHighlightClass}
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}
@@ -408,6 +416,7 @@ const TextInput = forwardRef(
           data-cy={props.cypressSelector}
           hasLeftIcon={hasLeftIcon}
           inputRef={ref}
+          name={props?.name}
           onBlur={onBlurHandler}
           onChange={memoizedChangeHandler}
           onFocus={onFocusHandler}

@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# This script is responsible for setting up the local Nginx server for running E2E Cypress tests
+# This script is responsible for setting up the local Nginx server for running E2E Cypress tests 
 # on our CI/CD system. Currently the script is geared towards Github Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
@@ -20,7 +20,7 @@ echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
 
 echo "Going to run the nginx server"
 sudo docker pull nginx:latest
-sudo docker pull postgres:latest
+sudo docker pull appsmith/test-event-driver:latest
 
 sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
 	-v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf \
@@ -28,23 +28,15 @@ sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
     -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
     -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
     nginx:latest &
+sudo mkdir -p git-server/keys
+sudo mkdir -p git-server/repos
 
-sudo docker run --network host --name postgres -d -p 5432:5432 \
- -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
- -v `pwd`/cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql \
- --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
- postgres:latest &
+sudo docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
+  -p 5432:5432 -p 28017:27017 -v ~/git-server/keys:/git-server/keys \
+  -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
 
-sudo docker run -p 127.0.0.1:3306:3306  --name mariadb -e MARIADB_ROOT_PASSWORD=root123 -d mariadb
-
-echo "Sleeping for 30 seconds to let the MySQL start"
-sleep 30
-
-sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-mysql-dump-for-test.sql
-
-
-echo "Sleeping for 30 seconds to let the servers start"
-sleep 30
+echo "Waiting for test event driver to start"
+sleep 50
 
 echo "Checking if the containers have started"
 sudo docker ps -a

@@ -568,6 +568,7 @@ const lightShades = [
   "#000000",
   "#F86A2B",
   "#FFDEDE",
+  "#575757",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -1018,6 +1019,28 @@ type ColorType = {
     activeTabBorderBottom: string;
     activeTabText: string;
   };
+  guidedTour: {
+    runButton: string;
+    cancelButton: {
+      color: string;
+      borderColor: string;
+      hoverBackgroundColor: string;
+    };
+    endButton: {
+      backgroundColor: string;
+      borderColor: string;
+      hoverBackgroundColor: string;
+    };
+    endTourButton: {
+      color: string;
+      hoverColor: string;
+    };
+    card: {
+      borderBottom: string;
+      background: string;
+    };
+    stepCountBackground: string;
+  };
   globalSearch: {
     containerBackground: string;
     activeSearchItemBackground: string;
@@ -1466,6 +1489,29 @@ const navigationMenu = {
   label: "#A9A7A7",
   warning: "#EABB0C",
   warningBackground: "#3A3628",
+};
+
+const guidedTour = {
+  runButton: "#f86a2b",
+  cancelButton: {
+    color: "#716e6e",
+    borderColor: "#716e6e",
+    hoverBackgroundColor: "#f1f1f1",
+  },
+  endButton: {
+    backgroundColor: "#f22b2b",
+    borderColor: "#f22b2b",
+    hoverBackgroundColor: "#f34040",
+  },
+  endTourButton: {
+    color: "#4b4848",
+    hoverColor: "#928f8f",
+  },
+  card: {
+    borderBottom: "#eeeeee",
+    background: "#ffefdb",
+  },
+  stepCountBackground: "#090707",
 };
 
 const numberedStep = {
@@ -2072,6 +2118,7 @@ export const dark: ColorType = {
       backgroundColor: "#291B1D",
     },
   },
+  guidedTour,
   widgetGroupingContextMenu: {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
@@ -2492,7 +2539,7 @@ export const light: ColorType = {
       message: lightShades[9],
       desc: lightShades[7],
     },
-    manageUser: lightShades[6],
+    manageUser: lightShades[19],
     scrollbar: lightShades[5],
     separator: lightShades[4],
     title: lightShades[8],
@@ -2712,6 +2759,7 @@ export const light: ColorType = {
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
   },
+  guidedTour,
   widgetGroupingContextMenu: {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
@@ -2858,6 +2906,9 @@ export const theme: Theme = {
       leftPadding: 16,
       rightMargin: 12,
     },
+    main: {
+      marginLeft: 112,
+    },
     search: {
       height: 68,
       paddingTop: 30,
@@ -2865,7 +2916,7 @@ export const theme: Theme = {
     sidebar: 256,
   },
   headerHeight: "48px",
-  smallHeaderHeight: "34px",
+  smallHeaderHeight: "32px",
   bottomBarHeight: "34px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",

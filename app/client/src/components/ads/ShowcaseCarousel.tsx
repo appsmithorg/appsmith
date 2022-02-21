@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import Button, { Category, Size } from "components/ads/Button";
 
 import styled from "styled-components";
-import { createMessage, NEXT, BACK, SKIP } from "constants/messages";
+import { createMessage, NEXT, BACK, SKIP } from "@appsmith/constants/messages";
 import { useTransition, animated } from "react-spring";
 import Icon from "./Icon";
 
@@ -98,7 +98,7 @@ export default function ShowcaseCarousel(props: Props) {
     setCurrentIdx(props.activeIndex);
   }, [props.activeIndex]);
 
-  const transition = useTransition("key", null, {
+  const transition = useTransition("key", {
     from: { transform: "translateY(+2%)" },
     enter: { transform: "translateY(0%)" },
     leave: { transform: "translateY(0%)" },
@@ -132,13 +132,11 @@ export default function ShowcaseCarousel(props: Props) {
 
   return (
     <Container onKeyDown={handleKeyDown} tabIndex={0}>
-      {transition.map(
-        ({ item, props: springProps }: { item: string; props: any }) => (
-          <animated.div key={item} style={springProps}>
-            <ContentComponent {...componentProps} />
-          </animated.div>
-        ),
-      )}
+      {transition((styles, item) => (
+        <animated.div key={item} style={styles}>
+          <ContentComponent {...componentProps} />
+        </animated.div>
+      ))}
       <Footer>
         <Dots
           activeIndex={activeIndex}

@@ -4,7 +4,8 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { get } from "lodash";
+import get from "lodash/get";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export interface ExplorerReduxState {
   entity: {
@@ -15,6 +16,12 @@ export interface ExplorerReduxState {
   pinned: boolean;
   width: number | undefined;
   active: boolean;
+  entityInfo: {
+    show: boolean;
+    entityType?: ENTITY_TYPE;
+    entityId: string;
+    entityName?: string;
+  };
 }
 
 const initialState: ExplorerReduxState = {
@@ -22,7 +29,21 @@ const initialState: ExplorerReduxState = {
   entity: {},
   width: undefined,
   active: true,
+  entityInfo: {
+    show: false,
+    entityId: "",
+  },
 };
+
+const setEntityInfo = (
+  state: ExplorerReduxState,
+  action: ReduxAction<{ entityId: string; entityType: ENTITY_TYPE }>,
+) => ({
+  ...state,
+  entityInfo: {
+    ...action.payload,
+  },
+});
 
 const setUpdatingEntity = (
   state: ExplorerReduxState,
@@ -92,6 +113,7 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.DELETE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
+  [ReduxActionTypes.DELETE_DATASOURCE_CANCELLED]: setEntityUpdateSuccess,
 
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR]: setEntityUpdateError,
@@ -120,6 +142,8 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.SAVE_ACTION_NAME_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS]: setEntityUpdateSuccess,
+
+  [ReduxActionTypes.SET_ENTITY_INFO]: setEntityInfo,
 
   [ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT]: (
     state: ExplorerReduxState,

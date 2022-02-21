@@ -1,0 +1,77 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 532,
+      "snapColumns": 64,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 520,
+      "containerStyle": "none",
+      "snapRows": 128,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "version": 49,
+      "minHeight": 500,
+      "parentColumnSpace": 1,
+      "dynamicBindingPathList": [],
+      "leftColumn": 0,
+      "children": [
+        {
+          "isVisible": true,
+          "animateLoading": true,
+          "text": "Submit",
+          "buttonColor": "#03B365",
+          "buttonVariant": "PRIMARY",
+          "placement": "CENTER",
+          "widgetName": "Button1",
+          "isDisabled": false,
+          "isDefaultClickDisabled": true,
+          "recaptchaType": "V3",
+          "version": 1,
+          "type": "BUTTON_WIDGET",
+          "hideCard": false,
+          "displayName": "Button",
+          "key": "ipasd3elya",
+          "iconSVG": "/static/media/icon.cca02633.svg",
+          "widgetId": "cda4q15i2k",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "parentColumnSpace": 16.859375,
+          "parentRowSpace": 10,
+          "leftColumn": 24,
+          "rightColumn": 40,
+          "topRow": 18,
+          "bottomRow": 22,
+          "parentId": "0",
+          "onClick": "",
+          "dynamicBindingPathList": [],
+          "dynamicTriggerPathList": [
+            {
+              "key": "onClick"
+            }
+          ],
+          "dynamicPropertyPathList": []
+        },
+        {
+          "isVisible": true,
+          "inputType": "TEXT",
+          "label": "",
+          "widgetName": "Input1",
+          "type": "INPUT_WIDGET_V2",
+          "isLoading": false,
+          "parentColumnSpace": 74,
+          "parentRowSpace": 40,
+          "leftColumn": 2,
+          "rightColumn": 7,
+          "topRow": 0,
+          "bottomRow": 1,
+          "parentId": "0",
+          "defaultText": "Test",
+          "widgetId": "2lhsjdd5sg"
+        }
+      ]
+    }
+  }

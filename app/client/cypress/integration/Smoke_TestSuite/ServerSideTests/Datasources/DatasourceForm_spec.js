@@ -12,7 +12,9 @@ describe("Datasource form related tests", function() {
 
     cy.get(".t--store-as-datasource").click();
 
-    cy.get(".t--add-field").click();
+    cy.get(".t--add-field")
+      .first()
+      .click();
     cy.get(".t--delete-field").should("attr", "color", "#A3B3BF");
   });
   it("Check if save button is disabled", function() {
@@ -21,14 +23,10 @@ describe("Datasource form related tests", function() {
 
   it("Check if saved api as a datasource does not fail on cloning", function() {
     cy.NavigateToAPI_Panel();
-
-    cy.GlobalSearchEntity("Testapi");
-    cy.xpath('//*[local-name()="g" and @id="Icon/Outline/more-vertical"]')
-      .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-
+    cy.get(".t--entity-name")
+      .contains("Testapi")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
     cy.get('.single-select:contains("Copy to page")').click();
     cy.get('.single-select:contains("Page1")').click();
     cy.validateToastMessage("Testapi action copied to page Page1 successfully");

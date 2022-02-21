@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Classes } from "@blueprintjs/core";
 
 export const AuthContainer = styled.section`
   position: absolute;
@@ -14,10 +13,6 @@ export const AuthContainer = styled.section`
   flex-direction: column;
   align-items: center;
   overflow: auto;
-
-  & .${Classes.FORM_GROUP} {
-    margin: 0 0 ${(props) => props.theme.spaces[2]}px;
-  }
 `;
 
 export const AuthCardContainer = styled.div`
