@@ -9,7 +9,6 @@ import {
   isImportingTemplateSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { Classes } from "@blueprintjs/core";
 import { importTemplateToOrganisation } from "actions/templateActions";
 
 const ButtonsWrapper = styled.div`
@@ -17,14 +16,6 @@ const ButtonsWrapper = styled.div`
   margin-top: 24px;
   gap: 10px;
   justify-content: flex-end;
-`;
-
-const StyledDropdown = styled(Dropdown)``;
-
-const StyledDialog = styled(Dialog)`
-  && .${Classes.DIALOG_BODY} {
-    padding-top: 24px;
-  }
 `;
 
 interface ForkTemplateProps {
@@ -53,7 +44,7 @@ function ForkTemplate({
   };
 
   return (
-    <StyledDialog
+    <Dialog
       canOutsideClickClose={!isImportingTemplate}
       headerIcon={{ name: "fork", bgColor: "#E7E7E7" }}
       isOpen={showForkModal}
@@ -61,7 +52,7 @@ function ForkTemplate({
       title="Choose where to fork the Template"
       trigger={children}
     >
-      <StyledDropdown
+      <Dropdown
         dropdownMaxHeight={"200px"}
         fillOptions
         onSelect={(_value, dropdownOption) =>
@@ -90,7 +81,7 @@ function ForkTemplate({
           type="button"
         />
       </ButtonsWrapper>
-    </StyledDialog>
+    </Dialog>
   );
 }
 
