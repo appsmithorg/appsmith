@@ -30,7 +30,6 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DatasourceComponentTypes } from "api/PluginApi";
 
