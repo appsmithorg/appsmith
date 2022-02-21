@@ -196,6 +196,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
+    cy.get("[data-cy=t--confirm-modal-btn]").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -288,6 +289,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
+    cy.get("[data-cy=t--confirm-modal-btn]").click();
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",

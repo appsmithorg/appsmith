@@ -37,7 +37,10 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        if (preExisted.actionConfiguration.body !== action.body) {
+        if (
+          preExisted.actionConfiguration.body !== action.body ||
+          preExisted.actionConfiguration.isAsync !== action.isAsync
+        ) {
           toBeUpdatedActions.push({
             ...preExisted,
             actionConfiguration: {

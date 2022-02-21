@@ -89,22 +89,22 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
   };
 };
 
-export const showRunActionConfirmModal = (show: boolean) => {
+export const showActionConfirmationModal = (show: boolean) => {
   return {
-    type: ReduxActionTypes.SHOW_RUN_ACTION_CONFIRM_MODAL,
+    type: ReduxActionTypes.SHOW_ACTION_MODAL,
     payload: show,
   };
 };
 
-export const cancelRunActionConfirmModal = () => {
+export const cancelActionConfirmationModal = () => {
   return {
-    type: ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL,
+    type: ReduxActionTypes.CANCEL_ACTION_MODAL,
   };
 };
 
-export const acceptRunActionConfirmModal = () => {
+export const acceptActionConfirmationModal = () => {
   return {
-    type: ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL,
+    type: ReduxActionTypes.CONFIRM_ACTION_MODAL,
   };
 };
 
