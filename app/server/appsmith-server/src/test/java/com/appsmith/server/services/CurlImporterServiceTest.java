@@ -693,12 +693,9 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://dummy.restapiexample.com");
         assertPath(action, "/api/v1/create");
-        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
-        assertEmptyBody(action);
-        assertBodyFormData(
-                action,
-                new Property("{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}", "")
-        );
+        assertHeaders(action, new Property("Content-Type", "application/json"));
+        assertBody(action,"{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
+        assertEmptyBodyFormData(action);
     }
 
     @Test
@@ -769,12 +766,8 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/post");
-        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
-        assertEmptyBody(action);
-        assertBodyFormData(
-                action,
-                new Property("a\\n", "")
-        );
+        assertBody(action,"a\\n");
+        assertEmptyBodyFormData(action);
     }
 
     @Test
@@ -838,6 +831,9 @@ public class CurlImporterServiceTest {
 
     private static void assertEmptyBody(ActionDTO action) {
         assertThat(action.getActionConfiguration().getBody()).isNullOrEmpty();
+    }
+    private static void assertEmptyBodyFormData(ActionDTO action) {
+        assertThat(action.getActionConfiguration().getBodyFormData()).isNullOrEmpty();
     }
 
     private static void assertBody(ActionDTO action, String body) {
