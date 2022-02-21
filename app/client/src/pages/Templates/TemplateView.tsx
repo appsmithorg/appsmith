@@ -17,12 +17,11 @@ import {
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import ForkTemplate from "./ForkTemplate";
+import LeftPaneTemplateList from "./LeftPaneTemplateList";
 
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
-  height: calc(100vh - 36px);
   overflow: auto;
-  margin-top: 36px;
 
   .breadcrumb-placeholder {
     margin-top: 30px;
@@ -130,6 +129,32 @@ const SimilarTemplatesWrapper = styled.div`
   }
 `;
 
+const PageWrapper = styled.div`
+  display: flex;
+  margin-top: ${(props) => props.theme.homePage.header}px;
+  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+`;
+
+function TemplateViewLoader() {
+  return (
+    <Wrapper>
+      <TemplateViewWrapper>
+        <div className={`breadcrumb-placeholder ${Classes.SKELETON}`} />
+        <div className={`title-placeholder ${Classes.SKELETON}`} />
+        <div className={`iframe-placeholder ${Classes.SKELETON}`} />
+      </TemplateViewWrapper>
+    </Wrapper>
+  );
+}
+
+function TemplateNotFound() {
+  return (
+    <Wrapper>
+      <EntityNotFoundPane />;
+    </Wrapper>
+  );
+}
+
 function TemplateView() {
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const params = useParams<{ templateId: string }>();
@@ -151,136 +176,130 @@ function TemplateView() {
     }
   }, [params.templateId]);
 
-  if (isFetchingTemplates) {
-    return (
-      <Wrapper>
-        <TemplateViewWrapper>
-          <div className={`breadcrumb-placeholder ${Classes.SKELETON}`} />
-          <div className={`title-placeholder ${Classes.SKELETON}`} />
-          <div className={`iframe-placeholder ${Classes.SKELETON}`} />
-        </TemplateViewWrapper>
-      </Wrapper>
-    );
-  }
-
-  if (!currentTemplate) {
-    return (
-      <Wrapper>
-        <EntityNotFoundPane />;
-      </Wrapper>
-    );
-  }
-
   return (
-    <Wrapper ref={containerRef}>
-      <TemplateViewWrapper>
-        <Title type={TextType.DANGER_HEADING}>{currentTemplate.title}</Title>
-        <IframeWrapper>
-          <iframe
-            height={"100%"}
-            src={`${currentTemplate.appUrl}?embed=true`}
-            width={"100%"}
-          />
-        </IframeWrapper>
-        <DescriptionWrapper>
-          <DescriptionColumn>
-            <Section>
-              <Text type={TextType.H1}>Overview</Text>
-              <div className="section-content">
-                <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                  {currentTemplate.description}
-                </Text>
-              </div>
-              <ForkTemplate
-                onClose={onForkModalClose}
-                showForkModal={showForkModal}
-              >
-                <Button
-                  className="template-fork-button"
-                  icon="fork-2"
-                  iconPosition={IconPositions.left}
-                  onClick={onForkButtonTrigger}
-                  size={Size.large}
-                  tag="button"
-                  text="FORK THIS TEMPLATE"
-                  width="228px"
-                />
-              </ForkTemplate>
-            </Section>
-            <Section>
-              <Text type={TextType.H1}>Function</Text>
-              <div className="section-content">
-                <Text type={TextType.H1} weight={FontWeight.NORMAL}>
-                  {currentTemplate.functions.join(" • ")}
-                </Text>
-              </div>
-            </Section>
-            <Section>
-              <Text type={TextType.H1}>Industry</Text>
-              <div className="section-content">
-                <Text type={TextType.H1} weight={FontWeight.NORMAL}>
-                  {currentTemplate.useCases.join(" • ")}
-                </Text>
-              </div>
-            </Section>
-          </DescriptionColumn>
-          <DescriptionColumn>
-            <Section>
-              <Text type={TextType.H1}>Data Sources</Text>
-              <div className="section-content">
-                <TemplateDatasources>
-                  {currentTemplate.datasources.map((packageName) => {
-                    return (
-                      <StyledDatasourceChip
-                        key={packageName}
-                        pluginPackageName={packageName}
-                      />
-                    );
-                  })}
-                </TemplateDatasources>
-                <div className="datasource-note">
-                  <Text type={TextType.H4}>Note: </Text>
-                  <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                    You can add your data sources as well
-                  </Text>
-                </div>
-              </div>
-            </Section>
-            <Section>
-              <Text type={TextType.H1}>Widgets Used</Text>
-              <div className="section-content">
-                <TemplatesWidgetList>
-                  {currentTemplate.widgets.map((widgetType) => {
-                    return (
-                      <WidgetInfo key={widgetType} widgetType={widgetType} />
-                    );
-                  })}
-                </TemplatesWidgetList>
-              </div>
-            </Section>
-          </DescriptionColumn>
-        </DescriptionWrapper>
-      </TemplateViewWrapper>
+    <PageWrapper>
+      <LeftPaneTemplateList />
+      {isFetchingTemplates ? (
+        <TemplateViewLoader />
+      ) : !currentTemplate ? (
+        <TemplateNotFound />
+      ) : (
+        <Wrapper ref={containerRef}>
+          <TemplateViewWrapper>
+            <Title type={TextType.DANGER_HEADING}>
+              {currentTemplate.title}
+            </Title>
+            <IframeWrapper>
+              <iframe
+                height={"100%"}
+                src={`${currentTemplate.appUrl}?embed=true`}
+                width={"100%"}
+              />
+            </IframeWrapper>
+            <DescriptionWrapper>
+              <DescriptionColumn>
+                <Section>
+                  <Text type={TextType.H1}>Overview</Text>
+                  <div className="section-content">
+                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
+                      {currentTemplate.description}
+                    </Text>
+                  </div>
+                  <ForkTemplate
+                    onClose={onForkModalClose}
+                    showForkModal={showForkModal}
+                  >
+                    <Button
+                      className="template-fork-button"
+                      icon="fork-2"
+                      iconPosition={IconPositions.left}
+                      onClick={onForkButtonTrigger}
+                      size={Size.large}
+                      tag="button"
+                      text="FORK THIS TEMPLATE"
+                      width="228px"
+                    />
+                  </ForkTemplate>
+                </Section>
+                <Section>
+                  <Text type={TextType.H1}>Function</Text>
+                  <div className="section-content">
+                    <Text type={TextType.H1} weight={FontWeight.NORMAL}>
+                      {currentTemplate.functions.join(" • ")}
+                    </Text>
+                  </div>
+                </Section>
+                <Section>
+                  <Text type={TextType.H1}>Industry</Text>
+                  <div className="section-content">
+                    <Text type={TextType.H1} weight={FontWeight.NORMAL}>
+                      {currentTemplate.useCases.join(" • ")}
+                    </Text>
+                  </div>
+                </Section>
+              </DescriptionColumn>
+              <DescriptionColumn>
+                <Section>
+                  <Text type={TextType.H1}>Data Sources</Text>
+                  <div className="section-content">
+                    <TemplateDatasources>
+                      {currentTemplate.datasources.map((packageName) => {
+                        return (
+                          <StyledDatasourceChip
+                            key={packageName}
+                            pluginPackageName={packageName}
+                          />
+                        );
+                      })}
+                    </TemplateDatasources>
+                    <div className="datasource-note">
+                      <Text type={TextType.H4}>Note: </Text>
+                      <Text type={TextType.H4} weight={FontWeight.NORMAL}>
+                        You can add your data sources as well
+                      </Text>
+                    </div>
+                  </div>
+                </Section>
+                <Section>
+                  <Text type={TextType.H1}>Widgets Used</Text>
+                  <div className="section-content">
+                    <TemplatesWidgetList>
+                      {currentTemplate.widgets.map((widgetType) => {
+                        return (
+                          <WidgetInfo
+                            key={widgetType}
+                            widgetType={widgetType}
+                          />
+                        );
+                      })}
+                    </TemplatesWidgetList>
+                  </div>
+                </Section>
+              </DescriptionColumn>
+            </DescriptionWrapper>
+          </TemplateViewWrapper>
 
-      <SimilarTemplatesWrapper>
-        <Section>
-          <Text type={TextType.H1} weight={FontWeight.BOLD}>
-            Similar Templates
-          </Text>
-          <Masonry
-            breakpointCols={3}
-            className="grid"
-            columnClassName="grid_column"
-          >
-            {((TemplatesMockResponse.data as unknown) as TemplateInterface[]).map(
-              (template) => (
-                <Template key={template.id} template={template} />
-              ),
-            )}
-          </Masonry>
-        </Section>
-      </SimilarTemplatesWrapper>
-    </Wrapper>
+          <SimilarTemplatesWrapper>
+            <Section>
+              <Text type={TextType.H1} weight={FontWeight.BOLD}>
+                Similar Templates
+              </Text>
+              <Masonry
+                breakpointCols={3}
+                className="grid"
+                columnClassName="grid_column"
+              >
+                {((TemplatesMockResponse.data as unknown) as TemplateInterface[]).map(
+                  (template) => (
+                    <Template key={template.id} template={template} />
+                  ),
+                )}
+              </Masonry>
+            </Section>
+          </SimilarTemplatesWrapper>
+        </Wrapper>
+      )}
+    </PageWrapper>
   );
 }
 
