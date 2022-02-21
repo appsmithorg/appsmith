@@ -50,6 +50,7 @@ import {
   getTableStyles,
   getSelectRowIndex,
   getSelectRowIndices,
+  getHash,
 } from "./utilities";
 
 import {
@@ -107,8 +108,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
-      sanitizedTableData: `{{(()=>{${derivedProperties.getSanitizedTableData}})()}}`,
-      tableColumns: `{{(()=>{${derivedProperties.getTableColumns}})()}}`,
+      processedTableData: `{{(()=>{${derivedProperties.getProcessedTableData}})()}}`,
+      orderedTableColumns: `{{(()=>{${derivedProperties.getOrderedTableColumns}})()}}`,
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
     };
   }
@@ -132,7 +133,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       multiRowSelection,
       selectedRowIndex,
       selectedRowIndices,
-      tableColumns = [],
+      orderedTableColumns = [],
       primaryColumns = {},
     } = this.props;
     let columns: ReactTableColumnProps[] = [];
@@ -141,7 +142,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { componentWidth } = this.getComponentDimensions();
     let totalColumnWidth = 0;
 
-    Object.values(primaryColumns).forEach((column: any) => {
+    orderedTableColumns.forEach((column: any) => {
       const isHidden = !column.isVisible;
       const accessor = column.accessor;
       const columnData = {
@@ -468,11 +469,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
      * But do not replace existing columns with the same id
      */
     columnKeys.forEach((columnKey, index) => {
-      const prevIndex = existingColumnIds.indexOf(columnKey);
+      const hashedColumnKey = getHash(columnKey);
+      const prevIndex = existingColumnIds.indexOf(hashedColumnKey);
 
       if (prevIndex > -1) {
         // Use the existing column properties
-        newTableColumns[columnKey] = primaryColumns[columnKey];
+        newTableColumns[hashedColumnKey] = primaryColumns[hashedColumnKey];
       } else {
         // Create column properties for the new column
         const columnProperties = getDefaultColumnProperties(
@@ -551,13 +553,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           !!_.xor(newColumnIds, columnOrder).length &&
           !_.isEqual(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
         ) {
-          propertiesToAdd["columnOrder"] = newColumnIds;
+          propertiesToAdd["columnOrder"] = Object.keys(tableColumns);
         }
 
         const accessorMap: Record<string, string> = {};
 
         Object.entries(tableColumns).forEach(([id, column]) => {
-          accessorMap[id] = column.accessor || id;
+          accessorMap[column.originalId] = column.accessor || column.originalId;
         });
 
         propertiesToAdd["accessorMap"] = accessorMap;
@@ -880,6 +882,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   handleReorderColumn = (columnOrder: string[]) => {
+    columnOrder = columnOrder.map((accessor) =>
+      this.getColumnIdByAccessor(accessor),
+    );
+
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("columnOrder", columnOrder);
     } else {
@@ -887,14 +893,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  handleColumnSorting = (column: string, isAsc: boolean) => {
+  handleColumnSorting = (columnAccessor: string, isAsc: boolean) => {
+    const columnId = this.getColumnIdByAccessor(columnAccessor);
     this.resetSelectedRowIndex();
 
     let sortOrderProps;
 
-    if (column) {
+    if (columnId) {
       sortOrderProps = {
-        column,
+        column: columnId,
         order: isAsc ? SortOrderTypes.asc : SortOrderTypes.desc,
       };
     } else {
@@ -1129,6 +1136,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getWidgetType(): WidgetType {
     return "TABLE_WIDGET_V2";
+  }
+
+  getColumnIdByAccessor(accessor: string) {
+    const { primaryColumns } = this.props;
+
+    if (primaryColumns) {
+      const column = Object.values(primaryColumns).find(
+        (column) => column.accessor === accessor,
+      );
+
+      if (column) {
+        return column.id;
+      }
+    }
+
+    return accessor;
   }
 }
 
