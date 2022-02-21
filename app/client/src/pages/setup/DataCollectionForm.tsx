@@ -21,7 +21,7 @@ import {
   WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE,
   WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE,
   WELCOME_FORM_DATA_COLLECTION_LINK,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const DataCollectionFormWrapper = styled.div`
   width: 100%;
@@ -38,8 +38,8 @@ export default memo(function DataCollectionForm() {
   const [allowCollection, setAllowCollection] = useState(true);
   return (
     <DataCollectionFormWrapper>
-      <FormHeaderWrapper>
-        <FormHeaderIndex>2.</FormHeaderIndex>
+      <FormHeaderWrapper className="relative flex flex-col items-start">
+        <FormHeaderIndex className="absolute -left-6">2.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_DATA_COLLECTION_HEADER)}
         </FormHeaderLabel>

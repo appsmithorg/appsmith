@@ -16,14 +16,17 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter
 public class Aggregate extends MongoCommand {
     String pipeline;
+    String limit;
 
     public Aggregate(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
@@ -32,6 +35,10 @@ public class Aggregate extends MongoCommand {
 
         if (validConfigurationPresentInFormData(formData, AGGREGATE_PIPELINE)) {
             this.pipeline = (String) getValueSafelyFromFormData(formData, AGGREGATE_PIPELINE);
+        }
+
+        if (validConfigurationPresentInFormData(formData, AGGREGATE_LIMIT)) {
+            this.limit = (String) getValueSafelyFromFormData(formData, AGGREGATE_LIMIT);
         }
     }
 
@@ -68,6 +75,13 @@ public class Aggregate extends MongoCommand {
             }
         } else {
             // The command expects the pipelines to be sent in an array. Parse and create a single element array
+
+            // check for enclosing curly bracket to make json validation more strict
+            final String jsonObject = this.pipeline.trim();
+            if (jsonObject.charAt(jsonObject.length() - 1) != '}') {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Pipeline stage is not a valid JSON object.");
+            }
+
             Document document = parseSafely("Array of Pipelines", this.pipeline);
             ArrayList<Document> documentArrayList = new ArrayList<>();
             documentArrayList.add(document);
@@ -75,8 +89,12 @@ public class Aggregate extends MongoCommand {
             commandDocument.put("pipeline", documentArrayList);
         }
 
-        // Add default cursor
-        commandDocument.put("cursor", parseSafely("cursor", "{}"));
+        // Default to returning 10 documents if not mentioned
+        int limit = 10;
+        if (!isBlank(this.limit)) {
+            limit = Integer.parseInt(this.limit);
+        }
+        commandDocument.put("cursor", parseSafely("cursor", "{batchSize: " + limit + "}"));
 
         return commandDocument;
     }

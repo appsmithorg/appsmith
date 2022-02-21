@@ -9,6 +9,9 @@ import {
   ButtonBoxShadow,
   ButtonVariant,
   ButtonBorderRadiusTypes,
+  ButtonPlacementTypes,
+  ButtonPlacement,
+  ButtonVariantTypes,
 } from "components/constants";
 import ButtonGroupComponent from "../component";
 
@@ -41,30 +44,6 @@ class ButtonGroupWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "buttonVariant",
-            label: "Button Variant",
-            controlType: "DROP_DOWN",
-            helpText: "Sets the variant of the icon button",
-            options: [
-              {
-                label: "Primary",
-                value: "PRIMARY",
-              },
-              {
-                label: "Secondary",
-                value: "SECONDARY",
-              },
-              {
-                label: "Tertiary",
-                value: "TERTIARY",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",
@@ -79,6 +58,17 @@ class ButtonGroupWidget extends BaseWidget<
             label: "Disabled",
             controlType: "SWITCH",
             helpText: "Disables clicks to this widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -142,9 +132,14 @@ class ButtonGroupWidget extends BaseWidget<
                         },
                       ],
                       isJSConvertible: true,
-                      isBindProperty: false,
+                      isBindProperty: true,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
+                      validation: {
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          allowedValues: ["SIMPLE", "MENU"],
+                        },
+                      },
                     },
                     {
                       propertyName: "buttonColor",
@@ -189,10 +184,55 @@ class ButtonGroupWidget extends BaseWidget<
                       validation: { type: ValidationTypes.TEXT },
                     },
                     {
+                      propertyName: "placement",
+                      label: "Placement",
+                      controlType: "DROP_DOWN",
+                      helpText: "Sets the space between items",
+                      options: [
+                        {
+                          label: "Start",
+                          value: ButtonPlacementTypes.START,
+                        },
+                        {
+                          label: "Between",
+                          value: ButtonPlacementTypes.BETWEEN,
+                        },
+                        {
+                          label: "Center",
+                          value: ButtonPlacementTypes.CENTER,
+                        },
+                      ],
+                      defaultValue: ButtonPlacementTypes.CENTER,
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: {
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          allowedValues: [
+                            ButtonPlacementTypes.START,
+                            ButtonPlacementTypes.BETWEEN,
+                            ButtonPlacementTypes.CENTER,
+                          ],
+                          default: ButtonPlacementTypes.CENTER,
+                        },
+                      },
+                    },
+                    {
                       propertyName: "iconAlign",
                       label: "Icon alignment",
                       helpText: "Sets the icon alignment of a button",
-                      controlType: "ICON_ALIGN",
+                      controlType: "ICON_TABS",
+                      options: [
+                        {
+                          icon: "VERTICAL_LEFT",
+                          value: "left",
+                        },
+                        {
+                          icon: "VERTICAL_RIGHT",
+                          value: "right",
+                        },
+                      ],
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
@@ -316,7 +356,17 @@ class ButtonGroupWidget extends BaseWidget<
                                 label: "Icon alignment",
                                 helpText:
                                   "Sets the icon alignment of a menu item",
-                                controlType: "ICON_ALIGN",
+                                controlType: "ICON_TABS",
+                                options: [
+                                  {
+                                    icon: "VERTICAL_LEFT",
+                                    value: "left",
+                                  },
+                                  {
+                                    icon: "VERTICAL_RIGHT",
+                                    value: "right",
+                                  },
+                                ],
                                 isBindProperty: false,
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
@@ -376,6 +426,40 @@ class ButtonGroupWidget extends BaseWidget<
       {
         sectionName: "Styles",
         children: [
+          {
+            propertyName: "buttonVariant",
+            label: "Button Variant",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the variant of the button",
+            options: [
+              {
+                label: "Primary",
+                value: ButtonVariantTypes.PRIMARY,
+              },
+              {
+                label: "Secondary",
+                value: ButtonVariantTypes.SECONDARY,
+              },
+              {
+                label: "Tertiary",
+                value: ButtonVariantTypes.TERTIARY,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonVariantTypes.PRIMARY,
+                  ButtonVariantTypes.SECONDARY,
+                  ButtonVariantTypes.TERTIARY,
+                ],
+                default: ButtonVariantTypes.PRIMARY,
+              },
+            },
+          },
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -489,6 +573,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       buttonColor?: string;
       iconName?: IconName;
       iconAlign?: Alignment;
+      placement?: ButtonPlacement;
       onClick?: string;
       menuItems: Record<
         string,

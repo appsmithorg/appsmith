@@ -2,7 +2,11 @@ import { Log, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
+import {
+  createMessage,
+  OPEN_THE_DEBUGGER,
+  PRESS,
+} from "@appsmith/constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
   matchBuilderPath,
@@ -64,8 +68,6 @@ export function getDependenciesFromInverseDependencies(
   deps: DependencyMap,
   entityName: string | null,
 ) {
-  // eslint-disable-next-line no-console
-  console.log("DEPENDENCY", deps);
   if (!entityName) return null;
 
   const directDependencies = new Set<string>();

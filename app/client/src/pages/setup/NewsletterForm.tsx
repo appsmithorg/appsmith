@@ -19,7 +19,7 @@ import {
   WELCOME_FORM_NEWLETTER_HEADER,
   WELCOME_FORM_NEWLETTER_LABEL,
   WELCOME_FORM_SUBMIT_LABEL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 export const StyledButton = styled(Button)`
   width: 201px;
@@ -36,8 +36,8 @@ const NewsletterContainer = styled.div`
 export default memo(function NewsletterForm() {
   return (
     <NewsletterContainer>
-      <FormHeaderWrapper>
-        <FormHeaderIndex>3.</FormHeaderIndex>
+      <FormHeaderWrapper className="relative flex-col items-start">
+        <FormHeaderIndex className="absolute -left-6">3.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_NEWLETTER_HEADER)}
         </FormHeaderLabel>

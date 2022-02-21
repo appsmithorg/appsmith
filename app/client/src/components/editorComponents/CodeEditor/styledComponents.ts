@@ -50,6 +50,7 @@ export const EditorWrapper = styled.div<{
   hoverInteraction?: boolean;
   fill?: boolean;
   className?: string;
+  codeEditorVisibleOverflow?: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -61,7 +62,7 @@ export const EditorWrapper = styled.div<{
   top: 0;
   `
       : `position: relative;`}
-  min-height: 35px;
+  min-height: 38px;
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) => editorBackground(props.editorTheme)};
   background-color: ${(props) => props.disabled && "#eef2f5"};
@@ -115,7 +116,7 @@ export const EditorWrapper = styled.div<{
           case props.hasError:
             return "red";
           case props.isFocused:
-            return Colors.PRIMARY_ORANGE;
+            return "var(--appsmith-input-focus-border-color)";
           default:
             return Colors.GREY_5;
         }
@@ -245,6 +246,14 @@ export const EditorWrapper = styled.div<{
   }
   .CodeEditorTarget {
     width: 100%;
+
+    &:focus {
+      border: 1px solid var(--appsmith-input-focus-border-color);
+      .CodeMirror.cm-s-duotone-light {
+        border: none;
+      }
+    }
+
     ${(props) =>
       props.size === EditorSize.COMPACT
         ? `
@@ -260,11 +269,23 @@ export const EditorWrapper = styled.div<{
     ${(props) => {
       let height = props.height || "auto";
       if (props.size === EditorSize.COMPACT && !props.isFocused) {
-        height = props.height || "35px";
+        height = props.height || "38px";
       }
       return `height: ${height}`;
     }}
   }
+
+  ${(props) =>
+    props.codeEditorVisibleOverflow &&
+    `
+    &&&&&&&& .CodeMirror-scroll {
+      overflow: visible;
+    }
+   
+    & .CodeEditorTarget {
+      height: ${props.isFocused ? "auto" : "35px"};
+    }
+  `}
 `;
 
 export const IconContainer = styled.div`

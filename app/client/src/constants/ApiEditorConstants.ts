@@ -1,5 +1,5 @@
 import { ApiActionConfig } from "entities/Action";
-import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
+import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
 import { zipObject } from "lodash";
 
 export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
@@ -10,6 +10,15 @@ const HTTP_METHOD_COLORS = [
   "#E22C2C",
   "#6D6D6D",
 ];
+
+export enum API_EDITOR_TABS {
+  HEADERS = "HEADERS",
+  PARAMS = "PARAMS",
+  BODY = "BODY",
+  PAGINATION = "PAGINATION",
+  SETTINGS = "SETTINGS",
+  AUTHENTICATION = "AUTHENTICATION",
+}
 
 export const HTTP_METHOD_COLOR_MAP = zipObject(
   HTTP_METHODS,

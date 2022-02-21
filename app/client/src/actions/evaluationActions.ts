@@ -51,6 +51,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
   ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
   ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
+  ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
@@ -60,6 +61,11 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.RESET_WIDGET_META,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+];
+// Topics used for datsource and query form evaluations
+export const FORM_EVALUATION_REDUX_ACTIONS = [
+  ReduxActionTypes.INIT_FORM_EVALUATION,
+  ReduxActionTypes.RUN_FORM_EVALUATION,
 ];
 export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
   if (

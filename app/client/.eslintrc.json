@@ -36,7 +36,8 @@
     "react/jsx-fragments": "error",
     "react/jsx-no-useless-fragment": "error",
     "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}],
-    "no-console": "warn"
+    "no-console": "warn",
+    "no-debugger": "warn"
   },
   "settings": {
     "import/resolver": {

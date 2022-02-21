@@ -1,0 +1,275 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1280,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1990,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 42,
+    "minHeight": 1970,
+    "parentColumnSpace": 1,
+    "dynamicTriggerPathList": [],
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "TreeSelect1",
+        "displayName": "TreeSelect",
+        "iconSVG": "/static/media/icon.bd99caba.svg",
+        "labelText": "Label",
+        "topRow": 14,
+        "bottomRow": 20.9,
+        "parentRowSpace": 10,
+        "type": "SINGLE_SELECT_TREE_WIDGET",
+        "hideCard": false,
+        "defaultOptionValue": 
+          "GREEN"
+        ,
+        "parentColumnSpace": 19.8125,
+        "leftColumn": 5,
+        "options": [
+          {
+            "label": "Blue",
+            "value": "BLUE",
+            "children": [
+              {
+                "label": "Dark Blue",
+                "value": "DARK BLUE"
+              },
+              {
+                "label": "Light Blue",
+                "value": "LIGHT BLUE"
+              }
+            ]
+          },
+          {
+            "label": "Green",
+            "value": "GREEN"
+          },
+          {
+            "label": "Red",
+            "value": "RED"
+          }
+        ],
+        "placeholderText": "Select option",
+        "isDisabled": false,
+        "key": "oe8sn5hbxk",
+        "isRequired": false,
+        "rightColumn": 18,
+        "widgetId": "p65c0i01ic",
+        "isVisible": true,
+        "version": 1,
+        "expandAll": false,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "allowClear": false
+      },
+      {
+        "widgetName": "MultiTreeSelect2",
+        "displayName": "Multi TreeSelect",
+        "iconSVG": "/static/media/icon.b3e28afb.svg",
+        "labelText": "Label",
+        "topRow": 31,
+        "bottomRow": 37.9,
+        "parentRowSpace": 10,
+        "type": "MULTI_SELECT_TREE_WIDGET",
+        "hideCard": false,
+        "mode": "SHOW_ALL",
+        "defaultOptionValue": [
+          "GREEN"
+        ],
+        "parentColumnSpace": 19.8125,
+        "leftColumn": 5,
+        "options": [
+          {
+            "label": "Blue",
+            "value": "BLUE",
+            "children": [
+              {
+                "label": "Dark Blue",
+                "value": "DARK BLUE"
+              },
+              {
+                "label": "Light Blue",
+                "value": "LIGHT BLUE"
+              }
+            ]
+          },
+          {
+            "label": "Green",
+            "value": "GREEN"
+          },
+          {
+            "label": "Red",
+            "value": "RED"
+          }
+        ],
+        "placeholderText": "Select option(s)",
+        "isDisabled": false,
+        "key": "oe8sn5hbxk",
+        "isRequired": false,
+        "rightColumn": 18,
+        "widgetId": "buewtu97rf",
+        "isVisible": true,
+        "version": 1,
+        "expandAll": false,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "allowClear": false
+      },
+      {
+        "widgetName": "Select1",
+        "isFilterable": true,
+        "displayName": "Select",
+        "iconSVG": "/static/media/icon.bd99caba.svg",
+        "labelText": "Label",
+        "topRow": 50,
+        "bottomRow": 56.9,
+        "parentRowSpace": 10,
+        "type": "SELECT_WIDGET",
+        "serverSideFiltering": false,
+        "hideCard": false,
+        "defaultOptionValue": {
+            "label": "Green",
+            "value": "GREEN"
+          },
+        "selectionType": "SINGLE_SELECT",
+        "parentColumnSpace": 19.8125,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 5,
+        "dynamicBindingPathList": [],
+        "options": [
+          {
+            "label": "Blue",
+            "value": "BLUE"
+          },
+          {
+            "label": "Green",
+            "value": "GREEN"
+          },
+          {
+            "label": "Red",
+            "value": "RED"
+          }
+        ],
+        "placeholderText": "Select option",
+        "isDisabled": false,
+        "key": "1b9j4l2c65",
+        "isRequired": false,
+        "rightColumn": 18,
+        "widgetId": "vnoxjpwd8a",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false
+      },
+      {
+        "widgetName": "MultiSelect1",
+        "displayName": "MultiSelect",
+        "iconSVG": "/static/media/icon.a3495809.svg",
+        "labelText": "Label",
+        "topRow": 67,
+        "bottomRow": 73.9,
+        "parentRowSpace": 10,
+        "type": "MULTI_SELECT_WIDGET_V2",
+        "serverSideFiltering": false,
+        "hideCard": false,
+        "defaultOptionValue": [
+          {
+            "label": "Green",
+            "value": "GREEN"
+          }
+        ],
+        "parentColumnSpace": 19.8125,
+        "leftColumn": 5,
+        "options": [
+          {
+            "label": "Blue",
+            "value": "BLUE"
+          },
+          {
+            "label": "Green",
+            "value": "GREEN"
+          },
+          {
+            "label": "Red",
+            "value": "RED"
+          }
+        ],
+        "placeholderText": "Select option(s)",
+        "isDisabled": false,
+        "key": "z8p14a1gb8",
+        "isRequired": false,
+        "rightColumn": 18,
+        "widgetId": "c2j24v7j6b",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false
+      },
+      {
+        "isCompact": false,
+        "widgetName": "MenuButton1",
+        "displayName": "Menu Button",
+        "iconSVG": "/static/media/icon.0341d17d.svg",
+        "topRow": 80,
+        "bottomRow": 84,
+        "parentRowSpace": 10,
+        "type": "MENU_BUTTON_WIDGET",
+        "hideCard": false,
+        "parentColumnSpace": 19.8125,
+        "leftColumn": 5,
+        "isDisabled": false,
+        "key": "ehx7dguolk",
+        "rightColumn": 18,
+        "menuVariant": "PRIMARY",
+        "widgetId": "33f9n054tq",
+        "menuItems": {
+            "menuItem1": {
+                "label": "First Menu Item",
+                "id": "menuItem1",
+                "widgetId": "",
+                "isVisible": true,
+                "isDisabled": false,
+                "index": 0
+            },
+            "menuItem2": {
+                "label": "Second Menu Item",
+                "id": "menuItem2",
+                "widgetId": "",
+                "isVisible": true,
+                "isDisabled": false,
+                "index": 1
+            },
+            "menuItem3": {
+                "label": "Third Menu Item",
+                "id": "menuItem3",
+                "widgetId": "",
+                "isVisible": true,
+                "isDisabled": false,
+                "index": 2
+            }
+        },
+        "isVisible": true,
+          "label": "Open Menu",
+          "version": 1,
+          "parentId": "0",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "menuColor": "#03B365"
+        }
+    ]
+  }
+}

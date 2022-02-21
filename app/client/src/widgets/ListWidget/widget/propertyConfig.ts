@@ -25,7 +25,7 @@ const PropertyPaneConfig = [
       },
       {
         propertyName: "backgroundColor",
-        label: "Background",
+        label: "Background Color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -43,7 +43,7 @@ const PropertyPaneConfig = [
       },
       {
         propertyName: "itemBackgroundColor",
-        label: "Item Background",
+        label: "Item Background Color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -70,7 +70,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: 0 } },
+        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
       },
       {
         helpText:
@@ -93,10 +93,21 @@ const PropertyPaneConfig = [
           type: ValidationTypes.BOOLEAN,
         },
       },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a grid list item is clicked",

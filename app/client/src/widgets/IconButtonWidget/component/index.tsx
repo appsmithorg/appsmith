@@ -58,7 +58,6 @@ export const StyledButton = styled((props) => (
     ])}
   />
 ))<ThemeProp & ButtonStyleProps>`
-
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
@@ -136,7 +135,6 @@ export const StyledButton = styled((props) => (
     }
   `}
 
-
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.CIRCLE
       ? "50%"
@@ -165,7 +163,7 @@ export const StyledButton = styled((props) => (
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
-  buttonColor: string;
+  buttonColor?: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;

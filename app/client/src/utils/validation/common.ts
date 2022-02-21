@@ -1,4 +1,7 @@
-import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
+import {
+  createMessage,
+  FIELD_REQUIRED_ERROR,
+} from "@appsmith/constants/messages";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
@@ -156,5 +159,7 @@ export function getExpectedValue(
         example: `https://www.example.com`,
         autocompleteDataType: AutocompleteDataType.STRING,
       };
+    case ValidationTypes.TABLE_PROPERTY:
+      return getExpectedValue(config.params as ValidationConfig);
   }
 }

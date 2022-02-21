@@ -76,7 +76,18 @@ const rcSelectDropdownSlideUpOut = keyframes`
 	}
 `;
 
-export const DropdownStyles = createGlobalStyle`
+export const DropdownStyles = createGlobalStyle<{
+  parentWidth: number;
+  dropDownWidth: number;
+  id: string;
+}>`
+${({ dropDownWidth, id, parentWidth }) => `
+  .multiselecttree-popover-width-${id} {
+    min-width: ${
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
+    }px !important;
+  }
+`}
 .rc-tree-select-dropdown-hidden {
 	display: none;
 }
@@ -252,7 +263,6 @@ border: 1px solid #E8E8E8;
 }
 .tree-multiselect-dropdown {
   min-height: 100px;
-  min-width: 250px !important;
   position: absolute;
   background: #fff;
   width: 100%;

@@ -5,7 +5,7 @@ import { Intent } from "constants/DefaultTheme";
 import {
   createMessage,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import { Colors } from "constants/Colors";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`

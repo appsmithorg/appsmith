@@ -48,7 +48,7 @@ import {
   JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import PageApi from "api/PageApi";
@@ -180,6 +180,7 @@ function* moveJSCollectionSaga(
   action: ReduxAction<{
     id: string;
     destinationPageId: string;
+    name: string;
   }>,
 ) {
   const actionObject: JSCollection = yield select(
@@ -190,6 +191,7 @@ function* moveJSCollectionSaga(
     const response = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
+      name: action.payload.name,
     });
 
     const isValidResponse = yield validateResponse(response);

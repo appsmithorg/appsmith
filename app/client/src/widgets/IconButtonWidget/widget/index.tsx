@@ -14,7 +14,6 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { Colors } from "constants/Colors";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
@@ -63,10 +62,21 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",
@@ -109,8 +119,20 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
                 value: ButtonVariantTypes.TERTIARY,
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonVariantTypes.PRIMARY,
+                  ButtonVariantTypes.SECONDARY,
+                  ButtonVariantTypes.TERTIARY,
+                ],
+                default: ButtonVariantTypes.PRIMARY,
+              },
+            },
           },
           {
             propertyName: "borderRadius",
@@ -185,7 +207,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor || Colors.GREEN}
+        buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={

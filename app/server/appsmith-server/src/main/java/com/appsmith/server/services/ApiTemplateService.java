@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.ApiTemplate;
+import com.appsmith.server.services.ce.ApiTemplateServiceCE;
 
-public interface ApiTemplateService extends CrudService<ApiTemplate, String> {
+public interface ApiTemplateService extends ApiTemplateServiceCE {
+
 }

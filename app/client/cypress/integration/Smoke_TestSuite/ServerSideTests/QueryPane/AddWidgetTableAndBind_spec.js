@@ -1,11 +1,9 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/inputdsl.json");
-const pages = require("../../../../locators/Pages.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 
 let datasourceName;
 
@@ -18,17 +16,15 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create a PostgresDataSource", () => {
+  it("1. Create a PostgresDataSource", () => {
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
-  it("Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+
+  it("2. Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -41,7 +37,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
       fixture: "addWidgetTable-mock",
     });
 
-    cy.runQuery();
+    cy.onlyQueryRun();
     cy.xpath(queryEditor.queryResponse)
       .first()
       .invoke("text")
@@ -59,7 +55,10 @@ describe("Addwidget from Query and bind with other widgets", function() {
       });
   });
 
-  it("Input widget test with default value from table widget", () => {
+  it("3. Input widget test with default value from table widget", () => {
+    cy.get(".t--entity-name")
+      .contains("WIDGETS")
+      .click();
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);
     cy.wait("@updateLayout").should(
@@ -68,12 +67,14 @@ describe("Addwidget from Query and bind with other widgets", function() {
       200,
     );
   });
-  it("validation of data displayed in input widget based on row data selected", function() {
+
+  it("4. validation of data displayed in input widget based on row data selected", function() {
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
       expect(tabValue).to.be.equal("5");
+      cy.isSelectRow(1);
       cy.get(publish.inputWidget + " " + "input")
         .first()
         .invoke("attr", "value")

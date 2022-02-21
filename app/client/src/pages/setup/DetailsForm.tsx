@@ -20,7 +20,7 @@ import {
   WELCOME_FORM_ROLE,
   WELCOME_FORM_USE_CASE,
   WELCOME_FORM_HEADER,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import FormTextField from "components/ads/formFields/TextField";
 import { DetailsFormValues } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
@@ -45,8 +45,8 @@ export default function DetailsForm(
 
   return (
     <DetailsFormWrapper ref={ref}>
-      <FormHeaderWrapper>
-        <FormHeaderIndex>1.</FormHeaderIndex>
+      <FormHeaderWrapper className="relative flex-col items-start">
+        <FormHeaderIndex className="absolute -left-6">1.</FormHeaderIndex>
         <FormHeaderLabel>{createMessage(WELCOME_FORM_HEADER)}</FormHeaderLabel>
       </FormHeaderWrapper>
       <StyledFormBodyWrapper>

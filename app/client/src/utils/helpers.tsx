@@ -11,18 +11,21 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { set } from "lodash";
+import { get, set } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
 import log from "loglevel";
-import { extraLibrariesNames } from "./DynamicBindingUtils";
+import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { ApiResponse } from "api/ApiResponses";
+import { DSLWidget } from "widgets/constants";
+import * as Sentry from "@sentry/react";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -144,6 +147,20 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
+export function hasClass(ele: HTMLElement, cls: string) {
+  return ele.classList.contains(cls);
+}
+
+function addClass(ele: HTMLElement, cls: string) {
+  if (!hasClass(ele, cls)) ele.classList.add(cls);
+}
+
+function removeClass(ele: HTMLElement, cls: string) {
+  if (hasClass(ele, cls)) {
+    ele.classList.remove(cls);
+  }
+}
+
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
@@ -155,12 +172,12 @@ export const removeSpecialChars = (value: string, limit?: number) => {
 export const flashElement = (
   el: HTMLElement,
   flashTimeout = 1000,
-  flashColor = "#FFCB33",
+  flashClass = "flash",
 ) => {
-  el.style.backgroundColor = flashColor;
-
+  if (!el) return;
+  addClass(el, flashClass);
   setTimeout(() => {
-    el.style.backgroundColor = "transparent";
+    removeClass(el, flashClass);
   }, flashTimeout);
 };
 
@@ -176,7 +193,7 @@ export const flashElementsById = (
   id: string | string[],
   timeout = 0,
   flashTimeout?: number,
-  flashColor?: string,
+  flashClass?: string,
 ) => {
   let ids: string[] = [];
 
@@ -196,7 +213,7 @@ export const flashElementsById = (
         inline: "center",
       });
 
-      if (el) flashElement(el, flashTimeout, flashColor);
+      if (el) flashElement(el, flashTimeout, flashClass);
     }, timeout);
   });
 };
@@ -549,6 +566,17 @@ export const truncateString = (
  */
 export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
 
+export const undoShortCut = () => <span>{modText()}+Z</span>;
+
+export const redoShortCut = () =>
+  isMac() ? (
+    <span>
+      {modText()}+<span>&#8682;</span>+Z
+    </span>
+  ) : (
+    <span>{modText()}+Y</span>
+  );
+
 /**
  * @returns the original string after trimming the string past `?`
  */
@@ -604,3 +632,66 @@ export function unFocus(document: Document, window: Window) {
     } catch (e) {}
   }
 }
+
+export function getLogToSentryFromResponse(response?: ApiResponse) {
+  return response && response?.responseMeta?.status >= 500;
+}
+
+/*
+ *  Function to merge property pane config of a widget
+ *
+ */
+export const mergeWidgetConfig = (target: any, source: any) => {
+  const sectionMap: Record<string, any> = {};
+
+  target.forEach((section: { sectionName: string }) => {
+    sectionMap[section.sectionName] = section;
+  });
+
+  source.forEach((section: { sectionName: string; children: any[] }) => {
+    const targetSection = sectionMap[section.sectionName];
+
+    if (targetSection) {
+      Array.prototype.push.apply(targetSection.children, section.children);
+    } else {
+      target.push(section);
+    }
+  });
+
+  return target;
+};
+
+export const getLocale = () => {
+  return navigator.languages?.[0] || "en-US";
+};
+
+/**
+ * Function to check if the DynamicBindingPathList is valid
+ * @param currentDSL
+ * @returns
+ */
+export const captureInvalidDynamicBindingPath = (
+  currentDSL: Readonly<DSLWidget>,
+) => {
+  //Get the dynamicBindingPathList of the current DSL
+  const dynamicBindingPathList = get(currentDSL, "dynamicBindingPathList");
+  dynamicBindingPathList?.forEach((dBindingPath) => {
+    const pathValue = get(currentDSL, dBindingPath.key); //Gets the value for the given dynamic binding path
+    /**
+     * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
+     */
+    if (!isDynamicValue(pathValue)) {
+      Sentry.captureException(
+        new Error(
+          `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
+        ),
+      );
+      return;
+    }
+  });
+
+  if (currentDSL.children) {
+    currentDSL.children.map(captureInvalidDynamicBindingPath);
+  }
+  return currentDSL;
+};

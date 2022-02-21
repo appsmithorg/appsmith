@@ -161,13 +161,14 @@ describe("FirstTimeUserOnboarding", function() {
 
   it("onboarding flow - should check directly opening widget pane", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
-
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
     cy.get(OnboardingLocator.widgetPaneTrigger).click();
     cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
-    cy.get(OnboardingLocator.textWidgetName).should("be.visible");
+    cy.get(OnboardingLocator.textWidgetName)
+      .should("be.visible")
+      .wait(800);
     cy.reload();
     cy.wait("@getUser");
     cy.get(OnboardingLocator.statusbar).should("be.visible");

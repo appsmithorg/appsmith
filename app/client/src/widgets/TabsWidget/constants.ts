@@ -32,3 +32,5 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
   defaultTab: string;
   selectedTabWidgetId: string;
 }
+
+export const SCROLL_NAV_CONTROL_CONTAINER_WIDTH = 30;

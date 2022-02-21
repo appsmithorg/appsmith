@@ -13,6 +13,7 @@ import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import { StyledLabel, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 
 const FUSE_OPTIONS = {
@@ -28,6 +29,7 @@ const SingleDropDown = Select.ofType<DropdownOption>();
 const StyledSingleDropDown = styled(SingleDropDown)<{
   isSelected: boolean;
   isValid: boolean;
+  hasError?: boolean;
 }>`
   div {
     flex: 1 1 auto;
@@ -51,7 +53,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     min-height: 36px;
     padding-left: 12px;
     border: 1.2px solid
-      ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+      ${(props) => (props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3)};
     ${(props) =>
       props.isValid
         ? `
@@ -69,7 +71,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
   &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
     outline: 0;
     ${(props) =>
-      props.isValid
+      !props.hasError
         ? `
         border: 1.2px solid ${Colors.GREEN_SOLID};
         box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
@@ -122,15 +124,29 @@ const StyledControlGroup = styled(ControlGroup)`
   }
 `;
 
-const DropdownStyles = createGlobalStyle<{ width: number }>`
+const DropdownStyles = createGlobalStyle<{
+  parentWidth: number;
+  dropDownWidth: number;
+  id: string;
+}>`
+${({ dropDownWidth, id, parentWidth }) => `
+  .select-popover-width-${id} {
+    min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+
+    & .${Classes.INPUT_GROUP} {
+       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    }
+  }
+`}
   .select-popover-wrapper {
-    width: 100%;
+    width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: 0;
     background: white;
 
     & .${Classes.INPUT_GROUP} {
       padding: 12px 12px 8px 12px;
+      min-width: 180px;
 
       & > .${Classes.ICON} {
         &:first-child {
@@ -178,12 +194,12 @@ const DropdownStyles = createGlobalStyle<{ width: number }>`
       margin-top: -3px;
       max-width: 100%;
       max-height: auto;
+      min-width: 0px !important;
     }
     &&&& .${Classes.MENU_ITEM} {
       min-height: 38px;
       padding: 9px 12px;
       color: ${Colors.GREY_8};
-      min-width: 180px;
       &:hover{
         background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
@@ -243,8 +259,8 @@ class DropDownComponent extends React.Component<
     ]);
     this.setState({ activeItemIndex });
   };
-
-  render = () => {
+  render() {
+    const id = _.uniqueId();
     const {
       compactMode,
       disabled,
@@ -271,7 +287,11 @@ class DropDownComponent extends React.Component<
       : this.props.placeholder || "-- Select --";
     return (
       <DropdownContainer compactMode={compactMode}>
-        <DropdownStyles width={this.props.width} />
+        <DropdownStyles
+          dropDownWidth={this.props.dropDownWidth}
+          id={id}
+          parentWidth={this.props.width - WidgetContainerDiff}
+        />
         {labelText && (
           <TextLabelWrapper compactMode={compactMode}>
             <StyledLabel
@@ -295,6 +315,7 @@ class DropDownComponent extends React.Component<
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
+            hasError={this.props.hasError}
             isSelected={
               !_.isEmpty(this.props.options) &&
               this.props.selectedIndex !== undefined &&
@@ -323,7 +344,7 @@ class DropDownComponent extends React.Component<
                   enabled: false,
                 },
               },
-              popoverClassName: "select-popover-wrapper",
+              popoverClassName: `select-popover-wrapper select-popover-width-${id}`,
             }}
           >
             <Button
@@ -343,7 +364,7 @@ class DropDownComponent extends React.Component<
         </StyledControlGroup>
       </DropdownContainer>
     );
-  };
+  }
 
   itemListPredicate(query: string, items: DropdownOption[]) {
     const fuse = new Fuse(items, FUSE_OPTIONS);
@@ -380,7 +401,6 @@ class DropDownComponent extends React.Component<
         className={`single-select ${isFocused && "is-focused"}`}
         key={option.value}
         onClick={itemProps.handleClick}
-        style={{ width: this.props.width - 7 }}
         tabIndex={0}
         text={option.label}
       />
@@ -403,8 +423,10 @@ export interface DropDownComponentProps extends ComponentProps {
   isFilterable: boolean;
   isValid: boolean;
   width: number;
+  dropDownWidth: number;
   height: number;
   serverSideFiltering: boolean;
+  hasError?: boolean;
   onFilterChange: (text: string) => void;
 }
 

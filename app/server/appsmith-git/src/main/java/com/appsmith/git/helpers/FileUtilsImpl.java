@@ -2,9 +2,12 @@ package com.appsmith.git.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.converters.GsonDoubleToLongConverter;
+import com.appsmith.git.converters.GsonUnorderedToOrderedSetConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -59,7 +63,7 @@ public class FileUtilsImpl implements FileInterface {
 
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
-    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("([^/]*|LICENSE).(md|git|gitignore|)$");
+    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("(.*?)\\.(md|git|gitignore)$");
 
 
     /**
@@ -67,20 +71,33 @@ public class FileUtilsImpl implements FileInterface {
      * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
      * @param baseRepoSuffix path suffix used to create a repo path
      * @param applicationGitReference application reference object from which entire application can be rehydrated
+     * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<Path> saveApplicationToGitRepo(Path baseRepoSuffix,
                                                ApplicationGitReference applicationGitReference,
-                                               String branchName) {
+                                               String branchName) throws GitAPIException, IOException {
 
-        // Repo path for will be like:
+        // Repo path will be:
         // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
-        return gitExecutor.checkoutToBranch(baseRepoSuffix, branchName)
+        Stopwatch processStopwatch = new Stopwatch("FS application save");
+        return gitExecutor.resetToLastCommit(baseRepoSuffix, branchName)
+                .then(gitExecutor.checkoutToBranch(baseRepoSuffix, branchName))
                 .flatMap(isSwitched -> {
 
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
-                    Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+
+                    // Gson to pretty format JSON file
+                    // Keep Long type as is by default GSON have behavior to convert to Double
+                    // Convert unordered set to ordered one
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Double.class,  new GsonDoubleToLongConverter())
+                            .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedSetConverter())
+                            .disableHtmlEscaping()
+                            .setPrettyPrinting()
+                            .create();
+
                     Set<String> validFileNames = new HashSet<>();
 
                     /*
@@ -144,6 +161,7 @@ public class FileUtilsImpl implements FileInterface {
                     if (!applicationGitReference.getDatasources().isEmpty()) {
                         scanAndDeleteFileForDeletedResources(validFileNames, baseRepo.resolve(DATASOURCE_DIRECTORY));
                     }
+                    processStopwatch.stopAndLogTimeInMillis();
                     return Mono.just(baseRepo);
                 });
     }
@@ -190,12 +208,11 @@ public class FileUtilsImpl implements FileInterface {
      * This method will delete the file from local repo
      * @param filePath file that needs to be deleted
      * @param isDirectory if the file is directory
-     * @return if the deletion operation was successful
      */
-    private boolean deleteFile(Path filePath, boolean isDirectory) {
+    private void deleteFile(Path filePath, boolean isDirectory) {
         try
         {
-            return Files.deleteIfExists(filePath);
+            Files.deleteIfExists(filePath);
         }
         catch(DirectoryNotEmptyException e)
         {
@@ -205,7 +222,6 @@ public class FileUtilsImpl implements FileInterface {
         {
             log.debug("Unable to delete file, {}", e.getMessage());
         }
-        return false;
     }
 
     /**
@@ -215,11 +231,12 @@ public class FileUtilsImpl implements FileInterface {
      * @param branchName for which the application needs to be rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationGitReference> reconstructApplicationFromGitRepo(String organisationId,
-                                                                     String defaultApplicationId,
-                                                                     String repoName,
-                                                                     String branchName) {
+    public Mono<ApplicationGitReference> reconstructApplicationReferenceFromGitRepo(String organisationId,
+                                                                                    String defaultApplicationId,
+                                                                                    String repoName,
+                                                                                    String branchName) {
 
+        Stopwatch processStopwatch = new Stopwatch("FS reconstruct application");
         Path baseRepoSuffix = Paths.get(organisationId, defaultApplicationId, repoName);
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
 
@@ -244,12 +261,16 @@ public class FileUtilsImpl implements FileInterface {
                     // Extract actions
                     applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson));
 
+                    // Extract actionCollections
+                    applicationGitReference.setActionsCollections(readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson));
+
                     // Extract pages
                     applicationGitReference.setPages(readFiles(baseRepoPath.resolve(PAGE_DIRECTORY), gson));
 
                     // Extract datasources
                     applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson));
 
+                    processStopwatch.stopAndLogTimeInMillis();
                     return applicationGitReference;
                 });
     }
@@ -257,7 +278,7 @@ public class FileUtilsImpl implements FileInterface {
     /**
      * This is used to initialize repo with Readme file when the application is connected to remote repo
      *
-     * @param baseRepoSuffix path suffix used to create a repo path
+     * @param baseRepoSuffix path suffix used to create a repo path this includes the readme.md as well
      * @param viewModeUrl    URL to deployed version of the application view only mode
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path to the base repo
@@ -277,7 +298,8 @@ public class FileUtilsImpl implements FileInterface {
         File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
         FileUtils.writeStringToFile(file, data, "UTF-8", true);
 
-        return Mono.just(baseRepoSuffix);
+        // Remove readme.md from the path
+        return Mono.just(file.toPath().getParent());
     }
 
     @Override
@@ -290,11 +312,11 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     @Override
-    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
+    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) {
         return Mono.fromCallable(() -> {
             File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
             for(File file : files) {
-                if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()) {
+                if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches() && !file.getName().equals("LICENSE")) {
                     //Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
                     while (file.exists()) {
                         FileSystemUtils.deleteRecursively(file);

@@ -32,6 +32,7 @@ export interface ApiDatasourceForm {
   isValid: boolean;
   url: string;
   headers?: Property[];
+  queryParameters?: Property[];
   isSendSessionEnabled: boolean;
   sessionSignatureKey: string;
   authType: AuthType;
@@ -48,10 +49,13 @@ export interface Oauth2Common {
   isTokenHeader: boolean;
   audience: string;
   resource: string;
+  sendScopeWithRefreshToken: string;
+  refreshTokenClientCredentialsLocation: string;
 }
 
 export interface ClientCredentials extends Oauth2Common {
   grantType: GrantType.ClientCredentials;
+  customTokenParameters: Property[];
 }
 
 export interface AuthorizationCode extends Oauth2Common {

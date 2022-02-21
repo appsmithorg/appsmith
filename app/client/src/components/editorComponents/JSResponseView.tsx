@@ -13,7 +13,7 @@ import {
   PARSING_ERROR,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
@@ -40,6 +40,7 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import Icon from "components/ads/Icon";
+import FlagBadge from "components/utils/FlagBadge";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -91,9 +92,10 @@ const ResponseTabAction = styled.li`
   .function-name {
     margin-left: 5px;
     display: inline-block;
+    flex: 1;
   }
   .run-button {
-    margin-left: auto;
+    margin-left: 10px;
     margin-right: 15px;
   }
   &.active {
@@ -175,7 +177,7 @@ function JSResponseView(props: Props) {
   const actionList = jsObject?.actions;
   const sortedActionList = actionList && sortBy(actionList, "name");
   const response =
-    selectActionId && !!responses[selectActionId]
+    selectActionId && selectActionId in responses
       ? responses[selectActionId]
       : "";
   const isRunning = selectActionId && !!isExecuting[selectActionId];
@@ -212,7 +214,7 @@ function JSResponseView(props: Props) {
               ""
             )}
           </HelpSection>
-          <ResponseTabWrapper className={errors.length ? "disable" : ""}>
+          <ResponseTabWrapper className={errorsList.length ? "disable" : ""}>
             {sortedActionList && !sortedActionList?.length ? (
               <NoResponseContainer className="flex items-center">
                 {createMessage(EMPTY_JS_OBJECT)}
@@ -235,6 +237,11 @@ function JSResponseView(props: Props) {
                         >
                           <JSFunction />{" "}
                           <div className="function-name">{action.name}</div>
+                          {action.actionConfiguration.isAsync ? (
+                            <FlagBadge name={"ASYNC"} />
+                          ) : (
+                            ""
+                          )}
                           <RunFunction className="run-button" />
                         </ResponseTabAction>
                       );

@@ -15,6 +15,7 @@ import TreeDropdown from "components/ads/TreeDropdown";
 import { useNewJSCollectionName } from "./helpers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
+import { Position } from "@blueprintjs/core";
 
 type EntityContextMenuProps = {
   id: string;
@@ -82,6 +83,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
+          name: nextEntityName(actionName, destinationPageId, false),
         }),
       ),
     [dispatch, nextEntityName, props.pageId],
@@ -148,6 +150,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           className: "t--apiFormDeleteBtn",
         },
       ]}
+      position={Position.LEFT_TOP}
       selectedValue=""
       toggle={
         <MoreActionablesContainer

@@ -12,7 +12,7 @@ import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { isString } from "../../../utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
@@ -66,7 +66,6 @@ class SingleSelectTreeWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                       {
@@ -91,7 +90,6 @@ class SingleSelectTreeWidget extends BaseWidget<
                                   type: ValidationTypes.TEXT,
                                   params: {
                                     default: "",
-                                    required: true,
                                   },
                                 },
                               ],
@@ -172,6 +170,17 @@ class SingleSelectTreeWidget extends BaseWidget<
             label: "Disabled",
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -273,7 +282,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when a user selects an option",
@@ -293,8 +302,8 @@ class SingleSelectTreeWidget extends BaseWidget<
     return {
       selectedOptionLabel: `{{  this.selectedLabel[0] }}`,
       selectedOptionValue:
-        '{{  JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined  }}',
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue?.length : true}}`,
+        '{{  JSON.stringify(this.options).match(new RegExp(`"value":${Number.isFinite(this.selectedOption) ? this.selectedOption : `"${this.selectedOption}"` }`), "g") ? this.selectedOption : undefined  }}',
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
     };
   }
 
@@ -319,12 +328,15 @@ class SingleSelectTreeWidget extends BaseWidget<
       !this.props.__evaluation__?.errors.options.length
         ? this.props.options
         : [];
-    const values: string | undefined = isString(this.props.selectedOption)
-      ? this.props.selectedOption
-      : undefined;
+    const value: string | number | undefined =
+      isString(this.props.selectedOption) ||
+      Number.isFinite(this.props.selectedOption)
+        ? this.props.selectedOption
+        : undefined;
 
-    const filteredValue = this.filterValues(values);
-
+    const filteredValue = this.filterValue(value);
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
     return (
       <SingleSelectTreeComponent
         allowClear={this.props.allowClear}
@@ -336,6 +348,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
+        dropDownWidth={dropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
@@ -350,20 +363,14 @@ class SingleSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         value={filteredValue}
+        width={componentWidth}
       />
     );
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
+    this.props.updateWidgetMetaProperty("selectedOption", value);
     this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
-
-    this.props.updateWidgetMetaProperty("selectedOption", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {
@@ -373,7 +380,7 @@ class SingleSelectTreeWidget extends BaseWidget<
   };
 
   flat(array: DropdownOption[]) {
-    let result: { value: string }[] = [];
+    let result: { value: string | number }[] = [];
     array.forEach((a) => {
       result.push({ value: a.value });
       if (Array.isArray(a.children)) {
@@ -383,12 +390,12 @@ class SingleSelectTreeWidget extends BaseWidget<
     return result;
   }
 
-  filterValues(values: string | undefined) {
+  filterValue(value: string | number | undefined) {
     const options = this.props.options ? this.flat(this.props.options) : [];
 
-    if (isString(values)) {
-      const index = findIndex(options, { value: values as string });
-      return index > -1 ? values : undefined;
+    if (isString(value) || Number.isFinite(value)) {
+      const index = findIndex(options, { value: value as string });
+      return index > -1 ? value : undefined;
     }
   }
 
@@ -399,7 +406,7 @@ class SingleSelectTreeWidget extends BaseWidget<
 
 export interface DropdownOption {
   label: string;
-  value: string;
+  value: string | number;
   disabled?: boolean;
   children?: DropdownOption[];
 }
@@ -415,7 +422,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   allowClear: boolean;
   labelText?: string;
   selectedLabel: string[];
-  selectedOption: string;
+  selectedOption: string | number;
   selectedOptionValue: string;
   selectedOptionLabel: string;
   expandAll: boolean;
