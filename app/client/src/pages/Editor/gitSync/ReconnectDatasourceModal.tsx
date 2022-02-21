@@ -28,7 +28,6 @@ import {
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
   SKIP_TO_APPLICATION,
   SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION,
-  SKIP_TO_APPLICATION_TOOLTIP_HEADER,
 } from "@appsmith/constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import {
@@ -69,6 +68,7 @@ const Container = styled.div`
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  width: calc(100% - 206px);
 `;
 
 const BodyContainer = styled.div`
@@ -80,6 +80,7 @@ const BodyContainer = styled.div`
 const TabsContainer = styled.div`
   height: ${MENU_HEIGHT}px;
   padding-left: ${(props) => props.theme.spaces[8]}px;
+
   .react-tabs {
     width: 1029px;
   }
@@ -89,26 +90,32 @@ const ContentWrapper = styled.div`
   height: calc(100% - 76px);
   display: flex;
   margin-left: -${(props) => props.theme.spaces[8]}px;
+
   .t--json-to-form-wrapper {
-    width: calc(100% - 206px);
+    width: 100%;
+
     .t--close-editor {
       display: none;
     }
+
     div[class^="JSONtoForm__DBForm-"] {
       padding-top: 0px;
 
       div[class^="JSONtoForm__SaveButtonContainer-"] {
         width: 816px;
+
         button:first-child {
           display: none;
         }
       }
     }
+
     .t--collapse-top-border {
       height: 1px;
       width: 816px;
       margin-top: ${(props) => props.theme.spaces[10]}px;
       margin-bottom: ${(props) => props.theme.spaces[10]}px;
+
       &:first-child {
         display: none;
       }
@@ -116,6 +123,7 @@ const ContentWrapper = styled.div`
 
     .t--collapse-section-container {
       width: 816px;
+
       & > div {
         color: ${Colors.BLACK};
       }
@@ -123,6 +131,7 @@ const ContentWrapper = styled.div`
 
     .t--form-control-DROP_DOWN > div {
       width: 566px !important;
+
       & > div {
         width: 566px !important;
       }
@@ -131,6 +140,7 @@ const ContentWrapper = styled.div`
     .t--form-control-KEYVALUE_ARRAY > div {
       & > div {
         width: 566px !important;
+
         &:last-child {
           width: 140px !important;
         }
@@ -146,9 +156,11 @@ const ContentWrapper = styled.div`
       height: 14px;
       margin-left: 6px;
       margin-right: 6px;
+
       svg {
         width: 12px;
         height: 14px;
+
         path {
           fill: ${Colors.GREEN};
         }
@@ -157,6 +169,7 @@ const ContentWrapper = styled.div`
 
     div > label[class^="StyledFormComponents__StyledFormLabel-"] {
       width: 566px !important;
+
       &:last-child {
         width: 140px !important;
       }
@@ -166,7 +179,6 @@ const ContentWrapper = styled.div`
   .t--message-container {
     display: flex;
     flex-direction: column;
-    width: 100%;
     justify-content: center;
   }
 `;
@@ -175,13 +187,16 @@ const ListContainer = styled.div`
   height: 100%;
   overflow: auto;
   width: 206px;
+
   .t--collapse-top-border {
     display: none;
   }
+
   .t--collapse-section-container {
     width: 90%;
     margin-left: 5%;
     margin-bottom: ${(props) => props.theme.spaces[11] + 2}px;
+
     & > div {
       font-style: normal;
       font-weight: normal;
@@ -222,22 +237,23 @@ const SkipToAppButtonWrapper = styled.div`
 const TooltipWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  .cs-icon {
-    margin-right: ${(props) => props.theme.spaces[2]}px;
-    margin-top: -${(props) => props.theme.spaces[1]}px;
-  }
+  width: 320px;
+`;
+
+const DBFormWrapper = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px;
+  width: calc(100% - 206px);
 `;
 
 function TooltipContent() {
   return (
     <TooltipWrapper>
-      <Text color={Colors.WHITE} style={{ display: "flex" }} type={TextType.P3}>
-        <Icon
-          fillColor={Colors.YELLOW_LIGHT}
-          name="alert-fill"
-          size={IconSize.LARGE}
-        />
-        {createMessage(SKIP_TO_APPLICATION_TOOLTIP_HEADER)}
+      <Text
+        color={Colors.WHITE}
+        style={{ marginBottom: "4px" }}
+        type={TextType.P3}
+      >
+        {createMessage(SKIP_TO_APPLICATION)}
       </Text>
       <Text color={Colors.WHITE} type={TextType.P3}>
         {createMessage(SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION)}
@@ -441,12 +457,14 @@ function ReconnectDatasourceModal() {
                 })}
               </ListContainer>
               {isConfigFetched && !isLoading && !datasouce?.isConfigured && (
-                <DatasourceForm
-                  applicationId={appId}
-                  datasourceId={selectedDatasourceId}
-                  fromImporting
-                  pageId={pageId}
-                />
+                <DBFormWrapper>
+                  <DatasourceForm
+                    applicationId={appId}
+                    datasourceId={selectedDatasourceId}
+                    fromImporting
+                    pageId={pageId}
+                  />
+                </DBFormWrapper>
               )}
               {datasouce && datasouce.isConfigured && (
                 <Section className="t--message-container">

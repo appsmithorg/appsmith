@@ -210,6 +210,14 @@ const datasourceReducer = createReducer(initialState, {
       ),
     };
   },
+  [ReduxActionTypes.DELETE_DATASOURCE_CANCELLED]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      isDeleting: false,
+    };
+  },
   [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
@@ -247,6 +255,11 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       loading: false,
       list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) return action.payload;
+
+        return datasource;
+      }),
+      unconfiguredList: state.unconfiguredList.map((datasource) => {
         if (datasource.id === action.payload.id) return action.payload;
 
         return datasource;
