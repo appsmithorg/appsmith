@@ -338,7 +338,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
             } else if ("--data-urlencode".equals(state)) {
                 // The `token` is next to `--data-urlencode`.
-                dataParts.add(token);
+                // ignore the '=' at the start as the curl document says https://curl.se/docs/manpage.html#--data-urlencode
+                if (token.startsWith("=")) {
+                    dataParts.add(token.substring(1));
+                } else {
+                    dataParts.add(token);
+                }
 
             } else if (ARG_FORM.equals(state)) {
                 // The token is next to --form

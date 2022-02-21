@@ -311,33 +311,24 @@ public class CurlImporterServiceTest {
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertEmptyBody(action);
-        assertBodyFormData(
-                action,
-                new Property("", "all of this exactly, but url encoded ")
-        );
+        assertBody(action,"all of this exactly, but url encoded ");
+        assertEmptyBodyFormData(action);
 
         action = curlImporterService.curlToAction(
                 "curl --data-urlencode 'spaced name=all of this exactly, but url encoded' http://loc"
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertEmptyBody(action);
-        assertBodyFormData(
-                action,
-                new Property("spaced name", "all of this exactly, but url encoded")
-        );
+        assertBody(action,"spaced name=all of this exactly, but url encoded");
+        assertEmptyBodyFormData(action);
 
         action = curlImporterService.curlToAction(
                 "curl --data-urlencode 'awesome=details, all of this exactly, but url encoded' http://loc"
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertEmptyBody(action);
-        assertBodyFormData(
-                action,
-                new Property("awesome", "details, all of this exactly, but url encoded")
-        );
+        assertBody(action,"awesome=details, all of this exactly, but url encoded");
+        assertEmptyBodyFormData(action);
     }
 
     @Test
