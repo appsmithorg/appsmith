@@ -438,7 +438,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private String guessTheContentType(List<String> dataParts, List<String> formParts) {
         if (!dataParts.isEmpty()) {
             final String data = dataParts.get(0);
-            final Pattern urlEncodedPattern = Pattern.compile("([A-Za-z0-9%./]+=[^\\s]+)");
+            final Pattern urlEncodedPattern = Pattern.compile("([A-Za-z0-9%._\\-/]+=[^\\s]+)");
             // if it's form url encoded?
             if (urlEncodedPattern.matcher(data).matches()) {
                 return MediaType.APPLICATION_FORM_URLENCODED_VALUE;
