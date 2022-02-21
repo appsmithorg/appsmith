@@ -1,6 +1,6 @@
-import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { createImmerReducer } from "utils/AppsmithUtils";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,

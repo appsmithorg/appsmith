@@ -1,4 +1,4 @@
-import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import { dragSelectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -6,7 +6,7 @@ import { isEqual } from "lodash";
 import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import { getSelectedWidgets } from "selectors/ui";
+import { getDragSelectedWidgets, getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -91,10 +91,12 @@ function* selectAllWidgetsInAreaSaga(
           ),
         ]
       : widgetIdsToSelect;
-    const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
+    const currentSelectedWidgets: string[] = yield select(
+      getDragSelectedWidgets,
+    );
 
     if (!isEqual(filteredWidgetsToSelect, currentSelectedWidgets)) {
-      yield put(selectMultipleWidgetsAction(filteredWidgetsToSelect));
+      yield put(dragSelectMultipleWidgetsAction(filteredWidgetsToSelect));
     }
   }
 }
@@ -113,6 +115,8 @@ function* startCanvasSelectionSaga(
         [containerWidgetId: string]: OccupiedSpace[];
       }
     | undefined = yield select(getOccupiedSpaces);
+  yield put(dragSelectMultipleWidgetsAction(lastSelectedWidgets));
+
   const selectionTask = yield takeLatest(
     ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
     selectAllWidgetsInAreaSaga,

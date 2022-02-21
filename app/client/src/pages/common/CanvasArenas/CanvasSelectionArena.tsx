@@ -2,27 +2,29 @@ import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
 } from "actions/canvasSelectionActions";
+import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import { theme } from "constants/DefaultTheme";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { APP_MODE } from "entities/App";
 import { throttle } from "lodash";
-import React, { useEffect, useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
+import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { getDragSelectedWidgets } from "selectors/ui";
 import { getNearestParentCanvas } from "utils/generators";
-import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { XYCord } from "./hooks/useCanvasDragging";
-import { theme } from "constants/DefaultTheme";
-import { getIsDraggingForSelection } from "selectors/canvasSelectors";
-import { commentModeSelector } from "../../../selectors/commentsSelectors";
-import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
+import { commentModeSelector } from "../../../selectors/commentsSelectors";
+import { XYCord } from "./hooks/useCanvasDragging";
+import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
+import { StickyCanvasArena } from "./StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -57,6 +59,11 @@ export function CanvasSelectionArena({
   const parentWidget = useSelector((state: AppState) =>
     getWidget(state, parentId || ""),
   );
+  const tempSelectedWidgets = useSelector(getDragSelectedWidgets);
+  const currentSelectedWidgetsRef = useRef(tempSelectedWidgets);
+  useEffect(() => {
+    currentSelectedWidgetsRef.current = tempSelectedWidgets;
+  }, [tempSelectedWidgets]);
   const isDraggableParent = !(
     widgetId === MAIN_CONTAINER_WIDGET_ID ||
     (parentWidget && parentWidget.detachFromLayout)
@@ -349,6 +356,9 @@ export function CanvasSelectionArena({
           stickyCanvasRef.current.style.zIndex = "";
           slidingArenaRef.current.style.zIndex = "";
           slidingArenaRef.current.style.cursor = "";
+          dispatch(
+            selectMultipleWidgetsAction(currentSelectedWidgetsRef.current),
+          );
           dispatch(setCanvasSelectionStateAction(false, widgetId));
         }
       };

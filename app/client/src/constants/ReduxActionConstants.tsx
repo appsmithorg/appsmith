@@ -1,9 +1,9 @@
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
-import { Org } from "./orgConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { GitApplicationMetadata } from "api/ApplicationApi";
+import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import { Org } from "./orgConstants";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -11,6 +11,7 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  DRAG_SELECT_MULTIPLE_WIDGETS: "DRAG_SELECT_MULTIPLE_WIDGETS",
   SET_ENTITY_INFO: "SET_ENTITY_INFO",
   UPDATE_META_STATE: "UPDATE_META_STATE",
   DISCONNECT_GIT: "DISCONNECT_GIT",

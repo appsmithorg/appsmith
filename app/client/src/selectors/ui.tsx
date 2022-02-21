@@ -5,6 +5,8 @@ export const getSelectedWidget = (state: AppState) =>
 
 export const getSelectedWidgets = (state: AppState) =>
   state.ui.widgetDragResize.selectedWidgets;
+export const getDragSelectedWidgets = (state: AppState) =>
+  state.ui.canvasSelection.dragToSelectSelections.selectedWidgets;
 
 /**
  * Selector to use id and provide the status of saving an API.

@@ -1,4 +1,4 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export const selectWidgetAction = (
   widgetId?: string,
@@ -19,6 +19,15 @@ export const selectWidgetInitAction = (
 export const deselectAllInitAction = () => {
   return {
     type: ReduxActionTypes.DESELECT_MULTIPLE_WIDGETS_INIT,
+  };
+};
+
+export const dragSelectMultipleWidgetsAction = (
+  widgetIds?: string[],
+): ReduxAction<{ widgetIds?: string[] }> => {
+  return {
+    type: ReduxActionTypes.DRAG_SELECT_MULTIPLE_WIDGETS,
+    payload: { widgetIds },
   };
 };
 

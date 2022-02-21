@@ -1,49 +1,49 @@
-import React, { useContext, memo, useMemo } from "react";
-import {
-  WidgetOperations,
-  WidgetRowCols,
-  WidgetProps,
-} from "widgets/BaseWidget";
+import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import {
-  UIElementSize,
-  computeFinalRowCols,
-  computeRowCols,
-} from "./ResizableUtils";
-import {
-  useShowPropertyPane,
-  useShowTableFilterPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
+import { GridDefaults } from "constants/WidgetConstants";
+import { get, omit } from "lodash";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import React, { memo, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable/resizenreflow";
-import { omit, get } from "lodash";
-import { getSnapColumns } from "utils/WidgetPropsUtils";
-import {
-  VisibilityContainer,
-  LeftHandleStyles,
-  RightHandleStyles,
-  TopHandleStyles,
-  BottomHandleStyles,
-  TopLeftHandleStyles,
-  TopRightHandleStyles,
-  BottomLeftHandleStyles,
-  BottomRightHandleStyles,
-} from "./ResizeStyledComponents";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { focusWidget } from "actions/widgetActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  useShowPropertyPane,
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
-import { GridDefaults } from "constants/WidgetConstants";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getSnapColumns } from "utils/WidgetPropsUtils";
+import {
+  WidgetOperations,
+  WidgetProps,
+  WidgetRowCols,
+} from "widgets/BaseWidget";
 import { DropTargetContext } from "./DropTargetComponent";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import {
+  computeFinalRowCols,
+  computeRowCols,
+  UIElementSize,
+} from "./ResizableUtils";
+import {
+  BottomHandleStyles,
+  BottomLeftHandleStyles,
+  BottomRightHandleStyles,
+  LeftHandleStyles,
+  RightHandleStyles,
+  TopHandleStyles,
+  TopLeftHandleStyles,
+  TopRightHandleStyles,
+  VisibilityContainer,
+} from "./ResizeStyledComponents";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -64,12 +64,22 @@ export const ResizableComponent = memo(function ResizableComponent(
   const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
-  );
-  const selectedWidgets = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
-  );
+  const currentParentDraggingForSelection = useSelector((state: AppState) => {
+    return (
+      state.ui.canvasSelection.isDraggingForSelection &&
+      props.parentId === state.ui.canvasSelection.widgetId
+    );
+  });
+  const selectedWidget = useSelector((state: AppState) => {
+    return currentParentDraggingForSelection
+      ? state.ui.canvasSelection.dragToSelectSelections.lastSelectedWidget
+      : state.ui.widgetDragResize.lastSelectedWidget;
+  });
+  const selectedWidgets = useSelector((state: AppState) => {
+    return currentParentDraggingForSelection
+      ? state.ui.canvasSelection.dragToSelectSelections.selectedWidgets
+      : state.ui.widgetDragResize.selectedWidgets;
+  });
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );

@@ -1,30 +1,28 @@
-import React, { useMemo, useRef } from "react";
-import styled from "styled-components";
-import { get, minBy, maxBy } from "lodash";
-import { useSelector, useDispatch } from "react-redux";
-
+import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import {
   copyWidget,
   cutWidget,
-  groupWidgets,
   deleteSelectedWidget,
+  groupWidgets,
 } from "actions/widgetActions";
-import { isMac } from "utils/helpers";
-import { Layers } from "constants/Layers";
-import { FormIcons } from "icons/FormIcons";
 import Tooltip from "components/ads/Tooltip";
+import { Layers } from "constants/Layers";
 import { ControlIcons } from "icons/ControlIcons";
-import { getSelectedWidgets } from "selectors/ui";
-import { generateClassName } from "utils/generators";
-
-import { stopEventPropagation } from "utils/AppsmithUtils";
+import { FormIcons } from "icons/FormIcons";
+import { get, maxBy, minBy } from "lodash";
+import React, { useMemo, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { commentModeSelector } from "selectors/commentsSelectors";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { IPopoverSharedProps, Position } from "@blueprintjs/core";
+import { getSelectedWidgets } from "selectors/ui";
+import styled from "styled-components";
+import { stopEventPropagation } from "utils/AppsmithUtils";
+import { generateClassName } from "utils/generators";
+import { isMac } from "utils/helpers";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";
-import { AppState } from "reducers";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { commentModeSelector } from "selectors/commentsSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
@@ -182,6 +180,9 @@ function WidgetsMultiSelectBox(props: {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const isDraggingForSelection = useSelector(
+    (state: AppState) => state.ui.canvasSelection.isDraggingForSelection,
+  );
   /**
    * the multi-selection bounding box should only render when:
    *
@@ -190,7 +191,7 @@ function WidgetsMultiSelectBox(props: {
    * 3. multiple widgets are selected
    */
   const shouldRender = useMemo(() => {
-    if (isDragging || isCommentMode) {
+    if (isDragging || isCommentMode || isDraggingForSelection) {
       return false;
     }
     const parentIDs = selectedWidgets
