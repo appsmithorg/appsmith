@@ -94,6 +94,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.wait(2000);
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });
+      cy.get("[data-cy=t--confirm-modal-btn]").click();
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
         "have.nested.property",

@@ -249,7 +249,7 @@ function LogItem(props: LogItemProps) {
             <Icon
               className={`${Classes.ICON} debugger-toggle`}
               fillColor={get(theme, "colors.debugger.jsonIcon")}
-              name={"downArrow"}
+              name={"down-arrow"}
               onClick={() => setIsOpen(!isOpen)}
               size={IconSize.XXL}
             />
