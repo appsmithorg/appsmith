@@ -2,6 +2,7 @@ import { Action } from "entities/Action/index";
 import _ from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isHidden } from "components/formControls/utils";
+import { allowedControlTypes } from "components/formControls/EntitySelectorControl";
 
 const dynamicFields = ["QUERY_DYNAMIC_TEXT", "QUERY_DYNAMIC_INPUT_TEXT"];
 
@@ -139,7 +140,6 @@ export const getBindingPathsOfAction = (
         }
       } else if (formConfig.controlType === "ENTITY_SELECTOR") {
         if (Array.isArray(formConfig.schema)) {
-          const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
           formConfig.schema.forEach((schemaField: any, index: number) => {
             if (allowedControlTypes.includes(schemaField.controlType)) {
               bindingPaths[

@@ -18,7 +18,7 @@ const inputFieldConfig: any = {
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
 };
 
-const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
+export const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
 
 // Component for the icons
 const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
