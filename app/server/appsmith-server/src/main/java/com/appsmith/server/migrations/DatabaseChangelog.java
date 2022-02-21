@@ -4787,6 +4787,37 @@ public class DatabaseChangelog {
         return true;
     }
 
+    @ChangeSet(order = "108", id = "create-system-themes", author = "")
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        Index systemThemeIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index");
+
+        ensureIndexes(mongockTemplate, Theme.class, systemThemeIndex);
+
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme legacyTheme = null;
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            Theme savedTheme = mongockTemplate.save(theme);
+            if(savedTheme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+        }
+
+        // migrate all applications and set legacy theme to them in both mode
+        Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+        mongockTemplate.updateMulti(
+                new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+        );
+    }
+
     /**
      * This migration adds a new field to Mongo aggregate command to set batchSize: formData.aggregate.limit. Its value
      * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
@@ -4995,8 +5026,14 @@ public class DatabaseChangelog {
         );
     }
 
+    /**
+     * Adding this migration again because we've added permission to themes.
+     * Also there are couple of changes in the system theme properties.
+     * @param mongockTemplate
+     * @throws IOException
+     */
     @ChangeSet(order = "117", id = "create-system-themes-v2", author = "")
-    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+    public void createSystemThemes2(MongockTemplate mongockTemplate) throws IOException {
         Index systemThemeIndex = new Index()
                 .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
                 .named("system_theme_index")
