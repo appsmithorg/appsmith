@@ -39,12 +39,12 @@ import {
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import { confirmRunActionSaga } from "sagas/ActionExecution/PluginActionSaga";
 import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -128,7 +128,7 @@ export function* executeActionTriggers(
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
       break;
     case ActionTriggerType.CONFIRMATION_MODAL:
-      const flag = yield call(confirmRunActionSaga);
+      const flag = yield call(requestModalConfirmationSaga);
       if (!flag) {
         throw new UserCancelledActionExecutionError();
       }
