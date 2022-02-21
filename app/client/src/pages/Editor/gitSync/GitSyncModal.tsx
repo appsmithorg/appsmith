@@ -40,12 +40,12 @@ const BodyContainer = styled.div`
 
 const MenuContainer = styled.div`
   height: ${MENU_HEIGHT}px;
+  margin-top: -${(props) => props.theme.spaces[4]}px;
 `;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[1]}px;
-  top: ${(props) => props.theme.spaces[5]}px;
 
   padding: ${(props) => props.theme.spaces[1]}px;
   border-radius: ${(props) => props.theme.radii[1]}px;
@@ -131,7 +131,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
         isOpen={isModalOpen}
         maxWidth={"900px"}
         onClose={handleClose}
-        width={"550px"}
+        width={"535px"}
       >
         <Container>
           <MenuContainer>

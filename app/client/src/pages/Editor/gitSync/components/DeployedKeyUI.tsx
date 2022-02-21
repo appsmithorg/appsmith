@@ -11,13 +11,16 @@ import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
-import { Space } from "./StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const TooltipWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+
+const TextWrapper = styled.div`
+  margin-top: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Icon = styled.span<{
@@ -103,13 +106,16 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
   };
   return (
     <>
-      <Space size={7} />
-      <Text color={Colors.GREY_9} type={TextType.P3}>
-        {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
-        <LintText onClick={clickHandler}>{createMessage(LEARN_MORE)}</LintText>
-      </Text>
+      <TextWrapper>
+        <Text color={Colors.GREY_9} type={TextType.P3}>
+          {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
+          <LintText onClick={clickHandler}>
+            {createMessage(LEARN_MORE)}
+          </LintText>
+        </Text>
+      </TextWrapper>
       <FlexRow>
-        <DeployedKeyContainer $marginTop={4}>
+        <DeployedKeyContainer $marginTop={3}>
           <FlexRow>
             <Key2LineIcon
               color={Colors.DOVE_GRAY2}

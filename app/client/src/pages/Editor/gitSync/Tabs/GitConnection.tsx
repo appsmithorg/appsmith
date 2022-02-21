@@ -81,7 +81,7 @@ export const UrlOptionContainer = styled.div`
   & .primary {
   }
   margin-bottom: ${(props) => `${props.theme.spaces[3]}px`};
-  margin-top: ${(props) => `${props.theme.spaces[11]}px`};
+  margin-top: ${(props) => `${props.theme.spaces[11] - 1}px`};
 `;
 
 const UrlContainer = styled.div`
@@ -457,7 +457,7 @@ function GitConnection({ isImport }: Props) {
         {!SSHKeyPair ? (
           remoteUrl &&
           !isInvalidRemoteUrl && (
-            <ButtonContainer topMargin={10}>
+            <ButtonContainer topMargin={7}>
               <Button
                 category={Category.primary}
                 className="t--submit-repo-url-button"
@@ -493,7 +493,7 @@ function GitConnection({ isImport }: Props) {
             triedSubmit={triedSubmit}
             useGlobalConfig={!!useGlobalConfigInputVal}
           />
-          <ButtonContainer topMargin={0}>
+          <ButtonContainer topMargin={3}>
             {(isConnectingToGit || isImportingApplicationViaGit) && (
               <StatusbarWrapper>
                 <Statusbar
@@ -531,7 +531,7 @@ function GitConnection({ isImport }: Props) {
           </ButtonContainer>
         </>
       ) : null}
-      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="47px" />
+      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="37px" />
     </Container>
   );
 }

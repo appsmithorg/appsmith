@@ -39,7 +39,7 @@ export const Classes = {
 };
 
 export const DEFAULT_REMOTE = "origin";
-export const MENU_HEIGHT = 47;
+export const MENU_HEIGHT = 46;
 
 export enum CREDENTIAL_MODE {
   MANUALLY = "MANUALLY",
