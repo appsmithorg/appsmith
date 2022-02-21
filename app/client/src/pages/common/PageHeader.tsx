@@ -1,15 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
 import { AppState } from "reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
-import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
-import Button from "components/editorComponents/Button";
+import {
+  AUTH_LOGIN_URL,
+  APPLICATIONS_URL,
+  matchApplicationPath,
+  matchTemplatesPath,
+  TEMPLATES_URL,
+} from "constants/routes";
 import history from "utils/history";
+import Button from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
 import Bell from "notifications/Bell";
 import { Colors } from "constants/Colors";
@@ -24,29 +30,24 @@ const StyledPageHeader = styled(StyledHeader)<{
   isMobile?: boolean;
   showSeparator?: boolean;
 }>`
+  justify-content: normal;
   background: white;
   height: 48px;
   color: white;
-  flex-direction: row;
   position: fixed;
   top: 0;
   z-index: ${Indices.Layer9};
-  box-shadow: ${(props) =>
-    props.hideShadow && !props.isMobile
-      ? `none`
-      : `0px 4px 4px rgba(0, 0, 0, 0.05)`};
-  ${(props) => props.showSeparator && !props.isMobile && sideBorder}
+  box-shadow: 0px 1px 0px #ededed;
   ${({ isMobile }) =>
     isMobile &&
     `
     padding: 0 12px;
     padding-left: 10px;
-  `}
+  `};
 `;
 
 const HeaderSection = styled.div`
   display: flex;
-  flex: 1;
   align-items: center;
 
   .t--appsmith-logo {
@@ -57,23 +58,36 @@ const HeaderSection = styled.div`
   }
 `;
 
-const sideBorder = css`
-  &:after {
-    content: "";
-    position: absolute;
-    left: ${(props) => props.theme.homePage.sidebar}px;
-    width: 1px;
-    height: 100%;
-    background-color: ${Colors.GALLERY_2};
-  }
-`;
-
 const StyledDropDownContainer = styled.div``;
 
 const StyledTwoLineHamburger = styled(TwoLineHamburger)`
   fill: ${Colors.BLACK};
   width: 22px;
   height: 22px;
+  cursor: pointer;
+`;
+
+const Tabs = styled.div`
+  display: flex;
+  font-size: 16px;
+  line-height: 24px;
+  box-sizing: border-box;
+  margin-left: 32px;
+  flex: 1;
+  height: 100%;
+  gap: 0px 32px;
+`;
+const TabName = styled.div<{ isSelected: boolean }>`
+  color: #858282;
+  line-height: 24px;
+  border-bottom: 2px solid transparent;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  ${(props) =>
+    props.isSelected &&
+    `border-bottom: 2px solid #f86a2b;
+  color: #191919;`}
   cursor: pointer;
 `;
 
@@ -94,6 +108,22 @@ export function PageHeader(props: PageHeaderProps) {
     loginUrl += `?redirectUrl
     =${queryParams.get("redirectUrl")}`;
   }
+  const tabs = [
+    {
+      title: "Apps",
+      path: APPLICATIONS_URL,
+      matcher: matchApplicationPath,
+    },
+    {
+      title: "Templates",
+      path: TEMPLATES_URL,
+      matcher: matchTemplatesPath,
+    },
+  ];
+
+  const showTabs = useMemo(() => {
+    return tabs.some((tab) => tab.matcher(tab.path));
+  }, [location.pathname]);
 
   return (
     <StyledPageHeader
@@ -106,6 +136,21 @@ export function PageHeader(props: PageHeaderProps) {
           <AppsmithLogo />
         </Link>
       </HeaderSection>
+      {showTabs && (
+        <Tabs>
+          {tabs.map((tab) => {
+            return (
+              <TabName
+                isSelected={tab.matcher(location.pathname)}
+                key={tab.title}
+                onClick={() => history.push(tab.path)}
+              >
+                <div>{tab.title}</div>
+              </TabName>
+            );
+          })}
+        </Tabs>
+      )}
       {user && !isMobile && (
         <>
           {user.username !== ANONYMOUS_USERNAME && <Bell />}

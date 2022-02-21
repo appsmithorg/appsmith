@@ -10,9 +10,7 @@ import {
 import ApplicationLoader from "pages/Applications/loader";
 import TemplatesLoader from "pages/Templates/loader";
 import PageWrapper from "pages/common/PageWrapper";
-import { LeftPane as ApplicationsLeftPane } from "pages/Applications";
 import styled from "styled-components";
-import { Indices } from "constants/Layers";
 import {
   APPLICATIONS_URL,
   TEMPLATES_URL,
@@ -50,7 +48,6 @@ const TabsWrapper = styled.div`
   position: fixed;
   top: 0px;
   left: ${(props) => props.theme.homePage.sidebar}px;
-  z-index: ${Indices.Layer9};
 
   .react-tabs__tab-list {
     border-bottom: 1px solid #ededed;
@@ -74,7 +71,6 @@ const HomePageTabsKeys = {
 function LeftPane() {
   return (
     <Switch>
-      <SentryRoute component={ApplicationsLeftPane} path={APPLICATIONS_URL} />
       <SentryRoute component={Filters} exact path={TEMPLATES_URL} />
       <SentryRoute component={LeftPaneTemplateList} path={TEMPLATES_ID_PATH} />
     </Switch>

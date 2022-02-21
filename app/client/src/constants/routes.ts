@@ -54,6 +54,7 @@ export const GENERATE_TEMPLATE_FORM_PATH = `${GENERATE_TEMPLATE_PATH}${GEN_TEMPL
 
 export const BUILDER_CHECKLIST_URL = `${BUILDER_URL}/checklist`;
 
+export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);

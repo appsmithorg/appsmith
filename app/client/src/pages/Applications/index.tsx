@@ -31,6 +31,7 @@ import {
   ApplicationPayload,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
@@ -91,8 +92,6 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
-import MediaQuery from "react-responsive";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 
 const OrgDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -207,9 +206,16 @@ const LeftPaneWrapper = styled.div`
   top: ${(props) => props.theme.homePage.header}px;
   box-shadow: 1px 0px 0px #ededed;
 `;
-
-const ApplicationContainer = styled.div`
+const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
+  padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   padding-top: 16px;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    margin-left: 0;
+    width: 100%;
+    padding: 0;
+  `}
 `;
 
 const ItemWrapper = styled.div`
@@ -251,28 +257,6 @@ const NoAppsFound = styled.div`
   & > span {
     margin-bottom: 24px;
   }
-`;
-
-const ApplicationsWrapper = styled.div<{ isMobile?: boolean }>`
-  padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
-  height: calc(100vh - 36px);
-  overflow: auto;
-  width: calc(
-    100% -
-      ${(props) =>
-        props.theme.homePage.leftPane.width +
-        props.theme.homePage.leftPane.rightMargin +
-        props.theme.homePage.leftPane.leftPadding}px
-  );
-  scroll-behavior: smooth;
-  margin-left: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
-  ${({ isMobile }) =>
-    isMobile &&
-    `
-    margin-left: 0;
-    width: 100%;
-    padding: 0;
-  `}
 `;
 
 function Item(props: {
@@ -383,7 +367,7 @@ const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
   return result;
 };
 
-export function LeftPane() {
+function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -478,6 +462,23 @@ const OrgRename = styled(EditableText)`
 
 const NoSearchResultImg = styled.img`
   margin: 1em;
+`;
+
+const ApplicationsWrapper = styled.div`
+  height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
+  overflow: auto;
+  margin-left: ${(props) =>
+    props.theme.homePage.leftPane.width +
+    props.theme.homePage.leftPane.rightMargin +
+    props.theme.homePage.leftPane.leftPadding}px;
+  width: calc(
+    100% -
+      ${(props) =>
+        props.theme.homePage.leftPane.width +
+        props.theme.homePage.leftPane.rightMargin +
+        props.theme.homePage.leftPane.leftPadding}px
+  );
+  scroll-behavior: smooth;
 `;
 
 function ApplicationsSection(props: any) {
@@ -920,7 +921,10 @@ function ApplicationsSection(props: any) {
   }
 
   return (
-    <ApplicationContainer className="t--applications-container">
+    <ApplicationContainer
+      className="t--applications-container"
+      isMobile={isMobile}
+    >
       {organizationsListComponent}
       {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
     </ApplicationContainer>
@@ -973,20 +977,19 @@ class Applications extends Component<
 
   public render() {
     return (
-      <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
-        {(matches: boolean) => (
-          <ApplicationsWrapper isMobile={matches}>
-            <SubHeader
-              search={{
-                placeholder: createMessage(SEARCH_APPS),
-                queryFn: this.props.searchApplications,
-                defaultValue: this.props.searchKeyword,
-              }}
-            />
-            <ApplicationsSection searchKeyword={this.props.searchKeyword} />
-          </ApplicationsWrapper>
-        )}
-      </MediaQuery>
+      <PageWrapper displayName="Applications">
+        <LeftPane />
+        <ApplicationsWrapper>
+          <SubHeader
+            search={{
+              placeholder: createMessage(SEARCH_APPS),
+              queryFn: this.props.searchApplications,
+              defaultValue: this.props.searchKeyword,
+            }}
+          />
+          <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+        </ApplicationsWrapper>
+      </PageWrapper>
     );
   }
 }

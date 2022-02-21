@@ -30,6 +30,7 @@ const TemplateListWrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
+  margin-top: 36px;
 `;
 
 const ResultsCount = styled.div`
@@ -42,6 +43,7 @@ const ResultsCount = styled.div`
 `;
 
 const Loader = styled(TemplateListWrapper)`
+  margin-top: 36px;
   height: 100vh;
   .results-count {
     height: 20px;

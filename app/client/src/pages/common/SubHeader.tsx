@@ -16,14 +16,11 @@ const SubHeaderWrapper = styled.div<{
   width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
   display: flex;
   justify-content: space-between;
+
   background: ${(props) => props.theme.colors.homepageBackground};
   z-index: ${Indices.Layer9};
   margin-left: 10px;
   margin-top: 26px;
-  // test
-  top: 2px;
-  left: ${(props) =>
-    props.isMobile ? 0 : props.theme.homePage.sidebar + 24}px;
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
   ${({ isMobile }) => isMobile && `padding: 12px 16px;`}
 `;
