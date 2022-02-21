@@ -92,7 +92,7 @@ const ContentWrapper = styled.div`
   margin-left: -${(props) => props.theme.spaces[8]}px;
 
   .t--json-to-form-wrapper {
-    width: calc(100% - 206px);
+    width: 100%;
 
     .t--close-editor {
       display: none;
@@ -238,6 +238,11 @@ const TooltipWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 320px;
+`;
+
+const DBFormWrapper = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px;
+  width: calc(100% - 206px);
 `;
 
 function TooltipContent() {
@@ -452,12 +457,14 @@ function ReconnectDatasourceModal() {
                 })}
               </ListContainer>
               {isConfigFetched && !isLoading && !datasouce?.isConfigured && (
-                <DatasourceForm
-                  applicationId={appId}
-                  datasourceId={selectedDatasourceId}
-                  fromImporting
-                  pageId={pageId}
-                />
+                <DBFormWrapper>
+                  <DatasourceForm
+                    applicationId={appId}
+                    datasourceId={selectedDatasourceId}
+                    fromImporting
+                    pageId={pageId}
+                  />
+                </DBFormWrapper>
               )}
               {datasouce && datasouce.isConfigured && (
                 <Section className="t--message-container">
