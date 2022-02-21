@@ -209,7 +209,7 @@ function ContextMenu(props: Props) {
       >
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
-            color={Colors.GREY_8}
+            color={Colors.GREY_9}
             height={16}
             onClick={noop}
             width={16}

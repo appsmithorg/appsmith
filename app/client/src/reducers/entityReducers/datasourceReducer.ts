@@ -197,6 +197,14 @@ const datasourceReducer = createReducer(initialState, {
       ),
     };
   },
+  [ReduxActionTypes.DELETE_DATASOURCE_CANCELLED]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      isDeleting: false,
+    };
+  },
   [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,

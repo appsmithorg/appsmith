@@ -3,9 +3,9 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { Keys } from "@blueprintjs/core";
 import {
-  showRunActionConfirmModal,
-  cancelRunActionConfirmModal,
-  acceptRunActionConfirmModal,
+  showActionConfirmationModal,
+  cancelActionConfirmationModal,
+  acceptActionConfirmationModal,
 } from "actions/pluginActionActions";
 import DialogComponent from "components/ads/DialogComponent";
 import styled from "styled-components";
@@ -33,7 +33,7 @@ const ModalFooter = styled.div`
   }
 `;
 
-class ConfirmRunModal extends React.Component<Props> {
+class RequestConfirmationModal extends React.Component<Props> {
   addEventListener = () => {
     document.addEventListener("keydown", this.onKeyUp);
   };
@@ -50,14 +50,14 @@ class ConfirmRunModal extends React.Component<Props> {
 
   onConfirm = () => {
     const { dispatch } = this.props;
-    dispatch(acceptRunActionConfirmModal());
+    dispatch(acceptActionConfirmationModal());
     this.handleClose();
   };
 
   handleClose = () => {
     const { dispatch } = this.props;
-    dispatch(showRunActionConfirmModal(false));
-    dispatch(cancelRunActionConfirmModal());
+    dispatch(showActionConfirmationModal(false));
+    dispatch(cancelActionConfirmationModal());
   };
 
   componentDidUpdate() {
@@ -85,8 +85,9 @@ class ConfirmRunModal extends React.Component<Props> {
         <ModalFooter>
           <Button
             category={Category.tertiary}
+            cypressSelector="t--cancel-modal-btn"
             onClick={() => {
-              dispatch(cancelRunActionConfirmModal());
+              dispatch(cancelActionConfirmationModal());
               this.handleClose();
             }}
             size={Size.medium}
@@ -96,6 +97,7 @@ class ConfirmRunModal extends React.Component<Props> {
           />
           <Button
             category={Category.primary}
+            cypressSelector="t--confirm-modal-btn"
             onClick={this.onConfirm}
             size={Size.medium}
             tag="button"
@@ -112,4 +114,4 @@ const mapStateToProps = (state: AppState) => ({
   isModalOpen: state.ui.confirmRunAction.modalOpen,
 });
 
-export default connect(mapStateToProps)(ConfirmRunModal);
+export default connect(mapStateToProps)(RequestConfirmationModal);
