@@ -17,6 +17,7 @@ import {
 import {
   getOrganizationForTemplates,
   getSearchedTemplateList,
+  getTemplateFiltersLength,
   getTemplateSearchQuery,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
@@ -128,13 +129,24 @@ function Templates() {
   const templateSearchQuery = useSelector(getTemplateSearchQuery);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
+  const filterCount = useSelector(getTemplateFiltersLength);
   const dispatch = useDispatch();
-  const resultsText =
+  let resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
       : templates.length === 1
       ? "Showing 1 template"
       : "No templates to show";
+
+  if (templates.length) {
+    resultsText +=
+      filterCount > 1
+        ? ` matching ${filterCount} filters`
+        : filterCount === 1
+        ? " matching 1 filter"
+        : "";
+  }
+
   const isLoading = isFetchingApplications || isFetchingTemplates;
 
   const onChange = (query: string) => {

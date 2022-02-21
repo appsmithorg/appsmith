@@ -34,6 +34,15 @@ export const getOrganizationForTemplates = createSelector(
 export const getTemplateFilterSelector = (state: AppState) =>
   state.ui.templates.filters;
 
+export const getTemplateFiltersLength = createSelector(
+  getTemplateFilterSelector,
+  (filters) => {
+    return Object.values(filters)
+      .map((filterList) => filterList.length)
+      .reduce((c, a) => c + a, 0);
+  },
+);
+
 export const isFetchingTemplatesSelector = (state: AppState) =>
   state.ui.templates.gettingAllTemplates;
 
