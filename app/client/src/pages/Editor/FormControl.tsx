@@ -13,6 +13,7 @@ import {
   FormInfoText,
   FormSubtitleText,
   FormInputSwitchToJsonButton,
+  FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
 import { AppState } from "reducers";
@@ -153,12 +154,12 @@ function renderFormConfigTop(props: { config: ControlProps }) {
           <p className="label-icon-wrapper">
             {label} {isRequired && "*"}{" "}
             {encrypted && (
-              <>
+              <FormEncrytedSection>
                 <FormIcons.LOCK_ICON height={12} keepColors width={12} />
                 <FormSubtitleText config={props.config}>
                   Encrypted
                 </FormSubtitleText>
-              </>
+              </FormEncrytedSection>
             )}
             {tooltipText && (
               <Tooltip content={tooltipText} hoverOpenDelay={1000}>
