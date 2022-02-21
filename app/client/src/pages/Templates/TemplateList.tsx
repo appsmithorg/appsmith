@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import Template from "./Template";
 import { Template as TemplateInterface } from "api/TemplatesApi";
+import RequestTemplate from "./Template/RequestTemplate";
 
 const Wrapper = styled.div`
   padding-right: 33px;
@@ -49,6 +50,7 @@ function TemplateList(props: TemplateListProps) {
         {props.templates.slice(2).map((template) => (
           <Template key={template.id} openInNewTab template={template} />
         ))}
+        <RequestTemplate />
       </Masonry>
     </Wrapper>
   );

@@ -74,10 +74,11 @@ const Tabs = styled.div`
   font-size: 16px;
   line-height: 24px;
   box-sizing: border-box;
-  margin-left: 32px;
+  margin-left: 42px;
   height: 100%;
   gap: 0px 32px;
   flex: 1;
+  padding-top: 5px;
 `;
 const TabName = styled.div<{ isSelected: boolean }>`
   color: #858282;
@@ -152,14 +153,14 @@ export function PageHeader(props: PageHeaderProps) {
               isSelected={matchApplicationPath(location.pathname)}
               onClick={() => history.push(APPLICATIONS_URL)}
             >
-              <div>APPS</div>
+              <div>Apps</div>
             </TabName>
             <TemplatesTabItem>
               <TabName
                 isSelected={matchTemplatesPath(location.pathname)}
                 onClick={() => history.push(TEMPLATES_URL)}
               >
-                <div>TEMPLATES</div>
+                <div>Templates</div>
               </TabName>
             </TemplatesTabItem>
           </>
