@@ -1236,9 +1236,9 @@ describe("Validate getSelectedRows function", () => {
   });
 });
 
-describe("Validate getTableColumns function", () => {
+describe("Validate getOrderedTableColumns function", () => {
   it("validates columns generation function for empty values", () => {
-    const { getTableColumns } = derivedProperty;
+    const { getOrderedTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [],
       sortOrder: {
@@ -1249,10 +1249,10 @@ describe("Validate getTableColumns function", () => {
     };
     const expected = [];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getOrderedTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
 
-    result = getTableColumns(
+    result = getOrderedTableColumns(
       {
         sortOrder: {
           column: "",
@@ -1266,7 +1266,7 @@ describe("Validate getTableColumns function", () => {
   });
 
   it("validates columns generation function for valid values", () => {
-    const { getTableColumns } = derivedProperty;
+    const { getOrderedTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [
         { id: 123, name: "John Doe" },
@@ -1316,12 +1316,12 @@ describe("Validate getTableColumns function", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getOrderedTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
   it("generated columns does not modify primary columns", () => {
-    const { getTableColumns } = derivedProperty;
+    const { getOrderedTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [
         { id: 123, name: "John Doe" },
@@ -1407,12 +1407,12 @@ describe("Validate getTableColumns function", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getOrderedTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
   it("generated columns removes unexpected columns in primary columns", () => {
-    const { getTableColumns } = derivedProperty;
+    const { getOrderedTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [
         { id: 123, name: "John Doe" },
@@ -1516,12 +1516,12 @@ describe("Validate getTableColumns function", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getOrderedTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
   it("generated columns does not remove derived columns in primary columns", () => {
-    const { getTableColumns } = derivedProperty;
+    const { getOrderedTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [
         { id: 123, name: "John Doe" },
@@ -1643,12 +1643,12 @@ describe("Validate getTableColumns function", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getOrderedTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
   it("generated columns removes a column and adds a column", () => {
-    const { getTableColumns } = derivedProperty;
+    const { getOrderedTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [
         { id: 123, address: "earth" },
@@ -1771,12 +1771,12 @@ describe("Validate getTableColumns function", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getOrderedTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
   it("generated columns removes a column and adds a column with correct sort values", () => {
-    const { getTableColumns } = derivedProperty;
+    const { getOrderedTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [
         { id: 123, address: "earth" },
@@ -1899,12 +1899,12 @@ describe("Validate getTableColumns function", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getOrderedTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
   it("generated columns removes a column with empty column name", () => {
-    const { getTableColumns } = derivedProperty;
+    const { getOrderedTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [
         { "": 123, address: "earth" },
@@ -2009,7 +2009,7 @@ describe("Validate getTableColumns function", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getOrderedTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 });
