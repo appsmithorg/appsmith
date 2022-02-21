@@ -138,7 +138,7 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_THEME;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
@@ -5021,7 +5021,7 @@ public class DatabaseChangelog {
         Theme legacyTheme = null;
         boolean themeExists = false;
 
-        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEME.getValue())
+        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEMES.getValue())
                 .users(Set.of(FieldName.ANONYMOUS_USER)).build();
 
         for (Theme theme : themes) {

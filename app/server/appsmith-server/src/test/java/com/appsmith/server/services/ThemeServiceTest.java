@@ -30,8 +30,8 @@ import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_THEME;
-import static com.appsmith.server.acl.AclPermission.READ_THEME;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -192,7 +192,7 @@ public class ThemeServiceTest {
     @Test
     public void changeCurrentTheme_WhenSystemThemeSetOverCustomTheme_NewThemeNotCreatedAndOldOneDeleted() {
         Collection<Policy> themePolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(MANAGE_THEME), "api_user"
+                Set.of(MANAGE_THEMES), "api_user"
         ).values();
 
         Theme customTheme = new Theme();
@@ -215,7 +215,7 @@ public class ThemeServiceTest {
                         // get old theme and new
                         Mono.zip(
                                 themeService.getApplicationTheme(application1.getId(), ApplicationMode.EDIT),
-                                themeService.getThemeById(application1.getEditModeThemeId(), READ_THEME)
+                                themeService.getThemeById(application1.getEditModeThemeId(), READ_THEMES)
                                         .defaultIfEmpty(new Theme()) // this should be deleted, return empty theme
                         )
                 );
@@ -256,7 +256,7 @@ public class ThemeServiceTest {
         Theme customTheme = new Theme();
         customTheme.setName("custom theme");
         customTheme.setPolicies(Set.copyOf(
-                policyUtils.generatePolicyFromPermission(Set.of(MANAGE_THEME), "api_user").values()
+                policyUtils.generatePolicyFromPermission(Set.of(MANAGE_THEMES), "api_user").values()
         ));
 
         Mono<Tuple2<Theme, Theme>> newAndOldThemeMono = applicationRepository.save(newApplication)
@@ -286,7 +286,7 @@ public class ThemeServiceTest {
                     srcCustomTheme.setName("custom theme");
                     srcCustomTheme.setApplicationId(application.getId());
                     srcCustomTheme.setPolicies(Set.copyOf(
-                            policyUtils.generatePolicyFromPermission(Set.of(MANAGE_THEME), "api_user").values()
+                            policyUtils.generatePolicyFromPermission(Set.of(MANAGE_THEMES), "api_user").values()
                     ));
                     return themeService.save(srcCustomTheme);
                 })
@@ -317,7 +317,7 @@ public class ThemeServiceTest {
     @Test
     public void getApplicationTheme_WhenUserHasPermission_ThemeReturned() {
         Collection<Policy> themePolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(MANAGE_THEME), "api_user"
+                Set.of(MANAGE_THEMES), "api_user"
         ).values();
 
         Theme customTheme = new Theme();
@@ -392,7 +392,7 @@ public class ThemeServiceTest {
                     return applicationRepository.save(application);
                 }).flatMap(savedApplication ->
                         themeService.publishTheme(savedApplication.getId())
-                                .then(themeService.getThemeById(savedApplication.getPublishedModeThemeId(), READ_THEME))
+                                .then(themeService.getThemeById(savedApplication.getPublishedModeThemeId(), READ_THEMES))
                 );
 
         StepVerifier.create(deletedThemeMono)
@@ -403,7 +403,7 @@ public class ThemeServiceTest {
     @Test
     public void publishTheme_WhenCustomThemeIsSet_ThemeCopiedForPublishedMode() {
         Collection<Policy> themePolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(MANAGE_THEME), "api_user"
+                Set.of(MANAGE_THEMES), "api_user"
         ).values();
 
         Theme customTheme = new Theme();
@@ -468,7 +468,7 @@ public class ThemeServiceTest {
     @Test
     public void updateTheme_WhenCustomThemeIsSet_ThemeIsOverridden() {
         Collection<Policy> themePolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(MANAGE_THEME), "api_user"
+                Set.of(MANAGE_THEMES), "api_user"
         ).values();
         Theme customTheme = new Theme();
         customTheme.setName("My custom theme");
@@ -537,7 +537,7 @@ public class ThemeServiceTest {
     @Test
     public void publishTheme_WhenApplicationIsPublic_PublishedThemeIsPublic() {
         Collection<Policy> themePolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(MANAGE_THEME), "api_user"
+                Set.of(MANAGE_THEMES), "api_user"
         ).values();
 
         Theme customTheme = new Theme();
@@ -568,7 +568,7 @@ public class ThemeServiceTest {
         StepVerifier.create(appThemesMono)
                 .assertNext(publishedModeTheme -> {
                     Boolean permissionPresentForAnonymousUser = policyUtils.isPermissionPresentForUser(
-                            publishedModeTheme.getPolicies(), READ_THEME.getValue(), FieldName.ANONYMOUS_USER
+                            publishedModeTheme.getPolicies(), READ_THEMES.getValue(), FieldName.ANONYMOUS_USER
                     );
                     assertThat(permissionPresentForAnonymousUser).isTrue();
                 }).verifyComplete();
@@ -578,7 +578,7 @@ public class ThemeServiceTest {
     @Test
     public void persistCurrentTheme_WhenCustomThemeIsSet_NewApplicationThemeCreated() {
         Collection<Policy> themePolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(MANAGE_THEME), "api_user"
+                Set.of(MANAGE_THEMES), "api_user"
         ).values();
 
         Theme customTheme = new Theme();
@@ -608,10 +608,10 @@ public class ThemeServiceTest {
             assertThat(persistedTheme.getApplicationId()).isNotEmpty(); // theme should have application id set
             assertThat(persistedTheme.getOrganizationId()).isEqualTo("theme-test-org-id"); // theme should have org id set
             assertThat(policyUtils.isPermissionPresentForUser(
-                    persistedTheme.getPolicies(), READ_THEME.getValue(), "api_user")
+                    persistedTheme.getPolicies(), READ_THEMES.getValue(), "api_user")
             ).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    persistedTheme.getPolicies(), MANAGE_THEME.getValue(), "api_user")
+                    persistedTheme.getPolicies(), MANAGE_THEMES.getValue(), "api_user")
             ).isTrue();
             assertThat(application.getEditModeThemeId()).isNotEqualTo(persistedTheme.getId()); // a new copy should be created
         }).verifyComplete();
@@ -644,8 +644,8 @@ public class ThemeServiceTest {
             assertThat(currentTheme.isSystemTheme()).isFalse();
             assertThat(currentTheme.getApplicationId()).isNotEmpty(); // theme should have application id set
             assertThat(currentTheme.getOrganizationId()).isEqualTo("theme-test-org-id"); // theme should have org id set
-            assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), READ_THEME.getValue(), "api_user")).isTrue();
-            assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), MANAGE_THEME.getValue(), "api_user")).isTrue();
+            assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), READ_THEMES.getValue(), "api_user")).isTrue();
+            assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), MANAGE_THEMES.getValue(), "api_user")).isTrue();
         }).verifyComplete();
     }
 
@@ -694,7 +694,7 @@ public class ThemeServiceTest {
                     return themeService.persistCurrentTheme(savedApplication.getId(), themeCustomization);
                 })
                 .flatMap(customizedTheme -> themeService.delete(customizedTheme.getId())
-                        .then(themeService.getThemeById(customizedTheme.getId(), READ_THEME)));
+                        .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES)));
 
         StepVerifier.create(deleteThemeMono).verifyComplete();
     }
@@ -730,7 +730,7 @@ public class ThemeServiceTest {
                     Theme theme = new Theme();
                     theme.setName("new name");
                     return themeService.updateName(customizedTheme.getId(), theme)
-                            .then(themeService.getThemeById(customizedTheme.getId(), READ_THEME));
+                            .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES));
                 });
 
         StepVerifier.create(updateThemeNameMono).assertNext(theme -> {
