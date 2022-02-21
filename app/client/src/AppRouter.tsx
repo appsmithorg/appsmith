@@ -25,7 +25,6 @@ import {
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
-import HomeScreenTabs from "pages/Home";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
 import LandingScreen from "./LandingScreen";
@@ -51,6 +50,7 @@ import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
+import TemplateRoutes from "pages/Templates";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -124,7 +124,7 @@ class AppRouter extends React.Component<any, any> {
                   exact
                   path={APPLICATIONS_URL}
                 />
-                {/* <SentryRoute component={HomeScreenTabs} path={TEMPLATES_URL} /> */}
+                <SentryRoute component={TemplateRoutes} path={TEMPLATES_URL} />
                 <SentryRoute
                   component={SignupSuccess}
                   exact

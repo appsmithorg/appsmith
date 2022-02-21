@@ -10,11 +10,11 @@ const Wrapper = styled.div`
 
   .grid {
     display: flex;
-    margin-left: -33px;
+    margin-left: -20px;
   }
 
   .grid_column {
-    padding-left: 33px;
+    padding-left: 20px;
   }
 `;
 
@@ -24,7 +24,6 @@ const FirstRow = styled.div`
   gap: 19px;
   align-items: flex-start;
 `;
-
 interface TemplateListProps {
   templates: TemplateInterface[];
 }

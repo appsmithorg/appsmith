@@ -73,9 +73,9 @@ const Tabs = styled.div`
   line-height: 24px;
   box-sizing: border-box;
   margin-left: 32px;
-  flex: 1;
   height: 100%;
   gap: 0px 32px;
+  flex: 1;
 `;
 const TabName = styled.div<{ isSelected: boolean }>`
   color: #858282;
@@ -122,7 +122,7 @@ export function PageHeader(props: PageHeaderProps) {
   ];
 
   const showTabs = useMemo(() => {
-    return tabs.some((tab) => tab.matcher(tab.path));
+    return tabs.some((tab) => tab.matcher(location.pathname));
   }, [location.pathname]);
 
   return (
@@ -136,9 +136,10 @@ export function PageHeader(props: PageHeaderProps) {
           <AppsmithLogo />
         </Link>
       </HeaderSection>
-      {showTabs && (
-        <Tabs>
-          {tabs.map((tab) => {
+
+      <Tabs>
+        {showTabs &&
+          tabs.map((tab) => {
             return (
               <TabName
                 isSelected={tab.matcher(location.pathname)}
@@ -149,8 +150,8 @@ export function PageHeader(props: PageHeaderProps) {
               </TabName>
             );
           })}
-        </Tabs>
-      )}
+      </Tabs>
+
       {user && !isMobile && (
         <>
           {user.username !== ANONYMOUS_USERNAME && <Bell />}
