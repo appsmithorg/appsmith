@@ -1031,3 +1031,7 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+// Templates
+export const MORE = () => "MORE";
+export const SHOW_LESS = () => "SHOW LESS";

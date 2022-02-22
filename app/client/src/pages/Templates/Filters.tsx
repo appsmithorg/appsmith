@@ -7,19 +7,21 @@ import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { filterTemplates } from "actions/templateActions";
 import { getWidgetCards } from "selectors/editorSelectors";
+import { createMessage, MORE, SHOW_LESS } from "@appsmith/constants/messages";
 import { templatesDatasourceFiltersSelector } from "selectors/templatesSelectors";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { functions, useCases } from "./constants";
+import { Colors } from "constants/Colors";
 
 const FilterWrapper = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 213}px);
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
   ${thinScrollbar}
 
   .more {
-    padding-left: 10px;
-    margin-top: 7px;
+    padding-left: ${(props) => props.theme.spaces[4]}px;
+    margin-top: ${(props) => props.theme.spaces[2]}px;
     cursor: pointer;
   }
 `;
@@ -28,14 +30,16 @@ const Wrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
   display: flex;
-  padding-left: 16px;
-  padding-top: 25px;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
+  padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
-  box-shadow: 1px 0px 0px #ededed;
+  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
 `;
 
 const SecondWrapper = styled.div`
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 24}px);
+  height: calc(
+    100vh - ${(props) => props.theme.homePage.header + props.theme.spaces[11]}px
+  );
   position: relative;
 `;
 
@@ -45,16 +49,17 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 15px 7px 25px;
+  padding: ${(props) =>
+    `${props.theme.spaces[2]}px ${props.theme.spaces[6]}px ${props.theme.spaces[2]}px ${props.theme.spaces[11]}px`};
   .${Classes.TEXT} {
-    color: #121826;
+    color: ${Colors.MIRAGE_2};
   }
   ${(props) =>
     props.selected &&
     `
-    background-color: #ebebeb;
+    background-color: ${Colors.GALLERY_1};
     .${Classes.TEXT} {
-      color: #22223B;
+      color: ${Colors.EBONY_CLAY_2};
     }
   `}
 
@@ -63,21 +68,21 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
   }
 
   &:hover {
-    background-color: #ebebeb;
+    background-color: ${Colors.GALLERY_1};
   }
 `;
 
 const StyledFilterCategory = styled(Text)`
-  margin-bottom: 10px;
-  padding-left: 15px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
+  padding-left: ${(props) => props.theme.spaces[6]}px;
 `;
 
 const ListWrapper = styled.div`
-  margin-top: 10px;
+  margin-top: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const FilterCategoryWrapper = styled.div`
-  padding-bottom: 34px;
+  padding-bottom: ${(props) => props.theme.spaces[13] - 2}px;
 `;
 
 type Filter = {
@@ -128,7 +133,7 @@ function FilterItem({ item, onSelect }: FilterItemProps) {
 
   return (
     <StyledFilterItem onClick={onClick} selected={selected}>
-      <Text color="#121826" type={TextType.P1}>
+      <Text color={Colors.MIRAGE_2} type={TextType.P1}>
         {item.label}
       </Text>
       <Icon name={"close-x"} size={IconSize.XXXL} />
@@ -148,7 +153,6 @@ function FilterCategory({ filterList, label }: FilterCategoryProps) {
         selectedItems.filter((selectedItem) => selectedItem !== item),
       );
     }
-    dispatch(filterTemplates(label, selectedItems));
   };
 
   useEffect(() => {
@@ -177,7 +181,7 @@ function FilterCategory({ filterList, label }: FilterCategoryProps) {
             type={TextType.BUTTON_SMALL}
             underline
           >
-            + {filterList.slice(3).length} MORE
+            + {filterList.slice(3).length} {createMessage(MORE)}
           </Text>
         )}
         <Collapse isOpen={expand}>
@@ -198,7 +202,7 @@ function FilterCategory({ filterList, label }: FilterCategoryProps) {
             type={TextType.BUTTON_SMALL}
             underline
           >
-            - SHOW LESS
+            - {createMessage(SHOW_LESS)}
           </Text>
         )}
       </ListWrapper>
