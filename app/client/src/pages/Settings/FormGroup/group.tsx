@@ -43,7 +43,6 @@ const GroupBody = styled.div`
     display: none;
   }
   & .callout-link {
-    max-width: 634px;
     > div {
       margin-top: 0px;
     }

@@ -2,6 +2,7 @@ import React from "react";
 import {
   GOOGLE_SIGNUP_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
+  SIGNUP_RESTRICTION_DOC,
 } from "constants/ThirdPartyConstants";
 import {
   SettingCategories,
@@ -65,7 +66,7 @@ const Form_Auth: AdminConfigType = {
       controlType: SettingTypes.LINK,
       label:
         "User emails are not verified. This can lead to a breach in your application.",
-      url: GOOGLE_SIGNUP_SETUP_DOC,
+      url: SIGNUP_RESTRICTION_DOC,
       calloutType: "Warning",
     },
   ],

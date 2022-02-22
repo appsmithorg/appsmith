@@ -189,7 +189,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
 
   // We enable segment tracking if either the Cloud API key is set or the self-hosted CE key is set
   segment.enabled = segment.enabled || segmentCEKey.enabled;
-  console.log(ENV_CONFIG.disableSignup, APPSMITH_FEATURE_CONFIGS.disableSignup);
   return {
     sentry: {
       enabled: sentryDSN.enabled && sentryRelease.enabled && sentryENV.enabled,

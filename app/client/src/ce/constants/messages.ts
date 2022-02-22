@@ -632,6 +632,11 @@ export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit before proceeding to merge";
 
+export const DISCONNECT_SERVICE_SUBHEADER = () =>
+  "Changes to this section can disrupt user authentication. Proceed with caution.";
+export const DISCONNECT_SERVICE_WARNING = () =>
+  "will be removed as primary method of authentication";
+
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";
 export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>

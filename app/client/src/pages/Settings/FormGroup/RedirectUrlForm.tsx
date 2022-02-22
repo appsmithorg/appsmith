@@ -12,7 +12,6 @@ const HelpIcon = HelpIcons.HELP_ICON;
 
 const Wrapper = styled.div`
   margin: 24px 0;
-  width: 634px;
 `;
 
 export const BodyContainer = styled.div`

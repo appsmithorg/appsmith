@@ -18,8 +18,16 @@ import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  SettingTypes,
+  Setting,
+} from "@appsmith/pages/AdminSettings/config/types";
 import { DisconnectService } from "./DisconnectService";
+import {
+  createMessage,
+  DISCONNECT_SERVICE_SUBHEADER,
+  DISCONNECT_SERVICE_WARNING,
+} from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -29,7 +37,9 @@ const Wrapper = styled.div`
   overflow: auto;
 `;
 
-const SettingsFormWrapper = styled.div``;
+const SettingsFormWrapper = styled.div`
+  max-width: 634px;
+`;
 
 export const BottomSpace = styled.div`
   height: ${(props) => props.theme.settings.footerHeight + 20}px;
@@ -115,8 +125,14 @@ export function SettingsForm(
     });
   }, []);
 
-  const disconnect = () => {
-    console.log("hello");
+  const disconnect = (currentSettings: AdminConfig) => {
+    const updatedSettings: any = {};
+    _.forEach(currentSettings, (setting: Setting) => {
+      if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
+        updatedSettings[setting.id] = "";
+      }
+    });
+    dispatch(saveSettings(updatedSettings));
   };
 
   return (
@@ -144,10 +160,11 @@ export function SettingsForm(
         )}
         {details?.isConnected && (
           <DisconnectService
-            disconnect={disconnect}
-            subHeader="Changes to this section can disrupt user authentication. Proceed with
-          caution"
-            warning={`${pageTitle} will be removed as primary method of authentication`}
+            disconnect={() => disconnect(settings)}
+            subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+            warning={`${pageTitle} ${createMessage(
+              DISCONNECT_SERVICE_WARNING,
+            )}`}
           />
         )}
         <BottomSpace />
