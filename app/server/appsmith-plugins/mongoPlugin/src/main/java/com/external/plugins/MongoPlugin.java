@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -991,8 +992,27 @@ public class MongoPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, this);
+            DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value,dataType, insertedParams, this);
         }
+
+        private DataType stringToKnownMongoDBDataTypeConverter(String replacement) {
+            DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+            // checking for the case that input value is like this "ObjectId('xyz')"
+            if (dataType == DataType.STRING) {
+                for (String specialType : MONGODB_SPECIAL_TYPES) {
+                    final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType);
+                    final Pattern pattern = Pattern.compile(regex);
+                    final Matcher matcher = pattern.matcher(replacement);
+                    if (matcher.matches()) {
+                        dataType = DataType.BSON;
+                        break;
+                    }
+                }
+            }
+            return dataType;
+        }
+
 
         @Override
         public Mono<ActionExecutionResult> execute(MongoClient mongoClient,
