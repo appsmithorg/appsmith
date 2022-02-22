@@ -63,6 +63,7 @@ const IframeWrapper = styled.div`
     border-radius: 16px;
     box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
       0px 8px 8px -4px rgba(16, 24, 40, 0.04);
+    height: calc(100% - 41px);
   }
 `;
 
@@ -134,6 +135,33 @@ const SimilarTemplatesWrapper = styled.div`
   }
 `;
 
+const IframeTopBar = styled.div`
+  width: 100%;
+  background-color: #e7e7e7;
+  border-radius: 8px 8px 0px 0px;
+  display: flex;
+  gap: 8px;
+  height: 41px;
+  align-items: center;
+  padding-left: 13px;
+
+  .round {
+    height: 12px;
+    width: 12px;
+    border-radius: 6px;
+  }
+
+  .red {
+    background-color: #ff6058;
+  }
+  .yellow {
+    background-color: #ffc130;
+  }
+  .green {
+    background-color: #27ca40;
+  }
+`;
+
 const PageWrapper = styled.div`
   display: flex;
   margin-top: ${(props) => props.theme.homePage.header}px;
@@ -200,8 +228,12 @@ function TemplateView() {
               {currentTemplate.title}
             </Title>
             <IframeWrapper>
+              <IframeTopBar>
+                <div className="round red" />
+                <div className="round yellow" />
+                <div className="round green" />
+              </IframeTopBar>
               <iframe
-                height={"100%"}
                 src={`${currentTemplate.appUrl}?embed=true`}
                 width={"100%"}
               />

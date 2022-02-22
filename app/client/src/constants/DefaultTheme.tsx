@@ -2910,7 +2910,7 @@ export const theme: Theme = {
       marginLeft: 112,
     },
     search: {
-      height: 81, //TODO: Add a field for tab height
+      height: 81,
       paddingTop: 30,
     },
     sidebar: 256,
