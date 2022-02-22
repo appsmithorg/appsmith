@@ -9,15 +9,10 @@ export type ResponseMeta = {
   error?: APIResponseError;
 };
 
-export type ApiResponse = {
-  responseMeta: ResponseMeta;
-  data: any;
-  code?: string;
-};
-
-export type GenericApiResponse<T> = {
+export type ApiResponse<T = unknown> = {
   responseMeta: ResponseMeta;
   data: T;
+  code?: string;
 };
 
 // NO_DATASOURCES_FOUND, 1000, "Unable to find {0} with id {1}"

@@ -24,7 +24,7 @@ import {
   defaultActionEditorConfigs,
   defaultActionSettings,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
 import { PluginType } from "entities/Action";
@@ -40,7 +40,7 @@ function* fetchPluginsSaga() {
     if (!orgId) {
       throw Error("Org id does not exist");
     }
-    const pluginsResponse: GenericApiResponse<Plugin[]> = yield call(
+    const pluginsResponse: ApiResponse<Plugin[]> = yield call(
       PluginsApi.fetchPlugins,
       orgId,
     );
@@ -76,16 +76,16 @@ function* fetchPluginFormConfigsSaga() {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
     for (const id of pluginIdFormsToFetch) {
-      const response: GenericApiResponse<PluginFormPayload> = yield call(
+      const response: ApiResponse<PluginFormPayload> = yield call(
         PluginsApi.fetchFormConfig,
         id,
       );
       pluginFormRequests.push(response);
     }
     const pluginFormData: PluginFormPayload[] = [];
-    const pluginFormResponses: GenericApiResponse<
-      PluginFormPayload
-    >[] = yield all(pluginFormRequests);
+    const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
+      pluginFormRequests,
+    );
     for (const response of pluginFormResponses) {
       yield validateResponse(response);
       pluginFormData.push(response.data);
@@ -154,7 +154,7 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       pluginId,
     );
     if (!formConfig) {
-      const formConfigResponse: GenericApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
+      const formConfigResponse: ApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
         pluginId,
       );
       yield validateResponse(formConfigResponse);

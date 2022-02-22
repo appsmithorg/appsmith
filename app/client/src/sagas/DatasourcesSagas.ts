@@ -37,7 +37,7 @@ import {
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
 } from "actions/datasourceActions";
-import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 
@@ -100,7 +100,7 @@ import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 function* fetchDatasourcesSaga() {
   try {
     const orgId: string = yield select(getCurrentOrgId);
-    const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
+    const response: ApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
       orgId,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -120,7 +120,7 @@ function* fetchDatasourcesSaga() {
 
 function* fetchMockDatasourcesSaga() {
   try {
-    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchMockDatasources();
+    const response: ApiResponse = yield DatasourcesApi.fetchMockDatasources();
     // not validating the api call here. If the call is unsuccessful it'll be unblocking. And we'll hide the mock DB section.
     yield put({
       type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
@@ -157,7 +157,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       pluginId,
     } = actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
-    const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
+    const response: ApiResponse = yield DatasourcesApi.addMockDbToDatasources(
       name,
       organizationId,
       pluginId,
@@ -175,6 +175,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
+      // @ts-expect-error: response is of type unknown
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const applicationId: string = yield select(getCurrentApplicationId);
       const pageId: string = yield select(getCurrentPageId);
@@ -185,6 +186,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       if (isGeneratePageInitiator) {
         history.push(
           getGenerateTemplateFormURL(applicationId, pageId, {
+            // @ts-expect-error: response is of type unknown
             datasourceId: response.data.id,
           }),
         );
@@ -225,7 +227,7 @@ export function* deleteDatasourceSaga(
     }
 
     const id = actionPayload.payload.id;
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
       id,
     );
 
@@ -328,7 +330,7 @@ function* updateDatasourceSaga(
   try {
     const queryParams = getQueryParams();
     const datasourcePayload = _.omit(actionPayload.payload, "name");
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
       datasourcePayload.id,
     );
@@ -408,7 +410,7 @@ function* redirectAuthorizationCodeSaga(
   } else {
     try {
       // Get an "appsmith token" from the server
-      const response: ApiResponse = yield OAuthApi.getAppsmithToken(
+      const response: ApiResponse<string> = yield OAuthApi.getAppsmithToken(
         datasourceId,
         pageId,
       );
@@ -449,7 +451,7 @@ function* getOAuthAccessTokenSaga(
   }
   try {
     // Get access token for datasource
-    const response: GenericApiResponse<Datasource> = yield OAuthApi.getAccessToken(
+    const response: ApiResponse<Datasource> = yield OAuthApi.getAccessToken(
       datasourceId,
       appsmithToken,
     );
@@ -479,7 +481,7 @@ function* saveDatasourceNameSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
   try {
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       {
         name: actionPayload.payload.name,
       },
@@ -528,7 +530,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   try {
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.testDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.testDatasource(
       {
         ...payload,
         organizationId,
@@ -641,7 +643,7 @@ function* createDatasourceFromFormSaga(
 
     const payload = merge(initialValues, actionPayload.payload);
 
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
         ...payload,
         organizationId,
@@ -876,7 +878,7 @@ function* fetchDatasourceStructureSaga(
     action.payload.id,
   );
   try {
-    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
+    const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
       action.payload.ignoreCache,
     );
@@ -938,7 +940,7 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
     action.payload.id,
   );
   try {
-    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
+    const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
       true,
     );
@@ -998,7 +1000,7 @@ function* executeDatasourceQuerySaga(
   action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
-    const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
+    const response: ApiResponse = yield DatasourcesApi.executeDatasourceQuery(
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -1012,6 +1014,7 @@ function* executeDatasourceQuerySaga(
       });
     }
     if (action.onSuccessCallback) {
+      // @ts-expect-error: type mismatch for response
       action.onSuccessCallback(response);
     }
   } catch (error) {

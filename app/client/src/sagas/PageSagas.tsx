@@ -66,7 +66,7 @@ import {
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
-import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import {
   getCurrentApplicationId,
   getCurrentLayoutId,
@@ -945,6 +945,7 @@ export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
       yield put({
         type: ReduxActionTypes.SET_PAGE_ORDER_SUCCESS,
         payload: {
+          // @ts-expect-error: response.data is of type unknown
           pages: response.data.pages,
         },
       });
@@ -965,7 +966,7 @@ export function* generateTemplatePageSaga(
   try {
     const request: GenerateTemplatePageRequest = action.payload;
     // if pageId is available in request, it will just update that page else it will generate new page.
-    const response: GenericApiResponse<{
+    const response: ApiResponse<{
       page: any;
       successImageUrl: string;
       successMessage: string;

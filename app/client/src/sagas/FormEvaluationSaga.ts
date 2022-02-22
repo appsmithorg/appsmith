@@ -17,7 +17,7 @@ import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
 import { ActionConfig } from "entities/Action";
 import { FormConfig } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
-import { GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { DropdownOption } from "components/ads/Dropdown";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
@@ -140,7 +140,7 @@ function* fetchDynamicValueSaga(
     (evalOutput[key].fetchDynamicValues as DynamicValues).hasStarted = true;
 
     // Call the API to fetch the dynamic values
-    const response: GenericApiResponse<DropdownOption[]> = yield call(
+    const response: ApiResponse<DropdownOption[]> = yield call(
       PluginsApi.fetchDynamicFormValues,
       url,
     );

@@ -56,7 +56,7 @@ import {
   JSCollectionData,
   JSCollectionDataState,
 } from "reducers/entityReducers/jsActionsReducer";
-import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -69,7 +69,7 @@ export function* fetchJSCollectionsSaga(
 ) {
   const { applicationId } = action.payload;
   try {
-    const response: GenericApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollections(
+    const response: ApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollections(
       applicationId,
     );
     yield put({
@@ -106,12 +106,15 @@ export function* createJSCollectionSaga(
         text: `JS Object created`,
         source: {
           type: ENTITY_TYPE.JSACTION,
+          // @ts-expect-error: response.data is of type unknown
           id: response.data.id,
+          // @ts-expect-error: response.data is of type unknown
           name: response.data.name,
         },
       });
 
       const newAction = response.data;
+      // @ts-expect-error: response.data is of type unknown
       yield put(createJSCollectionSuccess(newAction));
     }
   } catch (error) {
@@ -152,6 +155,7 @@ function* copyJSCollectionSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     const pageName: string = yield select(
       getPageNameByPageId,
+      // @ts-expect-error: response.data is of type unknown
       response.data.pageId,
     );
     if (isValidResponse) {
@@ -165,6 +169,7 @@ function* copyJSCollectionSaga(
       });
       const payload = response.data;
 
+      // @ts-expect-error: response.data is of type unknown
       yield put(copyJSCollectionSuccess(payload));
     }
   } catch (e) {
@@ -268,6 +273,7 @@ export function* deleteJSCollectionSaga(
     const pageId: string | undefined = yield select(getCurrentPageId);
     if (isValidResponse) {
       Toaster.show({
+        // @ts-expect-error: response.data is of type unknown
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
@@ -295,7 +301,9 @@ export function* deleteJSCollectionSaga(
         text: "JS object was deleted",
         source: {
           type: ENTITY_TYPE.JSACTION,
+          // @ts-expect-error: response.data is of type unknown
           name: response.data.name,
+          // @ts-expect-error: response.data is of type unknown
           id: response.data.id,
         },
       });
@@ -390,7 +398,7 @@ export function* fetchJSCollectionsForPageSaga(
 ) {
   const { pageId } = action.payload;
   try {
-    const response: GenericApiResponse<JSCollection[]> = yield call(
+    const response: ApiResponse<JSCollection[]> = yield call(
       JSActionAPI.fetchJSCollectionsByPageId,
       pageId,
     );
@@ -411,7 +419,7 @@ export function* fetchJSCollectionsForViewModeSaga(
 ) {
   const { applicationId } = action.payload;
   try {
-    const response: GenericApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
+    const response: ApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
       applicationId,
     );
     const resultJSCollections = response.data;

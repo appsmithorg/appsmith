@@ -1,6 +1,6 @@
 import Api from "api/Api";
 import { AxiosPromise } from "axios";
-import { GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { DropdownOption } from "components/ads/Dropdown";
@@ -45,22 +45,20 @@ export interface PluginFormPayload {
 
 class PluginsApi extends Api {
   static url = "v1/plugins";
-  static fetchPlugins(
-    orgId: string,
-  ): AxiosPromise<GenericApiResponse<Plugin[]>> {
+  static fetchPlugins(orgId: string): AxiosPromise<ApiResponse<Plugin[]>> {
     return Api.get(PluginsApi.url, { organizationId: orgId });
   }
 
   static fetchFormConfig(
     id: string,
-  ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
+  ): AxiosPromise<ApiResponse<PluginFormPayload>> {
     return Api.get(PluginsApi.url + `/${id}/form`);
   }
 
   // Definition to fetch the dynamic data via the URL passed in the config
   static fetchDynamicFormValues(
     url: string,
-  ): AxiosPromise<GenericApiResponse<DropdownOption[]>> {
+  ): AxiosPromise<ApiResponse<DropdownOption[]>> {
     return Api.get(url);
   }
 }

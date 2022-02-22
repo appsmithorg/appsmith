@@ -1,7 +1,7 @@
 import API from "api/Api";
 import { AxiosPromise } from "axios";
 import { JSCollection } from "entities/JSCollection";
-import { ApiResponse, GenericApiResponse } from "./ApiResponses";
+import { ApiResponse } from "./ApiResponses";
 import { Variable, JSAction } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
 export interface JSCollectionCreateUpdateResponse extends ApiResponse {
@@ -52,7 +52,7 @@ class JSActionAPI extends API {
 
   static fetchJSCollections(
     applicationId: string,
-  ): AxiosPromise<GenericApiResponse<JSCollection[]>> {
+  ): AxiosPromise<ApiResponse<JSCollection[]>> {
     return API.get(JSActionAPI.url, { applicationId });
   }
 
@@ -85,13 +85,13 @@ class JSActionAPI extends API {
 
   static fetchJSCollectionsByPageId(
     pageId: string,
-  ): AxiosPromise<GenericApiResponse<JSCollection[]>> {
+  ): AxiosPromise<ApiResponse<JSCollection[]>> {
     return API.get(JSActionAPI.url, { pageId });
   }
 
   static fetchJSCollectionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<GenericApiResponse<JSCollection[]>> {
+  ): AxiosPromise<ApiResponse<JSCollection[]>> {
     return API.get(`${JSActionAPI.url}/view`, { applicationId });
   }
 
