@@ -15,32 +15,34 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { onboardingCreateApplication } from "actions/onboardingActions";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
-  padding-bottom: 8px;
-  background-color: #fff;
+  padding-bottom: ${(props) => props.theme.spaces[3]}px;
+  background-color: ${Colors.WHITE};
   position: absolute;
   bottom: 0;
   width: 100%;
 
   & .ads-dialog-trigger {
-    margin-top: 4px;
+    margin-top: ${(props) => props.theme.spaces[1]}px;
   }
 
   & .ads-dialog-trigger > div {
     position: initial;
     width: 92%;
-    padding: 0 14px;
+    padding: ${(props) =>
+      `${props.theme.spaces[0]}px ${props.theme.spaces[6]}px`};
   }
 `;
 
 const LeftPaneVersionData = styled.div`
   display: flex;
   justify-content: space-between;
-  color: #121826;
+  color: ${Colors.MIRAGE};
   font-size: 8px;
   width: 92%;
-  margin-top: 8px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 function LeftPaneBottomSection() {
