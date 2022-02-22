@@ -66,7 +66,7 @@ describe("Dropdown Widget Functionality", function() {
     );
   });
 
-  it("should check that Objects can be added to Select Widget default value", () => {
+  it.skip("should check that Objects can be added to Select Widget default value", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
       ".t--property-control-options",
