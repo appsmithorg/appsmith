@@ -26,6 +26,7 @@ describe("API Panel Test Functionality", function() {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(".t--entity-name:contains('FirstAPI')").should("be.visible");
     cy.hoverAndClick();
     cy.selectAction("Edit Name");

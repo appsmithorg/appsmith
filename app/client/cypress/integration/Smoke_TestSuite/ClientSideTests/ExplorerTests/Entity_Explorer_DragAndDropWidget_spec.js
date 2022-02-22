@@ -52,7 +52,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.get(`.t--entity-name:contains(FormTest)`).trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");

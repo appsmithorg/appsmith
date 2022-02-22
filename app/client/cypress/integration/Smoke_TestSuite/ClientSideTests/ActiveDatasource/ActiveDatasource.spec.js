@@ -26,6 +26,7 @@ describe("Google Sheet datasource test cases", function() {
   });
 
   after(() => {
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(`.t--entity-name:contains('${actionName}')`).click();
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();

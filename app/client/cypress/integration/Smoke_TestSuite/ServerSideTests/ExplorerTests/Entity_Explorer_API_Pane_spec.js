@@ -32,6 +32,7 @@ describe("Entity explorer API pane related testcases", function() {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     AHelper.ActionContextMenuByEntityName("FirstAPI", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(5);

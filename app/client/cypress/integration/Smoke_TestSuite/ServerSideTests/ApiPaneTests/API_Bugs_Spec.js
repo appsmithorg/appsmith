@@ -118,9 +118,10 @@ describe("Rest Bugs tests", function() {
     cy.WaitAutoSave();
     cy.onlyQueryRun();
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("Table1"); //expand
     cy.selectEntityByName("Table1"); //collapse
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.selectEntityByName("Currencies");
     cy.get(".t--dataSourceField").then(($el) => {
       cy.updateCodeInput($el, "https://api.coinbase.com/v2/");

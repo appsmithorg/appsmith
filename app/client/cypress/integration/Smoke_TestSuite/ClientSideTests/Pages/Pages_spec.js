@@ -41,6 +41,7 @@ describe("Pages", function() {
     cy.get(explorerLocators.addQuery)
       .last()
       .click();
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 1);
   });
 
