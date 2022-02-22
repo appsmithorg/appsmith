@@ -33,6 +33,7 @@ const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
   isMobile?: boolean;
   showSeparator?: boolean;
+  showingTabs: boolean;
 }>`
   justify-content: normal;
   background: white;
@@ -41,7 +42,12 @@ const StyledPageHeader = styled(StyledHeader)<{
   position: fixed;
   top: 0;
   z-index: ${Indices.Layer9};
-  box-shadow: 0px 1px 0px #ededed;
+  box-shadow: ${(props) =>
+    props.hideShadow && !props.isMobile
+      ? `none`
+      : `0px 4px 4px rgba(0, 0, 0, 0.05)`};
+  ${(props) =>
+    props.showingTabs && !props.isMobile && `box-shadow: 0px 1px 0px #ededed;`}
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -146,6 +152,7 @@ export function PageHeader(props: PageHeaderProps) {
       hideShadow={props.hideShadow || false}
       isMobile={isMobile}
       showSeparator={props.showSeparator || false}
+      showingTabs={showTabs}
     >
       <HeaderSection>
         <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
