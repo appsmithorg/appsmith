@@ -90,7 +90,7 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
     cy.reload();
 
     //Step12:
-    cy.wait(2000);
+    cy.wait(1000);
     cy.get(".t--widget-chartwidget div[class*='bp3-skeleton']").should("exist");
 
     //Step13:
