@@ -23,6 +23,7 @@ const Wrapper = styled.div`
 const TempelateListWrapper = styled.div`
   .title {
     margin-bottom: 10px;
+    padding-left: 15px;
   }
 
   .list-wrapper {
@@ -44,8 +45,7 @@ const TemplateItem = styled.div<{ selected: boolean }>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-left: 10px;
-  padding: 7px 15px 7px 10px;
+  padding: 7px 15px 7px 25px;
   .${Classes.TEXT} {
     color: #121826;
   }

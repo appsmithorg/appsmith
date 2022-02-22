@@ -45,7 +45,7 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 15px 7px 10px;
+  padding: 7px 15px 7px 25px;
   .${Classes.TEXT} {
     color: #121826;
   }
@@ -58,6 +58,10 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
     }
   `}
 
+  .${Classes.ICON} {
+    visibility: ${(props) => (props.selected ? "visible" : "hidden")};
+  }
+
   &:hover {
     background-color: #ebebeb;
   }
@@ -65,6 +69,7 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
 
 const StyledFilterCategory = styled(Text)`
   margin-bottom: 10px;
+  padding-left: 15px;
 `;
 
 const ListWrapper = styled.div`
@@ -126,7 +131,7 @@ function FilterItem({ item, onSelect }: FilterItemProps) {
       <Text color="#121826" type={TextType.P1}>
         {item.label}
       </Text>
-      {selected && <Icon name={"close-x"} size={IconSize.XXL} />}
+      <Icon name={"close-x"} size={IconSize.XXXL} />
     </StyledFilterItem>
   );
 }
