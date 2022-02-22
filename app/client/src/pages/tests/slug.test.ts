@@ -12,9 +12,6 @@ describe("URL slug names", () => {
       type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
       payload: "605c435a91dea93f0eaf91ba",
     });
-    (global as any).window.location = {
-      pathname: "/my-application/page-1-605c435a91dea93f0eaf91ba",
-    };
   });
 
   it("verifies right slug names from slugs selector", () => {
