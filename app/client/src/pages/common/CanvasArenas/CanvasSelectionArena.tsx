@@ -102,7 +102,7 @@ export function CanvasSelectionArena({
           ),
         );
       },
-      150,
+      50,
       {
         leading: true,
         trailing: true,

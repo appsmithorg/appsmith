@@ -1,15 +1,14 @@
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { isEqual } from "lodash";
 import React, { useEffect, useMemo } from "react";
-import Table from "./Table";
+import { Row } from "react-table";
 import {
   ColumnTypes,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
 } from "./Constants";
-import { Row } from "react-table";
-
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isEqual } from "lodash";
+import Table from "./Table";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -48,7 +47,11 @@ interface ReactTableComponentProps {
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
-  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  onCommandClick: (
+    rowIndex: number,
+    dynamicTrigger: string,
+    onComplete: () => void,
+  ) => void;
   selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   unSelectAllRow: () => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;

@@ -1,57 +1,56 @@
-import React, { lazy, Suspense } from "react";
-import log from "loglevel";
-import moment from "moment";
+import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
+import { IconName } from "@blueprintjs/icons";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import Skeleton from "components/utils/Skeleton";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import {
+  isArray,
+  isBoolean,
+  isEmpty,
+  isEqual,
+  isNil,
   isNumber,
   isString,
-  isNil,
-  isEqual,
-  xor,
-  without,
-  isBoolean,
-  isArray,
   sortBy,
+  without,
+  xor,
   xorWith,
-  isEmpty,
 } from "lodash";
-
+import log from "loglevel";
+import moment from "moment";
+import React, { lazy, Suspense } from "react";
+import { Row } from "react-table";
+import { noop, retryPromise } from "utils/AppsmithUtils";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+// import ReactTableComponent from "../component";
+import {
+  ColumnProperties,
+  ColumnTypes,
+  CompactModeTypes,
+  OperatorTypes,
+  ReactTableColumnProps,
+  ReactTableFilter,
+  SortOrderTypes,
+} from "../component/Constants";
+import { getAllTableColumnKeys } from "../component/TableHelpers";
 import {
   getDefaultColumnProperties,
   getTableStyles,
+  renderActions,
   renderCell,
   renderDropdown,
-  renderActions,
+  renderIconButton,
   renderMenuButton,
   RenderMenuButtonProps,
-  renderIconButton,
 } from "../component/TableUtilities";
-import { getAllTableColumnKeys } from "../component/TableHelpers";
-import Skeleton from "components/utils/Skeleton";
-import { noop, retryPromise } from "utils/AppsmithUtils";
-
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
-import derivedProperties from "./parseDerivedProperties";
-import { selectRowIndex, selectRowIndices } from "./utilities";
-
-import {
-  ColumnProperties,
-  ReactTableColumnProps,
-  ColumnTypes,
-  CompactModeTypes,
-  SortOrderTypes,
-} from "../component/Constants";
-import tablePropertyPaneConfig from "./propertyConfig";
-import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
-import { Colors } from "constants/Colors";
-import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
-
+import derivedProperties from "./parseDerivedProperties";
+import tablePropertyPaneConfig from "./propertyConfig";
+import { selectRowIndex, selectRowIndices } from "./utilities";
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
 );
@@ -816,7 +815,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               ? -1
               : this.props.selectedRowIndex
           }
-          selectedRowIndices={this.getSelectedRowIndices()}
+          selectedRowIndices={this.getSelectedRowIndices() || []}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
@@ -922,11 +921,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  handleAllRowSelect = (pageData: Record<string, unknown>[]) => {
+  handleAllRowSelect = (pageData: Row<Record<string, unknown>>[]) => {
     if (this.props.multiRowSelection) {
-      const selectedRowIndices = pageData.map(
-        (row: Record<string, unknown>) => row.index,
-      );
+      const selectedRowIndices = pageData.map((row) => row.index);
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,
