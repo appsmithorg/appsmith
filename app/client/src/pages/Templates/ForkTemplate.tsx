@@ -85,8 +85,4 @@ function ForkTemplate({
   );
 }
 
-ForkTemplate.defaultProps = {
-  templateId: "620b83e770a9752ffb1ad2db",
-};
-
 export default ForkTemplate;

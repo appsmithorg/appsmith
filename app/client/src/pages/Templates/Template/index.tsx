@@ -135,6 +135,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
             <ForkTemplateDialog
               onClose={onForkModalClose}
               showForkModal={showForkModal}
+              templateId={id}
             >
               <Tooltip content={"Fork this template"}>
                 <StyledButton

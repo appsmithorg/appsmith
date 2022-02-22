@@ -268,6 +268,7 @@ function TemplateView() {
                   <ForkTemplate
                     onClose={onForkModalClose}
                     showForkModal={showForkModal}
+                    templateId={params.templateId}
                   >
                     <Button
                       className="template-fork-button"
