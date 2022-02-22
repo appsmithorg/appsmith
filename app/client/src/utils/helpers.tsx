@@ -704,7 +704,7 @@ export const captureInvalidDynamicBindingPath = (
 };
 
 export const isURLDeprecated = (url: string) => {
-  return matchPath(url, {
+  return !!matchPath(url, {
     path: [
       trimQueryString(BUILDER_URL_DEPRECATED),
       trimQueryString(VIEWER_URL_DEPRECATED),

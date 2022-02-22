@@ -16,9 +16,7 @@ export interface ChangeAppViewAccessRequest {
   publicAccess: boolean;
 }
 
-export interface PublishApplicationResponse extends ApiResponse {
-  data: unknown;
-}
+export type PublishApplicationResponse = ApiResponse<unknown>;
 
 export interface ApplicationPagePayload {
   id: string;
@@ -50,20 +48,22 @@ export interface ApplicationResponsePayload {
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
   gitApplicationMetadata: GitApplicationMetadata;
+  slug: string;
 }
 
-export interface FetchApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
-}
+type FetchApplicationResponseData = ApplicationResponsePayload & {
+  pages: ApplicationPagePayload[];
+};
 
-export interface FetchApplicationsResponse extends ApiResponse {
-  data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
-}
+export type FetchApplicationResponse = ApiResponse<
+  FetchApplicationResponseData
+>;
 
-export interface CreateApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload;
-}
+export type FetchApplicationsResponse = ApiResponse<
+  FetchApplicationResponseData[]
+>;
 
+export type CreateApplicationResponse = ApiResponse<ApplicationResponsePayload>;
 export interface CreateApplicationRequest {
   name: string;
   orgId: string;
@@ -88,9 +88,7 @@ export interface ForkApplicationRequest {
   organizationId: string;
 }
 
-export interface GetAllApplicationResponse extends ApiResponse {
-  data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
-}
+export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
 
 export type UpdateApplicationPayload = {
   icon?: string;

@@ -498,7 +498,6 @@ export const getEditorURL = createSelector(
   selectURLSlugs,
   (pageId: string, { applicationSlug, pageSlug }) =>
     BUILDER_PAGE_URL({
-      // Comeback
       applicationSlug,
       pageSlug,
       pageId,
