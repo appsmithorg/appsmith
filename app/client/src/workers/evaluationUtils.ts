@@ -106,6 +106,16 @@ export const translateDiffEventToDataTreeDiffEvent = (
   if (!difference.path) {
     return result;
   }
+
+  //we do not need evaluations for these paths as these are internal paths
+  if (
+    difference.path.indexOf("dynamicBindingPathList") !== -1 ||
+    difference.path.indexOf("bindingPaths") !== -1 ||
+    difference.path.indexOf("validationPaths") !== -1 ||
+    difference.path.indexOf("triggerPaths") !== -1
+  ) {
+    return result;
+  }
   const propertyPath = convertPathToString(difference.path);
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
   const entity = unEvalDataTree[entityName];
