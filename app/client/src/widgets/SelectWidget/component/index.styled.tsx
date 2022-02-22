@@ -53,6 +53,8 @@ export const StyledLabel = styled(Label)<{
 `;
 
 export const StyledControlGroup = styled(ControlGroup)`
+  flex-grow: 1;
+
   &&& > {
     span {
       height: 100%;
