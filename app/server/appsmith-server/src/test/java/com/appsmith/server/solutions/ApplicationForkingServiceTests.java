@@ -325,7 +325,7 @@ public class ApplicationForkingServiceTests {
                                             assertThat(dslActionDTOS).hasSize(2);
                                             dslActionDTOS.forEach(actionDTO -> {
                                                 assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
-                                                if (!StringUtils.isEmpty(actionDTO.getDefaultCollectionId())) {
+                                                if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
                                                     assertThat(actionDTO.getCollectionId()).isEqualTo(actionDTO.getDefaultCollectionId());
                                                 }
                                             });
