@@ -105,7 +105,7 @@ import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
-// import FileLine from "remixicon-react/FileLineIcon";
+import FileLine from "remixicon-react/FileLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GitCommit from "remixicon-react/GitCommitLineIcon";
@@ -265,6 +265,7 @@ const ICON_LOOKUP = {
   "expand-more": <ExpandMore />,
   "eye-off": <EyeOff />,
   "eye-on": <EyeOn />,
+  "file-line": <FileLine />,
   "file-list-line": <FileListLineIcon />,
   "file-transfer": <FileTransfer />,
   "git-branch": <GitBranchLineIcon />,
