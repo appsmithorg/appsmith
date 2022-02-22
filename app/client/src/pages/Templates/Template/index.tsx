@@ -106,7 +106,8 @@ export function TemplateLayout(props: TemplateLayoutProps) {
     setShowForkModal(true);
   };
 
-  const onForkModalClose = () => {
+  const onForkModalClose = (e?: React.MouseEvent<HTMLElement>) => {
+    e?.stopPropagation();
     setShowForkModal(false);
   };
 

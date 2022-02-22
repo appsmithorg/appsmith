@@ -5,7 +5,6 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { all, put, takeEvery, call } from "redux-saga/effects";
-import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
 import TemplatesAPI from "api/TemplatesApi";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
@@ -46,8 +45,6 @@ function* importTemplateToOrganisationSaga(
       action.payload.templateId,
       action.payload.organizationId,
     );
-    // const isValid = yield validateResponse(response);
-    // console.log(isValid, "isValid");
     const application: ApplicationPayload = {
       ...response,
       defaultPageId: getDefaultPageId(response.pages),
@@ -61,25 +58,12 @@ function* importTemplateToOrganisationSaga(
       payload: response,
     });
     history.push(pageURL);
-    // if (isValid) {
-    //   const application: ApplicationPayload = {
-    //     ...response.data,
-    //     defaultPageId: getDefaultPageId(response.data.pages),
-    //   };
-    //   const pageURL = BUILDER_PAGE_URL({
-    //     applicationId: application.id,
-    //     pageId: application.defaultPageId,
-    //   });
-    //   yield put({
-    //     type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
-    //     payload: response.data,
-    //   });
-    //   history.push(pageURL);
-    // }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_ORGANISATION_ERROR,
-      payload: TemplatesMockResponse.data,
+      payload: {
+        error,
+      },
     });
   }
 }

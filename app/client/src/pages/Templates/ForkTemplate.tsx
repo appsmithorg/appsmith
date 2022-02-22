@@ -21,7 +21,7 @@ const ButtonsWrapper = styled.div`
 interface ForkTemplateProps {
   children: ReactNode;
   showForkModal: boolean;
-  onClose: () => void;
+  onClose: (e?: React.MouseEvent<HTMLElement>) => void;
   templateId: string;
 }
 
