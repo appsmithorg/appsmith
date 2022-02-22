@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
@@ -44,6 +44,17 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutService;
+import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -91,7 +102,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class ActionServiceTest {
+public class ActionServiceCE_Test {
     @Autowired
     NewActionService newActionService;
 

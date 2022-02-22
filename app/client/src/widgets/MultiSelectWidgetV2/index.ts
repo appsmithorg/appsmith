@@ -6,7 +6,6 @@ export const CONFIG = {
   name: "MultiSelect",
   iconSVG: IconSVG,
   needsMeta: true,
-  isFilterable: true,
   defaults: {
     rows: 7,
     columns: 20,
@@ -18,6 +17,7 @@ export const CONFIG = {
       { label: "Red", value: "RED" },
     ],
     widgetName: "MultiSelect",
+    isFilterable: true,
     serverSideFiltering: false,
     defaultOptionValue: ["GREEN", "RED"],
     version: 1,
