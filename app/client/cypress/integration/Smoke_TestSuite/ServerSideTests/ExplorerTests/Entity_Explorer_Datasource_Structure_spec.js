@@ -30,6 +30,7 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.get(".t--entity-name")
       .contains(datasourceName)
       .click({ force: true });
