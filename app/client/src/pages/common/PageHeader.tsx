@@ -154,7 +154,7 @@ export function PageHeader(props: PageHeaderProps) {
       </HeaderSection>
 
       <Tabs>
-        {showTabs && (
+        {showTabs && !isMobile && (
           <>
             <TabName
               isSelected={matchApplicationPath(location.pathname)}

@@ -22,7 +22,7 @@ const SubHeaderWrapper = styled.div<{
   margin-left: 10px;
   margin-top: 26px;
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
-  ${({ isMobile }) => isMobile && `padding: 12px 16px;`}
+  ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;

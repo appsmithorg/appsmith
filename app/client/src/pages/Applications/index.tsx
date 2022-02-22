@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
+import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
@@ -92,6 +93,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 
 const OrgDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -464,7 +466,7 @@ const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
 
-const ApplicationsWrapper = styled.div`
+const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
   overflow: auto;
   margin-left: ${(props) =>
@@ -479,6 +481,13 @@ const ApplicationsWrapper = styled.div`
         props.theme.homePage.leftPane.leftPadding}px
   );
   scroll-behavior: smooth;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    margin-left: 0;
+    width: 100%;
+    padding: 0;
+  `}
 `;
 
 function ApplicationsSection(props: any) {
@@ -979,16 +988,21 @@ class Applications extends Component<
     return (
       <PageWrapper displayName="Applications">
         <LeftPane />
-        <ApplicationsWrapper>
-          <SubHeader
-            search={{
-              placeholder: createMessage(SEARCH_APPS),
-              queryFn: this.props.searchApplications,
-              defaultValue: this.props.searchKeyword,
-            }}
-          />
-          <ApplicationsSection searchKeyword={this.props.searchKeyword} />
-        </ApplicationsWrapper>
+        <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
+          {/* You can also use a function (render prop) as a child */}
+          {(matches: boolean) => (
+            <ApplicationsWrapper isMobile={matches}>
+              <SubHeader
+                search={{
+                  placeholder: createMessage(SEARCH_APPS),
+                  queryFn: this.props.searchApplications,
+                  defaultValue: this.props.searchKeyword,
+                }}
+              />
+              <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+            </ApplicationsWrapper>
+          )}
+        </MediaQuery>
       </PageWrapper>
     );
   }
