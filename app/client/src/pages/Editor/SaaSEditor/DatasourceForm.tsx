@@ -32,6 +32,8 @@ import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DatasourceComponentTypes } from "api/PluginApi";
+import { createTempDatasourceFromForm } from "actions/datasourceActions";
+import { PluginType } from "entities/Action";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -46,6 +48,7 @@ interface StateProps extends JSONtoFormProps {
   pluginType: string;
   pluginDatasourceForm: string;
   formValues: any;
+  createTempDatasourceFromForm: (data: any) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -69,6 +72,16 @@ const EditDatasourceButton = styled(AdsButton)`
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props> {
+  componentDidMount() {
+    // Create Temp Datasource on component mount
+    const urlObject = new URL(window.location.href);
+    const pluginId = urlObject?.searchParams.get("pluginId");
+    this.props.createTempDatasourceFromForm({
+      pluginId,
+      type: PluginType.SAAS,
+    });
+  }
+
   render() {
     const { formConfig, pluginId } = this.props;
     if (!pluginId) {
@@ -126,16 +139,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             />
           )}
         </Header>
-        {!viewMode ? (
-          <>
-            {!_.isNil(sections)
-              ? _.map(sections, this.renderMainSection)
-              : null}
-            {""}
-          </>
-        ) : (
-          <Connected />
-        )}
+        {!viewMode ||
+          (datasourceId === TEMP_DATASOURCE_ID && (
+            <>
+              {!_.isNil(sections)
+                ? _.map(sections, this.renderMainSection)
+                : null}
+              {""}
+            </>
+          ))}
+        {viewMode && datasourceId !== TEMP_DATASOURCE_ID && <Connected />}
+
         {/* Render datasource form call-to-actions */}
         {datasource && (
           <DatasourceAuth
@@ -187,7 +201,14 @@ const mapStateToProps = (state: AppState, props: any) => {
   };
 };
 
-export default connect(mapStateToProps)(
+const mapDispatchToProps = {
+  createTempDatasourceFromForm,
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
   reduxForm<Datasource, DatasourceSaaSEditorProps>({
     form: DATASOURCE_SAAS_FORM,
     enableReinitialize: true,

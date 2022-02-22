@@ -27,6 +27,8 @@ import {
   PluginImage,
 } from "./JSONtoForm";
 import DatasourceAuth from "../../common/datasourceAuth";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { createTempDatasourceFromForm } from "actions/datasourceActions";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -36,6 +38,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   datasourceId: string;
   applicationId: string;
   pageId: string;
+  pluginId: string;
   isNewDatasource: boolean;
   pluginImage: string;
   viewMode: boolean;
@@ -43,6 +46,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   messages?: Array<string>;
   datasource: Datasource;
   datasourceName?: string;
+  createTempDatasourceFromForm: (data: any) => void;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -70,6 +74,15 @@ const EditDatasourceButton = styled(Button)`
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
+  componentDidMount() {
+    // Create Temp Datasource on component mount
+    const urlObject = new URL(window.location.href);
+    const pluginId = urlObject?.searchParams.get("pluginId");
+    this.props.createTempDatasourceFromForm({
+      pluginId,
+      type: PluginType.DB,
+    });
+  }
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
       super.componentDidUpdate(prevProps);
@@ -98,7 +111,14 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   }
 
   renderDataSourceConfigForm = (sections: any) => {
-    const { datasource, formData, messages, pluginType, viewMode } = this.props;
+    const {
+      datasource,
+      datasourceId,
+      formData,
+      messages,
+      pluginType,
+      viewMode,
+    } = this.props;
 
     return (
       <form
@@ -111,7 +131,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
-          {viewMode && (
+          {viewMode && datasourceId !== TEMP_DATASOURCE_ID && (
             <EditDatasourceButton
               category={Category.tertiary}
               className="t--edit-datasource"
@@ -148,16 +168,16 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             </CollapsibleHelp>
           </CollapsibleWrapper>
         )}
-        {!viewMode ? (
+        {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
           <>
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : undefined}
             {""}
           </>
-        ) : (
-          <Connected />
         )}
+
+        {viewMode && datasourceId !== TEMP_DATASOURCE_ID && <Connected />}
         {/* Render datasource form call-to-actions */}
         {datasource && (
           <DatasourceAuth
@@ -187,7 +207,14 @@ const mapStateToProps = (state: AppState, props: any) => {
   };
 };
 
-export default connect(mapStateToProps)(
+const mapDispatchToProps = {
+  createTempDatasourceFromForm,
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
     form: DATASOURCE_DB_FORM,
     enableReinitialize: true,

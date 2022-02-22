@@ -42,7 +42,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
       pageId,
       plugin.packageName,
       actionPayload.payload.id,
-      { from: "datasources" },
+      { from: "datasources", pluginId: plugin.id },
     ),
   );
 }
