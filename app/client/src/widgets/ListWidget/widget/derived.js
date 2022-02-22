@@ -120,7 +120,9 @@ export default {
     const WIDGET_PADDING = DEFAULT_GRID_ROW_HEIGHT * 0.4;
     const itemsCount = (props.listData || []).length;
 
-    const averageGridGap = itemsCount ? (props.gridGap * 3) / 4 : 0;
+    const averageGridGap = itemsCount
+      ? (props.gridGap * itemsCount - 1) / itemsCount
+      : 0;
 
     const templateBottomRow = props.templateBottomRow;
     const templateHeight = templateBottomRow * DEFAULT_GRID_ROW_HEIGHT;
