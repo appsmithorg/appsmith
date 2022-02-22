@@ -67,7 +67,6 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
-import { is } from "immer/dist/internal";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -134,7 +133,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex,
       selectedRowIndices,
       orderedTableColumns = [],
-      primaryColumns = {},
     } = this.props;
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -558,7 +556,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
         const accessorMap: Record<string, string> = {};
 
-        Object.entries(tableColumns).forEach(([id, column]) => {
+        Object.values(tableColumns).forEach((column) => {
           accessorMap[column.originalId] = column.accessor || column.originalId;
         });
 
