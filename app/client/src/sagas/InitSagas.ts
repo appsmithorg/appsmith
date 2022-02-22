@@ -78,7 +78,7 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import PageApi, { FetchPageResponse } from "api/PageApi";
-import { isURLDeprecated, updateRoute } from "utils/helpers";
+import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -168,7 +168,7 @@ function* initializeEditorSaga(
       failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
     }
 
-    const applicationAndLayoutCalls = yield failFastApiCalls(
+    const applicationAndLayoutCalls: boolean = yield failFastApiCalls(
       initCalls,
       successEffects,
       failureEffects,
@@ -263,7 +263,7 @@ function* initializeEditorSaga(
     } else {
       // For urls which has pageId in it,
       // replace the placeholder values of application slug and page slug with real slug names.
-      originalUrl = updateRoute(window.location.pathname, {
+      originalUrl = getUpdatedRoute(window.location.pathname, {
         applicationSlug,
         pageSlug,
         pageId: toLoadPageId,
@@ -442,7 +442,7 @@ export function* initializeAppViewerSaga(
       pageId: toLoadPageId,
     });
   } else {
-    originalUrl = updateRoute(window.location.pathname, {
+    originalUrl = getUpdatedRoute(window.location.pathname, {
       applicationSlug,
       pageSlug,
       pageId: toLoadPageId,

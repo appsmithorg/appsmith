@@ -76,14 +76,14 @@ function AppInviteUsersForm(props: any) {
   );
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
-  const getViewApplicationURL = () => {
-    const appViewEndPoint = getApplicationViewerPageURL({
+  const appViewEndPoint = React.useMemo(() => {
+    const url = getApplicationViewerPageURL({
       applicationSlug,
       pageSlug,
       pageId: defaultPageId,
     });
-    return window.location.origin.toString() + appViewEndPoint;
-  };
+    return window.location.origin.toString() + url;
+  }, [applicationSlug, pageSlug, defaultPageId]);
 
   useEffect(() => {
     if (currentUser?.name !== ANONYMOUS_USERNAME && canInviteToOrg) {
@@ -118,7 +118,7 @@ function AppInviteUsersForm(props: any) {
       </Title>
       <StyledCopyToClipBoard
         btnWidth={InviteButtonWidth}
-        copyText={getViewApplicationURL()}
+        copyText={appViewEndPoint}
       />
 
       {canInviteToOrg && (

@@ -714,7 +714,10 @@ export const isURLDeprecated = (url: string) => {
   });
 };
 
-export const updateRoute = (path: string, params: Record<string, string>) => {
+export const getUpdatedRoute = (
+  path: string,
+  params: Record<string, string>,
+) => {
   let updatedPath = path;
   const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
     path: [trimQueryString(BUILDER_URL), trimQueryString(VIEWER_URL)],
@@ -723,9 +726,19 @@ export const updateRoute = (path: string, params: Record<string, string>) => {
   });
   if (match?.params) {
     const { applicationSlug, pageSlug } = match?.params;
-    updatedPath = updatedPath
-      .replace(applicationSlug, params.applicationSlug)
-      .replace(pageSlug, `${params.pageSlug}-`);
+    if (params.applicationSlug)
+      updatedPath = updatedPath.replace(
+        applicationSlug,
+        params.applicationSlug,
+      );
+    if (params.pageSlug)
+      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
   }
   return updatedPath;
+};
+
+export const updateSlugNamesInURL = (params: Record<string, string>) => {
+  const { pathname } = window.location;
+  const newURL = getUpdatedRoute(pathname, params);
+  window.history.replaceState(null, "", newURL);
 };

@@ -82,6 +82,7 @@ import {
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { updateSlugNamesInURL } from "utils/helpers";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -306,7 +307,10 @@ export function* updateApplicationSaga(
     if (isValidResponse && request.currentApp) {
       yield put({
         type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
-        payload: request.name,
+        payload: response.data,
+      });
+      updateSlugNamesInURL({
+        applicationSlug: response.data.slug,
       });
     }
   } catch (error) {

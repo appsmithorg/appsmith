@@ -100,13 +100,19 @@ export const pageListReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{ id: string; name: string; isHidden?: boolean }>,
+    action: ReduxAction<{
+      id: string;
+      name: string;
+      isHidden?: boolean;
+      slug: string;
+    }>,
   ) => {
     const pages = [...state.pages];
     const updatedPage = pages.find((page) => page.pageId === action.payload.id);
     if (updatedPage) {
       updatedPage.pageName = action.payload.name;
       updatedPage.isHidden = !!action.payload.isHidden;
+      updatedPage.slug = action.payload.slug;
     }
 
     return { ...state, pages };
