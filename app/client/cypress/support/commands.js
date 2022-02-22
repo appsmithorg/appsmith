@@ -807,7 +807,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
   cy.get(commonlocators.entityExplorersearch)
     .clear({ force: true })
     .type(apiname1, { force: true });
-  cy.CheckAndUnfoldWidgets();
+  cy.CheckAndUnfoldEntityItem("WIDGETS");
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).scrollIntoView({ easing: "linear" });
