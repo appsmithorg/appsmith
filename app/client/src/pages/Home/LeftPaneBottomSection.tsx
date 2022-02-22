@@ -39,7 +39,7 @@ const Wrapper = styled.div`
 const LeftPaneVersionData = styled.div`
   display: flex;
   justify-content: space-between;
-  color: ${Colors.MIRAGE};
+  color: ${Colors.MIRAGE_2};
   font-size: 8px;
   width: 92%;
   margin-top: ${(props) => props.theme.spaces[3]}px;

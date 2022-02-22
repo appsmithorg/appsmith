@@ -1,7 +1,6 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
 export const Colors = {
   EBONY_CLAY: "#2A2F3D",
-  MIRAGE: "#121826",
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
@@ -155,6 +154,7 @@ export const Colors = {
 
   GREEN_SOLID: "#50AF6C",
   MIRAGE: "#182026",
+  MIRAGE_2: "#121826",
 
   GREEN_SOLID_HOVER: "#D5EFE3",
   GREEN_SOLID_LIGHT_HOVER: "#ECF9F3",
