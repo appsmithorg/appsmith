@@ -15,6 +15,10 @@ import EvaluatedValuePopup from "components/editorComponents/CodeEditor/Evaluate
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import {
+  getDefaultColumnProperties,
+  getTableStyles,
+} from "widgets/TableWidget/component/TableUtilities";
 import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
@@ -26,10 +30,6 @@ import {
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListCard } from "components/ads/DraggableListCard";
-import {
-  getDefaultColumnProperties,
-  getTableStyles,
-} from "widgets/TableWidget/component/TableUtilities";
 
 const TabsWrapper = styled.div`
   width: 100%;
