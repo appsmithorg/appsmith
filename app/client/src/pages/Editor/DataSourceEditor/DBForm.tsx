@@ -71,12 +71,10 @@ const EditDatasourceButton = styled(Button)`
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
   componentDidUpdate(prevProps: Props) {
-    if (
-      !this.props.hiddenHeader &&
-      prevProps.datasourceId !== this.props.datasourceId
-    ) {
+    if (prevProps.datasourceId !== this.props.datasourceId) {
       super.componentDidUpdate(prevProps);
-      this.props.setDatasourceEditorMode(this.props.datasourceId, true);
+      if (!this.props.hiddenHeader)
+        this.props.setDatasourceEditorMode(this.props.datasourceId, true);
     }
   }
   // returns normalized and trimmed datasource form data

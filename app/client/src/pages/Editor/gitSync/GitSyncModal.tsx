@@ -23,6 +23,12 @@ import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
+const StyledDialog = styled(Dialog)`
+  .bp3-dialog-body {
+    margin-top: 0px !important;
+  }
+`;
+
 const Container = styled.div`
   height: 600px;
   width: 100%;
@@ -30,7 +36,7 @@ const Container = styled.div`
   flex-direction: column;
   position: relative;
   overflow-y: hidden;
-  padding: 0px 10px 0px 10px;
+  padding: 0px 8px 0px 8px;
 `;
 
 const BodyContainer = styled.div`
@@ -40,15 +46,14 @@ const BodyContainer = styled.div`
 
 const MenuContainer = styled.div`
   height: ${MENU_HEIGHT}px;
-  margin-top: -${(props) => props.theme.spaces[4]}px;
 `;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[1]}px;
-
   padding: ${(props) => props.theme.spaces[1]}px;
   border-radius: ${(props) => props.theme.radii[1]}px;
+  top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const ComponentsByTab = {
@@ -124,7 +129,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   return (
     <>
-      <Dialog
+      <StyledDialog
         canEscapeKeyClose
         canOutsideClickClose
         className={Classes.GIT_SYNC_MODAL}
@@ -168,7 +173,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
             />
           </CloseBtnContainer>
         </Container>
-      </Dialog>
+      </StyledDialog>
       <GitErrorPopup />
     </>
   );
