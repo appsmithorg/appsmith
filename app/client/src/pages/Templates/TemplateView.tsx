@@ -52,13 +52,18 @@ const Title = styled(Text)`
 `;
 
 const IframeWrapper = styled.div`
-  border: 1px solid #6eb9f0;
   background: rgba(110, 185, 240, 0.08);
   height: 734px;
   width: 100%;
   border-radius: 16px;
   padding: 18px;
   margin-top: 29px;
+
+  iframe {
+    border-radius: 16px;
+    box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
+      0px 8px 8px -4px rgba(16, 24, 40, 0.04);
+  }
 `;
 
 const DescriptionWrapper = styled.div`
