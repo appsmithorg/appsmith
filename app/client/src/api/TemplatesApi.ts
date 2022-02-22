@@ -4,46 +4,6 @@ import { ApiResponse } from "./ApiResponses";
 import { WidgetType } from "constants/WidgetConstants";
 import { ApplicationResponsePayload } from "./ApplicationApi";
 
-// {
-//     "responseMeta": {
-//       "status": 200,
-//       "success": true
-//     },
-//     "data": [
-//       {
-//         "id": "61f447545bf0264436db038e",
-//         "userPermissions": [],
-//         "title": "Updated title",
-//         "description": "Hello world",
-//         "appUrl": "http://app.appsmith.com/applications/hello-nayan",
-//         "gifUrl": "http://gif.appsmith.com/images/hello",
-//         "screenshotUrls": [
-//           "http://gif.appsmith.com/images/hello"
-//         ],
-//         "widgets": [
-//           "BUTTON_WIDGET",
-//           "MAP_WIDGET",
-//           "CHART_WIDGET"
-//         ],
-//         "functions": [
-//           "Customer"
-//         ],
-//         "useCases": [
-//           "Support",
-//           "Admin"
-//         ],
-//         "datasources": [
-//           "postgres-plugin",
-//           "mongo-plugin",
-//           "mongo-plugin"
-//         ],
-//         "minVersion": "v1.6.8",
-//         "minVersionPadded": "000010000600008",
-//         "active": true,
-//         "new": false
-//       }
-//     ]
-//   }
 export interface Template {
   id: string;
   userPermissions: string[];
@@ -84,6 +44,13 @@ class TemplatesAPI extends Api {
     templateId: string,
   ): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
+  }
+  static getSimilarTemplates(
+    templateId: string,
+  ): AxiosPromise<FetchTemplatesResponse> {
+    return Api.get(
+      TemplatesAPI.baseUrl + `/app-templates/${templateId}/similar`,
+    );
   }
   static importTemplate(
     templateId: string,

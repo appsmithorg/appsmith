@@ -28,6 +28,11 @@ export const importTemplateToOrganisation = (
   },
 });
 
+export const getSimilarTemplatesInit = (templateId: string) => ({
+  type: ReduxActionTypes.GET_SIMILAR_TEMPLATES_INIT,
+  payload: templateId,
+});
+
 export const setTemplateNotificationSeenAction = (payload: boolean) => ({
   type: ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN,
   payload,

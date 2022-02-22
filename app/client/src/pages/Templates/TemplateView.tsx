@@ -3,21 +3,21 @@ import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import Button, { IconPositions, Size } from "components/ads/Button";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import Template from "./Template";
-import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
 import DatasourceChip from "./DatasourceChip";
 import WidgetInfo from "./WidgetInfo";
-import { Template as TemplateInterface } from "api/TemplatesApi";
 import {
   getTemplateById,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import ForkTemplate from "./ForkTemplate";
 import LeftPaneTemplateList from "./LeftPaneTemplateList";
+import { getSimilarTemplatesInit } from "actions/templateActions";
+import { AppState } from "reducers";
 
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
@@ -43,6 +43,7 @@ const Wrapper = styled.div`
 const TemplateViewWrapper = styled.div`
   padding-right: 32px;
   padding-left: 32px;
+  padding-bottom: 84px;
 `;
 
 const Title = styled(Text)`
@@ -113,7 +114,6 @@ const TemplateDatasources = styled.div`
 `;
 
 const SimilarTemplatesWrapper = styled.div`
-  margin-top: 82px;
   padding-right: 32px;
   padding-left: 32px;
   background-color: rgba(248, 248, 248, 0.5);
@@ -156,6 +156,10 @@ function TemplateNotFound() {
 }
 
 function TemplateView() {
+  const dispatch = useDispatch();
+  const similarTemplates = useSelector(
+    (state: AppState) => state.ui.templates.similarTemplates,
+  );
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const params = useParams<{ templateId: string }>();
   const currentTemplate = useSelector(getTemplateById(params.templateId));
@@ -173,6 +177,7 @@ function TemplateView() {
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      dispatch(getSimilarTemplatesInit(params.templateId));
     }
   }, [params.templateId]);
 
@@ -279,24 +284,24 @@ function TemplateView() {
             </DescriptionWrapper>
           </TemplateViewWrapper>
 
-          <SimilarTemplatesWrapper>
-            <Section>
-              <Text type={TextType.H1} weight={FontWeight.BOLD}>
-                Similar Templates
-              </Text>
-              <Masonry
-                breakpointCols={3}
-                className="grid"
-                columnClassName="grid_column"
-              >
-                {((TemplatesMockResponse.data as unknown) as TemplateInterface[]).map(
-                  (template) => (
+          {!!similarTemplates.length && (
+            <SimilarTemplatesWrapper>
+              <Section>
+                <Text type={TextType.H1} weight={FontWeight.BOLD}>
+                  Similar Templates
+                </Text>
+                <Masonry
+                  breakpointCols={3}
+                  className="grid"
+                  columnClassName="grid_column"
+                >
+                  {similarTemplates.map((template) => (
                     <Template key={template.id} template={template} />
-                  ),
-                )}
-              </Masonry>
-            </Section>
-          </SimilarTemplatesWrapper>
+                  ))}
+                </Masonry>
+              </Section>
+            </SimilarTemplatesWrapper>
+          )}
         </Wrapper>
       )}
     </PageWrapper>

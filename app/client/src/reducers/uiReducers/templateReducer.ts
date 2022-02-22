@@ -6,6 +6,7 @@ const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   gettingAllTemplates: false,
   templates: [],
+  similarTemplates: [],
   filters: {},
   templateSearchQuery: "",
   templateNotificationSeen: null,
@@ -65,6 +66,15 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplate: false,
     };
   },
+  [ReduxActionTypes.GET_SIMILAR_TEMPLATES_SUCCESS]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<Template[]>,
+  ) => {
+    return {
+      ...state,
+      similarTemplates: action.payload,
+    };
+  },
   [ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN]: (
     state: TemplatesReduxState,
     action: ReduxAction<boolean>,
@@ -79,6 +89,7 @@ const templateReducer = createReducer(initialState, {
 export interface TemplatesReduxState {
   gettingAllTemplates: boolean;
   templates: Template[];
+  similarTemplates: Template[];
   filters: Record<string, string[]>;
   templateSearchQuery: string;
   isImportingTemplate: boolean;
