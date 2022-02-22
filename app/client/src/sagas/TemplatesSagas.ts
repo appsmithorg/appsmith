@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { all, put, takeEvery, delay, call } from "redux-saga/effects";
+import { all, put, takeEvery, call } from "redux-saga/effects";
 import TemplatesMockResponse from "mockResponses/TemplateMockResponse.json";
 import TemplatesAPI from "api/TemplatesApi";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -15,27 +15,25 @@ import {
   getTemplateNotificationSeen,
   setTemplateNotificationSeen,
 } from "utils/storage";
+import { validateResponse } from "./ErrorSagas";
 
 function* getAllTemplatesSaga() {
   try {
-    // const response = yield call(TemplatesAPI.getAllTemplates);
-    // const isValid = yield validateResponse(response);
-    yield delay(1000);
-    if (true) {
+    const response = yield call(TemplatesAPI.getAllTemplates);
+    const isValid = yield validateResponse(response);
+    if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_ALL_TEMPLATES_SUCCESS,
-        payload: TemplatesMockResponse.data,
+        payload: response.data,
       });
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.GET_ALL_TEMPLATES_SUCCESS,
-      payload: TemplatesMockResponse.data,
+      type: ReduxActionErrorTypes.GET_ALL_TEMPLATES_ERROR,
+      payload: {
+        error,
+      },
     });
-    // yield put({
-    //   type: ReduxActionErrorTypes.GET_ALL_TEMPLATES_ERROR,
-    //   payload: TemplatesMockResponse.data,
-    // });
   }
 }
 
