@@ -118,19 +118,31 @@ export default {
     const LIST_WIDGET_PAGINATION_HEIGHT = 36;
     const DEFAULT_GRID_ROW_HEIGHT = 10;
     const WIDGET_PADDING = DEFAULT_GRID_ROW_HEIGHT * 0.4;
+    const itemsCount = (props.listData || []).length;
+
+    const averageGridGap = itemsCount ? (props.gridGap * 3) / 4 : 0;
 
     const templateBottomRow = props.templateBottomRow;
-
     const templateHeight = templateBottomRow * DEFAULT_GRID_ROW_HEIGHT;
-
     const componentHeight =
       (props.bottomRow - props.topRow) * props.parentRowSpace;
 
-    const totalSpaceAvailable =
-      componentHeight - (LIST_WIDGET_PAGINATION_HEIGHT + WIDGET_PADDING * 2);
-    const spaceTakenByOneContainer = templateHeight + (props.gridGap * 3) / 4;
+    const spaceAvailableWithoutPaginationControls =
+      componentHeight - WIDGET_PADDING * 2;
+    const spaceAvailableWithPaginationControls =
+      spaceAvailableWithoutPaginationControls - LIST_WIDGET_PAGINATION_HEIGHT;
 
-    const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
+    const spaceTakenByOneContainer = templateHeight + averageGridGap;
+    const spaceTakenByAllContainers = spaceTakenByOneContainer * itemsCount;
+    const paginationControlsEnabled =
+      spaceTakenByAllContainers > spaceAvailableWithoutPaginationControls ||
+      props.serverSidePaginationEnabled;
+
+    const totalAvailableSpace = paginationControlsEnabled
+      ? spaceAvailableWithPaginationControls
+      : spaceAvailableWithoutPaginationControls;
+
+    const perPage = totalAvailableSpace / spaceTakenByOneContainer;
 
     return _.isNaN(perPage) ? 0 : _.floor(perPage);
   },
