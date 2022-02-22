@@ -96,6 +96,7 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export const createGlobalData = (
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  isTriggerBased: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) => {
@@ -114,15 +115,21 @@ export const createGlobalData = (
       });
     }
   }
-  //// Add internal functions to dataTree;
-  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
-    dataTree,
-    context?.requestId,
-  );
-  ///// Adding Data tree with functions
-  Object.keys(dataTreeWithFunctions).forEach((datum) => {
-    GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-  });
+  if (isTriggerBased) {
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+      dataTree,
+      context?.requestId,
+    );
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+  } else {
+    Object.keys(dataTree).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTree[datum];
+    });
+  }
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
@@ -188,6 +195,7 @@ export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
@@ -198,6 +206,7 @@ export default function evaluateSync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      isJSCollection,
       context,
       evalArguments,
     );
@@ -266,6 +275,7 @@ export async function evaluateAsync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      true,
       { ...context, requestId },
       evalArguments,
     );

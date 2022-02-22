@@ -8,6 +8,7 @@ import { EvaluationVersion } from "api/ApplicationApi";
 
 export interface INJECTED_CONFIGS extends CE_INJECTED_CONFIGS {
   enableKeycloakOAuth: boolean;
+  enableOidcOAuth: boolean;
 }
 
 declare global {
@@ -25,6 +26,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     enableKeycloakOAuth: process.env.REACT_APP_OAUTH2_KEYCLOAK_CLIENT_ID
       ? process.env.REACT_APP_OAUTH2_KEYCLOAK_CLIENT_ID.length > 0
       : false,
+    enableOidcOAuth: process.env.REACT_APP_OAUTH2_OIDC_CLIENT_ID
+      ? process.env.REACT_APP_OAUTH2_OIDC_CLIENT_ID.length > 0
+      : false,
   };
 };
 
@@ -36,5 +40,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     enableKeycloakOAuth:
       ENV_CONFIG.enableKeycloakOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableKeycloakOAuth,
+    enableOidcOAuth:
+      ENV_CONFIG.enableOidcOAuth || APPSMITH_FEATURE_CONFIGS.enableOidcOAuth,
   };
 };

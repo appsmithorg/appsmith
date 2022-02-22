@@ -1,17 +1,14 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
-import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -50,9 +47,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -79,15 +74,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.File;
-import java.io.FileReader;
 import java.lang.reflect.Type;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -96,9 +86,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
-import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
-import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -254,6 +241,18 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById("invalidAppId", "");
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION_ID, "invalidAppId")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
         Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
 
@@ -266,6 +265,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
+                    assertThat(exportedApplication.getEditModeThemeId()).isNull();
+                    assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -1181,11 +1182,6 @@ public class ImportExportApplicationServiceTests {
 
         String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
-        PageDTO page = new PageDTO();
-        page.setName("Page 2");
-        page.setApplicationId(application.getId());
-        PageDTO savedPage = applicationPageService.createPage(page).block();
-
         assert application.getId() != null;
         Set<String> applicationPageIdsBeforeImport = Objects.requireNonNull(applicationRepository.findById(application.getId()).block())
                 .getPages()
@@ -1195,8 +1191,6 @@ public class ImportExportApplicationServiceTests {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-added.json").block();
         applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
-        applicationJson.getPageList().get(1).setGitSyncId(gitSyncIdBeforeImport);
-        applicationJson.getPageList().get(2).setGitSyncId(gitSyncIdBeforeImport);
 
         Application applicationMono = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
 
@@ -1211,16 +1205,12 @@ public class ImportExportApplicationServiceTests {
                 .create(pageList)
                 .assertNext(newPages -> {
                     // Check before import we had both the pages
-                    assertThat(applicationPageIdsBeforeImport).hasSize(2);
+                    assertThat(applicationPageIdsBeforeImport).hasSize(1);
                     assertThat(newPages.size()).isEqualTo(3);
                     List<String> pageNames = newPages.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
                     assertThat(pageNames).contains("Page1");
                     assertThat(pageNames).contains("Page2");
                     assertThat(pageNames).contains("Page3");
-                    for (NewPage newPage: newPages) {
-                        assertThat(newPage.getGitSyncId()).isEqualTo(gitSyncIdBeforeImport);
-                    }
-                    assertThat(applicationMono.getPages().containsAll(pageNames));
                 })
                 .verifyComplete();
 

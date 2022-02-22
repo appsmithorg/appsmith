@@ -8,11 +8,13 @@ const {
   enableGithubOAuth,
   enableGoogleOAuth,
   enableKeycloakOAuth,
+  enableOidcOAuth,
 } = getAppsmithConfigs();
 
 export const SocialLoginTypes = {
   ...CE_SocialLoginTypes,
   KEYCLOAK: "keycloak",
+  OIDC: "oidc",
 };
 
 if (enableGoogleOAuth)
@@ -21,5 +23,6 @@ if (enableGithubOAuth)
   ThirdPartyLoginRegistry.register(SocialLoginTypes.GITHUB);
 if (enableKeycloakOAuth)
   ThirdPartyLoginRegistry.register(SocialLoginTypes.KEYCLOAK);
+if (enableOidcOAuth) ThirdPartyLoginRegistry.register(SocialLoginTypes.OIDC);
 
 export default ThirdPartyAuth;

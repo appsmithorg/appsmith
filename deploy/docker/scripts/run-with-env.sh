@@ -22,6 +22,11 @@ if [[ -z "${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_GO
   unset APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET
 fi
 
+if [[ -z "${APPSMITH_OAUTH2_OIDC_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_OIDC_CLIENT_SECRET}" ]]; then
+  unset APPSMITH_OAUTH2_OIDC_CLIENT_ID # If this field is empty is might cause application crash
+  unset APPSMITH_OAUTH2_OIDC_CLIENT_SECRET
+fi
+
 if [[ -z "${APPSMITH_GOOGLE_MAPS_API_KEY}" ]]; then
   unset APPSMITH_GOOGLE_MAPS_API_KEY
 fi

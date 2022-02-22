@@ -38,13 +38,14 @@ import {
   ApiKeyAuthType,
   AuthType,
   GrantType,
+  SSLType,
 } from "entities/Datasource/RestAPIForm";
 import {
   createMessage,
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -479,8 +480,46 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         {this.renderAuthFields()}
+        <FormInputContainer data-replay-id={btoa("ssl")}>
+          {this.renderDropdownControlViaFormControl(
+            "connection.ssl.authType",
+            [
+              {
+                label: "No",
+                value: "DEFAULT",
+              },
+              {
+                label: "Yes",
+                value: "SELF_SIGNED_CERTIFICATE",
+              },
+            ],
+            "Use Self-signed certificate",
+            "",
+            true,
+            "",
+            "DEFAULT",
+          )}
+        </FormInputContainer>
+        {this.renderSelfSignedCertificateFields()}
       </>
     );
+  };
+
+  renderSelfSignedCertificateFields = () => {
+    const { connection } = this.props.formData;
+    if (connection?.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE) {
+      return (
+        <Collapsible defaultIsOpen title="Certificate Details">
+          {this.renderFilePickerControlViaFormControl(
+            "connection.ssl.certificateFile",
+            "Upload Certificate",
+            "",
+            false,
+            true,
+          )}
+        </Collapsible>
+      );
+    }
   };
 
   renderAuthFields = () => {
@@ -954,6 +993,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     placeholderText: string,
     isRequired: boolean,
     subtitle?: string,
+    initialValue?: any,
   ) {
     const config = {
       id: "",
@@ -967,6 +1007,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       conditionals: {},
       placeholderText: placeholderText,
       formName: DATASOURCE_REST_API_FORM,
+      initialValue: initialValue,
     };
     return (
       <FormControl
@@ -989,6 +1030,34 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       isValid: false,
       controlType: "KEYVALUE_ARRAY",
       placeholderText: placeholderText,
+      label: label,
+      conditionals: {},
+      formName: DATASOURCE_REST_API_FORM,
+      isRequired: isRequired,
+    };
+    return (
+      <FormControl
+        config={config}
+        formName={DATASOURCE_REST_API_FORM}
+        multipleConfig={[]}
+      />
+    );
+  }
+
+  renderFilePickerControlViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+    encrypted: boolean,
+  ) {
+    const config = {
+      id: "",
+      configProperty: configProperty,
+      isValid: false,
+      controlType: "FILE_PICKER",
+      placeholderText: placeholderText,
+      encrypted: encrypted,
       label: label,
       conditionals: {},
       formName: DATASOURCE_REST_API_FORM,

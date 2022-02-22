@@ -478,12 +478,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
                     );
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
                 );
     }
 
@@ -514,7 +514,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
                 )
                 .map(Application::getId);
     }
@@ -533,8 +533,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
-        return repository.getGitConnectedApplicationCount(organizationId);
+    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId) {
+        return repository.getGitConnectedApplicationWithPrivateRepoCount(organizationId);
+    }
+
+    @Override
+    public Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId) {
+        return repository.getGitConnectedApplicationByOrganizationId(organizationId);
     }
 
     public String getRandomAppCardColor() {

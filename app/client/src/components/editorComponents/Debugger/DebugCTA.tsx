@@ -77,8 +77,8 @@ export function EvaluatedValueDebugButton(props: {
           <Icon
             fillColor={Colors.POMEGRANATE2}
             hoverFillColor={Colors.POMEGRANATE2}
-            name={"downArrow"}
-            size={IconSize.XXS}
+            name={"down-arrow"}
+            size={IconSize.MEDIUM}
           />
         </EVDebugButton>
       </ContextualMenu>

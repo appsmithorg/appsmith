@@ -63,4 +63,6 @@ public interface GitServiceCE {
 
     Mono<GitAuth> generateSSHKey();
 
+    Mono<Boolean> testConnection(String defaultApplicationId);
+
 }

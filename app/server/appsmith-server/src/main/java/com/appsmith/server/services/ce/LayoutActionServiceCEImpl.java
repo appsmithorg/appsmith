@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
@@ -1145,7 +1145,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     final DefaultResources immutableDefaultResources = action.getDefaultResources();
                     // Only store defaultPageId and defaultCollectionId for actionDTO level resource
                     DefaultResources defaultActionResource = new DefaultResources();
-                    BeanCopyUtils.copyNestedNonNullProperties(immutableDefaultResources, defaultActionResource);
+                    AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaultActionResource);
 
                     defaultActionResource.setApplicationId(null);
                     defaultActionResource.setActionId(null);
@@ -1160,7 +1160,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     // Only store defaultApplicationId and defaultActionId for NewAction level resource
                     DefaultResources defaults = new DefaultResources();
-                    BeanCopyUtils.copyNestedNonNullProperties(immutableDefaultResources, defaults);
+                    AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaults);
                     defaults.setPageId(null);
                     defaults.setCollectionId(null);
                     if (!StringUtils.hasLength(defaults.getApplicationId())) {

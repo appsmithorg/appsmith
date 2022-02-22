@@ -42,8 +42,10 @@ module.exports = {
       },
       enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__"),
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
-      enableKeycloakOAuth: parseConfig("__APPSMITH_OAUTH2_KEYCLOAK_CLIENT_ID"),
+      enableKeycloakOAuth: parseConfig("__APPSMITH_OAUTH2_KEYCLOAK_CLIENT_ID__"),
+      enableOidcOAuth: parseConfig("__APPSMITH_OAUTH2_OIDC_CLIENT_ID__"),
       disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
+      disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
@@ -52,7 +54,6 @@ module.exports = {
       fusioncharts: {
         licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),
       },
-      optimizely: parseConfig("__APPSMITH_OPTIMIZELY_KEY__"),
       enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__"),
       algolia: {
         apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
