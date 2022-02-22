@@ -187,12 +187,29 @@ public class DataTypeStringUtils {
         return DataType.STRING;
     }
 
+    /**
+     *
+     * @param input
+     * @param replacement
+     * @param replacementDataType nullable DataType that is used to provide Plugin Specific types, by setting this
+     *                            you can override the 'DataTypeStringUtils.stringToKnownDataTypeConverter(replacement)'
+     *                            default behavior.
+     * @param insertedParams
+     * @param smartSubstitutionUtils
+     * @return
+     */
     public static String jsonSmartReplacementPlaceholderWithValue(String input,
                                                                   String replacement,
+                                                                  DataType replacementDataType,
                                                                   List<Map.Entry<String, String>> insertedParams,
                                                                   SmartSubstitutionInterface smartSubstitutionUtils) {
 
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        final DataType dataType;
+        if (replacementDataType == null) {
+            dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        } else {
+            dataType = replacementDataType;
+        }
 
         Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
