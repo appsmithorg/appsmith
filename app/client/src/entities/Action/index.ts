@@ -52,7 +52,7 @@ export interface BodyFormData {
   type: string;
 }
 
-export interface ApiActionConfig extends ActionConfig {
+export interface ApiActionConfig extends Omit<ActionConfig, "formData"> {
   headers: Property[];
   httpMethod: string;
   path?: string;
@@ -60,6 +60,7 @@ export interface ApiActionConfig extends ActionConfig {
   encodeParamsToggle: boolean;
   queryParameters?: Property[];
   bodyFormData?: BodyFormData[];
+  formData: Record<string, unknown>;
 }
 
 export interface QueryActionConfig extends ActionConfig {

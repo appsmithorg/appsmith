@@ -26,11 +26,9 @@ describe("Add functions", () => {
     },
   };
   self.TRIGGER_COLLECTOR = [];
-  const dataTreeWithFunctions = createGlobalData(
-    dataTree,
-    {},
-    { requestId: "EVAL_TRIGGER" },
-  );
+  const dataTreeWithFunctions = createGlobalData(dataTree, {}, true, {
+    requestId: "EVAL_TRIGGER",
+  });
 
   beforeEach(() => {
     workerEventMock.mockReset();

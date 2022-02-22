@@ -1,6 +1,7 @@
 const path = require("path");
 const Perf = require("../src/perf.js");
 const dsl = require("./dsl/simple-typing").dsl;
+const { actions } = require("./actions");
 const { delay, makeid } = require("../src/utils/utils");
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
@@ -36,14 +37,14 @@ async function testTyping() {
   //   },
   // );
 
-  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app-dev.json`);
+  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app.json`);
 
-  await delay(10000, "for newly created page to settle down");
+  await delay(20000, "for newly created page to settle down");
   // Make the elements of the dropdown render
   await page.waitForSelector(SEL.multiSelect);
   await page.click(SEL.multiSelect);
 
-  await perf.startTrace("Select category");
+  await perf.startTrace(actions.SELECT_CATEGORY);
   await page.waitForSelector(SEL.category);
   await page.click(SEL.category);
 
@@ -54,14 +55,14 @@ async function testTyping() {
   await page.click(SEL.table);
 
   // Profile table Data binding
-  await perf.startTrace("Bind table data");
+  await perf.startTrace(actions.BIND_TABLE_DATA);
   await page.waitForSelector(SEL.tableData);
   await page.type(SEL.tableData, "{{SelectQuery.data}}");
   await page.waitForSelector(SEL.tableRow);
   await perf.stopTrace();
 
   // Click on table row
-  await perf.startTrace("Click on table #comments");
+  await perf.startTrace(actions.CLICK_ON_TABLE_ROW);
   await page.click(SEL.tableRow);
   await page.waitForFunction(
     `document.querySelector("${SEL.titleInput}").value.includes("Template: Comments")`,
@@ -71,7 +72,7 @@ async function testTyping() {
 
   // Edit title
   await page.waitForSelector(SEL.titleInput);
-  await perf.startTrace("Update title");
+  await perf.startTrace(actions.UPDATE_POST_TITLE);
 
   const randomString = makeid();
   await page.type(SEL.titleInput, randomString);
@@ -88,14 +89,14 @@ async function testTyping() {
 
   // Open modal
   await page.waitForSelector(SEL.deletePostButton);
-  await perf.startTrace("Open modal");
+  await perf.startTrace(actions.OPEN_MODAL);
   await page.click(SEL.deletePostButton);
   await page.waitForSelector(SEL.modalTitle);
   await perf.stopTrace();
 
   // Close modal
   await page.waitForSelector(SEL.closeModal);
-  await perf.startTrace("Close modal");
+  await perf.startTrace(actions.CLOSE_MODAL);
   await page.click(SEL.closeModal);
   await delay(3000, "wait after closing modal");
   await perf.stopTrace();

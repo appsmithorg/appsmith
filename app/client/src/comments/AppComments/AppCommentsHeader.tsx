@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { COMMENTS, createMessage } from "constants/messages";
+import { COMMENTS, createMessage } from "@appsmith/constants/messages";
 
 import AppCommentsFilterPopover from "./AppCommentsFilterPopover";
 

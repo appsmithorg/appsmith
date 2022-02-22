@@ -21,7 +21,7 @@ import {
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import { omit } from "lodash";
+import { noop, omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -54,7 +54,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
-import { CONNECTED_TO_GIT, createMessage } from "constants/messages";
+import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -161,6 +161,7 @@ const Wrapper = styled(
     props: ICardProps & {
       hasReadPermission?: boolean;
       backgroundColor: string;
+      isMobile?: boolean;
     },
   ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
 )`
@@ -191,6 +192,13 @@ const Wrapper = styled(
       }
     }
   }
+
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    width: 100% !important;
+    height: 126px !important;
+  `}
 `;
 
 const ApplicationImage = styled.div`
@@ -283,6 +291,7 @@ type ApplicationCardProps = {
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
+  isMobile?: boolean;
 };
 
 const EditButton = styled(Button)`
@@ -391,9 +400,10 @@ function GitConnectedBadge() {
   );
 }
 
-const Container = styled.div`
+const Container = styled.div<{ isMobile?: boolean }>`
   position: relative;
   overflow: visible;
+  ${({ isMobile }) => isMobile && `width: 100%;`}
 `;
 
 export function ApplicationCard(props: ApplicationCardProps) {
@@ -418,7 +428,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   const applicationId = props.application?.id;
-  const showGitBadge = props.application?.gitApplicationMetadata;
+  const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
   useEffect(() => {
     let colorCode;
@@ -703,8 +713,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
+  const LaunchAppInMobile = () => {
+    window.location.href = viewApplicationURL;
+  };
+
   return (
-    <Container>
+    <Container
+      isMobile={props.isMobile}
+      onClick={props.isMobile ? LaunchAppInMobile : noop}
+    >
       <NameWrapper
         className="t--application-card"
         hasReadPermission={hasReadPermission}
@@ -727,6 +744,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               : "t--application-card-background"
           }
           hasReadPermission={hasReadPermission}
+          isMobile={props.isMobile}
           key={props.application.id}
         >
           <CircleAppIcon name={appIcon} size={Size.large} />
@@ -746,7 +764,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               appNameText
             )}
           </AppNameWrapper>
-          {showOverlay && (
+          {showOverlay && !props.isMobile && (
             <div className="overlay">
               <div className="overlay-blur" />
               <ApplicationImage className="image-container">
@@ -781,7 +799,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         </Wrapper>
         <CardFooter>
           <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-          {!!moreActionItems.length && ContextMenu}
+          {!!moreActionItems.length && !props.isMobile && ContextMenu}
         </CardFooter>
       </NameWrapper>
       {showGitBadge && <GitConnectedBadge />}

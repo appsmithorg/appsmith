@@ -1,0 +1,13 @@
+---
+- name: Enable docker
+  service:
+    enabled: yes
+    name: 'docker'
+    state: 'started'
+  become: true
+
+- name: Start docker
+  service:
+    name: 'docker'
+    state: 'restarted'
+  become: true
