@@ -60,7 +60,7 @@ const IframeWrapper = styled.div`
   margin-top: 29px;
 
   iframe {
-    border-radius: 16px;
+    border-radius: 0px 0px 16px 16px;
     box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
       0px 8px 8px -4px rgba(16, 24, 40, 0.04);
     height: calc(100% - 41px);

@@ -22,6 +22,9 @@ export const PopoverStyles = createGlobalStyle`
   .onboarding-carousel .${Classes.OVERLAY_CONTENT} {
     filter: drop-shadow(0px 6px 20px rgba(0, 0, 0, 0.15));
   }
+  .templates-notification .bp3-popover2-arrow-fill {
+    fill: #f1f1f1;
+  }
   .bp3-modal-widget.onboarding-carousel-portal {
     z-index: ${Layers.help} !important; 
   }

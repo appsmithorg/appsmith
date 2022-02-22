@@ -989,7 +989,6 @@ class Applications extends Component<
       <PageWrapper displayName="Applications">
         <LeftPane />
         <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
-          {/* You can also use a function (render prop) as a child */}
           {(matches: boolean) => (
             <ApplicationsWrapper isMobile={matches}>
               <SubHeader
