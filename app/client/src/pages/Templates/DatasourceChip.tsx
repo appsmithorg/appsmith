@@ -1,3 +1,5 @@
+import { Colors } from "constants/Colors";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import React from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -6,8 +8,9 @@ import styled from "styled-components";
 
 const StyledDatasourceChip = styled.div`
   background-color: rgba(248, 248, 248, 0.5);
-  border: 1px solid #e7e7e7;
-  padding: 4px 9px;
+  border: 1px solid ${Colors.MERCURY_2};
+  padding: ${(props) =>
+    `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
   display: inline-flex;
   align-items: center;
   .image {
@@ -16,12 +19,9 @@ const StyledDatasourceChip = styled.div`
     display: inline-block;
   }
   span {
-    margin-left: 6px;
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: -0.221538px;
-    color: #191919;
+    margin-left: ${(props) => props.theme.spaces[2]}px;
+    ${(props) => getTypographyByKey(props, "h6")}
+    color: var(--appsmith-color-black-900);
   }
 `;
 

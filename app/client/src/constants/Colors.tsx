@@ -38,6 +38,7 @@ export const Colors = {
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
   MERCURY_1: "#E3E3E3",
+  MERCURY_2: "#E7E7E7",
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
