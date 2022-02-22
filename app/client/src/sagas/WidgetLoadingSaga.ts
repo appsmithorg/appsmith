@@ -1,5 +1,5 @@
 import { DependencyMap } from "../utils/DynamicBindingUtils";
-import { call, fork, put, select, take } from "redux-saga/effects";
+import { call, fork, put, select, take, TakeEffect } from "redux-saga/effects";
 import {
   getEvaluationInverseDependencyMap,
   getDataTree,
@@ -94,6 +94,10 @@ function* setWidgetsLoadingSaga() {
     new Set<string>(),
   );
 
+  console.log("Hello LOADING ACTIONS", isLoadingActions);
+  console.log("Hello LOADING ENITIES", loadingEntities);
+  console.log("Hello ------------------");
+
   // get all widgets evaluted data
   const dataTree: DataTree = yield select(getDataTree);
   // check animateLoading is active on current widgets and set
@@ -112,7 +116,8 @@ function* setWidgetsLoadingSaga() {
 
 function* actionExecutionChangeListenerSaga() {
   while (true) {
-    yield take(ACTION_EXECUTION_REDUX_ACTIONS);
+    const takeEffect: TakeEffect = yield take(ACTION_EXECUTION_REDUX_ACTIONS);
+    console.log("Hello REDUX", takeEffect.type);
     yield fork(setWidgetsLoadingSaga);
   }
 }
