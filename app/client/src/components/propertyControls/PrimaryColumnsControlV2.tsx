@@ -14,8 +14,12 @@ import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
+import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import {
+  getDefaultColumnProperties,
+  getTableStyles,
+} from "widgets/TableWidgetV2/widget/utilities";
+import { reorderColumns } from "widgets/TableWidgetV2/component/TableHelpers";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import {
@@ -26,10 +30,6 @@ import {
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListCard } from "components/ads/DraggableListCard";
-import {
-  getDefaultColumnProperties,
-  getTableStyles,
-} from "widgets/TableWidget/component/TableUtilities";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -82,7 +82,7 @@ type State = {
   duplicateColumnIds: string[];
 };
 
-class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
+class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
     super(props);
 
@@ -140,7 +140,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     const draggableComponentColumns = Object.values(reorderedColumns).map(
       (column: ColumnProperties) => {
         return {
-          label: column.label || "",
+          label: column.label,
           id: column.id,
           isVisible: column.isVisible,
           isDerived: column.isDerived,
@@ -203,19 +203,20 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
   addNewColumn = () => {
     const columns: Record<string, ColumnProperties> =
       this.props.propertyValue || {};
-    const columnIds = Object.keys(columns);
+    const columnIds = Object.values(columns).map((column) => column.originalId);
     const newColumnName = getNextEntityName("customColumn", columnIds);
     const nextIndex = columnIds.length;
     const columnProps: ColumnProperties = getDefaultColumnProperties(
       newColumnName,
       nextIndex,
-      this.props.widgetProperties,
+      this.props.widgetProperties.widgetName,
       true,
     );
     const tableStyles = getTableStyles(this.props.widgetProperties);
     const column = {
       ...columnProps,
       buttonStyle: "rgb(3, 179, 101)",
+      buttonLabelColor: "#FFFFFF",
       isDisabled: false,
       ...tableStyles,
     };
@@ -331,11 +332,11 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
   // updateCurrentFocusedInput = (index: number | null) => {};
 
   static getControlType() {
-    return "PRIMARY_COLUMNS";
+    return "PRIMARY_COLUMNS_V2";
   }
 }
 
-export default PrimaryColumnsControl;
+export default PrimaryColumnsControlV2;
 
 /**
  * wrapper component on dragable primary columns
