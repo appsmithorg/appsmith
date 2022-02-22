@@ -544,10 +544,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
         Map<String, String> actionIdMap = new HashMap<>();
-        Map<String, Map<String, String>> unpublishedActionCollectionIdMap = new HashMap<>();
-        Map<String, Map<String, String>> publishedActionCollectionIdMap = new HashMap<>();
-        Map<String, String> unpublishedActionIdToCollectionIdMap = new HashMap<>();
-        Map<String, String> publishedActionIdToCollectionIdMap = new HashMap<>();
+        // Datastructures to create a link between collectionId to embedded action ids
+        Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap = new HashMap<>();
+        Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap = new HashMap<>();
+        // Datastructures to create a link between actionIds to collectionIds
+        // <actionId, [collectionId, defaultCollectionId]>
+        Map<String, List<String>> unpublishedActionIdToCollectionIdMap = new HashMap<>();
+        Map<String, List<String>> publishedActionIdToCollectionIdMap = new HashMap<>();
 
         Application importedApplication = importedDoc.getExportedApplication();
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
@@ -910,8 +913,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     );
 
                                     if (unpublishedAction.getCollectionId() != null) {
-                                        unpublishedActionCollectionIdMap.putIfAbsent(unpublishedAction.getCollectionId(), new HashMap<>());
-                                        final Map<String, String> actionIds = unpublishedActionCollectionIdMap.get(unpublishedAction.getCollectionId());
+                                        unpublishedCollectionIdToActionIdsMap.putIfAbsent(unpublishedAction.getCollectionId(), new HashMap<>());
+                                        final Map<String, String> actionIds = unpublishedCollectionIdToActionIdsMap.get(unpublishedAction.getCollectionId());
                                         actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
                                     }
                                 }
@@ -923,8 +926,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     );
 
                                     if (publishedAction.getCollectionId() != null) {
-                                        publishedActionCollectionIdMap.putIfAbsent(publishedAction.getCollectionId(), new HashMap<>());
-                                        final Map<String, String> actionIds = publishedActionCollectionIdMap.get(publishedAction.getCollectionId());
+                                        publishedCollectionIdToActionIdsMap.putIfAbsent(publishedAction.getCollectionId(), new HashMap<>());
+                                        final Map<String, String> actionIds = publishedCollectionIdToActionIdsMap.get(publishedAction.getCollectionId());
                                         actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
                                     }
                                 }
@@ -956,13 +959,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 final String fallbackParentPageId = unpublishedCollection.getPageId();
 
                                 if (unpublishedCollection.getName() != null) {
-                                    unpublishedCollection.setDefaultToBranchedActionIdsMap(unpublishedActionCollectionIdMap.get(importedActionCollectionId));
+                                    unpublishedCollection.setDefaultToBranchedActionIdsMap(unpublishedCollectionIdToActionIdsMap.get(importedActionCollectionId));
                                     unpublishedCollection.setPluginId(pluginMap.get(unpublishedCollection.getPluginId()));
                                     parentPage = updatePageInActionCollection(unpublishedCollection, pageNameMap);
                                 }
 
                                 if (publishedCollection != null && publishedCollection.getName() != null) {
-                                    publishedCollection.setDefaultToBranchedActionIdsMap(publishedActionCollectionIdMap.get(importedActionCollectionId));
+                                    publishedCollection.setDefaultToBranchedActionIdsMap(publishedCollectionIdToActionIdsMap.get(importedActionCollectionId));
                                     publishedCollection.setPluginId(pluginMap.get(publishedCollection.getPluginId()));
                                     if (StringUtils.isEmpty(publishedCollection.getPageId())) {
                                         publishedCollection.setPageId(fallbackParentPageId);
@@ -1035,15 +1038,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .flatMap(tuple -> {
                                 final String importedActionCollectionId = tuple.getT1();
                                 final String savedActionCollectionId = tuple.getT2().getId();
-                                unpublishedActionCollectionIdMap
+                                final String defaultCollectionId = tuple.getT2().getDefaultResources().getCollectionId();
+                                List<String> collectionIds = List.of(savedActionCollectionId, defaultCollectionId);
+                                unpublishedCollectionIdToActionIdsMap
                                         .getOrDefault(importedActionCollectionId, Map.of())
                                         .forEach((defaultActionId, actionId) -> {
-                                            unpublishedActionIdToCollectionIdMap.put(actionId, savedActionCollectionId);
+                                            unpublishedActionIdToCollectionIdMap.putIfAbsent(actionId, collectionIds);
                                         });
-                                publishedActionCollectionIdMap
+                                publishedCollectionIdToActionIdsMap
                                         .getOrDefault(importedActionCollectionId, Map.of())
                                         .forEach((defaultActionId, actionId) -> {
-                                            publishedActionIdToCollectionIdMap.put(actionId, savedActionCollectionId);
+                                                publishedActionIdToCollectionIdMap.putIfAbsent(actionId, collectionIds);
                                         });
                                 final HashSet<String> actionIds = new HashSet<>();
                                 actionIds.addAll(unpublishedActionIdToCollectionIdMap.keySet());
@@ -1052,10 +1057,34 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .flatMap(actionId -> newActionRepository.findById(actionId, MANAGE_ACTIONS))
                             .map(newAction -> {
-                                newAction.getUnpublishedAction().setCollectionId(
-                                        unpublishedActionIdToCollectionIdMap.getOrDefault(newAction.getId(), null));
-                                newAction.getPublishedAction().setCollectionId(
-                                        publishedActionIdToCollectionIdMap.getOrDefault(newAction.getId(), null));
+                                // Update collectionId and defaultCollectionIds in actionDTOs
+                                ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                                ActionDTO publishedAction = newAction.getPublishedAction();
+                                if (!CollectionUtils.sizeIsEmpty(unpublishedActionIdToCollectionIdMap)
+                                        && !unpublishedActionIdToCollectionIdMap.get(newAction.getId()).isEmpty()) {
+                                    unpublishedAction.setCollectionId(
+                                            unpublishedActionIdToCollectionIdMap.get(newAction.getId()).get(0)
+                                    );
+                                    if (unpublishedAction.getDefaultResources() != null
+                                            && StringUtils.isEmpty(unpublishedAction.getDefaultResources().getCollectionId())) {
+
+                                        unpublishedAction.getDefaultResources().setCollectionId(
+                                                unpublishedActionIdToCollectionIdMap.get(newAction.getId()).get(1)
+                                        );
+                                    }
+                                }
+                                if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdMap)
+                                        && !publishedActionIdToCollectionIdMap.get(newAction.getId()).isEmpty()) {
+                                    publishedAction.setCollectionId(
+                                            publishedActionIdToCollectionIdMap.get(newAction.getId()).get(0)
+                                    );
+
+                                    if (publishedAction.getDefaultResources() != null
+                                            && StringUtils.isEmpty(publishedAction.getDefaultResources().getCollectionId())) {
+                                        publishedAction.getDefaultResources().setCollectionId(
+                                                publishedActionIdToCollectionIdMap.get(newAction.getId()).get(1));
+                                    }
+                                }
                                 return newAction;
                             })
                             .flatMap(newAction -> newActionService.update(newAction.getId(), newAction))
@@ -1071,7 +1100,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 if (newPage.getDefaultResources() != null) {
                                     newPage.getDefaultResources().setBranchName(branchName);
                                 }
-                                return mapActionIdWithPageLayout(newPage, actionIdMap)
+                                return mapActionAndCollectionIdWithPageLayout(newPage, actionIdMap, unpublishedActionIdToCollectionIdMap, publishedActionIdToCollectionIdMap)
                                         .flatMap(newPageService::save);
                             })
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
@@ -1311,7 +1340,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     // This method will update the action id in saved page for layoutOnLoadAction
-    private Mono<NewPage> mapActionIdWithPageLayout(NewPage page, Map<String, String> actionIdMap) {
+    private Mono<NewPage> mapActionAndCollectionIdWithPageLayout(NewPage page,
+                                                                 Map<String, String> actionIdMap,
+                                                                 Map<String, List<String>> unpublishedActionIdToCollectionIdsMap,
+                                                                 Map<String, List<String>> publishedActionIdToCollectionIdsMap) {
 
         Set<String> layoutOnLoadActions = new HashSet<>();
         if (page.getUnpublishedPage().getLayouts() != null) {
@@ -1321,6 +1353,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
                             .forEach(actionDTO -> {
                                 actionDTO.setId(actionIdMap.get(actionDTO.getId()));
+                                if (!CollectionUtils.sizeIsEmpty(unpublishedActionIdToCollectionIdsMap)
+                                        && !unpublishedActionIdToCollectionIdsMap.get(actionDTO.getId()).isEmpty()) {
+                                    actionDTO.setCollectionId(unpublishedActionIdToCollectionIdsMap.get(actionDTO.getId()).get(0));
+                                }
                                 layoutOnLoadActions.add(actionDTO.getId());
                             }));
                 }
@@ -1334,6 +1370,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
                             .forEach(actionDTO -> {
                                 actionDTO.setId(actionIdMap.get(actionDTO.getId()));
+                                if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdsMap)
+                                        && !publishedActionIdToCollectionIdsMap.get(actionDTO.getId()).isEmpty()) {
+                                    actionDTO.setCollectionId(publishedActionIdToCollectionIdsMap.get(actionDTO.getId()).get(0));
+                                }
                                 layoutOnLoadActions.add(actionDTO.getId());
                             }));
                 }
@@ -1346,25 +1386,38 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .map(newAction -> {
                     final String defaultActionId = newAction.getDefaultResources().getActionId();
                     if (page.getUnpublishedPage().getLayouts() != null) {
-
+                        final String defaultCollectionId = newAction.getUnpublishedAction().getDefaultResources().getCollectionId();
                         page.getUnpublishedPage().getLayouts().forEach(layout -> {
                             if (layout.getLayoutOnLoadActions() != null) {
-                                layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
-                                        .stream()
-                                        .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
-                                        .forEach(actionDTO -> actionDTO.setDefaultActionId(defaultActionId)));
+                                layout.getLayoutOnLoadActions()
+                                        .forEach(onLoadAction -> onLoadAction
+                                                .stream()
+                                                .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
+                                                .forEach(actionDTO -> {
+                                                    actionDTO.setDefaultActionId(defaultActionId);
+                                                    actionDTO.setDefaultCollectionId(defaultCollectionId);
+                                                })
+                                        );
                             }
                         });
                     }
 
                     if (page.getPublishedPage() != null && page.getPublishedPage().getLayouts() != null) {
-
                         page.getPublishedPage().getLayouts().forEach(layout -> {
                             if (layout.getLayoutOnLoadActions() != null) {
                                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
                                         .stream()
                                         .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
-                                        .forEach(actionDTO -> actionDTO.setDefaultActionId(defaultActionId)));
+                                        .forEach(actionDTO -> {
+                                            actionDTO.setDefaultActionId(defaultActionId);
+                                            if (newAction.getPublishedAction() != null
+                                                    && newAction.getPublishedAction().getDefaultResources() != null) {
+                                                actionDTO.setDefaultCollectionId(
+                                                        newAction.getPublishedAction().getDefaultResources().getCollectionId()
+                                                );
+                                            }
+                                        })
+                                );
                             }
                         });
                     }
