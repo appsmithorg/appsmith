@@ -13,6 +13,8 @@ import {
   matchApplicationPath,
   matchTemplatesPath,
   TEMPLATES_URL,
+  TEMPLATES_ID_PATH,
+  matchTemplatesIdPath,
 } from "constants/routes";
 import history from "utils/history";
 import Button from "components/editorComponents/Button";
@@ -128,6 +130,11 @@ export function PageHeader(props: PageHeaderProps) {
       path: TEMPLATES_URL,
       matcher: matchTemplatesPath,
     },
+    {
+      title: "Templates id",
+      path: TEMPLATES_ID_PATH,
+      matcher: matchTemplatesIdPath,
+    },
   ];
 
   const showTabs = useMemo(() => {
@@ -157,7 +164,10 @@ export function PageHeader(props: PageHeaderProps) {
             </TabName>
             <TemplatesTabItem>
               <TabName
-                isSelected={matchTemplatesPath(location.pathname)}
+                isSelected={
+                  matchTemplatesPath(location.pathname) ||
+                  matchTemplatesIdPath(location.pathname)
+                }
                 onClick={() => history.push(TEMPLATES_URL)}
               >
                 <div>Templates</div>

@@ -65,6 +65,7 @@ export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = match(VIEWER_URL);
 export const matchViewerForkPath = match(VIEWER_FORK_PATH);
 export const matchTemplatesPath = match(TEMPLATES_URL);
+export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
 
 export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;
 export const extractAppIdAndPageIdFromUrl = (url = "") => {
