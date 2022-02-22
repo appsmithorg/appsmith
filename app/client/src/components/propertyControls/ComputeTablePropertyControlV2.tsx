@@ -80,8 +80,8 @@ export function InputText(props: {
   );
 }
 
-class ComputeTablePropertyControl extends BaseControl<
-  ComputeTablePropertyControlProps
+class ComputeTablePropertyControlV2 extends BaseControl<
+  ComputeTablePropertyControlPropsV2
 > {
   render() {
     const {
@@ -128,7 +128,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.sanitizedTableData.map((currentRow) => ( `.length,
+      `{{${tableId}.processedTableData.map((currentRow) => ( `.length,
       propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
@@ -141,7 +141,7 @@ class ComputeTablePropertyControl extends BaseControl<
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
+    return `{{${tableId}.processedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -164,12 +164,12 @@ class ComputeTablePropertyControl extends BaseControl<
   };
 
   static getControlType() {
-    return "COMPUTE_VALUE";
+    return "COMPUTE_VALUE_V2";
   }
 }
 
-export interface ComputeTablePropertyControlProps extends ControlProps {
+export interface ComputeTablePropertyControlPropsV2 extends ControlProps {
   defaultValue?: string;
 }
 
-export default ComputeTablePropertyControl;
+export default ComputeTablePropertyControlV2;

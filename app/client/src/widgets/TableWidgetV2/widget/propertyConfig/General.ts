@@ -37,7 +37,7 @@ export default {
     {
       helpText: "Columns",
       propertyName: "primaryColumns",
-      controlType: "PRIMARY_COLUMNS",
+      controlType: "PRIMARY_COLUMNS_V2",
       label: "Columns",
       updateHook: updateColumnOrderHook,
       dependencies: ["columnOrder"],

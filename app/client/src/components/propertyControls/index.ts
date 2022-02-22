@@ -51,6 +51,10 @@ import IconSelectControl from "./IconSelectControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
+import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
+import ComputeTablePropertyControlV2, {
+  ComputeTablePropertyControlPropsV2,
+} from "components/propertyControls/ComputeTablePropertyControlV2";
 
 export const PropertyControls = {
   InputTextControl,
@@ -69,10 +73,12 @@ export const PropertyControls = {
   TabControl,
   ColorPickerControl,
   PrimaryColumnsControl,
+  PrimaryColumnsControlV2,
   PrimaryColumnDropdownControl,
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
+  ComputeTablePropertyControlV2,
   MenuItemsControl,
   ButtonListControl,
   IconSelectControl,
@@ -94,6 +100,7 @@ export type PropertyControlPropsType =
   | StepControlProps
   | ColorPickerControlProps
   | ComputeTablePropertyControlProps
+  | ComputeTablePropertyControlPropsV2
   | PrimaryColumnDropdownControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {

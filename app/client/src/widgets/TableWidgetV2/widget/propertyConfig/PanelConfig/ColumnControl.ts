@@ -15,7 +15,7 @@ export default {
       propertyName: "columnType",
       label: "Column Type",
       controlType: "DROP_DOWN",
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       options: [
         {
           label: "Plain Text",
@@ -61,8 +61,8 @@ export default {
     {
       propertyName: "displayText",
       label: "Display Text",
-      controlType: "COMPUTE_VALUE",
-      customJSControl: "COMPUTE_VALUE",
+      controlType: "COMPUTE_VALUE_V2",
+      customJSControl: "COMPUTE_VALUE_V2",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
@@ -97,7 +97,7 @@ export default {
         "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
       propertyName: "computedValue",
       label: "Computed Value",
-      controlType: "COMPUTE_VALUE",
+      controlType: "COMPUTE_VALUE_V2",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.DATE,
@@ -119,7 +119,7 @@ export default {
       helpText: "Controls the visibility of the cell in the column",
       defaultValue: true,
       controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -135,7 +135,7 @@ export default {
       label: "Disabled",
       defaultValue: false,
       controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -159,7 +159,7 @@ export default {
       helpText: "Decides if menu items will consume lesser space",
       label: "Compact",
       controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
@@ -261,7 +261,7 @@ export default {
         },
       ],
       defaultValue: "YYYY-MM-DD HH:mm",
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -306,7 +306,7 @@ export default {
       propertyName: "outputFormat",
       label: "Display Date Format",
       controlType: "DROP_DOWN",
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,
       options: [
         {
