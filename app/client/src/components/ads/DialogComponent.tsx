@@ -13,8 +13,7 @@ const StyledDialog = styled(Dialog)<{
 }>`
   && {
     border-radius: 0;
-    padding: 22px;
-    padding-bottom: 28px;
+    padding: 24px;
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
@@ -51,6 +50,8 @@ const StyledDialog = styled(Dialog)<{
 
       svg {
         fill: ${Colors.CHARCOAL};
+        width: 24px;
+        height: 24px;
       }
     }
 
@@ -76,8 +77,8 @@ const StyledDialog = styled(Dialog)<{
         : ""}
 
     & .${Classes.DIALOG_BODY} {
-      padding-top: ${(props) => props.theme.spaces[4]}px;
       margin: 0;
+      margin-top: 24px;
       overflow: auto;
     }
 
