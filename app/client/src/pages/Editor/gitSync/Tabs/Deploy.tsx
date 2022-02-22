@@ -221,7 +221,6 @@ function Deploy() {
             placeholder={"Your commit message here"}
             ref={commitInputRef}
             trimValue={false}
-            useTextArea
             value={commitMessageDisplay}
           />
         </SubmitWrapper>
