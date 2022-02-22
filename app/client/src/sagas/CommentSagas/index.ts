@@ -76,7 +76,9 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(createCommentThreadSuccess(response.data));
+      //@ts-expect-error: response is of type unknown
       yield put(setVisibleThread(response.data.id));
       yield put(removeUnpublishedCommentThreads());
     }
@@ -117,6 +119,7 @@ function* updateCommentThreadPosition(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (error) {
@@ -148,6 +151,7 @@ function* addCommentToThread(
       yield put(
         addCommentToThreadSuccess({
           commentThreadId: commentThread.id,
+          //@ts-expect-error: response is of type unknown
           comment: response.data,
         }),
       );
@@ -198,6 +202,7 @@ function* setCommentResolution(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (error) {
@@ -219,6 +224,7 @@ function* pinCommentThread(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (error) {
@@ -272,6 +278,7 @@ function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (error) {
@@ -298,6 +305,7 @@ function* editComment(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
+        //@ts-expect-error: response is of type unknown
         updateCommentSuccess({ comment: response.data, commentThreadId }),
       );
     }

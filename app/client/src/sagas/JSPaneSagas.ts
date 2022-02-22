@@ -252,6 +252,7 @@ function* updateJSCollection(data: {
             createMessage(JS_FUNCTION_DELETE_SUCCESS),
           );
         }
+        // @ts-expect-error: response is of type unknown
         yield put(updateJSCollectionSuccess({ data: response?.data }));
       }
     }
@@ -364,6 +365,7 @@ function* handleUpdateJSCollectionBody(
       );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
+        // @ts-expect-error: response is of type unknown
         yield put(updateJSCollectionBodySuccess({ data: response?.data }));
       }
     }
@@ -425,6 +427,7 @@ function* handleRefactorJSActionNameSaga(
         });
         if (currentPageId === data.payload.refactorAction.pageId) {
           yield updateCanvasWithDSL(
+            // @ts-expect-error: response is of type unknown
             refactorResponse.data,
             data.payload.refactorAction.pageId,
             layoutId,

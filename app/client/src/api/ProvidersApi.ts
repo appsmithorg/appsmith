@@ -8,27 +8,17 @@ import {
   ProvidersDataArray,
 } from "constants/providerConstants";
 
-export interface FetchProvidersResponse extends ApiResponse {
-  data: Providers;
-}
+export type FetchProvidersResponse = ApiResponse<Providers>;
 
-export interface FetchProviderDetailsResponse extends ApiResponse {
-  data: ProvidersDataArray;
-}
+export type FetchProviderDetailsResponse = ApiResponse<ProvidersDataArray>;
 
-export interface FetchProviderCategoriesResponse extends ApiResponse {
-  data: string[];
-}
+export type FetchProviderCategoriesResponse = ApiResponse<string[]>;
 
-export interface FetchProviderTemplateResponse extends ApiResponse {
-  data: ProviderTemplates[];
-}
+export type FetchProviderTemplateResponse = ApiResponse<ProviderTemplates[]>;
 
-export interface SearchApiOrProviderResponse extends ApiResponse {
-  data: {
-    providers: SearchResultsProviders[];
-  };
-}
+export type SearchApiOrProviderResponse = ApiResponse<{
+  providers: SearchResultsProviders[];
+}>;
 
 export interface FetchProviderTemplatesRequest {
   providerId: string;

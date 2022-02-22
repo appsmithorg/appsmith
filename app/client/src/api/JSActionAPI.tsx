@@ -4,9 +4,11 @@ import { JSCollection } from "entities/JSCollection";
 import { ApiResponse } from "./ApiResponses";
 import { Variable, JSAction } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
-export interface JSCollectionCreateUpdateResponse extends ApiResponse {
+
+export type JSCollectionCreateUpdateResponse = ApiResponse & {
   id: string;
-}
+};
+
 export interface MoveJSCollectionRequest {
   collectionId: string;
   destinationPageId: string;

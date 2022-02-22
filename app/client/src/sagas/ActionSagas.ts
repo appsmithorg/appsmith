@@ -117,7 +117,6 @@ import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
-import { AxiosResponse } from "axios";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -451,7 +450,7 @@ function* moveActionSaga(
 ) {
   const actionObject: Action = yield select(getAction, action.payload.id);
   try {
-    const response: AxiosResponse<any> = yield ActionAPI.moveAction({
+    const response: ApiResponse = yield ActionAPI.moveAction({
       action: {
         ...actionObject,
         pageId: action.payload.originalPageId,
@@ -463,20 +462,25 @@ function* moveActionSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     const pageName: string = yield select(
       getPageNameByPageId,
+      // @ts-expect-error: response is of type unknown
       response.data.pageId,
     );
     if (isValidResponse) {
       Toaster.show({
+        // @ts-expect-error: response is of type unknown
         text: createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
         variant: Variant.success,
       });
     }
 
     AnalyticsUtil.logEvent("MOVE_API", {
+      // @ts-expect-error: response is of type unknown
       apiName: response.data.name,
       pageName: pageName,
+      // @ts-expect-error: response is of type unknown
       apiID: response.data.id,
     });
+    // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
     Toaster.show({

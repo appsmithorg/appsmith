@@ -32,6 +32,7 @@ function* FetchAdminSettingsSaga() {
     const { appVersion } = getAppsmithConfigs();
 
     const settings = {
+      //@ts-expect-error: response is of type unknown
       ...response.data,
       APPSMITH_CURRENT_VERSION: appVersion.id,
     };

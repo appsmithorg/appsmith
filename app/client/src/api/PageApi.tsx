@@ -31,36 +31,30 @@ export interface PageLayout {
   layoutActions: PageAction[];
 }
 
-export interface FetchPageResponse extends ApiResponse {
-  data: {
+export type FetchPageResponse = ApiResponse<{
+  id: string;
+  name: string;
+  applicationId: string;
+  layouts: Array<PageLayout>;
+}>;
+
+export type FetchPublishedPageResponse = ApiResponse<{
+  id: string;
+  dsl: Partial<DSLWidget>;
+  pageId: string;
+}>;
+
+export type SavePageResponse = ApiResponse<{
+  id: string;
+  layoutOnLoadActions: PageAction[][];
+  dsl: Partial<DSLWidget>;
+  messages: string[];
+  actionUpdates: Array<{
+    executeOnLoad: boolean;
     id: string;
     name: string;
-    applicationId: string;
-    layouts: Array<PageLayout>;
-  };
-}
-
-export interface FetchPublishedPageResponse extends ApiResponse {
-  data: {
-    id: string;
-    dsl: Partial<DSLWidget>;
-    pageId: string;
-  };
-}
-
-export interface SavePageResponse extends ApiResponse {
-  data: {
-    id: string;
-    layoutOnLoadActions: PageAction[][];
-    dsl: Partial<DSLWidget>;
-    messages: string[];
-    actionUpdates: Array<{
-      executeOnLoad: boolean;
-      id: string;
-      name: string;
-    }>;
-  };
-}
+  }>;
+}>;
 
 export type CreatePageRequest = Omit<
   CreatePageActionPayload,
@@ -79,22 +73,18 @@ export interface SetPageOrderRequest {
   applicationId: string;
 }
 
-export interface CreatePageResponse extends ApiResponse {
-  data: unknown;
-}
+export type CreatePageResponse = ApiResponse;
 
-export interface FetchPageListResponse extends ApiResponse {
-  data: {
-    pages: Array<{
-      id: string;
-      name: string;
-      isDefault: boolean;
-      isHidden?: boolean;
-      layouts: Array<PageLayout>;
-    }>;
-    organizationId: string;
-  };
-}
+export type FetchPageListResponse = ApiResponse<{
+  pages: Array<{
+    id: string;
+    name: string;
+    isDefault: boolean;
+    isHidden?: boolean;
+    layouts: Array<PageLayout>;
+  }>;
+  organizationId: string;
+}>;
 
 export interface DeletePageRequest {
   id: string;
@@ -109,9 +99,7 @@ export interface UpdateWidgetNameRequest {
   oldName: string;
 }
 
-export interface UpdateWidgetNameResponse extends ApiResponse {
-  data: PageLayout;
-}
+export type UpdateWidgetNameResponse = ApiResponse<PageLayout>;
 
 export interface GenerateTemplatePageRequest {
   pageId: string;
@@ -124,14 +112,12 @@ export interface GenerateTemplatePageRequest {
   pluginSpecificParams?: Record<any, any>;
 }
 
-export interface GenerateTemplatePageRequestResponse extends ApiResponse {
-  data: {
-    id: string;
-    name: string;
-    applicationId: string;
-    layouts: Array<PageLayout>;
-  };
-}
+export type GenerateTemplatePageRequestResponse = ApiResponse<{
+  id: string;
+  name: string;
+  applicationId: string;
+  layouts: Array<PageLayout>;
+}>;
 
 class PageApi extends Api {
   static url = "v1/pages";

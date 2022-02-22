@@ -11,10 +11,7 @@ import {
   VIEWER_FORK_PATH,
   VIEWER_URL,
 } from "constants/routes";
-import {
-  PageListPayload,
-  ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -107,7 +104,7 @@ export type AppViewerProps = {
     propertyValue: any,
   ) => void;
   resetChildrenMetaProperty: (widgetId: string) => void;
-  pages: PageListPayload;
+  pages: Page[];
   lightTheme: Theme;
   batchUpdateWidgetProperty: (
     widgetId: string,

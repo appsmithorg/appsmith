@@ -1,5 +1,5 @@
 import API, { HttpMethod } from "api/Api";
-import { ApiResponse, ResponseMeta } from "./ApiResponses";
+import { ApiResponse } from "./ApiResponses";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { Action, ActionViewMode } from "entities/Action";
@@ -35,10 +35,10 @@ export interface QueryConfig {
   queryString: string;
 }
 
-export interface ActionCreateUpdateResponse extends ApiResponse {
+export type ActionCreateUpdateResponse = ApiResponse & {
   id: string;
   jsonPathKeys: Record<string, string>;
-}
+};
 
 export type PaginationField = "PREV" | "NEXT";
 
@@ -49,10 +49,9 @@ export interface ExecuteActionRequest extends APIRequest {
   viewMode: boolean;
 }
 
-export interface ExecuteActionResponse extends ApiResponse {
+export type ExecuteActionResponse = ApiResponse & {
   actionId: string;
-  data: any;
-}
+};
 
 export interface ActionApiResponseReq {
   headers: Record<string, string[]>;
@@ -61,21 +60,19 @@ export interface ActionApiResponseReq {
   url: string;
 }
 
-export interface ActionExecutionResponse {
-  responseMeta: ResponseMeta;
-  data: {
-    body: Record<string, unknown> | string;
-    headers: Record<string, string[]>;
-    statusCode: string;
-    isExecutionSuccess: boolean;
-    request: ActionApiResponseReq;
-    errorType?: string;
-  };
+export type ActionExecutionResponse = ApiResponse<{
+  body: Record<string, unknown> | string;
+  headers: Record<string, string[]>;
+  statusCode: string;
+  isExecutionSuccess: boolean;
+  request: ActionApiResponseReq;
+  errorType?: string;
+}> & {
   clientMeta: {
     duration: string;
     size: string;
   };
-}
+};
 
 export interface SuggestedWidget {
   type: WidgetType;

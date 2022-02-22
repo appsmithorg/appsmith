@@ -1,10 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import {
-  CurrentApplicationData,
-  PageListPayload,
-} from "constants/ReduxActionConstants";
+import { CurrentApplicationData, Page } from "constants/ReduxActionConstants";
 import { getApplicationViewerPageURL } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
@@ -131,7 +128,7 @@ function PageTabContainer({
 
 type Props = {
   currentApplicationDetails?: CurrentApplicationData;
-  appPages: PageListPayload;
+  appPages: Page[];
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;

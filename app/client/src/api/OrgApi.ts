@@ -3,24 +3,15 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { OrgRole, Org } from "constants/orgConstants";
 
-export interface FetchOrgRolesResponse extends ApiResponse {
-  data: OrgRole[];
-}
+export type FetchOrgRolesResponse = ApiResponse<OrgRole[]>;
 
-export interface FetchOrgsResponse extends ApiResponse {
-  data: Org[];
-}
-export interface FetchOrgResponse extends ApiResponse {
-  data: Org;
-}
+export type FetchOrgsResponse = ApiResponse<Org[]>;
 
-export interface FetchAllUsersResponse extends ApiResponse {
-  data: OrgRole[];
-}
+export type FetchOrgResponse = ApiResponse<Org>;
 
-export interface FetchAllRolesResponse extends ApiResponse {
-  data: Org[];
-}
+export type FetchAllUsersResponse = ApiResponse<OrgRole[]>;
+
+export type FetchAllRolesResponse = ApiResponse<Org[]>;
 
 export interface FetchOrgRequest {
   orgId: string;

@@ -6,7 +6,6 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ActionResponse } from "api/ActionAPI";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MetaState } from "reducers/entityReducers/metaReducer";
-import { PageListPayload } from "constants/ReduxActionConstants";
 import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
@@ -22,6 +21,7 @@ import {
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
 import { PluginId } from "api/PluginApi";
+import { Page } from "constants/ReduxActionConstants";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -123,10 +123,7 @@ export type DataTreeObjectEntity =
   | DataTreeWidget
   | DataTreeAppsmith;
 
-export type DataTreeEntity =
-  | DataTreeObjectEntity
-  | PageListPayload
-  | ActionDispatcher;
+export type DataTreeEntity = DataTreeObjectEntity | Page[] | ActionDispatcher;
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
@@ -138,7 +135,7 @@ type DataTreeSeed = {
   pluginDependencyConfig: Record<string, DependencyMap>;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
-  pageList: PageListPayload;
+  pageList: Page[];
   appData: AppDataState;
   jsActions: JSCollectionDataState;
 };

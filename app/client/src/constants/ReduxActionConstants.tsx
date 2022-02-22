@@ -912,8 +912,6 @@ export interface ClonePageSuccessPayload {
   isDefault: boolean;
 }
 
-export type PageListPayload = Array<Page>;
-
 export interface ApplicationPayload {
   id: string;
   name: string;

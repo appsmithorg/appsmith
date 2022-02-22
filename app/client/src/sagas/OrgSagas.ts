@@ -153,6 +153,7 @@ export function* deleteOrgUserSaga(action: ReduxAction<DeleteOrgUserRequest>) {
         });
       }
       Toaster.show({
+        //@ts-expect-error: response is of type unknown
         text: `${response.data.username} has been removed successfully`,
         variant: Variant.success,
       });
@@ -261,6 +262,7 @@ export function* createOrgSaga(
     }
 
     // get created org in focus
+    //@ts-expect-error: response is of type unknown
     const slug = response.data.slug;
     history.push(`${window.location.pathname}#${slug}`);
   } catch (error) {
@@ -287,6 +289,7 @@ export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
           type: ReduxActionTypes.SAVE_ORG_SUCCESS,
           payload: {
             id: currentOrg[0].id,
+            //@ts-expect-error: response is of type unknown
             logoUrl: response.data.logoUrl,
           },
         });
@@ -314,6 +317,7 @@ export function* deleteOrgLogoSaga(action: ReduxAction<{ id: string }>) {
           type: ReduxActionTypes.SAVE_ORG_SUCCESS,
           payload: {
             id: currentOrg[0].id,
+            //@ts-expect-error: response is of type unknown
             logoUrl: response.data.logoUrl,
           },
         });

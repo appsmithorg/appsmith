@@ -129,6 +129,7 @@ export function* fetchProvidersWithCategorySaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       if (response.data.providers.length === 0) {
         yield put({
           type: ReduxActionTypes.SET_PROVIDERS_LENGTH,

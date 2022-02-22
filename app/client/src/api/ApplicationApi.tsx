@@ -16,9 +16,7 @@ export interface ChangeAppViewAccessRequest {
   publicAccess: boolean;
 }
 
-export interface PublishApplicationResponse extends ApiResponse {
-  data: unknown;
-}
+export type PublishApplicationResponse = ApiResponse;
 
 export interface ApplicationPagePayload {
   id: string;
@@ -51,17 +49,15 @@ export interface ApplicationResponsePayload {
   gitApplicationMetadata: GitApplicationMetadata;
 }
 
-export interface FetchApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
-}
+export type FetchApplicationResponse = ApiResponse<
+  ApplicationResponsePayload & { pages: ApplicationPagePayload[] }
+>;
 
-export interface FetchApplicationsResponse extends ApiResponse {
-  data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
-}
+export type FetchApplicationsResponse = ApiResponse<
+  Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>
+>;
 
-export interface CreateApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload;
-}
+export type CreateApplicationResponse = ApiResponse<ApplicationResponsePayload>;
 
 export interface CreateApplicationRequest {
   name: string;
@@ -87,9 +83,9 @@ export interface ForkApplicationRequest {
   organizationId: string;
 }
 
-export interface GetAllApplicationResponse extends ApiResponse {
-  data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
-}
+export type GetAllApplicationResponse = ApiResponse<
+  Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>
+>;
 
 export type UpdateApplicationPayload = {
   icon?: string;
@@ -127,14 +123,13 @@ export interface OrganizationApplicationObject {
   };
   userRoles: Array<UserRoles>;
 }
-export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
-  data: {
-    organizationApplications: Array<OrganizationApplicationObject>;
-    user: string;
-    newReleasesCount: string;
-    releaseItems: Array<Record<string, any>>;
-  };
-}
+
+export type FetchUsersApplicationsOrgsResponse = ApiResponse<{
+  organizationApplications: Array<OrganizationApplicationObject>;
+  user: string;
+  newReleasesCount: string;
+  releaseItems: Array<Record<string, any>>;
+}>;
 
 export interface ImportApplicationRequest {
   orgId: string;

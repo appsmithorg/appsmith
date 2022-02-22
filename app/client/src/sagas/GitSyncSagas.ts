@@ -154,11 +154,14 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     );
 
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(connectToGitSuccess(response?.data));
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
+        // @ts-expect-error: response is of type unknown
         action.onSuccessCallback(response?.data);
       }
+      // @ts-expect-error: response is of type unknown
       const branch = response?.data?.gitApplicationMetadata?.branchName;
 
       const updatedPath = addBranchParam(branch);
@@ -203,6 +206,7 @@ function* fetchGlobalGitConfig() {
     );
 
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(fetchGlobalGitConfigSuccess(response?.data));
     }
   } catch (error) {
@@ -317,6 +321,7 @@ function* fetchLocalGitConfig() {
     );
 
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(fetchLocalGitConfigSuccess(response?.data));
     }
   } catch (error) {
@@ -379,6 +384,7 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
     );
 
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(updateLocalGitConfigSuccess(response?.data));
       yield put(fetchLocalGitConfigInit());
       Toaster.show({
@@ -415,6 +421,7 @@ function* fetchGitStatusSaga() {
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(fetchGitStatusSuccess(response?.data));
     }
   } catch (error) {
@@ -489,6 +496,7 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(fetchMergeStatusSuccess(response?.data));
     }
   } catch (error) {
@@ -518,6 +526,7 @@ function* gitPullSaga(
     const currentBranch: string | undefined = yield select(getCurrentGitBranch);
     const currentPageId: string = yield select(getCurrentPageId);
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       const { mergeStatus } = response?.data;
       yield put(gitPullSuccess(mergeStatus));
       yield put(initEditor(applicationId, currentPageId, currentBranch));

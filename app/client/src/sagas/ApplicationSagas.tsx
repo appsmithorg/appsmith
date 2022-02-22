@@ -359,7 +359,9 @@ export function* duplicateApplicationSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
@@ -396,7 +398,9 @@ export function* changeAppViewAccessSaga(
       yield put({
         type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
         payload: {
+          // @ts-expect-error: response is of type unknown
           id: response.data.id,
+          // @ts-expect-error: response is of type unknown
           isPublic: response.data.isPublic,
         },
       });
@@ -538,7 +542,9 @@ export function* forkApplicationSaga(
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
@@ -579,13 +585,10 @@ export function* importApplicationSaga(
         (el: Org) => el.id === action.payload.orgId,
       );
       if (currentOrg.length > 0) {
-        const {
-          id: appId,
-          pages,
-        }: {
+        const { id: appId, pages } = response.data as {
           id: string;
           pages: { default?: boolean; id: string; isDefault?: boolean }[];
-        } = response.data;
+        };
         yield put({
           type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
           payload: {
@@ -627,8 +630,10 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
     );
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(getSSHKeyPairSuccess(response.data));
       if (action.onSuccessCallback) {
+        // @ts-expect-error: response is of type unknown
         action.onSuccessCallback(response);
       }
     }
@@ -653,8 +658,10 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
       response?.responseMeta?.status === 500,
     );
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(generateSSHKeyPairSuccess(response?.data));
       if (action.onSuccessCallback) {
+        // @ts-expect-error: response is of type unknown
         action.onSuccessCallback(response as ApiResponse);
       }
     }

@@ -84,6 +84,7 @@ export function* createUserSaga(
       const errorMessage = getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
+      //@ts-expect-error: response is of type unknown
       const { email, id, name } = response.data;
       yield put({
         type: ReduxActionTypes.CREATE_USER_SUCCESS,
@@ -115,6 +116,7 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
       if (enableTelemetry) {
         initializeAnalyticsAndTrackers();
@@ -122,9 +124,12 @@ export function* getCurrentUserSaga() {
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());
       if (
+        //@ts-expect-error: response is of type unknown
         !response.data.isAnonymous &&
+        //@ts-expect-error: response is of type unknown
         response.data.username !== ANONYMOUS_USERNAME
       ) {
+        //@ts-expect-error: response is of type unknown
         enableTelemetry && AnalyticsUtil.identifyUser(response.data);
         // make fetch feature call only if logged in
         yield put(fetchFeatureFlagsInit());
@@ -136,9 +141,11 @@ export function* getCurrentUserSaga() {
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
       });
+      //@ts-expect-error: response is of type unknown
       if (response.data.emptyInstance) {
         history.replace(SETUP);
       } else if (window.location.pathname === BASE_URL) {
+        //@ts-expect-error: response is of type unknown
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
         } else {
@@ -422,6 +429,7 @@ export function* waitForFetchUserSuccess() {
 function* removePhoto(action: ReduxAction<{ callback: (id: string) => void }>) {
   try {
     const response: ApiResponse = yield call(UserApi.deletePhoto);
+    //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
@@ -436,6 +444,7 @@ function* updatePhoto(
     const response: ApiResponse = yield call(UserApi.uploadPhoto, {
       file: action.payload.file,
     });
+    //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {

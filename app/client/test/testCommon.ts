@@ -1,10 +1,7 @@
 import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { updateCurrentPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
-import {
-  PageListPayload,
-  ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { useDispatch } from "react-redux";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -47,7 +44,7 @@ export const useMockDsl = (dsl: any) => {
       },
     ],
   });
-  const pages: PageListPayload = [
+  const pages: Page[] = [
     {
       pageName: mockResp.data.name,
       pageId: mockResp.data.id,

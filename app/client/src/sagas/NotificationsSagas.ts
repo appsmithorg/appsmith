@@ -25,6 +25,7 @@ export function* fetchNotifications(action: ReduxAction<string>) {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(fetchNotificationsSuccess({ notifications: response.data }));
     }
   } catch (error) {
@@ -53,6 +54,7 @@ function* markAllNotificationsAsRead() {
       );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
+        //@ts-expect-error: response is of type unknown
         yield put(resetNotifications({ notifications: response.data }));
       }
       yield put(fetchUnreadNotificationsCountRequest());
@@ -72,6 +74,7 @@ function* fetchUnreadNotificationsCount() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(fetchUnreadNotificationsCountSuccess(response.data));
     }
   } catch (error) {
@@ -90,6 +93,7 @@ function* markNotificationAsRead(action: ReduxAction<string>) {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(fetchUnreadNotificationsCountSuccess(response.data));
       yield put(markNotificationAsReadSuccess(action.payload));
     }

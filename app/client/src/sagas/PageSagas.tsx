@@ -2,7 +2,6 @@ import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
   Page,
-  PageListPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -134,7 +133,7 @@ export function* fetchPageListSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
-      const pages: PageListPayload = response.data.pages.map((page) => ({
+      const pages: Page[] = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
         isDefault: page.isDefault,
