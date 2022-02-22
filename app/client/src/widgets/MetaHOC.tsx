@@ -74,7 +74,11 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         );
 
         const defaultPropertyExist = !!defaultProperty;
-        if (isMetaPropertyChanged) {
+        const isCurrentStateEqualToMeta = _.isEqual(
+          this.props[metaProperty],
+          this.state[metaProperty],
+        );
+        if (isMetaPropertyChanged && !isCurrentStateEqualToMeta) {
           if (defaultPropertyExist) {
             const isMetaEqualToDefault = _.isEqual(
               this.props[defaultProperty],
