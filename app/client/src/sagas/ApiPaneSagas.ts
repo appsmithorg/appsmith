@@ -344,17 +344,16 @@ export function* updateFormFields(
 
   // get current content type of the action
   let apiContentType = values.actionConfiguration.formData.apiContentType;
-
-  const { actionConfiguration } = values;
-
-  if (!actionConfiguration.headers) return;
-  const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
-  const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
-    (header: { key: string; value: string }) =>
-      header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
-  );
-
   if (field === "actionConfiguration.httpMethod") {
+    const { actionConfiguration } = values;
+    if (!actionConfiguration.headers) return;
+
+    const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
+    const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
+      (header: { key: string; value: string }) =>
+        header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+    );
+
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
       if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE)
@@ -385,13 +384,6 @@ export function* updateFormFields(
         actionConfigurationHeaders,
       ),
     );
-  } else if (
-    field === `actionConfiguration.headers[${contentTypeHeaderIndex}].value`
-  ) {
-    const apiId = get(values, "id");
-    // when the user specifically sets a new content type value, we check if the input value is a supported post body type and switch to it
-    // if it does not we set the default to Raw mode.
-    yield call(setHeaderFormat, apiId, actionPayload.payload);
   }
 }
 
@@ -439,6 +431,10 @@ function* formValueChangeSaga(
           actionPayload.payload,
         ),
       );
+      const apiId = get(values, "id");
+      // when the user specifically sets a new content type value, we check if the input value is a supported post body type and switch to it
+      // if it does not we set the default to Raw mode.
+      yield call(setHeaderFormat, apiId, actionPayload.payload);
     }
   }
   yield all([
