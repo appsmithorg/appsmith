@@ -21,6 +21,7 @@ const StyledDatasourceChip = styled.div`
   span {
     margin-left: ${(props) => props.theme.spaces[2]}px;
     ${(props) => getTypographyByKey(props, "h6")}
+    letter-spacing: -0.221538px;
     color: var(--appsmith-color-black-900);
   }
 `;

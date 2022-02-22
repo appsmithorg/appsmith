@@ -18,6 +18,9 @@ import ForkTemplate from "./ForkTemplate";
 import LeftPaneTemplateList from "./LeftPaneTemplateList";
 import { getSimilarTemplatesInit } from "actions/templateActions";
 import { AppState } from "reducers";
+import { Icon, IconSize } from "components/ads";
+import history from "utils/history";
+import { TEMPLATES_URL } from "constants/routes";
 
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
@@ -166,6 +169,14 @@ const PageWrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
 `;
 
+const BackButtonWrapper = styled.div`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 32px;
+`;
+
 function TemplateViewLoader() {
   return (
     <Wrapper>
@@ -205,6 +216,10 @@ function TemplateView() {
     setShowForkModal(false);
   };
 
+  const goToTemplateListView = () => {
+    history.push(TEMPLATES_URL);
+  };
+
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
@@ -222,6 +237,11 @@ function TemplateView() {
       ) : (
         <Wrapper ref={containerRef}>
           <TemplateViewWrapper>
+            <BackButtonWrapper onClick={goToTemplateListView}>
+              <Icon name="view-less" size={IconSize.XL} />
+              <Text type={TextType.P4}>GO BACK</Text>
+            </BackButtonWrapper>
+
             <Title type={TextType.DANGER_HEADING}>
               {currentTemplate.title}
             </Title>

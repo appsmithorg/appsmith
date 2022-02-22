@@ -29,6 +29,7 @@ import {
   getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import { getAllApplications } from "actions/applicationActions";
+import { getPlugins } from "selectors/entitiesSelector";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -78,6 +79,9 @@ function TemplateRoutes() {
   const organizationListLength = useSelector(
     (state: AppState) => getUserApplicationsOrgsList(state).length,
   );
+  const pluginListLength = useSelector(
+    (state: AppState) => getPlugins(state).length,
+  );
   const templateOrganization = useSelector(getOrganizationForTemplates);
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
@@ -102,10 +106,10 @@ function TemplateRoutes() {
   }, [organizationListLength]);
 
   useEffect(() => {
-    if (templateOrganization?.organization.id) {
+    if (templateOrganization?.organization.id && !pluginListLength) {
       dispatch(fetchPlugins(templateOrganization?.organization.id));
     }
-  }, [templateOrganization?.organization.id]);
+  }, [templateOrganization?.organization.id, pluginListLength]);
 
   return (
     <Switch>

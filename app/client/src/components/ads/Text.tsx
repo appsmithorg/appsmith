@@ -8,6 +8,7 @@ export enum TextType {
   P1 = "p1",
   P2 = "p2",
   P3 = "p3",
+  P4 = "p4",
   H1 = "h1",
   H2 = "h2",
   H3 = "h3",
