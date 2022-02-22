@@ -17,7 +17,7 @@ export const CONFIG = {
     defaultSelectedRowIndex: "0",
     defaultSelectedRowIndices: ["0"],
     label: "Data",
-    widgetName: "Table_V2",
+    widgetName: "Table_V2_",
     searchKey: "",
     textSize: "PARAGRAPH",
     horizontalAlignment: "LEFT",

@@ -55,6 +55,10 @@ import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
 import NumericInputControl, {
   NumericInputControlProps,
 } from "./NumericInputControl";
+import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
+import ComputeTablePropertyControlV2, {
+  ComputeTablePropertyControlPropsV2,
+} from "components/propertyControls/ComputeTablePropertyControlV2";
 
 export const PropertyControls = {
   InputTextControl,
@@ -72,10 +76,12 @@ export const PropertyControls = {
   TabControl,
   ColorPickerControl,
   PrimaryColumnsControl,
+  PrimaryColumnsControlV2,
   PrimaryColumnDropdownControl,
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
+  ComputeTablePropertyControlV2,
   MenuItemsControl,
   ButtonListControl,
   IconSelectControl,
@@ -102,7 +108,9 @@ export type PropertyControlPropsType =
   | ColorPickerControlProps
   | ComputeTablePropertyControlProps
   | PrimaryColumnDropdownControlProps
-  | NumericInputControlProps;
+  | NumericInputControlProps
+  | ComputeTablePropertyControlPropsV2
+  | PrimaryColumnDropdownControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};
