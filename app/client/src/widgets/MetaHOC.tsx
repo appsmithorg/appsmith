@@ -87,8 +87,6 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
             if (isMetaEqualToDefault) {
               this.setState({ [metaProperty]: this.props[metaProperty] });
             }
-          } else {
-            this.setState({ [metaProperty]: this.props[metaProperty] });
           }
         }
       });

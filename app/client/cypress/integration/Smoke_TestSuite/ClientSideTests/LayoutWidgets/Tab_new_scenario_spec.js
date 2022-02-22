@@ -26,9 +26,11 @@ describe("Tab widget test", function() {
     cy.get(publish.checkboxWidget).should("be.visible");
     cy.get(publish.radioWidget).should("be.visible");
 
-    cy.get(".t--widget-buttonwidget:contains('Confirm')").click({
-      force: true,
-    });
+    cy.get(publish.buttonWidget)
+      .contains("Confirm")
+      .click({
+        force: true,
+      });
   });
 });
 
