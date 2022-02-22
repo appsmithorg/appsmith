@@ -347,6 +347,7 @@ export function* updateFormFields(
 
   const { actionConfiguration } = values;
 
+  if (!actionConfiguration.headers) return;
   const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
   const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
     (header: { key: string; value: string }) =>
@@ -354,8 +355,6 @@ export function* updateFormFields(
   );
 
   if (field === "actionConfiguration.httpMethod") {
-    if (!actionConfiguration.headers) return;
-
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
       if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE)
