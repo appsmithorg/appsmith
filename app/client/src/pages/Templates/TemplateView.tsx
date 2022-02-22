@@ -52,11 +52,9 @@ const Title = styled(Text)`
 `;
 
 const IframeWrapper = styled.div`
-  background: rgba(110, 185, 240, 0.08);
   height: 734px;
   width: 100%;
   border-radius: 16px;
-  padding: 18px;
   margin-top: 29px;
 
   iframe {
