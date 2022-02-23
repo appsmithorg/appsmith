@@ -11,10 +11,11 @@ import TemplateSampleImage from "./template-test.png";
 import LargeTemplate from "./LargeTemplate";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import { createMessage, FORK_THIS_TEMPLATE } from "ce/constants/messages";
 
 const TemplateWrapper = styled.div`
-  border: 1px solid #e7e7e7;
-  margin-bottom: 32px;
+  border: 1px solid ${Colors.GEYSER_LIGHT};
+  margin-bottom: ${(props) => props.theme.spaces[12]}px;
   transition: all 1s ease-out;
   cursor: pointer;
 
@@ -25,7 +26,8 @@ const TemplateWrapper = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-  padding: 20px 24px;
+  padding: ${(props) =>
+    `${props.theme.spaces[9]}px ${props.theme.spaces[11]}px`};
   overflow: hidden;
 `;
 
@@ -35,7 +37,7 @@ const StyledImage = styled.img`
 `;
 
 const TemplateContent = styled.div`
-  border-top: 0.73px solid #e7e7e7;
+  border-top: 0.73px solid ${Colors.GEYSER_LIGHT};
   padding: 16px 25px;
 
   .title {
@@ -45,10 +47,10 @@ const TemplateContent = styled.div`
   .categories {
     ${(props) => getTypographyByKey(props, "p3")}
     color: var(--appsmith-color-black-800);
-    margin-top: 4px;
+    margin-top: ${(props) => props.theme.spaces[1]}px;
   }
   .description {
-    margin-top: 6px;
+    margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
     ${(props) => getTypographyByKey(props, "p3")}
   }
@@ -58,20 +60,20 @@ const TemplateContentFooter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 17px;
+  margin-top: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const TemplateDatasources = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: ${(props) => props.theme.spaces[1]}px;
 `;
 
 const StyledButton = styled(Button)`
   border-radius: 18px;
   && {
     & > span {
-      margin-right: 0px;
+      margin-right: ${(props) => props.theme.spaces[0]}px;
     }
   }
 `;
@@ -137,7 +139,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               showForkModal={showForkModal}
               templateId={id}
             >
-              <Tooltip content={"Fork this template"}>
+              <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
                 <StyledButton
                   className="fork-button"
                   icon="fork-2"

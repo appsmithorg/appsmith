@@ -1039,3 +1039,4 @@ export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the Template";
 export const SELECT_ORGANISATION = () => "Select Organization";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
+export const FORK_THIS_TEMPLATE = () => "Fork this template";
