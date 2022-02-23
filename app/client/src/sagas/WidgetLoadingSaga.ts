@@ -115,41 +115,48 @@ const ACTION_EXECUTION_REDUX_ACTIONS = [
 ];
 
 function* setWidgetsLoadingSaga() {
-  const inverseMap: DependencyMap = yield select(
-    getEvaluationInverseDependencyMap,
-  );
-  const entitiesDependantsMap = groupAndFilterDependantsMap(inverseMap);
-  console.log("Hello INVERSE_MAP", inverseMap);
-  console.log("Hello ENTITY_MAP", entitiesDependantsMap);
   const actions: ActionDataState = yield select(getActions);
   const isLoadingActions: string[] = actions
     .filter((action: ActionData) => action.isLoading)
     .map((action: ActionData) => action.config.name);
 
-  const loadingEntities = getEntityDependants(
-    isLoadingActions,
-    entitiesDependantsMap,
-    new Set<string>(),
-  );
+  if (isLoadingActions.length === 0) {
+    yield put({
+      type: ReduxActionTypes.SET_LOADING_ENTITIES,
+      payload: new Set<string>(),
+    });
+  } else {
+    const inverseMap: DependencyMap = yield select(
+      getEvaluationInverseDependencyMap,
+    );
+    const entitiesDependantsMap = groupAndFilterDependantsMap(inverseMap);
+    const loadingEntities = getEntityDependants(
+      isLoadingActions,
+      entitiesDependantsMap,
+      new Set<string>(),
+    );
 
-  console.log("Hello LOADING ACTIONS", isLoadingActions);
-  console.log("Hello LOADING ENITIES", loadingEntities);
-  console.log("Hello ------------------");
+    console.log("Hello INVERSE_MAP", inverseMap);
+    console.log("Hello ENTITY_MAP", entitiesDependantsMap);
+    console.log("Hello LOADING ACTIONS", isLoadingActions);
+    console.log("Hello LOADING ENITIES", loadingEntities);
+    console.log("Hello ------------------");
 
-  // get all widgets evaluted data
-  const dataTree: DataTree = yield select(getDataTree);
-  // check animateLoading is active on current widgets and set
-  Object.entries(dataTree).forEach(([entityName, entity]) => {
-    if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
-      if (get(dataTree, [entityName, "animateLoading"]) === false) {
-        loadingEntities.names.delete(entityName);
-      }
-  });
+    // get all widgets evaluted data
+    const dataTree: DataTree = yield select(getDataTree);
+    // check animateLoading is active on current widgets and set
+    Object.entries(dataTree).forEach(([entityName, entity]) => {
+      if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
+        if (get(dataTree, [entityName, "animateLoading"]) === false) {
+          loadingEntities.names.delete(entityName);
+        }
+    });
 
-  yield put({
-    type: ReduxActionTypes.SET_LOADING_ENTITIES,
-    payload: loadingEntities.names,
-  });
+    yield put({
+      type: ReduxActionTypes.SET_LOADING_ENTITIES,
+      payload: loadingEntities.names,
+    });
+  }
 }
 
 function* actionExecutionChangeListenerSaga() {

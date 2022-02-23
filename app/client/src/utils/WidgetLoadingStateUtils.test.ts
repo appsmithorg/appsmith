@@ -7,18 +7,18 @@ describe("Widget loading state utils", () => {
   describe("groupAndFilterDependantsMap", () => {
     it("groups entites and filters self-dependencies", () => {
       const entitiesDependantsMap = groupAndFilterDependantsMap({
-        "SelectQuery1.config": ["SelectQuery1"],
-        "SelectQuery1.config.body": ["SelectQuery1.config"],
-        "SelectQuery1.data": ["SelectJS.apivalues", "SelectQuery1"], // dependant
-        "SelectQuery2.config": ["SelectQuery2"],
-        "SelectQuery2.config.body": ["SelectQuery2.config"],
-        "SelectQuery2.run": ["SelectQuery2", "SelectJS.apiValues2"], // dependant
-        "SelectQuery3.config": ["SelectQuery3"],
-        "SelectQuery3.config.body": ["SelectQuery3.config"],
+        "Query1.config": ["Query1"],
+        "Query1.config.body": ["Query1.config"],
+        "Query1.data": ["JS_file.func1", "Query1"], // dependant
+        "Query2.config": ["Query2"],
+        "Query2.config.body": ["Query2.config"],
+        "Query2.run": ["Query2", "JS_file.func2"], // dependant
+        "Query3.config": ["Query3"],
+        "Query3.config.body": ["Query3.config"],
       });
       expect(entitiesDependantsMap).toStrictEqual({
-        SelectQuery1: { "SelectQuery1.data": ["SelectJS.apivalues"] },
-        SelectQuery2: { "SelectQuery2.run": ["SelectJS.apiValues2"] },
+        Query1: { "Query1.data": ["JS_file.func1"] },
+        Query2: { "Query2.run": ["JS_file.func2"] },
       });
     });
   });
