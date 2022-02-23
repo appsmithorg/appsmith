@@ -3,6 +3,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Colors } from "constants/Colors";
+import { createMessage, IMAGE_LOAD_ERROR } from "ce/constants/messages";
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -130,7 +131,7 @@ class ImageComponent extends React.Component<
     if (imageUrl && imageError)
       return (
         <ErrorContainer data-testid="error-container">
-          Image load error
+          {createMessage(IMAGE_LOAD_ERROR)}
         </ErrorContainer>
       );
 
