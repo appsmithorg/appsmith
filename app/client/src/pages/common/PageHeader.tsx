@@ -47,7 +47,9 @@ const StyledPageHeader = styled(StyledHeader)<{
       ? `none`
       : `0px 4px 4px rgba(0, 0, 0, 0.05)`};
   ${(props) =>
-    props.showingTabs && !props.isMobile && `box-shadow: 0px 1px 0px #ededed;`}
+    props.showingTabs &&
+    !props.isMobile &&
+    `box-shadow: 0px 1px 0px ${Colors.GALLERY_2};`}
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -82,23 +84,22 @@ const Tabs = styled.div`
   font-size: 16px;
   line-height: 24px;
   box-sizing: border-box;
-  margin-left: 42px;
+  margin-left: ${(props) => props.theme.spaces[16]}px;
   height: 100%;
-  gap: 0px 32px;
+  gap: ${(props) => `${props.theme.spaces[0]}px ${props.theme.spaces[12]}px`};
   flex: 1;
-  padding-top: 5px;
+  padding-top: ${(props) => props.theme.spaces[1]}px;
 `;
 const TabName = styled.div<{ isSelected: boolean }>`
-  color: #858282;
-  line-height: 24px;
+  color: ${Colors.GRAY};
   border-bottom: 2px solid transparent;
   text-align: center;
   display: flex;
   align-items: center;
   ${(props) =>
     props.isSelected &&
-    `border-bottom: 2px solid #f86a2b;
-  color: #191919;`}
+    `border-bottom: 2px solid ${Colors.CRUSTA};
+  color: ${Colors.COD_GRAY};`}
   cursor: pointer;
 `;
 

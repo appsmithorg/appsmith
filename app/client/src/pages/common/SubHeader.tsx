@@ -19,8 +19,8 @@ const SubHeaderWrapper = styled.div<{
 
   background: ${(props) => props.theme.colors.homepageBackground};
   z-index: ${Indices.Layer9};
-  margin-left: 10px;
-  margin-top: 26px;
+  margin-left: ${(props) => props.theme.spaces[4]}px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
   ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;
