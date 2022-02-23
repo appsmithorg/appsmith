@@ -207,9 +207,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isTriggerProperty: false,
               validation: {
                 type: ValidationTypes.NUMBER,
-                params: {
-                  min: 1,
-                },
+                params: { min: 1, natural: true },
               },
               hidden: (props: InputWidgetProps) => {
                 return props.inputType !== InputTypes.TEXT;
