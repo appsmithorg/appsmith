@@ -1,18 +1,9 @@
-import {
-  all,
-  call,
-  put,
-  race,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
   executePluginActionError,
   executePluginActionRequest,
   executePluginActionSuccess,
   runAction,
-  showRunActionConfirmModal,
   updateAction,
 } from "actions/pluginActionActions";
 import {
@@ -101,6 +92,7 @@ import {
   executeAppAction,
   TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -234,17 +226,6 @@ function* evaluateActionParams(
 
     formData.append(key, value);
   }
-}
-
-function* confirmRunActionSaga() {
-  yield put(showRunActionConfirmModal(true));
-
-  const { accept } = yield race({
-    cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
-    accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
-  });
-
-  return !!accept;
 }
 
 export default function* executePluginActionTriggerSaga(
@@ -699,7 +680,7 @@ function* executePluginActionSaga(
   }
 
   if (pluginAction.confirmBeforeExecute) {
-    const confirmed = yield call(confirmRunActionSaga);
+    const confirmed = yield call(requestModalConfirmationSaga);
     if (!confirmed) {
       yield put({
         type: ReduxActionTypes.RUN_ACTION_CANCELLED,

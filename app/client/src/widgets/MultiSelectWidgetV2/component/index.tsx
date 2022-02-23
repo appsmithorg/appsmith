@@ -28,7 +28,7 @@ import Icon from "components/ads/Icon";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
-import _ from "lodash";
+import { uniqBy } from "lodash";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
@@ -121,13 +121,12 @@ function MultiSelectComponent({
         }),
       );
       // get unique selected values amongst SelectedAllValue and Value
-      const allSelectedOptions = _.uniqBy(
-        [...allOption, ...value],
-        "value",
-      ).map((val) => ({
-        ...val,
-        key: val.value,
-      }));
+      const allSelectedOptions = uniqBy([...allOption, ...value], "value").map(
+        (val) => ({
+          ...val,
+          key: val.value,
+        }),
+      );
       onChange(allSelectedOptions);
       return;
     }
