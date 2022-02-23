@@ -202,7 +202,7 @@ function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
   return { applicationId, pageId: toLoadPageId };
 }
 
-function* initiateEditorActions(applicationId: string, pageId: string) {
+function* initiateEditorActions(applicationId: string) {
   const initActionsCalls = [
     fetchActions({ applicationId }, []),
     fetchJSCollections({ applicationId }),
@@ -232,7 +232,7 @@ function* initiateEditorActions(applicationId: string, pageId: string) {
   }
 }
 
-function* initiatePluginsAndDatasources(applicationId: string, pageId: string) {
+function* initiatePluginsAndDatasources() {
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
     [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
     [
@@ -338,9 +338,9 @@ function* initializeEditorSaga(
       updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
     );
 
-    yield call(initiateEditorActions, applicationId, pageId);
+    yield call(initiateEditorActions, applicationId);
 
-    yield call(initiatePluginsAndDatasources, applicationId, pageId);
+    yield call(initiatePluginsAndDatasources);
 
     yield call(initiateURLUpdate, pageId, payload.pageId);
 
