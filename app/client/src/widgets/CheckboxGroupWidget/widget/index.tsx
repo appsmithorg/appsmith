@@ -273,6 +273,7 @@ class CheckboxGroupWidget extends BaseWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedValues.length : true }}`,
+      isDirty: `{{ ((array1, array2) => {if (array1.length === array2.length) {return !array1.every(element => array2.includes(element));} return true;})(this.defaultSelectedValues, this.selectedValues); }}`,
     };
   }
 

@@ -299,6 +299,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       isValid: `{{(()=>{${derivedProperties.isValidDate}})()}}`,
       selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
       formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
+      isDirty: `{{ this.value !== this.defaultDate }}`,
     };
   }
 

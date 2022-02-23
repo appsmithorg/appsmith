@@ -121,7 +121,9 @@ class AudioRecorderWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
+    return {
+      isDirty: `{{ !!this.blobURL }}`,
+    };
   }
 
   handleRecordingStart = () => {

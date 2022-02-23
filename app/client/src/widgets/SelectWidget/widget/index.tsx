@@ -278,6 +278,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
       selectedOptionLabel: `{{ this.optionValue.label ?? this.optionValue.value }}`,
       selectedOptionValue: `{{ this.optionValue.value }}`,
+      isDirty: `{{ this.optionValue.value !== this.defaultValue.value }}`,
     };
   }
 
@@ -361,10 +362,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
-
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
 
     // Check if the value has changed. If no option
     // selected till now, there is a change

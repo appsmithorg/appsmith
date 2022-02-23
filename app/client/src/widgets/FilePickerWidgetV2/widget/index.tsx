@@ -216,6 +216,7 @@ class FilePickerWidget extends BaseWidget<
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
       files: `{{this.selectedFiles}}`,
+      isDirty: `{{ this.selectedFiles.length > 0 }}`,
     };
   }
 

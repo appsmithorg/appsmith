@@ -146,7 +146,9 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
+    return {
+      isDirty: `{{ this.mode === "VIDEO" ? !!this.videoBlobURL : !!this.imageBlobURL }}`,
+    };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -160,7 +162,6 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       imageDataURL: undefined,
       imageRawBinary: undefined,
       mediaCaptureStatus: MediaCaptureStatusTypes.IMAGE_DEFAULT,
-      timer: undefined,
       videoBlobURL: undefined,
       videoDataURL: undefined,
       videoRawBinary: undefined,

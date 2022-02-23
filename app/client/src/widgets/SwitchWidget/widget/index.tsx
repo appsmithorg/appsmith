@@ -137,6 +137,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       value: `{{!!this.isSwitchedOn}}`,
+      isDirty: `{{ this.isSwitchedOn !== this.defaultSwitchState }}`,
     };
   }
 

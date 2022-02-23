@@ -260,6 +260,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         "{{_.find(this.options, { value: this.selectedOptionValue })}}",
       isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
       value: `{{this.selectedOptionValue}}`,
+      isDirty: `{{ this.selectedOptionValue !== this.defaultOptionValue }}`,
     };
   }
 

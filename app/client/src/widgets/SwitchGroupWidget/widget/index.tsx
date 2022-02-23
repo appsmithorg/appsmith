@@ -189,11 +189,21 @@ class SwitchGroupWidget extends BaseWidget<
           selectedValue => this.options.map(option => option.value).includes(selectedValue)
         )
       }}`,
+      isDirty: `{{ ((array1, array2) => {if (array1.length === array2.length) {return !array1.every(element => array2.includes(element));} return true;})(this.defaultSelectedValues, this.selectedValuesArray); }}`,
     };
   }
 
   static getWidgetType(): string {
     return "SWITCH_GROUP_WIDGET";
+  }
+
+  componentDidUpdate(prevProps: SwitchGroupWidgetProps): void {
+    if (this.props.defaultSelectedValues !== prevProps.defaultSelectedValues) {
+      this.props.updateWidgetMetaProperty(
+        "selectedValuesArray",
+        this.props.defaultSelectedValues,
+      );
+    }
   }
 
   getPageView() {
@@ -205,7 +215,7 @@ class SwitchGroupWidget extends BaseWidget<
       isValid,
       options,
       parentRowSpace,
-      selectedValues,
+      selectedValuesArray,
     } = this.props;
 
     return (
@@ -217,7 +227,7 @@ class SwitchGroupWidget extends BaseWidget<
         options={options}
         required={isRequired}
         rowSpace={parentRowSpace}
-        selected={selectedValues}
+        selected={selectedValuesArray}
         valid={isValid}
       />
     );
@@ -253,6 +263,7 @@ class SwitchGroupWidget extends BaseWidget<
 export interface SwitchGroupWidgetProps extends WidgetProps {
   options: OptionProps[];
   defaultSelectedValues: string[];
+  selectedValuesArray: string[];
   isInline: boolean;
   isRequired?: boolean;
   isValid?: boolean;

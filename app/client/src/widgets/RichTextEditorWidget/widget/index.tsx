@@ -130,6 +130,9 @@ class RichTextEditorWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
+      defaultTextHtml: undefined,
+      defaultTextMarkdown: undefined,
+      isDefaultTextChanged: false,
     };
   }
 
@@ -143,10 +146,32 @@ class RichTextEditorWidget extends BaseWidget<
     return {
       value: `{{this.text}}`,
       isValid: `{{ this.isRequired ? this.text && this.text.length : true }}`,
+      isDirty: `{{ this.inputType === "html" ? this.text !== this.defaultTextHtml : this.text !== this.defaultTextMarkdown }}`,
     };
   }
 
+  componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
+    if (this.props.defaultText !== prevProps.defaultText) {
+      this.props.updateWidgetMetaProperty("isDefaultTextChanged", true);
+    }
+  }
+
   onValueChange = (text: string) => {
+    if (
+      this.props.inputType === RTEFormats.HTML &&
+      (!this.props.defaultTextHtml || this.props.isDefaultTextChanged)
+    ) {
+      this.props.updateWidgetMetaProperty("defaultTextHtml", text);
+      this.props.updateWidgetMetaProperty("isDefaultTextChanged", false);
+    }
+    if (
+      this.props.inputType === RTEFormats.MARKDOWN &&
+      (!this.props.defaultTextMarkdown || this.props.isDefaultTextChanged)
+    ) {
+      this.props.updateWidgetMetaProperty("defaultTextMarkdown", text);
+      this.props.updateWidgetMetaProperty("isDefaultTextChanged", false);
+    }
+
     this.props.updateWidgetMetaProperty("text", text, {
       triggerPropertyName: "onTextChange",
       dynamicString: this.props.onTextChange,
@@ -188,6 +213,9 @@ class RichTextEditorWidget extends BaseWidget<
 
 export interface RichTextEditorWidgetProps extends WidgetProps {
   defaultText?: string;
+  defaultTextHtml?: string;
+  defaultTextMarkdown?: string;
+  isDefaultTextChanged: boolean;
   text: string;
   inputType: string;
   placeholder?: string;

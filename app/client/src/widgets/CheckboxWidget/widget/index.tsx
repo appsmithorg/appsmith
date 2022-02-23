@@ -121,6 +121,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     return {
       value: `{{!!this.isChecked}}`,
       isValid: `{{ this.isRequired ? !!this.isChecked : true }}`,
+      isDirty: `{{ this.isChecked !== this.defaultCheckedState }}`,
     };
   }
 
@@ -128,6 +129,12 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     return {
       isChecked: undefined,
     };
+  }
+
+  componentDidUpdate(prevProps: CheckboxWidgetProps) {
+    if (this.props.defaultCheckedState !== prevProps.defaultCheckedState) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
