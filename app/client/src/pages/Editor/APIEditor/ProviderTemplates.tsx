@@ -33,7 +33,10 @@ import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -196,6 +199,8 @@ type ProviderTemplatesProps = {
   addApiToPage: (templateData: AddApiToPageRequest) => void;
   appCardColors: string[];
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 } & RouteComponentProps<ProviderViewerRouteParams>;
 
 class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
@@ -268,9 +273,10 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
 
   render() {
     const {
-      applicationId,
+      applicationSlug,
       history,
       isFetchingProviderTemplates,
+      pageSlug,
       providerDetails,
       providerTemplates,
     } = this.props;
@@ -310,7 +316,8 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             onClick={() =>
               history.push(
                 INTEGRATION_EDITOR_URL(
-                  applicationId,
+                  applicationSlug,
+                  pageSlug,
                   pageId,
                   INTEGRATION_TABS.ACTIVE,
                 ),
@@ -322,7 +329,8 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             onClick={() =>
               history.push(
                 INTEGRATION_EDITOR_URL(
-                  applicationId,
+                  applicationSlug,
+                  pageSlug,
                   pageId,
                   INTEGRATION_TABS.ACTIVE,
                 ),
@@ -514,6 +522,7 @@ const mapStateToProps = (state: AppState) => ({
   providerDetails: state.ui.providers.providerDetailsByProviderId,
   appCardColors: getAppCardColorPalette(state),
   applicationId: getCurrentApplicationId(state),
+  ...selectURLSlugs(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

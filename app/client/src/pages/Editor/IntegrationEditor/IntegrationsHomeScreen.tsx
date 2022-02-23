@@ -356,6 +356,7 @@ class IntegrationsHomeScreen extends React.Component<
       history.replace(
         INTEGRATION_EDITOR_URL(
           applicationSlug,
+          pageSlug,
           pageId,
           INTEGRATION_TABS.ACTIVE,
         ),
@@ -363,7 +364,12 @@ class IntegrationsHomeScreen extends React.Component<
     } else if (redirectMode === INTEGRATION_EDITOR_MODES.MOCK) {
       // If there are no datasources -> new user
       history.replace(
-        INTEGRATION_EDITOR_URL(applicationSlug, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          applicationSlug,
+          pageSlug,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
       this.onSelectSecondaryMenu(
         getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,

@@ -16,7 +16,6 @@ import { useSelector } from "react-redux";
 import { getQueryParams } from "../../utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
   selectURLSlugs,
 } from "../../selectors/editorSelectors";
@@ -34,7 +33,6 @@ const IconContainer = styled.div`
 
 function CloseEditor() {
   const history = useHistory();
-  const applicationId = useSelector(getCurrentApplicationId);
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const pageId = useSelector(getCurrentPageId) as string;
   const params: string = location.search;
@@ -71,7 +69,7 @@ function CloseEditor() {
     const URL =
       redirectTo === "datasources"
         ? INTEGRATION_EDITOR_URL(
-            applicationId,
+            applicationSlug,
             pageSlug,
             pageId,
             integrationTab,

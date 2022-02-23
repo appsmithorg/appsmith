@@ -23,6 +23,7 @@ import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
@@ -64,6 +65,8 @@ interface StateProps {
   isCreating: boolean;
   isEditorInitialized: boolean;
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 }
 
 interface DispatchFunctions {
@@ -197,6 +200,7 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
   if (plugin) {
     datasources = getDatasourcesByPluginId(state, plugin.id);
   }
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     plugin,
     actions: state.entities.actions,
@@ -204,6 +208,8 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
     isEditorInitialized: getIsEditorInitialized(state),
     datasources: datasources,
     applicationId: getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 

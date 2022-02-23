@@ -409,9 +409,15 @@ export function* deleteActionSaga(
       actionPayload.payload.onSuccess();
     } else {
       const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
+      const pageId: string = yield select(getCurrentPageId);
 
       history.push(
-        INTEGRATION_EDITOR_URL(applicationSlug, pageSlug, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          applicationSlug,
+          pageSlug,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
     }
 
