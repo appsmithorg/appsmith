@@ -9,9 +9,7 @@ export class AggregateHelper {
     let layoutId;
     cy.url().then((url) => {
       currentURL = url;
-      const myRegexp = /pages(.*)/;
-      const match = myRegexp.exec(currentURL);
-      pageid = match![1].split("/")[1];
+      pageid = this.getPageIdFromURL(currentURL) as string;
       cy.log(pageid + "page id");
       //Fetch the layout id
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
@@ -75,6 +73,13 @@ export class AggregateHelper {
     );
   }
 
+  public getPageIdFromURL(currentURL: string) {
+    return currentURL
+      .split("/")[4]
+      ?.split("-")
+      .pop();
+  }
+
   public NavigateToHome() {
     cy.get(locator._homeIcon).click({ force: true });
     this.Sleep(3000);
@@ -127,7 +132,8 @@ export class AggregateHelper {
   public ActionContextMenuByEntityName(
     entityNameinLeftSidebar: string,
     action = "Delete",
-    subAction = "") {
+    subAction = "",
+  ) {
     this.Sleep();
     cy.xpath(locator._contextMenu(entityNameinLeftSidebar))
       .first()
@@ -142,7 +148,9 @@ export class AggregateHelper {
   }
 
   public ValidateEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
-    cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar)).should('not.exist');
+    cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar)).should(
+      "not.exist",
+    );
   }
 
   public AddNewPage() {

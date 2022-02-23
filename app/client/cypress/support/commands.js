@@ -1915,9 +1915,10 @@ Cypress.Commands.add("addDsl", (dsl) => {
   let layoutId;
   cy.url().then((url) => {
     currentURL = url;
-    const myRegexp = /pages(.*)/;
-    const match = myRegexp.exec(currentURL);
-    pageid = match[1].split("/")[1];
+    pageid = currentURL
+      .split("/")[4]
+      ?.split("-")
+      .pop();
     cy.log(pageidcopy + "page id copy");
     cy.log(pageid + "page id");
     //Fetch the layout id
