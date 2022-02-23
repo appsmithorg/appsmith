@@ -480,6 +480,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+
   // Only look at API plugins
   if (plugin.type !== PluginType.API) return;
 

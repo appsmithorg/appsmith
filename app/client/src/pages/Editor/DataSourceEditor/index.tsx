@@ -15,6 +15,8 @@ import {
   switchDatasource,
   setDatsourceEditorMode,
   removeTempDatasource,
+  createTempDatasourceFromForm,
+  saveDatasourceName,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DataSourceEditorForm from "./DBForm";
@@ -192,6 +194,9 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
     dispatch(toggleShowGlobalSearchModal());
   },
   discardTempDatasource: () => dispatch(removeTempDatasource()),
+  createTempDatasourceFromForm: (data) =>
+    dispatch(createTempDatasourceFromForm(data)),
+  saveDatasourceName: (data) => dispatch(saveDatasourceName(data)),
 });
 
 export interface DatasourcePaneFunctions {
@@ -208,11 +213,29 @@ export interface DatasourcePaneFunctions {
     params: any,
   ) => void;
   discardTempDatasource: () => void;
+  createTempDatasourceFromForm: (formData: any) => void;
+  saveDatasourceName: (payload: any) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props> {
+  componentDidMount() {
+    // Create Temp Datasource on component mount
+    if (this.props.match.params.datasourceId === TEMP_DATASOURCE_ID) {
+      const urlObject = new URL(window.location.href);
+      const pluginId = urlObject?.searchParams.get("pluginId");
+      this.props.createTempDatasourceFromForm({
+        pluginId,
+        type: this.props.pluginType,
+      });
+    }
+  }
+
   componentWillUnmount() {
     this.props.discardTempDatasource();
+    this.props.saveDatasourceName({
+      id: this.props.match.params.datasourceId,
+      name: "",
+    });
   }
 
   render() {
@@ -232,7 +255,11 @@ class DatasourceEditorRouter extends React.Component<Props> {
       viewMode,
     } = this.props;
 
-    if (!pluginId && datasourceId && datasourceId !== TEMP_DATASOURCE_ID) {
+    const pluginIdFromParams = new URL(window.location.href).searchParams.get(
+      "pluginId",
+    );
+
+    if (!pluginId || !pluginIdFromParams) {
       return <EntityNotFoundPane />;
     }
 

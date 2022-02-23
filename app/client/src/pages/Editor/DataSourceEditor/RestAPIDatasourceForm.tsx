@@ -303,13 +303,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       return this.props.updateDatasource(normalizedValues, onSuccess);
     }
 
-    this.props.createDatasource(
-      {
-        ...normalizedValues,
-        pluginId: (plugin as Plugin).id,
-      },
-      onSuccess,
-    );
+    this.props.createDatasource({
+      ...normalizedValues,
+      pluginId: (plugin as Plugin).id,
+    });
   };
 
   createApiAction = () => {

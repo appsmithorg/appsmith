@@ -74,15 +74,6 @@ const EditDatasourceButton = styled(Button)`
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
-  componentDidMount() {
-    // Create Temp Datasource on component mount
-    const urlObject = new URL(window.location.href);
-    const pluginId = urlObject?.searchParams.get("pluginId");
-    this.props.createTempDatasourceFromForm({
-      pluginId,
-      type: PluginType.DB,
-    });
-  }
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
       super.componentDidUpdate(prevProps);
@@ -120,6 +111,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       viewMode,
     } = this.props;
 
+    const showConnectedComponent =
+      viewMode && datasourceId !== TEMP_DATASOURCE_ID;
+
     return (
       <form
         onSubmit={(e) => {
@@ -131,7 +125,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
-          {viewMode && datasourceId !== TEMP_DATASOURCE_ID && (
+          {showConnectedComponent && (
             <EditDatasourceButton
               category={Category.tertiary}
               className="t--edit-datasource"
@@ -168,7 +162,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             </CollapsibleHelp>
           </CollapsibleWrapper>
         )}
-        {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
+        {!viewMode && datasourceId === TEMP_DATASOURCE_ID && (
           <>
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
@@ -176,8 +170,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {""}
           </>
         )}
-
-        {viewMode && datasourceId !== TEMP_DATASOURCE_ID && <Connected />}
+        {showConnectedComponent && <Connected />}
         {/* Render datasource form call-to-actions */}
         {datasource && (
           <DatasourceAuth

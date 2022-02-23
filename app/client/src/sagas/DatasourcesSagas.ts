@@ -618,7 +618,7 @@ function* createTempDatasourceFromFormSaga(
 ) {
   const payload = {
     id: TEMP_DATASOURCE_ID,
-    name: "Untitled Datasource X",
+    name: "Untitled Datasource ABC",
     type: (actionPayload.payload as any).type,
     pluginId: actionPayload.payload.pluginId,
     new: false,
@@ -687,12 +687,14 @@ function* createDatasourceFromFormSaga(
 
       // Todo: Refactor later.
       // If we move this `put` over to QueryPaneSaga->handleDatasourceCreatedSaga, onboarding tests start failing.
-      yield put(
-        setDatsourceEditorMode({
-          id: response.data.id,
-          viewMode: true,
-        }),
-      );
+      if (response.data.id !== TEMP_DATASOURCE_ID) {
+        yield put(
+          setDatsourceEditorMode({
+            id: response.data.id,
+            viewMode: true,
+          }),
+        );
+      }
 
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),
