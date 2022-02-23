@@ -6,23 +6,23 @@ import { Template as TemplateInterface } from "api/TemplatesApi";
 import RequestTemplate from "./Template/RequestTemplate";
 
 const Wrapper = styled.div`
-  padding-right: 33px;
-  padding-left: 33px;
+  padding-right: ${(props) => props.theme.spaces[12]}px;
+  padding-left: ${(props) => props.theme.spaces[12]}px;
 
   .grid {
     display: flex;
-    margin-left: -20px;
+    margin-left: ${(props) => -props.theme.spaces[9]}px;
   }
 
   .grid_column {
-    padding-left: 20px;
+    padding-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
 const FirstRow = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 19px;
+  gap: ${(props) => props.theme.spaces[8]}px;
   align-items: flex-start;
 `;
 interface TemplateListProps {
