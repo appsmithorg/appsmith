@@ -327,7 +327,22 @@ export default [
     ],
   },
   {
+    sectionName: "Actions",
+    children: [
+      {
+        helpText: "Triggers an action when the submit button is clicked",
+        propertyName: "onSubmit",
+        label: "onSubmit",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+    ],
+  },
+  {
     sectionName: "Form Styles",
+    isDefaultOpen: false,
     children: [
       {
         helpText: "Use a html color name, HEX, RGB or RGBA value",
@@ -404,26 +419,14 @@ export default [
   },
   {
     sectionName: "Submit Button Styles",
+    isDefaultOpen: false,
     children: generateButtonStyleControlsFor("submitButtonStyles"),
   },
   {
     sectionName: "Reset Button Styles",
+    isDefaultOpen: false,
     children: generateButtonStyleControlsFor("resetButtonStyles"),
     dependencies: ["showReset"],
     hidden: (props: JSONFormWidgetProps) => !props.showReset,
-  },
-  {
-    sectionName: "Actions",
-    children: [
-      {
-        helpText: "Triggers an action when the submit button is clicked",
-        propertyName: "onSubmit",
-        label: "onSubmit",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-      },
-    ],
   },
 ];

@@ -39,7 +39,7 @@ export const generatePropertyControl = (
           <PropertySection
             hidden={sectionConfig.hidden}
             id={config.id || sectionConfig.sectionName}
-            isDefaultOpen
+            isDefaultOpen={sectionConfig.isDefaultOpen}
             key={config.id + props.id}
             name={sectionConfig.sectionName}
             propertyPath={sectionConfig.propertySectionPath}
