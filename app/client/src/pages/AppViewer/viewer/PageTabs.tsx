@@ -5,7 +5,11 @@ import {
   CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import { getApplicationViewerPageURL } from "constants/routes";
+import {
+  getApplicationViewerPageURL,
+  PLACEHOLDER_APP_SLUG,
+  PLACEHOLDER_PAGE_SLUG,
+} from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -139,8 +143,8 @@ type Props = {
 
 export function PageTabs(props: Props) {
   const { appPages, currentApplicationDetails } = props;
-  const { pathname } = useLocation();
   const location = useLocation();
+  const { pathname } = location;
   const appMode = useSelector(getAppMode);
   const [query, setQuery] = useState("");
 
@@ -159,8 +163,9 @@ export function PageTabs(props: Props) {
             pathname ===
             trimQueryString(
               getApplicationViewerPageURL({
-                applicationSlug: currentApplicationDetails?.slug || "",
-                pageSlug: page.slug || page.pageName || "",
+                applicationSlug:
+                  currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
+                pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
                 pageId: page.pageId,
               }),
             )

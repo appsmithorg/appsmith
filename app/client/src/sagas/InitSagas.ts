@@ -56,11 +56,7 @@ import {
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import {
-  getIsEditorInitialized,
-  getPageById,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { getIsEditorInitialized, getPageById } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
@@ -152,7 +148,7 @@ function* initiateURLUpdate(
     });
   }
 
-  window.history.replaceState(null, "", originalUrl);
+  history.replace(originalUrl);
 }
 
 function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
@@ -209,7 +205,9 @@ function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
   if (!applicationAndLayoutCalls) return;
 
   if (pageId && fetchPageResponse) {
+    //Initiate URL update before first FETCH_PAGE_SUCCESS call
     yield call(initiateURLUpdate, pageId, APP_MODE.EDIT, payload.pageId);
+
     yield* handleFetchedPage({
       fetchPageResponse: fetchPageResponse,
       isFirstLoad: true,
@@ -225,12 +223,16 @@ function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
   if (!fetchPageResponse) {
     const defaultPageId: string = yield select(getDefaultPageId);
     toLoadPageId = toLoadPageId || defaultPageId;
+
+    //Initiate URL update before first FETCH_PAGE_SUCCESS call
     yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
+
     const fetchPageCallResult: boolean = yield failFastApiCalls(
       [fetchPage(toLoadPageId, true)],
       [ReduxActionTypes.FETCH_PAGE_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
     );
+
     if (!fetchPageCallResult) return;
   }
 
@@ -327,10 +329,7 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    const { applicationId, pageId } = yield call(
-      initiateApplicationAndPages,
-      payload,
-    );
+    const { applicationId } = yield call(initiateApplicationAndPages, payload);
 
     yield put(
       updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
