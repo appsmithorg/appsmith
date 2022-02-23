@@ -1903,7 +1903,7 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.wait(2000);
 });
 
-ypress.Commands.add("addJsEditorText", (value, paste = true) => {
+Cypress.Commands.add("addJsEditorText", (value, paste = true) => {
   cy.get(".CodeMirror textarea")
     .first()
     .focus({ force: true })
