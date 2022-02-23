@@ -16,4 +16,4 @@ export const GITHUB_SIGNUP_SETUP_DOC =
 export const EMAIL_SETUP_DOC =
   "https://docs.appsmith.com/setup/instance-configuration/email";
 export const SIGNUP_RESTRICTION_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/disable-user-signup";
+  "https://docs.appsmith.com/setup/instance-configuration/disable-user-signup#disable-sign-up";
