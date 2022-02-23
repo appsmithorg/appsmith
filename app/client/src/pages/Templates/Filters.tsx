@@ -16,7 +16,7 @@ import { Colors } from "constants/Colors";
 
 const FilterWrapper = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 200}px);
   ${thinScrollbar}
 
   .more {
