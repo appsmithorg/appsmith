@@ -790,7 +790,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         message = `Value does not match: ${getExpectedType(config)}`;
       } else {
         isValid = true;
-        parsed = value;
       }
     } else if (typeof value === "object" && moment(value).isValid()) {
       //Date and moment object
