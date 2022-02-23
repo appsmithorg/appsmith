@@ -1,4 +1,4 @@
-const dsl = require("../../../../fixtures/PassingParamDsl.json");
+const dsl = require("../../../../fixtures/passingparamdsl.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
