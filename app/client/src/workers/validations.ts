@@ -818,11 +818,16 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       message = `Value does not match: ${getExpectedType(config)}`;
     }
 
-    return {
+    const result: ValidationResponse = {
       isValid,
       parsed,
-      messages: [message],
     };
+
+    if (message) {
+      result.messages = [message];
+    }
+
+    return result;
   },
   [ValidationTypes.FUNCTION]: (
     config: ValidationConfig,
