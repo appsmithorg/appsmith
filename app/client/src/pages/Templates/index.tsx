@@ -30,6 +30,9 @@ import {
 } from "selectors/applicationSelectors";
 import { getAllApplications } from "actions/applicationActions";
 import { getPlugins } from "selectors/entitiesSelector";
+import { getTypographyByKey } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
+import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -39,19 +42,18 @@ const PageWrapper = styled.div`
 `;
 
 export const TemplateListWrapper = styled.div`
-  padding-top: 26px;
+  padding-top: ${(props) => props.theme.spaces[11]}px;
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
 `;
 
 export const ResultsCount = styled.div`
-  font-size: 18px;
-  font-weight: 500;
-  color: #090707;
-  margin-top: 13px;
-  margin-left: 32px;
-  padding-bottom: 24px;
+  ${(props) => getTypographyByKey(props, "h2")}
+  color: ${Colors.CODE_GRAY};
+  margin-top: ${(props) => props.theme.spaces[5]}px;
+  margin-left: ${(props) => props.theme.spaces[12]}px;
+  padding-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
 const Loader = styled(TemplateListWrapper)`
@@ -63,14 +65,15 @@ const Loader = styled(TemplateListWrapper)`
 `;
 
 const LoadingTemplateList = styled.div`
-  margin-top: 24px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+  // 200 is to have some space at the bottom
   height: calc(100% - 200px);
-  margin-right: 20px;
-  margin-left: 32px;
+  margin-right: ${(props) => props.theme.spaces[9]}px;
+  margin-left: ${(props) => props.theme.spaces[12] + 2}px;
 `;
 
 const SearchWrapper = styled.div`
-  margin-left: 25px;
+  margin-left: ${(props) => props.theme.spaces[11]}px;
 `;
 
 function TemplateRoutes() {
@@ -173,7 +176,7 @@ function Templates() {
                   defaultValue={templateSearchQuery}
                   disabled={isLoading}
                   onChange={debouncedOnChange || noop}
-                  placeholder={"Search templates"}
+                  placeholder={createMessage(SEARCH_TEMPLATES)}
                   variant={SearchVariant.BACKGROUND}
                 />
               </ControlGroup>

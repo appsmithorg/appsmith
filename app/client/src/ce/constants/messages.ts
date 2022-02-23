@@ -1045,3 +1045,4 @@ export const COULDNT_FIND_TEMPLATE = () =>
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
   "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
+export const SEARCH_TEMPLATES = () => "Search templates";
