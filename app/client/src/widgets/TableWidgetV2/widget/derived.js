@@ -45,7 +45,9 @@ export default {
       });
     }
 
-    return selectedRow;
+    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
+
+    return _.omit(selectedRow, keysToBeOmitted);
   },
   //
   getTriggeredRow: (props, moment, _) => {
@@ -90,8 +92,9 @@ export default {
     }
 
     const rows = props.filteredTableData || props.processedTableData || [];
+    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
 
-    return indices.map((index) => rows[index]);
+    return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
   },
   //
   getPageSize: (props, moment, _) => {
