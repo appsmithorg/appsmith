@@ -33,7 +33,7 @@ describe("Text Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(commonlocators.headingTextStyle)
       .should("have.text", this.data.TextLabelValue)
-      .should("have.css", "font-size", "24px");
+      .should("have.css", "font-size", "16px");
   });
 
   it("Text Email Parsing Validation", function() {
@@ -70,7 +70,7 @@ describe("Text Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(commonlocators.bodyTextStyle)
       .should("have.text", this.data.TextLabelValue)
-      .should("have.css", "font-size", "18px");
+      .should("have.css", "font-size", "20px");
   });
 
   it("Text widget depends on itself", function() {
