@@ -15,7 +15,7 @@ export const CONFIG = {
     columns: 34,
     animateLoading: true,
     defaultSelectedRowIndex: "0",
-    defaultSelectedRowIndices: ["0"],
+    defaultSelectedRowIndices: [0],
     label: "Data",
     widgetName: "Table_V2_",
     searchKey: "",
