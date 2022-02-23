@@ -13,7 +13,7 @@ import {
   WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN,
   WELCOME_FORM_NON_SUPER_USER_USE_CASE,
   WELCOME_FORM_ROLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import React from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";

@@ -15,7 +15,7 @@ import {
   REMOTE_URL_INPUT_PLACEHOLDER,
   CONNECTING_REPO,
   LEARN_MORE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
@@ -46,7 +46,7 @@ import {
   CONNECT_BTN_LABEL,
   PASTE_SSH_URL_INFO,
   GENERATE_KEY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
@@ -75,6 +75,7 @@ export const UrlOptionContainer = styled.div`
 
   & .primary {
   }
+
   margin-bottom: ${(props) => `${props.theme.spaces[3]}px`};
   margin-top: ${(props) => `${props.theme.spaces[11]}px`};
 `;
@@ -100,9 +101,12 @@ const Container = styled.div`
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: none;
+
   &::-webkit-scrollbar-thumb {
     background-color: transparent;
   }
+
   &::-webkit-scrollbar {
     width: 0px;
   }

@@ -13,7 +13,7 @@ import {
   createMessage,
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import Icon, { IconSize } from "./Icon";
@@ -74,6 +74,8 @@ export const ContainerDiv = styled.div<{
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+    background-origin: content-box;
+    padding: 8px;
   }
 
   .centered {

@@ -1,47 +1,54 @@
 const fs = require("fs");
 const path = require("path");
 const sd = require("node-stdev");
+
 var median = require("median");
 
-global.APP_ROOT = path.resolve(__dirname);
-global.APP_ROOT = "/Users/satish/work/appsmith/app/client/perf";
-
 exports.summaries = async (directory) => {
+  const results = await parseReports(
+    directory,
+    ["scripting", "painting", "rendering"],
+    [],
+  );
+
+  generateMarkdown(results);
+};
+
+const parseReports = async (
+  directory,
+  summaryFields = [],
+  warningFields = [],
+) => {
   const files = await fs.promises.readdir(directory);
   const results = {};
   files.forEach((file) => {
     if (file.endsWith(".json")) {
-      const content = require(`${APP_ROOT}/traces/reports/${file}`);
+      const content = require(`${directory}/${file}`);
       Object.keys(content).forEach((key) => {
         if (!results[key]) {
           results[key] = {};
         }
-        if (!results[key]?.scripting) {
-          results[key].scripting = [];
-        }
-        results[key].scripting.push(
-          parseFloat(content[key].summary.scripting.toFixed(2)),
-        );
-
-        if (!results[key]?.painting) {
-          results[key].painting = [];
-        }
-        results[key].painting.push(
-          parseFloat(content[key].summary.painting.toFixed(2)),
-        );
-
-        if (!results[key]?.rendering) {
-          results[key].rendering = [];
-        }
-        results[key].rendering.push(
-          parseFloat(content[key].summary.rendering.toFixed(2)),
-        );
+        summaryFields.forEach((summaryField) => {
+          if (!results[key][summaryField]) {
+            results[key][summaryField] = [];
+          }
+          results[key][summaryField].push(
+            parseFloat(content[key].summary[summaryField].toFixed(2)),
+          );
+        });
+        warningFields.forEach((warningField) => {
+          if (!results[key][warningField]) {
+            results[key][warningField] = [];
+          }
+          results[key][warningField].push(
+            parseFloat(content[key].warnings[warningField]),
+          );
+        });
       });
     }
   });
-  generateMarkdown(results);
+  return results;
 };
-
 const getMaxSize = (results) => {
   let size = 0;
   Object.keys(results).forEach((key) => {
@@ -108,3 +115,5 @@ const generateMarkdown = (results) => {
     }
   });
 };
+
+exports.parseReports = parseReports;

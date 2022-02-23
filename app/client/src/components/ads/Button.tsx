@@ -64,6 +64,7 @@ export type ButtonProps = CommonComponentProps & {
   size?: Size;
   fill?: boolean;
   href?: string;
+  tabIndex?: number;
   tag?: "a" | "button";
   type?: "submit" | "reset" | "button";
   target?: string;
@@ -283,17 +284,17 @@ const btnColorStyles = (
     case Category.primary:
       bgColor = stateStyles(props, state).bgColorPrimary;
       txtColor = stateStyles(props, state).txtColorPrimary;
-      border = `2px solid ${stateStyles(props, state).borderColorPrimary}`;
+      border = `1.2px solid ${stateStyles(props, state).borderColorPrimary}`;
       break;
     case Category.secondary:
       bgColor = stateStyles(props, state).bgColorSecondary;
       txtColor = stateStyles(props, state).txtColorSecondary;
-      border = `2px solid ${stateStyles(props, state).borderColorSecondary}`;
+      border = `1.2px solid ${stateStyles(props, state).borderColorSecondary}`;
       break;
     case Category.tertiary:
       bgColor = stateStyles(props, state).bgColorTertiary;
       txtColor = stateStyles(props, state).txtColorTertiary;
-      border = `2px solid ${stateStyles(props, state).borderColorTertiary}`;
+      border = `1.2px solid ${stateStyles(props, state).borderColorTertiary}`;
       break;
   }
   return { bgColor, txtColor, border };

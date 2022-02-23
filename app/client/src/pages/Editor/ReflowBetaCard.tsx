@@ -23,7 +23,7 @@ import {
   REFLOW_INFO_CARD_CONTENT_2,
   REFLOW_INFO_CARD_HEADER,
   REFLOW_LEARN_MORE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
