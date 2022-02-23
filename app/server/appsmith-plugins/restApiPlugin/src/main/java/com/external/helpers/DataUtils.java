@@ -156,7 +156,10 @@ public class DataUtils {
                         final MultipartFormDataType multipartFormDataType =
                                 MultipartFormDataType.valueOf(property.getType().toUpperCase(Locale.ROOT));
                         if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
-                            bodyBuilder.part(key, String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1));
+                            bodyBuilder.part(
+                                    key,
+                                    String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1),
+                                    MediaType.TEXT_PLAIN);
                         } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
                             try {
                                 populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
