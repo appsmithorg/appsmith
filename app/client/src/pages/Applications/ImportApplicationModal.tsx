@@ -38,6 +38,8 @@ const StyledDialog = styled(Dialog)`
       }
 
       & svg {
+        margin-right: ${(props) => props.theme.spaces[3]}px;
+
         & path {
           fill: ${Colors.GREY_7};
         }
