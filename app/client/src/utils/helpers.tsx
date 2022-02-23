@@ -33,6 +33,7 @@ import {
   VIEWER_URL,
   VIEWER_URL_DEPRECATED,
 } from "constants/routes";
+import history from "./history";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -740,5 +741,5 @@ export const getUpdatedRoute = (
 export const updateSlugNamesInURL = (params: Record<string, string>) => {
   const { pathname } = window.location;
   const newURL = getUpdatedRoute(pathname, params);
-  window.history.replaceState(null, "", newURL);
+  history.replace(newURL);
 };

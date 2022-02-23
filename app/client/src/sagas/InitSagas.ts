@@ -122,6 +122,39 @@ function* bootstrapEditor(payload: InitializeEditorPayload) {
   yield put({ type: ReduxActionTypes.START_EVALUATION });
 }
 
+function* initiateURLUpdate(
+  pageId: string,
+  appMode: APP_MODE,
+  pageIdInUrl?: string,
+) {
+  const currentApplication: CurrentApplicationData = yield select(
+    getCurrentApplication,
+  );
+  const applicationSlug = currentApplication.slug as string;
+  const currentPage: Page = yield select(getPageById(pageId));
+  const pageSlug = currentPage?.slug as string;
+
+  // Check if the the current route is a deprecated URL or if pageId is missing,
+  // generate a new route with the v2 structure.
+  let originalUrl = "";
+  if (isURLDeprecated(window.location.pathname) || !pageIdInUrl) {
+    originalUrl =
+      appMode === APP_MODE.EDIT
+        ? getApplicationEditorPageURL(applicationSlug, pageSlug, pageId)
+        : getApplicationViewerPageURL({ applicationSlug, pageSlug, pageId });
+  } else {
+    // For urls which has pageId in it,
+    // replace the placeholder values of application slug and page slug with real slug names.
+    originalUrl = getUpdatedRoute(window.location.pathname, {
+      applicationSlug,
+      pageSlug,
+      pageId,
+    });
+  }
+
+  window.history.replaceState(null, "", originalUrl);
+}
+
 function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
   const pageId = payload.pageId;
   let applicationId = payload.applicationId;
@@ -176,6 +209,7 @@ function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
   if (!applicationAndLayoutCalls) return;
 
   if (pageId && fetchPageResponse) {
+    yield call(initiateURLUpdate, pageId, APP_MODE.EDIT, payload.pageId);
     yield* handleFetchedPage({
       fetchPageResponse: fetchPageResponse,
       isFirstLoad: true,
@@ -191,6 +225,7 @@ function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
   if (!fetchPageResponse) {
     const defaultPageId: string = yield select(getDefaultPageId);
     toLoadPageId = toLoadPageId || defaultPageId;
+    yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
     const fetchPageCallResult: boolean = yield failFastApiCalls(
       [fetchPage(toLoadPageId, true)],
       [ReduxActionTypes.FETCH_PAGE_SUCCESS],
@@ -256,43 +291,6 @@ function* initiatePluginsAndDatasources() {
   if (!pluginFormCall) return;
 }
 
-function* initiateURLUpdate(pageId: string, pageIdInUrl?: string) {
-  const currentApplication: CurrentApplicationData = yield select(
-    getCurrentApplication,
-  );
-  const appName = currentApplication ? currentApplication.name : "";
-  const appId = currentApplication ? currentApplication.id : "";
-  const applicationSlug = currentApplication.slug as string;
-  const currentPage: Page = yield select(getPageById(pageId));
-  const pageSlug = currentPage?.slug as string;
-
-  // Check if the the current route is a deprecated URL or if pageId is missing,
-  // generate a new route with the v2 structure.
-  let originalUrl = "";
-  if (isURLDeprecated(window.location.pathname) || !pageIdInUrl) {
-    originalUrl = getApplicationEditorPageURL(
-      applicationSlug,
-      pageSlug,
-      pageId,
-    );
-  } else {
-    // For urls which has pageId in it,
-    // replace the placeholder values of application slug and page slug with real slug names.
-    originalUrl = getUpdatedRoute(window.location.pathname, {
-      applicationSlug,
-      pageSlug,
-      pageId,
-    });
-  }
-
-  window.history.replaceState(null, "", originalUrl);
-
-  AnalyticsUtil.logEvent("EDITOR_OPEN", {
-    appId: appId,
-    appName: appName,
-  });
-}
-
 function* initiateGit(applicationId: string) {
   const branchInStore: string = yield select(getCurrentGitBranch);
 
@@ -342,7 +340,14 @@ function* initializeEditorSaga(
 
     yield call(initiatePluginsAndDatasources);
 
-    yield call(initiateURLUpdate, pageId, payload.pageId);
+    const { name }: CurrentApplicationData = yield select(
+      getCurrentApplication,
+    );
+
+    AnalyticsUtil.logEvent("EDITOR_OPEN", {
+      appId: applicationId,
+      appName: name,
+    });
 
     yield call(initiateGit, applicationId);
 
@@ -390,23 +395,21 @@ export function* initializeAppViewerSaga(
 
   if (branch) yield put(updateBranchLocally(branch));
 
-  if (!action.payload)
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.INIT_VIEW_APP,
-    );
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.INIT_VIEW_APP,
+  );
   yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
-  const jsActionsCall = yield failFastApiCalls(
+  const jsActionsCall: boolean = yield failFastApiCalls(
     [fetchJSCollectionsForView({ applicationId })],
     [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
     [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
   );
   if (!jsActionsCall) return;
   const initCalls = [
-    // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView({ applicationId })),
     put(fetchPageList({ applicationId }, APP_MODE.PUBLISHED)),
     put(
@@ -454,6 +457,8 @@ export function* initializeAppViewerSaga(
   const defaultPageId: string = yield select(getDefaultPageId);
   const toLoadPageId: string = pageId || defaultPageId;
 
+  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.PUBLISHED, pageId);
+
   if (toLoadPageId) {
     yield put(fetchPublishedPage(toLoadPageId, true));
 
@@ -479,27 +484,6 @@ export function* initializeAppViewerSaga(
       return;
     }
   }
-
-  yield put(setAppMode(APP_MODE.PUBLISHED));
-
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-
-  let originalUrl = "";
-  if (isURLDeprecated(window.location.pathname) || !pageId) {
-    originalUrl = getApplicationViewerPageURL({
-      applicationSlug,
-      pageSlug,
-      pageId: toLoadPageId,
-    });
-  } else {
-    originalUrl = getUpdatedRoute(window.location.pathname, {
-      applicationSlug,
-      pageSlug,
-      pageId: toLoadPageId,
-    });
-  }
-
-  window.history.replaceState(null, "", originalUrl);
 
   yield put(fetchCommentThreadsInit());
 
