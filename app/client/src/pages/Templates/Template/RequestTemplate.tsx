@@ -3,15 +3,22 @@ import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import RequestTemplateSvg from "assets/images/request-template.svg";
 import { Button, Size } from "components/ads";
+import { Colors } from "constants/Colors";
+import {
+  COULDNT_FIND_TEMPLATE,
+  createMessage,
+  COULDNT_FIND_TEMPLATE_DESCRIPTION,
+  REQUEST_TEMPLATE,
+} from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
-  border: 1px solid #e7e7e7;
+  border: 1px solid ${Colors.GEYSER_LIGHT};
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: ${(props) => props.theme.spaces[11]}px;
   background-color: rgba(248, 248, 248, 0.5);
   transition: all 1s ease-out;
-  margin-bottom: 32px;
+  margin-bottom: ${(props) => props.theme.spaces[12]}px;
 
   &:hover {
     box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
@@ -19,18 +26,19 @@ const Wrapper = styled.div`
   }
 
   .title {
-    margin-top: 21px;
+    margin-top: ${(props) => props.theme.spaces[9]}px;
   }
 
   .description {
-    margin-top: 6px;
+    margin-top: ${(props) => props.theme.spaces[2]}px;
   }
 
   .button {
-    margin-top: 19px;
+    margin-top: ${(props) => props.theme.spaces[8]}px;
     max-width: 229px;
-    height: 36px;
-    padding: 0px 15px;
+    height: ${(props) => props.theme.spaces[13]}px;
+    padding: ${(props) =>
+      `${props.theme.spaces[0]}px ${props.theme.spaces[6]}px`};
   }
 `;
 
@@ -50,18 +58,17 @@ function RequestTemplate() {
     <Wrapper>
       <StyledImage src={RequestTemplateSvg} />
       <Text className={"title"} type={TextType.H4}>
-        Couldn’t find what you are looking for?
+        {createMessage(COULDNT_FIND_TEMPLATE)}
       </Text>
       <Text className={"description"} type={TextType.P3}>
-        A github issue portal will be opened up for you to create an issue
-        regarding what type of template you need.
+        {createMessage(COULDNT_FIND_TEMPLATE_DESCRIPTION)}
       </Text>
       <Button
         className="button"
         onClick={onClick}
         size={Size.large}
         tag="button"
-        text="Request for a template"
+        text={createMessage(REQUEST_TEMPLATE)}
       />
     </Wrapper>
   );

@@ -1,9 +1,10 @@
+import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "styled-components";
 import { TemplateLayout } from "./index";
 
 const LargeTemplate = styled(TemplateLayout)`
-  border: 1px solid #e7e7e7;
+  border: 1px solid ${Colors.GEYSER_LIGHT};
   flex: 1;
   max-width: 50%;
   cursor: pointer;
@@ -26,7 +27,8 @@ const LargeTemplate = styled(TemplateLayout)`
   }
 
   .image-wrapper {
-    padding: 20px 24px 0px;
+    padding: ${(props) =>
+      `${props.theme.spaces[9]}px ${props.theme.spaces[11]}px ${props.theme.spaces[0]}px`};
     transition: all 1s ease-out;
     width: 100%;
     min-height: 250px;
