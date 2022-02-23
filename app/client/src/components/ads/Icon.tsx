@@ -105,7 +105,7 @@ import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
-// import FileLine from "remixicon-react/FileLineIcon";
+import FileLine from "remixicon-react/FileLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GitCommit from "remixicon-react/GitCommitLineIcon";
@@ -257,6 +257,7 @@ const ICON_LOOKUP = {
   "double-arrow-right": <DoubleArrowRightIcon />,
   "down-arrow": <DownArrowIcon />,
   "down-arrow-2": <ArrowDownLineIcon />,
+  "download-line": <DownloadLineIcon />,
   "edit-box-line": <EditBoxLineIcon />,
   "edit-line": <EditLineIcon />,
   "edit-underline": <EditUnderlineIcon />,
@@ -264,6 +265,8 @@ const ICON_LOOKUP = {
   "expand-more": <ExpandMore />,
   "eye-off": <EyeOff />,
   "eye-on": <EyeOn />,
+  "file-line": <FileLine />,
+  "file-list-line": <FileListLineIcon />,
   "file-transfer": <FileTransfer />,
   "git-branch": <GitBranchLineIcon />,
   "git-commit": <GitCommit />,
@@ -296,13 +299,12 @@ const ICON_LOOKUP = {
   "trash-outline": <TrashOutline />,
   "trending-flat": <TrendingFlat />,
   "unread-pin": <UnreadPin />,
+  "upload-cloud": <UploadCloud2LineIcon />,
   "user-2": <UserV2Icon />,
   "view-all": <RightArrowIcon />,
   "view-less": <LeftArrowIcon />,
   "warning-line": <WarningLineIcon />,
   "warning-triangle": <WarningTriangleIcon />,
-  "upload-cloud": <UploadCloud2LineIcon />,
-  "download-line": <DownloadLineIcon />,
   billing: <BillingIcon />,
   book: <BookIcon />,
   bug: <BugIcon />,
@@ -330,6 +332,7 @@ const ICON_LOOKUP = {
   gear: <GearIcon />,
   general: <GeneralIcon />,
   guide: <GuideIcon />,
+  hamburger: <HamburgerIcon />,
   help: <HelpIcon />,
   info: <InfoIcon />,
   key: <KeyIcon />,
@@ -365,8 +368,6 @@ const ICON_LOOKUP = {
   warning: <WarningIcon />,
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
-  "file-list-line": <FileListLineIcon />,
-  hamburger: <HamburgerIcon />,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);

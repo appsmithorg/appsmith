@@ -52,9 +52,13 @@ const FilePickerWrapper = styled.div`
   & > div {
     background-image: none;
     background: transparent;
+    .upload-form-container {
+      padding-top: 0px;
+    }
     .button-wrapper {
       width: 100%;
       height: 100%;
+      justify-content: flex-start;
       .cs-icon {
         border-radius: 50%;
         width: ${(props) => props.theme.spaces[12] + 2}px;
