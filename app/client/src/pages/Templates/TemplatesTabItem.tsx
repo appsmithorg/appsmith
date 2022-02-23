@@ -1,30 +1,37 @@
 import { Popover2, Classes as Popover2Classes } from "@blueprintjs/popover2";
+import { useLocation } from "react-router";
 import { setTemplateNotificationSeenAction } from "actions/templateActions";
 import { TextType, Text } from "components/ads";
 import Icon, { IconSize } from "components/ads/Icon";
+import { Colors } from "constants/Colors";
 import { matchTemplatesPath } from "constants/routes";
 import { isNull } from "lodash";
 import React, { ReactNode, Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router";
+import {
+  INTRODUCING_TEMPLATES,
+  createMessage,
+  TEMPLATE_NOTIFICATION_DESCRIPTION,
+} from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { showTemplateNotificationSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
 
 const NotificationWrapper = styled.div`
-  background-color: #f1f1f1;
-  padding: 8px 18px;
+  background-color: ${Colors};
+  padding: ${(props) =>
+    `${props.theme.spaces[3]}px ${props.theme.spaces[8]}px`};
   display: flex;
   flex-direction: row;
 
   .text-wrapper {
     display: flex;
     flex-direction: column;
-    margin-left: 18px;
+    margin-left: ${(props) => props.theme.spacing[8]}px;
   }
 
   .description {
-    margin-top: 2px;
+    margin-top: ${(props) => props.theme.spacing[0] + 2}px;
   }
 `;
 
@@ -40,9 +47,9 @@ export function TemplateFeatureNotification() {
     <NotificationWrapper>
       <Icon name={"info"} size={IconSize.XXL} />
       <div className={"text-wrapper"}>
-        <Text type={TextType.H4}>Introducing Templates</Text>
+        <Text type={TextType.H4}>{createMessage(INTRODUCING_TEMPLATES)}</Text>
         <Text className="description" type={TextType.P1}>
-          You can browse, fork, and make them your own here
+          {createMessage(TEMPLATE_NOTIFICATION_DESCRIPTION)}
         </Text>
       </div>
     </NotificationWrapper>

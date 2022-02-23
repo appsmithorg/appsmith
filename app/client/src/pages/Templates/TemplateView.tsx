@@ -21,36 +21,51 @@ import { AppState } from "reducers";
 import { Icon, IconSize } from "components/ads";
 import history from "utils/history";
 import { TEMPLATES_URL } from "constants/routes";
+import { getTypographyByKey } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  GO_BACK,
+  OVERVIEW,
+  FORK_THIS_TEMPLATE,
+  FUNCTION,
+  INDUSTRY,
+  NOTE,
+  NOTE_MESSAGE,
+  WIDGET_USED,
+  DATASOURCES,
+  SIMILAR_TEMPLATES,
+} from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   overflow: auto;
 
   .breadcrumb-placeholder {
-    margin-top: 30px;
+    margin-top: ${(props) => props.theme.spaces[12]}px;
     height: 16px;
     width: 195px;
   }
   .title-placeholder {
-    margin-top: 26px;
+    margin-top: ${(props) => props.theme.spaces[11]}px;
     height: 28px;
     width: 269px;
   }
   .iframe-placeholder {
-    margin-top: 29px;
+    margin-top: ${(props) => props.theme.spaces[12]}px;
     height: 500px;
     width: 100%;
   }
 `;
 
 const TemplateViewWrapper = styled.div`
-  padding-right: 32px;
-  padding-left: 32px;
+  padding-right: ${(props) => props.theme.spaces[12]}px;
+  padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-bottom: 84px;
 `;
 
 const Title = styled(Text)`
-  margin-top: 26px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
   display: inline-block;
 `;
 
@@ -58,7 +73,7 @@ const IframeWrapper = styled.div`
   height: 734px;
   width: 100%;
   border-radius: 16px;
-  margin-top: 29px;
+  margin-top: ${(props) => props.theme.spaces[12]}px;
 
   iframe {
     border-radius: 0px 0px 16px 16px;
@@ -70,7 +85,7 @@ const IframeWrapper = styled.div`
 
 const DescriptionWrapper = styled.div`
   display: flex;
-  gap: 45px;
+  gap: ${(props) => props.theme.spaces[17]}px;
 `;
 
 const DescriptionColumn = styled.div`
@@ -78,73 +93,71 @@ const DescriptionColumn = styled.div`
 `;
 
 const Section = styled.div`
-  padding-top: 32px;
+  padding-top: ${(props) => props.theme.spaces[12]}px;
 
   .section-content {
-    margin-top: 20px;
+    margin-top: ${(props) => props.theme.spaces[9]}px;
   }
 
   .template-fork-button {
-    margin-top: 16px;
+    margin-top: ${(props) => props.theme.spaces[7]}px;
   }
 
   .datasource-note {
-    margin-top: 12px;
+    margin-top: ${(props) => props.theme.spaces[5]}px;
   }
 `;
 
 const StyledDatasourceChip = styled(DatasourceChip)`
-  padding: 10px 22px;
+  padding: ${(props) =>
+    `${props.theme.spaces[4]}px ${props.theme.spaces[10]}px`};
   .image {
     height: 25px;
     width: 25px;
   }
   span {
-    font-weight: 500;
-    font-size: 18px;
-    line-height: 24px;
-    letter-spacing: -0.24px;
-    color: #2a2f3d;
+    ${(props) => getTypographyByKey(props, "h2")}
+    color: ${Colors.EBONY_CLAY};
   }
 `;
 
 const TemplatesWidgetList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
+  gap: ${(props) => props.theme.spaces[12]}px;
 `;
 
 const TemplateDatasources = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const SimilarTemplatesWrapper = styled.div`
-  padding-right: 32px;
-  padding-left: 32px;
+  padding-right: ${(props) => props.theme.spaces[12]}px;
+  padding-left: ${(props) => props.theme.spaces[12]}px;
   background-color: rgba(248, 248, 248, 0.5);
 
   .grid {
     display: flex;
-    margin-left: -20px;
-    margin-top: 32px;
+    margin-left: ${(props) => -props.theme.spaces[9]}px;
+    margin-top: ${(props) => props.theme.spaces[12]}px;
   }
 
   .grid_column {
-    padding-left: 20px;
+    padding-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
 const IframeTopBar = styled.div`
   width: 100%;
-  background-color: #e7e7e7;
+  background-color: ${Colors.GEYSER_LIGHT};
   border-radius: 8px 8px 0px 0px;
   display: flex;
-  gap: 8px;
+  gap: ${(props) => props.theme.spaces[3]}px;
   height: 41px;
   align-items: center;
-  padding-left: 13px;
+  padding-left: ${(props) => props.theme.spaces[5]}px;
 
   .round {
     height: 12px;
@@ -153,13 +166,13 @@ const IframeTopBar = styled.div`
   }
 
   .red {
-    background-color: #ff6058;
+    background-color: ${Colors.PERSIMMON};
   }
   .yellow {
-    background-color: #ffc130;
+    background-color: ${Colors.SUNGLOW_2};
   }
   .green {
-    background-color: #27ca40;
+    background-color: ${Colors.MOUNTAIN_MEADOW};
   }
 `;
 
@@ -173,8 +186,8 @@ const BackButtonWrapper = styled.div`
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin-top: 32px;
+  gap: ${(props) => props.theme.spaces[2]}px;
+  margin-top: ${(props) => props.theme.spaces[12]}px;
 `;
 
 function TemplateViewLoader() {
@@ -239,7 +252,7 @@ function TemplateView() {
           <TemplateViewWrapper>
             <BackButtonWrapper onClick={goToTemplateListView}>
               <Icon name="view-less" size={IconSize.XL} />
-              <Text type={TextType.P4}>GO BACK</Text>
+              <Text type={TextType.P4}>{createMessage(GO_BACK)}</Text>
             </BackButtonWrapper>
 
             <Title type={TextType.DANGER_HEADING}>
@@ -259,7 +272,7 @@ function TemplateView() {
             <DescriptionWrapper>
               <DescriptionColumn>
                 <Section>
-                  <Text type={TextType.H1}>Overview</Text>
+                  <Text type={TextType.H1}>{createMessage(OVERVIEW)}</Text>
                   <div className="section-content">
                     <Text type={TextType.H4} weight={FontWeight.NORMAL}>
                       {currentTemplate.description}
@@ -277,13 +290,13 @@ function TemplateView() {
                       onClick={onForkButtonTrigger}
                       size={Size.large}
                       tag="button"
-                      text="FORK THIS TEMPLATE"
+                      text={createMessage(FORK_THIS_TEMPLATE)}
                       width="228px"
                     />
                   </ForkTemplate>
                 </Section>
                 <Section>
-                  <Text type={TextType.H1}>Function</Text>
+                  <Text type={TextType.H1}>{createMessage(FUNCTION)}</Text>
                   <div className="section-content">
                     <Text type={TextType.H1} weight={FontWeight.NORMAL}>
                       {currentTemplate.functions.join(" • ")}
@@ -291,7 +304,7 @@ function TemplateView() {
                   </div>
                 </Section>
                 <Section>
-                  <Text type={TextType.H1}>Industry</Text>
+                  <Text type={TextType.H1}>{createMessage(INDUSTRY)}</Text>
                   <div className="section-content">
                     <Text type={TextType.H1} weight={FontWeight.NORMAL}>
                       {currentTemplate.useCases.join(" • ")}
@@ -301,7 +314,7 @@ function TemplateView() {
               </DescriptionColumn>
               <DescriptionColumn>
                 <Section>
-                  <Text type={TextType.H1}>Data Sources</Text>
+                  <Text type={TextType.H1}>{createMessage(DATASOURCES)}</Text>
                   <div className="section-content">
                     <TemplateDatasources>
                       {currentTemplate.datasources.map((packageName) => {
@@ -314,15 +327,15 @@ function TemplateView() {
                       })}
                     </TemplateDatasources>
                     <div className="datasource-note">
-                      <Text type={TextType.H4}>Note: </Text>
+                      <Text type={TextType.H4}>{createMessage(NOTE)} </Text>
                       <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                        You can add your data sources as well
+                        {createMessage(NOTE_MESSAGE)}
                       </Text>
                     </div>
                   </div>
                 </Section>
                 <Section>
-                  <Text type={TextType.H1}>Widgets Used</Text>
+                  <Text type={TextType.H1}>{createMessage(WIDGET_USED)}</Text>
                   <div className="section-content">
                     <TemplatesWidgetList>
                       {currentTemplate.widgets.map((widgetType) => {
@@ -344,7 +357,7 @@ function TemplateView() {
             <SimilarTemplatesWrapper>
               <Section>
                 <Text type={TextType.H1} weight={FontWeight.BOLD}>
-                  Similar Templates
+                  {createMessage(SIMILAR_TEMPLATES)}
                 </Text>
                 <Masonry
                   breakpointCols={3}

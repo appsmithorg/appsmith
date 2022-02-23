@@ -1046,3 +1046,15 @@ export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
   "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
+export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
+export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
+  "You can browse, fork, and make them your own here";
+export const GO_BACK = () => "GO BACK";
+export const OVERVIEW = () => "Overview";
+export const FUNCTION = () => "Function";
+export const INDUSTRY = () => "Industry";
+export const DATASOURCES = () => "Data Sources";
+export const NOTE = () => "Note:";
+export const NOTE_MESSAGE = () => "You can add your data sources as well";
+export const WIDGET_USED = () => "Widgets Used";
+export const SIMILAR_TEMPLATES = () => "Similar Templates";

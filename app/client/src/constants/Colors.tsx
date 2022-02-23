@@ -2,6 +2,8 @@
 export const Colors = {
   EBONY_CLAY: "#2A2F3D",
   EBONY_CLAY_2: "#22223B",
+  MOUNTAIN_MEADOW: "#27CA40",
+  PERSIMMON: "#FF6058",
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
@@ -15,6 +17,7 @@ export const Colors = {
   DARK_GRAY: "#A9A7A7",
   LIGHT_GREYISH_BLUE: "#B0BFCB",
   SUNGLOW: "#FFCB33",
+  SUNGLOW_2: "FFC130",
   SOFT_ORANGE: "#f7c75b",
   BINDING_COLOR: "#ffcc99",
   BINDING_COLOR_LT: "#063289",
