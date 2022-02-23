@@ -102,9 +102,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             datasource.setGitSyncId(datasource.getOrganizationId() + "_" + new ObjectId());
         }
 
-        // Datasource when created will not be configured
-        datasource.setIsConfigured(false);
-
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
