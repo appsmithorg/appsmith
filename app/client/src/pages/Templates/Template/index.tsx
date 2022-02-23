@@ -7,7 +7,6 @@ import Tooltip from "components/ads/Tooltip";
 import { TEMPLATE_ID_URL } from "constants/routes";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
-import TemplateSampleImage from "./template-test.png";
 import LargeTemplate from "./LargeTemplate";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
@@ -97,7 +96,14 @@ export interface TemplateLayoutProps {
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
-  const { datasources, description, functions, id, title } = props.template;
+  const {
+    datasources,
+    description,
+    functions,
+    id,
+    screenshotUrls,
+    title,
+  } = props.template;
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
     history.push(TEMPLATE_ID_URL(id));
@@ -116,7 +122,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   return (
     <TemplateWrapper className={props.className} onClick={onClick}>
       <ImageWrapper className="image-wrapper">
-        <StyledImage src={TemplateSampleImage} />
+        <StyledImage src={screenshotUrls[0]} />
       </ImageWrapper>
       <TemplateContent>
         <div className="title">{title}</div>
