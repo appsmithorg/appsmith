@@ -117,6 +117,7 @@ function ObjectField({
     >
       <NestedFormWrapper
         backgroundColor={isRootField ? "transparent" : backgroundColor}
+        withoutPadding={isRootField}
       >
         {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
         {isRootField || hideAccordion ? (

@@ -1,5 +1,5 @@
 import equal from "fast-deep-equal/es6";
-import React, { PropsWithChildren, useRef } from "react";
+import React, { PropsWithChildren, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { cloneDeep, debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
@@ -9,12 +9,14 @@ import {
   BaseButton as Button,
   ButtonStyleProps,
 } from "widgets/ButtonWidget/component";
-import { FIELD_PADDING_X } from "./styleConstants";
+import { Colors } from "constants/Colors";
+import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
-import { TEXT_SIZES } from "constants/WidgetConstants";
 import { schemaItemDefaultValue } from "../helper";
+import { TEXT_SIZES } from "constants/WidgetConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
+  backgroundColor?: string;
   disabledWhenInvalid?: boolean;
   fixedFooter: boolean;
   isSubmitting: boolean;
@@ -30,7 +32,6 @@ export type FormProps<TValues = any> = PropsWithChildren<{
 }>;
 
 type StyledFormProps = {
-  fixedFooter: boolean;
   scrollContents: boolean;
 };
 
@@ -38,21 +39,49 @@ type StyledFormBodyProps = {
   stretchBodyVertically: boolean;
 };
 
+type StyledFooterProps = {
+  fixedFooter: boolean;
+  backgroundColor?: string;
+};
+
+const BUTTON_HEIGHT = 30;
 const BUTTON_WIDTH = 110;
 const FOOTER_BUTTON_GAP = 10;
-const FORM_FOOTER_PADDING_TOP = 10;
+const FOOTER_DEFAULT_BG_COLOR = "#fff";
+const FOOTER_PADDING_TOP = FORM_PADDING_Y;
 const TITLE_MARGIN_BOTTOM = 16;
+const FOOTER_SCROLL_ACTIVE_CLASS_NAME = "scroll-active";
 
-const StyledFormFooter = styled.div`
+const StyleFormFooterPlaceholder = styled.div`
+  min-height: ${BUTTON_HEIGHT + FOOTER_PADDING_TOP}px;
+`;
+
+const StyledFormFooter = styled.div<StyledFooterProps>`
+  background-color: ${({ backgroundColor }) =>
+    backgroundColor || FOOTER_DEFAULT_BG_COLOR};
+  bottom: 0;
   display: flex;
   justify-content: flex-end;
-  padding-top: ${FORM_FOOTER_PADDING_TOP}px;
+  padding-bottom: ${({ fixedFooter }) => (fixedFooter ? FORM_PADDING_Y : 0)}px;
+  padding-right: ${({ fixedFooter }) =>
+    fixedFooter ? FORM_PADDING_X + 6 : 0}px;
+  padding-top: ${FOOTER_PADDING_TOP}px;
+  position: ${({ fixedFooter }) => fixedFooter && "fixed"};
+  right: 0;
+  width: 100%;
 
-  && > button {
+  &.${FOOTER_SCROLL_ACTIVE_CLASS_NAME} {
+    box-shadow: 0px -10px 10px -10px ${Colors.GREY_3};
+    border-top: 1px solid ${Colors.GREY_3};
+  }
+
+  && > button,
+  && > div {
     width: ${BUTTON_WIDTH}px;
   }
 
-  & > button {
+  && > button,
+  && > div {
     margin-right: ${FOOTER_BUTTON_GAP}px;
   }
 
@@ -65,9 +94,8 @@ const StyledForm = styled.form<StyledFormProps>`
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: ${({ fixedFooter }) => fixedFooter && "space-between"};
   overflow-y: ${({ scrollContents }) => (scrollContents ? "auto" : "hidden")};
-  padding: ${FIELD_PADDING_X}px;
+  padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
 `;
 
 const StyledTitle = styled(Text)`
@@ -82,7 +110,17 @@ const StyledFormBody = styled.div<StyledFormBodyProps>`
     stretchBodyVertically ? "100%" : "auto"};
 `;
 
+const StyledResetButtonWrapper = styled.div`
+  background: #fff;
+`;
+
+const scrolledToBottom = (element: HTMLElement) => {
+  const { clientHeight, scrollHeight, scrollTop } = element;
+  return scrollHeight - scrollTop === clientHeight;
+};
+
 function Form<TValues = any>({
+  backgroundColor,
   children,
   disabledWhenInvalid,
   fixedFooter,
@@ -97,13 +135,15 @@ function Form<TValues = any>({
   title,
   updateFormData,
 }: FormProps<TValues>) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef({});
   const methods = useForm();
   const { formState, reset, watch } = methods;
   const { errors } = formState;
   const isFormInValid = !isEmpty(errors);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const debouncedUpdateFormData = debounce(updateFormData, 300);
     if (schema[ROOT_SCHEMA_KEY]) {
       const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
@@ -130,21 +170,54 @@ function Form<TValues = any>({
     }
   };
 
+  useEffect(() => {
+    if (
+      fixedFooter &&
+      footerRef.current &&
+      formRef.current &&
+      !scrolledToBottom(formRef.current)
+    ) {
+      footerRef.current.classList.add(FOOTER_SCROLL_ACTIVE_CLASS_NAME);
+    }
+  }, [fixedFooter]);
+
+  const onScroll = (event: React.UIEvent<HTMLFormElement, UIEvent>) => {
+    if (fixedFooter && footerRef.current) {
+      scrolledToBottom(event.currentTarget)
+        ? footerRef.current.classList.remove(FOOTER_SCROLL_ACTIVE_CLASS_NAME)
+        : footerRef.current.classList.add(FOOTER_SCROLL_ACTIVE_CLASS_NAME);
+    }
+  };
+
   return (
     <FormProvider {...methods}>
-      <StyledForm fixedFooter={fixedFooter} scrollContents={scrollContents}>
+      <StyledForm
+        onScroll={onScroll}
+        ref={formRef}
+        scrollContents={scrollContents}
+      >
         <StyledFormBody stretchBodyVertically={stretchBodyVertically}>
           <StyledTitle>{title}</StyledTitle>
           {children}
         </StyledFormBody>
-        <StyledFormFooter>
+        {/* {This placeholder div makes sure there is ample amount of space
+          at the bottom for the buttons to occupy as in fixed mode the div looses its
+          spacing } */}
+        {fixedFooter && <StyleFormFooterPlaceholder />}
+        <StyledFormFooter
+          backgroundColor={backgroundColor}
+          fixedFooter={fixedFooter}
+          ref={footerRef}
+        >
           {showReset && (
-            <Button
-              {...resetButtonStyles}
-              onClick={onReset}
-              text="Reset"
-              type="reset"
-            />
+            <StyledResetButtonWrapper>
+              <Button
+                {...resetButtonStyles}
+                onClick={onReset}
+                text="Reset"
+                type="reset"
+              />
+            </StyledResetButtonWrapper>
           )}
           <Button
             {...submitButtonStyles}
