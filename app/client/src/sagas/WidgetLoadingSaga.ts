@@ -1,4 +1,4 @@
-import { DependencyMap } from "../utils/DynamicBindingUtils";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 import { call, fork, put, select, take, TakeEffect } from "redux-saga/effects";
 import {
   getEvaluationInverseDependencyMap,
@@ -17,7 +17,7 @@ import { get, set } from "lodash";
 
 type GroupedDependencyMap = Record<string, DependencyMap>;
 
-const createEntitiesDependantsMap = (inverseMap: DependencyMap) => {
+export const createEntitiesDependantsMap = (inverseMap: DependencyMap) => {
   const entitiesDepMap: GroupedDependencyMap = {};
 
   Object.entries(inverseMap).forEach(([fullDependencyPath, dependants]) => {
@@ -26,14 +26,7 @@ const createEntitiesDependantsMap = (inverseMap: DependencyMap) => {
     let entityPathDependants = entityDepMap[fullDependencyPath] || [];
 
     entityPathDependants = entityPathDependants.concat(
-      dependants.filter((dep) => {
-        const value = dep.split(".")[0];
-        // if (value === "Table1" && dep.split(".")[1] !== "tableData") return;
-        if (value !== dependencyEntityName) {
-          return dep;
-        }
-        return;
-      }),
+      dependants.filter((dep) => dep.split(".")[0] !== dependencyEntityName),
     );
 
     if (!(entityPathDependants.length > 0)) return;
@@ -47,10 +40,10 @@ const createEntitiesDependantsMap = (inverseMap: DependencyMap) => {
   return entitiesDepMap;
 };
 
-const getEntityDependants = (
+export const getEntityDependants = (
   fullEntityPaths: string[],
   entitiesDependantsmap: GroupedDependencyMap,
-  visitedEntities: Set<string>,
+  visitedPaths: Set<string>,
 ): { names: Set<string>; fullPaths: Set<string> } => {
   const dependantEntityNames = new Set<string>();
   const dependantEntityFullPaths = new Set<string>();
@@ -76,10 +69,10 @@ const getEntityDependants = (
           // Dropdown1 -> Table1 -> Text1 -> Dropdown1
           // It looks like a circle, but isn't
           // So we need to mark the visited nodes and avoid infinite recursion in case we've already visited a node once.
-          if (visitedEntities.has(entityName)) {
+          if (visitedPaths.has(dependantPath)) {
             return;
           }
-          visitedEntities.add(entityName);
+          visitedPaths.add(dependantPath);
 
           dependantEntityNames.add(dependantEntityName);
           dependantEntityFullPaths.add(dependantPath);
@@ -87,7 +80,7 @@ const getEntityDependants = (
           const childDependencies = getEntityDependants(
             Array.from(dependantEntityFullPaths),
             entitiesDependantsmap,
-            visitedEntities,
+            visitedPaths,
           );
           childDependencies.names.forEach((entityName) => {
             dependantEntityNames.add(entityName);
