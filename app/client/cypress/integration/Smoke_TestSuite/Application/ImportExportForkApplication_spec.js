@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const homePage = require("../../../locators/HomePage.json");
 const dsl = require("../../../fixtures/forkedApp.json");
 
@@ -14,7 +16,8 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(homePage.orgImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
-    cy.get(homePage.orgImportAppButton).click({ force: true });
+    cy.get(homePage.orgImportAppButton).click();
+    cy.get(homePage.orgImportAppModal).should("not.exist");
     cy.wait("@importNewApplication").then((interception) => {
       // let appId = interception.response.body.data.id;
       // let defaultPage = interception.response.body.data.pages.find(
