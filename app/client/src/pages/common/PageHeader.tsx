@@ -28,6 +28,7 @@ import { Indices } from "constants/Layers";
 import Icon, { IconSize } from "components/ads/Icon";
 import { TemplatesTabItem } from "pages/Templates/TemplatesTabItem";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
+import getFeatureFlags from "utils/featureFlags";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -35,6 +36,7 @@ const StyledPageHeader = styled(StyledHeader)<{
   showSeparator?: boolean;
   showingTabs: boolean;
 }>`
+  box-shadow: 0px 1px 0px ${Colors.GALLERY_2};
   justify-content: normal;
   background: white;
   height: 48px;
@@ -42,10 +44,17 @@ const StyledPageHeader = styled(StyledHeader)<{
   position: fixed;
   top: 0;
   z-index: ${Indices.Layer9};
-  box-shadow: ${(props) =>
-    props.hideShadow && !props.isMobile
-      ? `none`
-      : `0px 4px 4px rgba(0, 0, 0, 0.05)`};
+  box-shadow: ${(props) => {
+    if (props.isMobile) {
+      return `0px 4px 4px rgba(0, 0, 0, 0.05)`;
+    }
+    if (props.hideShadow) {
+      // solid line
+      return `0px 1px 0px ${Colors.GALLERY_2}`;
+    } else {
+      return `0px 4px 4px rgba(0, 0, 0, 0.05)`;
+    }
+  }};
   ${(props) =>
     props.showingTabs &&
     !props.isMobile &&
@@ -145,7 +154,10 @@ export function PageHeader(props: PageHeaderProps) {
   ];
 
   const showTabs = useMemo(() => {
-    return tabs.some((tab) => tab.matcher(location.pathname));
+    return (
+      tabs.some((tab) => tab.matcher(location.pathname)) &&
+      getFeatureFlags().APP_TEMPLATE
+    );
   }, [location.pathname]);
 
   return (
