@@ -15,75 +15,92 @@ import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { get, set } from "lodash";
 
-type ExtendedDependencyMap = Record<string, Array<string>>;
+type GroupedDependencyMap = Record<string, DependencyMap>;
 
-type FullDependencyMap = Record<string, ExtendedDependencyMap>;
+const createEntitiesDependantsMap = (inverseMap: DependencyMap) => {
+  const entitiesDepMap: GroupedDependencyMap = {};
 
-const createEntityDependencyMap = (inverseMap: DependencyMap) => {
-  const entityDepMap: FullDependencyMap = {};
-  Object.entries(inverseMap).forEach(([dependantPath, dependencies]) => {
-    const entityDependant = dependantPath.split(".")[0];
-    const existing = entityDepMap[entityDependant] || {};
-    let existing2 = existing[dependantPath] || [];
-    existing2 = existing2.concat(
-      dependencies.filter((dep) => {
+  Object.entries(inverseMap).forEach(([fullDependencyPath, dependants]) => {
+    const dependencyEntityName = fullDependencyPath.split(".")[0];
+    const entityDepMap = entitiesDepMap[dependencyEntityName] || {};
+    let entityPathDependants = entityDepMap[fullDependencyPath] || [];
+
+    entityPathDependants = entityPathDependants.concat(
+      dependants.filter((dep) => {
         const value = dep.split(".")[0];
-        if (value === "Table1" && dep.split(".")[1] !== "tableData") return;
-        if (value !== entityDependant) {
+        // if (value === "Table1" && dep.split(".")[1] !== "tableData") return;
+        if (value !== dependencyEntityName) {
           return dep;
         }
         return;
       }),
     );
-    if (!(existing2.length > 0)) return;
-    set(entityDepMap, [entityDependant, dependantPath], existing2);
+
+    if (!(entityPathDependants.length > 0)) return;
+    set(
+      entitiesDepMap,
+      [dependencyEntityName, fullDependencyPath],
+      entityPathDependants,
+    );
   });
-  return entityDepMap;
+
+  return entitiesDepMap;
 };
 
-const getEntityDependencies = (
+const getEntityDependants = (
   fullEntityPaths: string[],
-  fullDepMap: FullDependencyMap,
-  visited: Set<string>,
+  entitiesDependantsmap: GroupedDependencyMap,
+  visitedEntities: Set<string>,
 ): { names: Set<string>; fullPaths: Set<string> } => {
-  const dependantsEntityNames = new Set<string>();
+  const dependantEntityNames = new Set<string>();
   const dependantEntityFullPaths = new Set<string>();
+
   fullEntityPaths.forEach((fullEntityPath) => {
     const entityName = fullEntityPath.split(".")[0];
-    if (!(entityName in fullDepMap)) return;
-    const extDepMap = fullDepMap[entityName];
-    Object.entries(extDepMap).forEach(([fullPath, dependencies]) => {
-      if (fullEntityPath.split(".").length > 1 && fullPath !== fullEntityPath)
-        return;
-      dependencies.forEach((dependantPath) => {
-        const dependantPathArray = dependantPath.split(".");
-        const dependantEntityName = dependantPathArray[0];
-        // Example: For a dependency chain that looks like Dropdown1.selectedOptionValue -> Table1.tableData -> Text1.text -> Dropdown1.options
-        // Here we're operating on
-        // Dropdown1 -> Table1 -> Text1 -> Dropdown1
-        // It looks like a circle, but isn't
-        // So we need to mark the visited nodes and avoid infinite recursion in case we've already visited a node once.
-        if (visited.has(entityName)) {
+    if (!(entityName in entitiesDependantsmap)) return;
+    const entityDependantsMap = entitiesDependantsmap[entityName];
+
+    Object.entries(entityDependantsMap).forEach(
+      ([fullDependencyPath, dependants]) => {
+        if (
+          fullEntityPath.split(".").length > 1 &&
+          fullDependencyPath !== fullEntityPath
+        ) {
           return;
         }
-        visited.add(entityName);
-        dependantsEntityNames.add(dependantEntityName);
-        dependantEntityFullPaths.add(dependantPath);
-        const childDependencies = getEntityDependencies(
-          Array.from(dependantEntityFullPaths),
-          fullDepMap,
-          visited,
-        );
-        childDependencies.names.forEach((entityName) => {
-          dependantsEntityNames.add(entityName);
+
+        dependants.forEach((dependantPath) => {
+          const dependantEntityName = dependantPath.split(".")[0];
+          // Example: For a dependency chain that looks like Dropdown1.selectedOptionValue -> Table1.tableData -> Text1.text -> Dropdown1.options
+          // Here we're operating on
+          // Dropdown1 -> Table1 -> Text1 -> Dropdown1
+          // It looks like a circle, but isn't
+          // So we need to mark the visited nodes and avoid infinite recursion in case we've already visited a node once.
+          if (visitedEntities.has(entityName)) {
+            return;
+          }
+          visitedEntities.add(entityName);
+
+          dependantEntityNames.add(dependantEntityName);
+          dependantEntityFullPaths.add(dependantPath);
+
+          const childDependencies = getEntityDependants(
+            Array.from(dependantEntityFullPaths),
+            entitiesDependantsmap,
+            visitedEntities,
+          );
+          childDependencies.names.forEach((entityName) => {
+            dependantEntityNames.add(entityName);
+          });
+          childDependencies.fullPaths.forEach((entityPath) => {
+            dependantEntityFullPaths.add(entityPath);
+          });
         });
-        childDependencies.fullPaths.forEach((entityPath) => {
-          dependantEntityFullPaths.add(entityPath);
-        });
-      });
-    });
+      },
+    );
   });
-  return { names: dependantsEntityNames, fullPaths: dependantEntityFullPaths };
+
+  return { names: dependantEntityNames, fullPaths: dependantEntityFullPaths };
 };
 
 const ACTION_EXECUTION_REDUX_ACTIONS = [
@@ -99,17 +116,17 @@ const ACTION_EXECUTION_REDUX_ACTIONS = [
 
 function* setWidgetsLoadingSaga() {
   const inverseMap = yield select(getEvaluationInverseDependencyMap);
-  const entityDependencyMap = createEntityDependencyMap(inverseMap);
+  const entitiesDependantsMap = createEntitiesDependantsMap(inverseMap);
   console.log("Hello INVERSE_MAP", inverseMap);
-  console.log("Hello ENTITY_MAP", entityDependencyMap);
+  console.log("Hello ENTITY_MAP", entitiesDependantsMap);
   const actions = yield select(getActions);
   const isLoadingActions: string[] = actions
     .filter((action: ActionData) => action.isLoading)
     .map((action: ActionData) => action.config.name);
 
-  const loadingEntities = getEntityDependencies(
+  const loadingEntities = getEntityDependants(
     isLoadingActions,
-    entityDependencyMap,
+    entitiesDependantsMap,
     new Set<string>(),
   );
 
