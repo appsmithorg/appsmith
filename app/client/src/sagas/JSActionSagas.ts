@@ -31,7 +31,12 @@ import {
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectPageSlugById,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import { JS_COLLECTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
@@ -166,7 +171,8 @@ function* copyJSCollectionSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSCollection = yield select(getJSCollection, id);
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const pageSlug: string = yield select(selectPageSlugById(jsAction.pageId));
   history.push(
     JS_COLLECTION_ID_URL(
       applicationSlug,

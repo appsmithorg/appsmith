@@ -41,6 +41,8 @@ import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getActionById,
   getCurrentPageId,
+  selectCurrentApplicationSlug,
+  selectPageSlugById,
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -731,7 +733,8 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const pageSlug: string = yield select(selectPageSlugById(action.pageId));
 
   if (isApi) {
     history.push(

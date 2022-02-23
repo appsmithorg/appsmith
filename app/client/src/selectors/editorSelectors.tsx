@@ -131,7 +131,13 @@ export const getCurrentApplicationId = (state: AppState) =>
   ""; /** this is set during init can assume it to be defined */
 
 export const selectCurrentApplicationSlug = (state: AppState) =>
-  state.ui.applications.currentApplication?.slug || "";
+  state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
+
+export const selectPageSlugById = (pageId: string) =>
+  createSelector(getPageList, (pages) => {
+    const page = pages.find((page) => page.pageId === pageId);
+    return page?.slug || PLACEHOLDER_PAGE_SLUG;
+  });
 
 export const selectURLSlugs = createSelector(
   getCurrentApplication,

@@ -3,8 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectCurrentApplicationSlug,
-  selectCurrentPageSlug,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
@@ -55,8 +54,7 @@ const StyledEntity = styled(Entity)`
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
-  const pageSlug = useSelector(selectCurrentPageSlug);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const pages: Page[] = useSelector(selectAllPages);
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
@@ -76,7 +74,7 @@ function Pages() {
         }),
       );
     },
-    [applicationId],
+    [applicationSlug],
   );
 
   const createPageCallback = useCallback(() => {
@@ -116,14 +114,14 @@ function Pages() {
     history.push(
       PAGE_LIST_EDITOR_URL(applicationSlug, pageSlug, currentPageId),
     );
-  }, [applicationId, currentPageId]);
+  }, [applicationSlug, pageSlug, currentPageId]);
 
   const onPageListSelection = React.useCallback(
     () =>
       history.push(
         PAGE_LIST_EDITOR_URL(applicationSlug, pageSlug, currentPageId),
       ),
-    [applicationId, currentPageId],
+    [applicationSlug, pageSlug, currentPageId],
   );
 
   const pageElements = useMemo(
