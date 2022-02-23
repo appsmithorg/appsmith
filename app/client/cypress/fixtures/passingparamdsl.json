@@ -1,0 +1,70 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 816,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 340,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 49,
+        "minHeight": 320,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "widgetName": "searchText",
+                "isFilterable": true,
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "onFilterUpdate"
+                    }
+                ],
+                "displayName": "Select",
+                "iconSVG": "/static/media/icon.bd99caba.svg",
+                "labelText": "Label",
+                "topRow": 18,
+                "bottomRow": 27,
+                "parentRowSpace": 10,
+                "type": "DROP_DOWN_WIDGET",
+                "serverSideFiltering": true,
+                "hideCard": false,
+                "defaultOptionValue": "GREEN",
+                "selectionType": "SINGLE_SELECT",
+                "animateLoading": true,
+                "parentColumnSpace": 12.765625,
+                "dynamicTriggerPathList": [
+                    {
+                        "key": "onFilterUpdate"
+                    }
+                ],
+                "leftColumn": 14,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "options"
+                    }
+                ],
+                "options": "{{JSObject1.getUser()}}",
+                "placeholderText": "Select option",
+                "isDisabled": false,
+                "key": "1fuxw10r09",
+                "isRequired": false,
+                "rightColumn": 53,
+                "widgetId": "h4vadblvjn",
+                "isVisible": false,
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "onFilterUpdate": "{{JSObject1.searchUsers(searchText.filterText)}}"
+            }
+        ]
+    }
+}

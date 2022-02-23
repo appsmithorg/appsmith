@@ -1903,6 +1903,41 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.wait(2000);
 });
 
+ypress.Commands.add("addJsEditorText", (value, paste = true) => {
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is not empty");
+      cy.get(".CodeMirror textarea")
+        .first()
+        .click({ force: true })
+        .focused({ force: true })
+        .clear({
+          force: true,
+        });
+    }
+    cy.wait(500);
+    cy.get(".CodeMirror textarea")
+      .first()
+      .then((el) => {
+        const input = cy.get(el);
+        if (paste) {
+          input.invoke("val", value);
+        } else {
+          input.type(value, {
+            force: true,
+            parseSpecialCharSequences: false,
+          });
+        }
+      });
+  });
+  cy.wait(2500); //Allowing time for Evaluate value to capture value
+});
+
 Cypress.Commands.add("generateUUID", () => {
   const uuid = require("uuid");
   const id = uuid.v4();
