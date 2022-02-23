@@ -243,7 +243,6 @@ function* initializeExtraFormDataSaga() {
   const state: AppState = yield select();
   const { extraformData } = state.ui.apiPane;
   const formData: GetFormData = yield select(getFormData, API_EDITOR_FORM_NAME);
-  // @ts-expect-error: GetFormData does not have values
   const { values } = formData;
   // const headers = get(values, "actionConfiguration.headers");
   const apiContentType = get(

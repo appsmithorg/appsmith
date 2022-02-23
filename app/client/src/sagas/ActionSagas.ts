@@ -117,6 +117,7 @@ import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
+import { shouldBeDefined } from "utils/helpers";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -448,7 +449,10 @@ function* moveActionSaga(
     name: string;
   }>,
 ) {
-  const actionObject: Action = yield select(getAction, action.payload.id);
+  const actionObject = shouldBeDefined<Action>(
+    yield select(getAction, action.payload.id),
+    `Action not found for id - ${action.payload.id}`,
+  );
   try {
     const response: ApiResponse = yield ActionAPI.moveAction({
       action: {
@@ -637,19 +641,19 @@ function* bindDataOnCanvasSaga(
 function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
-  const api: ActionData | undefined = yield select((state) =>
-    state.entities.actions.find(
-      (action: ActionData) => action.config.id === apiId,
+  const api = shouldBeDefined<ActionData>(
+    yield select((state) =>
+      state.entities.actions.find(
+        (action: ActionData) => action.config.id === apiId,
+      ),
     ),
+    `Api not found for apiId - ${apiId}`,
   );
 
   try {
     yield refactorActionName(
-      // @ts-expect-error: api can be undefined
       api.config.id,
-      // @ts-expect-error: api can be undefined
       api.config.pageId,
-      // @ts-expect-error: api can be undefined
       api.config.name,
       action.payload.name,
     );
@@ -658,7 +662,6 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       payload: {
         actionId: action.payload.id,
-        // @ts-expect-error: api can be undefined
         oldName: api.config.name,
       },
     });
@@ -764,12 +767,14 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
     );
   }
   if (isSaas) {
-    const plugin: Plugin | undefined = yield select(getPlugin, action.pluginId);
+    const plugin = shouldBeDefined<Plugin>(
+      yield select(getPlugin, action.pluginId),
+      `Plugin not found for pluginId - ${action.pluginId}`,
+    );
     history.push(
       SAAS_EDITOR_API_ID_URL(
         applicationId,
         action.pageId,
-        // @ts-expect-error: plugin can be undefined
         plugin.packageName,
         action.id,
       ),

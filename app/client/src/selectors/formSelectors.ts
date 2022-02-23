@@ -9,12 +9,13 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 
-export type GetFormData = (
-  state: AppState,
-  formName: string,
-) => { initialValues: any; values: any; valid: boolean };
+export type GetFormData = {
+  initialValues: Record<string, unknown>;
+  values: any;
+  valid: boolean;
+};
 
-export const getFormData: GetFormData = (state, formName) => {
+export const getFormData = (state: AppState, formName: string): GetFormData => {
   const initialValues = getFormInitialValues(formName)(state);
   const values = getFormValues(formName)(state);
   const valid = isValid(formName)(state);

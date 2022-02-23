@@ -31,6 +31,8 @@ import { find, pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+import { shouldBeDefined } from "utils/helpers";
+import { Page } from "constants/ReduxActionConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -141,8 +143,10 @@ export const getCanvasWidth = (state: AppState) =>
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
-    pageList.pages.find((page) => page.pageId === pageList.currentPageId)
-      ?.pageName || "PAGE_NAME_NOT_FOUND",
+    shouldBeDefined<Page>(
+      pageList.pages.find((page) => page.pageId === pageList.currentPageId),
+      `Page not found for id - ${pageList.currentPageId}`,
+    )?.pageName,
 );
 
 export const getWidgetCards = createSelector(

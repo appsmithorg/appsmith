@@ -88,7 +88,7 @@ import {
   PluginTriggerFailureError,
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
-import { trimQueryString } from "utils/helpers";
+import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import {
   executeAppAction,
   TriggerMeta,
@@ -249,7 +249,10 @@ export default function* executePluginActionTriggerSaga(
     actionId,
   );
   const appMode: APP_MODE | undefined = yield select(getAppMode);
-  const action: Action | undefined = yield select(getAction, actionId);
+  const action = shouldBeDefined<Action>(
+    yield select(getAction, actionId),
+    `Action not found for id - ${actionId}`,
+  );
   const currentApp: ApplicationPayload = yield select(getCurrentApplication);
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: action?.pluginType,
@@ -270,16 +273,13 @@ export default function* executePluginActionTriggerSaga(
     text: "Execution started from widget request",
     source: {
       type: ENTITY_TYPE.ACTION,
-      // @ts-expect-error: action can be undefined
       name: action.name,
       id: actionId,
     },
-    // @ts-expect-error: action can be undefined
     state: action.actionConfiguration,
   });
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
-    // @ts-expect-error: action can be undefined
     action.id,
     pagination,
     params,
@@ -293,7 +293,6 @@ export default function* executePluginActionTriggerSaga(
       text: `Execution failed with status ${payload.statusCode}`,
       source: {
         type: ENTITY_TYPE.ACTION,
-        // @ts-expect-error: action can be undefined
         name: action.name,
         id: actionId,
       },
@@ -319,7 +318,6 @@ export default function* executePluginActionTriggerSaga(
       });
     } else {
       throw new PluginTriggerFailureError(
-        // @ts-expect-error: action can be undefined
         createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
         [payload.body, params],
       );
@@ -331,7 +329,6 @@ export default function* executePluginActionTriggerSaga(
       timeTaken: payload.duration,
       source: {
         type: ENTITY_TYPE.ACTION,
-        // @ts-expect-error: action can be undefined
         name: action.name,
         id: actionId,
       },
@@ -400,7 +397,10 @@ function* runActionSaga(
     }
     yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   }
-  const actionObject: Action | undefined = yield select(getAction, actionId);
+  const actionObject = shouldBeDefined<Action>(
+    yield select(getAction, actionId),
+    `action not found for id - ${actionId}`,
+  );
 
   const datasourceUrl = get(
     actionObject,
@@ -411,12 +411,10 @@ function* runActionSaga(
     text: "Execution started from user request",
     source: {
       type: ENTITY_TYPE.ACTION,
-      // @ts-expect-error: actionObject can be undefined
       name: actionObject.name,
       id: actionId,
     },
     state: {
-      // @ts-expect-error: action can be undefined
       ...actionObject.actionConfiguration,
       ...(datasourceUrl && {
         url: datasourceUrl,
@@ -492,7 +490,6 @@ function* runActionSaga(
       }`,
       source: {
         type: ENTITY_TYPE.ACTION,
-        // @ts-expect-error: action can be undefined
         name: actionObject.name,
         id: actionId,
       },
@@ -501,7 +498,6 @@ function* runActionSaga(
     });
 
     Toaster.show({
-      // @ts-expect-error: action can be undefined
       text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
       variant: Variant.danger,
     });
@@ -515,18 +511,15 @@ function* runActionSaga(
 
   const pageName: string = yield select(getCurrentPageNameByActionId, actionId);
   let eventName: EventName = "RUN_API";
-  // @ts-expect-error: action can be undefined
   if (actionObject.pluginType === PluginType.DB) {
     eventName = "RUN_QUERY";
   }
-  // @ts-expect-error: action can be undefined
   if (actionObject.pluginType === PluginType.SAAS) {
     eventName = "RUN_SAAS_API";
   }
 
   AnalyticsUtil.logEvent(eventName, {
     actionId,
-    // @ts-expect-error: action can be undefined
     actionName: actionObject.name,
     pageName: pageName,
     responseTime: payload.duration,
@@ -544,7 +537,6 @@ function* runActionSaga(
       timeTaken: payload.duration,
       source: {
         type: ENTITY_TYPE.ACTION,
-        // @ts-expect-error: action can be undefined
         name: actionObject.name,
         id: actionId,
       },

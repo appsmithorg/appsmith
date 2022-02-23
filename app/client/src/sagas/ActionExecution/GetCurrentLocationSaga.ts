@@ -65,8 +65,8 @@ let errorChannel: Channel<any> | undefined;
 function* successCallbackHandler() {
   if (successChannel) {
     while (true) {
-      // @ts-expect-error: paylod can be undefined not handled
-      const payload = yield take(successChannel);
+      const payload: unknown = yield take(successChannel);
+      // @ts-expect-error: payload is unknown
       const { callback, eventType, location, triggerMeta } = payload;
       const currentLocation = extractGeoLocation(location);
       yield put(setUserCurrentGeoLocation(currentLocation));
@@ -86,8 +86,8 @@ function* successCallbackHandler() {
 function* errorCallbackHandler() {
   if (errorChannel) {
     while (true) {
-      // @ts-expect-error: paylod can be undefined not handled
-      const payload = yield take(errorChannel);
+      const payload: unknown = yield take(errorChannel);
+      // @ts-expect-error: payload is unknown
       const { callback, error, eventType, triggerMeta } = payload;
       if (callback) {
         yield call(executeAppAction, {
