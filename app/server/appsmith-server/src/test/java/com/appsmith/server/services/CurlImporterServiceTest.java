@@ -200,12 +200,12 @@ public class CurlImporterServiceTest {
 
         Mono<NewPage> branchedPageMono = defaultPageMono
                 .flatMap(defaultPage ->
-                    newPageService.findById(branchedPageId, AclPermission.MANAGE_PAGES)
-                            .flatMap(newPage -> {
-                                newPage.setDefaultResources(defaultPage.getDefaultResources());
-                                newPage.getDefaultResources().setBranchName("testBranch");
-                                return newPageService.save(newPage);
-                            })
+                        newPageService.findById(branchedPageId, AclPermission.MANAGE_PAGES)
+                                .flatMap(newPage -> {
+                                    newPage.setDefaultResources(defaultPage.getDefaultResources());
+                                    newPage.getDefaultResources().setBranchName("testBranch");
+                                    return newPageService.save(newPage);
+                                })
                 )
                 .cache();
 
@@ -311,7 +311,7 @@ public class CurlImporterServiceTest {
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertBody(action,"all of this exactly, but url encoded ");
+        assertBody(action, "all of this exactly, but url encoded ");
         assertEmptyBodyFormData(action);
 
         action = curlImporterService.curlToAction(
@@ -319,7 +319,7 @@ public class CurlImporterServiceTest {
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertBody(action,"spaced name=all of this exactly, but url encoded");
+        assertBody(action, "spaced name=all of this exactly, but url encoded");
         assertEmptyBodyFormData(action);
 
         action = curlImporterService.curlToAction(
@@ -327,7 +327,7 @@ public class CurlImporterServiceTest {
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertBody(action,"awesome=details, all of this exactly, but url encoded");
+        assertBody(action, "awesome=details, all of this exactly, but url encoded");
         assertEmptyBodyFormData(action);
     }
 
@@ -607,7 +607,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action,  new Property("Content-Type", "application/x-www-form-urlencoded"));
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
         assertEmptyBody(action);
         assertBodyFormData(
                 action,
@@ -694,7 +694,7 @@ public class CurlImporterServiceTest {
         assertUrl(action, "http://dummy.restapiexample.com");
         assertPath(action, "/api/v1/create");
         assertHeaders(action, new Property("Content-Type", "application/json"));
-        assertBody(action,"{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
+        assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
         assertEmptyBodyFormData(action);
     }
 
@@ -766,7 +766,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/post");
-        assertBody(action,"a\\n");
+        assertBody(action, "a\\n");
         assertEmptyBodyFormData(action);
     }
 
