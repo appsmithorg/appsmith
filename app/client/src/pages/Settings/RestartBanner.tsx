@@ -15,19 +15,20 @@ import {
   RESTART_BANNER_HEADER,
   RESTART_ERROR_BODY,
   RESTART_ERROR_HEADER,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const HeaderContents = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding-bottom: ${(props) => props.theme.spaces[7]}px;
+  padding-bottom: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const Heading = styled.div`
   color: ${(props) => props.theme.colors.modal.headerText};
   display: flex;
   justify-content: center;
+  align-items: baseline;
   font-weight: ${(props) => props.theme.typography.h1.fontWeight};
   font-size: ${(props) => props.theme.typography.h1.fontSize}px;
   line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
@@ -35,11 +36,11 @@ const Heading = styled.div`
 `;
 
 const RestartMessage = styled.p`
-  transform: translate(0, -16px);
+  text-align: center;
 `;
 
 const StyledSpinner = styled.span`
-  transform: translate(16px, 1px);
+  margin-left: 10px;
 `;
 
 function Header() {
