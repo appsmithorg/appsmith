@@ -127,7 +127,7 @@
                                     "topRow": 8,
                                     "bottomRow": 15,
                                     "parentRowSpace": 10,
-                                    "type": "DROP_DOWN_WIDGET",
+                                    "type": "SELECT_WIDGET",
                                     "serverSideFiltering": false,
                                     "hideCard": false,
                                     "defaultOptionValue": "GREEN",

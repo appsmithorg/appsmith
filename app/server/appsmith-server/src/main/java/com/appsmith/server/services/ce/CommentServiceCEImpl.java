@@ -61,9 +61,9 @@ import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_COMMENT;
+import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_THREAD;
+import static com.appsmith.server.acl.AclPermission.READ_THREADS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static java.lang.Boolean.FALSE;
@@ -177,7 +177,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                     comment.setPageId(branchedPageId);
                     comment.setApplicationId(branchedApplicationId);
                     return threadRepository
-                            .findById(threadId, AclPermission.COMMENT_ON_THREAD)
+                            .findById(threadId, AclPermission.COMMENT_ON_THREADS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.COMMENT_THREAD, threadId)))
                             .flatMap(commentThread -> updateThreadOnAddComment(commentThread, comment, user))
                             .flatMap(commentThread -> create(commentThread, user, comment, originHeader));
@@ -188,7 +188,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     @Override
     public Mono<Comment> findByIdAndBranchName(String id, String branchName) {
         // Ignore branch name as comments are not shared across git branches
-        return repository.findById(id, READ_COMMENT)
+        return repository.findById(id, READ_COMMENTS)
                 .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
@@ -234,9 +234,9 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                             CommentThread.class
                     ));
                     policies.add(policyUtils.generatePolicyFromPermission(
-                            Set.of(AclPermission.MANAGE_THREAD),
+                            Set.of(AclPermission.MANAGE_THREADS),
                             commentThread.getAuthorUsername()
-                    ).get(AclPermission.MANAGE_THREAD.getValue()));
+                    ).get(AclPermission.MANAGE_THREADS.getValue()));
                     commentThread.setPolicies(policies);
                     return commentThread;
                 });
@@ -266,9 +266,9 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                 Comment.class
         );
         policies.add(policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_COMMENT),
+                Set.of(AclPermission.MANAGE_COMMENTS),
                 user
-        ).get(AclPermission.MANAGE_COMMENT.getValue()));
+        ).get(AclPermission.MANAGE_COMMENTS.getValue()));
         comment.setPolicies(policies);
 
         Mono<Comment> commentMono;
@@ -429,7 +429,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         // Comments and threads can't be moved between the pages and applications.
         comment.setApplicationId(null);
         comment.setPageId(null);
-        return repository.updateById(id, comment, AclPermission.MANAGE_COMMENT)
+        return repository.updateById(id, comment, AclPermission.MANAGE_COMMENTS)
                 .flatMap(analyticsService::sendUpdateEvent)
                 .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
@@ -447,7 +447,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                     } else {
                         return Mono.just(user);
                     }
-                }).zipWith(threadRepository.findById(threadId, AclPermission.READ_THREAD))
+                }).zipWith(threadRepository.findById(threadId, AclPermission.READ_THREADS))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId))
                 )
@@ -489,7 +489,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                     }
 
                     return threadRepository
-                            .updateById(threadId, commentThread, AclPermission.READ_THREAD)
+                            .updateById(threadId, commentThread, AclPermission.READ_THREADS)
                             .flatMap(updatedThread -> {
                                 updatedThread.setIsViewed(true);
                                 // Update branched applicationId and pageId with default Ids
@@ -520,7 +520,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     public Flux<Comment> get(MultiValueMap<String, String> params) {
         // Remove branch name as comments are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        return super.getWithPermission(params, READ_COMMENT)
+        return super.getWithPermission(params, READ_COMMENTS)
                 .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
@@ -580,7 +580,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                         // user is app viewer, show only PUBLISHED comment threads
                         commentThreadFilterDTO.setMode(ApplicationMode.PUBLISHED);
                     }
-                    return threadRepository.find(commentThreadFilterDTO, AclPermission.READ_THREAD)
+                    return threadRepository.find(commentThreadFilterDTO, AclPermission.READ_THREADS)
                             .collectList()
                             .flatMap(threads -> {
                                 final Map<String, CommentThread> threadsByThreadId = new HashMap<>();
@@ -626,10 +626,10 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
      */
     @Override
     public Mono<Comment> deleteComment(String id) {
-        return repository.findById(id, AclPermission.MANAGE_COMMENT)
+        return repository.findById(id, AclPermission.MANAGE_COMMENTS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.COMMENT, id)))
                 .flatMap(repository::archive)
-                .flatMap(comment -> threadRepository.findById(comment.getThreadId(), READ_THREAD).flatMap(commentThread ->
+                .flatMap(comment -> threadRepository.findById(comment.getThreadId(), READ_THREADS).flatMap(commentThread ->
                         sendCommentNotifications(commentThread.getSubscribers(), comment, CommentNotificationEvent.DELETED)
                                 .thenReturn(comment)
                 ))
@@ -639,7 +639,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
     @Override
     public Mono<CommentThread> deleteThread(String threadId) {
-        return threadRepository.findById(threadId, AclPermission.MANAGE_THREAD)
+        return threadRepository.findById(threadId, AclPermission.MANAGE_THREADS)
                 .flatMap(threadRepository::archive)
                 .flatMap(commentThread ->
                         notificationService.createNotification(
@@ -653,7 +653,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     @Override
     public Mono<Boolean> createReaction(String commentId, Comment.Reaction reaction) {
         return Mono.zip(
-                        repository.findById(commentId, READ_COMMENT),
+                        repository.findById(commentId, READ_COMMENTS),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
@@ -671,7 +671,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     @Override
     public Mono<Boolean> deleteReaction(String commentId, Comment.Reaction reaction) {
         return Mono.zip(
-                        repository.findById(commentId, READ_COMMENT),
+                        repository.findById(commentId, READ_COMMENTS),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
@@ -702,7 +702,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         Mono<Long> commentSeq;
         if (TRUE.equals(commentThread.getIsPrivate())) {
             Collection<Policy> policyCollection = policyUtils.generatePolicyFromPermission(
-                    Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD),
+                    Set.of(AclPermission.MANAGE_THREADS, AclPermission.COMMENT_ON_THREADS),
                     user
             ).values();
             policies.addAll(policyCollection);
@@ -714,9 +714,9 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                     CommentThread.class
             ));
             policies.add(policyUtils.generatePolicyFromPermission(
-                    Set.of(AclPermission.MANAGE_THREAD),
+                    Set.of(AclPermission.MANAGE_THREADS),
                     user
-            ).get(AclPermission.MANAGE_THREAD.getValue()));
+            ).get(AclPermission.MANAGE_THREADS.getValue()));
             commentSeq = sequenceService.getNext(CommentThread.class, application.getId());
         }
         commentThread.setPolicies(policies);
@@ -740,9 +740,9 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                 Comment.class
         );
         policies.add(policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_COMMENT),
+                Set.of(AclPermission.MANAGE_COMMENTS),
                 user
-        ).get(AclPermission.MANAGE_COMMENT.getValue()));
+        ).get(AclPermission.MANAGE_COMMENTS.getValue()));
         comment.setPolicies(policies);
 
         Comment.Block block = new Comment.Block();
