@@ -82,6 +82,7 @@ import {
   FormEvalOutput,
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import VirtualizedJsonViewer from "./VirtualizedJsonViewer";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -824,10 +825,10 @@ export function EditorJSONtoForm(props: Props) {
             </HelpSection>
           )}
           {output &&
-            (isTableResponse ? (
+            (!isTableResponse ? (
               <Table data={output} tableBodyHeight={tableBodyHeight} />
             ) : (
-              <JSONViewer src={output} />
+              <VirtualizedJsonViewer panelRef={panelRef} src={output} />
             ))}
           {!output && !error && (
             <NoResponseContainer>
