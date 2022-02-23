@@ -27,7 +27,7 @@ describe("Container Widget Functionality", function() {
       .first()
       .click({ force: true })
       .clear()
-      .type("#FFC13D");
+      .type(widgetsPage.yellowColorHex);
     cy.get(
       `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
     )
@@ -40,7 +40,7 @@ describe("Container Widget Functionality", function() {
       .first()
       .click({ force: true })
       .clear()
-      .type("#03b365");
+      .type(widgetsPage.greenColorHex);
     cy.get(widgetsPage.containerD)
       .should("have.css", "background")
       .and(

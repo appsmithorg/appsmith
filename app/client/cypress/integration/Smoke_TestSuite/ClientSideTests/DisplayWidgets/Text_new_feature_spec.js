@@ -52,7 +52,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.PublishtheApp();
     cy.get(commonlocators.headingTextStyle)
       .should("have.text", this.data.TextLabelValueScrollable)
-      .should("have.css", "font-size", "24px");
+      .should("have.css", "font-size", "16px");
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
