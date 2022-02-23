@@ -70,6 +70,7 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
     cy.get(queryEditor.queryMoreAction).click();
