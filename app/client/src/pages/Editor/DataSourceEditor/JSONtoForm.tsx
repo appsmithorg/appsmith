@@ -254,15 +254,6 @@ export class JSONtoForm<
   ) => {
     multipleConfig = multipleConfig || [];
 
-    // dropdown components width on reconnect modal
-    if (
-      config.controlType === "DROP_DOWN" &&
-      this.props.isReconnectingModalOpen
-    ) {
-      config.customStyles = {
-        width: "566px",
-      };
-    }
     try {
       this.setupConfig(config);
       return (
