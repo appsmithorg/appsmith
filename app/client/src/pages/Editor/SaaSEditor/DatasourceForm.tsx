@@ -33,6 +33,7 @@ import EntityNotFoundPane from "../EntityNotFoundPane";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { createTempDatasourceFromForm } from "actions/datasourceActions";
+import { removeQueryParamFromUrl } from "utils/AppsmithUtils";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -83,12 +84,21 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
       });
     }
   }
+
+  componentWillUnmount() {
+    removeQueryParamFromUrl("pluginId", this.props.history);
+  }
+
   render() {
     const pluginIdFromParams = new URL(window.location.href).searchParams.get(
       "pluginId",
     );
     const { formConfig, pluginId } = this.props;
-    if (!pluginId || !pluginIdFromParams) {
+    if (
+      !pluginId ||
+      (!pluginIdFromParams &&
+        this.props.match.params.datasourceId === TEMP_DATASOURCE_ID)
+    ) {
       return <EntityNotFoundPane />;
     }
     const content = this.renderDataSourceConfigForm(formConfig);
@@ -113,8 +123,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     } = this.props;
     const params: string = location.search;
     const viewMode = new URLSearchParams(params).get("viewMode");
-    const showConnectedComponent =
-      viewMode && datasourceId !== TEMP_DATASOURCE_ID;
 
     return (
       <form
@@ -128,7 +136,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
 
-          {showConnectedComponent && (
+          {viewMode && (
             <EditDatasourceButton
               category={Category.tertiary}
               className="t--edit-datasource"
@@ -149,7 +157,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             />
           )}
         </Header>
-        {!viewMode && datasourceId === TEMP_DATASOURCE_ID && (
+        {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
           <>
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
@@ -157,7 +165,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             {""}
           </>
         )}
-        {showConnectedComponent && <Connected />}
+        {viewMode && <Connected />}
 
         {/* Render datasource form call-to-actions */}
         {datasource && (

@@ -23,6 +23,7 @@ import {
   getApplicationEditorPageURL,
   getApplicationViewerPageURL,
 } from "constants/routes";
+import { History } from "history";
 
 export const createReducer = (
   initialState: any,
@@ -448,4 +449,21 @@ export const base64ToBlob = (
 
   const blob = new Blob(byteArrays, { type: contentType });
   return blob;
+};
+
+/**
+ * Removes a query parameter from Url
+ * @param query
+ * @param history
+ * @returns
+ */
+export const removeQueryParamFromUrl = (query: string, history: History) => {
+  const queryParams = new URLSearchParams(window.location.search);
+
+  if (queryParams.has(query)) {
+    queryParams.delete(query);
+    history.replace({
+      search: queryParams.toString(),
+    });
+  }
 };

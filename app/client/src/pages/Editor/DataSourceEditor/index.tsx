@@ -28,7 +28,10 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
+import {
+  getQueryParams,
+  removeQueryParamFromUrl,
+} from "../../../utils/AppsmithUtils";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 
@@ -231,6 +234,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
   }
 
   componentWillUnmount() {
+    removeQueryParamFromUrl("pluginId", this.props.history);
     this.props.discardTempDatasource();
     this.props.saveDatasourceName({
       id: this.props.match.params.datasourceId,
@@ -259,7 +263,10 @@ class DatasourceEditorRouter extends React.Component<Props> {
       "pluginId",
     );
 
-    if (!pluginId || !pluginIdFromParams) {
+    if (
+      !pluginId ||
+      (!pluginIdFromParams && datasourceId === TEMP_DATASOURCE_ID)
+    ) {
       return <EntityNotFoundPane />;
     }
 

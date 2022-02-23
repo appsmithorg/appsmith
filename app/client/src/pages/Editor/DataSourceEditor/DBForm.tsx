@@ -111,8 +111,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       viewMode,
     } = this.props;
 
-    const showConnectedComponent =
-      viewMode && datasourceId !== TEMP_DATASOURCE_ID;
+    const showConnectedComponent = viewMode;
 
     return (
       <form
@@ -162,7 +161,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             </CollapsibleHelp>
           </CollapsibleWrapper>
         )}
-        {!viewMode && datasourceId === TEMP_DATASOURCE_ID && (
+        {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
           <>
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
