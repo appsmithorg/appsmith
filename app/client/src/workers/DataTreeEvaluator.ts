@@ -81,7 +81,7 @@ import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-
+const clone = require("rfdc/default");
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -121,7 +121,7 @@ export default class DataTreeEvaluator {
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
-    let localUnEvalTree = _.cloneDeep(unEvalTree);
+    let localUnEvalTree = clone(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
@@ -156,7 +156,7 @@ export default class DataTreeEvaluator {
     this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
-    this.oldUnEvalTree = _.cloneDeep(localUnEvalTree);
+    this.oldUnEvalTree = clone(localUnEvalTree);
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -281,7 +281,7 @@ export default class DataTreeEvaluator {
     // Check if dependencies have changed
     const updateDependenciesStart = performance.now();
 
-    this.logs.push({ differences: _.cloneDeep(differences), translatedDiffs });
+    this.logs.push({ differences: clone(differences), translatedDiffs });
 
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
@@ -344,7 +344,7 @@ export default class DataTreeEvaluator {
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = _.cloneDeep(localUnEvalTree);
+    this.oldUnEvalTree = clone(localUnEvalTree);
     this.evalTree = newEvalTree;
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -578,7 +578,7 @@ export default class DataTreeEvaluator {
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
   ): DataTree {
-    const tree = _.cloneDeep(oldUnevalTree);
+    const tree = clone(oldUnevalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
@@ -802,6 +802,7 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
+            !!entity && isJSAction(entity),
             contextData,
             callBackData,
           );
@@ -875,6 +876,7 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
+    createGlobalData: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
   ): EvalResult {
@@ -883,6 +885,7 @@ export default class DataTreeEvaluator {
         js,
         data,
         resolvedFunctions,
+        createGlobalData,
         contextData,
         callbackData,
       );
@@ -997,7 +1000,7 @@ export default class DataTreeEvaluator {
     if (correctFormat) {
       const body = entity.body.replace(/export default/g, "");
       try {
-        const { result } = evaluateSync(body, unEvalDataTree, {});
+        const { result } = evaluateSync(body, unEvalDataTree, {}, true);
         delete this.resolvedFunctions[`${entityName}`];
         delete this.currentJSCollectionState[`${entityName}`];
         if (result) {
@@ -1613,7 +1616,11 @@ export default class DataTreeEvaluator {
       jsSnippets[0],
       EvaluationScriptType.TRIGGERS,
     );
-    const GLOBAL_DATA = createGlobalData(currentTree, this.resolvedFunctions);
+    const GLOBAL_DATA = createGlobalData(
+      currentTree,
+      this.resolvedFunctions,
+      true,
+    );
 
     return getLintingErrors(
       script,
