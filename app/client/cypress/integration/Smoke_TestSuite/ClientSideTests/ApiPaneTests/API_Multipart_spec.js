@@ -25,6 +25,7 @@ describe("API Panel request body", function() {
     cy.SelectAction(testdata.getAction);
 
     cy.contains(apiEditor.bodyTab).click();
+    cy.get(`[data-cy=${testdata.apiContentTypeNone}]`).click();
     cy.get(testdata.noBodyErrorMessageDiv).should("exist");
     cy.get(testdata.noBodyErrorMessageDiv).contains(
       testdata.noBodyErrorMessage,
