@@ -65,7 +65,32 @@ describe("Migration Validate", function() {
           cy.log("header set is:" + x);
         });
 
-      //Validating Id column sorting reverted!
+      //Validating Id column sorting happens as Datatype is Number in app!
+      cy.xpath(
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='id']",
+      )
+        .click()
+        .wait(2000);
+
+      cy.readTabledataPublish("0", "1").then((cellData) => {
+        expect(cellData).to.be.equal("100");
+      });
+
+      cy.readTabledataPublish("1", "1").then((cellData) => {
+        expect(cellData).to.be.equal("99");
+      });
+
+      cy.readTabledataPublish("2", "1").then((cellData) => {
+        expect(cellData).to.be.equal("98");
+      });
+
+      //Revert the Id column sorting!
+      cy.xpath(
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='id']",
+      )
+        .click()
+        .wait(2000);
+
       cy.readTabledataPublish("0", "1").then((cellData) => {
         expect(cellData).to.be.equal("1");
       });
@@ -113,12 +138,20 @@ describe("Migration Validate", function() {
       cy.getTableDataSelector("0", "15").then((selector) => {
         cy.get(selector + " button.bp3-button")
           .click()
-          .wait(5000);
-        // cy.wait("@postExecute");
-        // cy.wait("@postExecute");
-        // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-        //   expect(response.body.data.body.url).contains("get?action");
-        // });
+          .wait(3000);
+
+        cy.waitUntil(
+          () =>
+            cy
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
+              .eq(0)
+              .should("contain.text", "State:"),
+          {
+            errorMsg: "Execute call did not complete evn after 10 secs",
+            timeout: 20000,
+            interval: 1000,
+          },
+        ).then(() => cy.wait(500));
 
         cy.get(selector + " button span")
           .invoke("text")
@@ -157,8 +190,14 @@ describe("Migration Validate", function() {
           });
       });
 
-      cy.wait(4000);
-      cy.get("div.tableWrap").should("be.visible"); //wait for page load!
+      // cy.wait(4000);
+      // cy.get("div.tableWrap").should("be.visible"); //wait for page load!
+
+      cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
+        errorMsg: "Page is not loaded evn after 10 secs",
+        timeout: 20000,
+        interval: 1000,
+      }).then(() => cy.wait(500)); //wait for page load!
 
       cy.getTableDataSelector("0", "18").then((selector) => {
         cy.get(selector + " button")
@@ -169,7 +208,21 @@ describe("Migration Validate", function() {
           "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
         )
           .click()
-          .wait(5000); //allow time for n/w to finish
+          .wait(2000);
+
+        cy.waitUntil(
+          () =>
+            cy
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+              .eq(0)
+              .should("contain.text", "CreditLimit:"),
+          {
+            errorMsg: "Execute call did not complete evn after 10 secs",
+            timeout: 20000,
+            interval: 1000,
+          },
+        ).then(() => cy.wait(500)); //allow time for n/w to finish
+
         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
           .eq(0)
           .invoke("text")
@@ -188,7 +241,21 @@ describe("Migration Validate", function() {
           "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
         )
           .click()
-          .wait(5000); //allow time for n/w to finish
+          .wait(2000);
+
+        cy.waitUntil(
+          () =>
+            cy
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+              .eq(0)
+              .should("contain.text", "CreditLimit:"),
+          {
+            errorMsg: "Execute call did not complete evn after 10 secs",
+            timeout: 20000,
+            interval: 1000,
+          },
+        ).then(() => cy.wait(500)); //allow time for n/w to finish
+
         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
           .eq(0)
           .invoke("text")
@@ -233,16 +300,20 @@ describe("Migration Validate", function() {
       cy.getTableDataSelector("2", "15").then((selector) => {
         cy.get(selector + " button.bp3-button")
           .click()
-          .wait(5000);
-        // cy.wait("@postExecute"); //echo post
-        // cy.wait("@postExecute"); //onrow select
-        // cy.wait("@postExecute"); //echo post
-        // cy.wait("@postExecute"); //echo post
-        // cy.wait("@postExecute"); //echo post
-        // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-        //   expect(response.body.data.body.url).contains("get?action");
-        //   expect(response.body.data.isExecutionSuccess).to.eq(true);
-        // });
+          .wait(2000);
+
+        cy.waitUntil(
+          () =>
+            cy
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
+              .eq(0)
+              .should("contain.text", "State:"),
+          {
+            errorMsg: "Execute call did not complete evn after 10 secs",
+            timeout: 20000,
+            interval: 1000,
+          },
+        ).then(() => cy.wait(500));
 
         cy.get(selector + " button span")
           .invoke("text")
@@ -281,8 +352,14 @@ describe("Migration Validate", function() {
           });
       });
 
-      cy.wait(4000);
-      cy.get("div.tableWrap").should("be.visible"); //wait for page load!
+      //cy.wait(4000);
+      //cy.get("div.tableWrap").should("be.visible");
+
+      cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
+        errorMsg: "Page is not loaded evn after 10 secs",
+        timeout: 20000,
+        interval: 1000,
+      }).then(() => cy.wait(500)); //wait for page load!
 
       //Manu Btn validation: - 1st menu item
       cy.isSelectRow(2);
@@ -295,7 +372,21 @@ describe("Migration Validate", function() {
           "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
         )
           .click()
-          .wait(5000); //allow time for n/w to finish
+          .wait(2000); //allow time for n/w to finish
+
+        cy.waitUntil(
+          () =>
+            cy
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+              .eq(0)
+              .should("contain.text", "CreditLimit:"),
+          {
+            errorMsg: "Execute call did not complete evn after 10 secs",
+            timeout: 20000,
+            interval: 1000,
+          },
+        ).then(() => cy.wait(500)); //allow time for n/w to finish
+
         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
           .eq(0)
           .invoke("text")
@@ -314,7 +405,21 @@ describe("Migration Validate", function() {
           "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
         )
           .click()
-          .wait(5000); //allow time for n/w to finish
+          .wait(2000); //allow time for n/w to finish
+
+        cy.waitUntil(
+          () =>
+            cy
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+              .eq(0)
+              .should("contain.text", "CreditLimit:"),
+          {
+            errorMsg: "Execute call did not complete evn after 10 secs",
+            timeout: 20000,
+            interval: 1000,
+          },
+        ).then(() => cy.wait(500)); //allow time for n/w to finish
+
         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
           .eq(0)
           .invoke("text")
