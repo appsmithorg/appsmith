@@ -9,13 +9,14 @@ describe("Migration Validate", function() {
       .click();
     cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(homePage.orgImportAppModal).should("be.visible");
-    cy.xpath(homePage.uploadLogo).attachFile("TableMigrationApp.json");
+    cy.xpath(homePage.uploadLogo).attachFile("TableMigrationAppExported.json");
     cy.get(homePage.orgImportAppButton).click({ force: true });
     cy.wait("@importNewApplication").then((interception) => {
-      let appId = interception.response.body.data.id;
-      let defaultPage = interception.response.body.data.pages.find(
-        (eachPage) => !!eachPage.isDefault,
-      );
+      // let appId = interception.response.body.data.id;
+      // let defaultPage = interception.response.body.data.pages.find(
+      //   (eachPage) => !!eachPage.isDefault,
+      // );
+
       cy.get(homePage.toastMessage).should(
         "contain",
         "Application imported successfully",
@@ -32,6 +33,25 @@ describe("Migration Validate", function() {
       cy.wait(2000);
 
       // Validating data binding for the imported application
+
+      //Validating Latitude & Longitude are hidden columns:
+      cy.xpath(
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='latitude']",
+      )
+        .invoke("attr", "class")
+        .then((classes) => {
+          cy.log("classes are:" + classes);
+          expect(classes).includes("hidden-header");
+        });
+
+      cy.xpath(
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='longitude']",
+      )
+        .invoke("attr", "class")
+        .then((classes) => {
+          cy.log("classes are:" + classes);
+          expect(classes).includes("hidden-header");
+        });
 
       //Validating order of header row!
       cy.xpath(
@@ -93,12 +113,12 @@ describe("Migration Validate", function() {
       cy.getTableDataSelector("0", "15").then((selector) => {
         cy.get(selector + " button.bp3-button")
           .click()
-          .wait(2000);
-        cy.wait("@postExecute");
-        cy.wait("@postExecute");
-        cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-          expect(response.body.data.body.url).contains("get?action");
-        });
+          .wait(5000);
+        // cy.wait("@postExecute");
+        // cy.wait("@postExecute");
+        // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+        //   expect(response.body.data.body.url).contains("get?action");
+        // });
 
         cy.get(selector + " button span")
           .invoke("text")
@@ -139,6 +159,43 @@ describe("Migration Validate", function() {
 
       cy.wait(4000);
       cy.get("div.tableWrap").should("be.visible"); //wait for page load!
+
+      cy.getTableDataSelector("0", "18").then((selector) => {
+        cy.get(selector + " button")
+          .click()
+          .wait(1000);
+
+        cy.xpath(
+          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
+        )
+          .click()
+          .wait(5000); //allow time for n/w to finish
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+          .eq(0)
+          .invoke("text")
+          .then((addreduce) => {
+            expect(addreduce).to.eq("CreditLimit:Add");
+          });
+      });
+
+      //Manu Btn validation: - 2nd menu item
+      cy.getTableDataSelector("0", "18").then((selector) => {
+        cy.get(selector + " button")
+          .click()
+          .wait(1000);
+
+        cy.xpath(
+          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
+        )
+          .click()
+          .wait(5000); //allow time for n/w to finish
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+          .eq(0)
+          .invoke("text")
+          .then((addreduce) => {
+            expect(addreduce).to.eq("CreditLimit:Reduce");
+          });
+      });
 
       //Another row!
       //Card Number mapping to text widget!
@@ -226,6 +283,45 @@ describe("Migration Validate", function() {
 
       cy.wait(4000);
       cy.get("div.tableWrap").should("be.visible"); //wait for page load!
+
+      //Manu Btn validation: - 1st menu item
+      cy.isSelectRow(2);
+      cy.getTableDataSelector("2", "18").then((selector) => {
+        cy.get(selector + " button")
+          .click()
+          .wait(1000);
+
+        cy.xpath(
+          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
+        )
+          .click()
+          .wait(5000); //allow time for n/w to finish
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+          .eq(0)
+          .invoke("text")
+          .then((addreduce) => {
+            expect(addreduce).to.eq("CreditLimit:Add");
+          });
+      });
+
+      //Manu Btn validation: - 2nd menu item
+      cy.getTableDataSelector("2", "18").then((selector) => {
+        cy.get(selector + " button")
+          .click()
+          .wait(1000);
+
+        cy.xpath(
+          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
+        )
+          .click()
+          .wait(5000); //allow time for n/w to finish
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+          .eq(0)
+          .invoke("text")
+          .then((addreduce) => {
+            expect(addreduce).to.eq("CreditLimit:Reduce");
+          });
+      });
     });
   });
 });
