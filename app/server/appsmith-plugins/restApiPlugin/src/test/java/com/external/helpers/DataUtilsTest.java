@@ -123,6 +123,7 @@ public class DataUtilsTest {
                                     "Content-Length: 8\r\n" +
                                     "\r\n" +
                                     "textData"));
+                    System.out.println(content);
                     Assert.assertTrue(content.contains(
                             "Content-Disposition: form-data; name=\"textType\"\r\n" +
                                     "Content-Type: text/plain;charset=UTF-8\r\n" +
