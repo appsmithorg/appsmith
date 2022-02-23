@@ -82,6 +82,7 @@ function ForkTemplate({
           type="button"
         />
         <Button
+          className="t--fork-template-button"
           isLoading={isImportingTemplate}
           onClick={onFork}
           size={Size.large}

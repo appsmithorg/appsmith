@@ -18,7 +18,7 @@ import { showTemplateNotificationSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
 
 const NotificationWrapper = styled.div`
-  background-color: ${Colors};
+  background-color: ${Colors.SEA_SHELL};
   padding: ${(props) =>
     `${props.theme.spaces[3]}px ${props.theme.spaces[8]}px`};
   display: flex;
@@ -27,11 +27,11 @@ const NotificationWrapper = styled.div`
   .text-wrapper {
     display: flex;
     flex-direction: column;
-    margin-left: ${(props) => props.theme.spacing[8]}px;
+    margin-left: ${(props) => props.theme.spaces[8]}px;
   }
 
   .description {
-    margin-top: ${(props) => props.theme.spacing[0] + 2}px;
+    margin-top: ${(props) => props.theme.spaces[0] + 2}px;
   }
 `;
 
@@ -45,7 +45,7 @@ const StyledPopover = styled.div`
 export function TemplateFeatureNotification() {
   return (
     <NotificationWrapper>
-      <Icon name={"info"} size={IconSize.XXL} />
+      <Icon name={"info"} size={IconSize.XXXL} />
       <div className={"text-wrapper"}>
         <Text type={TextType.H4}>{createMessage(INTRODUCING_TEMPLATES)}</Text>
         <Text className="description" type={TextType.P1}>
