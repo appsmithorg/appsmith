@@ -154,7 +154,7 @@ describe("Checkbox Group Widget Functionality", function() {
         .first()
         .contains(labelText);
       // Assert label position: Auto
-      cy.get(containerSelector).should("have.css", "flex-direction", "row");
+      cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
       // Change label position to Top
       cy.get(labelPositionSelector)

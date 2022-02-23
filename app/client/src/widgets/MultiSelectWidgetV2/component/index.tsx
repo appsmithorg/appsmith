@@ -267,6 +267,7 @@ function MultiSelectComponent({
   return (
     <MultiSelectContainer
       compactMode={compactMode}
+      data-testid="multiselect-container"
       isValid={isValid}
       labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
