@@ -452,7 +452,7 @@ export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 
 // Import/Export Application features
-export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
+export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
