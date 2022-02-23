@@ -9,25 +9,27 @@ import history from "utils/history";
 import { Classes } from "components/ads/common";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
+import { createMessage, TEMPLATES } from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
   display: flex;
-  padding-left: 16px;
-  padding-top: 25px;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
+  padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
-  box-shadow: 1px 0px 0px #ededed;
+  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
 `;
 
 const TempelateListWrapper = styled.div`
   .title {
-    margin-bottom: 10px;
-    padding-left: 15px;
+    margin-bottom: ${(props) => props.theme.spaces[4]}px;
+    padding-left: ${(props) => props.theme.spaces[6] + 1}px;
   }
 
   .list-wrapper {
-    margin-top: 10px;
+    margin-top: ${(props) => props.theme.spaces[4]}px;
     overflow: auto;
     height: calc(100vh - ${(props) => props.theme.homePage.header + 244}px);
     ${thinScrollbar}
@@ -45,21 +47,22 @@ const TemplateItem = styled.div<{ selected: boolean }>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 15px 7px 25px;
+  padding: ${(props) =>
+    `${props.theme.spaces[2]}px ${props.theme.spaces[6]}px ${props.theme.spaces[2]}px ${props.theme.spaces[11]}px`};
   .${Classes.TEXT} {
-    color: #121826;
+    color: ${Colors.MIRAGE_2};
   }
   ${(props) =>
     props.selected &&
     `
-    background-color: #ebebeb;
+    background-color: ${Colors.GALLERY_1};
     .${Classes.TEXT} {
-      color: #22223B;
+      color: ${Colors.EBONY_CLAY_2};
     }
   `}
 
   &:hover {
-    background-color: #ebebeb;
+    background-color: ${Colors.GALLERY_1};
   }
 `;
 
@@ -76,7 +79,7 @@ function LeftPaneTemplateList() {
       <SecondWrapper>
         <TempelateListWrapper>
           <Text className={"title"} type={TextType.SIDE_HEAD}>
-            TEMPLATES
+            {createMessage(TEMPLATES)}
           </Text>
           <div className="list-wrapper">
             {templates.map((template) => {
@@ -86,7 +89,7 @@ function LeftPaneTemplateList() {
                   onClick={() => onClick(template.id)}
                   selected={template.id === params.templateId}
                 >
-                  <Text color="#121826" type={TextType.P1}>
+                  <Text color={Colors.MIRAGE_2} type={TextType.P1}>
                     {template.title}
                   </Text>
                 </TemplateItem>
