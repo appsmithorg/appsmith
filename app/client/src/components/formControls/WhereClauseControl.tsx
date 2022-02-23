@@ -8,6 +8,14 @@ import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
 import _ from "lodash";
 import { useSelector } from "react-redux";
+import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
+
+export enum WhereClauseSubComponent {
+  Condition = "condition",
+  Children = "children",
+  Key = "key",
+  Value = "value",
+}
 
 // Type of the value for each condition
 export type whereClauseValueType = {
@@ -129,6 +137,20 @@ function ConditionComponent(props: any, index: number) {
     valueLabel = "Value";
     conditionLabel = "Operator";
   }
+
+  const keyPath = getBindingOrConfigPathsForWhereClauseControl(
+    props.field,
+    WhereClauseSubComponent.Key,
+  );
+  const valuePath = getBindingOrConfigPathsForWhereClauseControl(
+    props.field,
+    WhereClauseSubComponent.Value,
+  );
+  const conditionPath = getBindingOrConfigPathsForWhereClauseControl(
+    props.field,
+    WhereClauseSubComponent.Condition,
+  );
+
   return (
     <ConditionBox key={index}>
       {/* Component to input the LHS for single condition */}
@@ -137,7 +159,7 @@ function ConditionComponent(props: any, index: number) {
           ...keyFieldConfig,
           label: keyLabel,
           customStyles: { width: `${unitWidth * 2}vw` },
-          configProperty: `${props.field}.key`,
+          configProperty: keyPath,
         }}
         formName={props.formName}
       />
@@ -147,7 +169,7 @@ function ConditionComponent(props: any, index: number) {
           ...conditionFieldConfig,
           label: conditionLabel,
           customStyles: { width: `${unitWidth * 1}vw` },
-          configProperty: `${props.field}.condition`,
+          configProperty: conditionPath,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0].value,
         }}
@@ -159,7 +181,7 @@ function ConditionComponent(props: any, index: number) {
           ...valueFieldConfig,
           label: valueLabel,
           customStyles: { width: `${unitWidth * 2}vw` },
-          configProperty: `${props.field}.value`,
+          configProperty: valuePath,
         }}
         formName={props.formName}
       />
@@ -216,6 +238,11 @@ function ConditionBlock(props: any) {
   if (props.logicalTypes.length === 1) {
     isDisabled = true;
   }
+  const conditionPath = getBindingOrConfigPathsForWhereClauseControl(
+    props.configProperty,
+    WhereClauseSubComponent.Condition,
+  );
+
   return (
     <PrimaryBox style={{ marginTop }}>
       <SecondaryBox>
@@ -223,7 +250,7 @@ function ConditionBlock(props: any) {
         <FormControl
           config={{
             ...logicalFieldConfig,
-            configProperty: `${props.configProperty}.condition`,
+            configProperty: conditionPath,
             options: props.logicalTypes,
             initialValue: props.logicalTypes[0].value,
             isDisabled,

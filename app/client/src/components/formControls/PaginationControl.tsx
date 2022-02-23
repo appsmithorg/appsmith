@@ -5,6 +5,12 @@ import FormControl from "pages/Editor/FormControl";
 import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
+
+export enum PaginationSubComponent {
+  Limit = "limit",
+  Offset = "offset",
+}
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
@@ -53,6 +59,15 @@ export function Pagination(props: {
 }) {
   const { configProperty, customStyles, formName, initialValue, name } = props;
 
+  const offsetPath = getBindingOrConfigPathsForPaginationControl(
+    PaginationSubComponent.Offset,
+    configProperty,
+  );
+  const limitPath = getBindingOrConfigPathsForPaginationControl(
+    PaginationSubComponent.Limit,
+    configProperty,
+  );
+
   return (
     <div
       data-cy={name}
@@ -67,7 +82,7 @@ export function Pagination(props: {
             ...limitFieldConfig,
             label: "Limit",
             customStyles,
-            configProperty: `${configProperty}.limit`,
+            configProperty: limitPath,
             initialValue:
               typeof initialValue === "object" ? initialValue.limit : null,
           }}
@@ -83,7 +98,7 @@ export function Pagination(props: {
             ...offsetFieldConfig,
             label: "Offset",
             customStyles,
-            configProperty: `${configProperty}.offset`,
+            configProperty: offsetPath,
             initialValue:
               typeof initialValue === "object" ? initialValue.offset : null,
           }}

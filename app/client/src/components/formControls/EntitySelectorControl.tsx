@@ -5,6 +5,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
+import { getBindingOrConfigPathsForEntitySelectorControl } from "entities/Action/actionProperties";
 
 const dropDownFieldConfig: any = {
   label: "",
@@ -64,8 +65,12 @@ function EntitySelectorComponent(props: any) {
     <EntitySelectorContainer>
       {schema &&
         schema.length > 0 &&
-        schema.map(
-          (singleSchema: any, index: number) =>
+        schema.map((singleSchema: any, index: number) => {
+          const columnPath = getBindingOrConfigPathsForEntitySelectorControl(
+            configProperty,
+            index,
+          );
+          return (
             allowedControlTypes.includes(singleSchema.controlType) && (
               <>
                 {singleSchema.controlType === "DROP_DOWN" ? (
@@ -74,8 +79,8 @@ function EntitySelectorComponent(props: any) {
                       ...dropDownFieldConfig,
                       ...singleSchema,
                       customStyles,
-                      configProperty: `${configProperty}.column_${index + 1}`,
-                      key: `${configProperty}.column_${index + 1}`,
+                      configProperty: columnPath,
+                      key: columnPath,
                     }}
                     formName={props.formName}
                   />
@@ -85,8 +90,8 @@ function EntitySelectorComponent(props: any) {
                       ...inputFieldConfig,
                       ...singleSchema,
                       customStyles,
-                      configProperty: `${configProperty}.column_${index + 1}`,
-                      key: `${configProperty}.column_${index + 1}`,
+                      configProperty: columnPath,
+                      key: columnPath,
                     }}
                     formName={props.formName}
                   />
@@ -98,8 +103,9 @@ function EntitySelectorComponent(props: any) {
                   />
                 )}
               </>
-            ),
-        )}
+            )
+          );
+        })}
     </EntitySelectorContainer>
   );
 }
