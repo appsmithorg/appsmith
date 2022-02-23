@@ -24,9 +24,7 @@ describe("Checkbox Widget Functionality", function() {
       .contains("Submit")
       .should("not.have.attr", "disabled");
 
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To swap label placement of  checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
@@ -43,9 +41,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should(
       "not.exist",
     );
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 });
 afterEach(() => {

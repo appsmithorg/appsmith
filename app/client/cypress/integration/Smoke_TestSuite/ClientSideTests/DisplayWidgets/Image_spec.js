@@ -51,16 +51,12 @@ describe("Image Widget Functionality", function() {
   });
 
   it("Image Widget Functionality To Unchecked Visible Widget", function() {
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("imagewidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.imageWidget).should("not.exist");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 
   it("Image Widget Functionality To Check Visible Widget", function() {

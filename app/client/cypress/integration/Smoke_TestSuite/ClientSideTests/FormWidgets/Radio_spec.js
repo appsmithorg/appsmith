@@ -53,16 +53,12 @@ describe("Radio Widget Functionality", function() {
     cy.PublishtheApp();
   });
   it("Radio Functionality To Unchecked Visible Widget", function() {
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.radioWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Radio Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("radiogroupwidget");
@@ -74,9 +70,7 @@ describe("Radio Widget Functionality", function() {
     cy.get(publish.radioWidget + " " + "label")
       .eq(1)
       .should("have.text", "test2");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 });
 afterEach(() => {

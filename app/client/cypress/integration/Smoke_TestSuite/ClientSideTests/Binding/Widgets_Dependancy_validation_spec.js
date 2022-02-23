@@ -68,7 +68,6 @@ describe("Binding the multiple input Widget", function() {
       .invoke("attr", "value")
       .should("contain", testdata.defaultdata);
     cy.get(publish.backToEditor)
-      .first()
       .click();
       */
   });

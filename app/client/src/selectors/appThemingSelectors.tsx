@@ -64,3 +64,12 @@ export const getSelectedAppThemeProperties = (state: AppState) => {
 export const getAppThemeIsChanging = (state: AppState) => {
   return state.ui.appTheming.isChanging;
 };
+
+/**
+ * gets the value of `state.ui.appTheming.isSaving`
+ *
+ * @param state
+ * @returns
+ */
+export const getIsBetaCardShown = (state: AppState): boolean =>
+  state.ui.appTheming.isBetaCardShown;

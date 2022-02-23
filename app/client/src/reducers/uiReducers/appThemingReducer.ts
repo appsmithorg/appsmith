@@ -11,6 +11,7 @@ export type AppThemingState = {
   themes: AppTheme[];
   themesLoading: boolean;
   selectedThemeLoading: boolean;
+  isBetaCardShown: boolean;
 };
 
 const initialState: AppThemingState = {
@@ -19,6 +20,7 @@ const initialState: AppThemingState = {
   isSaving: false,
   isChanging: false,
   themesLoading: false,
+  isBetaCardShown: true,
   selectedThemeLoading: false,
   selectedTheme: {
     id: "",
@@ -110,6 +112,15 @@ const themeReducer = createImmerReducer(initialState, {
     action: ReduxAction<AppTheme>,
   ) => {
     state.themes.push(action.payload);
+  },
+  [ReduxActionTypes.UPDATE_BETA_CARD_SHOWN]: (
+    state: AppThemingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    state.isBetaCardShown = action.payload;
+  },
+  [ReduxActionTypes.CLOSE_BETA_CARD_SHOWN]: (state: AppThemingState) => {
+    state.isBetaCardShown = true;
   },
 });
 

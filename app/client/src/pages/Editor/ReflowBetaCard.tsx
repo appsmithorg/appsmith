@@ -14,7 +14,7 @@ import {
   getIsShowReflowCard,
   isReflowEnabled,
 } from "selectors/widgetReflowSelectors";
-import { setReflowBetaFlag } from "utils/storage";
+import { setBetaFlag, STORAGE_KEYS } from "utils/storage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
@@ -113,7 +113,7 @@ export function ReflowBetaCard() {
 
   const reflowBetaToggle = (isChecked: boolean) => {
     if (user?.email) {
-      setReflowBetaFlag(user.email, isChecked);
+      setBetaFlag(user.email, STORAGE_KEYS.REFLOW_BETA_FLAG, isChecked);
     }
     dispatch(setEnableReflowAction(isChecked));
     AnalyticsUtil.logEvent("REFLOW_BETA_FLAG", {

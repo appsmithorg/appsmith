@@ -2,7 +2,7 @@ import React from "react";
 
 import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith-logo-no-pad.svg";
 
-function BuiltOn() {
+function BrandingBadge() {
   return (
     <a
       className="flex items-center p-1 px-2 space-x-2 bg-white rounded-md md:border md:flex z-2 hover:no-underline bg-opacity-30"
@@ -14,4 +14,4 @@ function BuiltOn() {
   );
 }
 
-export default BuiltOn;
+export default BrandingBadge;

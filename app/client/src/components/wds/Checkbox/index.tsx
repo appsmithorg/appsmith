@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Checkbox as BCheckbox } from "@blueprintjs/core";
+import { Checkbox as BlueprintCheckbox } from "@blueprintjs/core";
 
 import { Colors } from "constants/Colors";
 import { lightenColor } from "widgets/WidgetUtils";
@@ -13,7 +13,12 @@ type StyledCheckboxProps = {
   hasError?: boolean;
 };
 
-const Checkbox = styled(BCheckbox)<StyledCheckboxProps>`
+const DISABLED_ICON_SVG =
+  "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M11 7H5c-.55 0-1 .45-1 1s.45 1 1 1h6c.55 0 1-.45 1-1s-.45-1-1-1z' fill='white'/%3e%3c/svg%3e";
+const CHECKED_ICON_SVG =
+  "data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A";
+
+const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
   ${({ backgroundColor, borderRadius, checked, hasError }) => `
     margin: 0;
     padding: 0;
@@ -63,13 +68,13 @@ const Checkbox = styled(BCheckbox)<StyledCheckboxProps>`
       color: ${Colors.GREY_8};
 
       &::before {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M11 7H5c-.55 0-1 .45-1 1s.45 1 1 1h6c.55 0 1-.45 1-1s-.45-1-1-1z' fill='white'/%3e%3c/svg%3e") !important;
+        background-image: url("${DISABLED_ICON_SVG}") !important;
       }
     }
 
     &.bp3-control.bp3-checkbox input:checked ~ .bp3-control-indicator {
       &::before {
-        background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A") !important;
+        background-image: url("${CHECKED_ICON_SVG}") !important;
       }
     }
 

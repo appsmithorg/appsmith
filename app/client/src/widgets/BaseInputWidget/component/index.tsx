@@ -295,10 +295,8 @@ const ToolTipIcon = styled(IconWrapper)`
 const TextLableWrapper = styled.div<{
   compactMode: boolean;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+  ${(props) => (props.compactMode ? "&&& {}" : "width: 100%;")}
   display: flex;
-  max-height: 20px;
 `;
 
 const TextInputWrapper = styled.div<{

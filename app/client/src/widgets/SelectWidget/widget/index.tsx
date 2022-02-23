@@ -371,6 +371,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         disabled={this.props.isDisabled}
         dropDownWidth={dropDownWidth}
         filterText={this.props.filterText}
+        fontFamily={this.props.fontFamily}
         hasError={isInvalid}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
@@ -455,6 +456,7 @@ export interface SelectWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow?: string;
   primaryColor?: string;
+  fontFamily?: string;
 }
 
 export default SelectWidget;

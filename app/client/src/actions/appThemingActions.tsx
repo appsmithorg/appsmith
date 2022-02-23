@@ -143,3 +143,26 @@ export const deleteAppThemeAction = (payload?: DeleteAppThemeAction) => ({
   type: ReduxActionTypes.DELETE_APP_THEME_INIT,
   payload,
 });
+
+/**
+ * close beta card
+ *
+ * @returns
+ */
+export const closeAppThemingBetaCard = () => {
+  return {
+    type: ReduxActionTypes.CLOSE_BETA_CARD_SHOWN,
+  };
+};
+
+/**
+ * close beta card
+ *
+ * @returns
+ */
+export const updateisBetaCardShownAction = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.UPDATE_BETA_CARD_SHOWN,
+    payload,
+  };
+};

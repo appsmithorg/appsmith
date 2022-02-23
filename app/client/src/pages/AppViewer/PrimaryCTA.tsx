@@ -30,6 +30,7 @@ import { getAllApplications } from "actions/applicationActions";
  */
 interface Props {
   url?: string;
+  className?: string;
 }
 
 /**
@@ -40,7 +41,7 @@ interface Props {
 const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
 function PrimaryCTA(props: Props) {
-  const { url } = props;
+  const { className, url } = props;
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
@@ -74,7 +75,7 @@ function PrimaryCTA(props: Props) {
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
           buttonColor={selectedTheme.properties.colors.primaryColor}
           buttonVariant="PRIMARY"
-          className="w-full md:w-auto t--back-to-editor"
+          className={`w-full md:w-auto ${className}`}
           onClick={() => {
             window.location.href = url;
           }}

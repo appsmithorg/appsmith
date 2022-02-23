@@ -42,45 +42,35 @@ describe("Checkbox Widget Functionality", function() {
       "have.text",
       this.data.checkbocInputName,
     );
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Disabled Widget", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("be.disabled");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Enabled Widget", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("be.enabled");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("be.checked");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 });
 

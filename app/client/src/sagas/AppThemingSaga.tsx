@@ -5,6 +5,7 @@ import {
   FetchAppThemesAction,
   FetchSelectedAppThemeAction,
   SaveAppThemeAction,
+  updateisBetaCardShownAction,
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import {
@@ -27,6 +28,27 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import store from "store";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
+import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
+
+/**
+ * init app theming
+ */
+export function* initAppTheming() {
+  try {
+    const user: User = yield select(getCurrentUser);
+    const { email } = user;
+    if (email) {
+      const appThemingBetaFlag: boolean = yield getBetaFlag(
+        email,
+        STORAGE_KEYS.APP_THEMING_BETA_SHOWN,
+      );
+
+      yield put(updateisBetaCardShownAction(appThemingBetaFlag));
+    }
+  } catch (error) {}
+}
 
 /**
  * fetches all themes of the application
@@ -226,7 +248,18 @@ export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
   }
 }
 
+function* closeisBetaCardShown() {
+  try {
+    const user: User = yield select(getCurrentUser);
+    const { email } = user;
+    if (email) {
+      yield setBetaFlag(email, STORAGE_KEYS.APP_THEMING_BETA_SHOWN, true);
+    }
+  } catch (error) {}
+}
+
 export default function* appThemingSaga() {
+  yield all([takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initAppTheming)]);
   yield all([
     takeLatest(ReduxActionTypes.FETCH_APP_THEMES_INIT, fetchAppThemes),
     takeLatest(
@@ -243,5 +276,6 @@ export default function* appThemingSaga() {
     ),
     takeLatest(ReduxActionTypes.SAVE_APP_THEME_INIT, saveSelectedTheme),
     takeLatest(ReduxActionTypes.DELETE_APP_THEME_INIT, deleteTheme),
+    takeLatest(ReduxActionTypes.CLOSE_BETA_CARD_SHOWN, closeisBetaCardShown),
   ]);
 }

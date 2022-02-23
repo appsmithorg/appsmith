@@ -19,7 +19,6 @@
     "@draft-js-plugins/mention": "^4.5.1",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
-    "@hookform/resolvers": "^2.8.8",
     "@manaflair/redux-batch": "^1.0.0",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
@@ -111,7 +110,6 @@
     "react-google-maps": "^9.4.5",
     "react-google-recaptcha": "^2.1.0",
     "react-helmet": "^5.2.1",
-    "react-hook-form": "^7.24.2",
     "react-infinite-scroller": "^1.2.4",
     "react-instantsearch-dom": "^6.4.0",
     "react-json-view": "^1.19.1",
@@ -162,7 +160,6 @@
     "webfontloader": "^1.6.28",
     "worker-loader": "^3.0.2",
     "yjs": "^13.5.12",
-    "yup": "^0.32.11",
     "zipcelx": "^1.6.2"
   },
   "scripts": {
