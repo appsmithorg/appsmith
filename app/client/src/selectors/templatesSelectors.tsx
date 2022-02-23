@@ -6,7 +6,7 @@ import { getOrganizationCreateApplication } from "./applicationSelectors";
 import { getPlugins } from "./entitiesSelector";
 
 const fuzzySearchOptions = {
-  keys: ["title"],
+  keys: ["title", "id", "functions", "useCases"],
   shouldSort: true,
   threshold: 0.5,
   location: 0,
