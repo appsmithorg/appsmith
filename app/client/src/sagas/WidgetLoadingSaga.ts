@@ -6,7 +6,10 @@ import {
 } from "../selectors/dataTreeSelectors";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "../selectors/entitiesSelector";
-import { ActionData } from "../reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "../reducers/entityReducers/actionsReducer";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -17,13 +20,15 @@ import { get, set } from "lodash";
 
 type GroupedDependencyMap = Record<string, DependencyMap>;
 
-export const createEntitiesDependantsMap = (inverseMap: DependencyMap) => {
+// group dependants by entity and filter self-dependencies
+// because, we're only interested in entities that depend on other entitites
+export const groupAndFilterDependantsMap = (inverseMap: DependencyMap) => {
   const entitiesDepMap: GroupedDependencyMap = {};
 
   Object.entries(inverseMap).forEach(([fullDependencyPath, dependants]) => {
     const dependencyEntityName = fullDependencyPath.split(".")[0];
-    const entityDepMap = entitiesDepMap[dependencyEntityName] || {};
-    let entityPathDependants = entityDepMap[fullDependencyPath] || [];
+    const entityDependantsMap = entitiesDepMap[dependencyEntityName] || {};
+    let entityPathDependants = entityDependantsMap[fullDependencyPath] || [];
 
     entityPathDependants = entityPathDependants.concat(
       dependants.filter((dep) => dep.split(".")[0] !== dependencyEntityName),
@@ -40,6 +45,8 @@ export const createEntitiesDependantsMap = (inverseMap: DependencyMap) => {
   return entitiesDepMap;
 };
 
+// get entities that depend on a given list of entites
+// e.g. widgets that depend on a list of actions
 export const getEntityDependants = (
   fullEntityPaths: string[],
   entitiesDependantsmap: GroupedDependencyMap,
@@ -108,11 +115,13 @@ const ACTION_EXECUTION_REDUX_ACTIONS = [
 ];
 
 function* setWidgetsLoadingSaga() {
-  const inverseMap = yield select(getEvaluationInverseDependencyMap);
-  const entitiesDependantsMap = createEntitiesDependantsMap(inverseMap);
+  const inverseMap: DependencyMap = yield select(
+    getEvaluationInverseDependencyMap,
+  );
+  const entitiesDependantsMap = groupAndFilterDependantsMap(inverseMap);
   console.log("Hello INVERSE_MAP", inverseMap);
   console.log("Hello ENTITY_MAP", entitiesDependantsMap);
-  const actions = yield select(getActions);
+  const actions: ActionDataState = yield select(getActions);
   const isLoadingActions: string[] = actions
     .filter((action: ActionData) => action.isLoading)
     .map((action: ActionData) => action.config.name);

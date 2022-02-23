@@ -1,11 +1,30 @@
 import {
-  createEntitiesDependantsMap,
+  groupAndFilterDependantsMap,
   getEntityDependants,
 } from "sagas/WidgetLoadingSaga";
 
 describe("Widget loading state utils", () => {
+  describe("groupAndFilterDependantsMap", () => {
+    it("groups entites and filters self-dependencies", () => {
+      const entitiesDependantsMap = groupAndFilterDependantsMap({
+        "SelectQuery1.config": ["SelectQuery1"],
+        "SelectQuery1.config.body": ["SelectQuery1.config"],
+        "SelectQuery1.data": ["SelectJS.apivalues", "SelectQuery1"], // dependant
+        "SelectQuery2.config": ["SelectQuery2"],
+        "SelectQuery2.config.body": ["SelectQuery2.config"],
+        "SelectQuery2.run": ["SelectQuery2", "SelectJS.apiValues2"], // dependant
+        "SelectQuery3.config": ["SelectQuery3"],
+        "SelectQuery3.config.body": ["SelectQuery3.config"],
+      });
+      expect(entitiesDependantsMap).toStrictEqual({
+        SelectQuery1: { "SelectQuery1.data": ["SelectJS.apivalues"] },
+        SelectQuery2: { "SelectQuery2.run": ["SelectJS.apiValues2"] },
+      });
+    });
+  });
+
   describe("getEntityDependants", () => {
-    it("does something", () => {
+    it("handles simple dependency", () => {
       const dependants = getEntityDependants(
         ["Query1"],
         {
@@ -14,7 +33,7 @@ describe("Widget loading state utils", () => {
             "Query1.run": ["JS_file.func2"],
           },
           JS_file: {
-            "JS_file.func1": ["JS_file.var1", "Select1.options"],
+            "JS_file.func1": ["Select1.options"],
             "JS_file.func2": ["Select2.options"],
           },
         },
@@ -24,30 +43,10 @@ describe("Widget loading state utils", () => {
         names: new Set(["JS_file", "Select1", "Select2"]),
         fullPaths: new Set([
           "JS_file.func1",
-          "JS_file.var1",
           "Select1.options",
           "JS_file.func2",
           "Select2.options",
         ]),
-      });
-    });
-  });
-
-  describe("createEntitiesDependantsMap", () => {
-    it("does something", () => {
-      const entitiesDependantsMap = createEntitiesDependantsMap({
-        "SelectQuery1.config": ["SelectQuery1"],
-        "SelectQuery1.config.body": ["SelectQuery1.config"],
-        "SelectQuery1.data": ["SelectJS.apivalues", "SelectQuery1"],
-        "SelectQuery2.config": ["SelectQuery2"],
-        "SelectQuery2.config.body": ["SelectQuery2.config"],
-        "SelectQuery2.run": ["SelectQuery2", "SelectJS.apiValues2"],
-        "SelectQuery3.config": ["SelectQuery3"],
-        "SelectQuery3.config.body": ["SelectQuery3.config"],
-      });
-      expect(entitiesDependantsMap).toStrictEqual({
-        SelectQuery1: { "SelectQuery1.data": ["SelectJS.apivalues"] },
-        SelectQuery2: { "SelectQuery2.run": ["SelectJS.apiValues2"] },
       });
     });
   });
