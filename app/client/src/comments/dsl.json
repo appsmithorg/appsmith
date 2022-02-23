@@ -183,7 +183,7 @@
         "widgetName":"Dropdown1",
         "defaultOptionValue":"VEG",
         "version":1,
-        "type":"DROP_DOWN_WIDGET",
+        "type":"SELECT_WIDGET",
         "isLoading":false,
         "parentColumnSpace":60.131249999999994,
         "parentRowSpace":40,

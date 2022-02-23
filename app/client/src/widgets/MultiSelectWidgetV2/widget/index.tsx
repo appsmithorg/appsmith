@@ -2,8 +2,11 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray } from "lodash";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { isArray, isString, isNumber } from "lodash";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "../component";
 import {
@@ -12,6 +15,114 @@ import {
 } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
+export function defaultOptionValueValidation(
+  value: unknown,
+  props: MultiSelectWidgetProps,
+  _: any,
+): ValidationResponse {
+  let isValid;
+  let parsed;
+  let message = "";
+
+  /*
+   * Function to check if the object has `label` and `value`
+   */
+  const hasLabelValue = (obj: any) => {
+    return (
+      _.isPlainObject(obj) &&
+      obj.hasOwnProperty("label") &&
+      obj.hasOwnProperty("value") &&
+      _.isString(obj.label) &&
+      (_.isString(obj.value) || _.isFinite(obj.value))
+    );
+  };
+
+  /*
+   * Function to check for duplicate values in array
+   */
+  const hasUniqueValues = (arr: Array<string>) => {
+    const uniqueValues = new Set(arr);
+
+    return uniqueValues.size === arr.length;
+  };
+
+  /*
+   * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
+   */
+  if (_.isString(value) && (value as string).trim() !== "") {
+    try {
+      /*
+       * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
+       */
+      value = JSON.parse(value as string);
+    } catch (e) {
+      /*
+       * when value is "green, red", JSON.parse throws error
+       */
+      const splitByComma = (value as string).split(",") || [];
+
+      value = splitByComma.map((s) => s.trim());
+    }
+  }
+
+  if (_.isString(value) && (value as string).trim() === "") {
+    isValid = true;
+    parsed = [];
+    message = "";
+  } else if (Array.isArray(value)) {
+    if (value.every((val) => _.isString(val) || _.isFinite(val))) {
+      /*
+       * When value is ["green", "red"]
+       */
+      if (hasUniqueValues(value as [])) {
+        isValid = true;
+        parsed = value;
+        message = "";
+      } else {
+        isValid = false;
+        parsed = [];
+        message = "values must be unique. Duplicate values found";
+      }
+    } else if (value.every(hasLabelValue)) {
+      /*
+       * When value is [{label: "green", value: "red"}]
+       */
+      if (hasUniqueValues(value.map((val) => val.value) as [])) {
+        isValid = true;
+        parsed = value;
+        message = "";
+      } else {
+        isValid = false;
+        parsed = [];
+        message = "path:value must be unique. Duplicate values found";
+      }
+    } else {
+      /*
+       * When value is [true, false], [undefined, undefined] etc.
+       */
+      isValid = false;
+      parsed = [];
+      message =
+        "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
+    }
+  } else {
+    /*
+     * When value is undefined, null, {} etc.
+     */
+    isValid = false;
+    parsed = [];
+    message =
+      "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
+  }
+
+  return {
+    isValid,
+    parsed,
+    messages: [message],
+  };
+}
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -66,7 +177,7 @@ class MultiSelectWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Selects the option with value by default",
+            helpText: "Selects the option(s) with value by default",
             propertyName: "defaultOptionValue",
             label: "Default Value",
             controlType: "INPUT_TEXT",
@@ -74,32 +185,13 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.ARRAY,
+              type: ValidationTypes.FUNCTION,
               params: {
-                unique: ["value"],
-                children: {
-                  type: ValidationTypes.OBJECT,
-                  params: {
-                    required: true,
-                    allowedKeys: [
-                      {
-                        name: "label",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                      {
-                        name: "value",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                    ],
-                  },
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "Array of values",
+                  example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+                  autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
             },
@@ -304,8 +396,8 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => o.label ) : [] }}`,
-      selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) => o.value ) : [] }}`,
+      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => _.isNil(o.label) ? o : o.label ) : [] }}`,
+      selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) =>  _.isNil(o.value) ? o : o.value  ) : [] }}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
       isDirty: `{{ ((array1, array2) => {if (array1.length === array2.length) {return !array1.map((o) => o.value).every(element => array2.includes(element));} return true;})(this.defaultOptionValue, this.selectedOptionValues); }}`,
     };
@@ -329,7 +421,13 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-
+    const values: LabelValueType[] = this.props.selectedOptions
+      ? this.props.selectedOptions.map((o) =>
+          isString(o) || isNumber(o)
+            ? { label: o, value: o }
+            : { label: o.label, value: o.value },
+        )
+      : [];
     return (
       <MultiSelectComponent
         allowSelectAll={this.props.allowSelectAll}
@@ -358,7 +456,7 @@ class MultiSelectWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={this.props.selectedOptions ?? []}
+        value={values}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
@@ -366,6 +464,10 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DefaultValueType) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("selectedOptions", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
