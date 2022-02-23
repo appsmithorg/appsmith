@@ -137,6 +137,7 @@ class SelectComponent extends React.Component<
     return (
       <DropdownContainer
         compactMode={compactMode}
+        data-testid="select-container"
         labelPosition={labelPosition}
       >
         <DropdownStyles
