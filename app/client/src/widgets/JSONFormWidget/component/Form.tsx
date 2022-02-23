@@ -9,7 +9,7 @@ import {
   BaseButton as Button,
   ButtonStyleProps,
 } from "widgets/ButtonWidget/component";
-import { FIELD_PADDING_X } from "./styleConstants";
+import { FORM_PADDING } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { TEXT_SIZES } from "constants/WidgetConstants";
 import { schemaItemDefaultValue } from "../helper";
@@ -30,7 +30,6 @@ export type FormProps<TValues = any> = PropsWithChildren<{
 }>;
 
 type StyledFormProps = {
-  fixedFooter: boolean;
   scrollContents: boolean;
 };
 
@@ -38,21 +37,35 @@ type StyledFormBodyProps = {
   stretchBodyVertically: boolean;
 };
 
+type StyledFooterProps = {
+  fixedFooter: boolean;
+};
+
 const BUTTON_WIDTH = 110;
+const BUTTON_HEIGHT = 30;
 const FOOTER_BUTTON_GAP = 10;
-const FORM_FOOTER_PADDING_TOP = 10;
+const FORM_FOOTER_PADDING_TOP = 15;
 const TITLE_MARGIN_BOTTOM = 16;
 
-const StyledFormFooter = styled.div`
+const StyleFormFooterPlaceholder = styled.div`
+  height: ${BUTTON_HEIGHT + FORM_FOOTER_PADDING_TOP}px;
+`;
+
+const StyledFormFooter = styled.div<StyledFooterProps>`
   display: flex;
   justify-content: flex-end;
   padding-top: ${FORM_FOOTER_PADDING_TOP}px;
+  position: ${({ fixedFooter }) => fixedFooter && "fixed"};
+  bottom: ${({ fixedFooter }) => fixedFooter && FORM_PADDING}px;
+  right: ${({ fixedFooter }) => fixedFooter && FORM_PADDING}px;
 
-  && > button {
+  && > button,
+  && > div {
     width: ${BUTTON_WIDTH}px;
   }
 
-  & > button {
+  && > button,
+  && > div {
     margin-right: ${FOOTER_BUTTON_GAP}px;
   }
 
@@ -65,9 +78,8 @@ const StyledForm = styled.form<StyledFormProps>`
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: ${({ fixedFooter }) => fixedFooter && "space-between"};
   overflow-y: ${({ scrollContents }) => (scrollContents ? "auto" : "hidden")};
-  padding: ${FIELD_PADDING_X}px;
+  padding: ${FORM_PADDING}px;
 `;
 
 const StyledTitle = styled(Text)`
@@ -80,6 +92,10 @@ const StyledTitle = styled(Text)`
 const StyledFormBody = styled.div<StyledFormBodyProps>`
   height: ${({ stretchBodyVertically }) =>
     stretchBodyVertically ? "100%" : "auto"};
+`;
+
+const StyledResetButtonWrapper = styled.div`
+  background: #fff;
 `;
 
 function Form<TValues = any>({
@@ -132,19 +148,25 @@ function Form<TValues = any>({
 
   return (
     <FormProvider {...methods}>
-      <StyledForm fixedFooter={fixedFooter} scrollContents={scrollContents}>
+      <StyledForm scrollContents={scrollContents}>
         <StyledFormBody stretchBodyVertically={stretchBodyVertically}>
           <StyledTitle>{title}</StyledTitle>
           {children}
         </StyledFormBody>
-        <StyledFormFooter>
+        {/* {This placeholder div makes sure there is ample amount of space
+          at the bottom for the buttons to occupy as in fixed mode the div looses its
+          spacing } */}
+        {fixedFooter && <StyleFormFooterPlaceholder />}
+        <StyledFormFooter fixedFooter={fixedFooter}>
           {showReset && (
-            <Button
-              {...resetButtonStyles}
-              onClick={onReset}
-              text="Reset"
-              type="reset"
-            />
+            <StyledResetButtonWrapper>
+              <Button
+                {...resetButtonStyles}
+                onClick={onReset}
+                text="Reset"
+                type="reset"
+              />
+            </StyledResetButtonWrapper>
           )}
           <Button
             {...submitButtonStyles}
