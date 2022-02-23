@@ -14,6 +14,7 @@ import {
 } from "constants/DefaultTheme";
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import Tooltip from "components/ads/Tooltip";
+import { isEmptyOrNill } from ".";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
@@ -175,7 +176,8 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${(props) => (props.value ? Colors.GREY_10 : Colors.GREY_6)};
+    color: ${(props) =>
+      !isEmptyOrNill(props.value) ? Colors.GREY_10 : Colors.GREY_6};
   }
   && {
     .${Classes.ICON} {
