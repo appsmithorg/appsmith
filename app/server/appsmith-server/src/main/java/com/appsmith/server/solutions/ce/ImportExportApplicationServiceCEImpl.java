@@ -37,7 +37,6 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -47,6 +46,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -77,6 +77,7 @@ import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -97,7 +98,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
-    private final ThemeRepository themeRepository;
+    private final ThemeService themeService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -153,8 +154,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return plugin;
                 })
                 .then(applicationMono)
-                .flatMap(application -> themeRepository.findById(application.getEditModeThemeId())
-                        .zipWith(themeRepository.findById(application.getPublishedModeThemeId()))
+                .flatMap(application -> themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES)
+                        .zipWith(themeService.getThemeById(application.getPublishedModeThemeId(), READ_THEMES))
                         .map(themesTuple -> {
                             Theme editModeTheme = exportTheme(themesTuple.getT1());
                             Theme publishedModeTheme = exportTheme(themesTuple.getT2());
@@ -189,17 +190,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Refactor application to remove the ids
                     final String organizationId = application.getOrganizationId();
-                    application.setOrganizationId(null);
-                    application.setPages(null);
-                    application.setPublishedPages(null);
-                    application.setModifiedBy(null);
-                    application.setUpdatedAt(null);
-                    application.setLastDeployedAt(null);
-                    application.setLastEditedAt(null);
-                    application.setUpdatedAt(null);
-                    application.setGitApplicationMetadata(null);
-                    application.setPolicies(null);
-                    application.setUserPermissions(null);
+                    removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
 
@@ -591,7 +582,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(importThemes(importedApplication, importedDoc))
                 .then(organizationService.findById(organizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))
@@ -717,6 +707,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             .then(applicationService.save(importedApplication));
                                 })
                 )
+                .flatMap(savedAPP -> importThemes(savedAPP, importedDoc))
                 .flatMap(savedApp -> {
                     importedApplication.setId(savedApp.getId());
                     if (savedApp.getGitApplicationMetadata() != null) {
@@ -1534,23 +1525,36 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<Application> importThemes(Application application, ApplicationJson importedApplicationJson) {
-        Mono<Theme> importedEditModeTheme = getOrSaveTheme(importedApplicationJson.getEditModeTheme());
-        Mono<Theme> importedPublishedModeTheme = getOrSaveTheme(importedApplicationJson.getPublishedTheme());
+        Mono<Theme> importedEditModeTheme = themeService.getOrSaveTheme(importedApplicationJson.getEditModeTheme(), application);
+        Mono<Theme> importedPublishedModeTheme = themeService.getOrSaveTheme(importedApplicationJson.getPublishedTheme(), application);
 
-        return Mono.zip(importedEditModeTheme, importedPublishedModeTheme).map(importedThemesTuple -> {
-            application.setEditModeThemeId(importedThemesTuple.getT1().getId());
-            application.setPublishedModeThemeId(importedThemesTuple.getT2().getId());
-            return application;
+        return Mono.zip(importedEditModeTheme, importedPublishedModeTheme).flatMap(importedThemesTuple -> {
+            String editModeThemeId = importedThemesTuple.getT1().getId();
+            String publishedModeThemeId = importedThemesTuple.getT2().getId();
+
+            application.setEditModeThemeId(editModeThemeId);
+            application.setPublishedModeThemeId(publishedModeThemeId);
+            // this will update the theme id in DB
+            // also returning the updated application object so that theme id are available to the next pipeline
+            return applicationService.setAppTheme(
+                    application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
+            ).thenReturn(application);
         });
     }
 
-    private Mono<Theme> getOrSaveTheme(Theme theme) {
-        if(theme == null) { // this application was exported without theme, assign the legacy theme to it
-            return themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
-        } else if (theme.isSystemTheme()) {
-            return themeRepository.getSystemThemeByName(theme.getName());
-        } else {
-            return themeRepository.save(theme);
-        }
+    private void removeUnwantedFieldsFromApplicationDuringExport(Application application) {
+            application.setOrganizationId(null);
+            application.setPages(null);
+            application.setPublishedPages(null);
+            application.setModifiedBy(null);
+            application.setUpdatedAt(null);
+            application.setLastDeployedAt(null);
+            application.setLastEditedAt(null);
+            application.setUpdatedAt(null);
+            application.setGitApplicationMetadata(null);
+            application.setPolicies(null);
+            application.setUserPermissions(null);
+            application.setEditModeThemeId(null);
+            application.setPublishedModeThemeId(null);
     }
 }

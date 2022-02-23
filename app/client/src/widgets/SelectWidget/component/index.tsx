@@ -3,7 +3,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { MenuItem, Button, Classes } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { IItemRendererProps } from "@blueprintjs/select";
-import _ from "lodash";
+import { debounce, findIndex, isEmpty, isNil } from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
@@ -19,6 +19,7 @@ import {
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon, { IconSize } from "components/ads/Icon";
+import { isString } from "../../../utils/helpers";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -27,6 +28,10 @@ const FUSE_OPTIONS = {
   minMatchCharLength: 3,
   findAllMatches: true,
   keys: ["label", "value"],
+};
+
+export const isEmptyOrNill = (value: any) => {
+  return isNil(value) || (isString(value) && value === "");
 };
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -59,7 +64,7 @@ class SelectComponent extends React.Component<
 
   handleActiveItemChange = (activeItem: DropdownOption | null) => {
     // find new index from options
-    const activeItemIndex = _.findIndex(this.props.options, [
+    const activeItemIndex = findIndex(this.props.options, [
       "label",
       activeItem?.label,
     ]);
@@ -77,20 +82,21 @@ class SelectComponent extends React.Component<
       widgetId,
     } = this.props;
     // active focused item
-    const activeItem = !_.isEmpty(this.props.options)
+    const activeItem = !isEmpty(this.props.options)
       ? this.props.options[this.state.activeItemIndex]
       : undefined;
     // get selected option label from selectedIndex
     const selectedOption =
-      !_.isEmpty(this.props.options) &&
+      !isEmpty(this.props.options) &&
       this.props.selectedIndex !== undefined &&
       this.props.selectedIndex > -1
         ? this.props.options[this.props.selectedIndex].label
         : this.props.label;
     // for display selected option, there is no separate option to show placeholder
-    const value = selectedOption
-      ? selectedOption
-      : this.props.placeholder || "-- Select --";
+    const value =
+      !isNil(selectedOption) && selectedOption !== ""
+        ? selectedOption
+        : this.props.placeholder || "-- Select --";
 
     return (
       <DropdownContainer compactMode={compactMode}>
@@ -142,7 +148,7 @@ class SelectComponent extends React.Component<
               onClose: () => {
                 if (!this.props.selectedIndex) return;
                 return this.handleActiveItemChange(
-                  this.props.options[this.props.selectedIndex as number],
+                  this.props.options[this.props.selectedIndex],
                 );
               },
               modifiers: {
@@ -160,7 +166,7 @@ class SelectComponent extends React.Component<
               disabled={this.props.disabled}
               rightIcon={
                 <StyledDiv>
-                  {this.props.value ? (
+                  {!isEmptyOrNill(this.props.value) ? (
                     <Icon
                       className="dropdown-icon cancel-icon"
                       fillColor={
@@ -201,7 +207,7 @@ class SelectComponent extends React.Component<
   };
 
   isOptionSelected = (selectedOption: DropdownOption) => {
-    const optionIndex = _.findIndex(this.props.options, (option) => {
+    const optionIndex = findIndex(this.props.options, (option) => {
       return option.value === selectedOption.value;
     });
     return optionIndex === this.props.selectedIndex;
@@ -211,7 +217,7 @@ class SelectComponent extends React.Component<
     if (!this.props.serverSideFiltering) return;
     return this.serverSideSearch(filterValue);
   };
-  serverSideSearch = _.debounce((filterValue: string) => {
+  serverSideSearch = debounce((filterValue: string) => {
     this.props.onFilterChange(filterValue);
   }, DEBOUNCE_TIMEOUT);
 

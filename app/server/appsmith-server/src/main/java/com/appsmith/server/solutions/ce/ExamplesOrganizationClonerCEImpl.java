@@ -6,6 +6,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -13,6 +14,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -33,7 +35,9 @@ import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -68,6 +72,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
     private final LayoutActionService layoutActionService;
     private final ActionCollectionService actionCollectionService;
     private final LayoutCollectionService layoutCollectionService;
+    private final ThemeService themeService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -417,15 +422,33 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                 .flatMapMany(
                         savedApplication -> {
                             applicationIds.add(savedApplication.getId());
-                            return newPageRepository
-                                    .findByApplicationId(templateApplicationId)
-                                    .map(newPage -> {
-                                        log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
-                                        newPage.setApplicationId(savedApplication.getId());
-                                        return newPage;
-                                    });
+                            return forkThemes(application, savedApplication).thenMany(
+                                    newPageRepository
+                                            .findByApplicationId(templateApplicationId)
+                                            .map(newPage -> {
+                                                log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
+                                                newPage.setApplicationId(savedApplication.getId());
+                                                return newPage;
+                                            })
+                            );
                         }
                 );
+    }
+
+    private Mono<UpdateResult> forkThemes(Application srcApplication, Application destApplication) {
+        return Mono.zip(
+                themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
+                themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication)
+        ).flatMap(themes -> {
+            Theme editModeTheme = themes.getT1();
+            Theme publishedModeTheme = themes.getT2();
+            return applicationService.setAppTheme(
+                    destApplication.getId(),
+                    editModeTheme.getId(),
+                    publishedModeTheme.getId(),
+                    AclPermission.MANAGE_APPLICATIONS
+            );
+        });
     }
 
     private Mono<Application> cloneApplicationDocument(Application application) {
