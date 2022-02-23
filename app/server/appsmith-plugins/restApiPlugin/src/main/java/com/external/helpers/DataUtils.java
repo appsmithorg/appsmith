@@ -28,6 +28,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,7 +41,8 @@ public class DataUtils {
 
     public enum MultipartFormDataType {
         TEXT,
-        FILE
+        FILE,
+        ARRAY,
     }
 
     private DataUtils() {
@@ -166,6 +168,22 @@ public class DataUtils {
                                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                         "Unable to parse content. Expected to receive an array or object of multipart data"
                                 );
+                            }
+                        } else if (MultipartFormDataType.ARRAY.equals(multipartFormDataType)) {
+                            if (property.getValue() instanceof Collection<?>) {
+                                System.out.println(property);
+                                Collection<?> list = (Collection<?>) property.getValue();
+                                for (Object item : list) {
+                                    bodyBuilder.part(key, item);
+                                }
+                            } else if (property.getValue() instanceof String[]) {
+                                // if it's not an array just treat it as a single object
+                                String[] list = (String[]) property.getValue();
+                                for (String s : list) {
+                                    bodyBuilder.part(key, s);
+                                }
+                            } else {
+                                bodyBuilder.part(key, property.getValue());
                             }
                         }
                     }

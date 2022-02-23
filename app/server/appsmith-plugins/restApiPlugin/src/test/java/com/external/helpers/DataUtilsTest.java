@@ -1,6 +1,7 @@
 package com.external.helpers;
 
 import com.appsmith.external.models.Property;
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -255,4 +257,43 @@ public class DataUtilsTest {
                 .expectComplete()
                 .verify();
     }
+
+    @Test
+    public void testParseMultipartArrayDataWorks() {
+        List<Property> properties = new ArrayList<>();
+        final String[] arrayOne = new String[]{"1", "2", "3"};
+        final Property p1 = new Property("arrayOne", arrayOne);
+        p1.setType("array");
+        properties.add(p1);
+        final List<String> listOne = Arrays.asList("four", "five");
+        final Property p2 = new Property("listOne", listOne);
+        p2.setType("array");
+        properties.add(p2);
+        final List<Integer> listTwo = Arrays.asList(6, 7);
+        final Property p3 = new Property("listTwo", listTwo);
+        p3.setType("array");
+        properties.add(p3);
+
+        final BodyInserter<Object, MockClientHttpRequest> bodyInserter =
+                (BodyInserter<Object, MockClientHttpRequest>) dataUtils.parseMultipartFileData(properties);
+        MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.POST, URI.create("https://example.com"));
+
+        Mono<Void> result = bodyInserter.insert(request, this.context);
+        StepVerifier.create(result).expectComplete().verify();
+        StepVerifier.create(DataBufferUtils.join(request.getBody()))
+                .consumeNextWith(dataBuffer -> {
+                    byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(resultBytes);
+                    DataBufferUtils.release(dataBuffer);
+                    String content = new String(resultBytes, StandardCharsets.UTF_8);
+
+                    Assertions.assertThat(content).contains("Content-Disposition: form-data; name=\"arrayOne\"");
+                    Assertions.assertThat(content).contains("Content-Disposition: form-data; name=\"listOne\"");
+                    Assertions.assertThat(content).contains("Content-Disposition: form-data; name=\"listTwo\"");
+
+                })
+                .expectComplete()
+                .verify();
+    }
+
 }
