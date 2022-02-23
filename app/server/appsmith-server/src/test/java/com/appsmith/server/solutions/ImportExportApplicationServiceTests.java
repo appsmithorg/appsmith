@@ -90,7 +90,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_THEME;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -860,8 +860,8 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                themeService.getThemeById(application.getEditModeThemeId(), MANAGE_THEME),
-                                themeService.getThemeById(application.getPublishedModeThemeId(), MANAGE_THEME)
+                                themeService.getThemeById(application.getEditModeThemeId(), MANAGE_THEMES),
+                                themeService.getThemeById(application.getPublishedModeThemeId(), MANAGE_THEMES)
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();

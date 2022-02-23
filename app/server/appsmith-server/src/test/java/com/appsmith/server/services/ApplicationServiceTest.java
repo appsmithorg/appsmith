@@ -83,7 +83,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_THEME;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
@@ -2277,7 +2277,11 @@ public class ApplicationServiceTest {
                                         )
                         )
                 ).flatMap(objects ->
+<<<<<<< HEAD
                     themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEME)
+=======
+                    themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEMES)
+>>>>>>> 64a9fd451b1d977517e65e5b2f3be6183d76d75a
                             .zipWith(Mono.just(objects))
                 );
 

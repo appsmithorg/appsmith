@@ -38,7 +38,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_THEME;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Component
 @AllArgsConstructor
@@ -237,15 +237,15 @@ public class PolicyUtils {
     }
 
     public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
-        Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEME);
+        Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
         if(StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
-                    themeRepository.findById(application.getEditModeThemeId(), READ_THEME)
+                    themeRepository.findById(application.getEditModeThemeId(), READ_THEMES)
             );
         }
         if(StringUtils.hasLength(application.getPublishedModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
-                    themeRepository.findById(application.getPublishedModeThemeId(), READ_THEME)
+                    themeRepository.findById(application.getPublishedModeThemeId(), READ_THEMES)
             );
         }
         return applicationThemes
@@ -266,7 +266,7 @@ public class PolicyUtils {
 
         return
                 // fetch comment threads with read permissions
-                commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
+                commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREADS)
                 .switchIfEmpty(Mono.empty())
                 .map(thread -> {
                     if(!Boolean.TRUE.equals(thread.getIsPrivate())) {

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.READ_THEME;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -50,19 +50,19 @@ public class CustomThemeRepositoryTest {
     @WithUserDetails("api_user")
     @Test
     public void getApplicationThemes_WhenThemesExists_ReturnsAppThemes() {
-        Map<String, Policy> themePolicies = policyUtils.generatePolicyFromPermission(Set.of(READ_THEME), "api_user");
+        Map<String, Policy> themePolicies = policyUtils.generatePolicyFromPermission(Set.of(READ_THEMES), "api_user");
 
         String testAppId = "second-app-id";
         Theme firstAppTheme = new Theme();
         firstAppTheme.setApplicationId("first-app-id");
-        firstAppTheme.setPolicies(Set.of(themePolicies.get(READ_THEME.getValue())));
+        firstAppTheme.setPolicies(Set.of(themePolicies.get(READ_THEMES.getValue())));
 
         Theme secondAppTheme = new Theme();
         secondAppTheme.setApplicationId(testAppId);
-        secondAppTheme.setPolicies(Set.of(themePolicies.get(READ_THEME.getValue())));
+        secondAppTheme.setPolicies(Set.of(themePolicies.get(READ_THEMES.getValue())));
 
         Mono<List<Theme>> systemThemesMono = themeRepository.saveAll(List.of(firstAppTheme, secondAppTheme))
-                .then(themeRepository.getApplicationThemes(testAppId, READ_THEME).collectList());
+                .then(themeRepository.getApplicationThemes(testAppId, READ_THEMES).collectList());
 
         StepVerifier.create(systemThemesMono).assertNext(themes -> {
             assertThat(themes.size()).isEqualTo(5); // 4 system themes were created from db migration

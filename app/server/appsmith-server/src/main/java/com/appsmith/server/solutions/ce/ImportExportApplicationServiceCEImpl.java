@@ -77,7 +77,7 @@ import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_THEME;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -154,8 +154,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return plugin;
                 })
                 .then(applicationMono)
-                .flatMap(application -> themeService.getThemeById(application.getEditModeThemeId(), READ_THEME)
-                        .zipWith(themeService.getThemeById(application.getPublishedModeThemeId(), READ_THEME))
+                .flatMap(application -> themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES)
+                        .zipWith(themeService.getThemeById(application.getPublishedModeThemeId(), READ_THEMES))
                         .map(themesTuple -> {
                             Theme editModeTheme = exportTheme(themesTuple.getT1());
                             Theme publishedModeTheme = exportTheme(themesTuple.getT2());

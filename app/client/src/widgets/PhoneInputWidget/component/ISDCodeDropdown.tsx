@@ -24,6 +24,9 @@ const DropdownTriggerIconWrapper = styled.div<DropdownTriggerIconWrapperProp>`
   color: #090707;
   cursor: pointer;
   position: ${(props) => props.disabled && "absolute"};
+  z-index: 2;
+  pointer-events: ${(props) => !props.allowDialCodeChange && "none"};
+  ${(props) => (props.disabled ? `background-color: ${Colors.GREY_1};` : "")};
 
   .dropdown {
     svg {

@@ -138,7 +138,7 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_THEME;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
@@ -4787,6 +4787,11 @@ public class DatabaseChangelog {
         return true;
     }
 
+    @ChangeSet(order = "108", id = "create-system-themes", author = "")
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        createSystemThemes2(mongockTemplate);
+    }
+
     /**
      * This migration adds a new field to Mongo aggregate command to set batchSize: formData.aggregate.limit. Its value
      * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
@@ -4995,8 +5000,14 @@ public class DatabaseChangelog {
         );
     }
 
+    /**
+     * Adding this migration again because we've added permission to themes.
+     * Also there are couple of changes in the system theme properties.
+     * @param mongockTemplate
+     * @throws IOException
+     */
     @ChangeSet(order = "117", id = "create-system-themes-v2", author = "")
-    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+    public void createSystemThemes2(MongockTemplate mongockTemplate) throws IOException {
         Index systemThemeIndex = new Index()
                 .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
                 .named("system_theme_index")
@@ -5021,7 +5032,7 @@ public class DatabaseChangelog {
         Theme legacyTheme = null;
         boolean themeExists = false;
 
-        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEME.getValue())
+        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEMES.getValue())
                 .users(Set.of(FieldName.ANONYMOUS_USER)).build();
 
         for (Theme theme : themes) {
