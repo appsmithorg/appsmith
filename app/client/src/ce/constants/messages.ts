@@ -1035,3 +1035,6 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 // Templates
 export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
+export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the Template";
+export const SELECT_ORGANISATION = () => "Select Organization";
+export const FORK_TEMPLATE = () => "FORK TEMPLATE";

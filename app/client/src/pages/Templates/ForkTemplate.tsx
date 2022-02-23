@@ -10,11 +10,19 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { importTemplateToOrganisation } from "actions/templateActions";
+import {
+  CANCEL,
+  CHOOSE_WHERE_TO_FORK,
+  createMessage,
+  FORK_TEMPLATE,
+  SELECT_ORGANISATION,
+} from "@appsmith/constants/messages";
+import { Colors } from "constants/Colors";
 
 const ButtonsWrapper = styled.div`
   display: flex;
-  margin-top: 24px;
-  gap: 10px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+  gap: ${(props) => props.theme.spaces[4]}px;
   justify-content: flex-end;
 `;
 
@@ -46,10 +54,10 @@ function ForkTemplate({
   return (
     <Dialog
       canOutsideClickClose={!isImportingTemplate}
-      headerIcon={{ name: "fork", bgColor: "#E7E7E7" }}
+      headerIcon={{ name: "fork", bgColor: Colors.GEYSER_LIGHT }}
       isOpen={showForkModal}
       onClose={isImportingTemplate ? noop : onClose}
-      title="Choose where to fork the Template"
+      title={createMessage(CHOOSE_WHERE_TO_FORK)}
       trigger={children}
     >
       <Dropdown
@@ -59,7 +67,7 @@ function ForkTemplate({
           setSelectedOrganization(dropdownOption)
         }
         options={organizationList}
-        placeholder={"Select Organization"}
+        placeholder={createMessage(SELECT_ORGANISATION)}
         selected={selectedOrganization}
         showLabelOnly
         width={"100%"}
@@ -70,14 +78,14 @@ function ForkTemplate({
           disabled={isImportingTemplate}
           onClick={onClose}
           size={Size.large}
-          text="Cancel"
+          text={createMessage(CANCEL)}
           type="button"
         />
         <Button
           isLoading={isImportingTemplate}
           onClick={onFork}
           size={Size.large}
-          text="FORK TEMPLATE"
+          text={createMessage(FORK_TEMPLATE)}
           type="button"
         />
       </ButtonsWrapper>
