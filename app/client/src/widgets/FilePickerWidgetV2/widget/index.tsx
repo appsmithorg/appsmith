@@ -456,6 +456,32 @@ class FilePickerWidget extends BaseWidget<
     } catch (e) {
       log.debug("Error in initializing uppy");
     }
+
+    // when widget is dragged from main container to other widget i.e. form / container and wise versa
+    // this widget will create everytime and uppy dashboard initialize and lost selected files
+    // but if selectedFiles exist in redux, internally re-upload files to show in dashboard
+    if (_.size(this.props.selectedFiles)) {
+      const selectedFiles = this.props.selectedFiles
+        ? [...this.props.selectedFiles]
+        : [];
+      // clear meta property selectedFiles, coz when we add from addFile method as below
+      // files-added hook will update meta property again.
+      this.props.updateWidgetMetaProperty("selectedFiles", []);
+      selectedFiles.forEach(async (file: any) => {
+        // convert base64 data to blob
+        const fileRes = await fetch(file.data);
+        const blob = await fileRes.blob();
+        try {
+          this.state.uppy.addFile({
+            name: file.name,
+            type: file.type,
+            data: blob,
+          });
+        } catch (error) {
+          log.debug("File already exist : " + file.name);
+        }
+      });
+    }
   }
 
   componentWillUnmount() {
