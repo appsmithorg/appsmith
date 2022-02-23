@@ -79,6 +79,7 @@ function InfoMessage({ children }: { children: React.ReactNode }) {
 }
 
 function JSONFormComponent<TValues>({
+  backgroundColor,
   executeAction,
   fieldLimitExceeded,
   isSubmitting,
@@ -91,7 +92,6 @@ function JSONFormComponent<TValues>({
 }: JSONFormComponentProps<TValues>) {
   const isSchemaEmpty = isEmpty(schema);
   const styleProps = pick(rest, [
-    "backgroundColor",
     "borderColor",
     "borderWidth",
     "borderRadius",
@@ -146,8 +146,9 @@ function JSONFormComponent<TValues>({
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >
-      <StyledContainer {...styleProps}>
+      <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
         <Form
+          backgroundColor={backgroundColor}
           disabledWhenInvalid={rest.disabledWhenInvalid}
           fixedFooter={rest.fixedFooter}
           isSubmitting={isSubmitting}
