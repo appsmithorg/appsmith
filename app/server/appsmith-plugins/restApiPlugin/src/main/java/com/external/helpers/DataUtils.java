@@ -16,6 +16,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
@@ -156,9 +157,13 @@ public class DataUtils {
                         final MultipartFormDataType multipartFormDataType =
                                 MultipartFormDataType.valueOf(property.getType().toUpperCase(Locale.ROOT));
                         if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
+                            byte[] valueBytesArray = new byte[0];
+                            if (StringUtils.hasLength(String.valueOf(property.getValue()))) {
+                                valueBytesArray = String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1);
+                            }
                             bodyBuilder.part(
                                     key,
-                                    String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1),
+                                    valueBytesArray,
                                     MediaType.TEXT_PLAIN);
                         } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
                             try {
