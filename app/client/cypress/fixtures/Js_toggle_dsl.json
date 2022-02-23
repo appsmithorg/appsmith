@@ -61,7 +61,7 @@
         "options": "[{'label':'Vegetarian','value':'VEG'},{'label':'Non-Vegetarian','value':'NON_VEG'},{'label':'Vegan','value':'VEGAN'}]",
         "widgetName": "Dropdown1",
         "defaultOptionValue": "VEG",
-        "type": "DROP_DOWN_WIDGET",
+        "type": "SELECT_WIDGET",
         "isLoading": false,
         "parentColumnSpace": 74,
         "parentRowSpace": 40,
