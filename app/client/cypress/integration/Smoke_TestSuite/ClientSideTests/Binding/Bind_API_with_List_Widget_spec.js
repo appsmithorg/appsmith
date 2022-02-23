@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/listwidgetdsl.json");
 const pages = require("../../../../locators/Pages.json");
@@ -32,8 +34,10 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Test_Validate the Api data is updated on List widget", function() {
     cy.SearchEntityandOpen("List1");
     cy.testJsontext("items", "{{Api1.data.users}}");
-    cy.get(".t--draggable-textwidget span").should("be.gte", 8);
-
+    cy.get(".t--draggable-textwidget span").should(
+      "have.length.greaterThan",
+      8,
+    );
     cy.get(".t--draggable-textwidget span")
       .first()
       .invoke("text")
@@ -41,7 +45,7 @@ describe("Test Create Api and Bind to Table widget", function() {
         expect(text).to.equal(valueToTest);
       });
     cy.PublishtheApp();
-    cy.get(".t--widget-textwidget span").should("be.gte", 8);
+    cy.get(".t--widget-textwidget span").should("have.length.greaterThan", 8);
     cy.get(".t--widget-textwidget span")
       .first()
       .invoke("text")
