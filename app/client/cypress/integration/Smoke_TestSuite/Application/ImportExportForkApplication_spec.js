@@ -16,10 +16,10 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
     cy.get(homePage.orgImportAppButton).click({ force: true });
     cy.wait("@importNewApplication").then((interception) => {
-      let appId = interception.response.body.data.id;
-      let defaultPage = interception.response.body.data.pages.find(
-        (eachPage) => !!eachPage.isDefault,
-      );
+      // let appId = interception.response.body.data.id;
+      // let defaultPage = interception.response.body.data.pages.find(
+      //   (eachPage) => !!eachPage.isDefault,
+      // );
       cy.get(homePage.toastMessage).should(
         "contain",
         "Application imported successfully",
