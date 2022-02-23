@@ -91,6 +91,16 @@ export default {
       dependencies: ["primaryColumns", "accessorMap"],
       isBindProperty: false,
       isTriggerProperty: false,
+      validations: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: () => {
+            return {
+              isValid: true,
+            };
+          },
+        },
+      },
     },
     {
       helpText:

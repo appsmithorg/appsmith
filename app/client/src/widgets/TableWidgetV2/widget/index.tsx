@@ -606,6 +606,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       primaryColumns = {},
       serverSidePaginationEnabled,
       totalRecordsCount,
+      multiRowSelection,
+      selectedRowIndex,
     } = this.props;
 
     // Bail out if santizedTableData is a string. This signifies an error in evaluations
@@ -685,6 +687,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_PAGE_SIZE_CHANGE,
           },
         });
+      }
+    }
+
+    if (multiRowSelection !== prevProps.multiRowSelection) {
+      if (multiRowSelection) {
+        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+      } else {
+        this.props.updateWidgetMetaProperty("selectedRowIndices", []);
       }
     }
   }
