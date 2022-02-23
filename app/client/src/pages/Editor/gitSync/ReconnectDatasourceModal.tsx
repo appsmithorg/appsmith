@@ -102,8 +102,6 @@ const ContentWrapper = styled.div`
       padding-top: 0px;
 
       div[class^="JSONtoForm__SaveButtonContainer-"] {
-        width: 816px;
-
         button:first-child {
           display: none;
         }
@@ -112,7 +110,6 @@ const ContentWrapper = styled.div`
 
     .t--collapse-top-border {
       height: 1px;
-      width: 816px;
       margin-top: ${(props) => props.theme.spaces[10]}px;
       margin-bottom: ${(props) => props.theme.spaces[10]}px;
 
@@ -123,32 +120,9 @@ const ContentWrapper = styled.div`
 
     .t--collapse-section-container {
       width: 816px;
-
       & > div {
         color: ${Colors.BLACK};
       }
-    }
-
-    .t--form-control-DROP_DOWN > div {
-      width: 566px !important;
-
-      & > div {
-        width: 566px !important;
-      }
-    }
-
-    .t--form-control-KEYVALUE_ARRAY > div {
-      & > div {
-        width: 566px !important;
-
-        &:last-child {
-          width: 140px !important;
-        }
-      }
-    }
-
-    .t--form-control-INPUT_TEXT > div {
-      width: 566px !important;
     }
 
     .label-icon-wrapper div[class^="IconConstants__IconWrapper-"] {
@@ -168,8 +142,6 @@ const ContentWrapper = styled.div`
     }
 
     div > label[class^="StyledFormComponents__StyledFormLabel-"] {
-      width: 566px !important;
-
       &:last-child {
         width: 140px !important;
       }

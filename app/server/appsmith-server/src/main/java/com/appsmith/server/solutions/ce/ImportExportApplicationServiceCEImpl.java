@@ -1560,12 +1560,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
 
                     return Mono.just(datasourceList);
-                })
-                .map(datasources -> {
-                    for (Datasource datasource:datasources) {
-                        datasource.setIsConfigured(!Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
-                    }
-                    return datasources;
                 });
     }
 
