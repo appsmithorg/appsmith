@@ -58,12 +58,14 @@ export const fetchPageList = (
 export const fetchPage = (
   pageId: string,
   isFirstLoad = false,
+  handleResponseLater = false,
 ): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       id: pageId,
       isFirstLoad,
+      handleResponseLater,
     },
   };
 };

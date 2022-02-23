@@ -11,6 +11,7 @@ import {
 export type FetchPageRequest = {
   id: string;
   isFirstLoad?: boolean;
+  handleResponseLater?: boolean;
 };
 
 export type FetchPublishedPageRequest = {

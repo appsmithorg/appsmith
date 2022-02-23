@@ -29,7 +29,7 @@ import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
@@ -69,7 +69,7 @@ function ActionForm(props: Props) {
     );
   }, []);
 
-  const applicationId = useSelector(getCurrentApplicationId);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const { path = "", value = "" } = {
     ...getPathAndValueFromActionDiffObject(props.actionObjectDiff),
@@ -90,14 +90,24 @@ function ActionForm(props: Props) {
 
   const onCreateDatasourceClick = () => {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      INTEGRATION_EDITOR_URL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+        INTEGRATION_TABS.NEW,
+      ),
     );
   };
 
   // custom function to return user to integrations page if action is not found
   const goToDatasourcePage = () =>
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      INTEGRATION_EDITOR_URL(
+        applicationSlug,
+        pageSlug,
+        pageId,
+        INTEGRATION_TABS.ACTIVE,
+      ),
     );
 
   // if the action can not be found, generate a entity not found page

@@ -42,7 +42,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getPersistentAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
-import { populatePageDSLsSaga } from "./PageSagas";
+import { handleFetchedPage, populatePageDSLsSaga } from "./PageSagas";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import {
@@ -123,14 +123,14 @@ function* initializeEditorSaga(
 
   // All old application URLs will have applicationId in it.
   // Skip the page fetch api in those cases
-  let { applicationId } = initializeEditorAction.payload;
-
+  let { applicationId = "" } = initializeEditorAction.payload;
   try {
+    let pageResponse;
     if (!applicationId) {
-      const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
-        id: pageId as string,
-      });
-      applicationId = currentPageInfo.data.applicationId;
+      yield put(fetchPage(pageId as string, true, true));
+      const { payload } = yield take(ReduxActionTypes.FETCH_PAGE_HANDLE_LATER);
+      pageResponse = payload;
+      applicationId = pageResponse.data.applicationId;
     }
 
     yield put(updateBranchLocally(branch || ""));
@@ -162,11 +162,11 @@ function* initializeEditorSaga(
       ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
     ];
-    if (pageId) {
-      initCalls.push(fetchPage(pageId, true) as any);
-      successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
-      failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
-    }
+    // if (pageId) {
+    //   initCalls.push(fetchPage(pageId, true) as any);
+    //   successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
+    //   failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
+    // }
 
     const applicationAndLayoutCalls: boolean = yield failFastApiCalls(
       initCalls,
@@ -175,6 +175,14 @@ function* initializeEditorSaga(
     );
 
     if (!applicationAndLayoutCalls) return;
+
+    if (pageId && pageResponse) {
+      yield* handleFetchedPage({
+        fetchPageResponse: pageResponse,
+        isFirstLoad: true,
+        pageId,
+      });
+    }
 
     const initActionsCalls = [
       fetchActions({ applicationId }, []),

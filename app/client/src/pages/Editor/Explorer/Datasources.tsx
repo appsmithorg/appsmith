@@ -3,11 +3,7 @@ import { useAppWideAndOtherDatasource } from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 import { useSelector } from "store";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
 import { keyBy } from "lodash";
 import Entity from "./Entity";
@@ -45,7 +41,6 @@ const ShowAll = styled.div`
 
 const Datasources = React.memo(() => {
   const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) || "";
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const plugins = useSelector(getPlugins);
@@ -59,7 +54,7 @@ const Datasources = React.memo(() => {
         INTEGRATION_TABS.NEW,
       ),
     );
-  }, [applicationId, pageId]);
+  }, [applicationSlug, pageSlug, pageId]);
   const activeDatasourceId = useDatasourceIdFromURL();
 
   const listDatasource = useCallback(() => {
@@ -71,7 +66,7 @@ const Datasources = React.memo(() => {
         INTEGRATION_TABS.ACTIVE,
       ),
     );
-  }, [applicationId, pageId]);
+  }, [applicationSlug, pageSlug, pageId]);
 
   const datasourceElements = React.useMemo(
     () =>

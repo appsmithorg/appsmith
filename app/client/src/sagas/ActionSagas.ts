@@ -40,7 +40,6 @@ import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getActionById,
-  getCurrentApplicationId,
   getCurrentPageId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
@@ -409,11 +408,10 @@ export function* deleteActionSaga(
     if (!!actionPayload.payload.onSuccess) {
       actionPayload.payload.onSuccess();
     } else {
-      const pageId = yield select(getCurrentPageId);
-      const applicationId = yield select(getCurrentApplicationId);
+      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(applicationSlug, pageSlug, INTEGRATION_TABS.NEW),
       );
     }
 
@@ -835,7 +833,6 @@ export function* getCurrentEntity(
 
 function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
   const callback = get(actionPayload, "payload.callback");
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
@@ -896,8 +893,14 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       if (callback) callback(effectRaceResult.success.payload);
       break;
     case SlashCommand.NEW_INTEGRATION:
+      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          applicationSlug,
+          pageSlug,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
       break;
     case SlashCommand.NEW_QUERY:

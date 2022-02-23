@@ -1,4 +1,4 @@
-const { compile, match } = require("path-to-regexp");
+const { match } = require("path-to-regexp");
 
 import { getQueryParamsObject } from "utils/helpers";
 
@@ -72,7 +72,7 @@ export const matchViewerPath = (pathName: string) =>
 export const matchViewerForkPath = match(VIEWER_FORK_PATH);
 
 export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;
-export const extractAppIdAndPageIdFromUrl = (url = "") => {
+export const extractAppIdAndPageIdFromUrlDeprecated = (url = "") => {
   const matched = url.match(BUILDER_URL_REGEX);
   if (matched) {
     return {
@@ -86,8 +86,6 @@ export const extractAppIdAndPageIdFromUrl = (url = "") => {
     pageId: "",
   };
 };
-
-export const compileBuilderUrl = compile(BUILDER_URL);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);

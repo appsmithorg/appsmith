@@ -91,7 +91,8 @@ class DataSourceEditor extends React.Component<Props> {
     this.props.updateDatasource(
       formData,
       this.props.redirectToNewIntegrations(
-        this.props.applicationId,
+        this.props.applicationSlug,
+        this.props.pageSlug,
         pageId,
         getQueryParams(),
       ),
@@ -180,11 +181,14 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
     dispatch(updateDatasource(formData, onSuccess));
   },
   redirectToNewIntegrations: (
-    applicationId: string,
+    applicationSlug: string,
+    pageSlug: string,
     pageId: string,
     params: any,
   ) => {
-    dispatch(redirectToNewIntegrations(applicationId, pageId, params));
+    dispatch(
+      redirectToNewIntegrations(applicationSlug, pageSlug, pageId, params),
+    );
   },
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
@@ -206,7 +210,8 @@ export interface DatasourcePaneFunctions {
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
   redirectToNewIntegrations: (
-    applicationId: string,
+    applicationSlug: string,
+    pageSlug: string,
     pageId: string,
     params: any,
   ) => void;

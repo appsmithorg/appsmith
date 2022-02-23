@@ -202,7 +202,7 @@ export const getCanvasWidgetsPayload = (
   };
 };
 
-function* handleFetchedPage({
+export function* handleFetchedPage({
   fetchPageResponse,
   isFirstLoad = false,
   pageId,
@@ -253,7 +253,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id, isFirstLoad } = pageRequestAction.payload;
+    const { handleResponseLater, id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -261,11 +261,19 @@ export function* fetchPageSaga(
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id,
     });
-    yield handleFetchedPage({
-      fetchPageResponse,
-      pageId: id,
-      isFirstLoad,
-    });
+
+    if (!handleResponseLater) {
+      yield handleFetchedPage({
+        fetchPageResponse,
+        pageId: id,
+        isFirstLoad,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_HANDLE_LATER,
+        payload: fetchPageResponse,
+      });
+    }
 
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,

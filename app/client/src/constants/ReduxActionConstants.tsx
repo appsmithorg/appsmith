@@ -14,6 +14,7 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  FETCH_PAGE_HANDLE_LATER: "FETCH_PAGE_HANDLE_LATER",
   SET_ENTITY_INFO: "SET_ENTITY_INFO",
   UPDATE_META_STATE: "UPDATE_META_STATE",
   DISCONNECT_GIT: "DISCONNECT_GIT",

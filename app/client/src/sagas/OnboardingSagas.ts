@@ -70,7 +70,6 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -370,12 +369,11 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
   });
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   history.replace(
     BUILDER_PAGE_URL({
-      // Comeback
-      // applicationId: action.payload.applicationId,
-      applicationSlug: PLACEHOLDER_APP_SLUG,
-      pageSlug: PLACEHOLDER_PAGE_SLUG,
+      applicationSlug,
+      pageSlug,
       pageId: action.payload.pageId,
     }),
   );

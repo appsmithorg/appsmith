@@ -3,8 +3,10 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
-  extractAppIdAndPageIdFromUrl,
+  BUILDER_URL,
+  extractAppIdAndPageIdFromUrlDeprecated,
   SIGNUP_SUCCESS_URL,
+  VIEWER_URL,
 } from "constants/routes";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
@@ -13,13 +15,14 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
-import { getIsSafeRedirectURL } from "utils/helpers";
+import { getIsSafeRedirectURL, trimQueryString } from "utils/helpers";
 import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import Landing from "./Welcome";
 import { error } from "loglevel";
+import { matchPath } from "react-router";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -39,9 +42,23 @@ export function SignupSuccess() {
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
         ) {
-          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
-            redirectUrl,
-          );
+          const params = extractAppIdAndPageIdFromUrlDeprecated(redirectUrl);
+          let pageId = params.pageId;
+          const applicationId = params.applicationId;
+          if (!applicationId && !pageId) {
+            const match = matchPath<{
+              applicationSlug: string;
+              pageSlug: string;
+              pageId: string;
+            }>(window.location.pathname, {
+              path: [trimQueryString(BUILDER_URL), trimQueryString(VIEWER_URL)],
+              strict: false,
+              exact: false,
+            });
+            if (match?.params) {
+              pageId = match.params.pageId;
+            }
+          }
           if (applicationId || pageId) {
             dispatch(firstTimeUserOnboardingInit(applicationId, pageId));
           }

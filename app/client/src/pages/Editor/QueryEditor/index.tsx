@@ -15,6 +15,7 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
@@ -83,6 +84,8 @@ type ReduxStateProps = {
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -163,7 +166,7 @@ class QueryEditor extends React.Component<Props> {
 
   render() {
     const {
-      applicationId,
+      applicationSlug,
       dataSources,
       editorConfig,
       isCreating,
@@ -173,6 +176,7 @@ class QueryEditor extends React.Component<Props> {
       match: {
         params: { queryId },
       },
+      pageSlug,
       pluginId,
       pluginIds,
       pluginImages,
@@ -186,7 +190,12 @@ class QueryEditor extends React.Component<Props> {
     // custom function to return user to integrations page if action is not found
     const goToDatasourcePage = () =>
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+        INTEGRATION_EDITOR_URL(
+          applicationSlug,
+          pageSlug,
+          pageId,
+          INTEGRATION_TABS.ACTIVE,
+        ),
       );
 
     // if the action can not be found, generate a entity not found page
@@ -216,7 +225,12 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          applicationSlug,
+          pageSlug,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
     };
     return (
@@ -268,6 +282,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const allPlugins = getPlugins(state);
   let uiComponent = UIComponentTypes.DbEditorForm;
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
 
   return {
     pluginImages: getPluginImages(state),
@@ -286,6 +301,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
     applicationId: getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 
