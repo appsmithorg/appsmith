@@ -511,6 +511,7 @@ class EvaluatedValuePopupWrapperClass extends Component<
 
     return (
       <EvaluatedValuePopup
+        containerRef={React.createRef<HTMLDivElement>()}
         errors={errors}
         evaluatedValue={evaluated}
         expected={expected}

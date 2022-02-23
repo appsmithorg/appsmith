@@ -167,7 +167,6 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
-  handleScroll: (event: any) => void;
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -179,15 +178,8 @@ class CodeEditor extends Component<Props, State> {
       isScrolling: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.handleScroll = function(event) {
-      this.setState({
-        isScrolling: true,
-      });
-    };
   }
   componentDidMount(): void {
-    window.addEventListener("scroll", this.handleScroll);
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
         mode: this.props.mode,
@@ -316,7 +308,6 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
     // return if component unmounts before editor is created
     if (!this.editor) return;
 
@@ -642,6 +633,14 @@ class CodeEditor extends Component<Props, State> {
 
     this.lintCode(this.editor);
 
+    const handleScroll = (event: any) => {
+      // eslint-disable-next-line
+      console.log(event);
+      this.setState({
+        isScrolling: true,
+      });
+    };
+
     const showEvaluatedValue =
       this.state.isFocused &&
       !hideEvaluatedValue &&
@@ -672,6 +671,7 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
+          containerRef={this.editorWrapperRef}
           entity={entityInformation}
           errors={errors}
           evaluatedValue={evaluated}
@@ -680,6 +680,7 @@ class CodeEditor extends Component<Props, State> {
           hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
+          onScroll={handleScroll}
           popperPlacement={this.props.popperPlacement}
           popperZIndex={this.props.popperZIndex}
           theme={theme || EditorTheme.LIGHT}

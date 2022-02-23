@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
@@ -194,6 +194,8 @@ interface Props {
   popperPlacement?: Placement;
   entity?: FieldEntityInformation;
   popperZIndex?: Indices;
+  onScroll?: any;
+  containerRef: React.RefObject<HTMLElement>;
 }
 
 interface PopoverContentProps {
@@ -447,6 +449,30 @@ function PopoverContent(props: PopoverContentProps) {
 }
 
 function EvaluatedValuePopup(props: Props) {
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleContainerScroll = (e: any): void => {
+      setOffset(window.pageYOffset);
+      // eslint-disable-next-line no-console
+      console.log("Hello");
+    };
+
+    // clean up code
+    props.containerRef.current?.removeEventListener(
+      "scroll",
+      handleContainerScroll,
+    );
+    props.containerRef.current?.addEventListener(
+      "scroll",
+      handleContainerScroll,
+    );
+    // eslint-disable-next-line no-console
+    console.log(props.containerRef.current);
+    return () => window.removeEventListener("scroll", handleContainerScroll);
+  }, [offset]);
+
   const [contentHovered, setContentHovered] = useState(false);
   const [timeoutId, setTimeoutId] = useState(0);
 
