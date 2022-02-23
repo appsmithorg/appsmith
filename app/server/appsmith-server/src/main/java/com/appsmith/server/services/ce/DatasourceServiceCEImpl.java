@@ -259,7 +259,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (datasource.getGitSyncId() == null) {
             datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
         }
-        datasource.setIsConfigured(true);
         return repository.save(datasource);
     }
 
