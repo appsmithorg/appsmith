@@ -207,5 +207,12 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
     }
 
+    @PutMapping("/discard-changes/{defaultApplicationId}")
+    public Mono<ResponseDTO<Application>> discardChanges(@PathVariable String defaultApplicationId,
+                                                         @RequestParam(required = false, defaultValue = "true") Boolean doPull,
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
+        return service.discardChanges(defaultApplicationId, branchName, doPull)
+                .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
+    }
 
 }
