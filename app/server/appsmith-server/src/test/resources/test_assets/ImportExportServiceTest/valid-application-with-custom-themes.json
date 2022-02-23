@@ -632,11 +632,15 @@
   "editModeTheme": {
     "name": "Custom edit theme",
     "new": true,
-    "isSystemTheme": false
+    "isSystemTheme": false,
+    "applicationId": "dummy-app-id",
+    "organizationId": "dummy-org-id"
   },
   "publishedTheme": {
     "name": "Custom published theme",
     "new": true,
-    "isSystemTheme": false
+    "isSystemTheme": false,
+    "applicationId": "dummy-app-id",
+    "organizationId": "dummy-org-id"
   }
 }

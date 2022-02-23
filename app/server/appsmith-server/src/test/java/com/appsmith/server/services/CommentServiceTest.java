@@ -141,15 +141,15 @@ public class CommentServiceTest {
                     assertThat(thread.getId()).isNotEmpty();
                     //assertThat(thread.getResolved()).isNull();
                     assertThat(thread.getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.READ_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.MANAGE_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.COMMENT_ON_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            Policy.builder().permission(AclPermission.READ_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.MANAGE_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.COMMENT_ON_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
                     assertThat(thread.getComments()).hasSize(2);  // one comment is from bot
                     assertThat(thread.getComments().get(0).getBody()).isEqualTo(makePlainTextComment("comment one").getBody());
                     assertThat(thread.getComments().get(0).getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.MANAGE_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.READ_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            Policy.builder().permission(AclPermission.MANAGE_COMMENTS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.READ_COMMENTS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
 
                     assertThat(threadsInApp).hasSize(1);
@@ -325,7 +325,7 @@ public class CommentServiceTest {
         User user = new User();
         user.setEmail("api_user");
         Map<String, Policy> stringPolicyMap = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.READ_THREAD),
+                Set.of(AclPermission.READ_THREADS),
                 user
         );
         Set<Policy> policies = Set.copyOf(stringPolicyMap.values());
@@ -369,7 +369,7 @@ public class CommentServiceTest {
     public void create_WhenThreadIsResolvedAndAlreadyViewed_ThreadIsUnresolvedAndUnread() {
         // create a thread first with resolved=true
         Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD),
+                Set.of(AclPermission.COMMENT_ON_THREADS),
                 "api_user"
         ).values();
 
@@ -587,7 +587,7 @@ public class CommentServiceTest {
 
         // create a thread first with resolved=true
         Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD),
+                Set.of(AclPermission.COMMENT_ON_THREADS),
                 "api_user"
         ).values();
         CommentThread commentThread = new CommentThread();
