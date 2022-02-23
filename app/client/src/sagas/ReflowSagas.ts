@@ -12,10 +12,10 @@ import { isBoolean } from "lodash";
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
-  getReflowBetaFlag,
+  getBetaFlag,
+  setBetaFlag,
+  STORAGE_KEYS,
   getReflowOnBoardingFlag,
-  setReflowOnBoardingFlag,
-  setReflowBetaFlag,
 } from "utils/storage";
 
 function* initReflowStates() {
@@ -23,13 +23,16 @@ function* initReflowStates() {
     const user: User = yield select(getCurrentUser);
     const { email } = user;
     if (email) {
-      const enableReflow: boolean = yield getReflowBetaFlag(email);
+      const enableReflow: boolean = yield getBetaFlag(
+        email,
+        STORAGE_KEYS.REFLOW_BETA_FLAG,
+      );
       const enableReflowHasBeenSet = isBoolean(enableReflow);
       yield put(
         setEnableReflowAction(enableReflowHasBeenSet ? enableReflow : true),
       );
       if (!enableReflowHasBeenSet) {
-        setReflowBetaFlag(email, true);
+        setBetaFlag(email, STORAGE_KEYS.REFLOW_BETA_FLAG, true);
       }
       const isOnBoarded: boolean = yield getReflowOnBoardingFlag(email);
       yield put(
@@ -53,7 +56,7 @@ function* closeReflowOnboardingCard() {
     const user: User = yield select(getCurrentUser);
     const { email } = user;
     if (email) {
-      yield setReflowOnBoardingFlag(email, true);
+      yield setBetaFlag(email, STORAGE_KEYS.REFLOW_ONBOARDED_FLAG, true);
     }
     yield put(updateReflowOnBoardingAction(true));
   } catch (error) {

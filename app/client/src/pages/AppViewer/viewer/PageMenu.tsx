@@ -17,7 +17,7 @@ import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import BuiltOn from "../BuiltOnMobile";
+import BrandingBadge from "../BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 
@@ -133,8 +133,8 @@ export function PageMenu(props: AppViewerHeaderProps) {
               }
             />
           )}
-          <PrimaryCTA url={props.url} />
-          <BuiltOn />
+          <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
+          <BrandingBadge />
         </div>
       </div>
     </>

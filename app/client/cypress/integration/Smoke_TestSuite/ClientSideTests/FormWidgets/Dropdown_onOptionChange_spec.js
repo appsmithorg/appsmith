@@ -183,9 +183,7 @@ describe("Dropdown Widget Functionality", function() {
       .click({ force: true });
     // Verify Option is changed
     cy.validateToastMessage("Option Changed");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 });
 afterEach(() => {

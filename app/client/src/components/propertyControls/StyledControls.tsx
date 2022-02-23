@@ -95,8 +95,6 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
   }
 `;
 
-export const ThemeBound = styled.span``;
-
 export const StyledDropDownContainer = styled.div`
   width: 100%;
   height: 100%;

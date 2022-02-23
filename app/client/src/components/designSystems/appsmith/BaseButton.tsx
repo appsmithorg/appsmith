@@ -279,7 +279,6 @@ type ButtonStyleProps = {
   prevButtonStyle?: ButtonStyleType;
   buttonVariant?: ButtonVariant;
   boxShadow?: string;
-
   borderRadius?: ButtonBorderRadius;
   iconName?: IconName;
   iconAlign?: Alignment;

@@ -52,7 +52,6 @@ describe("Table Widget", function() {
     });
 
     cy.get(publish.backToEditor)
-      .first()
       .click()
       .wait(1000);
     cy.wait(30000);

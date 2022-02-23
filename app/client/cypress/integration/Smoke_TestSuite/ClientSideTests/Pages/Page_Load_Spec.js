@@ -84,9 +84,7 @@ describe("Page Load tests", () => {
       "have.text",
       "This is Page 1",
     );
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
     cy.SearchEntityandOpen("Page2");
     cy.PublishtheApp();
     // Assert active page DSL

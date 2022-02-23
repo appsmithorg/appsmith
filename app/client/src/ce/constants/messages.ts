@@ -953,6 +953,9 @@ export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
 export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
 export const DELETE_APP_THEME_WARNING = () =>
   `Do you really want to this theme? This process cannot be undone.`;
+export const APP_THEME_BETA_CARD_HEADING = () => `Customise global styles`;
+export const APP_THEME_BETA_CARD_CONTENT = () =>
+  `Set global styles and apply them across your application. More updates coming soon!`;
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;

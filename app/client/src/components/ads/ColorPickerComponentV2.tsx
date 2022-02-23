@@ -89,7 +89,7 @@ const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer 
  *-----------------------------------------------------------------------------
  */
 function ColorPickerComponent(props: ColorPickerProps) {
-  const inputRef = useRef<any>();
+  const inputRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<any>();
   const [focussed, setFocussed] = React.useState(false);
   const [color, setColor] = React.useState(
@@ -97,9 +97,10 @@ function ColorPickerComponent(props: ColorPickerProps) {
   );
   const widgets = useSelector(getWidgets);
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
+  const DSLStringfied = JSON.stringify(widgets);
   const applicationColors = useMemo(() => {
-    return extractColorsFromString(JSON.stringify(widgets));
-  }, [widgets.length]);
+    return extractColorsFromString(DSLStringfied);
+  }, [DSLStringfied]);
 
   useOnClickOutside([inputRef, popoverRef], () => {
     setFocussed(false);

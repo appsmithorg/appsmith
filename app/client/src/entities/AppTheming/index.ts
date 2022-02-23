@@ -1,4 +1,4 @@
-export interface AppTheme {
+export type AppTheme = {
   id: string;
   name: string;
   created_by: string;
@@ -50,4 +50,4 @@ export interface AppTheme {
       [key: string]: string;
     };
   };
-}
+};

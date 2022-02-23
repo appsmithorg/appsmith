@@ -97,9 +97,7 @@ describe("Form Widget Functionality", function() {
     cy.PublishtheApp();
     // Verify the unchecked visible JS
     cy.get(publish.formWidget).should("not.exist");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Form Widget Functionality To Check Visible Widget", function() {
     // Open property pone
@@ -109,9 +107,7 @@ describe("Form Widget Functionality", function() {
     cy.PublishtheApp();
     // Verify the Checked Visible JS
     cy.get(publish.formWidget).should("be.visible");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Toggle JS - Form-Unckeck Visible field Validation", function() {
     cy.openPropertyPane("formwidget");

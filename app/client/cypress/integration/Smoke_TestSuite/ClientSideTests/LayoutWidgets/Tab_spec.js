@@ -54,27 +54,21 @@ describe("Tab widget test", function() {
       .contains(this.data.tabName)
       .click({ force: true })
       .should("be.selected");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Tab Widget Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("tabswidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.tabWidget).should("not.exist");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Tab Widget Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("tabswidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.tabWidget).should("be.visible");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 
   it("Tab Widget Functionality To Check tab invisiblity", function() {
@@ -92,9 +86,7 @@ describe("Tab widget test", function() {
     cy.get(publish.tabWidget)
       .contains("Tab 1")
       .should("not.exist");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 
   it("Tab Widget Functionality To Check tab visibility", function() {
@@ -112,9 +104,7 @@ describe("Tab widget test", function() {
     cy.get(publish.tabWidget)
       .contains("Tab 1")
       .should("be.visible");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   /* Test to be revisted as the undo action is inconsistent in automation
   it("Tab Widget Functionality To Check undo action after delete", function() {

@@ -202,7 +202,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   />
 
                   <HeaderRightItemContainer>
-                    <PrimaryCTA url={props.url} />
+                    <PrimaryCTA className="t--back-to-editor" url={props.url} />
                   </HeaderRightItemContainer>
                 </div>
               )}

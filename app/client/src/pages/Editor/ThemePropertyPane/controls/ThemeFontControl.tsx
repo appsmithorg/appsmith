@@ -46,7 +46,9 @@ function ThemeFontControl(props: ThemeFontControlProps) {
             <div className="flex items-center justify-center w-6 h-6 bg-white border">
               Aa
             </div>
-            <div>{(option as DropdownOption).label}</div>
+            <div className="leading-normal">
+              {(option as DropdownOption).label}
+            </div>
           </div>
         )}
         selected={{

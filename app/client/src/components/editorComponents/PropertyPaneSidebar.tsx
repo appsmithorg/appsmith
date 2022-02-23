@@ -73,12 +73,12 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         return <WidgetPropertyPane />;
       case themingStack.length > 0:
         return <ThemePropertyPane />;
-      case selectedWidgets.length == 0:
+      case selectedWidgets.length === 0:
         return <CanvasPropertyPane />;
       default:
         return <CanvasPropertyPane />;
     }
-  }, [selectedWidgets.length, isDraggingForSelection, themingStack]);
+  }, [selectedWidgets.length, isDraggingForSelection, themingStack.join(",")]);
 
   return (
     <div className="relative">

@@ -42,45 +42,35 @@ describe("Switch Widget Functionality", function() {
       "have.text",
       this.data.switchInputName,
     );
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Switch Functionality To Check Disabled Widget", function() {
     cy.openPropertyPane("switchwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + "input").should("be.disabled");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Switch Functionality To Check Enabled Widget", function() {
     cy.openPropertyPane("switchwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + "input").should("be.enabled");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Switch Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("switchwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
   it("Switch Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("switchwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + "input").should("be.checked");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 
   it("Switch Functionality To swap label placement of  switch", function() {
@@ -94,9 +84,7 @@ describe("Switch Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("exist");
     cy.get(publish.switchwidget + " " + ".bp3-align-left").should("not.exist");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 });
 afterEach(() => {

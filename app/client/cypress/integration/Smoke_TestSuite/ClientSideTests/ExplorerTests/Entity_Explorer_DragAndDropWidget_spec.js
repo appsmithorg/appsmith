@@ -46,9 +46,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
       .should("be.visible");
     cy.get(explorer.explorerSwitchId).click();
     cy.PublishtheApp();
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
     cy.selectEntityByName("WIDGETS");
     cy.get(`.t--entity-name:contains(FormTest)`).trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);

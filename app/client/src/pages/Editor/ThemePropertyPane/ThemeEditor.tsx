@@ -29,6 +29,8 @@ import {
   DropdownTrigger,
 } from "components/ads/DropdownV2";
 import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
+import { ThemeBetaCard } from "./ThemeBetaCard";
+import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
@@ -62,6 +64,7 @@ function ThemeEditor() {
         <header className="px-3 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-normal capitalize">Theme Properties</h3>
+            <BetaIcon className="beta-icon" />
             <div>
               <Dropdown position="bottom-right">
                 <DropdownTrigger>
@@ -82,6 +85,7 @@ function ThemeEditor() {
               </Dropdown>
             </div>
           </div>
+          <ThemeBetaCard />
           <ThemeCard theme={selectedTheme} />
         </header>
         <div className="px-3 mt-4">

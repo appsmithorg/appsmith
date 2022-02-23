@@ -33,9 +33,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     cy.wait(500);
     cy.get(publish.buttonWidget).should("not.exist");
     cy.go("back");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
     cy.wait("@getPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
