@@ -8,10 +8,6 @@ import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
 
-export enum SortingSubComponent {
-  Column = "column",
-  Order = "order",
-}
 // sorting's order dropdown values
 enum OrderDropDownValues {
   ASCENDING = "Ascending",
@@ -146,12 +142,12 @@ function SortingComponent(props: any) {
         props.fields.length > 0 &&
         props.fields.map((field: any, index: number) => {
           const columnPath = getBindingOrConfigPathsForSortingControl(
-            SortingSubComponent.Column,
+            "column",
             field,
             undefined,
           );
           const OrderPath = getBindingOrConfigPathsForSortingControl(
-            SortingSubComponent.Order,
+            "order",
             field,
             undefined,
           );

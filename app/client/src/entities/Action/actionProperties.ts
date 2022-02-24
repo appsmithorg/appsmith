@@ -3,11 +3,7 @@ import _ from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isHidden } from "components/formControls/utils";
 import { allowedControlTypes } from "components/formControls/EntitySelectorControl";
-import { PaginationSubComponent } from "components/formControls/PaginationControl";
-import { SortingSubComponent } from "components/formControls/SortingControl";
-import { WhereClauseSubComponent } from "components/formControls/WhereClauseControl";
 
-/* eslint-disable */
 const dynamicFields = ["QUERY_DYNAMIC_TEXT", "QUERY_DYNAMIC_INPUT_TEXT"];
 
 const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
@@ -80,7 +76,7 @@ export const getBindingPathsOfAction = (
             actionValue.children.forEach((value: any, index: number) => {
               const childrenPath = getBindingOrConfigPathsForWhereClauseControl(
                 newConfigPath,
-                WhereClauseSubComponent.Children,
+                "children",
                 index,
               );
               recursiveFindBindingPathsForWhereClause(childrenPath, value);
@@ -89,7 +85,7 @@ export const getBindingPathsOfAction = (
             if (actionValue.hasOwnProperty("key")) {
               const keyPath = getBindingOrConfigPathsForWhereClauseControl(
                 newConfigPath,
-                WhereClauseSubComponent.Key,
+                "key",
                 undefined,
               );
               bindingPaths[keyPath] = getCorrectEvaluationSubstitutionType(
@@ -99,7 +95,7 @@ export const getBindingPathsOfAction = (
             if (actionValue.hasOwnProperty("value")) {
               const valuePath = getBindingOrConfigPathsForWhereClauseControl(
                 newConfigPath,
-                WhereClauseSubComponent.Value,
+                "value",
                 undefined,
               );
               bindingPaths[valuePath] = getCorrectEvaluationSubstitutionType(
@@ -118,7 +114,7 @@ export const getBindingPathsOfAction = (
           actionValue.children.forEach((value: any, index: number) => {
             const childrenPath = getBindingOrConfigPathsForWhereClauseControl(
               configPath,
-              WhereClauseSubComponent.Children,
+              "children",
               index,
             );
             recursiveFindBindingPathsForWhereClause(childrenPath, value);
@@ -126,11 +122,11 @@ export const getBindingPathsOfAction = (
         }
       } else if (formConfig.controlType === "PAGINATION") {
         const limitPath = getBindingOrConfigPathsForPaginationControl(
-          PaginationSubComponent.Limit,
+          "limit",
           formConfig.configProperty,
         );
         const offsetPath = getBindingOrConfigPathsForPaginationControl(
-          PaginationSubComponent.Offset,
+          "offset",
           formConfig.configProperty,
         );
         bindingPaths[limitPath] = getCorrectEvaluationSubstitutionType(
@@ -144,7 +140,7 @@ export const getBindingPathsOfAction = (
         if (Array.isArray(actionValue)) {
           actionValue.forEach((fieldConfig: any, index: number) => {
             const columnPath = getBindingOrConfigPathsForSortingControl(
-              SortingSubComponent.Column,
+              "column",
               formConfig.configProperty,
               index,
             );
@@ -152,7 +148,7 @@ export const getBindingPathsOfAction = (
               formConfig.evaluationSubstitutionType,
             );
             const OrderPath = getBindingOrConfigPathsForSortingControl(
-              SortingSubComponent.Order,
+              "order",
               formConfig.configProperty,
               index,
             );
@@ -183,7 +179,7 @@ export const getBindingPathsOfAction = (
 };
 
 export const getBindingOrConfigPathsForSortingControl = (
-  fieldName: SortingSubComponent.Order | SortingSubComponent.Column,
+  fieldName: "order" | "column",
   configProperty: string,
   index?: number,
 ): string => {
@@ -196,7 +192,7 @@ export const getBindingOrConfigPathsForSortingControl = (
 };
 
 export const getBindingOrConfigPathsForPaginationControl = (
-  fieldName: PaginationSubComponent.Offset | PaginationSubComponent.Limit,
+  fieldName: "limit" | "offset",
   configProperty: string,
 ): string => {
   const configPath = getDataTreeActionConfigPath(configProperty);
@@ -205,11 +201,7 @@ export const getBindingOrConfigPathsForPaginationControl = (
 
 export const getBindingOrConfigPathsForWhereClauseControl = (
   configPath: string,
-  fieldName:
-    | WhereClauseSubComponent.Condition
-    | WhereClauseSubComponent.Children
-    | WhereClauseSubComponent.Key
-    | WhereClauseSubComponent.Value,
+  fieldName: "condition" | "key" | "children" | "value",
   index?: number,
 ): string => {
   if (fieldName === "children" && _.isNumber(index)) {

@@ -10,13 +10,6 @@ import _ from "lodash";
 import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 
-export enum WhereClauseSubComponent {
-  Condition = "condition",
-  Children = "children",
-  Key = "key",
-  Value = "value",
-}
-
 // Type of the value for each condition
 export type whereClauseValueType = {
   condition?: string;
@@ -140,15 +133,15 @@ function ConditionComponent(props: any, index: number) {
 
   const keyPath = getBindingOrConfigPathsForWhereClauseControl(
     props.field,
-    WhereClauseSubComponent.Key,
+    "key",
   );
   const valuePath = getBindingOrConfigPathsForWhereClauseControl(
     props.field,
-    WhereClauseSubComponent.Value,
+    "value",
   );
   const conditionPath = getBindingOrConfigPathsForWhereClauseControl(
     props.field,
-    WhereClauseSubComponent.Condition,
+    "condition",
   );
 
   return (
@@ -240,7 +233,7 @@ function ConditionBlock(props: any) {
   }
   const conditionPath = getBindingOrConfigPathsForWhereClauseControl(
     props.configProperty,
-    WhereClauseSubComponent.Condition,
+    "condition",
   );
 
   return (

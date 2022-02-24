@@ -7,11 +7,6 @@ import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
 
-export enum PaginationSubComponent {
-  Limit = "limit",
-  Offset = "offset",
-}
-
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
   font-weight: 400;
@@ -60,11 +55,11 @@ export function Pagination(props: {
   const { configProperty, customStyles, formName, initialValue, name } = props;
 
   const offsetPath = getBindingOrConfigPathsForPaginationControl(
-    PaginationSubComponent.Offset,
+    "offset",
     configProperty,
   );
   const limitPath = getBindingOrConfigPathsForPaginationControl(
-    PaginationSubComponent.Limit,
+    "limit",
     configProperty,
   );
 
