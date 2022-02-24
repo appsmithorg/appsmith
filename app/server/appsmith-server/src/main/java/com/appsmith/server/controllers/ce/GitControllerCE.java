@@ -207,5 +207,12 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
     }
 
+    @PostMapping("/branch/delete/{defaultApplicationId}")
+    public Mono<ResponseDTO<Application>> deleteBranch(@PathVariable String defaultApplicationId, @RequestParam String branchName) {
+        log.debug("Going to delete branch ", branchName);
+        return service.deleteBranch(defaultApplicationId, branchName)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
+    }
+
 
 }

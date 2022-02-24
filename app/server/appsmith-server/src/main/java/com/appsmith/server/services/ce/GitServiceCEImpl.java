@@ -2135,6 +2135,42 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
+    @Override
+    public Mono<Application> deleteBranch(String defaultApplicationId, String branchName) {
+        /**
+         *
+         * Cannont delete current branch
+         * Stale branch no app in db
+         * Branch does not exist in repo
+         * Branch with origin/
+         */
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, gitApplicationMetadata.getRepoName());
+                    return gitExecutor.deleteBranch(repoPath, branchName)
+                            .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                                    .flatMap(applicationPageService::deleteApplicationByResource))
+                            // Delete the branch that exists in local file system but not in DB
+                            .onErrorResume(throwable -> {
+                                log.warn(" No application exists in DB for the local branch of file system", throwable);
+                                return addAnalyticsForGitOperation(
+                                        AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(),
+                                        application,
+                                        throwable.getClass().getName(),
+                                        throwable.getMessage(),
+                                        gitApplicationMetadata.getIsRepoPrivate()
+                                ).flatMap(application1 -> {
+                                    if( throwable instanceof GitAPIException ) {
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch", throwable.getMessage()));
+                                    }
+                                    return Mono.just(application1);
+                                });
+                            });
+                })
+                .flatMap(application -> addAnalyticsForGitOperation(AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(), application, application.getGitApplicationMetadata().getIsRepoPrivate()));
+    }
+
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
                                                                              List<Datasource> datasourceList) {
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
