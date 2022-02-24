@@ -1062,7 +1062,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                                 ActionDTO publishedAction = newAction.getPublishedAction();
                                 if (!CollectionUtils.sizeIsEmpty(unpublishedActionIdToCollectionIdMap)
-                                        && !unpublishedActionIdToCollectionIdMap.get(newAction.getId()).isEmpty()) {
+                                        && !CollectionUtils.isEmpty(unpublishedActionIdToCollectionIdMap.get(newAction.getId()))) {
                                     unpublishedAction.setCollectionId(
                                             unpublishedActionIdToCollectionIdMap.get(newAction.getId()).get(0)
                                     );
@@ -1075,7 +1075,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                 }
                                 if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdMap)
-                                        && !publishedActionIdToCollectionIdMap.get(newAction.getId()).isEmpty()) {
+                                        && !CollectionUtils.isEmpty(publishedActionIdToCollectionIdMap.get(newAction.getId()))) {
                                     publishedAction.setCollectionId(
                                             publishedActionIdToCollectionIdMap.get(newAction.getId()).get(0)
                                     );
@@ -1355,7 +1355,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .forEach(actionDTO -> {
                                 actionDTO.setId(actionIdMap.get(actionDTO.getId()));
                                 if (!CollectionUtils.sizeIsEmpty(unpublishedActionIdToCollectionIdsMap)
-                                        && !unpublishedActionIdToCollectionIdsMap.get(actionDTO.getId()).isEmpty()) {
+                                        && !CollectionUtils.isEmpty(unpublishedActionIdToCollectionIdsMap.get(actionDTO.getId()))) {
                                     actionDTO.setCollectionId(unpublishedActionIdToCollectionIdsMap.get(actionDTO.getId()).get(0));
                                 }
                                 layoutOnLoadActions.add(actionDTO.getId());
@@ -1372,7 +1372,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .forEach(actionDTO -> {
                                 actionDTO.setId(actionIdMap.get(actionDTO.getId()));
                                 if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdsMap)
-                                        && !publishedActionIdToCollectionIdsMap.get(actionDTO.getId()).isEmpty()) {
+                                        && !CollectionUtils.isEmpty(publishedActionIdToCollectionIdsMap.get(actionDTO.getId()))) {
                                     actionDTO.setCollectionId(publishedActionIdToCollectionIdsMap.get(actionDTO.getId()).get(0));
                                 }
                                 layoutOnLoadActions.add(actionDTO.getId());
