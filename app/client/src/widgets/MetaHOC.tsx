@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import _ from "lodash";
+import { isObject, debounce, fromPairs, isEqual } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -34,7 +34,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
 
-    debouncedHandleUpdateWidgetMetaProperty = _.debounce(
+    debouncedHandleUpdateWidgetMetaProperty = debounce(
       this.handleUpdateWidgetMetaProperty.bind(this),
       200,
       {
@@ -48,7 +48,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     constructor(props: WidgetProps) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
-      this.initialMetaState = _.fromPairs(
+      this.initialMetaState = fromPairs(
         Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
         }),
@@ -69,6 +69,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
 
       // meta becoming empty only happens on resetWidget action and metaHOC values needs to reset too.
       if (
+        isObject(this.props.meta) &&
+        isObject(prevProps.meta) &&
         Object.keys(this.props.meta).length === 0 &&
         Object.keys(prevProps.meta).length > 0
       ) {
@@ -88,8 +90,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         */
         if (
           defaultProperty &&
-          !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
-          _.isEqual(this.props[defaultProperty], this.props[metaProperty])
+          !isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
+          isEqual(this.props[defaultProperty], this.props[metaProperty])
         ) {
           this.setState({ [metaProperty]: this.props[metaProperty] });
         }
