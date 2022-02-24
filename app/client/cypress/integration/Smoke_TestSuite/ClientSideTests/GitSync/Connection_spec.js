@@ -42,8 +42,8 @@ describe("Git sync modal: connect tab", function() {
 
   it("validates repo URL", function() {
     // open gitSync modal
-    cy.get(homePage.deployPopupOptionTrigger).click();
-    cy.get(homePage.connectToGitBtn).click();
+    cy.get(homePage.deployPopupOptionTrigger).click({ force: true });
+    cy.get(homePage.connectToGitBtn).click({ force: true });
 
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
@@ -96,7 +96,7 @@ describe("Git sync modal: connect tab", function() {
         windowOpenSpy.restore();
       });
     });
-    cy.get(gitSyncLocators.learnMoreDeployKey).click();
+    cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });
   });
 
   it("validates copy key", function() {

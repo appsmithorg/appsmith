@@ -28,7 +28,7 @@ export default {
   disabledConnectGitBottomBar: ".t--disabled-connect-git-bottom-bar",
   syncBranches: ".t--sync-branches",
   closeBranchList: ".t--close-branch-list",
-  learnMoreDeployKey: ".t--learn-more-deploy-key",
+  learnMoreDeployKey: "//a[text()='Learn More']",
   learnMoreSshUrl: ".t--learn-more-ssh-url",
   readDocument: ".t--read-document",
   deployPreview: ".t--git-deploy-preview",
