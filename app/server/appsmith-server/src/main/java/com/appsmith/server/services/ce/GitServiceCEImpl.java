@@ -547,13 +547,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                 // Add BE analytics
                 .flatMap(tuple -> {
                     String status = tuple.getT1();
-                    Application application = tuple.getT2();
-                    return addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_COMMIT.getEventName(),
-                            application,
-                            application.getGitApplicationMetadata().getIsRepoPrivate()
-                    )
-                    .thenReturn(status);
+                    Application childApplication = tuple.getT2();
+                    // Reset manual update so that we can detect if the next update was made by DB migration or by the user
+                    Application update = new Application();
+                    update.setIsUpdatedManually(false);
+                    return applicationService.update(childApplication.getId(), update)
+                            .then(addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_COMMIT.getEventName(),
+                                    childApplication,
+                                    childApplication.getGitApplicationMetadata().getIsRepoPrivate()
+                            ))
+                            .thenReturn(status);
                 });
 
         return Mono.create(sink -> commitMono

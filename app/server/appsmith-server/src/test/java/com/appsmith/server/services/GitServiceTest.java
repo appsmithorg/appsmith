@@ -1766,10 +1766,12 @@ public class GitServiceTest {
         Mono<String> commitAndPushMono = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
 
         StepVerifier
-                .create(commitAndPushMono)
-                .assertNext(commitMsg -> {
+                .create(commitAndPushMono.zipWhen(status -> applicationService.findByIdAndBranchName(gitConnectedApplication.getId(), DEFAULT_BRANCH)))
+                .assertNext(tuple -> {
+                    String commitMsg = tuple.getT1();
                     assertThat(commitMsg).contains("sample response for commit");
                     assertThat(commitMsg).contains("pushed successfully");
+                    assertThat(tuple.getT2().getIsUpdatedManually()).isFalse();
                 })
                 .verifyComplete();
     }

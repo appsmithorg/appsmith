@@ -107,6 +107,9 @@ public class Application extends BaseDomain {
 
     Boolean forkingEnabled;
 
+    // Field to convey if the application is updated by the user or modified from the DB migration
+    Boolean isUpdatedManually;
+
     @JsonIgnore
     String publishedModeThemeId;
 
