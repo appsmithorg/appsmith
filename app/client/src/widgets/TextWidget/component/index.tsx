@@ -105,6 +105,7 @@ export const StyledText = styled(Text)<{
 }>`
   height: ${(props) =>
     props.isTruncated ? `calc(100% - ${ELLIPSIS_HEIGHT}px)` : "100%"};
+  overflow-x: hidden;
   overflow-y: ${(props) =>
     props.scroll ? (props.isTruncated ? "hidden" : "auto") : "hidden"};
   text-overflow: ellipsis;

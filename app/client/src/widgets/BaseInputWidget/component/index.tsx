@@ -205,7 +205,6 @@ const InputComponentWrapper = styled((props) => (
         top: 3px;
       }
       input:not(:first-child) {
-        border-left: 1px solid transparent;
         line-height: 16px;
 
         &:hover:not(:focus) {

@@ -261,13 +261,13 @@ export const trimTrailingSlash = (path: string) => {
  * this function is meant for checking the existence of ellipsis by CSS.
  * Since ellipsis by CSS are not part of DOM, we are checking with scroll width\height and offsetidth\height.
  * ScrollWidth\ScrollHeight is always greater than the offsetWidth\OffsetHeight when ellipsis made by CSS is active.
- *
+ * Using clientWidth to fix this https://stackoverflow.com/a/21064102/8692954
  * @param element
  */
 export const isEllipsisActive = (element: HTMLElement | null) => {
   return (
     element &&
-    (element.offsetWidth < element.scrollWidth ||
+    (element.clientWidth < element.scrollWidth ||
       element.offsetHeight < element.scrollHeight)
   );
 };

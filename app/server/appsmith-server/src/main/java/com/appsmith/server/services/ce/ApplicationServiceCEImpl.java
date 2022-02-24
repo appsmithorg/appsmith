@@ -13,6 +13,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -28,6 +29,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -308,18 +310,23 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(EXECUTE_DATASOURCES), user);
+        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, Theme.class
+        );
 
         final Flux<NewPage> updatedPagesFlux = policyUtils
                 .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
         // Use the same policy map as actions for action collections since action collections have the same kind of permissions
         final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
                 .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, isPublic);
-
+        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, isPublic);
         final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
                 .thenMany(updatedActionCollectionsFlux)
                 .collectList()
                 .then(Mono.justOrEmpty(application.getId()))
+                .thenMany(updatedThemesFlux)
+                .collectList()
                 .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
@@ -533,8 +540,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
-        return repository.getGitConnectedApplicationCount(organizationId);
+    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId) {
+        return repository.getGitConnectedApplicationWithPrivateRepoCount(organizationId);
+    }
+
+    @Override
+    public Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId) {
+        return repository.getGitConnectedApplicationByOrganizationId(organizationId);
     }
 
     public String getRandomAppCardColor() {
@@ -542,4 +554,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
     }
 
+    @Override
+    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
+        return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
+    }
 }
