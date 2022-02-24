@@ -25,7 +25,9 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.constants.MongoSpecialDataTypes;
 import com.external.plugins.utils.MongoErrorUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
@@ -58,6 +60,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,16 +121,6 @@ public class MongoPlugin extends BasePlugin {
      */
     private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
 
-    private static final String[] MONGODB_SPECIAL_TYPES=new String[]{
-            "ObjectId",
-            "ISODate",
-            "NumberLong",
-            "NumberDecimal",
-            "Timestamp",
-            // Not sure about the BinData
-//            "BinData",
-    } ;
-
     /**
      * For some MongoDB special types we use the following regex for example for `ObjectId`
      * We will replace the character 'E' in the regex template with special types.
@@ -139,7 +132,8 @@ public class MongoPlugin extends BasePlugin {
      *      - Group 3 = 'ObjectId(someId)'
      *      - Group 4 = ObjectId(someId) // not quotes
      */
-    private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\(.*?\\))\\\")|('(E\\(.*?\\))')";
+    private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
+    private static final String MONGODB_SPECIAL_TYPE_ID_REGEX_TEMPLATE = "^(\\\"(E\\((.*?((\\w|-|:)+).*?)?\\))\\\")$";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
@@ -439,37 +433,54 @@ public class MongoPlugin extends BasePlugin {
          * happens as part of smart substitution process.
          *
          * @param replacementValue - value to be substituted
+         * @param dataType
          * @return - updated replacement value
          */
         @Override
-        public String sanitizeReplacement(String replacementValue) {
-            replacementValue = removeQuotesAroundMongoDBSpecialTypes(replacementValue);
+        public String sanitizeReplacement(String replacementValue, DataType dataType) {
+            replacementValue = removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
+
+            if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)) {
+                /**
+                 * For all other data types the replacementValue is prepared for replacement (by using Matcher
+                 * .quoteReplacement(...)) during the common handling of data types in
+                 * `jsonSmartReplacementPlaceholderWithValue(...)` method before reaching this program point. For
+                 * BSON_SPECIAL_DATA_TYPES it is skipped in the common handling flow because we want to modify
+                 * (removeOrAddQuotesAroundMongoDBSpecialTypes(...)) the replacement value further before the final
+                 * replacement happens.
+                 */
+                replacementValue =Matcher.quoteReplacement(replacementValue);
+            }
 
             return replacementValue;
         }
 
         /**
-         * This method is meant to remove extra quotes around the MongoDB special types like `ObjectId(...)` string. E.g. if the input query is
-         * "... {$in: [\"ObjectId(\"123\")\"]}" then the output query will be "... {$in: [ObjectId(\"123\")]}".
+         * This method is meant to remove extra quotes around the MongoDB special types like `ObjectId(...)` string.
+         * E.g. if the input query is "... {$in: [\"ObjectId(\"123\")\"]}" then the output query will be "... {$in:
+         * [ObjectId(\"123\")]}".
+         * Please note that it may also add quotes around the data type arguments if required. e.g. "ObjectId(xyz)"
+         * -> "ObjectId(\"xyz\")"
          *
          * @param query - input query
-         * @return - query obtained after removing quotes around MongoDB special types string.
+         * @return - query obtained after removing/adding quotes around MongoDB special types string.
          */
-        private String removeQuotesAroundMongoDBSpecialTypes(String query) {
+        private String removeOrAddQuotesAroundMongoDBSpecialTypes(String query) {
             // Iterating over MongoDB types and creating a regex for every one of them
-            for (String specialType : MONGODB_SPECIAL_TYPES) {
-                final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType);
+            for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
+                final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType.name());
 
-                Map<String, String> objectIdMap = new HashMap<>();
+                Map<String, String> objectIdMap = new LinkedHashMap<>();
 
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(query);
                 while (matcher.find()) {
                     String objectIdWithQuotes;
                     String objectIdWithoutQuotes;
-
-                    /*
-                     *
+                    String argWithQuotes;
+                    String argWithoutQuotes = "";
+                    /**
+                     * TODO: update comment
                      * `If` branch will match when ObjectId is wrapped within double quotes e.g. "ObjectId(someId)"
                      *   - Group 1 = "ObjectId(someId)"
                      *   - Group 2 = ObjectId(someId) // no quotes
@@ -480,12 +491,39 @@ public class MongoPlugin extends BasePlugin {
                     if (matcher.group(1) != null) {
                         objectIdWithQuotes = matcher.group(1);
                         objectIdWithoutQuotes = matcher.group(2);
+                        argWithQuotes = matcher.group(3);
+                        try {
+                            argWithoutQuotes = matcher.group(4);
+                            if (specialType.isQuotesRequiredAroundParameter()) {
+                                argWithoutQuotes = objectMapper.writeValueAsString(argWithoutQuotes);
+                            }
+                        } catch (JsonProcessingException e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    argWithoutQuotes,
+                                    e.getMessage()
+                            );
+                        }
                     } else {
-                        objectIdWithQuotes = matcher.group(3);
-                        objectIdWithoutQuotes = matcher.group(4);
+                        objectIdWithQuotes = matcher.group(6);
+                        objectIdWithoutQuotes = matcher.group(7);
+                        argWithQuotes = matcher.group(8);
+                        try {
+                            argWithoutQuotes = matcher.group(9);
+                            if (specialType.isQuotesRequiredAroundParameter()) {
+                                argWithoutQuotes = objectMapper.writeValueAsString(argWithoutQuotes);
+                            }
+                        } catch (JsonProcessingException e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    argWithoutQuotes,
+                                    e.getMessage()
+                            );
+                        }
                     }
 
                     objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
+                    objectIdMap.put(argWithQuotes, argWithoutQuotes);
                 }
 
                 for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
@@ -1000,12 +1038,13 @@ public class MongoPlugin extends BasePlugin {
             DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
             // checking for the case that input value is like this "ObjectId('xyz')"
             if (dataType == DataType.STRING) {
-                for (String specialType : MONGODB_SPECIAL_TYPES) {
-                    final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType);
+                for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
+                    final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E",
+                            specialType.name());
                     final Pattern pattern = Pattern.compile(regex);
                     final Matcher matcher = pattern.matcher(replacement);
-                    if (matcher.matches()) {
-                        dataType = DataType.BSON;
+                    if (matcher.find()) {
+                        dataType = DataType.BSON_SPECIAL_DATA_TYPES;
                         break;
                     }
                 }

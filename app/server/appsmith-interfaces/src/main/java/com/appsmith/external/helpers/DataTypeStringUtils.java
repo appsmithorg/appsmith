@@ -257,6 +257,10 @@ public class DataTypeStringUtils {
             case BSON:
                 updatedReplacement = Matcher.quoteReplacement(replacement);
                 break;
+            case BSON_SPECIAL_DATA_TYPES:
+                // do nothing
+                updatedReplacement = replacement;
+                break;
             case DATE:
             case TIME:
             case ASCII:
@@ -279,7 +283,7 @@ public class DataTypeStringUtils {
         }
 
         if (smartSubstitutionUtils != null) {
-            updatedReplacement = smartSubstitutionUtils.sanitizeReplacement(updatedReplacement);
+            updatedReplacement = smartSubstitutionUtils.sanitizeReplacement(updatedReplacement, dataType);
         }
 
         input = placeholderPattern.matcher(input).replaceFirst(updatedReplacement);
