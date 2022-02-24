@@ -54,6 +54,8 @@
   },
   "application": {
     "id": "testApplicationId",
+    "clientSchemaVersion": 1,
+    "serverSchemaVersion": 1,
     "pages": [
       {
         "id" : "testPageId1",

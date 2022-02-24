@@ -107,8 +107,15 @@ public class Application extends BaseDomain {
 
     Boolean forkingEnabled;
 
-    // Field to convey if the application is updated by the user or modified from the DB migration
-    Boolean isUpdatedManually;
+    // Field to convey if the application is updated by the user or modified by migration
+    @Transient
+    Boolean isManualUpdate;
+
+    // To convey current schema version for client and server. This will be used to check if we run the migration
+    // between 2 commits if the application is connected to git
+    Integer clientSchemaVersion;
+
+    Integer serverSchemaVersion;
 
     @JsonIgnore
     String publishedModeThemeId;

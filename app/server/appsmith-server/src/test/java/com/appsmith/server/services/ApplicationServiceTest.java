@@ -2076,7 +2076,6 @@ public class ApplicationServiceTest {
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
             assertThat(application.getModifiedBy()).isEqualTo("api_user");
             assertThat(application.getIsPublic()).isTrue();
-            assertThat(application.getIsUpdatedManually()).isTrue();
         }).verifyComplete();
     }
 
