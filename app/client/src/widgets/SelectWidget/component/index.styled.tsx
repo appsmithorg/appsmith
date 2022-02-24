@@ -12,6 +12,7 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
+import { isEmptyOrNill } from ".";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
@@ -92,6 +93,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
 
     & > div {
       height: 100%;
+      overflow: hidden;
     }
   }
   &&&& .${Classes.BUTTON} {
@@ -144,7 +146,8 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${(props) => (props.value ? Colors.GREY_10 : Colors.GREY_6)};
+    color: ${(props) =>
+      !isEmptyOrNill(props.value) ? Colors.GREY_10 : Colors.GREY_6};
   }
   && {
     .${Classes.ICON} {

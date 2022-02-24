@@ -5,6 +5,7 @@ export function createMessage(
   return format(...args);
 }
 
+export const YES = () => `Yes`;
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
@@ -269,7 +270,7 @@ export const EDIT_DATASOURCE_MESSAGE = () =>
   "Edit Datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
-export const ADD = () => "ADD";
+export const ENABLE = () => "ENABLE";
 export const UPGRADE = () => "UPGRADE";
 export const EDIT = () => "EDIT";
 
@@ -586,6 +587,12 @@ export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
+export const REGENERATE_SSH_KEY = () => "Regenerate SSH Key";
+export const SSH_KEY = () => "SSH Key";
+export const COPY_SSH_KEY = () => "Copy SSH Key";
+export const SSH_KEY_GENERATED = () => "SSH Key generated";
+export const REGENERATE_KEY_CONFIRM_MESSAGE = () =>
+  "This might cause the application to break. This keys needs to be updated in your Git Repo too!";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
@@ -842,6 +849,7 @@ export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
 export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
 export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
 export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
@@ -927,6 +935,9 @@ export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
+
+// API Pane
+export const API_PANE_NO_BODY = () => "This request does not have a body";
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
@@ -1020,3 +1031,5 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
