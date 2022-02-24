@@ -11,6 +11,7 @@ export enum SettingTypes {
   TEXT = "TEXT",
   PAGE = "PAGE",
   REDIRECT = "REDIRECT",
+  ACCORDION = "ACCORDION",
 }
 
 export enum SettingSubtype {
@@ -46,6 +47,7 @@ export interface Setting {
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
   calloutType?: "Info" | "Warning";
+  advanced?: Setting[];
 }
 
 export interface Category {

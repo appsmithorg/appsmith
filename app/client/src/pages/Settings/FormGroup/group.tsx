@@ -14,6 +14,8 @@ import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
 import { createMessage } from "@appsmith/constants/messages";
 import { Callout } from "components/ads/CalloutV2";
+import { RedirectUrlReduxForm } from "./RedirectUrlForm";
+import Accordion from "./Accordion";
 
 type GroupProps = {
   name?: string;
@@ -78,7 +80,7 @@ export default function Group({
                   <div
                     className={setting.isHidden ? "hide" : ""}
                     data-testid="admin-settings-group-text-input"
-                    key={setting.name}
+                    key={setting.name || setting.id}
                   >
                     <TextInput setting={setting} />
                   </div>
@@ -88,7 +90,7 @@ export default function Group({
                   <div
                     className={setting.isHidden ? "hide" : ""}
                     data-testid="admin-settings-group-toggle"
-                    key={setting.name}
+                    key={setting.name || setting.id}
                   >
                     <Toggle setting={setting} />
                   </div>
@@ -100,7 +102,7 @@ export default function Group({
                       setting.isHidden ? "hide" : "callout-link"
                     } t--read-more-link`}
                     data-testid="admin-settings-group-link"
-                    key={setting.name}
+                    key={setting.name || setting.id}
                   >
                     <Callout
                       action={setting.action}
@@ -116,7 +118,7 @@ export default function Group({
                   <div
                     className={setting.isHidden ? "hide" : ""}
                     data-testid="admin-settings-group-text"
-                    key={setting.name}
+                    key={setting.name || setting.id}
                   >
                     <Text setting={setting} />
                   </div>
@@ -126,7 +128,7 @@ export default function Group({
                   <div
                     className={setting.isHidden ? "hide" : ""}
                     data-testid="admin-settings-group-button"
-                    key={setting.name}
+                    key={setting.name || setting.id}
                   >
                     <Button setting={setting} />
                   </div>
@@ -136,12 +138,40 @@ export default function Group({
                   <div
                     className={setting.isHidden ? "hide" : ""}
                     data-testid="admin-settings-group"
-                    key={setting.name}
+                    key={setting.name || setting.id}
                   >
                     <Group
                       category={category}
                       name={setting.name}
                       settings={setting.children}
+                      subCategory={subCategory}
+                    />
+                  </div>
+                );
+              case SettingTypes.REDIRECT:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-redirect-url"
+                    key={setting.name || setting.id}
+                  >
+                    <RedirectUrlReduxForm
+                      helpText={setting.helpText}
+                      value={setting.value}
+                    />
+                  </div>
+                );
+              case SettingTypes.ACCORDION:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-accordion"
+                    key={setting.name || setting.id}
+                  >
+                    <Accordion
+                      category={category}
+                      label={setting.label}
+                      settings={setting.advanced}
                       subCategory={subCategory}
                     />
                   </div>

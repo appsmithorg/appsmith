@@ -10,7 +10,7 @@ export default function TextInput({ setting }: SettingComponentProps) {
       setting={setting}
     >
       <FormTextField
-        name={setting.name || ""}
+        name={setting.name || setting.id || ""}
         placeholder={createMessage(() => setting.placeholder || "")}
         type={setting.controlSubType}
       />

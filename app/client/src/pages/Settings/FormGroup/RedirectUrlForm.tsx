@@ -23,11 +23,9 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 8px;
-
   .help-icon {
     margin-left: 5px;
     cursor: pointer;
-
     svg {
       border-radius: 50%;
       border: 1px solid #858282;
@@ -50,7 +48,7 @@ function RedirectUrlForm(
 ) {
   useEffect(() => {
     props.initialize({
-      "redirect-url-form": props.value,
+      "redirect-url-form": `${window.location.origin}${props.value}`,
     });
   }, []);
 
