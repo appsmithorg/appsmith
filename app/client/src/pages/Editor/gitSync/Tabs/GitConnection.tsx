@@ -75,6 +75,7 @@ export const UrlOptionContainer = styled.div`
 
   & .primary {
   }
+
   margin-bottom: ${(props) => `${props.theme.spaces[3]}px`};
   margin-top: ${(props) => `${props.theme.spaces[11]}px`};
 `;
@@ -100,9 +101,12 @@ const Container = styled.div`
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: none;
+
   &::-webkit-scrollbar-thumb {
     background-color: transparent;
   }
+
   &::-webkit-scrollbar {
     width: 0px;
   }
