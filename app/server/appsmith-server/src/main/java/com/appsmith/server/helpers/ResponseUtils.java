@@ -50,15 +50,9 @@ public class ResponseUtils {
         page.setId(defaultResourceIds.getPageId());
 
         page.getLayouts()
-                .stream().filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
-                .forEach(layout -> layout.getLayoutOnLoadActions()
-                        .forEach(dslActionDTOS -> dslActionDTOS
-                                .forEach(actionDTO -> {
-                                    if (!StringUtils.isEmpty(actionDTO.getDefaultActionId())) {
-                                        actionDTO.setId(actionDTO.getDefaultActionId());
-                                    }
-                                }))
-                );
+                .stream()
+                .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
+                .forEach(layout -> this.updateLayoutWithDefaultResources(layout));
         return page;
     }
 
@@ -151,6 +145,9 @@ public class ResponseUtils {
                         if (!StringUtils.isEmpty(onLoadAction.getDefaultActionId())) {
                             onLoadAction.setId(onLoadAction.getDefaultActionId());
                         }
+                        if (!StringUtils.isEmpty(onLoadAction.getDefaultCollectionId())) {
+                            onLoadAction.setCollectionId(onLoadAction.getDefaultCollectionId());
+                        }
                     })
             );
         }
@@ -163,6 +160,9 @@ public class ResponseUtils {
                     layoutOnLoadAction.forEach(onLoadAction -> {
                         if (!StringUtils.isEmpty(onLoadAction.getDefaultActionId())) {
                             onLoadAction.setId(onLoadAction.getDefaultActionId());
+                        }
+                        if (!StringUtils.isEmpty(onLoadAction.getDefaultCollectionId())) {
+                            onLoadAction.setCollectionId(onLoadAction.getDefaultCollectionId());
                         }
                     }));
         }

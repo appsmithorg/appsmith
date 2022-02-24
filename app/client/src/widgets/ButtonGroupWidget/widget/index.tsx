@@ -14,6 +14,7 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import ButtonGroupComponent from "../component";
+import { MinimumPopupRows } from "widgets/constants";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -534,6 +535,9 @@ class ButtonGroupWidget extends BaseWidget<
   };
 
   getPageView() {
+    const { componentWidth } = this.getComponentDimensions();
+    const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+
     return (
       <ButtonGroupComponent
         borderRadius={this.props.borderRadius}
@@ -543,7 +547,9 @@ class ButtonGroupWidget extends BaseWidget<
         buttonVariant={this.props.buttonVariant}
         groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
+        menuDropDownWidth={menuDropDownWidth}
         orientation={this.props.orientation}
+        width={componentWidth}
       />
     );
   }

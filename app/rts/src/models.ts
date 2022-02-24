@@ -10,37 +10,37 @@ export class AppUser {
 
 export class CurrentEditorsEvent {
     resourceId: string;
-    users: AppUser [];
+    users: AppUser[];
 
-    constructor(resourceId: string, users: AppUser []) {
+    constructor(resourceId: string, users: AppUser[]) {
         this.resourceId = resourceId;
         this.users = users;
     }
 }
 
 export class MousePointerEvent {
-    pageId: string
-    socketId: string
-    user: AppUser
-    data: object
+    pageId: string;
+    socketId: string;
+    user: AppUser;
+    data: object;
 }
 
 export interface Policy {
-	permission: string
-	users: string[]
-	groups: string[]
+    permission: string;
+    users: string[];
+    groups: string[];
 }
 
 export interface CommentThread {
-    applicationId: string
+    applicationId: string;
 }
 
 export interface Comment {
-    threadId: string
-    policies: Policy[]
-    createdAt: string
-    updatedAt: string
-    creationTime: string
-    updationTime: string
-    deleted: boolean
+    threadId: string;
+    policies: Policy[];
+    createdAt: string;
+    updatedAt: string;
+    creationTime: string;
+    updationTime: string;
+    deleted: boolean;
 }
