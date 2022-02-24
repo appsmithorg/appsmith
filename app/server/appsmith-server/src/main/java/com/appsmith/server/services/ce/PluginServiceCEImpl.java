@@ -177,6 +177,11 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
+    public Flux<Plugin> getDefaultPluginIcons() {
+        return repository.findDefaultPluginIcons();
+    }
+
+    @Override
     public Mono<Organization> installPlugin(PluginOrgDTO pluginOrgDTO) {
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
