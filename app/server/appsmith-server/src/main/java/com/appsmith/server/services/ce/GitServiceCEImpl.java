@@ -549,7 +549,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     String status = tuple.getT1();
                     Application childApplication = tuple.getT2();
-                    // Reset manual update so that we can detect if the next update was made by DB migration or by the user
+                    // Update json schema versions so that we can detect if the next update was made by DB migration or
+                    // by the user
                     Application update = new Application();
                     update.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
                     update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
