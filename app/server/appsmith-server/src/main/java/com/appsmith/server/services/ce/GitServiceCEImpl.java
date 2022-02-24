@@ -2154,23 +2154,22 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch. Branch does not exists in the repo"));
                                 }
                                 return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                                        .onErrorResume(throwable -> {
+                                            log.warn("Unable to find branch with name ", throwable);
+                                            return addAnalyticsForGitOperation(
+                                                    AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(),
+                                                    application,
+                                                    throwable.getClass().getName(),
+                                                    throwable.getMessage(),
+                                                    gitApplicationMetadata.getIsRepoPrivate()
+                                            ).flatMap(application1 -> {
+                                                if( throwable instanceof GitAPIException ) {
+                                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch", throwable.getMessage()));
+                                                }
+                                                return Mono.just(application1);
+                                            });
+                                        })
                                         .flatMap(applicationPageService::deleteApplicationByResource);
-                            })
-                            // Delete the branch that exists in local file system but not in DB
-                            .onErrorResume(throwable -> {
-                                log.warn(" No application exists in DB for the local branch of file system", throwable);
-                                return addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(),
-                                        application,
-                                        throwable.getClass().getName(),
-                                        throwable.getMessage(),
-                                        gitApplicationMetadata.getIsRepoPrivate()
-                                ).flatMap(application1 -> {
-                                    if( throwable instanceof GitAPIException ) {
-                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch", throwable.getMessage()));
-                                    }
-                                    return Mono.just(application1);
-                                });
                             });
                 })
                 .flatMap(application -> addAnalyticsForGitOperation(AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(), application, application.getGitApplicationMetadata().getIsRepoPrivate()));

@@ -2516,25 +2516,53 @@ public class GitServiceTest {
     
     @Test
     @WithUserDetails(value ="api_user")
-    public void deleteBranch_staleBranchNotInDB_Success() {
-        
+    public void deleteBranch_staleBranchNotInDB_Success() throws IOException {
+        Application application = createApplicationConnectedToGit("deleteBranch_staleBranchNotInDB_Success", "master");
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "test");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getId()).isEqualTo(application.getId());
+                })
+                .verifyComplete();
+
     }
 
     @Test
     @WithUserDetails(value ="api_user")
-    public void deleteBranch_existsInDB_Success() {
+    public void deleteBranch_existsInDB_Success() throws IOException {
+        Application application = createApplicationConnectedToGit("deleteBranch_existsInDB_Success", "master");
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
 
+        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getId()).isEqualTo(application.getId());
+                    assertThat(application1.getDeleted()).isTrue();
+                })
+                .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void deleteBranch_branchDoesNotExist_ThrowError() {
+    public void deleteBranch_branchDoesNotExist_ThrowError() throws IOException {
+        Application application = createApplicationConnectedToGit("deleteBranch_branchDoesNotExist_ThrowError", "master");
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(false));
 
-    }
+        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
 
-    @Test
-    @WithUserDetails(value ="api_user")
-    public void deleteBranch_branchExists_Success() {
-
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable ->  throwable instanceof AppsmithException &&
+                        throwable.getMessage().contains("delete branch. Branch does not exists in the repo"))
+                .verify();
     }
 }
