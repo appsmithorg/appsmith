@@ -129,7 +129,12 @@ function IframeComponent(props: IframeComponentProps) {
       {message ? (
         message
       ) : srcDoc ? (
-        <iframe src={source} srcDoc={srcDoc} title={title} />
+        <iframe
+          sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts allow-top-navigation-by-user-activation"
+          src={source}
+          srcDoc={srcDoc}
+          title={title}
+        />
       ) : (
         <iframe src={source} title={title} />
       )}
