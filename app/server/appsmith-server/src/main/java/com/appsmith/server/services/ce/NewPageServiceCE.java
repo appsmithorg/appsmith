@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -38,6 +39,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
                                                                                    Boolean view,
                                                                                    boolean markApplicationAsRecentlyAccessed);
 
+    Mono<ApplicationPagesDTO> findApplicationPages(String applicationId, String pageId, String branchName, ApplicationMode mode);
+
     Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(
             String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed
     );
@@ -69,6 +72,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Mono<NewPage> findByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
 
     Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission);
+
+    Mono<String> findBranchedApplicationIdFromNewPage(String branchName, String defaultPageId);
 
     Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
 

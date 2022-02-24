@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -146,5 +148,25 @@ public class PageControllerCE {
         log.debug("Going to update page with id: {}, branchName: {}", defaultPageId, branchName);
         return newPageService.updatePageByDefaultPageIdAndBranch(defaultPageId, resource, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    /**
+     * Returns a list of pages. It takes either Application ID or a Page ID and mode as input.
+     * If Application ID is present, it'll fetch all pages of that application in the provided mode.
+     * if Page ID is present, it'll fetch all pages of the corresponding Application.
+     * If both IDs are present, it'll use the Application ID only and ignore the Page ID
+     * @param applicationId Id of the application
+     * @param pageId id of a page
+     * @param mode In which mode it's in
+     * @param branchName name of the current branch
+     * @return List of ApplicationPagesDTO along with other meta data
+     */
+    @GetMapping
+    public Mono<ResponseDTO<ApplicationPagesDTO>> getAllPages(@RequestParam(required = false) String applicationId,
+                                                              @RequestParam(required = false) String pageId,
+                                                              @RequestParam(required = true, defaultValue = "EDIT") ApplicationMode mode,
+                                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return newPageService.findApplicationPages(applicationId, pageId, branchName, mode)
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }
