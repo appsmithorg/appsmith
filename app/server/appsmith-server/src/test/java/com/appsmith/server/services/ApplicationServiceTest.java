@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -21,6 +21,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -82,6 +83,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
@@ -362,7 +364,7 @@ public class ApplicationServiceTest {
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("randomBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId())))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId() + "," + "randomBranch")))
                 .verify();
     }
 
@@ -572,7 +574,7 @@ public class ApplicationServiceTest {
 
         Application branchedApplication = new Application();
         GitApplicationMetadata childBranchGitData = new GitApplicationMetadata();
-        BeanCopyUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
+        AppsmithBeanUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
         childBranchGitData.setBranchName("childBranch");
         branchedApplication.setGitApplicationMetadata(childBranchGitData);
         branchedApplication.setOrganizationId(orgId);
@@ -2252,4 +2254,42 @@ public class ApplicationServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplication_WithCustomSavedTheme_ThemesAlsoCopied() {
+        Application testApplication = new Application();
+        String appName = "cloneApplication_WithCustomSavedTheme_ThemesAlsoCopied";
+        testApplication.setName(appName);
+
+        Theme theme = new Theme();
+        theme.setName("Custom theme");
+
+        Mono<Theme> createTheme = themeService.create(theme);
+
+        Mono<Tuple2<Theme, Tuple2<Application, Application>>> tuple2Application = createTheme
+                .then(applicationPageService.createApplication(testApplication, orgId))
+                .flatMap(application ->
+                        themeService.updateTheme(application.getId(), theme).then(
+                                themeService.persistCurrentTheme(application.getId(), new Theme())
+                                        .flatMap(theme1 -> Mono.zip(
+                                                applicationPageService.cloneApplication(application.getId(), null),
+                                                Mono.just(application))
+                                        )
+                        )
+                ).flatMap(objects ->
+                    themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEMES)
+                            .zipWith(Mono.just(objects))
+                );
+
+        StepVerifier.create(tuple2Application)
+                .assertNext(objects -> {
+                    Theme clonedTheme = objects.getT1();
+                    Application clonedApp = objects.getT2().getT1();
+                    Application srcApp = objects.getT2().getT2();
+                    assertThat(clonedApp.getEditModeThemeId()).isNotEqualTo(srcApp.getEditModeThemeId());
+                    assertThat(clonedTheme.getApplicationId()).isNull();
+                    assertThat(clonedTheme.getOrganizationId()).isNull();
+                })
+                .verifyComplete();
+    }
 }

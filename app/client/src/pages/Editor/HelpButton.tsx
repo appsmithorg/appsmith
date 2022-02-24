@@ -13,7 +13,10 @@ import { useSelector } from "react-redux";
 import { bootIntercom } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  HELP_RESOURCE_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";

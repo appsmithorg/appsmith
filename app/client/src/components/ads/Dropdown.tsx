@@ -76,6 +76,7 @@ export type DropdownProps = CommonComponentProps &
     dropdownHeight?: string;
     dropdownMaxHeight?: string;
     showDropIcon?: boolean;
+    closeOnSpace?: boolean;
     dropdownTriggerIcon?: React.ReactNode;
     containerClassName?: string;
     headerLabel?: string;
@@ -793,6 +794,7 @@ export default function Dropdown(props: DropdownProps) {
     helperText,
     removeSelectedOption,
     hasError,
+    closeOnSpace = true,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption | DropdownOption[]>(
@@ -837,10 +839,17 @@ export default function Dropdown(props: DropdownProps) {
   //Removes selected option
   const selectedOptionClickHandler = useCallback(
     (optionToBeRemoved: DropdownOption) => {
+      let selectedOptions: DropdownOption | DropdownOption[] = [];
       setIsOpen(false);
-      const selectedOptions = (selected as DropdownOption[]).filter(
-        (option: DropdownOption) => option.value !== optionToBeRemoved.value,
-      );
+      if (!Array.isArray(selected)) {
+        if (optionToBeRemoved.value === selected.value) {
+          selectedOptions = optionToBeRemoved;
+        }
+      } else {
+        selectedOptions = selected.filter(
+          (option: DropdownOption) => option.value !== optionToBeRemoved.value,
+        );
+      }
       setSelected(selectedOptions);
       removeSelectedOption &&
         removeSelectedOption(optionToBeRemoved.value, optionToBeRemoved);
@@ -872,6 +881,12 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case " ":
+          if (closeOnSpace) {
+            e.preventDefault();
+            if (isOpen && !("length" in selected)) optionClickHandler(selected);
+            else onClickHandler();
+          }
+          break;
         case "Enter":
           e.preventDefault();
           if (isOpen && !("length" in selected)) optionClickHandler(selected);

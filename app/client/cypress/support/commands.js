@@ -1477,7 +1477,7 @@ Cypress.Commands.add("updateComputedValue", (value) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is empty");
       cy.get(".CodeMirror textarea")
         .first()
@@ -1532,7 +1532,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is not empty");
       cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
@@ -1602,7 +1602,7 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is empty");
       cy.get(".CodeMirror textarea")
         .last()
@@ -1948,7 +1948,7 @@ Cypress.Commands.add("DeleteAppByApi", () => {
     const match = myRegexp.exec(currentURL);
     appId = match ? match[1].split("/")[1] : null;
 
-    if (appId != null) {
+    if (appId !== null) {
       cy.log(appId + "appId");
       cy.request({
         method: "DELETE",
@@ -2186,6 +2186,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
         .click();
       // delete datasource
       cy.get(".t--delete-datasource").click();
+      cy.get("[data-cy=t--confirm-modal-btn]").click();
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -2504,6 +2505,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
     .click({ force: true });
   cy.contains(".t--datasource-name", datasourceName).click();
   cy.get(".t--delete-datasource").click();
+  cy.get("[data-cy=t--confirm-modal-btn]").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -2581,6 +2583,7 @@ Cypress.Commands.add("deleteJSObject", () => {
 Cypress.Commands.add("deleteDataSource", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
+  cy.get("[data-cy=t--confirm-modal-btn]").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -3457,7 +3460,7 @@ Cypress.Commands.add("clearPropertyValue", (value) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is empty");
       cy.get(".CodeMirror textarea")
         .eq(value)
@@ -3544,7 +3547,7 @@ Cypress.Commands.add(
       .click({ force: true })
       .wait(500);
 
-    if (action == "Delete")
+    if (action === "Delete")
       cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
         "not.exist",
       );
@@ -3650,6 +3653,12 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.get(queryLocators.query).click();
 });
 
+//Usage: If in need to type {enter} {esc} etc then .text('sometext').type('{enter}')
+Cypress.Commands.add("text", { prevSubject: true }, (subject, text) => {
+  subject.val(text);
+  return cy.wrap(subject);
+});
+
 //Not Used!
 Cypress.Commands.add("VerifyNoDataDisplayAbsence", () => {
   cy.xpath("//div[text()='No data to display']", { timeout: 0 }).should(
@@ -3692,6 +3701,10 @@ Cypress.Commands.add("isInViewport", (element) => {
     expect(rect.top).not.to.be.greaterThan(bottom);
     expect(rect.bottom).not.to.be.greaterThan(bottom);
   });
+});
+
+Cypress.Commands.add("validateEvaluatedValue", (value) => {
+  cy.get(".t-property-evaluated-value").should("contain", value);
 });
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {

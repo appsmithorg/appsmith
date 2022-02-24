@@ -126,7 +126,6 @@ function* initializeEditorSaga(
       }),
       fetchPageList({ applicationId }, APP_MODE.EDIT),
     ];
-
     const successEffects = [
       ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
@@ -136,12 +135,6 @@ function* initializeEditorSaga(
       ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
     ];
-    const jsActionsCall = yield failFastApiCalls(
-      [fetchJSCollections({ applicationId })],
-      [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
-      [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
-    );
-    if (!jsActionsCall) return;
     if (pageId) {
       initCalls.push(fetchPage(pageId, true) as any);
       successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
@@ -155,6 +148,34 @@ function* initializeEditorSaga(
     );
 
     if (!applicationAndLayoutCalls) return;
+
+    const initActionsCalls = [
+      fetchActions({ applicationId }, []),
+      fetchJSCollections({ applicationId }),
+    ];
+
+    const successActionEffects = [
+      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+      ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+    ];
+    const failureActionEffects = [
+      ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+      ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
+    ];
+    const allActionCalls = yield failFastApiCalls(
+      initActionsCalls,
+      successActionEffects,
+      failureActionEffects,
+    );
+
+    if (!allActionCalls) {
+      return;
+    } else {
+      yield put({
+        type: ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
+      });
+      yield put(executePageLoadActions());
+    }
 
     let fetchPageCallResult;
     const defaultPageId = yield select(getDefaultPageId);
@@ -192,13 +213,6 @@ function* initializeEditorSaga(
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
     if (!pluginFormCall) return;
-
-    const actionsCall = yield failFastApiCalls(
-      [fetchActions({ applicationId }, [executePageLoadActions()])],
-      [ReduxActionTypes.FETCH_ACTIONS_SUCCESS],
-      [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR],
-    );
-    if (!actionsCall) return;
 
     const currentApplication = yield select(getCurrentApplication);
     const appName = currentApplication ? currentApplication.name : "";

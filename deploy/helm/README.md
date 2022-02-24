@@ -163,13 +163,65 @@ helm install \
 ```
 The above command deploys Appsmith application and configure application to use storage class name `appsmith-pv`
 
-Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
+Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example:
 ```
 helm install -f values.yaml stable-appsmith/appsmith --generate-name
 ```
 
 *Tip: You can use the default [values.yaml](https://github.com/appsmithorg/appsmith/blob/release/deploy/helm/values.yaml)*
 
+### Appsmith configuration
+To change Appsmith configurations, you can use configuration UI in application or update value in values.yaml(The available configurations is listed below). 
+|	Name																										|	Value									|
+|	----------------------------------------------------		|	---------------------	|
+| `applicationConfig.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID`		| `""`									|
+| `applicationConfig.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET`| `""`									|
+| `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_ID`		| `""`									|
+| `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET`| `""`									|
+| `applicationConfig.APPSMITH_CLIENT_LOG_LEVEL`						| `""`									|
+| `applicationConfig.APPSMITH_GOOGLE_MAPS_API_KEY`				| `""`									|
+| `applicationConfig.APPSMITH_MAIL_ENABLED`								| `""`									|
+| `applicationConfig.APPSMITH_MAIL_HOST`									| `""`									|
+| `applicationConfig.APPSMITH_MAIL_PORT`									| `""`									|
+| `applicationConfig.APPSMITH_MAIL_USERNAME`							| `""`									|
+| `applicationConfig.APPSMITH_MAIL_PASSWORD`							| `""`									|
+| `applicationConfig.APPSMITH_MAIL_FROM`									| `""`									|
+| `applicationConfig.APPSMITH_REPLY_TO`										| `""`									|
+| `applicationConfig.APPSMITH_MAIL_SMTP_AUTH`							| `""`									|
+| `applicationConfig.APPSMITH_MAIL_SMTP_TLS_ENABLED`			| `""`									|
+| `applicationConfig.APPSMITH_DISABLE_TELEMETRY`					| `""`									|
+| `applicationConfig.APPSMITH_RECAPTCHA_SITE_KEY`					| `""`									|
+| `applicationConfig.APPSMITH_RECAPTCHA_SECRET_KEY`				| `""`									|
+| `applicationConfig.APPSMITH_RECAPTCHA_ENABLED`					| `""`									|
+| `applicationConfig.APPSMITH_MONGODB_URI`								| `""`									|
+| `applicationConfig.APPSMITH_REDIS_URL`									| `""`									|
+| `applicationConfig.APPSMITH_ENCRYPTION_PASSWORD`				| `""`									|
+| `applicationConfig.APPSMITH_ENCRYPTION_SALT`						| `""`									|
+| `applicationConfig.APPSMITH_CUSTOM_DOMAIN`							| `""`									|
+
+For example, to change the encryption salt configuration, you can run the following command:
+```
+helm install \
+--set applicationConfig.APPSMITH_ENCRYPTION_SALT=123 \
+  stable-appsmith/appsmith --generate-name
+```
+
+## Expose Appsmith
+- If you wish to publish your Appsmith to the world through the Internet, you will need to setup the Ingress controller firstly. Please refer to the section **Kubernetes NGINX Ingress Controller** in the [Prerequisites](https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#prerequisites)
+- In case of you have not install the Helm chart yet, you can run the below command to install it with exposing Appsmith
+```
+helm install stable-appsmith/appsmith --generate-name \
+--set ingress.enabled=true \
+--set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
+--set service.type=ClusterIP
+```
+- If you have installed Appsmith Helm chart, please run the `helm upgrade` command to upgrade the existing installation
+```
+helm upgrade --set ingress.enabled=true stable-appsmith/appsmith appsmith
+
+# Or this command if you are using values.yaml file
+helm upgrade --values values.yaml stable-appsmith/appsmith appsmith
+```
 ## Troubleshooting
 If at any time you encounter an error during the installation process, reach out to support@appsmith.com or join our Discord Server
 
