@@ -633,6 +633,7 @@ function* createDatasourceFromFormSaga(
     const initialValues = yield call(getConfigInitialValues, formConfig);
 
     const payload = merge(initialValues, actionPayload.payload);
+    payload.isConfigured = false;
 
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
