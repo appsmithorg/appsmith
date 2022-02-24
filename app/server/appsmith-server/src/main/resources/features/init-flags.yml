@@ -52,3 +52,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com
+
+    - uid: APP_TEMPLATE
+      enable: true
+      description: Allow users to browse application templates and import them
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
