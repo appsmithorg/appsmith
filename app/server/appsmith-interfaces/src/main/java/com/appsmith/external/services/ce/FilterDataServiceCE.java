@@ -457,7 +457,13 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
             sb.append("\"" + path + "\"");
             sb.append(" ");
-            sb.append(sqlOp);
+            boolean isPrepareStmt = true;
+            if (value.equals(" ") && operator.name().equals("EQ")) {
+                sb.append("IS NULL");
+                isPrepareStmt = false;
+            } else {
+                sb.append(sqlOp);
+            }
             sb.append(" ");
 
             // These are array operations. Convert value into appropriate format and then append
@@ -485,7 +491,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 value = valueBuilder.toString();
                 sb.append(value);
 
-            } else {
+            } else if (isPrepareStmt) {
                 // Not an array. Simply add a placeholder
                 sb.append("?");
                 values.add(new PreparedStatementValueDTO(value, schema.get(path)));

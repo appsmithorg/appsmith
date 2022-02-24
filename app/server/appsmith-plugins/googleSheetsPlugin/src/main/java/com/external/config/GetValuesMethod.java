@@ -4,6 +4,7 @@ import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.services.FilterDataService;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -250,6 +251,12 @@ public class GetValuesMethod implements Method {
         if (whereConditions == null || whereConditions.size() == 0) {
             return false;
         }
+
+        //Change empty condition value("") to " " to bypass Null validation
+        whereConditions.stream()
+                .filter(val -> val.getValue().equals("") && val.getOperator().name().equals("EQ"))
+                .forEach(val -> val.setValue(" "));
+
 
         // At least 1 condition exists
         return true;
