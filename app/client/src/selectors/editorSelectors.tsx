@@ -224,7 +224,8 @@ export const getCanvasWidgetDsl = createSelector(
       });
 
     return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
+      canvasWidgets: JSON.parse(JSON.stringify(widgets)),
+      // canvasWidgets: widgets,
     });
   },
 );
