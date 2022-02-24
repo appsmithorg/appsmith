@@ -95,6 +95,9 @@ export function MainContainerLayoutControl() {
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
     if (!buttonRefs.length) return;
     switch (event.key) {
+      case "Tab":
+        event.preventDefault();
+        break;
       case "ArrowRight":
       case "Right":
         const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
