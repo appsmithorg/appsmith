@@ -119,6 +119,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName());
             datasource.setDatasourceConfiguration(datasourceConfiguration);
+            datasource.setIsConfigured(true);
             return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId())
                     .then(createSuffixedDatasource(datasource));
         });

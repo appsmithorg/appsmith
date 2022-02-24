@@ -228,7 +228,7 @@ function FilePickerComponent(props: FilePickerProps) {
     <div className="button-wrapper" ref={fileContainerRef}>
       <UploadIconWrapper>
         <Icon
-          fillColor={Colors.GREY_8}
+          fillColor={props.iconFillColor || Colors.GREY_800}
           name={props.uploadIcon || "upload-cloud"}
         />
       </UploadIconWrapper>
