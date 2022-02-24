@@ -68,7 +68,6 @@ export const generateDataTreeWidget = (
 
   Object.entries(defaultProps).forEach(
     ([propertyName, defaultPropertyName]) => {
-      // why default value is undefined ?
       if (!(defaultPropertyName in widget)) {
         unInitializedDefaultProps[defaultPropertyName] = undefined;
       }
@@ -95,14 +94,14 @@ export const generateDataTreeWidget = (
     },
   );
 
-  const overridingMetaProps: Record<string, unknown> = {};
+  const metaValues: Record<string, unknown> = {};
 
-  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
-  Object.entries(defaultMetaProps).forEach(([key, value]) => {
-    if (overridingMetaPropsMap[key]) {
-      overridingMetaProps[key] =
-        key in widgetMetaProps ? widgetMetaProps[key] : value;
-    }
+  // overridingMetaProps has all meta property value either from metaReducer or default set by widget.
+  Object.entries(defaultMetaProps).forEach(([key, initMetaValue]) => {
+    const metaReducerHasValue = key in widgetMetaProps;
+    metaValues[key] = metaReducerHasValue
+      ? widgetMetaProps[key]
+      : initMetaValue;
   });
 
   const {
@@ -131,7 +130,7 @@ export const generateDataTreeWidget = (
       ...blockedDerivedProps,
     },
     meta: {
-      ...overridingMetaProps,
+      ...metaValues,
     },
     propertyOverrideDependency,
     overridingPropertyPaths,
