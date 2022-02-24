@@ -16,6 +16,7 @@
 
 import "cypress-real-events/support";
 import "cypress-xpath";
+import "cypress-wait-until";
 /// <reference types="cypress-xpath" />
 
 let appId;
