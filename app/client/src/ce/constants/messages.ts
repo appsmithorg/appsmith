@@ -1042,3 +1042,5 @@ export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
 export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "NEW QUERY/JS";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
+
+export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
