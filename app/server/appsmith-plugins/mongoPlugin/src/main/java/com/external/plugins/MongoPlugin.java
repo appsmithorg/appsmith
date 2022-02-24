@@ -122,18 +122,20 @@ public class MongoPlugin extends BasePlugin {
     private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
 
     /**
-     * For some MongoDB special types we use the following regex for example for `ObjectId`
-     * We will replace the character 'E' in the regex template with special types.
-     * This regex matches the following two patterns:
-     *   - "ObjectId(someId)"  // will not match without outer double quotes
-     *     - Group 1 = "ObjectId(someId)"
-     *     - Group 2 = ObjectId(someId) // no quotes
-     *   - 'ObjectId(someId)'  // will not match without outer single quotes
-     *      - Group 3 = 'ObjectId(someId)'
-     *      - Group 4 = ObjectId(someId) // not quotes
+     * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
+     * e.g. "ObjectId(...)". Case for single quotes e.g. 'ObjectId(...)' is not added because the way client sends
+     * back the data to the API server it would be extremely uncommon to encounter this case.
+     *
+     * In the given regex E is replaced by the name of special data types before doing the match / find operation.
+     * e.g. E will be replaced with ObjectId to find the occurrence of "ObjectId(...)" pattern.
+     *
+     * Example: for "[\"ObjectId('xyz')\"]":
+     *   o group 1 will match "ObjectId(...)"
+     *   o group 2 will match ObjectId(...)
+     *   o group 3 will match 'xyz'
+     *   o group 4 will match xyz
      */
     private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
-    private static final String MONGODB_SPECIAL_TYPE_ID_REGEX_TEMPLATE = "^(\\\"(E\\((.*?((\\w|-|:)+).*?)?\\))\\\")$";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
@@ -475,23 +477,19 @@ public class MongoPlugin extends BasePlugin {
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(query);
                 while (matcher.find()) {
-                    String objectIdWithQuotes;
-                    String objectIdWithoutQuotes;
-                    String argWithQuotes;
-                    String argWithoutQuotes = "";
                     /**
-                     * TODO: update comment
-                     * `If` branch will match when ObjectId is wrapped within double quotes e.g. "ObjectId(someId)"
-                     *   - Group 1 = "ObjectId(someId)"
-                     *   - Group 2 = ObjectId(someId) // no quotes
-                     * `Else` branch will match when ObjectId is wrapped within single quotes e.g. 'ObjectId(someId)'
-                     *   - Group 3 = 'ObjectId(someId)'
-                     *   - Group 4 = ObjectId(someId) // no quotes
+                     * `If` branch will match when any special data type is found wrapped within double quotes e.g.
+                     * "ObjectId('someId')":
+                     *   o Group 1 = "ObjectId('someId')"
+                     *   o Group 2 = ObjectId(someId)
+                     *   o Group 3 = 'someId'
+                     *   o Group 4 = someId
                      */
                     if (matcher.group(1) != null) {
-                        objectIdWithQuotes = matcher.group(1);
-                        objectIdWithoutQuotes = matcher.group(2);
-                        argWithQuotes = matcher.group(3);
+                        String objectIdWithQuotes = matcher.group(1);
+                        String objectIdWithoutQuotes = matcher.group(2);
+                        String argWithQuotes = matcher.group(3);
+                        String argWithoutQuotes = "";
                         try {
                             argWithoutQuotes = matcher.group(4);
                             if (specialType.isQuotesRequiredAroundParameter()) {
@@ -504,26 +502,9 @@ public class MongoPlugin extends BasePlugin {
                                     e.getMessage()
                             );
                         }
-                    } else {
-                        objectIdWithQuotes = matcher.group(6);
-                        objectIdWithoutQuotes = matcher.group(7);
-                        argWithQuotes = matcher.group(8);
-                        try {
-                            argWithoutQuotes = matcher.group(9);
-                            if (specialType.isQuotesRequiredAroundParameter()) {
-                                argWithoutQuotes = objectMapper.writeValueAsString(argWithoutQuotes);
-                            }
-                        } catch (JsonProcessingException e) {
-                            throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                    argWithoutQuotes,
-                                    e.getMessage()
-                            );
-                        }
+                        objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
+                        objectIdMap.put(argWithQuotes, argWithoutQuotes);
                     }
-
-                    objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
-                    objectIdMap.put(argWithQuotes, argWithoutQuotes);
                 }
 
                 for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
