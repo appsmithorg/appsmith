@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const homePage = require("../../../locators/HomePage.json");
 //const dsl = require("../../../fixtures/forkedApp.json");
 
@@ -6,7 +8,7 @@ describe("Import, Export and Fork application and validate data binding", functi
   let appid;
   let newOrganizationName;
 
-  it("Import application and validate data on pageload", function() {
+  it("1. Import application and validate data on pageload", function() {
     // import application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon)
@@ -14,13 +16,19 @@ describe("Import, Export and Fork application and validate data binding", functi
       .click();
     cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(homePage.orgImportAppModal).should("be.visible");
-    cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
-    cy.get(homePage.orgImportAppButton).click({ force: true });
+    cy.xpath(homePage.uploadLogo)
+      .attachFile("forkedApp.json")
+      .wait(500);
+    cy.get(homePage.orgImportAppButton)
+      .trigger("click")
+      .wait(500);
+    cy.get(homePage.orgImportAppModal).should("not.exist");
+
     cy.wait("@importNewApplication").then((interception) => {
-      //let appId = interception.response.body.data.id;
-      // let defaultPage = interception.response.body.data.pages.find(
-      //   (eachPage) => !!eachPage.isDefault,
-      // );
+      let appId = interception.response.body.data.id;
+      let defaultPage = interception.response.body.data.pages.find(
+        (eachPage) => !!eachPage.isDefault,
+      );
 
       cy.get(homePage.toastMessage).should(
         "contain",
@@ -43,7 +51,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     });
   });
 
-  it("Fork application and validate data binding for the widgets", function() {
+  it("2. Fork application and validate data binding for the widgets", function() {
     // fork application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.searchInput).type(`${this.appname}`);
@@ -69,7 +77,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.xpath("//div[text()='Recusan']").should("be.visible");
   });
 
-  it("Export and import application and validate data binding for the widgets", function() {
+  it("3. Export and import application and validate data binding for the widgets", function() {
     cy.NavigateToHome();
     cy.get(homePage.searchInput)
       .clear()
