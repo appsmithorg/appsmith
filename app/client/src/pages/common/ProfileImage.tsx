@@ -13,6 +13,7 @@ export const Profile = styled.div<{ backgroundColor?: string; side?: number }>`
   justify-content: center;
   cursor: pointer;
   background-color: ${(props) => props.backgroundColor};
+  flex-shrink: 0;
   && span {
     color: ${Colors.BLACK};
     letter-spacing: normal;

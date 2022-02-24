@@ -14,12 +14,9 @@ const Styles = styled.div`
       tr {
         background-color: ${(props) => props.theme.colors.table.headerBg};
 
-        th:first-child {
-          padding: 0 ${(props) => props.theme.spaces[9]}px;
-        }
-
         th {
-          padding: ${(props) => props.theme.spaces[5]}px 0;
+          padding: ${(props) => props.theme.spaces[5]}px
+            ${(props) => props.theme.spaces[9]}px;
           text-align: left;
           color: ${(props) => props.theme.colors.table.headerText};
           font-weight: ${(props) => props.theme.fontWeights[1]};
@@ -50,12 +47,12 @@ const Styles = styled.div`
       tr {
         td:first-child {
           color: ${(props) => props.theme.colors.table.rowTitle};
-          padding: 0 ${(props) => props.theme.spaces[9]}px;
           font-weight: ${(props) => props.theme.fontWeights[1]};
         }
 
         td {
-          padding: ${(props) => props.theme.spaces[4]}px 0;
+          padding: ${(props) => props.theme.spaces[4]}px
+            ${(props) => props.theme.spaces[9]}px;
           color: ${(props) => props.theme.colors.table.rowData};
           font-size: ${(props) => props.theme.typography.p1.fontSize}px;
           line-height: ${(props) => props.theme.typography.p1.lineHeight}px;

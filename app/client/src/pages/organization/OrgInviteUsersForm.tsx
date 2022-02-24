@@ -107,8 +107,8 @@ const UserList = styled.div`
 const User = styled.div`
   display: flex;
   align-items: center;
-  height: 54px;
-  padding-left: 15px;
+  min-height: 54px;
+  padding: 5px 0 5px 15px;
   justify-content: space-between;
   color: ${(props) => props.theme.colors.modal.user.textColor};
 `;
@@ -123,6 +123,7 @@ const UserInfo = styled.div`
 
 const UserRole = styled.div`
   flex-basis: 25%;
+  flex-shrink: 0;
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.modal.headerText};
   }
@@ -131,9 +132,13 @@ const UserRole = styled.div`
 const UserName = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 10px;
-  span:nth-child(1) {
-    margin-bottom: 1px;
+  margin: 0 10px;
+  span {
+    word-break: break-word;
+
+    &:nth-child(1) {
+      margin-bottom: 1px;
+    }
   }
 `;
 
