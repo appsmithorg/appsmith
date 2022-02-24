@@ -17,21 +17,47 @@ import {
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { get, set } from "lodash";
+import { isJSObject } from "workers/evaluationUtils";
 
 type GroupedDependencyMap = Record<string, DependencyMap>;
 
 // group dependants by entity and filter self-dependencies
 // because, we're only interested in entities that depend on other entitites
-export const groupAndFilterDependantsMap = (inverseMap: DependencyMap) => {
+// filter exception: JS_OBJECT's, when a function depends on another function within the same object
+export const groupAndFilterDependantsMap = (
+  inverseMap: DependencyMap,
+  dataTree: DataTree,
+) => {
   const entitiesDepMap: GroupedDependencyMap = {};
 
   Object.entries(inverseMap).forEach(([fullDependencyPath, dependants]) => {
     const dependencyEntityName = fullDependencyPath.split(".")[0];
+    const isJS_Object = isJSObject(dataTree[dependencyEntityName]);
+
     const entityDependantsMap = entitiesDepMap[dependencyEntityName] || {};
     let entityPathDependants = entityDependantsMap[fullDependencyPath] || [];
 
     entityPathDependants = entityPathDependants.concat(
-      dependants.filter((dep) => dep.split(".")[0] !== dependencyEntityName),
+      isJS_Object
+        ? /* include self-dependent properties for JsObjects 
+              e.g. {
+                "JsObject.internalFunc": [ "JsObject.fun1", "JsObject" ]
+              }
+              When fun1 calls internalfunc within it's body.
+              Will keep "JsObject.fun1" and filter "JsObject".
+          */
+          dependants.filter((dep) => dep !== dependencyEntityName)
+        : /* filter self-dependent properties for everything else
+              e.g. {
+                Select1.selectedOptionValue: [
+                  'Select1.isValid', 'Select1'
+                ]
+              }
+              Will remove both 'Select1.isValid', 'Select1'.
+          */
+          dependants.filter(
+            (dep) => dep.split(".")[0] !== dependencyEntityName,
+          ),
     );
 
     if (!(entityPathDependants.length > 0)) return;
@@ -56,14 +82,15 @@ export const getEntityDependants = (
   const dependantEntityFullPaths = new Set<string>();
 
   fullEntityPaths.forEach((fullEntityPath) => {
-    const entityName = fullEntityPath.split(".")[0];
+    const entityPathArray = fullEntityPath.split(".");
+    const entityName = entityPathArray[0];
     if (!(entityName in entitiesDependantsmap)) return;
     const entityDependantsMap = entitiesDependantsmap[entityName];
 
     Object.entries(entityDependantsMap).forEach(
       ([fullDependencyPath, dependants]) => {
         if (
-          fullEntityPath.split(".").length > 1 &&
+          entityPathArray.length > 1 &&
           fullDependencyPath !== fullEntityPath
         ) {
           return;
@@ -71,11 +98,7 @@ export const getEntityDependants = (
 
         dependants.forEach((dependantPath) => {
           const dependantEntityName = dependantPath.split(".")[0];
-          // Example: For a dependency chain that looks like Dropdown1.selectedOptionValue -> Table1.tableData -> Text1.text -> Dropdown1.options
-          // Here we're operating on
-          // Dropdown1 -> Table1 -> Text1 -> Dropdown1
-          // It looks like a circle, but isn't
-          // So we need to mark the visited nodes and avoid infinite recursion in case we've already visited a node once.
+          // Marking visited paths to avoid infinite recursion.
           if (visitedPaths.has(dependantPath)) {
             return;
           }
@@ -84,16 +107,16 @@ export const getEntityDependants = (
           dependantEntityNames.add(dependantEntityName);
           dependantEntityFullPaths.add(dependantPath);
 
-          const childDependencies = getEntityDependants(
+          const childDependants = getEntityDependants(
             Array.from(dependantEntityFullPaths),
             entitiesDependantsmap,
             visitedPaths,
           );
-          childDependencies.names.forEach((entityName) => {
-            dependantEntityNames.add(entityName);
+          childDependants.names.forEach((childDependantName) => {
+            dependantEntityNames.add(childDependantName);
           });
-          childDependencies.fullPaths.forEach((entityPath) => {
-            dependantEntityFullPaths.add(entityPath);
+          childDependants.fullPaths.forEach((childDependantPath) => {
+            dependantEntityFullPaths.add(childDependantPath);
           });
         });
       },
@@ -129,7 +152,12 @@ function* setWidgetsLoadingSaga() {
     const inverseMap: DependencyMap = yield select(
       getEvaluationInverseDependencyMap,
     );
-    const entitiesDependantsMap = groupAndFilterDependantsMap(inverseMap);
+    const dataTree: DataTree = yield select(getDataTree);
+
+    const entitiesDependantsMap = groupAndFilterDependantsMap(
+      inverseMap,
+      dataTree,
+    );
     const loadingEntities = getEntityDependants(
       isLoadingActions,
       entitiesDependantsMap,
@@ -142,8 +170,6 @@ function* setWidgetsLoadingSaga() {
     console.log("Hello LOADING ENITIES", loadingEntities);
     console.log("Hello ------------------");
 
-    // get all widgets evaluted data
-    const dataTree: DataTree = yield select(getDataTree);
     // check animateLoading is active on current widgets and set
     Object.entries(dataTree).forEach(([entityName, entity]) => {
       if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
