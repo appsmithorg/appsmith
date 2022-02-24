@@ -607,7 +607,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       serverSidePaginationEnabled,
       totalRecordsCount,
       multiRowSelection,
-      selectedRowIndex,
     } = this.props;
 
     // Bail out if santizedTableData is a string. This signifies an error in evaluations
