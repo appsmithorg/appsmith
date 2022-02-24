@@ -275,7 +275,12 @@ class ImageComponent extends React.Component<
             </>
           )}
           {showDownloadBtn && (
-            <ControlBtn download href={hrefUrl} target="_blank">
+            <ControlBtn
+              data-cy="t--image-download"
+              download
+              href={hrefUrl}
+              target="_blank"
+            >
               <div>
                 <svg fill="none" height="20" viewBox="0 0 20 20" width="20">
                   <path
