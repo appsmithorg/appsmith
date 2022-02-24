@@ -60,6 +60,8 @@ export function MainContainerLayoutControl() {
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
 
+  const buttonRefs: Array<HTMLButtonElement | null> = [];
+
   /**
    * return selected layout. if there is no app
    * layout, use the default one ( fluid )
@@ -90,6 +92,22 @@ export function MainContainerLayoutControl() {
     [dispatch, appLayout],
   );
 
+  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+    if (!buttonRefs.length) return;
+    switch (event.key) {
+      case "ArrowRight":
+      case "Right":
+        const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
+        buttonRefs[rightIndex]?.focus();
+        break;
+      case "ArrowLeft":
+      case "Left":
+        const leftIndex = index === 0 ? buttonRefs.length - 1 : index - 1;
+        buttonRefs[leftIndex]?.focus();
+        break;
+    }
+  };
+
   return (
     <div className="px-3 space-y-2 t--layout-control-wrapper">
       <p className="text-sm text-gray-700">Canvas Size</p>
@@ -109,10 +127,12 @@ export function MainContainerLayoutControl() {
                   "border-transparent border flex items-center justify-center p-2 flex-grow": true,
                   "bg-white border-gray-300":
                     selectedLayout?.name === layoutOption.name,
-                  "bg-gray-100 hover:bg-gray-200":
+                  "bg-gray-100 hover:bg-gray-200 focus:bg-gray-200":
                     selectedLayout?.name !== layoutOption.name,
                 })}
                 onClick={() => updateAppLayout(layoutOption)}
+                onKeyDown={(event) => handleKeyDown(event, index)}
+                ref={(input) => buttonRefs.push(input)}
               >
                 <Icon
                   fillColor={Colors.BLACK}
