@@ -7,17 +7,18 @@ import { useDispatch, useSelector } from "react-redux";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
 import {
+  changeSelectedAppThemeAction,
+  deleteAppThemeAction,
+} from "actions/appThemingActions";
+import {
   AppThemingMode,
   getAppThemingStack,
 } from "selectors/appThemingSelectors";
 import { AppTheme } from "entities/AppTheming";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import DeleteThemeModal from "./DeleteThemeModal";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import {
-  changeSelectedAppThemeAction,
-  deleteAppThemeAction,
-} from "actions/appThemingActions";
-import DeleteThemeModal from "./DeleteThemeModal";
 
 /**
  * ----------------------------------------------------------------------------
@@ -100,6 +101,11 @@ export function ThemeCard(props: ThemeCard) {
    * we don't need to fire the action in theme edit mode on click on the card
    */
   const changeSelectedTheme = useCallback(() => {
+    AnalyticsUtil.logEvent("APP_THEMING_APPLY_THEME", {
+      themeId: theme.id,
+      themeName: theme.name,
+    });
+
     if (isThemeSelectionMode && selectable) {
       dispatch(
         changeSelectedAppThemeAction({
@@ -117,6 +123,11 @@ export function ThemeCard(props: ThemeCard) {
    * dispatch delete app theme action
    */
   const onDeleteTheme = useCallback(() => {
+    AnalyticsUtil.logEvent("APP_THEMING_DELETE_THEME", {
+      themeId: theme.id,
+      themeName: theme.name,
+    });
+
     dispatch(deleteAppThemeAction({ themeId: theme.id, name: theme.name }));
 
     closeDeleteModalFn();

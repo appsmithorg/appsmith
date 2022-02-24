@@ -1,12 +1,16 @@
-import React, { useCallback, useState } from "react";
 import { get, startCase } from "lodash";
+import MoreIcon from "remixicon-react/MoreFillIcon";
+import React, { useCallback, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 
 import ThemeCard from "./ThemeCard";
-import SettingSection from "./SettingSection";
-import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
-import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
-import ThemeColorControl from "./controls/ThemeColorControl";
-import { useDispatch, useSelector } from "react-redux";
+import {
+  Dropdown,
+  DropdownList,
+  DropdownItem,
+  DropdownTrigger,
+} from "components/ads/DropdownV2";
 import {
   AppThemingMode,
   getAppThemingStack,
@@ -16,20 +20,17 @@ import {
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { AppTheme } from "entities/AppTheming";
-import ThemeFontControl from "./controls/ThemeFontControl";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import Button, { Category, Size } from "components/ads/Button";
-import MoreIcon from "remixicon-react/MoreFillIcon";
+import SettingSection from "./SettingSection";
 import SaveThemeModal from "./SaveThemeModal";
-import {
-  Dropdown,
-  DropdownList,
-  DropdownItem,
-  DropdownTrigger,
-} from "components/ads/DropdownV2";
-import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
+import { AppTheme } from "entities/AppTheming";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ThemeBetaCard } from "./ThemeBetaCard";
+import ThemeFontControl from "./controls/ThemeFontControl";
+import ThemeColorControl from "./controls/ThemeColorControl";
+import Button, { Category, Size } from "components/ads/Button";
+import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 
 function ThemeEditor() {
@@ -39,8 +40,16 @@ function ThemeEditor() {
   const themingStack = useSelector(getAppThemingStack);
   const [isSaveModalOpen, setSaveModalOpen] = useState(false);
 
+  /**
+   * customizes the current theme
+   */
   const updateSelectedTheme = useCallback(
     (theme: AppTheme) => {
+      AnalyticsUtil.logEvent("APP_THEMING_CUSTOMIZE_THEME", {
+        themeId: theme.id,
+        themeName: theme.name,
+      });
+
       dispatch(updateSelectedAppThemeAction({ applicationId, theme }));
     },
     [updateSelectedAppThemeAction],
@@ -50,6 +59,8 @@ function ThemeEditor() {
    * sets the mode to THEME_EDIT
    */
   const onClickChangeThemeButton = useCallback(() => {
+    AnalyticsUtil.logEvent("APP_THEMING_CHOOSE_THEME");
+
     dispatch(
       setAppThemingModeStackAction([
         ...themingStack,
@@ -57,6 +68,15 @@ function ThemeEditor() {
       ]),
     );
   }, [setAppThemingModeStackAction]);
+
+  /**
+   * open the save modal
+   */
+  const onOpenSaveModal = useCallback(() => {
+    AnalyticsUtil.logEvent("APP_THEMING_SAVE_THEME_START");
+
+    setSaveModalOpen(true);
+  }, []);
 
   return (
     <>
@@ -76,9 +96,7 @@ function ThemeEditor() {
                   <DropdownItem
                     className="flex items-center"
                     icon={<DownloadLineIcon className="w-4 h-4" />}
-                    onClick={() => {
-                      setSaveModalOpen(true);
-                    }}
+                    onClick={onOpenSaveModal}
                     text="Save theme"
                   />
                 </DropdownList>

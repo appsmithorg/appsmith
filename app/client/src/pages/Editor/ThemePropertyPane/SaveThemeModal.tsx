@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-// import Checkbox from "components/ads/Checkbox";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import Dialog from "components/ads/DialogComponent";
 import CloseIcon from "remixicon-react/CloseLineIcon";
 import Button, { Category, Size } from "components/ads/Button";
-import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 import { saveSelectedThemeAction } from "actions/appThemingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 
 interface SaveThemeModalProps {
   isOpen: boolean;
@@ -30,6 +30,10 @@ function SaveThemeModal(props: SaveThemeModalProps) {
 
       // if name is empty, don't do anything
       if (!name) return;
+
+      AnalyticsUtil.logEvent("APP_THEMING_SAVE_THEME_SUCCESS", {
+        themeName: name,
+      });
 
       dispatch(saveSelectedThemeAction({ applicationId, name }));
 
