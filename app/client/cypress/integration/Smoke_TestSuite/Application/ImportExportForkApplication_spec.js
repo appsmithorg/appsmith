@@ -8,7 +8,7 @@ describe("Import, Export and Fork application and validate data binding", functi
   let appid;
   let newOrganizationName;
 
-  it.only("1. Import application and validate data on pageload", function() {
+  it("1. Import application and validate data on pageload", function() {
     // import application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon)
