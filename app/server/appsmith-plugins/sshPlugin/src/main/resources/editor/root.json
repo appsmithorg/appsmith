@@ -9,10 +9,6 @@
       {
         "label": "Run Command(s)",
         "fileName" : "run.json"
-      },
-      {
-        "label": "Upload file(s)",
-        "fileName" : "upload.json"
       }
     ]
   }
