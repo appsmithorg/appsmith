@@ -43,51 +43,55 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       },
     );
 
+    initialMetaState: Record<string, unknown>;
+
     constructor(props: WidgetProps) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
-      this.state = _.fromPairs(
+      this.initialMetaState = _.fromPairs(
         Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
         }),
       );
+      this.state = this.initialMetaState;
     }
 
     componentDidUpdate(prevProps: WidgetProps) {
+      /*
+        Generally the meta property value of a widget will directly be
+        controlled by itself and the platform will not interfere except:
+        When we reset the meta property value.
+
+        Property which has default value is set to default value and 
+        other meta property are set to initial value. 
+        For eg:- In Input widget, after reset text = "" and isDirty = false
+      */
+
+      // meta becoming empty only happens on resetWidget action and metaHOC values needs to reset too.
+      if (
+        Object.keys(this.props.meta).length === 0 &&
+        Object.keys(prevProps.meta).length > 0
+      ) {
+        this.setState(this.initialMetaState);
+      }
+
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
         const defaultProperty = defaultProperties[metaProperty];
-        /*
-          Generally the meta property value of a widget will directly be controlled by itself and the platform will not interfere except:
-          When we reset the meta property value to it's default property value or initial value when property doesn't have default value.
-
-          This operation happens by the platform and is outside the widget logic so to identify this change, we want to see if the meta value has
-          changed. 
-          
-          If this has happened, we should set the state of the meta property value (controlled by inside the
-          widget i.e., metaHOC state ) to the current value that is outside (controlled by platform i.e., dataTree )
+        /* 
+            Reset operation happens by the platform and is outside the widget logic
+            so to identify this change, we want to see if the meta value has
+            changed to the current default value. If this has happened, we should
+            set the state of the meta property value (controlled by inside the
+            widget) to the current value that is outside (controlled by platform)
         */
-        const isMetaPropertyChanged = !_.isEqual(
-          prevProps[metaProperty],
-          this.props[metaProperty],
-        );
-
-        const defaultPropertyExist = !!defaultProperty;
-        const isCurrentStateEqualToMeta = _.isEqual(
-          this.props[metaProperty],
-          this.state[metaProperty],
-        );
-        if (isMetaPropertyChanged && !isCurrentStateEqualToMeta) {
-          if (defaultPropertyExist) {
-            const isMetaEqualToDefault = _.isEqual(
-              this.props[defaultProperty],
-              this.props[metaProperty],
-            );
-            if (isMetaEqualToDefault) {
-              this.setState({ [metaProperty]: this.props[metaProperty] });
-            }
-          }
+        if (
+          defaultProperty &&
+          !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
+          _.isEqual(this.props[defaultProperty], this.props[metaProperty])
+        ) {
+          this.setState({ [metaProperty]: this.props[metaProperty] });
         }
       });
     }
