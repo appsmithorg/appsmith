@@ -18,12 +18,24 @@ import {
   SELECT_ORGANISATION,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
+import { Classes } from "@blueprintjs/core";
 
 const ButtonsWrapper = styled.div`
   display: flex;
   margin-top: ${(props) => props.theme.spaces[11]}px;
   gap: ${(props) => props.theme.spaces[4]}px;
   justify-content: flex-end;
+`;
+
+const StyledDialog = styled(Dialog)`
+  && {
+    .${Classes.DIALOG_CLOSE_BUTTON} {
+      svg {
+        width: 29px;
+        height: 29px;
+      }
+    }
+  }
 `;
 
 interface ForkTemplateProps {
@@ -52,7 +64,7 @@ function ForkTemplate({
   };
 
   return (
-    <Dialog
+    <StyledDialog
       canOutsideClickClose={!isImportingTemplate}
       headerIcon={{ name: "fork", bgColor: Colors.GEYSER_LIGHT }}
       isOpen={showForkModal}
@@ -90,7 +102,7 @@ function ForkTemplate({
           type="button"
         />
       </ButtonsWrapper>
-    </Dialog>
+    </StyledDialog>
   );
 }
 
