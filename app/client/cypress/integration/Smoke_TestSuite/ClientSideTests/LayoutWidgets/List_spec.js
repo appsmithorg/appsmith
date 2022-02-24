@@ -118,8 +118,7 @@ describe("Container Widget Functionality", function() {
   it("Chart-Copy Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
-    cy.CheckAndUnfoldEntityItem("List1");
+    cy.SearchEntityandOpen("List1");
     cy.copyWidget("List1Copy", commonlocators.containerWidget);
 
     // cy.PublishtheApp();
