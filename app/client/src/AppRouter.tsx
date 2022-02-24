@@ -51,6 +51,7 @@ import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import TemplatesListLoader from "pages/Templates/loader";
+import getFeatureFlags from "utils/featureFlags";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -124,10 +125,12 @@ class AppRouter extends React.Component<any, any> {
                   exact
                   path={APPLICATIONS_URL}
                 />
-                <SentryRoute
-                  component={TemplatesListLoader}
-                  path={TEMPLATES_URL}
-                />
+                {getFeatureFlags().APP_TEMPLATE && (
+                  <SentryRoute
+                    component={TemplatesListLoader}
+                    path={TEMPLATES_URL}
+                  />
+                )}
                 <SentryRoute
                   component={SignupSuccess}
                   exact

@@ -28,6 +28,7 @@ import { Indices } from "constants/Layers";
 import Icon, { IconSize } from "components/ads/Icon";
 import { TemplatesTabItem } from "pages/Templates/TemplatesTabItem";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
+import getFeatureFlags from "utils/featureFlags";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -153,7 +154,10 @@ export function PageHeader(props: PageHeaderProps) {
   ];
 
   const showTabs = useMemo(() => {
-    return tabs.some((tab) => tab.matcher(location.pathname));
+    return (
+      tabs.some((tab) => tab.matcher(location.pathname)) &&
+      getFeatureFlags().APP_TEMPLATE
+    );
   }, [location.pathname]);
 
   return (
