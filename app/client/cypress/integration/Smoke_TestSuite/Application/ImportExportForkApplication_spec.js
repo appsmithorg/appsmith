@@ -1,10 +1,11 @@
 const homePage = require("../../../locators/HomePage.json");
-const dsl = require("../../../fixtures/forkedApp.json");
+//const dsl = require("../../../fixtures/forkedApp.json");
 
 describe("Import, Export and Fork application and validate data binding", function() {
   let orgid;
   let appid;
   let newOrganizationName;
+
   it("Import application and validate data on pageload", function() {
     // import application
     cy.get(homePage.homeIcon).click();
@@ -16,10 +17,11 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
     cy.get(homePage.orgImportAppButton).click({ force: true });
     cy.wait("@importNewApplication").then((interception) => {
-      let appId = interception.response.body.data.id;
-      let defaultPage = interception.response.body.data.pages.find(
-        (eachPage) => !!eachPage.isDefault,
-      );
+      //let appId = interception.response.body.data.id;
+      // let defaultPage = interception.response.body.data.pages.find(
+      //   (eachPage) => !!eachPage.isDefault,
+      // );
+
       cy.get(homePage.toastMessage).should(
         "contain",
         "Application imported successfully",

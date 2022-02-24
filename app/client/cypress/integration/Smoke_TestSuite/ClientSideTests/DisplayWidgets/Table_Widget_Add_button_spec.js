@@ -335,5 +335,23 @@ describe("Table Widget property pane feature validation", function() {
       .last()
       .click({ force: true });
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.wait(500);
+    cy.get(".t--property-pane-back-btn").click({ force: true });
+  });
+
+  it("9. Table widget test on button when transparent", () => {
+    cy.openPropertyPane("tablewidget");
+    // Open column details of "id".
+    cy.editColumn("id");
+    // Changing column "Button" color to transparent
+
+    cy.get(widgetsPage.buttonColor).click({ force: true });
+    cy.xpath(widgetsPage.transparent).click();
+    cy.get(".td[data-colindex=5][data-rowindex=0] .bp3-button").should(
+      "have.css",
+      "background-color",
+      "rgba(0, 0, 0, 0)",
+    );
   });
 });
