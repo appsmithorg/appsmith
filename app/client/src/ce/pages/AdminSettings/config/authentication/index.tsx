@@ -39,9 +39,9 @@ const Form_Auth: AdminConfigType = {
       label: "Form Login Option",
       toggleText: (value: boolean) => {
         if (value) {
-          return "Enabled";
+          return "Disabled";
         } else {
-          return " Disabled";
+          return " Enabled";
         }
       },
     },
@@ -53,9 +53,9 @@ const Form_Auth: AdminConfigType = {
       label: "Signup",
       toggleText: (value: boolean) => {
         if (value) {
-          return "Enabled";
+          return "Allow only invited users to signup";
         } else {
-          return " Disabled";
+          return " Allow all users to signup";
         }
       },
     },

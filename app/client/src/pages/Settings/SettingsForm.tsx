@@ -28,6 +28,13 @@ import {
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { Toaster, Variant } from "components/ads";
+const {
+  disableLoginForm,
+  enableGithubOAuth,
+  enableGoogleOAuth,
+} = getAppsmithConfigs();
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -95,7 +102,15 @@ export function SettingsForm(
   );
 
   const onSave = () => {
-    dispatch(saveSettings(props.settings));
+    if (
+      ("APPSMITH_FORM_LOGIN_DISABLED" in props.settings &&
+        (enableGithubOAuth || enableGoogleOAuth)) ||
+      !("APPSMITH_FORM_LOGIN_DISABLED" in props.settings)
+    ) {
+      dispatch(saveSettings(props.settings));
+    } else {
+      saveBlocked();
+    }
   };
 
   const onClear = () => {
@@ -104,13 +119,6 @@ export function SettingsForm(
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
         props.settingsConfig[settingName] =
           props.settingsConfig[settingName].toString() == "true";
-
-        if (
-          typeof props.settingsConfig["APPSMITH_SIGNUP_DISABLED"] ===
-          "undefined"
-        ) {
-          props.settingsConfig["APPSMITH_SIGNUP_DISABLED"] = true;
-        }
       }
     });
     props.initialize(props.settingsConfig);
@@ -125,14 +133,30 @@ export function SettingsForm(
     });
   }, []);
 
+  const saveBlocked = () => {
+    Toaster.show({
+      text: "Cannot disconnect the only connected authentication method.",
+      variant: Variant.danger,
+    });
+  };
+
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
-    _.forEach(currentSettings, (setting: Setting) => {
-      if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
-        updatedSettings[setting.id] = "";
-      }
-    });
-    dispatch(saveSettings(updatedSettings));
+    const connectedMethods = [
+      enableGoogleOAuth,
+      enableGithubOAuth,
+      !disableLoginForm,
+    ].filter(Boolean);
+    if (connectedMethods.length >= 2) {
+      _.forEach(currentSettings, (setting: Setting) => {
+        if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
+          updatedSettings[setting.id] = "";
+        }
+      });
+      dispatch(saveSettings(updatedSettings));
+    } else {
+      saveBlocked();
+    }
   };
 
   return (
