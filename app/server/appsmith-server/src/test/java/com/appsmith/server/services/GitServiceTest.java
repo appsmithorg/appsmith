@@ -2513,4 +2513,28 @@ public class GitServiceTest {
     }
 
     // TODO TCs for merge is pending
+    
+    @Test
+    @WithUserDetails(value ="api_user")
+    public void deleteBranch_staleBranchNotInDB_Success() {
+        
+    }
+
+    @Test
+    @WithUserDetails(value ="api_user")
+    public void deleteBranch_existsInDB_Success() {
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteBranch_branchDoesNotExist_ThrowError() {
+
+    }
+
+    @Test
+    @WithUserDetails(value ="api_user")
+    public void deleteBranch_branchExists_Success() {
+
+    }
 }

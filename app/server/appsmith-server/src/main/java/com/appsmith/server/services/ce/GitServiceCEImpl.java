@@ -2149,8 +2149,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, gitApplicationMetadata.getRepoName());
                     return gitExecutor.deleteBranch(repoPath, branchName)
-                            .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                                    .flatMap(applicationPageService::deleteApplicationByResource))
+                            .flatMap(gitBranch -> {
+                                if(gitBranch.equals(Boolean.FALSE)) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch. Branch does not exists in the repo"));
+                                }
+                                return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                                        .flatMap(applicationPageService::deleteApplicationByResource);
+                            })
                             // Delete the branch that exists in local file system but not in DB
                             .onErrorResume(throwable -> {
                                 log.warn(" No application exists in DB for the local branch of file system", throwable);
