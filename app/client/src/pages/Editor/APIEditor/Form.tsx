@@ -612,9 +612,8 @@ function ApiEditorForm(props: Props) {
             >
               <RequestDropdownField
                 className={`t--apiFormHttpMethod ${replayHighlightClass}`}
-                height={"35px"}
+                height={"38px"}
                 name="actionConfiguration.httpMethod"
-                optionWidth={"110px"}
                 options={HTTP_METHOD_OPTIONS}
                 placeholder="Method"
                 width={"110px"}
@@ -624,6 +623,7 @@ function ApiEditorForm(props: Props) {
               <EmbeddedDatasourcePathField
                 actionName={actionName}
                 codeEditorVisibleOverflow
+                height="38px"
                 name="actionConfiguration.path"
                 placeholder="https://mock-api.appsmith.com/users"
                 pluginId={pluginId}

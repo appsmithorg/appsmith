@@ -1,7 +1,6 @@
 import React from "react";
-import _ from "lodash";
-import { Field, WrappedFieldProps } from "redux-form";
-import DropdownFieldWrapper from "components/editorComponents/form/fields/DropdownFieldWrapper";
+import FormControl from "pages/Editor/FormControl";
+import { DATASOURCE_REST_API_FORM } from "constants/forms";
 
 interface RequestDropdownProps {
   className?: string;
@@ -14,22 +13,33 @@ interface RequestDropdownProps {
   placeholder: string;
   width?: string;
   height?: string;
-  optionWidth?: string;
 }
 
-const renderComponent = (
-  componentProps: WrappedFieldProps & RequestDropdownProps,
-) => {
-  return <DropdownFieldWrapper {...componentProps} />;
-};
-
 function RequestDropdownField(props: RequestDropdownProps) {
+  const config = {
+    id: "",
+    isValid: false,
+    isRequired: true,
+    controlType: "DROP_DOWN",
+    configProperty: props.name,
+    options: props.options.map((option: { value: string }) => {
+      return { label: option.value, value: option.value };
+    }),
+    label: "",
+    placeholderText: props.placeholder,
+    height: props.height,
+    customStyles: {
+      height: props.height,
+      width: props.width,
+    },
+    formName: DATASOURCE_REST_API_FORM,
+    className: props.className,
+  };
   return (
-    <Field
-      component={renderComponent}
-      format={(value: string) => _.find(props.options, { value }) || ""}
-      normalize={(option: { value: string }) => option.value}
-      {...props}
+    <FormControl
+      config={config}
+      formName={DATASOURCE_REST_API_FORM}
+      multipleConfig={[]}
     />
   );
 }

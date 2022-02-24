@@ -149,29 +149,30 @@ function renderFormConfigTop(props: { config: ControlProps }) {
   } = { ...props.config };
   return (
     <React.Fragment key={props.config.label}>
-      {!nestedFormControl && ( // if the form control is a nested form control hide its label
-        <FormLabel config={props.config}>
-          <p className="label-icon-wrapper">
-            {label} {isRequired && "*"}{" "}
-            {encrypted && (
-              <FormEncrytedSection>
-                <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-                <FormSubtitleText config={props.config}>
-                  Encrypted
-                </FormSubtitleText>
-              </FormEncrytedSection>
+      {!nestedFormControl && // if the form control is a nested form control hide its label
+        label && (
+          <FormLabel config={props.config}>
+            <p className="label-icon-wrapper">
+              {label} {isRequired && "*"}{" "}
+              {encrypted && (
+                <FormEncrytedSection>
+                  <FormIcons.LOCK_ICON height={12} keepColors width={12} />
+                  <FormSubtitleText config={props.config}>
+                    Encrypted
+                  </FormSubtitleText>
+                </FormEncrytedSection>
+              )}
+              {tooltipText && (
+                <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+                  <FormIcons.HELP_ICON height={16} width={16} />
+                </Tooltip>
+              )}
+            </p>
+            {subtitle && (
+              <FormInfoText config={props.config}>{subtitle}</FormInfoText>
             )}
-            {tooltipText && (
-              <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-                <FormIcons.HELP_ICON height={16} width={16} />
-              </Tooltip>
-            )}
-          </p>
-          {subtitle && (
-            <FormInfoText config={props.config}>{subtitle}</FormInfoText>
-          )}
-        </FormLabel>
-      )}
+          </FormLabel>
+        )}
       {urlText && (
         <FormInputAnchor href={url} target="_blank">
           {urlText}

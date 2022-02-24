@@ -19,12 +19,21 @@ const DropdownSelect = styled.div`
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
     let width = "20vw";
+    let height = "38px";
     if (
       "customStyles" in this.props &&
       !!this.props.customStyles &&
       "width" in this.props.customStyles
     ) {
       width = this.props.customStyles.width;
+    }
+
+    if (
+      "customStyles" in this.props &&
+      !!this.props.customStyles &&
+      "height" in this.props.customStyles
+    ) {
+      height = this.props.customStyles.height;
     }
 
     // Options will be set dynamically if the config has fetchOptionsConditionally set to true
@@ -43,7 +52,13 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         <Field
           component={renderDropdown}
           name={this.props.configProperty}
-          props={{ ...this.props, width, isLoading, options }} // Passing options and isLoading in props allows the component to get the updated values
+          props={{
+            ...this.props,
+            width,
+            height: height,
+            isLoading,
+            options,
+          }} // Passing options and isLoading in props allows the component to get the updated values
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>
@@ -60,6 +75,7 @@ function renderDropdown(props: {
   meta?: WrappedFieldMetaProps;
   props: DropDownControlProps;
   width: string;
+  height?: string;
   formName: string;
   isLoading?: boolean;
   options: DropdownOption[];
@@ -81,6 +97,7 @@ function renderDropdown(props: {
       dontUsePortal={false}
       dropdownMaxHeight="250px"
       errorMsg={props.props?.errorText}
+      height={props.height}
       helperText={props.props?.info}
       isLoading={props.isLoading}
       isMultiSelect={props?.props?.isMultiSelect}

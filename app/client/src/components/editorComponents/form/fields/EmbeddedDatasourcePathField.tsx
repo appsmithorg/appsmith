@@ -443,6 +443,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     const {
       codeEditorVisibleOverflow,
       datasource,
+      height,
       input: { value },
     } = this.props;
     const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
@@ -460,6 +461,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       theme: this.props.theme,
       tabBehaviour: TabBehaviour.INPUT,
       size: EditorSize.COMPACT,
+      height: height,
       marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
@@ -580,6 +582,7 @@ function EmbeddedDatasourcePathField(
     theme: EditorTheme;
     actionName: string;
     codeEditorVisibleOverflow?: boolean;
+    height?: string;
   },
 ) {
   return (

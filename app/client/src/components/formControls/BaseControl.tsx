@@ -78,6 +78,7 @@ export interface ControlData {
   sectionName?: string;
   disabled?: boolean;
   dynamicFetchedValues?: DynamicValues; // Object that holds the output of the dynamic fetched values
+  className?: string;
 }
 export type FormConfig = Omit<ControlData, "configProperty"> & {
   configProperty?: string;
