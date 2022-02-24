@@ -95,9 +95,6 @@ export function MainContainerLayoutControl() {
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
     if (!buttonRefs.length) return;
     switch (event.key) {
-      case "Tab":
-        event.preventDefault();
-        break;
       case "ArrowRight":
       case "Right":
         const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
@@ -136,6 +133,7 @@ export function MainContainerLayoutControl() {
                 onClick={() => updateAppLayout(layoutOption)}
                 onKeyDown={(event) => handleKeyDown(event, index)}
                 ref={(input) => buttonRefs.push(input)}
+                tabIndex={index === 0 ? 0 : -1}
               >
                 <Icon
                   fillColor={Colors.BLACK}
