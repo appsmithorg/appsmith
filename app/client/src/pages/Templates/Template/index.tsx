@@ -75,6 +75,8 @@ const StyledButton = styled(Button)`
       margin-right: ${(props) => props.theme.spaces[0]}px;
     }
   }
+  height: 31px;
+  width: 31px;
 `;
 
 export interface TemplateProps {
@@ -147,7 +149,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
             >
               <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
                 <StyledButton
-                  className="t--fork-template"
+                  className="t--fork-template fork-button"
                   icon="fork-2"
                   size={Size.medium}
                   tag="button"

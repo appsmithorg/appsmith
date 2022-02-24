@@ -35,8 +35,8 @@ const LargeTemplate = styled(TemplateLayout)`
   }
 
   .fork-button {
-    height: 36px;
-    width: 36px;
+    height: 38px;
+    width: 38px;
 
     svg {
       height: 17px;
