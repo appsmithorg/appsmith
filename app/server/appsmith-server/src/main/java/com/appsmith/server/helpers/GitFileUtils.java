@@ -313,7 +313,10 @@ public class GitFileUtils {
                 TreeSet<DslActionDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
                 sortedActions.addAll(layoutOnLoadActions.get(dslActionIndex));
                 sortedActions
-                        .forEach(actionDTO -> actionDTO.setDefaultActionId(null));
+                        .forEach(actionDTO -> {
+                            actionDTO.setDefaultActionId(null);
+                            actionDTO.setDefaultCollectionId(null);
+                        });
                 layoutOnLoadActions.set(dslActionIndex, sortedActions);
             }
         }
