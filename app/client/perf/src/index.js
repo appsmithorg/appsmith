@@ -19,5 +19,5 @@ glob("./tests/*.perf.js", {}, async function(er, files) {
     await cp.execSync(`node ${file}`, { stdio: "inherit" }); // Logging to terminal, log it to a file in future?
   });
   await summaries(`${APP_ROOT}/traces/reports`);
-  await saveToSupabase();
+  // await saveToSupabase();
 });
