@@ -20,9 +20,11 @@ import {
 } from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
 
-const Section = styled.section`
-  height: max-content;
-  min-height: 100%;
+const Section = styled.section<{
+  height: number;
+}>`
+  height: 100%;
+  min-height: ${({ height }) => height}px;
   margin: 0 auto;
   position: relative;
   overflow-x: auto;
@@ -94,7 +96,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   if (isFetchingPage) return pageLoading;
 
   return (
-    <Section>
+    <Section height={widgets.bottomRow}>
       {!(widgets.children && widgets.children.length > 0) && pageNotFound}
       <AppPage
         appName={currentApplication?.name}

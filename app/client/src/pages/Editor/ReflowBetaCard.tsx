@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import Checkbox from "components/ads/Checkbox";
-import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 import {
@@ -31,16 +30,6 @@ import { User } from "constants/userConstants";
 const ReflowBetaWrapper = styled.div`
   display: inline-flex;
   flex-direction: row;
-  .beta-icon {
-    width: 45px;
-    height: 25px;
-    rect {
-      stroke: #191919;
-    }
-    path {
-      fill: #191919;
-    }
-  }
 `;
 const ReflowBetaInfoCard = styled.div`
   display: flex;
@@ -127,13 +116,15 @@ export function ReflowBetaCard() {
 
   return (
     <>
-      <ReflowBetaWrapper>
+      <ReflowBetaWrapper className="items-start justify-between">
         <Checkbox
           isDefaultChecked={shouldReflow}
           label={createMessage(REFLOW_BETA_CHECKBOX_LABEL)}
           onCheckChange={reflowBetaToggle}
         />
-        <BetaIcon className="beta-icon" />
+        <div className="py-0.5 px-1 text-xs font-semibold text-gray-700 uppercase border border-gray-700">
+          beta
+        </div>
       </ReflowBetaWrapper>
       {shouldShowReflowCard && (
         <ReflowBetaInfoCard>

@@ -31,7 +31,6 @@ import Button, { Category, Size } from "components/ads/Button";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
-import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
@@ -83,8 +82,14 @@ function ThemeEditor() {
       <div className="">
         <header className="px-3 space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-normal capitalize">Theme Properties</h3>
-            <BetaIcon className="beta-icon" />
+            <div className="flex items-center space-x-2">
+              <h3 className="text-sm font-normal capitalize">
+                Theme Properties
+              </h3>
+              <div className="py-0.5 px-1 text-xs font-semibold text-gray-700 uppercase border border-gray-700">
+                beta
+              </div>
+            </div>
             <div>
               <Dropdown position="bottom-right">
                 <DropdownTrigger>
