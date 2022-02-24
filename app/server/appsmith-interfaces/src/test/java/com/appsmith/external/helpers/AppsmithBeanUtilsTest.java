@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class BeanCopyUtilsTest {
+public class AppsmithBeanUtilsTest {
 
     @Getter
     @Setter
@@ -45,7 +45,7 @@ public class BeanCopyUtilsTest {
                 null
         );
 
-        BeanCopyUtils.copyNestedNonNullProperties(source, target);
+        AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
         assertThat(target.getAge()).isEqualTo(30);
         assertThat(target.getIsApproved()).isEqualTo(true);
@@ -75,7 +75,7 @@ public class BeanCopyUtilsTest {
                 )
         );
 
-        BeanCopyUtils.copyNestedNonNullProperties(source, target);
+        AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
         assertThat(target.getMentor().getName()).isEqualTo("The new mentor name");
         assertThat(target.getMentor().getAge()).isEqualTo(25);
@@ -96,7 +96,7 @@ public class BeanCopyUtilsTest {
                 null
         );
 
-        BeanCopyUtils.copyNestedNonNullProperties(source, target);
+        AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
         assertThat(target.getMentor().getName()).isEqualTo("The new mentor name");
     }
@@ -115,7 +115,7 @@ public class BeanCopyUtilsTest {
                 null
         );
 
-        BeanCopyUtils.copyNestedNonNullProperties(source, target);
+        AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
         assertThat(target.getAge()).isEqualTo(25);
         assertThat(target.getIsApproved()).isEqualTo(true);
