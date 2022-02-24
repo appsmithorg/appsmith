@@ -3653,6 +3653,12 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.get(queryLocators.query).click();
 });
 
+//Usage: If in need to type {enter} {esc} etc then .text('sometext').type('{enter}')
+Cypress.Commands.add("text", { prevSubject: true }, (subject, text) => {
+  subject.val(text);
+  return cy.wrap(subject);
+});
+
 //Not Used!
 Cypress.Commands.add("VerifyNoDataDisplayAbsence", () => {
   cy.xpath("//div[text()='No data to display']", { timeout: 0 }).should(

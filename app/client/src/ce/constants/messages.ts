@@ -1058,3 +1058,5 @@ export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your data sources as well";
 export const WIDGET_USED = () => "Widgets Used";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
+
+export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
