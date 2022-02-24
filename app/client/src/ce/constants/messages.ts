@@ -1031,3 +1031,5 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+export const IMAGE_LOAD_ERROR = () => "Unable to display the image";

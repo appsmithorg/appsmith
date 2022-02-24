@@ -281,6 +281,8 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                         // `clonedPages` list will also contain all pages cloned.
                                         .collect(HashMap<String, String>::new, (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
                                         .flatMap(actionIdsMap -> {
+                                            // Map of <originalCollectionId, clonedActionCollectionIds>
+                                            HashMap<String, String> collectionIdsMap = new HashMap<>();
                                             // Pick all action collections
                                             return actionCollectionService
                                                     .findByPageId(templatePageId)
@@ -326,34 +328,35 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                         unpublishedCollection.setDefaultToBranchedActionIdsMap(newActionIds);
 
                                                         return actionCollectionService.create(actionCollection)
-                                                                .flatMap(newActionCollection -> {
-                                                                    if (StringUtils.isEmpty(newActionCollection.getDefaultResources().getCollectionId())) {
+                                                                .flatMap(clonedActionCollection -> {
+                                                                    if (StringUtils.isEmpty(clonedActionCollection.getDefaultResources().getCollectionId())) {
                                                                         ActionCollection updates = new ActionCollection();
-                                                                        DefaultResources defaultResources2 = newActionCollection.getDefaultResources();
-                                                                        defaultResources2.setCollectionId(newActionCollection.getId());
+                                                                        DefaultResources defaultResources2 = clonedActionCollection.getDefaultResources();
+                                                                        defaultResources2.setCollectionId(clonedActionCollection.getId());
                                                                         updates.setDefaultResources(defaultResources2);
-                                                                        return actionCollectionService.update(newActionCollection.getId(), updates);
+                                                                        return actionCollectionService.update(clonedActionCollection.getId(), updates);
                                                                     }
-                                                                    return Mono.just(newActionCollection);
+                                                                    return Mono.just(clonedActionCollection);
                                                                 })
-                                                                .flatMap(newlyCreatedActionCollection -> {
+                                                                .flatMap(clonedActionCollection -> {
+                                                                    collectionIdsMap.put(originalCollectionId, clonedActionCollection.getId());
                                                                     return Flux.fromIterable(newActionIds.values())
                                                                             .flatMap(newActionService::findById)
                                                                             .flatMap(newlyCreatedAction -> {
                                                                                 ActionDTO unpublishedAction = newlyCreatedAction.getUnpublishedAction();
-                                                                                unpublishedAction.setCollectionId(newlyCreatedActionCollection.getId());
-                                                                                unpublishedAction.getDefaultResources().setCollectionId(newlyCreatedActionCollection.getId());
+                                                                                unpublishedAction.setCollectionId(clonedActionCollection.getId());
+                                                                                unpublishedAction.getDefaultResources().setCollectionId(clonedActionCollection.getId());
                                                                                 return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
                                                                             })
                                                                             .collectList();
                                                                 });
                                                     })
                                                     .collectList()
-                                                    .thenReturn(actionIdsMap);
+                                                    .then(Mono.zip(Mono.just(actionIdsMap), Mono.just(collectionIdsMap)));
                                         });
                             });
                 })
-                .flatMap(actionIdsMap -> updateActionIdsInClonedPages(clonedPages, actionIdsMap))
+                .flatMap(tuple -> updateActionAndCollectionsIdsInClonedPages(clonedPages, tuple.getT1(), tuple.getT2()))
                 // Now publish all the example applications which have been cloned to ensure that there is a
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
@@ -362,7 +365,9 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                 .collectList();
     }
 
-    private Flux<NewPage> updateActionIdsInClonedPages(List<NewPage> clonedPages, Map<String, String> actionIdsMap) {
+    private Flux<NewPage> updateActionAndCollectionsIdsInClonedPages(List<NewPage> clonedPages,
+                                                                     Map<String, String> actionIdsMap,
+                                                                     Map<String, String> actionCollectionIdsMap) {
         final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
 
         for (final NewPage page : clonedPages) {
@@ -376,7 +381,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
 
             for (final Layout layout : page.getUnpublishedPage().getLayouts()) {
                 if (layout.getLayoutOnLoadActions() != null) {
-                    shouldSave = updateOnLoadActionsWithNewActionIds(actionIdsMap, page.getId(), shouldSave, layout);
+                    shouldSave = updateOnLoadActionsWithNewActionAndCollectionIds(actionIdsMap, actionCollectionIdsMap, page.getId(), shouldSave, layout);
                 }
             }
 
@@ -388,13 +393,22 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
         return Flux.concat(pageSaveMonos);
     }
 
-    private boolean updateOnLoadActionsWithNewActionIds(Map<String, String> actionIdsMap, String pageId, boolean shouldSave, Layout layout) {
+    private boolean updateOnLoadActionsWithNewActionAndCollectionIds(Map<String, String> actionIdsMap,
+                                                                     Map<String, String> collectionIdsMap,
+                                                                     String pageId,
+                                                                     boolean shouldSave,
+                                                                     Layout layout) {
         for (final Set<DslActionDTO> actionSet : layout.getLayoutOnLoadActions()) {
             for (final DslActionDTO actionDTO : actionSet) {
                 if (actionIdsMap.containsKey(actionDTO.getId())) {
                     final String srcActionId = actionDTO.getId();
+                    final String srcCollectionId = actionDTO.getCollectionId();
                     actionDTO.setId(actionIdsMap.get(srcActionId));
                     actionDTO.setDefaultActionId(actionIdsMap.get(srcActionId));
+                    if (StringUtils.hasLength(srcCollectionId)) {
+                        actionDTO.setDefaultCollectionId(collectionIdsMap.get(actionDTO.getCollectionId()));
+                        actionDTO.setCollectionId(collectionIdsMap.get(actionDTO.getCollectionId()));
+                    }
                     shouldSave = true;
                 } else {
                     log.error(
