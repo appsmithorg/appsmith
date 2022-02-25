@@ -2162,12 +2162,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     throwable.getClass().getName(),
                                                     throwable.getMessage(),
                                                     gitApplicationMetadata.getIsRepoPrivate()
-                                            ).flatMap(application1 -> {
-                                                if( throwable instanceof GitAPIException ) {
-                                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch", throwable.getMessage()));
-                                                }
-                                                return Mono.just(application1);
-                                            });
+                                            ).flatMap(application1 -> Mono.just(application1));
                                         })
                                         .flatMap(applicationPageService::deleteApplicationByResource);
                             });
