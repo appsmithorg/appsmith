@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 /* eslint-disable  cypress/no-unnecessary-waiting */
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 
 describe("Create new org and share with a user", function() {
   let orgid;

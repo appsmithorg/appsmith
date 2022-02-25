@@ -1,5 +1,5 @@
 const dsl = require("../../../fixtures/CMSdsl.json");
-const homePage = require("../../../locators/HomePage.json");
+import homePage from "../../../locators/HomePage";
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 const apiEditor = require("../../../locators/ApiEditor.json");
 const appPage = require("../../../locators/CMSApplocators.json");

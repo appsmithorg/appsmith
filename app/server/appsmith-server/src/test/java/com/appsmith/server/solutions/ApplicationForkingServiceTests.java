@@ -195,23 +195,6 @@ public class ApplicationForkingServiceTests {
 
         layoutActionService.createSingleAction(action).block();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
-        }));
-
-        ArrayList children = (ArrayList) parentDsl.get("children");
-        JSONObject testWidget = new JSONObject();
-        testWidget.put("widgetName", "firstWidget");
-        JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
-        testWidget.put("dynamicBindingPathList", temp);
-        testWidget.put("testField", "{{ forkActionTest.data }}");
-        children.add(testWidget);
-
-        Layout layout = testPage.getLayouts().get(0);
-        layout.setDsl(parentDsl);
-
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -221,16 +204,49 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setOrganizationId(sourceOrganization.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-        actionCollectionDTO.setBody("collectionBody");
+        actionCollectionDTO.setBody("export default {\n" +
+                "\tgetData: async () => {\n" +
+                "\t\tconst data = await forkActionTest.run();\n" +
+                "\t\treturn data;\n" +
+                "\t}\n" +
+                "}");
         ActionDTO action1 = new ActionDTO();
-        action1.setName("forkTestAction1");
+        action1.setName("getData");
         action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setBody(
+                "async () => {\n" +
+                "\t\tconst data = await forkActionTest.run();\n" +
+                "\t\treturn data;\n" +
+                "\t}");
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
         layoutCollectionService.createCollection(actionCollectionDTO).block();
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+        ArrayList children = (ArrayList) parentDsl.get("children");
+        JSONObject testWidget = new JSONObject();
+        testWidget.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField", "key1", "testField1"))));
+        testWidget.put("dynamicBindingPathList", temp);
+        testWidget.put("testField", "{{ forkActionTest.data }}");
+        children.add(testWidget);
+
+        JSONObject secondWidget = new JSONObject();
+        secondWidget.put("widgetName", "secondWidget");
+        temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField1"))));
+        secondWidget.put("dynamicBindingPathList", temp);
+        secondWidget.put("testField1", "{{ testCollection1.getData.data }}");
+        children.add(secondWidget);
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
         // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceOrganization and we are
         // controlling this with @FixMethodOrder(MethodSorters.NAME_ASCENDING) to run the TCs in a sequence.
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
@@ -312,12 +328,18 @@ public class ApplicationForkingServiceTests {
 
                         newPage.getUnpublishedPage()
                                 .getLayouts()
-                                .forEach(layout ->
+                                .forEach(layout -> {
+                                        assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
                                         layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
+                                            assertThat(dslActionDTOS).hasSize(2);
                                             dslActionDTOS.forEach(actionDTO -> {
                                                 assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
+                                                if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                                                    assertThat(actionDTO.getCollectionId()).isEqualTo(actionDTO.getDefaultCollectionId());
+                                                }
                                             });
-                                        })
+                                        });
+                                    }
                                 );
                     });
 
