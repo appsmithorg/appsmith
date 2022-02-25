@@ -1,6 +1,6 @@
 const { compile, match } = require("path-to-regexp");
 
-import { getQueryParamsObject } from "utils/helpers";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
@@ -428,7 +428,12 @@ export const getOnboardingCheckListUrl = (
 
 export const ADMIN_SETTINGS_URL = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_URL = "/settings/general";
-export const ADMIN_SETTINGS_CATEGORY_URL = "/settings/:category";
-export function getAdminSettingsCategoryUrl(category: string) {
-  return `${ADMIN_SETTINGS_URL}/${category}`;
+export const ADMIN_SETTINGS_CATEGORY_URL = "/settings/:category/:subCategory?";
+export function getAdminSettingsCategoryUrl(
+  category: string,
+  subCategory?: string,
+) {
+  return `${ADMIN_SETTINGS_URL}/${category}${
+    subCategory ? "/" + subCategory : ""
+  }`;
 }

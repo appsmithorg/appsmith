@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
@@ -611,7 +611,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         return userFromRepository
                 .map(existingUser -> {
-                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
                     return existingUser;
                 })
                 .flatMap(repository::save)

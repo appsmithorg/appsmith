@@ -6,8 +6,7 @@ describe("Table Widget row multi select validation", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-
-  it("Test multi select column shows when enableMultirowselection is true", function() {
+  it("Test multi select column shows when enable Multirowselection is true", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.toggleEnableMultirowselection)
       .first()
@@ -58,5 +57,28 @@ describe("Table Widget row multi select validation", function() {
       .first()
       .click({ force: true });
     cy.get(commonlocators.toastmsg).contains("Row Selected");
+  });
+
+  it("It should deselected default Selected Row when the header cell is clicked", () => {
+    cy.openPropertyPane("tablewidget");
+    cy.testJsontext("defaultselectedrow", 0);
+
+    // click on header check cell
+    cy.get(".t--table-multiselect-header")
+      .first()
+      .click({
+        force: true,
+      });
+    // check if rows selected
+    cy.get(".tr").should("not.have.class", "selected-row");
+
+    // click on header check cell
+    cy.get(".t--table-multiselect-header")
+      .first()
+      .click({
+        force: true,
+      });
+    // check if rows is not selected
+    cy.get(".tr").should("have.class", "selected-row");
   });
 });

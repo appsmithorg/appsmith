@@ -1,0 +1,81 @@
+---
+
+- name: Make sure docker from distro is not installed
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker
+    - docker-common
+    - container-selinux
+    - docker-selinux
+    - docker-engine
+
+- name: Update all packages
+  yum:
+    name: '*'
+    state: latest
+    update_only: yes
+  become: true
+
+- name: Install yum-utils
+  yum:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - python-pip
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+    - amazon-linux-extras
+  become: true
+
+- name: Add extras repository
+  shell: yum-config-manager --enable extras
+  become: true
+
+- name: Enable Some packages from amazon-linux-extras packages
+  shell: "amazon-linux-extras enable python3.8 ansible2 docker"
+  become: true
+
+- name: Clean yum metadata cache
+  command: yum clean metadata
+  args:
+    warn: false
+
+- name: Ensure a list of yum packages are installed
+  yum:
+    name: "{{ packages }}"
+    state: latest
+    update_cache: yes
+  vars:
+    packages:
+    - python3.8
+    - ansible
+    - docker
+  become: true
+
+- name: Upgrade pip3
+  shell: "python3.8 -m pip install pip --upgrade"
+  become: true
+
+- name: Install Docker-compose
+  get_url:
+    url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
+    dest: '{{ docker_compose_path }}'
+    mode: 0755
+  become: true
+
+- name: Ensure handlers are notified now to avoid firewall conflicts.
+  meta: flush_handlers
+
+- name: Ensure docker users are added to the docker group.
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true
+  become: true
+
+- name: reset ssh connection to allow user changes to affect 'current login user'
+  meta: reset_connection

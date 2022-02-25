@@ -4,7 +4,10 @@ import { Classes } from "components/ads/common";
 import Text, { Case, FontWeight, TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
-import { createMessage, READ_DOCUMENTATION } from "constants/messages";
+import {
+  createMessage,
+  READ_DOCUMENTATION,
+} from "@appsmith/constants/messages";
 import { useSelector } from "store";
 import {
   getConnectingErrorDocUrl,
@@ -25,7 +28,7 @@ const ErrorWrapper = styled.div`
   }
 `;
 
-const LintText = styled.a`
+const LinkText = styled.a`
   :hover {
     text-decoration: none;
     color: ${Colors.CRUSTA};
@@ -64,7 +67,9 @@ export default function GitConnectError({
       <Text color={Colors.ERROR_RED} type={TextType.P2}>
         {error?.message}
       </Text>
-      <LintText href={connectingErrorDocumentUrl} target="_blank">
+      <LinkText
+        onClick={() => window.open(connectingErrorDocumentUrl, "_blank")}
+      >
         <Text
           case={Case.UPPERCASE}
           className="t--read-document"
@@ -75,7 +80,7 @@ export default function GitConnectError({
           {createMessage(READ_DOCUMENTATION)}
           <Icon name="right-arrow" size={IconSize.SMALL} />
         </Text>
-      </LintText>
+      </LinkText>
     </ErrorWrapper>
   ) : null;
 }

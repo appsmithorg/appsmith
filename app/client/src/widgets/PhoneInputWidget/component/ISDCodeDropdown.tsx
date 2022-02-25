@@ -33,9 +33,10 @@ const DropdownTriggerIconWrapper = styled.div<DropdownTriggerIconWrapperProp>`
   line-height: ${(props) => (props.disabled ? 36 : 18)}px;
   letter-spacing: -0.24px;
   color: #090707;
-  position: ${(props) => props.disabled && "absolute"};
+  position: ${(props) => (props.disabled ? "static" : "")};
   z-index: 2;
   pointer-events: ${(props) => !props.allowDialCodeChange && "none"};
+  ${(props) => (props.disabled ? `background-color: ${Colors.GREY_1};` : "")};
 
   &&& .dropdown {
     svg {
@@ -147,6 +148,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   }
   return (
     <Dropdown
+      closeOnSpace={false}
       containerClassName="country-type-filter"
       dropdownHeight="139px"
       dropdownTriggerIcon={dropdownTrigger}

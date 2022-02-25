@@ -17,10 +17,13 @@ import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
-import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  HELP_RESOURCE_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const { algolia } = getAppsmithConfigs();

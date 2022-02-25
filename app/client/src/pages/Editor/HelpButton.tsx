@@ -10,10 +10,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "../../selectors/usersSelectors";
 import { useSelector } from "react-redux";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  HELP_RESOURCE_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";

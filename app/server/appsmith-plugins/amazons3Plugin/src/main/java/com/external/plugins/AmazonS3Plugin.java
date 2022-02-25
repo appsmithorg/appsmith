@@ -5,6 +5,7 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -69,14 +70,17 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
+import static com.appsmith.external.helpers.PluginUtils.parseList;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
 import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_PAGINATE;
 import static com.external.plugins.constants.FieldName.LIST_PREFIX;
 import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_SORT;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
@@ -627,15 +631,21 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         // Check if where condition is configured
                         Object whereFormObject = getValueSafelyFromFormData(formData, LIST_WHERE);
-
+                        Condition condition = null;
                         if (whereFormObject != null) {
                             Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
-                            Condition condition = parseWhereClause(whereForm);
-                            ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
-                            actionResult = filterDataService.filterDataNew(preFilteringResponse,
-                                    new UQIDataFilterParams(condition, null, null, null));
-
+                            condition = parseWhereClause(whereForm);
                         }
+
+                        List<Map<String, String>> sortBy =
+                                (List<Map<String, String>>) getValueSafelyFromFormData(formData, LIST_SORT);
+
+                        Map<String, String> paginateBy =
+                                (Map<String, String>) getValueSafelyFromFormData(formData, LIST_PAGINATE);
+
+                        ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
+                        actionResult = filterDataService.filterDataNew(preFilteringResponse,
+                                new UQIDataFilterParams(condition, null, sortBy, paginateBy));
 
                         break;
                     case UPLOAD_FILE_FROM_BODY: {
@@ -762,7 +772,12 @@ public class AmazonS3Plugin extends BasePlugin {
                         connection.deleteObject(bucketName, path);
                         actionResult = Map.of("status", "File deleted successfully");
                         break;
+                    case DELETE_MULTIPLE_FILES:
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
+                        deleteMultipleObjects(connection, bucketName, path);
+                        actionResult = Map.of("status", "All files deleted successfully");
+                        break;
                     /**
                      * Commenting out this code section since we have not decided to expose this action to users
                      * as of now. In the future, if we do decide to expose this action to the users, just uncommenting this
@@ -821,6 +836,36 @@ public class AmazonS3Plugin extends BasePlugin {
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void deleteMultipleObjects(AmazonS3 connection, String bucketName, String path) throws AppsmithPluginException {
+            List<String> listOfFiles;
+            try {
+                listOfFiles = parseList(path);
+            } catch (IOException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Appsmith server failed to parse the list of files. Please provide the list of files in the " +
+                                "correct format e.g. [\"file1\", \"file2\"]."
+                );
+            }
+
+            DeleteObjectsRequest deleteObjectsRequest = getDeleteObjectsRequest(bucketName, listOfFiles);
+            try {
+                connection.deleteObjects(deleteObjectsRequest);
+            } catch (SdkClientException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "One or more files could not be deleted. " + e.getMessage()
+                );
+            }
+        }
+
+        private DeleteObjectsRequest getDeleteObjectsRequest(String bucketName, List<String> listOfFiles) {
+            DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName);
+
+            /* Ref: https://stackoverflow.com/questions/9863742/how-to-pass-an-arraylist-to-a-varargs-method-parameter */
+            return deleteObjectsRequest.withKeys(listOfFiles.toArray(new String[0]));
         }
 
         @Override

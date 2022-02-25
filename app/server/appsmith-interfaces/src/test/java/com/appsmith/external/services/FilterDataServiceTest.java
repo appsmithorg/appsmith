@@ -20,11 +20,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
+import static com.appsmith.external.services.ce.FilterDataServiceCE.PAGINATE_LIMIT_KEY;
+import static com.appsmith.external.services.ce.FilterDataServiceCE.PAGINATE_OFFSET_KEY;
+import static com.appsmith.external.services.ce.FilterDataServiceCE.SORT_BY_COLUMN_NAME_KEY;
+import static com.appsmith.external.services.ce.FilterDataServiceCE.SORT_BY_TYPE_KEY;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class FilterDataServiceTest {
+
+    public static final String VALUE_DESCENDING = "Descending";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final FilterDataService filterDataService = FilterDataService.getInstance();
@@ -1531,11 +1537,15 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            List<Map<String, Object>> sortBy = new ArrayList<>();
-            Map<String, Object> sortCondition = new HashMap<>();
-            sortCondition.put("columnName", "orderAmount");
-            sortCondition.put("type", "DESCENDING");
-            sortBy.add(sortCondition);
+            List<Map<String, String>> sortBy = new ArrayList<>();
+            Map<String, String> sortCondition1 = new HashMap<>();
+            sortCondition1.put(SORT_BY_COLUMN_NAME_KEY, "orderAmount");
+            sortCondition1.put(SORT_BY_TYPE_KEY, VALUE_DESCENDING);
+            sortBy.add(sortCondition1);
+            Map<String, String> sortCondition2 = new HashMap<>();
+            sortCondition2.put(SORT_BY_COLUMN_NAME_KEY, ""); // column name empty
+            sortCondition2.put(SORT_BY_TYPE_KEY, VALUE_DESCENDING);
+            sortBy.add(sortCondition2);
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
                     sortBy, null));
@@ -1603,8 +1613,8 @@ public class FilterDataServiceTest {
             Condition condition = parseWhereClause(unparsedWhereClause);
 
             HashMap<String, String> paginateBy = new HashMap<>();
-            paginateBy.put("limit", "2");
-            paginateBy.put("offset", "1");
+            paginateBy.put(PAGINATE_LIMIT_KEY, "2");
+            paginateBy.put(PAGINATE_OFFSET_KEY, "1");
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
                     null, paginateBy));
@@ -1673,15 +1683,15 @@ public class FilterDataServiceTest {
 
             List<String> projectColumns = List.of("id", "email", "orderAmount");
 
-            List<Map<String, Object>> sortBy = new ArrayList<>();
-            Map<String, Object> sortCondition = new HashMap<>();
-            sortCondition.put("columnName", "orderAmount");
-            sortCondition.put("type", "DESCENDING");
+            List<Map<String, String>> sortBy = new ArrayList<>();
+            Map<String, String> sortCondition = new HashMap<>();
+            sortCondition.put(SORT_BY_COLUMN_NAME_KEY, "orderAmount");
+            sortCondition.put(SORT_BY_TYPE_KEY, VALUE_DESCENDING);
             sortBy.add(sortCondition);
 
             HashMap<String, String> paginateBy = new HashMap<>();
-            paginateBy.put("limit", "1");
-            paginateBy.put("offset", "1");
+            paginateBy.put(PAGINATE_LIMIT_KEY, "1");
+            paginateBy.put(PAGINATE_OFFSET_KEY, "1");
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
                     projectColumns, sortBy,paginateBy));
@@ -1691,6 +1701,77 @@ public class FilterDataServiceTest {
             String expectedOrderAmount = "9.99";
             String returnedOrderAmount = filteredData.get(0).get("orderAmount").asText();
             assertEquals(expectedOrderAmount, returnedOrderAmount);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testSortByWithEmptyColumnNameOnly() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            List<Map<String, String>> sortBy = new ArrayList<>();
+            Map<String, String> sortCondition1 = new HashMap<>();
+            sortCondition1.put(SORT_BY_COLUMN_NAME_KEY, "");
+            sortCondition1.put(SORT_BY_TYPE_KEY, VALUE_DESCENDING);
+            sortBy.add(sortCondition1);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    sortBy, null));
+
+            assertEquals(filteredData.size(), 2);
+
+            List<String> expectedOrder = List.of("4.99", "9.99");
+            List<String> returnedOrder = new ArrayList<>();
+            returnedOrder.add(filteredData.get(0).get("orderAmount").asText());
+            returnedOrder.add(filteredData.get(1).get("orderAmount").asText());
+            assertEquals(expectedOrder, returnedOrder);
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());

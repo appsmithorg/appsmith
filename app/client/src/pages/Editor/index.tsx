@@ -20,7 +20,7 @@ import { editorInitializer } from "utils/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
-import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import * as Sentry from "@sentry/react";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
@@ -228,7 +228,7 @@ class Editor extends Component<Props> {
               <RepoLimitExceededErrorModal />
             </GlobalHotKeys>
           </div>
-          <ConfirmRunModal />
+          <RequestConfirmationModal />
         </DndProvider>
       </ThemeProvider>
     );
