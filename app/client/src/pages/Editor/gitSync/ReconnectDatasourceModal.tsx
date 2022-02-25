@@ -57,7 +57,8 @@ import { getDefaultPageId } from "sagas/ApplicationSagas";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const Container = styled.div`
-  height: 804px;
+  height: 756px;
+  max-height: 82vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -213,8 +214,9 @@ const TooltipWrapper = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px;
+  padding: 0px 5px;
   width: calc(100% - 206px);
+  margin-top: -${(props) => props.theme.spaces[4]}px;
 `;
 
 function TooltipContent() {
