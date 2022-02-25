@@ -292,7 +292,9 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   );
 }
 
-export default React.memo(ReactTableComponent, (prev, next) => {
+export default ReactTableComponent;
+
+React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
