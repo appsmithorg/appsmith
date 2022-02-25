@@ -1,4 +1,5 @@
-const AdminsSettingsLocators = require("../../../../locators/AdminsSettingsLocators.json");
+import adminsSettings from "../../../../locators/AdminsSettings";
+
 const {
   GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
@@ -53,43 +54,43 @@ describe("Admin settings page", function() {
     cy.wait(3000);
     cy.get(".t--profile-menu-icon").click();
     cy.get(".t--admin-settings-menu").click();
-    cy.get(AdminsSettingsLocators.generalTab).click();
+    cy.get(adminsSettings.generalTab).click();
     cy.url().should("contain", "/settings/general");
-    cy.get(AdminsSettingsLocators.advancedTab).click();
+    cy.get(adminsSettings.advancedTab).click();
     cy.url().should("contain", "/settings/advanced");
-    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(AdminsSettingsLocators.emailTab).click();
+    cy.get(adminsSettings.emailTab).click();
     cy.url().should("contain", "/settings/email");
-    cy.get(AdminsSettingsLocators.googleMapsTab).click();
+    cy.get(adminsSettings.googleMapsTab).click();
     cy.url().should("contain", "/settings/google-maps");
-    cy.get(AdminsSettingsLocators.versionTab).click();
+    cy.get(adminsSettings.versionTab).click();
     cy.url().should("contain", "/settings/version");
   });
 
   it("should test that authentication page redirects", () => {
     cy.visit("/settings/general");
-    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(AdminsSettingsLocators.googleButton).click();
+    cy.get(adminsSettings.googleButton).click();
     cy.url().should("contain", "/settings/authentication/google-auth");
-    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(AdminsSettingsLocators.githubButton).click();
+    cy.get(adminsSettings.githubButton).click();
     cy.url().should("contain", "/settings/authentication/github-auth");
-    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(AdminsSettingsLocators.formloginButton).click();
+    cy.get(adminsSettings.formloginButton).click();
     cy.url().should("contain", "/settings/authentication/form-login");
   });
 
   it("should test that configure link redirects to google signup setup doc", () => {
     cy.visit("/settings/general");
-    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(AdminsSettingsLocators.googleButton).click();
+    cy.get(adminsSettings.googleButton).click();
     cy.url().should("contain", "/settings/authentication/google-auth");
-    cy.get(AdminsSettingsLocators.readMoreLink).within(() => {
+    cy.get(adminsSettings.readMoreLink).within(() => {
       cy.get("a")
         .should("have.attr", "target", "_blank")
         .invoke("removeAttr", "target")
@@ -100,11 +101,11 @@ describe("Admin settings page", function() {
 
   it("should test that configure link redirects to github signup setup doc", () => {
     cy.visit("/settings/general");
-    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(AdminsSettingsLocators.githubButton).click();
+    cy.get(adminsSettings.githubButton).click();
     cy.url().should("contain", "/settings/authentication/github-auth");
-    cy.get(AdminsSettingsLocators.readMoreLink).within(() => {
+    cy.get(adminsSettings.readMoreLink).within(() => {
       cy.get("a")
         .should("have.attr", "target", "_blank")
         .invoke("removeAttr", "target")
@@ -116,80 +117,80 @@ describe("Admin settings page", function() {
   it("should test save and clear buttons disabled state", () => {
     cy.visit("/settings/general");
     const assertVisibilityAndDisabledState = () => {
-      cy.get(AdminsSettingsLocators.saveButton).should("be.visible");
-      cy.get(AdminsSettingsLocators.saveButton).should("be.disabled");
-      cy.get(AdminsSettingsLocators.resetButton).should("be.visible");
-      cy.get(AdminsSettingsLocators.resetButton).should("be.disabled");
+      cy.get(adminsSettings.saveButton).should("be.visible");
+      cy.get(adminsSettings.saveButton).should("be.disabled");
+      cy.get(adminsSettings.resetButton).should("be.visible");
+      cy.get(adminsSettings.resetButton).should("be.disabled");
     };
     assertVisibilityAndDisabledState();
-    cy.get(AdminsSettingsLocators.instanceName).should("be.visible");
-    cy.get(AdminsSettingsLocators.instanceName)
+    cy.get(adminsSettings.instanceName).should("be.visible");
+    cy.get(adminsSettings.instanceName)
       .clear()
       .type("AppsmithInstance");
-    cy.get(AdminsSettingsLocators.saveButton).should("be.visible");
-    cy.get(AdminsSettingsLocators.saveButton).should("not.be.disabled");
-    cy.get(AdminsSettingsLocators.resetButton).should("be.visible");
-    cy.get(AdminsSettingsLocators.resetButton).should("not.be.disabled");
-    cy.get(AdminsSettingsLocators.resetButton).click();
+    cy.get(adminsSettings.saveButton).should("be.visible");
+    cy.get(adminsSettings.saveButton).should("not.be.disabled");
+    cy.get(adminsSettings.resetButton).should("be.visible");
+    cy.get(adminsSettings.resetButton).should("not.be.disabled");
+    cy.get(adminsSettings.resetButton).click();
     assertVisibilityAndDisabledState();
   });
 
   it("should test saving a setting value", () => {
     cy.visit("/settings/general");
-    cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
-    cy.get(AdminsSettingsLocators.instanceName).should("be.visible");
+    cy.get(adminsSettings.restartNotice).should("not.exist");
+    cy.get(adminsSettings.instanceName).should("be.visible");
     let instanceName;
     cy.generateUUID().then((uuid) => {
       instanceName = uuid;
-      cy.get(AdminsSettingsLocators.instanceName)
+      cy.get(adminsSettings.instanceName)
         .clear()
         .type(uuid);
     });
-    cy.get(AdminsSettingsLocators.saveButton).should("be.visible");
-    cy.get(AdminsSettingsLocators.saveButton).should("not.be.disabled");
+    cy.get(adminsSettings.saveButton).should("be.visible");
+    cy.get(adminsSettings.saveButton).should("not.be.disabled");
     cy.intercept("POST", "/api/v1/admin/restart", {
       body: { responseMeta: { status: 200, success: true }, data: true },
     });
-    cy.get(AdminsSettingsLocators.saveButton).click();
+    cy.get(adminsSettings.saveButton).click();
     cy.wait("@postEnvVariables").then((interception) => {
       expect(interception.request.body.APPSMITH_INSTANCE_NAME).to.equal(
         instanceName,
       );
     });
-    cy.get(AdminsSettingsLocators.restartNotice).should("be.visible");
+    cy.get(adminsSettings.restartNotice).should("be.visible");
     cy.wait(3000);
-    cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
+    cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.wait(3000);
   });
 
   it("should test saving settings value from different tabs", () => {
     cy.visit("/settings/general");
-    cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
-    cy.get(AdminsSettingsLocators.instanceName).should("be.visible");
+    cy.get(adminsSettings.restartNotice).should("not.exist");
+    cy.get(adminsSettings.instanceName).should("be.visible");
     let instanceName;
     cy.generateUUID().then((uuid) => {
       instanceName = uuid;
-      cy.get(AdminsSettingsLocators.instanceName)
+      cy.get(adminsSettings.instanceName)
         .clear()
         .type(uuid);
     });
-    cy.get(AdminsSettingsLocators.saveButton).should("be.visible");
-    cy.get(AdminsSettingsLocators.saveButton).should("not.be.disabled");
-    cy.get(AdminsSettingsLocators.emailTab).click();
-    cy.get(AdminsSettingsLocators.saveButton).should("be.visible");
-    cy.get(AdminsSettingsLocators.saveButton).should("not.be.disabled");
-    cy.get(AdminsSettingsLocators.fromAddress).should("be.visible");
+    cy.get(adminsSettings.saveButton).should("be.visible");
+    cy.get(adminsSettings.saveButton).should("not.be.disabled");
+    cy.get(adminsSettings.emailTab).click();
+    cy.get(adminsSettings.saveButton).should("be.visible");
+    cy.get(adminsSettings.saveButton).should("not.be.disabled");
+    cy.get(adminsSettings.fromAddress).should("be.visible");
     let fromAddress;
     cy.generateUUID().then((uuid) => {
       fromAddress = uuid;
-      cy.get(AdminsSettingsLocators.fromAddress)
+      cy.get(adminsSettings.fromAddress)
         .clear()
         .type(`${uuid}@appsmith.com`);
     });
     cy.intercept("POST", "/api/v1/admin/restart", {
       body: { responseMeta: { status: 200, success: true }, data: true },
     });
-    cy.get(AdminsSettingsLocators.saveButton).click();
+    cy.get(adminsSettings.saveButton).click();
     cy.wait("@postEnvVariables").then((interception) => {
       expect(interception.request.body.APPSMITH_INSTANCE_NAME).to.equal(
         instanceName,
@@ -198,9 +199,9 @@ describe("Admin settings page", function() {
         `${fromAddress}@appsmith.com`,
       );
     });
-    cy.get(AdminsSettingsLocators.restartNotice).should("be.visible");
+    cy.get(adminsSettings.restartNotice).should("be.visible");
     cy.wait(3000);
-    cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
+    cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.wait(3000);
   });
 });

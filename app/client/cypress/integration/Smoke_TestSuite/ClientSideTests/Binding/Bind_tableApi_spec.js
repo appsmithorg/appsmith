@@ -1,6 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const apiPage = require("../../../../locators/ApiEditor.json");
+import apiPage from "../../../../locators/ApiEditor";
 
 describe("Test Create Api and Bind to Table widget", function() {
   let apiData;
