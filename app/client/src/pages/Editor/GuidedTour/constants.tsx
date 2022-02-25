@@ -284,8 +284,8 @@ export const Steps: StepsType = {
         dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='CustomersTable']`, "right", {
-            top: 3,
-            left: 18,
+            top: 5,
+            left: -15,
           });
         }, 1000);
       },
