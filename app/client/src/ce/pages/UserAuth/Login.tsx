@@ -23,7 +23,7 @@ import {
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   NEW_TO_APPSMITH,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
@@ -51,7 +51,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
-const { disableLoginForm } = getAppsmithConfigs();
+const { disableLoginForm, disableSignup } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
@@ -113,7 +113,7 @@ export function Login(props: LoginFormProps) {
       <AuthCardHeader>
         <h1>{createMessage(LOGIN_PAGE_TITLE)}</h1>
       </AuthCardHeader>
-      {!disableLoginForm && (
+      {!disableSignup && (
         <SignUpLinkSection>
           {createMessage(NEW_TO_APPSMITH)}
           <AuthCardNavLink

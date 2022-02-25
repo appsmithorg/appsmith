@@ -65,7 +65,7 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        input = input.trim();
+        String strNumericValue = input.trim().replaceAll(",", "");
 
         if (input.startsWith("[") && input.endsWith("]")) {
             String betweenBraces = input.substring(1, input.length() - 1);
@@ -79,28 +79,28 @@ public class DataTypeStringUtils {
         }
 
         try {
-            Integer.parseInt(input);
+            Integer.parseInt(strNumericValue);
             return DataType.INTEGER;
         } catch (NumberFormatException e) {
             // Not an integer
         }
 
         try {
-            Long.parseLong(input);
+            Long.parseLong(strNumericValue);
             return DataType.LONG;
         } catch (NumberFormatException e1) {
             // Not long
         }
 
         try {
-            Float.parseFloat(input);
+            Float.parseFloat(strNumericValue);
             return DataType.FLOAT;
         } catch (NumberFormatException e2) {
             // Not float
         }
 
         try {
-            Double.parseDouble(input);
+            Double.parseDouble(strNumericValue);
             return DataType.DOUBLE;
         } catch (NumberFormatException e3) {
             // Not double

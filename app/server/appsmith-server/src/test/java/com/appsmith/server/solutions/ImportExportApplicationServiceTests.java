@@ -32,7 +32,6 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.DatasourceService;
@@ -42,10 +41,13 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -72,6 +74,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.lang.reflect.Type;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -79,6 +82,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -86,6 +90,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -144,7 +149,7 @@ public class ImportExportApplicationServiceTests {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    ThemeRepository themeRepository;
+    ThemeService themeService;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -237,6 +242,18 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById("invalidAppId", "");
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION_ID, "invalidAppId")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
         Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
 
@@ -249,6 +266,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
+                    assertThat(exportedApplication.getEditModeThemeId()).isNull();
+                    assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -744,6 +763,14 @@ public class ImportExportApplicationServiceTests {
                 actionList.forEach(newAction -> {
                     ActionDTO actionDTO = newAction.getUnpublishedAction();
                     assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+                    if (StringUtils.equals(actionDTO.getName(), "api_wo_auth")) {
+                        ActionDTO publishedAction = newAction.getPublishedAction();
+                        assertThat(publishedAction).isNotNull();
+                        assertThat(publishedAction.getActionConfiguration()).isNotNull();
+                        // Test the fallback page ID from the unpublishedAction is copied to published version when
+                        // published version does not have pageId
+                        assertThat(actionDTO.getPageId()).isEqualTo(publishedAction.getPageId());
+                    }
                     if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
                         collectionIdInAction.add(actionDTO.getCollectionId());
                     }
@@ -833,8 +860,8 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                themeRepository.findById(application.getEditModeThemeId()),
-                                themeRepository.findById(application.getPublishedModeThemeId())
+                                themeService.getThemeById(application.getEditModeThemeId(), MANAGE_THEMES),
+                                themeService.getThemeById(application.getPublishedModeThemeId(), MANAGE_THEMES)
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -843,9 +870,13 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
                     assertThat(editTheme.getName()).isEqualTo("Custom edit theme");
+                    assertThat(editTheme.getOrganizationId()).isNull();
+                    assertThat(editTheme.getApplicationId()).isNull();
 
                     assertThat(publishedTheme.isSystemTheme()).isFalse();
                     assertThat(publishedTheme.getName()).isEqualTo("Custom published theme");
+                    assertThat(publishedTheme.getOrganizationId()).isNullOrEmpty();
+                    assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })
                 .verifyComplete();
     }
@@ -1077,6 +1108,119 @@ public class ImportExportApplicationServiceTests {
                 .verify();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationIntoOrganization_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
+        Application testApplication = new Application();
+        testApplication.setName("importApplicationIntoOrganization_pageRemovedInBranchApplication_Success");
+        testApplication.setOrganizationId(orgId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("master");
+        testApplication.setGitApplicationMetadata(gitData);
+
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+        String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
+
+        PageDTO page = new PageDTO();
+        page.setName("Page 2");
+        page.setApplicationId(application.getId());
+        PageDTO savedPage = applicationPageService.createPage(page).block();
+
+        assert application.getId() != null;
+        Set<String> applicationPageIdsBeforeImport = Objects.requireNonNull(applicationRepository.findById(application.getId()).block())
+                .getPages()
+                .stream()
+                .map(ApplicationPage::getId)
+                .collect(Collectors.toSet());
+
+        ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-removed.json").block();
+        applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
+
+        Application importedApplication = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
+
+        assert importedApplication != null;
+        Mono<List<NewPage>> pageList = Flux.fromIterable(
+                importedApplication
+                        .getPages()
+                        .stream()
+                        .map(ApplicationPage::getId)
+                        .collect(Collectors.toList())
+        ).flatMap(s -> newPageService.findById(s, MANAGE_PAGES)).collectList();
+
+        StepVerifier
+                .create(pageList)
+                .assertNext(newPages -> {
+                    // Check before import we had both the pages
+                    assertThat(applicationPageIdsBeforeImport).hasSize(2);
+                    assertThat(applicationPageIdsBeforeImport).contains(savedPage.getId());
+
+                    assertThat(newPages.size()).isEqualTo(1);
+                    assertThat(importedApplication.getPages().size()).isEqualTo(1);
+                    assertThat(importedApplication.getPages().get(0).getId()).isEqualTo(newPages.get(0).getId());
+                    assertThat(newPages.get(0).getPublishedPage().getName()).isEqualTo("importedPage");
+                    assertThat(newPages.get(0).getGitSyncId()).isEqualTo(gitSyncIdBeforeImport);
+
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationIntoOrganization_pageAddedInBranchApplication_Success() {
+        Application testApplication = new Application();
+        testApplication.setName("importApplicationIntoOrganization_pageAddedInBranchApplication_Success");
+        testApplication.setOrganizationId(orgId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("master");
+        testApplication.setGitApplicationMetadata(gitData);
+
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
+
+        assert application.getId() != null;
+        Set<String> applicationPageIdsBeforeImport = Objects.requireNonNull(applicationRepository.findById(application.getId()).block())
+                .getPages()
+                .stream()
+                .map(ApplicationPage::getId)
+                .collect(Collectors.toSet());
+
+        ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-added.json").block();
+        applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
+
+        Application applicationMono = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
+
+        Mono<List<NewPage>> pageList = Flux.fromIterable(
+                applicationMono.getPages()
+                        .stream()
+                        .map(ApplicationPage::getId)
+                        .collect(Collectors.toList())
+        ).flatMap(s -> newPageService.findById(s, MANAGE_PAGES)).collectList();
+
+        StepVerifier
+                .create(pageList)
+                .assertNext(newPages -> {
+                    // Check before import we had both the pages
+                    assertThat(applicationPageIdsBeforeImport).hasSize(1);
+                    assertThat(newPages.size()).isEqualTo(3);
+                    List<String> pageNames = newPages.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
+                    assertThat(pageNames).contains("Page1");
+                    assertThat(pageNames).contains("Page2");
+                    assertThat(pageNames).contains("Page3");
+                })
+                .verifyComplete();
+
+    }
+
     private FilePart createFilePart(String filePath) {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
@@ -1091,6 +1235,27 @@ public class ImportExportApplicationServiceTests {
     
         return filepart;
     
+    }
+
+    private Mono<ApplicationJson> createAppJson(String filePath) {
+        FilePart filePart = createFilePart(filePath);
+
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
+                .map(dataBuffer -> {
+                    byte[] data = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(data);
+                    DataBufferUtils.release(dataBuffer);
+                    return new String(data);
+                });
+
+        return stringifiedFile
+                .map(data -> {
+                    Gson gson = new Gson();
+                    Type fileType = new TypeToken<ApplicationJson>() {
+                    }.getType();
+                    return gson.fromJson(data, fileType);
+                });
+
     }
     
 }

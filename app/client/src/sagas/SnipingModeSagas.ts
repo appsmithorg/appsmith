@@ -19,7 +19,7 @@ import AnalyticsUtil from "../utils/AnalyticsUtil";
 import {
   SNIPING_NOT_SUPPORTED,
   SNIPING_SELECT_WIDGET_AGAIN,
-} from "../constants/messages";
+} from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
 
@@ -107,6 +107,10 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.DROP_DOWN_WIDGET:
+      propertyPath = "options";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
+    case WidgetTypes.SELECT_WIDGET:
       propertyPath = "options";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
