@@ -1609,5 +1609,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             application.setUserPermissions(null);
             application.setEditModeThemeId(null);
             application.setPublishedModeThemeId(null);
+            application.setClientSchemaVersion(null);
+            application.setServerSchemaVersion(null);
     }
 }

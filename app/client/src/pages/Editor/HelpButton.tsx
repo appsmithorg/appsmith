@@ -10,7 +10,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "../../selectors/usersSelectors";
 import { useSelector } from "react-redux";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
 import {
