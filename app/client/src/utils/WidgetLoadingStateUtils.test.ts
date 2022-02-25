@@ -6,16 +6,19 @@ import {
 describe("Widget loading state utils", () => {
   describe("groupAndFilterDependantsMap", () => {
     it("groups entites and filters self-dependencies", () => {
-      const entitiesDependantsMap = groupAndFilterDependantsMap({
-        "Query1.config": ["Query1"],
-        "Query1.config.body": ["Query1.config"],
-        "Query1.data": ["JS_file.func1", "Query1"], // dependant
-        "Query2.config": ["Query2"],
-        "Query2.config.body": ["Query2.config"],
-        "Query2.run": ["Query2", "JS_file.func2"], // dependant
-        "Query3.config": ["Query3"],
-        "Query3.config.body": ["Query3.config"],
-      });
+      const entitiesDependantsMap = groupAndFilterDependantsMap(
+        {
+          "Query1.config": ["Query1"],
+          "Query1.config.body": ["Query1.config"],
+          "Query1.data": ["JS_file.func1", "Query1"], // dependant
+          "Query2.config": ["Query2"],
+          "Query2.config.body": ["Query2.config"],
+          "Query2.run": ["Query2", "JS_file.func2"], // dependant
+          "Query3.config": ["Query3"],
+          "Query3.config.body": ["Query3.config"],
+        },
+        {},
+      );
       expect(entitiesDependantsMap).toStrictEqual({
         Query1: { "Query1.data": ["JS_file.func1"] },
         Query2: { "Query2.run": ["JS_file.func2"] },
