@@ -133,17 +133,13 @@ function getWidgetProps(
           dynamicBindingPathList: [{ key: `chartData.${reactKey}.data` }],
         },
       };
-    case "SELECT_WIDGET":
+    // Should be changed from backend to SELECT_WIDGET
+    case "DROP_DOWN_WIDGET":
       return {
         type: suggestedWidget.type,
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
-          defaultOptionValue: `{{
-            {
-              label: ${widgetName}.options[0].label,
-              value: ${widgetName}.options[0].value
-            }
-          }}`,
+          defaultOptionValue: `{{${widgetName}.options[0].value}}`,
           dynamicBindingPathList: [
             { key: widgetInfo.propertyName },
             { key: "defaultOptionValue" },
