@@ -2154,6 +2154,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch. Branch does not exists in the repo"));
                                 }
                                 return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                                        .flatMap(applicationPageService::deleteApplicationByResource)
                                         .onErrorResume(throwable -> {
                                             log.warn("Unable to find branch with name ", throwable);
                                             return addAnalyticsForGitOperation(
@@ -2163,11 +2164,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     throwable.getMessage(),
                                                     gitApplicationMetadata.getIsRepoPrivate()
                                             ).flatMap(application1 -> Mono.just(application1));
-                                        })
-                                        .flatMap(applicationPageService::deleteApplicationByResource);
+                                        });
                             });
                 })
-                .flatMap(application -> addAnalyticsForGitOperation(AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(), application, application.getGitApplicationMetadata().getIsRepoPrivate()));
+                .flatMap(application -> addAnalyticsForGitOperation(AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(), application, application.getGitApplicationMetadata().getIsRepoPrivate()))
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
