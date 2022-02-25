@@ -58,7 +58,7 @@ export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
 export const SIGNUP_PAGE_SUBTITLE = () => `Use your organization email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
-export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => ` Email`;
+export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
 export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
 export const SIGNUP_PAGE_NAME_INPUT_LABEL = () => `Name`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
