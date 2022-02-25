@@ -128,11 +128,11 @@ export const getBindingPathsOfAction = (
       } else if (formConfig.controlType === "PAGINATION") {
         const limitPath = getBindingOrConfigPathsForPaginationControl(
           PaginationSubComponent.Offset,
-          formConfig.configProperty,
+          configPath,
         );
         const offsetPath = getBindingOrConfigPathsForPaginationControl(
           PaginationSubComponent.Limit,
-          formConfig.configProperty,
+          configPath,
         );
         bindingPaths[limitPath] = getCorrectEvaluationSubstitutionType(
           formConfig.evaluationSubstitutionType,
@@ -146,7 +146,7 @@ export const getBindingPathsOfAction = (
           actionValue.forEach((fieldConfig: any, index: number) => {
             const columnPath = getBindingOrConfigPathsForSortingControl(
               SortingSubComponent.Column,
-              formConfig.configProperty,
+              configPath,
               index,
             );
             bindingPaths[columnPath] = getCorrectEvaluationSubstitutionType(
@@ -154,7 +154,7 @@ export const getBindingPathsOfAction = (
             );
             const OrderPath = getBindingOrConfigPathsForSortingControl(
               SortingSubComponent.Order,
-              formConfig.configProperty,
+              configPath,
               index,
             );
             bindingPaths[OrderPath] = getCorrectEvaluationSubstitutionType(
@@ -167,7 +167,7 @@ export const getBindingPathsOfAction = (
           formConfig.schema.forEach((schemaField: any, index: number) => {
             if (allowedControlTypes.includes(schemaField.controlType)) {
               const columnPath = getBindingOrConfigPathsForEntitySelectorControl(
-                formConfig.configProperty,
+                configPath,
                 index,
               );
               bindingPaths[columnPath] = getCorrectEvaluationSubstitutionType(
@@ -185,23 +185,21 @@ export const getBindingPathsOfAction = (
 
 export const getBindingOrConfigPathsForSortingControl = (
   fieldName: SortingSubComponent.Order | SortingSubComponent.Column,
-  configProperty: string,
+  baseConfigProperty: string,
   index?: number,
 ): string => {
-  const configPath = getDataTreeActionConfigPath(configProperty);
   if (_.isNumber(index)) {
-    return `${configPath}[${index}].${fieldName}`;
+    return `${baseConfigProperty}[${index}].${fieldName}`;
   } else {
-    return `${configPath}.${fieldName}`;
+    return `${baseConfigProperty}.${fieldName}`;
   }
 };
 
 export const getBindingOrConfigPathsForPaginationControl = (
   fieldName: PaginationSubComponent.Limit | PaginationSubComponent.Offset,
-  configProperty: string,
+  baseConfigProperty: string,
 ): string => {
-  const configPath = getDataTreeActionConfigPath(configProperty);
-  return `${configPath}.${fieldName}`;
+  return `${baseConfigProperty}.${fieldName}`;
 };
 
 export const getBindingOrConfigPathsForWhereClauseControl = (
@@ -222,11 +220,10 @@ export const getBindingOrConfigPathsForWhereClauseControl = (
 };
 
 export const getBindingOrConfigPathsForEntitySelectorControl = (
-  configProperty: string,
+  baseConfigProperty: string,
   index: number,
 ): string => {
-  const configPath = getDataTreeActionConfigPath(configProperty);
-  return `${configPath}.column_${index + 1}`;
+  return `${baseConfigProperty}.column_${index + 1}`;
 };
 
 export const getDataTreeActionConfigPath = (propertyPath: string) =>
