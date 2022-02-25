@@ -44,6 +44,7 @@ import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera
 
 const overlayerMixin = css`
   position: absolute;
+  height: 100%;
   width: 100%;
   object-fit: contain;
   top: 50%;
@@ -81,6 +82,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   }
 
   video {
+    height: 100%;
     width: 100%;
     object-fit: contain;
   }
