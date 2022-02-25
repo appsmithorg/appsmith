@@ -6,7 +6,7 @@ describe("Modal Widget Functionality", function() {
     cy.wait(7000);
   });
 
-  it("Open  Modal from button and test scroll", () => {
+  it("1. [Bug]- 11415 - Open  Modal from button and test scroll", () => {
     cy.PublishtheApp();
     cy.get(".t--widget-buttonwidget button").click({ force: true });
     cy.get(".t--modal-widget").should("exist");
