@@ -1511,15 +1511,26 @@ public class GitServiceCEImpl implements GitServiceCE {
                     try {
                         return Mono.zip(
                                 fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName),
-                                Mono.just(gitData.getGitAuth())
+                                Mono.just(gitData.getGitAuth()),
+                                Mono.just(repoSuffix)
                         );
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
                     }
                 })
-                .flatMap(tuple -> gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
-                        .then(gitExecutor.getStatus(tuple.getT1(), finalBranchName))
-                        .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()))));
+                .flatMap(tuple -> {
+                    Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName).cache();
+                    try {
+                        return gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
+                                .then(branchedStatusMono)
+                                // Remove any files which are copied by hard resetting the repo
+                                .then(gitExecutor.resetToLastCommit(tuple.getT3(), branchName))
+                                .then(branchedStatusMono)
+                                .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
+                    } catch (GitAPIException | IOException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
+                    }
+                });
 
         return Mono.create(sink -> statusMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -2049,7 +2060,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<Application> branchedApplicationMono = applicationService
                 .findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .cache();
-        Mono<Application> defaultApplicationMono = this.getApplicationById(defaultApplicationId).cache();
+        Mono<Application> defaultApplicationMono = this.getApplicationById(defaultApplicationId);
 
         if (Boolean.TRUE.equals(doPull)) {
             return defaultApplicationMono
@@ -2344,8 +2355,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         AnalyticsEvents.GIT_PULL.getEventName(),
                                         application,
                                         application.getGitApplicationMetadata().getIsRepoPrivate()
-                                )
-                                        .thenReturn(application)
+                                    )
+                                    .thenReturn(application)
                         )
                         .flatMap(application -> {
                             GitCommitDTO commitDTO = new GitCommitDTO();

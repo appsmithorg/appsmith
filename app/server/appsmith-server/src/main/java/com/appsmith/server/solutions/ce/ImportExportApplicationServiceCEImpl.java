@@ -825,6 +825,32 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 unpublishedCollectionIdToActionIdsMap,
                                 publishedCollectionIdToActionIdsMap
                         )
+                        .map(NewAction::getId)
+                        .collectList()
+                        .flatMap(savedActionIds -> {
+                            // Updating the existing application for git-sync
+                            if (!StringUtils.isEmpty(applicationId)) {
+                                // Remove unwanted actions
+                                List<String> invalidActionIds = new ArrayList<>();
+                                for (NewAction action : existingActions) {
+                                    if (!savedActionIds.contains(action.getId())) {
+                                        invalidActionIds.add(action.getId());
+                                    }
+                                }
+                                return Flux.fromIterable(invalidActionIds)
+                                        .flatMap(actionId -> newActionService.deleteUnpublishedAction(actionId)
+                                            // return an empty action so that the filter can remove it from the list
+                                            .onErrorResume(throwable -> {
+                                                log.debug("Failed to delete action with id {} during import", actionId);
+                                                log.error(throwable.getMessage());
+                                                return Mono.empty();
+                                            })
+                                        )
+                                        .then()
+                                        .thenReturn(savedActionIds);
+                            }
+                            return Mono.just(savedActionIds);
+                        })
                         .thenMany(actionCollectionRepository.findByApplicationId(importedApplication.getId()))
                         .collectList()
                 )
@@ -1267,37 +1293,37 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .flatMap(actionId -> newActionRepository.findById(actionId, MANAGE_ACTIONS))
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
-                                ActionDTO unpublishedAction = newAction.getUnpublishedAction();
-                                ActionDTO publishedAction = newAction.getPublishedAction();
-                                if (!CollectionUtils.sizeIsEmpty(unpublishedActionIdToCollectionIdMap)
-                                        && !CollectionUtils.isEmpty(unpublishedActionIdToCollectionIdMap.get(newAction.getId()))) {
+                    ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                    ActionDTO publishedAction = newAction.getPublishedAction();
+                    if (!CollectionUtils.sizeIsEmpty(unpublishedActionIdToCollectionIdMap)
+                            && !CollectionUtils.isEmpty(unpublishedActionIdToCollectionIdMap.get(newAction.getId()))) {
 
-                                    unpublishedAction.setCollectionId(
-                                            unpublishedActionIdToCollectionIdMap.get(newAction.getId()).get(0)
-                                    );
-                                    if (unpublishedAction.getDefaultResources() != null
-                                            && StringUtils.isEmpty(unpublishedAction.getDefaultResources().getCollectionId())) {
+                        unpublishedAction.setCollectionId(
+                                unpublishedActionIdToCollectionIdMap.get(newAction.getId()).get(0)
+                        );
+                        if (unpublishedAction.getDefaultResources() != null
+                                && StringUtils.isEmpty(unpublishedAction.getDefaultResources().getCollectionId())) {
 
-                                        unpublishedAction.getDefaultResources().setCollectionId(
-                                                unpublishedActionIdToCollectionIdMap.get(newAction.getId()).get(1)
-                                        );
-                                    }
-                                }
-                                if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdMap)
-                                        && !CollectionUtils.isEmpty(publishedActionIdToCollectionIdMap.get(newAction.getId()))) {
+                            unpublishedAction.getDefaultResources().setCollectionId(
+                                    unpublishedActionIdToCollectionIdMap.get(newAction.getId()).get(1)
+                            );
+                        }
+                    }
+                    if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdMap)
+                            && !CollectionUtils.isEmpty(publishedActionIdToCollectionIdMap.get(newAction.getId()))) {
 
-                                    publishedAction.setCollectionId(
-                                            publishedActionIdToCollectionIdMap.get(newAction.getId()).get(0)
-                                    );
+                        publishedAction.setCollectionId(
+                                publishedActionIdToCollectionIdMap.get(newAction.getId()).get(0)
+                        );
 
-                                    if (publishedAction.getDefaultResources() != null
-                                            && StringUtils.isEmpty(publishedAction.getDefaultResources().getCollectionId())) {
+                        if (publishedAction.getDefaultResources() != null
+                                && StringUtils.isEmpty(publishedAction.getDefaultResources().getCollectionId())) {
 
-                                        publishedAction.getDefaultResources().setCollectionId(
-                                                publishedActionIdToCollectionIdMap.get(newAction.getId()).get(1)
-                                        );
-                                    }
-                                }
+                            publishedAction.getDefaultResources().setCollectionId(
+                                    publishedActionIdToCollectionIdMap.get(newAction.getId()).get(1)
+                            );
+                        }
+                    }
                     return newAction;
                 })
                 .flatMap(newAction -> newActionService.update(newAction.getId(), newAction));

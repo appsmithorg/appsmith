@@ -48,7 +48,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -688,7 +687,10 @@ public class GitExecutorImpl implements GitExecutor {
 
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
         return Mono.fromCallable(() -> {
+            // Remove tracked files
             Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
+            // Remove untracked files
+            git.clean().setForce(true).setCleanDirectories(true).call();
             return ref;
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
