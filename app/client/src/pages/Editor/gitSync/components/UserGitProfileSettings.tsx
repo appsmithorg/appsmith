@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo } from "react";
-import { Space } from "../StyledComponents";
+import { Space } from "./StyledComponents";
 import {
   createMessage,
   USER_PROFILE_SETTINGS_TITLE,
@@ -186,6 +186,7 @@ function UserGitProfileSettings({
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
+            cypressSelector="t--use-global-config-checkbox"
             fill={false}
             isDefaultChecked={useGlobalConfig}
             label="Use Default Configuration"
@@ -209,6 +210,7 @@ function UserGitProfileSettings({
 
         <InputContainer isValid={!nameInvalid}>
           <TextInput
+            className="t--git-config-name-input"
             dataType="text"
             disabled={disableInput}
             errorMsg={
@@ -228,6 +230,7 @@ function UserGitProfileSettings({
         </LabelContainer>
         <InputContainer isValid={!emailInvalid}>
           <TextInput
+            className="t--git-config-email-input"
             dataType="email"
             disabled={disableInput}
             errorMsg={

@@ -168,12 +168,12 @@ function DraggableList(props: any) {
 
           if (!dragging.current && Math.abs(displacement.current) > 10) {
             dragging.current = props.dragging;
-            updateDragging(dragging.current);
+            updateDragging && updateDragging(dragging.current);
           }
         } else {
           if (dragging.current) {
             dragging.current = props.dragging;
-            updateDragging(dragging.current);
+            updateDragging && updateDragging(dragging.current);
           }
         }
 
