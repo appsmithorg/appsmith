@@ -7,6 +7,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
+import { SortingSubComponent } from "./utils";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -142,12 +143,12 @@ function SortingComponent(props: any) {
         props.fields.length > 0 &&
         props.fields.map((field: any, index: number) => {
           const columnPath = getBindingOrConfigPathsForSortingControl(
-            "column",
+            SortingSubComponent.Column,
             field,
             undefined,
           );
           const OrderPath = getBindingOrConfigPathsForSortingControl(
-            "order",
+            SortingSubComponent.Order,
             field,
             undefined,
           );

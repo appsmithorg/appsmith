@@ -6,6 +6,7 @@ import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
 import { getBindingOrConfigPathsForEntitySelectorControl } from "entities/Action/actionProperties";
+import { allowedControlTypes } from "components/formControls/utils";
 
 const dropDownFieldConfig: any = {
   label: "",
@@ -18,8 +19,6 @@ const inputFieldConfig: any = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
 };
-
-export const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
 
 // Component for the icons
 const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`

@@ -6,6 +6,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
+import { PaginationSubComponent } from "components/formControls/utils";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
@@ -55,11 +56,11 @@ export function Pagination(props: {
   const { configProperty, customStyles, formName, initialValue, name } = props;
 
   const offsetPath = getBindingOrConfigPathsForPaginationControl(
-    "offset",
+    PaginationSubComponent.Offset,
     configProperty,
   );
   const limitPath = getBindingOrConfigPathsForPaginationControl(
-    "limit",
+    PaginationSubComponent.Limit,
     configProperty,
   );
 
