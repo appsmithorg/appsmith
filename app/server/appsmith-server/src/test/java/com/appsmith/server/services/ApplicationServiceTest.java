@@ -21,6 +21,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -82,6 +83,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
@@ -1205,6 +1207,14 @@ public class ApplicationServiceTest {
                     testWidget.put("testField", "{{ cloneActionTest.data }}");
                     children.add(testWidget);
 
+                    JSONObject secondWidget = new JSONObject();
+                    secondWidget.put("widgetName", "secondWidget");
+                    temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField1"))));
+                    secondWidget.put("dynamicBindingPathList", temp);
+                    secondWidget.put("testField1", "{{ testCollection1.cloneActionCollection1.data }}");
+                    children.add(secondWidget);
+
                     Layout layout = testPage.getLayouts().get(0);
                     layout.setDsl(parentDsl);
 
@@ -1216,11 +1226,20 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setOrganizationId(application.getOrganizationId());
                     actionCollectionDTO.setPluginId(testPlugin.getId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-                    actionCollectionDTO.setBody("collectionBody");
+                    actionCollectionDTO.setBody("export default {\n" +
+                            "\tgetData: async () => {\n" +
+                            "\t\tconst data = await cloneActionTest.run();\n" +
+                            "\t\treturn data;\n" +
+                            "\t}\n" +
+                            "}");
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("cloneActionCollection1");
                     action1.setActionConfiguration(new ActionConfiguration());
-                    action1.getActionConfiguration().setBody("mockBody");
+                    action1.getActionConfiguration().setBody(
+                            "async () => {\n" +
+                                    "\t\tconst data = await cloneActionTest.run();\n" +
+                                    "\t\treturn data;\n" +
+                                    "\t}");
                     actionCollectionDTO.setActions(List.of(action1));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
@@ -1302,13 +1321,18 @@ public class ApplicationServiceTest {
 
                         newPage.getUnpublishedPage()
                                 .getLayouts()
-                                .forEach(layout ->
-                                        layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                            dslActionDTOS.forEach(actionDTO -> {
-                                                assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
-                                            });
-                                        })
-                                );
+                                .forEach(layout -> {
+                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
+                                        assertThat(dslActionDTOS).hasSize(2);
+                                        dslActionDTOS.forEach(actionDTO -> {
+                                            assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
+                                            if (StringUtils.hasLength(actionDTO.getCollectionId())) {
+                                                assertThat(actionDTO.getDefaultCollectionId()).isEqualTo(actionDTO.getCollectionId());
+                                            }
+                                        });
+                                    });
+                                });
                     });
 
                     assertThat(actionList).hasSize(2);
@@ -2252,4 +2276,42 @@ public class ApplicationServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplication_WithCustomSavedTheme_ThemesAlsoCopied() {
+        Application testApplication = new Application();
+        String appName = "cloneApplication_WithCustomSavedTheme_ThemesAlsoCopied";
+        testApplication.setName(appName);
+
+        Theme theme = new Theme();
+        theme.setName("Custom theme");
+
+        Mono<Theme> createTheme = themeService.create(theme);
+
+        Mono<Tuple2<Theme, Tuple2<Application, Application>>> tuple2Application = createTheme
+                .then(applicationPageService.createApplication(testApplication, orgId))
+                .flatMap(application ->
+                        themeService.updateTheme(application.getId(), theme).then(
+                                themeService.persistCurrentTheme(application.getId(), new Theme())
+                                        .flatMap(theme1 -> Mono.zip(
+                                                applicationPageService.cloneApplication(application.getId(), null),
+                                                Mono.just(application))
+                                        )
+                        )
+                ).flatMap(objects ->
+                    themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEMES)
+                            .zipWith(Mono.just(objects))
+                );
+
+        StepVerifier.create(tuple2Application)
+                .assertNext(objects -> {
+                    Theme clonedTheme = objects.getT1();
+                    Application clonedApp = objects.getT2().getT1();
+                    Application srcApp = objects.getT2().getT2();
+                    assertThat(clonedApp.getEditModeThemeId()).isNotEqualTo(srcApp.getEditModeThemeId());
+                    assertThat(clonedTheme.getApplicationId()).isNull();
+                    assertThat(clonedTheme.getOrganizationId()).isNull();
+                })
+                .verifyComplete();
+    }
 }
