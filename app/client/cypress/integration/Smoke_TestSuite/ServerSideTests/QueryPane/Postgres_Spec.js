@@ -235,6 +235,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
+    cy.clickButton("Confirm");
 
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
@@ -281,11 +282,14 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click({ force: true });
+    cy.clickButton("Confirm");
+
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
     //   200,
     // );
+
     cy.wait("@deleteDatasource").should((response) => {
       expect(response.status).to.be.oneOf([200, 409]);
     });

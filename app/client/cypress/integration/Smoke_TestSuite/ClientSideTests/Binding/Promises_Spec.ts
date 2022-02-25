@@ -129,7 +129,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
     agHelper.SelectEntityByName("Button1");
     cy.get("@jsObjName").then((jsObjName) => {
-    jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
+      jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
     })
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg)
@@ -177,23 +177,21 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     agHelper.SelectEntityByName("List1");
     jsEditor.EnterJSContext(
       "items",
-      `[
-  {
-    "name": {{ GetAnime.data.results[0].title }},
-"img": { { GetAnime.data.results[0].image_url } },
-"synopsis": { { GetAnime.data.results[0].synopsis } }
-              },
+      `[{
+  "name": {{ GetAnime.data.results[0].title }},
+"img": {{ GetAnime.data.results[0].image_url }},
+"synopsis": {{ GetAnime.data.results[0].synopsis }}
+      },
 {
-  "name": { { GetAnime.data.results[3].title } },
-  "img": { { GetAnime.data.results[3].image_url } },
-  "synopsis": { { GetAnime.data.results[3].synopsis } }
+  "name": {{ GetAnime.data.results[3].title }},
+  "img": {{ GetAnime.data.results[3].image_url }},
+  "synopsis": {{ GetAnime.data.results[3].synopsis }}
 },
 {
-  "name": { { GetAnime.data.results[2].title } },
-  "img": { { GetAnime.data.results[2].image_url } },
-  "synopsis": { { GetAnime.data.results[2].synopsis } }
-}
-          ]`,
+  "name": {{ GetAnime.data.results[2].title }},
+  "img": {{ GetAnime.data.results[2].image_url }},
+  "synopsis": {{ GetAnime.data.results[2].synopsis }}
+}]`,
       true,
     );
     agHelper.WaitUntilEleDisappear(
@@ -209,13 +207,14 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
       return GetAnime.run({ name: anime })
         .then(() => showAlert("Showing results for : " + anime, 'success'))
     })()
-  }} `,
+  }}`,
       true,
       true,
     );
     agHelper.ClickButton("Submit");
+    agHelper.WaitUntilEleAppear(locator._toastMsg)
     cy.get(locator._toastMsg)
-      .should("have.length", 1)
+      //.should("have.length", 1)//covered in WaitUntilEleAppear()
       .should("have.text", "Showing results for : fruits basket : the final");
   });
 

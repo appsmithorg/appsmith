@@ -146,10 +146,19 @@ export class AggregateHelper {
         });
     }
 
-    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string, timeout = 500) {
+    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string, timeout = 1000) {
         cy.waitUntil(() => cy.get(selector).contains(msgToCheckforDisappearance).should("have.length", 0),
             {
                 errorMsg: msgToCheckforDisappearance + " did not disappear",
+                timeout: 5000,
+                interval: 1000
+            }).then(() => this.Sleep(timeout))
+    }
+
+    public WaitUntilEleAppear(selector: string, timeout = 500) {
+        cy.waitUntil(() => cy.get(selector, { timeout: 30000 }).should("have.length.greaterThan", 0),
+            {
+                errorMsg: "Element did not appear",
                 timeout: 5000,
                 interval: 1000
             }).then(() => this.Sleep(timeout))
