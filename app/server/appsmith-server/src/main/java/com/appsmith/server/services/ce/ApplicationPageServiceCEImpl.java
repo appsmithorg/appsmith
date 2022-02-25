@@ -697,16 +697,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
                                 return applicationService.createDefault(application1);
                             })
-                            // duplicate the source application's themes if required i.e. if they were customized
-                            .flatMap(application ->
-                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application.getId())
-                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application.getId()))
-                                            .map(themesZip -> {
-                                                application.setEditModeThemeId(themesZip.getT1().getId());
-                                                application.setPublishedModeThemeId(themesZip.getT2().getId());
-                                                return application;
-                                            })
-                            )
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {
@@ -728,6 +718,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         savedApplication.setPages(clonedPages);
                                         return applicationService.save(savedApplication);
                                     })
+                            )
+                            // duplicate the source application's themes if required i.e. if they were customized
+                            .flatMap(application ->
+                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application)
+                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application))
+                                            .flatMap(themesZip -> {
+                                                String editModeThemeId = themesZip.getT1().getId();
+                                                String publishedModeThemeId = themesZip.getT2().getId();
+                                                application.setEditModeThemeId(editModeThemeId);
+                                                application.setPublishedModeThemeId(publishedModeThemeId);
+                                                return applicationService.setAppTheme(
+                                                        application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
+                                                ).thenReturn(application);
+                                            })
                             );
                 });
 
@@ -842,9 +846,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
 
-        Mono<Theme> publishThemeMono = applicationMono.flatMap(application ->  themeService.publishTheme(
-                application.getEditModeThemeId(), application.getPublishedModeThemeId(), application.getId()
-        ));
+        Mono<Theme> publishThemeMono = applicationMono.flatMap(
+                application ->  themeService.publishTheme(application.getId())
+        );
 
         Flux<NewPage> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
