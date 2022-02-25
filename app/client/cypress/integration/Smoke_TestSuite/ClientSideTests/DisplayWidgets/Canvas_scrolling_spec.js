@@ -10,6 +10,12 @@ describe("Modal Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(".t--widget-buttonwidget button").click({ force: true });
     cy.get(".t--modal-widget").should("exist");
-    cy.get(".t--modal-widget").scrollTo("bottom");
+    cy.get("span:contains('Close')").should("not.be.visible");
+    cy.get(".t--modal-widget")
+      .scrollTo("bottom")
+      .wait(1000);
+    cy.get("span:contains('Close')").should("be.visible");
+    cy.get(".t--modal-widget").scrollTo("top");
+    cy.get("span:contains('Close')").should("not.be.visible");
   });
 });
