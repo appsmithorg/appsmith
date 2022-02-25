@@ -18,7 +18,6 @@ import reactor.test.StepVerifier;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -96,9 +95,3 @@ class NewPageServiceTest {
     }
 
 }
-
-
-// create app
-// add page
-// call method
-// check page list
