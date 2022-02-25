@@ -1,5 +1,5 @@
-const AdminsSettingsLocators = require("../../../../locators/AdminsSettingsLocators.json");
 const EnterpriseAdminSettingsLocators = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
+import adminsSettings from "../../../../locators/AdminsSettings";
 
 describe("Admin settings page", function() {
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe("Admin settings page", function() {
 
   it("should test that authentication page shows upgrade button for SSO", () => {
     cy.visit("/settings/general");
-    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
     cy.get(EnterpriseAdminSettingsLocators.upgradeButton).each(($el) => {
       cy.wrap($el).should("be.visible");

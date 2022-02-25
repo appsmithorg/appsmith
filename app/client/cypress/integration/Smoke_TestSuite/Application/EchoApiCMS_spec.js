@@ -1,7 +1,7 @@
 const dsl = require("../../../fixtures/CMSdsl.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
-const appPage = require("../../../locators/CMSApplocators.json");
 import apiEditor from "../../../locators/ApiEditor";
+import appPage from "../../../locators/CMSApplocators";
 
 describe("Content Management System App", function() {
   let orgid;
