@@ -57,7 +57,8 @@ import { getDefaultPageId } from "sagas/ApplicationSagas";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const Container = styled.div`
-  height: 804px;
+  height: 765px;
+  max-height: 82vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -213,8 +214,11 @@ const TooltipWrapper = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px;
+  padding: 10px;
   width: calc(100% - 206px);
+  div[class^="RestAPIDatasourceForm__RestApiForm-"] {
+    padding-top: 0px;
+  }
 `;
 
 function TooltipContent() {
@@ -381,6 +385,15 @@ function ReconnectDatasourceModal() {
     }
   }, [pageId, appId]);
 
+  // redirecting if all are configured
+  useEffect(() => {
+    if (
+      appURL &&
+      datasources.filter((ds: Datasource) => !ds.isConfigured).length < 1
+    ) {
+      window.open(appURL, "_self");
+    }
+  }, [appURL, datasources]);
   return (
     <>
       <Dialog
