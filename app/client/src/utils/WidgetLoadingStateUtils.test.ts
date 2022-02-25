@@ -199,5 +199,36 @@ describe("Widget loading state utils", () => {
         ]),
       });
     });
+
+    /* e.g. JS.func1 uses Query1.data, 
+       Select1.option uses JS.func1,
+       JS.func2 uses Query2.run,
+       Select2.options uses Query2.data
+
+       When Query2 is called.
+       Only Select2 should be listed, not Select1.
+    */
+    it("handles multiple dependencies in same JS file", () => {
+      const dependants = getEntityDependants(
+        ["Query2"],
+        {
+          Query1: {
+            "Query1.data": ["JS_file.func1"],
+          },
+          Query2: {
+            "Query2.run": ["JS_file.func2"],
+            "Query2.data": ["Select2.options"],
+          },
+          JS_file: {
+            "JS_file.func1": ["Select1.options"],
+          },
+        },
+        new Set<string>(),
+      );
+      expect(dependants).toStrictEqual({
+        names: new Set(["JS_file", "Select2"]),
+        fullPaths: new Set(["JS_file.func2", "Select2.options"]),
+      });
+    });
   });
 });
