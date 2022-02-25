@@ -1,4 +1,4 @@
-const homePage = require("../../../locators/HomePage.json");
+import homePage from "../../../locators/HomePage";
 
 describe("insert organisational Logo  ", function() {
   it(" org logo upload ", function() {
