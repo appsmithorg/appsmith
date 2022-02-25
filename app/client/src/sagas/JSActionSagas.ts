@@ -27,7 +27,6 @@ import {
 } from "actions/jsActionActions";
 import {
   getJSCollection,
-  getJSCollections,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
@@ -254,7 +253,6 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const jsActions: JSCollectionData[] = yield select(getJSCollections);
     const response = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
     const pageId: string = yield select(getCurrentPageId);
@@ -264,31 +262,13 @@ export function* deleteJSCollectionSaga(
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
-      if (jsActions.length > 0) {
-        const getIndex = getIndexToBeRedirected(
-          jsActions,
-          actionPayload.payload.id,
-        );
-        if (getIndex) {
-          const jsAction = jsActions[getIndex];
-          history.push(
-            JS_COLLECTION_ID_URL(
-              applicationSlug,
-              pageSlug,
-              pageId,
-              jsAction.config.id,
-            ),
-          );
-        } else {
-          history.push(
-            BUILDER_PAGE_URL({
-              applicationSlug,
-              pageSlug,
-              pageId,
-            }),
-          );
-        }
-      }
+      history.push(
+        BUILDER_PAGE_URL({
+          applicationSlug,
+          pageSlug,
+          pageId,
+        }),
+      );
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS object was deleted",
