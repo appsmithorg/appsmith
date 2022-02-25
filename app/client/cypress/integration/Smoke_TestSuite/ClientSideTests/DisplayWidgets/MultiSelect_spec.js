@@ -102,4 +102,37 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Green");
   });
+
+  it("should check that Objects can be added to multiselect Widget default value", () => {
+    cy.openPropertyPane("multiselectwidgetv2");
+    cy.updateCodeInput(
+      ".t--property-control-options",
+      `[
+        {
+          "label": "Blue",
+          "value": "1"
+        },
+        {
+          "label": "Green",
+          "value": "2"
+        },
+        {
+          "label": "Red",
+          "value": "3"
+        }
+      ]`,
+    );
+    cy.updateCodeInput(".t--property-control-defaultvalue", `[1,2,3]`);
+    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+      "not.exist",
+    );
+    cy.get(".t--property-control-defaultvalue .t--codemirror-has-error").should(
+      "not.exist",
+    );
+    cy.wait(100);
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-item-content")
+      .first()
+      .should("have.text", "Blue");
+  });
 });

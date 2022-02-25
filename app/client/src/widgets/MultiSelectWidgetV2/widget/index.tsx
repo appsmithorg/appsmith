@@ -396,7 +396,7 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => _.isNil(o.label) ? o : o.label ) : [] }}`,
+      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => { const label =  _.isNil(o.label) ? o : o.label; return  _.find(this.options, { value:label })?.label ?? label; }) : [] }}`,
       selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) =>  _.isNil(o.value) ? o : o.value  ) : [] }}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
     };
@@ -422,9 +422,7 @@ class MultiSelectWidget extends BaseWidget<
     const { componentWidth } = this.getComponentDimensions();
     const values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
-          isString(o) || isNumber(o)
-            ? { label: o, value: o }
-            : { label: o.label, value: o.value },
+          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
         )
       : [];
     return (
