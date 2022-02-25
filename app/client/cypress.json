@@ -20,7 +20,8 @@
 		"**/Smoke_TestSuite/ServerSideTests/LayoutOnLoadActions/OnLoadActionsSpec*.ts",
 		"**/Smoke_TestSuite/ServerSideTests/QueryPane/S3_spec*.js",
 		"**/Smoke_TestSuite/ServerSideTests/QueryPane/Postgres_Spec*.js",
-		"**/Smoke_TestSuite/ClientSideTests/LayoutValidation/AppPageLayout.spec.js"
+		"**/Smoke_TestSuite/ClientSideTests/LayoutValidation/AppPageLayout.spec.js",
+		"**/Smoke_TestSuite/ClientSideTests/GitSync/*"
 	],
 	"chromeWebSecurity": false,
 	"viewportHeight": 900,
