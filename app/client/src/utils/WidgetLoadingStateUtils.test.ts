@@ -32,12 +32,12 @@ describe("Widget loading state utils", () => {
           "Query2.config": ["Query2"],
           "Query2.config.body": ["Query2.config"],
           "Query2.run": ["Query2", "JS_file.func2"], // dependant
+          "Query2.data": ["Query2", "Select2.options"], // dependant
 
           "Query3.config": ["Query3"],
           "Query3.config.body": ["Query3.config"],
 
           "JS_file.func1": ["Select1.options"], // dependant
-          "JS_file.func2": ["Select1.options"], // dependant
 
           "Select1.options": [
             "Select1.selectedOptionValue",
@@ -56,10 +56,50 @@ describe("Widget loading state utils", () => {
       );
       expect(groupedDependantsMap).toStrictEqual({
         Query1: { "Query1.data": ["JS_file.func1"] },
-        Query2: { "Query2.run": ["JS_file.func2"] },
+        Query2: {
+          "Query2.run": ["JS_file.func2"],
+          "Query2.data": ["Select2.options"],
+        },
         JS_file: {
           "JS_file.func1": ["Select1.options"],
-          "JS_file.func2": ["Select1.options"],
+        },
+      });
+    });
+
+    it("includes JS object's self dependencies", () => {
+      const groupedDependantsMap = groupAndFilterDependantsMap(
+        {
+          "JS_file.func1": ["Select1.options"], // dependant
+          "JS_file.internalFunc": ["JS_file.func1"], // self-dependant JsObject
+        },
+        {
+          JS_file: { ...JS_object_dsl, name: "JS_file" },
+        },
+      );
+      expect(groupedDependantsMap).toStrictEqual({
+        JS_file: {
+          "JS_file.func1": ["Select1.options"],
+          "JS_file.internalFunc": ["JS_file.func1"],
+        },
+      });
+    });
+
+    it("includes JS object's nested self dependencies", () => {
+      const groupedDependantsMap = groupAndFilterDependantsMap(
+        {
+          "JS_file.func1": ["Select1.options"], // dependant
+          "JS_file.internalFunc2": ["JS_file.func1"], // self-dependant JsObject
+          "JS_file.internalFunc1": ["JS_file.internalFunc2"], // self-dependant JsObject
+        },
+        {
+          JS_file: { ...JS_object_dsl, name: "JS_file" },
+        },
+      );
+      expect(groupedDependantsMap).toStrictEqual({
+        JS_file: {
+          "JS_file.func1": ["Select1.options"],
+          "JS_file.internalFunc2": ["JS_file.func1"],
+          "JS_file.internalFunc1": ["JS_file.internalFunc2"],
         },
       });
     });
@@ -82,6 +122,81 @@ describe("Widget loading state utils", () => {
       expect(dependants).toStrictEqual({
         names: new Set(["JS_file", "Select1"]),
         fullPaths: new Set(["JS_file.func1", "Select1.options"]),
+      });
+    });
+
+    it("handles multiple dependencies", () => {
+      const dependants = getEntityDependants(
+        ["Query1"],
+        {
+          Query1: {
+            "Query1.data": ["JS_file.func1", "JS_file.func2"],
+          },
+          JS_file: {
+            "JS_file.func1": ["Select1.options"],
+            "JS_file.func2": ["Select2.options"],
+          },
+        },
+        new Set<string>(),
+      );
+      expect(dependants).toStrictEqual({
+        names: new Set(["JS_file", "Select1", "Select2"]),
+        fullPaths: new Set([
+          "JS_file.func1",
+          "Select1.options",
+          "JS_file.func2",
+          "Select2.options",
+        ]),
+      });
+    });
+
+    it("handles JS self-dependencies", () => {
+      const dependants = getEntityDependants(
+        ["Query1"],
+        {
+          Query1: {
+            "Query1.data": ["JS_file.internalFunc"],
+          },
+          JS_file: {
+            "JS_file.internalFunc": ["JS_file.func1"],
+            "JS_file.func1": ["Select1.options"],
+          },
+        },
+        new Set<string>(),
+      );
+      expect(dependants).toStrictEqual({
+        names: new Set(["JS_file", "Select1"]),
+        fullPaths: new Set([
+          "JS_file.internalFunc",
+          "JS_file.func1",
+          "Select1.options",
+        ]),
+      });
+    });
+
+    it("handles nested JS self-dependencies", () => {
+      const dependants = getEntityDependants(
+        ["Query1"],
+        {
+          Query1: {
+            "Query1.data": ["JS_file.internalFunc1"],
+          },
+          JS_file: {
+            "JS_file.internalFunc1": ["JS_file.internalFunc2"],
+            "JS_file.internalFunc2": ["JS_file.func1"],
+            "JS_file.func1": ["Select1.options"],
+          },
+        },
+        new Set<string>(),
+      );
+      expect(dependants).toStrictEqual({
+        names: new Set(["JS_file", "Select1"]),
+        fullPaths: new Set([
+          "JS_file.internalFunc1",
+          "JS_file.internalFunc2",
+          "JS_file.func1",
+          "Select1.options",
+        ]),
       });
     });
   });
