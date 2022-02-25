@@ -1015,9 +1015,18 @@ public class MongoPlugin extends BasePlugin {
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value,dataType, insertedParams, this);
         }
 
+        /**
+         * This method checks if the replacement string contains any usage of special Mongo data types like
+         * `ObjectId` or `ISODate`. For complete list please check out `MongoSpecialDataTypes.java`. The check for
+         * special data type only happens if the common data type detection login in `DataTypeStringUtils
+         * .stringToKnownDataTypeConverter` identifies the data type of the replacement value as `DataType.STRING`
+         * even though it contains a Mongo special data type and hence should be treated differently.
+         *
+         * @param replacement replacement value
+         * @return identified data type of replacement value
+         */
         private DataType stringToKnownMongoDBDataTypeConverter(String replacement) {
             DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
-            // checking for the case that input value is like this "ObjectId('xyz')"
             if (dataType == DataType.STRING) {
                 for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
                     final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E",
@@ -1030,6 +1039,7 @@ public class MongoPlugin extends BasePlugin {
                     }
                 }
             }
+
             return dataType;
         }
 

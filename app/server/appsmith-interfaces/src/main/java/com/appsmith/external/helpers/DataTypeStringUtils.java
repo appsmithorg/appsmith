@@ -189,13 +189,14 @@ public class DataTypeStringUtils {
 
     /**
      *
-     * @param input
-     * @param replacement
+     * @param input input string which has a mustache expression that will be substituted by the replacement value
+     * @param replacement value that needs to be substituted in place of mustache expression
      * @param replacementDataType nullable DataType that is used to provide Plugin Specific types, by setting this
      *                            you can override the 'DataTypeStringUtils.stringToKnownDataTypeConverter(replacement)'
      *                            default behavior.
-     * @param insertedParams
-     * @param smartSubstitutionUtils
+     * @param insertedParams keeps a list of tuple (replacement, data_type)
+     * @param smartSubstitutionUtils provides entry to plugin specific post-processing logic applied to replacement
+     *                               value before the final substitution happens
      * @return
      */
     public static String jsonSmartReplacementPlaceholderWithValue(String input,
@@ -258,7 +259,12 @@ public class DataTypeStringUtils {
                 updatedReplacement = Matcher.quoteReplacement(replacement);
                 break;
             case BSON_SPECIAL_DATA_TYPES:
-                // do nothing
+                /**
+                 * For this data type the replacement logic is handled via `sanitizeReplacement(...)` method.
+                 * Usually usage of special Mongo data types like `ObjectId` or `ISODate` falls into this category
+                 * (if it does not get detected as BSON). For complete list please check out `MongoSpecialDataTypes
+                 * .java`.
+                 */
                 updatedReplacement = replacement;
                 break;
             case DATE:
