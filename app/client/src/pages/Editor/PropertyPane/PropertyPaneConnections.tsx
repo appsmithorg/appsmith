@@ -416,7 +416,12 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
         renderOption={(optionProps) => {
-          return <OptionNode option={optionProps.option} />;
+          return (
+            <OptionNode
+              isSelectedNode={optionProps.isSelectedNode}
+              option={optionProps.option}
+            />
+          );
         }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}
