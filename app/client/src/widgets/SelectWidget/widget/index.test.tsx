@@ -13,6 +13,17 @@ describe("defaultOptionValueValidation - ", () => {
       messages: [""],
     });
   });
+  it("should get tested with simple Number-string", () => {
+    const input = "1";
+
+    expect(
+      defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+    ).toEqual({
+      isValid: true,
+      parsed: "1",
+      messages: [""],
+    });
+  });
 
   it("should get tested with simple string", () => {
     const input = "green";

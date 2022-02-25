@@ -21,7 +21,6 @@ export function defaultOptionValueValidation(
   let isValid;
   let parsed;
   let message = "";
-
   /*
    * Function to check if the object has `label` and `value`
    */
@@ -40,7 +39,11 @@ export function defaultOptionValueValidation(
    */
   if (typeof value === "string") {
     try {
-      value = JSON.parse(value);
+      const parsedValue = JSON.parse(value);
+      // Prevent string from being parsed as Number
+      if (_.isPlainObject(parsedValue)) {
+        value = parsedValue;
+      }
     } catch (e) {}
   }
 
