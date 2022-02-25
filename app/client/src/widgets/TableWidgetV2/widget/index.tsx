@@ -691,8 +691,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (multiRowSelection !== prevProps.multiRowSelection) {
       if (multiRowSelection) {
+        if (
+          defaultSelectedRowIndices &&
+          _.isArray(defaultSelectedRowIndices) &&
+          defaultSelectedRowIndices.every((i) => _.isFinite(i))
+        ) {
+          this.props.updateWidgetMetaProperty(
+            "selectedRowIndices",
+            defaultSelectedRowIndices,
+          );
+        }
+
         this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       } else {
+        if (!isNil(defaultSelectedRowIndex) && defaultSelectedRowIndex > -1) {
+          this.props.updateWidgetMetaProperty(
+            "selectedRowIndex",
+            defaultSelectedRowIndex,
+          );
+        }
+
         this.props.updateWidgetMetaProperty("selectedRowIndices", []);
       }
     }
@@ -878,7 +896,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={transformedData}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
-          unSelectAllRow={this.resetSelectedRowIndex}
+          unSelectAllRow={this.unSelectAllRow}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -1121,6 +1139,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         defaultSelectedRowIndex,
       );
     }
+  };
+
+  unSelectAllRow = () => {
+    this.props.updateWidgetMetaProperty("selectedRowIndices", []);
   };
 
   handlePrevPageClick = () => {
