@@ -90,8 +90,7 @@ export const getEntityDependants = (
     Object.entries(entityDependantsMap).forEach(
       ([fullDependencyPath, dependants]) => {
         // skip other properties, when searching for a specific entityPath
-        // e.g. JsObject.func1 should not go through dependants of JsObject.func2
-        // NOTE: add example with Select1.selectedOptionValue and selectedOptionLabel
+        // e.g. Entity.prop1 should not go through dependants of Entity.prop2
         if (
           entityPathArray.length > 1 &&
           fullDependencyPath !== fullEntityPath
