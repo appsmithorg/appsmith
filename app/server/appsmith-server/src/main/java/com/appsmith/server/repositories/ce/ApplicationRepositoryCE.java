@@ -5,6 +5,7 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomApplicationRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -16,4 +17,7 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
     Flux<Application> findByOrganizationId(String organizationId);
 
     Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
+
+    Mono<Long> countByDeletedAtNull();
+
 }

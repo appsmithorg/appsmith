@@ -22,5 +22,6 @@
     "apiPaginationTab": ".t--apiFormPaginationType",
     "apiTab": ".react-tabs__tab-list li",
     "bodyType": ".t--apiFormPostBodyType",
-    "bodyTab": "Body"
+    "bodyTab": "Body",
+    "headersTab": "Header"
 }

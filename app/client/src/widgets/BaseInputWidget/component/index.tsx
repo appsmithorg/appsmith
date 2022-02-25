@@ -29,7 +29,7 @@ import _, { isNil } from "lodash";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
@@ -205,7 +205,6 @@ const InputComponentWrapper = styled((props) => (
         top: 3px;
       }
       input:not(:first-child) {
-        border-left: 1px solid transparent;
         line-height: 16px;
 
         &:hover:not(:focus) {

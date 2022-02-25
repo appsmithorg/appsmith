@@ -1,11 +1,12 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -52,7 +53,7 @@ public class ResponseUtilsTest {
         NewPage newPage = gson.fromJson(String.valueOf(jsonNode.get("newPage")), NewPage.class);
 
         final NewPage newPageCopy = new NewPage();
-        BeanCopyUtils.copyNestedNonNullProperties(newPage, newPageCopy);
+        AppsmithBeanUtils.copyNestedNonNullProperties(newPage, newPageCopy);
         responseUtils.updateNewPageWithDefaultResources(newPage);
         Assert.assertNotEquals(newPageCopy, newPage);
         Assert.assertEquals(newPageCopy.getDefaultResources().getPageId(), newPage.getId());
@@ -71,7 +72,7 @@ public class ResponseUtilsTest {
         NewAction newAction = gson.fromJson(String.valueOf(jsonNode.get("newAction")), NewAction.class);
 
         final NewAction newActionCopy = new NewAction();
-        BeanCopyUtils.copyNestedNonNullProperties(newAction, newActionCopy);
+        AppsmithBeanUtils.copyNestedNonNullProperties(newAction, newActionCopy);
         responseUtils.updateNewActionWithDefaultResources(newAction);
         Assert.assertNotEquals(newActionCopy, newAction);
         Assert.assertEquals(newActionCopy.getDefaultResources().getActionId(), newAction.getId());
@@ -96,7 +97,7 @@ public class ResponseUtilsTest {
         ActionCollection actionCollection = gson.fromJson(String.valueOf(jsonNode.get("actionCollection")), ActionCollection.class);
 
         final ActionCollection actionCollectionCopy = new ActionCollection();
-        BeanCopyUtils.copyNestedNonNullProperties(actionCollection, actionCollectionCopy);
+        AppsmithBeanUtils.copyNestedNonNullProperties(actionCollection, actionCollectionCopy);
         responseUtils.updateActionCollectionWithDefaultResources(actionCollection);
         Assert.assertNotEquals(actionCollectionCopy, actionCollection);
         Assert.assertEquals(actionCollectionCopy.getDefaultResources().getCollectionId(), actionCollection.getId());
@@ -111,7 +112,7 @@ public class ResponseUtilsTest {
         Application application = gson.fromJson(String.valueOf(jsonNode.get("application")), Application.class);
 
         final Application applicationCopy = new Application();
-        BeanCopyUtils.copyNestedNonNullProperties(application, applicationCopy);
+        AppsmithBeanUtils.copyNestedNonNullProperties(application, applicationCopy);
 
         // Check if the id and defaultPage ids for pages are not same before we update the application using responseUtils
         for (ApplicationPage applicationPage : application.getPages()) {
@@ -129,5 +130,41 @@ public class ResponseUtilsTest {
         for (ApplicationPage applicationPage : application.getPublishedPages()) {
             Assert.assertEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
         }
+    }
+
+    @Test
+    public void getApplication_withMultipleSchemaVersions_returnsCorrectManualUpdate() {
+        Application application = gson.fromJson(String.valueOf(jsonNode.get("application")), Application.class);
+
+        final Application applicationCopy = new Application();
+        AppsmithBeanUtils.copyNestedNonNullProperties(application, applicationCopy);
+
+        application.setServerSchemaVersion(null);
+        Assert.assertNull(application.getIsManualUpdate());
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), true);
+
+        application.setClientSchemaVersion(null);
+        application.setIsManualUpdate(null);
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), true);
+
+        application.setIsManualUpdate(null);
+        application.setServerSchemaVersion(1000);
+        application.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), false);
+
+        application.setIsManualUpdate(null);
+        application.setClientSchemaVersion(1000);
+        application.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), false);
+
+        application.setIsManualUpdate(null);
+        application.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        application.setClientSchemaVersion(JsonSchemaVersions.serverVersion);
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), true);
     }
 }

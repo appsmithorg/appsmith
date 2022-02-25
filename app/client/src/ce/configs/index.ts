@@ -1,4 +1,4 @@
-import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
+import { AppsmithUIConfigs } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
@@ -16,6 +16,7 @@ export interface INJECTED_CONFIGS {
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
   disableLoginForm: boolean;
+  disableSignup: boolean;
   enableRapidAPI: boolean;
   segment: {
     apiKey: string;
@@ -24,7 +25,6 @@ export interface INJECTED_CONFIGS {
   fusioncharts: {
     licenseKey: string;
   };
-  optimizely: string;
   enableMixpanel: boolean;
   google: string;
   enableTNCPP: boolean;
@@ -72,6 +72,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       ? process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID.length > 0
       : false,
     disableLoginForm: !!process.env.APPSMITH_FORM_LOGIN_DISABLED,
+    disableSignup: !!process.env.APPSMITH_SIGNUP_DISABLED,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
       ceKey: process.env.REACT_APP_SEGMENT_CE_KEY || "",
@@ -79,7 +80,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     fusioncharts: {
       licenseKey: process.env.REACT_APP_FUSIONCHARTS_LICENSE_KEY || "",
     },
-    optimizely: process.env.REACT_APP_OPTIMIZELY_KEY || "",
     enableMixpanel: process.env.REACT_APP_SEGMENT_KEY
       ? process.env.REACT_APP_SEGMENT_KEY.length > 0
       : false,
@@ -129,19 +129,6 @@ const getConfig = (fromENV: string, fromWindow = "") => {
 export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const { APPSMITH_FEATURE_CONFIGS } = window;
   const ENV_CONFIG = getConfigsFromEnvVars();
-  const getFeatureFlags = (
-    optimizelyApiKey = "",
-  ): FeatureFlagConfig | undefined => {
-    if (optimizelyApiKey.length > 0) {
-      return {
-        remoteConfig: {
-          optimizely: optimizelyApiKey,
-        },
-        default: {},
-      };
-    }
-    return;
-  };
 
   // const sentry = getConfig(ENV_CONFIG.sentry, APPSMITH_FEATURE_CONFIGS.sentry);
   const sentryDSN = getConfig(
@@ -253,6 +240,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       APPSMITH_FEATURE_CONFIGS.enableGithubOAuth,
     disableLoginForm:
       ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
+    disableSignup:
+      ENV_CONFIG.disableSignup || APPSMITH_FEATURE_CONFIGS.disableSignup,
     enableGoogleOAuth:
       ENV_CONFIG.enableGoogleOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,
@@ -260,9 +249,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.enableMixpanel || APPSMITH_FEATURE_CONFIGS.enableMixpanel,
     cloudHosting:
       ENV_CONFIG.cloudHosting || APPSMITH_FEATURE_CONFIGS.cloudHosting,
-    featureFlag: getFeatureFlags(
-      ENV_CONFIG.optimizely || APPSMITH_FEATURE_CONFIGS.optimizely,
-    ),
     logLevel: ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS.logLevel,
     enableTNCPP: ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS.enableTNCPP,
     appVersion: ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS.appVersion,

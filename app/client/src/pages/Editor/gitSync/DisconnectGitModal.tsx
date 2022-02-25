@@ -29,7 +29,7 @@ import {
   LEARN_MORE,
   NONE_REVERSIBLE_MESSAGE,
   TYPE_PROMO_CODE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Link from "./components/Link";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
@@ -116,6 +116,7 @@ function DisconnectGitModal() {
                 {createMessage(NONE_REVERSIBLE_MESSAGE)}
               </Text>
               <Link
+                className="t--disconnect-learn-more"
                 color={Colors.CRIMSON}
                 link={gitDisconnectDocumentUrl}
                 onClick={() => {
@@ -172,7 +173,10 @@ function DisconnectGitModal() {
             />
           </ButtonContainer>
         </BodyContainer>
-        <CloseBtnContainer onClick={handleClose}>
+        <CloseBtnContainer
+          className="t--close-disconnect-modal"
+          onClick={handleClose}
+        >
           <Icon
             fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
             name="close-modal"

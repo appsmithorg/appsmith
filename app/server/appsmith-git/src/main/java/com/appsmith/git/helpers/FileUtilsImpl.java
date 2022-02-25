@@ -2,6 +2,7 @@ package com.appsmith.git.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -80,6 +81,7 @@ public class FileUtilsImpl implements FileInterface {
         // Repo path will be:
         // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
+        Stopwatch processStopwatch = new Stopwatch("FS application save");
         return gitExecutor.resetToLastCommit(baseRepoSuffix, branchName)
                 .then(gitExecutor.checkoutToBranch(baseRepoSuffix, branchName))
                 .flatMap(isSwitched -> {
@@ -159,6 +161,7 @@ public class FileUtilsImpl implements FileInterface {
                     if (!applicationGitReference.getDatasources().isEmpty()) {
                         scanAndDeleteFileForDeletedResources(validFileNames, baseRepo.resolve(DATASOURCE_DIRECTORY));
                     }
+                    processStopwatch.stopAndLogTimeInMillis();
                     return Mono.just(baseRepo);
                 });
     }
@@ -233,6 +236,7 @@ public class FileUtilsImpl implements FileInterface {
                                                                                     String repoName,
                                                                                     String branchName) {
 
+        Stopwatch processStopwatch = new Stopwatch("FS reconstruct application");
         Path baseRepoSuffix = Paths.get(organisationId, defaultApplicationId, repoName);
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
 
@@ -266,6 +270,7 @@ public class FileUtilsImpl implements FileInterface {
                     // Extract datasources
                     applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson));
 
+                    processStopwatch.stopAndLogTimeInMillis();
                     return applicationGitReference;
                 });
     }

@@ -38,13 +38,17 @@ import {
   STEP_THREE_SUCCESS_TEXT,
   STEP_THREE_TITLE,
   STEP_TWO_TITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 export const Classes = {
   GUIDED_TOUR_BORDER: "guided-tour-border",
   GUIDED_TOUR_SHOW_BORDER: "guided-tour-show-border",
   GUIDED_TOUR_INDICATOR: "guided-tour-indicator",
+};
+
+export const GuidedTourEntityNames = {
+  BUTTON_WIDGET: "UpdateButton",
 };
 
 export enum GUIDED_TOUR_STEPS {
@@ -497,10 +501,13 @@ export const Steps: StepsType = {
         </>
       ),
       onClick: (dispatch) => {
+        dispatch(focusWidget(GuidedTourEntityNames.BUTTON_WIDGET));
         dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.BUTTON_ONCLICK_BINDING));
-        showIndicator(`[data-guided-tour-iid='onClick']`, "top", {
-          top: 25,
-          left: 0,
+        requestAnimationFrame(() => {
+          showIndicator(`[data-guided-tour-iid='onClick']`, "top", {
+            top: 25,
+            left: 0,
+          });
         });
       },
     },

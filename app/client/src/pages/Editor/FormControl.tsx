@@ -13,6 +13,7 @@ import {
   FormInfoText,
   FormSubtitleText,
   FormInputSwitchToJsonButton,
+  FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
 import { AppState } from "reducers";
@@ -140,6 +141,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
     encrypted,
     isRequired,
     label,
+    nestedFormControl,
     subtitle,
     tooltipText = "",
     url,
@@ -147,27 +149,29 @@ function renderFormConfigTop(props: { config: ControlProps }) {
   } = { ...props.config };
   return (
     <React.Fragment key={props.config.label}>
-      <FormLabel config={props.config}>
-        <p className="label-icon-wrapper">
-          {label} {isRequired && "*"}{" "}
-          {encrypted && (
-            <>
-              <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-              <FormSubtitleText config={props.config}>
-                Encrypted
-              </FormSubtitleText>
-            </>
+      {!nestedFormControl && ( // if the form control is a nested form control hide its label
+        <FormLabel config={props.config}>
+          <p className="label-icon-wrapper">
+            {label} {isRequired && "*"}{" "}
+            {encrypted && (
+              <FormEncrytedSection>
+                <FormIcons.LOCK_ICON height={12} keepColors width={12} />
+                <FormSubtitleText config={props.config}>
+                  Encrypted
+                </FormSubtitleText>
+              </FormEncrytedSection>
+            )}
+            {tooltipText && (
+              <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+                <FormIcons.HELP_ICON height={16} width={16} />
+              </Tooltip>
+            )}
+          </p>
+          {subtitle && (
+            <FormInfoText config={props.config}>{subtitle}</FormInfoText>
           )}
-          {tooltipText && (
-            <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-              <FormIcons.HELP_ICON height={16} width={16} />
-            </Tooltip>
-          )}
-        </p>
-        {subtitle && (
-          <FormInfoText config={props.config}>{subtitle}</FormInfoText>
-        )}
-      </FormLabel>
+        </FormLabel>
+      )}
       {urlText && (
         <FormInputAnchor href={url} target="_blank">
           {urlText}
@@ -186,10 +190,16 @@ function renderFormConfigBottom(props: {
   config: ControlProps;
   configErrors?: EvaluationError[];
 }) {
-  const { info } = { ...props.config };
+  const { controlType, info } = { ...props.config };
   return (
     <>
-      {info && <FormInputHelperText>{info}</FormInputHelperText>}
+      {info && (
+        <FormInputHelperText
+          addMarginTop={controlType === "CHECKBOX" ? "8px" : "2px"} // checkboxes need a higher margin top than others form control types
+        >
+          {info}
+        </FormInputHelperText>
+      )}
       {props.configErrors &&
         props.configErrors.length > 0 &&
         props.configErrors

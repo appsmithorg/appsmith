@@ -39,8 +39,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
-import static com.appsmith.external.helpers.BeanCopyUtils.copyProperties;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.FieldName.ACTION_LIST;
 import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
@@ -313,7 +313,10 @@ public class GitFileUtils {
                 TreeSet<DslActionDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
                 sortedActions.addAll(layoutOnLoadActions.get(dslActionIndex));
                 sortedActions
-                        .forEach(actionDTO -> actionDTO.setDefaultActionId(null));
+                        .forEach(actionDTO -> {
+                            actionDTO.setDefaultActionId(null);
+                            actionDTO.setDefaultCollectionId(null);
+                        });
                 layoutOnLoadActions.set(dslActionIndex, sortedActions);
             }
         }

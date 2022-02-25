@@ -25,7 +25,7 @@ import {
   BACK_TO_CANVAS,
   createMessage,
   NO_CONNECTIONS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import {
   SuggestedWidget,
   SuggestedWidget as SuggestedWidgetsType,

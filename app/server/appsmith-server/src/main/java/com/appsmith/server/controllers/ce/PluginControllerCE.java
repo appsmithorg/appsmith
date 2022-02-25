@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RequestMapping(Url.PLUGIN_URL)
@@ -45,5 +46,12 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
     public Mono<ResponseDTO<Object>> getDatasourceForm(@PathVariable String pluginId) {
         return service.getFormConfig(pluginId)
                 .map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
+    }
+
+    @GetMapping("/default/icons")
+    public Mono<ResponseDTO<List<Plugin>>> getDefaultPluginIcons() {
+        return service.getDefaultPluginIcons()
+                .collectList()
+                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 }
