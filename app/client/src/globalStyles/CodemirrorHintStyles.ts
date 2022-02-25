@@ -2,6 +2,10 @@ import { createGlobalStyle } from "styled-components";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
+import {
+  RUN_GUTTER_CLASSNAME,
+  RUN_GUTTER_ID,
+} from "pages/Editor/JSEditor/constants";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
@@ -272,5 +276,14 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   }
   .CodeMirror-lint-mark-warning{
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAB1JREFUGFdjZICC/3sY/jO6MDAygvgwDpiGcWAqASvpC745SEL8AAAAAElFTkSuQmCC");
+  }
+  .${RUN_GUTTER_ID}{
+    width: 0.9em;
+    background: white;
+  }
+  .${RUN_GUTTER_CLASSNAME}{
+    margin-left: 3px;
+    cursor: pointer;
+    color: #f86a2b;
   }
 `;

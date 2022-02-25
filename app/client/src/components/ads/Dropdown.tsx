@@ -38,6 +38,7 @@ export type DropdownOption = {
   onSelect?: DropdownOnSelect;
   data?: any;
   isSectionHeader?: boolean;
+  hasCustomBadge?: boolean;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -101,6 +102,7 @@ export type DropdownProps = CommonComponentProps &
     defaultIcon?: IconName;
     allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
+    customBadge?: JSX.Element;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -747,12 +749,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
               {props.showLabelOnly ? (
                 props.truncateOption ? (
-                  <TooltipWrappedText
-                    label={option.label || ""}
-                    type={TextType.P1}
-                  />
+                  <>
+                    <TooltipWrappedText
+                      label={option.label || ""}
+                      type={TextType.P1}
+                    />
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 ) : (
-                  <Text type={TextType.P1}>{option.label}</Text>
+                  <>
+                    <Text type={TextType.P1}>{option.label} </Text>
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">

@@ -42,6 +42,8 @@ import {
   updateJSCollectionBodySuccess,
   updateJSFunction,
   executeJSFunctionInit,
+  updateActiveJsAction,
+  resetActiveJsAction,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -249,12 +251,43 @@ function* updateJSCollection(data: {
             jsCollection,
             createMessage(JS_FUNCTION_UPDATE_SUCCESS),
           );
+          yield put(
+            updateActiveJsAction({
+              activeActionId:
+                updatedActions[updatedActions.length - 1].id || "",
+              jsCollectionId: jsCollection.id,
+            }),
+          );
         }
         if (deletedActions && deletedActions.length) {
           pushLogsForObjectUpdate(
             deletedActions,
             jsCollection,
             createMessage(JS_FUNCTION_DELETE_SUCCESS),
+          );
+        }
+
+        // handle update of active js function
+        if (newActions && newActions.length) {
+          yield put(
+            updateActiveJsAction({
+              activeActionId: newActions[newActions.length - 1].id || "",
+              jsCollectionId: jsCollection.id,
+            }),
+          );
+        } else if (updatedActions && updatedActions.length) {
+          yield put(
+            updateActiveJsAction({
+              activeActionId:
+                updatedActions[updatedActions.length - 1].id || "",
+              jsCollectionId: jsCollection.id,
+            }),
+          );
+        } else if (deletedActions && deletedActions.length) {
+          yield put(
+            resetActiveJsAction({
+              jsCollectionId: jsCollection.id,
+            }),
           );
         }
         yield put(updateJSCollectionSuccess({ data: response?.data }));

@@ -1,4 +1,10 @@
-import React, { useState, useRef, RefObject, useCallback } from "react";
+import React, {
+  useEffect,
+  useRef,
+  RefObject,
+  useCallback,
+  useState,
+} from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -9,7 +15,6 @@ import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
-  EMPTY_JS_OBJECT,
   PARSING_ERROR,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
@@ -25,17 +30,13 @@ import { startExecutingJSFunction } from "actions/jsPaneActions";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import { sortBy } from "lodash";
-import { ReactComponent as JSFunction } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as RunFunction } from "assets/icons/menu/run.svg";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
-import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
 import { DebugButton } from "./Debugger/DebugCTA";
-import { thinScrollbar } from "constants/DefaultTheme";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
@@ -123,7 +124,7 @@ const TabbedViewWrapper = styled.div`
 `;
 
 const ResponseViewer = styled.div`
-  width: 80%;
+  width: 100%;
 `;
 
 const NoResponseContainer = styled.div`
@@ -165,6 +166,12 @@ const StyledCallout = styled(Callout)`
     line-height: normal;
   }
 `;
+enum JSResponseState {
+  IsExecuting = "IsExecuting",
+  IsDirty = "IsDirty",
+  NoResponse = "NoResponse",
+  ShowResponse = "ShowResponse",
+}
 
 interface ReduxStateProps {
   responses: Record<string, any>;
@@ -173,23 +180,31 @@ interface ReduxStateProps {
 
 type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
+    currentFunction: JSAction | null;
+    showResponse: boolean;
     theme?: EditorTheme;
     jsObject: JSCollection;
     errors: Array<EvaluationError>;
   };
 
 function JSResponseView(props: Props) {
-  const { errors, isExecuting, jsObject, responses } = props;
+  const {
+    currentFunction,
+    errors,
+    isExecuting,
+    jsObject,
+    responses,
+    showResponse,
+  } = props;
+  const [responseStatus, setResponseStatus] = useState<JSResponseState>(
+    JSResponseState.NoResponse,
+  );
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
-  const [selectActionId, setSelectActionId] = useState("");
-  const actionList = jsObject?.actions;
-  const sortedActionList = actionList && sortBy(actionList, "name");
   const response =
-    selectActionId && selectActionId in responses
-      ? responses[selectActionId]
+    currentFunction && currentFunction.id && currentFunction.id in responses
+      ? responses[currentFunction.id]
       : "";
-  const isRunning = selectActionId && !!isExecuting[selectActionId];
   const errorsList = errors.filter((er) => {
     return er.severity === Severity.ERROR;
   });
@@ -201,17 +216,22 @@ function JSResponseView(props: Props) {
     dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
-  const [openSettings, setOpenSettings] = useState(false);
-  const [selectedFunction, setSelectedFunction] = useState<
-    undefined | JSAction
-  >(undefined);
-  const isSelectedFunctionAsync = (id: string) => {
-    const jsAction = jsObject.actions.find((action) => action.id === id);
-    if (!!jsAction) {
-      return jsAction?.actionConfiguration.isAsync;
+  useEffect(() => {
+    if (
+      !currentFunction ||
+      !showResponse ||
+      !responses.hasOwnProperty(currentFunction.id)
+    ) {
+      responseStatus !== JSResponseState.NoResponse &&
+        setResponseStatus(JSResponseState.NoResponse);
+    } else if (isExecuting[currentFunction.id]) {
+      responseStatus !== JSResponseState.IsExecuting &&
+        setResponseStatus(JSResponseState.IsExecuting);
+    } else {
+      responseStatus !== JSResponseState.ShowResponse &&
+        setResponseStatus(JSResponseState.ShowResponse);
     }
-    return false;
-  };
+  }, [currentFunction, showResponse, responses, isExecuting]);
 
   const tabs = [
     {
@@ -236,93 +256,50 @@ function JSResponseView(props: Props) {
             )}
           </HelpSection>
           <ResponseTabWrapper className={errorsList.length ? "disable" : ""}>
-            {sortedActionList && !sortedActionList?.length ? (
-              <NoResponseContainer className="flex items-center">
-                {createMessage(EMPTY_JS_OBJECT)}
-              </NoResponseContainer>
-            ) : (
-              <>
-                <ResponseTabActionsList>
-                  {sortedActionList &&
-                    sortedActionList?.length > 0 &&
-                    sortedActionList.map((action) => {
-                      return (
-                        <ResponseTabAction
-                          className={
-                            action.id === selectActionId ? "active" : ""
-                          }
-                          key={action.id}
-                          onClick={() => {
-                            setSelectActionId(action.id);
-                          }}
-                        >
-                          <JSFunction />{" "}
-                          <div className="function-name">{action.name}</div>
-                          <div className="function-actions">
-                            {action.actionConfiguration.isAsync ? (
-                              <FlagBadge name={"ASYNC"} />
-                            ) : (
-                              ""
-                            )}
-                            {isSelectedFunctionAsync(action.id) ? (
-                              <FunctionSettings
-                                onClick={() => {
-                                  setSelectedFunction(action);
-                                  setOpenSettings(true);
-                                }}
-                              />
-                            ) : (
-                              ""
-                            )}
-
-                            <RunFunction
-                              className="run-button"
-                              onClick={() => {
-                                runAction(action);
-                              }}
-                            />
-                          </div>
-                        </ResponseTabAction>
-                      );
-                    })}
-                </ResponseTabActionsList>
-                <ResponseViewer>
-                  {isRunning ? (
-                    <LoadingOverlayScreen theme={props.theme}>
-                      {createMessage(EXECUTING_FUNCTION)}
-                    </LoadingOverlayScreen>
-                  ) : !responses.hasOwnProperty(selectActionId) ? (
-                    <NoResponseContainer className="empty">
-                      <Icon name="no-response" />
-                      <Text className="flex items-center" type={TextType.P1}>
-                        {EMPTY_RESPONSE_FIRST_HALF()}
-                        <RunFunction className="response-run" />
-                        {EMPTY_RESPONSE_LAST_HALF()}
-                      </Text>
-                    </NoResponseContainer>
-                  ) : (
-                    <ReadOnlyEditor
-                      folding
-                      height={"100%"}
-                      input={{
-                        value: response,
-                      }}
-                    />
-                  )}
-                </ResponseViewer>
-                {openSettings &&
-                  !!selectedFunction &&
-                  isSelectedFunctionAsync(selectedFunction.id) && (
-                    <JSFunctionSettings
-                      action={selectedFunction}
-                      openSettings={openSettings}
-                      toggleSettings={() => {
-                        setOpenSettings(!openSettings);
-                      }}
-                    />
-                  )}
-              </>
-            )}
+            <ResponseViewer>
+              {(() => {
+                switch (responseStatus) {
+                  case JSResponseState.NoResponse:
+                    return (
+                      <NoResponseContainer className="No">
+                        <Icon name="no-response" />
+                        <Text className="flex items-center" type={TextType.P1}>
+                          {EMPTY_RESPONSE_FIRST_HALF()}
+                          <RunFunction className="response-run" />
+                          {EMPTY_RESPONSE_LAST_HALF()}
+                        </Text>
+                      </NoResponseContainer>
+                    );
+                  case JSResponseState.IsExecuting:
+                    return (
+                      <LoadingOverlayScreen theme={props.theme}>
+                        {createMessage(EXECUTING_FUNCTION)}
+                      </LoadingOverlayScreen>
+                    );
+                  case JSResponseState.ShowResponse:
+                    return (
+                      <ReadOnlyEditor
+                        folding
+                        height={"100%"}
+                        input={{
+                          value: response,
+                        }}
+                      />
+                    );
+                  default:
+                    return (
+                      <NoResponseContainer className="No">
+                        <Icon name="no-response" />
+                        <Text className="flex items-center" type={TextType.P1}>
+                          {EMPTY_RESPONSE_FIRST_HALF()}
+                          <RunFunction className="response-run" />
+                          {EMPTY_RESPONSE_LAST_HALF()}
+                        </Text>
+                      </NoResponseContainer>
+                    );
+                }
+              })()}
+            </ResponseViewer>
           </ResponseTabWrapper>
         </>
       ),

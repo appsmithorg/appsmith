@@ -14,6 +14,7 @@ export interface JSCollectionData {
   config: JSCollection;
   data?: Record<string, unknown>;
   isExecuting?: Record<string, boolean>;
+  activeJSAction?: JSAction;
 }
 export type JSCollectionDataState = JSCollectionData[];
 export interface PartialActionData {
@@ -352,6 +353,66 @@ const jsActionsReducer = createReducer(initialState, {
         }
       });
     });
+  },
+  [ReduxActionTypes.SET_ACTIVE_JS_FUNCTION]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      activeActionId: string;
+      jsCollectionId: string;
+    }>,
+  ) => {
+    const jsCollection = state.find((collection) => {
+      return collection.config.id === action.payload.jsCollectionId;
+    });
+
+    if (
+      !jsCollection ||
+      jsCollection.activeJSAction?.id === action.payload.activeActionId
+    )
+      return state;
+
+    const jsAction = jsCollection.config.actions.find(
+      (jsAction) => jsAction.id === action.payload.activeActionId,
+    );
+
+    if (jsAction) {
+      return state.map((jsCollectionData) => {
+        if (jsCollectionData.config.id === jsCollection.config.id) {
+          return {
+            ...jsCollectionData,
+            activeJSAction: jsAction,
+          };
+        } else {
+          return jsCollectionData;
+        }
+      });
+    } else {
+      return state;
+    }
+  },
+
+  [ReduxActionTypes.RESET_ACTIVE_JS_FUNCTION]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      jsCollectionId: string;
+    }>,
+  ) => {
+    const jsCollection = state.find((collection) => {
+      return collection.config.id === action.payload.jsCollectionId;
+    });
+    if (jsCollection) {
+      return state.map((jsCollectionData) => {
+        if (jsCollectionData.config.id === jsCollection.config.id) {
+          return {
+            ...jsCollectionData,
+            activeJSAction: undefined,
+          };
+        } else {
+          return jsCollectionData;
+        }
+      });
+    }
+    return state;
   },
 });
 

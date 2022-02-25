@@ -18,8 +18,8 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import { JSCollection } from "entities/JSCollection";
 import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -782,3 +782,37 @@ function getActionValidationConfigFromPlugin(
   }
   return newValidationConfig;
 }
+export const getJSActions = (
+  state: AppState,
+  JSCollectionId: string,
+): JSAction[] => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === JSCollectionId,
+  );
+
+  return jsCollection?.config.actions ?? [];
+};
+
+export const getActiveJSAction = (
+  state: AppState,
+  jsCollectionId: string,
+): JSAction | null => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
+  );
+  return jsCollection?.activeJSAction ?? null;
+};
+
+export const getIsExecutingJSAction = (
+  state: AppState,
+  jsCollectionId: string,
+  actionId: string,
+): boolean => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
+  );
+  if (jsCollection?.isExecuting && jsCollection.isExecuting[actionId]) {
+    return jsCollection.isExecuting[actionId];
+  }
+  return false;
+};

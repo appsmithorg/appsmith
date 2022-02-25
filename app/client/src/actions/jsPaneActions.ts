@@ -89,3 +89,20 @@ export const updateJSFunction = (payload: SetFunctionPropertyPayload) => {
     payload,
   };
 };
+
+export const updateActiveJsAction = (payload: {
+  activeActionId: string;
+  jsCollectionId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.SET_ACTIVE_JS_FUNCTION,
+    payload,
+  };
+};
+
+export const resetActiveJsAction = (payload: { jsCollectionId: string }) => {
+  return {
+    type: ReduxActionTypes.RESET_ACTIVE_JS_FUNCTION,
+    payload,
+  };
+};
