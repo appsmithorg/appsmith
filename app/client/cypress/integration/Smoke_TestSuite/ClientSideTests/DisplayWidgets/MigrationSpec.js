@@ -1,4 +1,4 @@
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 
 describe("Migration Validate", function() {
   it("1. Import application and Validate Migration on pageload", function() {

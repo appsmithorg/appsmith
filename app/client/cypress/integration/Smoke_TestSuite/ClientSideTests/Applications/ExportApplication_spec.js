@@ -1,5 +1,5 @@
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Export application as a JSON file", function() {
