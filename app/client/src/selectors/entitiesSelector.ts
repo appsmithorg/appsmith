@@ -19,7 +19,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { JSCollection } from "entities/JSCollection";
-import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
+import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
 import getFeatureFlags from "utils/featureFlags";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
@@ -49,6 +49,17 @@ export const getMockDatasources = (state: AppState): MockDatasource[] => {
 export const getIsDeletingDatasource = (state: AppState): boolean => {
   return state.entities.datasources.isDeleting;
 };
+
+export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
+  state.entities.plugins.defaultPluginList;
+
+export const getDefaultPluginByPackageName = (
+  state: AppState,
+  packageName: string,
+): DefaultPlugin | undefined =>
+  state.entities.plugins.defaultPluginList.find(
+    (plugin) => plugin.packageName === packageName,
+  );
 
 export const getPluginIdsOfNames = (
   state: AppState,

@@ -3,7 +3,7 @@ import Fuse from "fuse.js";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getOrganizationCreateApplication } from "./applicationSelectors";
-import { getPlugins } from "./entitiesSelector";
+import { getDefaultPlugins } from "./entitiesSelector";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "functions", "useCases"],
@@ -87,7 +87,7 @@ export const getSearchedTemplateList = createSelector(
 );
 
 export const templatesDatasourceFiltersSelector = createSelector(
-  getPlugins,
+  getDefaultPlugins,
   (plugins) => {
     return plugins.map((plugin) => {
       return {

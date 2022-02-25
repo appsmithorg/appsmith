@@ -43,6 +43,16 @@ export interface PluginFormPayload {
   dependencies: DependencyMap;
 }
 
+export interface DefaultPlugin {
+  id: string;
+  name: string;
+  packageName: string;
+  iconLocation?: string;
+  allowUserDatasources?: boolean;
+  remotePlugin: boolean;
+  new: boolean;
+}
+
 class PluginsApi extends Api {
   static url = "v1/plugins";
   static fetchPlugins(
@@ -62,6 +72,12 @@ class PluginsApi extends Api {
     url: string,
   ): AxiosPromise<GenericApiResponse<DropdownOption[]>> {
     return Api.get(url);
+  }
+
+  static fetchDefaultPlugins(): AxiosPromise<
+    GenericApiResponse<DefaultPlugin[]>
+  > {
+    return Api.get(PluginsApi.url + `/default/icons`);
   }
 }
 

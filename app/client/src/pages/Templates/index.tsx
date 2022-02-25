@@ -15,13 +15,12 @@ import {
   setTemplateSearchQuery,
 } from "actions/templateActions";
 import {
-  getOrganizationForTemplates,
   getSearchedTemplateList,
   getTemplateFiltersLength,
   getTemplateSearchQuery,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
-import { fetchPlugins } from "actions/pluginActions";
+import { fetchDefaultPlugins } from "actions/pluginActions";
 import { editorInitializer } from "utils/EditorUtils";
 import { AppState } from "reducers";
 import {
@@ -29,7 +28,6 @@ import {
   getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import { getAllApplications } from "actions/applicationActions";
-import { getPlugins } from "selectors/entitiesSelector";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
@@ -83,9 +81,8 @@ function TemplateRoutes() {
     (state: AppState) => getUserApplicationsOrgsList(state).length,
   );
   const pluginListLength = useSelector(
-    (state: AppState) => getPlugins(state).length,
+    (state: AppState) => state.entities.plugins.defaultPluginList.length,
   );
-  const templateOrganization = useSelector(getOrganizationForTemplates);
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
   );
@@ -109,10 +106,10 @@ function TemplateRoutes() {
   }, [organizationListLength]);
 
   useEffect(() => {
-    if (templateOrganization?.organization.id && !pluginListLength) {
-      dispatch(fetchPlugins(templateOrganization?.organization.id));
+    if (!pluginListLength) {
+      dispatch(fetchDefaultPlugins());
     }
-  }, [templateOrganization?.organization.id, pluginListLength]);
+  }, [pluginListLength]);
 
   return (
     <Switch>
