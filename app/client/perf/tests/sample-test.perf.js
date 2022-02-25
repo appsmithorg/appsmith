@@ -1,5 +1,6 @@
 const path = require("path");
 const Perf = require("../src/perf.js");
+const { delay } = require("../src/utils/utils.js");
 const dsl = require("./dsl/simple-typing").dsl;
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
@@ -16,15 +17,19 @@ async function testTyping() {
 
   await perf.startTrace("Edit input");
   await page.type(selector, "Hello Appsmith");
+  await delay(5000);
   await perf.stopTrace();
 
   await perf.startTrace("Clear input");
   await input.click({ clickCount: 3 });
   await input.press("Backspace");
+  await delay(5000);
   await perf.stopTrace();
 
   await perf.startTrace("Edit input again");
   await page.type(selector, "Howdy satish");
+  await delay(5000);
+
   await perf.stopTrace();
 
   await perf.generateReport();
