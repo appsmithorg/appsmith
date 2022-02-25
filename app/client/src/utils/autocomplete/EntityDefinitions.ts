@@ -210,7 +210,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValues: {
