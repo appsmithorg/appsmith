@@ -451,7 +451,7 @@ public class MongoPlugin extends BasePlugin {
                  * (removeOrAddQuotesAroundMongoDBSpecialTypes(...)) the replacement value further before the final
                  * replacement happens.
                  */
-                replacementValue =Matcher.quoteReplacement(replacementValue);
+                replacementValue = Matcher.quoteReplacement(replacementValue);
             }
 
             return replacementValue;
