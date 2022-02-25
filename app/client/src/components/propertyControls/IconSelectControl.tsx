@@ -260,7 +260,11 @@ class IconSelectControl extends BaseControl<
         case "Up": {
           if (document.activeElement === this.searchInput.current) {
             break;
-          } else if (e.shiftKey && this.searchInput.current) {
+          } else if (
+            (e.shiftKey ||
+              (this.initialItemIndex >= 0 && this.initialItemIndex < 4)) &&
+            this.searchInput.current
+          ) {
             this.searchInput.current.focus();
             break;
           }
