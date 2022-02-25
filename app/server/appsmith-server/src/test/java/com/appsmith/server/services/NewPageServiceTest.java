@@ -69,6 +69,32 @@ class NewPageServiceTest {
         }).verifyComplete();
     }
 
+    @Test
+    @WithUserDetails("api_user")
+    void findApplicationPages_WhenPageIdPresent_ReturnsPages() {
+        String randomId = UUID.randomUUID().toString();
+        Organization organization = new Organization();
+        organization.setName("org_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = organizationService.create(organization).flatMap(createdOrg -> {
+            Application application = new Application();
+            application.setName("app_" + randomId);
+            return applicationPageService.createApplication(application, createdOrg.getId());
+        }).flatMap(application -> {
+            PageDTO pageDTO = new PageDTO();
+            pageDTO.setName("page_" + randomId);
+            pageDTO.setApplicationId(application.getId());
+            return applicationPageService.createPage(pageDTO);
+        }).flatMap(pageDTO ->
+                newPageService.findApplicationPages(null, pageDTO.getId(), null, ApplicationMode.EDIT)
+        );
+
+        StepVerifier.create(applicationPagesDTOMono).assertNext(applicationPagesDTO -> {
+            assertThat(applicationPagesDTO.getApplication()).isNotNull();
+            assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo("app_"+randomId);
+            assertThat(applicationPagesDTO.getPages()).isNotEmpty();
+        }).verifyComplete();
+    }
+
 }
 
 
