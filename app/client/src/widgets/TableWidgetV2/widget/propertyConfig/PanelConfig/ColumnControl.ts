@@ -2,6 +2,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
+  columnAccessorValidation,
   ColumnTypes,
   getBasePropertyPath,
   hideByColumnType,
@@ -89,17 +90,11 @@ export default {
         ]);
       },
       dependencies: ["primaryColumns", "accessorMap"],
-      isBindProperty: false,
+      isBindProperty: true,
       isTriggerProperty: false,
-      validations: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          fn: () => {
-            return {
-              isValid: true,
-            };
-          },
-        },
+      isJSConvertible: true,
+      validation: {
+        type: ValidationTypes.IDENTIFIER,
       },
     },
     {

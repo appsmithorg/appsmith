@@ -16,6 +16,7 @@ export enum ValidationTypes {
   FUNCTION = "FUNCTION",
   SAFE_URL = "SAFE_URL",
   TABLE_PROPERTY = "TABLE_PROPERTY",
+  IDENTIFIER = "IDENTIFIER",
 }
 
 export type ValidationResponse = {
