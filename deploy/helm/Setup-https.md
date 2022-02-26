@@ -74,8 +74,6 @@ helm install appsmith/appsmith --generate-name \
 --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
 --set ingress.annotations."cert-manager\.io/cluster-issuer"=letsencrypt-prod \
 --set ingress.hosts[0].host=DOMAIN \
---set ingress.hosts[0].paths[0].path=/ \
---set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
 --set ingress.certManagerTls[0].hosts[0]=DOMAIN \
 --set ingress.certManagerTls[0].secretName=letsencrypt-prod
 ```

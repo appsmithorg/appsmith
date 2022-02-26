@@ -748,7 +748,7 @@ function ApplicationsSection(props: any) {
                         trigger={
                           <Button
                             category={Category.tertiary}
-                            icon={"share"}
+                            icon={"share-line"}
                             size={Size.medium}
                             tag="button"
                             text={"Share"}

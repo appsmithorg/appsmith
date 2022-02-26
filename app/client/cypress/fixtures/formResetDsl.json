@@ -2,256 +2,51 @@
   "dsl": {
     "widgetName": "MainContainer",
     "backgroundColor": "none",
-    "rightColumn": 1224,
-    "snapColumns": 16,
+    "rightColumn": 656,
+    "snapColumns": 64,
     "detachFromLayout": true,
     "widgetId": "0",
     "topRow": 0,
-    "bottomRow": 1280,
+    "bottomRow": 5120,
     "containerStyle": "none",
-    "snapRows": 33,
+    "snapRows": 128,
     "parentRowSpace": 1,
     "type": "CANVAS_WIDGET",
     "canExtend": true,
-    "dynamicBindingPathList": [],
-    "version": 5,
-    "minHeight": 1292,
+    "version": 52,
+    "minHeight": 640,
     "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
     "leftColumn": 0,
     "children": [
       {
-        "isVisible": true,
         "widgetName": "Form1",
         "backgroundColor": "white",
-        "children": [
-          {
-            "isVisible": true,
-            "widgetName": "Canvas1",
-            "containerStyle": "none",
-            "canExtend": false,
-            "detachFromLayout": true,
-            "children": [
-              {
-                "isVisible": true,
-                "text": "Form",
-                "textStyle": "HEADING",
-                "textAlign": "LEFT",
-                "widgetName": "Text1",
-                "type": "TEXT_WIDGET",
-                "isLoading": false,
-                "leftColumn": 0,
-                "rightColumn": 12,
-                "topRow": 0,
-                "bottomRow": 1,
-                "parentId": "qrqizehc5b",
-                "widgetId": "c481ah2q0i"
-              },
-              {
-                "isVisible": true,
-                "widgetName": "FormButton1",
-                "text": "Submit",
-                "isDefaultClickDisabled": true,
-                "buttonStyle": "PRIMARY_BUTTON",
-                "disabledWhenInvalid": true,
-                "resetFormOnClick": true,
-                "type": "FORM_BUTTON_WIDGET",
-                "isLoading": false,
-                "leftColumn": 12,
-                "rightColumn": 16,
-                "topRow": 12,
-                "bottomRow": 13,
-                "parentId": "qrqizehc5b",
-                "widgetId": "zsu1y41p1e"
-              },
-              {
-                "isVisible": true,
-                "widgetName": "FormButton2",
-                "text": "Reset",
-                "isDefaultClickDisabled": true,
-                "buttonStyle": "SECONDARY_BUTTON",
-                "disabledWhenInvalid": false,
-                "resetFormOnClick": true,
-                "type": "FORM_BUTTON_WIDGET",
-                "isLoading": false,
-                "leftColumn": 8,
-                "rightColumn": 12,
-                "topRow": 12,
-                "bottomRow": 13,
-                "parentId": "qrqizehc5b",
-                "widgetId": "7o0r2rp3s1"
-              },
-              {
-                "isVisible": true,
-                "label": "Data",
-                "widgetName": "Table1",
-                "searchKey": "",
-                "tableData": "{{[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]}}",
-                "type": "TABLE_WIDGET",
-                "isLoading": false,
-                "parentColumnSpace": 71.5,
-                "parentRowSpace": 40,
-                "leftColumn": 0,
-                "rightColumn": 16,
-                "topRow": 1,
-                "bottomRow": 8,
-                "parentId": "qrqizehc5b",
-                "widgetId": "xptqefixji",
-                "dynamicBindingPathList": []
-              },
-              {
-                "isVisible": true,
-                "inputType": "TEXT",
-                "label": "",
-                "widgetName": "Input1",
-                "type": "INPUT_WIDGET_V2",
-                "isLoading": false,
-                "parentColumnSpace": 71.5,
-                "parentRowSpace": 40,
-                "leftColumn": 0,
-                "rightColumn": 5,
-                "topRow": 10,
-                "bottomRow": 11,
-                "parentId": "qrqizehc5b",
-                "widgetId": "r3xvjtuhad",
-                "dynamicBindingPathList": [
-                  {
-                    "key": "defaultText"
-                  }
-                ],
-                "defaultText": "{{Table1.selectedRow.email}}"
-              },
-              {
-                "isVisible": true,
-                "text": "Email",
-                "textStyle": "LABEL",
-                "textAlign": "LEFT",
-                "widgetName": "Text2",
-                "type": "TEXT_WIDGET",
-                "isLoading": false,
-                "parentColumnSpace": 71.5,
-                "parentRowSpace": 40,
-                "leftColumn": 0,
-                "rightColumn": 4,
-                "topRow": 9,
-                "bottomRow": 10,
-                "parentId": "qrqizehc5b",
-                "widgetId": "672gf8vm2q",
-                "dynamicBindingPathList": []
-              },
-              {
-                "defaultOptionValue": "",
-                "dynamicBindingPathList": [],
-                "dynamicTriggerPathList": [],
-                "isLoading": false,
-                "isVisible": true,
-                "label": "",
-                "options": "[\n  {\n    \"label\": \"Option 1\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"Option 2\",\n    \"value\": \"2\"\n  },\n  {\n    \"label\": \"Option 3\",\n    \"value\": \"3\"\n  },\n  {\n    \"label\": \"Option 4\",\n    \"value\": \"4\"\n  },\n  {\n    \"label\": \"Option 5\",\n    \"value\": \"5\"\n  }\n]",
-                "parentId": "qrqizehc5b",
-                "parentColumnSpace": 71.5,
-                "parentRowSpace": 40,
-                "selectionType": "MULTI_SELECT",
-                "leftColumn": 6,
-                "rightColumn": 16,
-                "topRow": 9,
-                "bottomRow": 10,
-                "type": "MULTI_SELECT_WIDGET_V2",
-                "version": 1,
-                "widgetId": "dwh49bulj9",
-                "widgetName": "Dropdown1"
-              }
-            ],
-            "blueprint": {
-              "view": [
-                {
-                  "type": "TEXT_WIDGET",
-                  "size": {
-                    "rows": 1,
-                    "cols": 12
-                  },
-                  "position": {
-                    "top": 0,
-                    "left": 0
-                  },
-                  "props": {
-                    "text": "Form",
-                    "textStyle": "HEADING"
-                  }
-                },
-                {
-                  "type": "FORM_BUTTON_WIDGET",
-                  "size": {
-                    "rows": 1,
-                    "cols": 4
-                  },
-                  "position": {
-                    "top": 11,
-                    "left": 12
-                  },
-                  "props": {
-                    "text": "Submit",
-                    "buttonStyle": "PRIMARY_BUTTON",
-                    "disabledWhenInvalid": true,
-                    "resetFormOnClick": true
-                  }
-                },
-                {
-                  "type": "FORM_BUTTON_WIDGET",
-                  "size": {
-                    "rows": 1,
-                    "cols": 4
-                  },
-                  "position": {
-                    "top": 11,
-                    "left": 8
-                  },
-                  "props": {
-                    "text": "Reset",
-                    "buttonStyle": "SECONDARY_BUTTON",
-                    "disabledWhenInvalid": false,
-                    "resetFormOnClick": true
-                  }
-                }
-              ]
-            },
-            "minHeight": 520,
-            "type": "CANVAS_WIDGET",
-            "isLoading": false,
-            "parentColumnSpace": 1,
-            "parentRowSpace": 1,
-            "leftColumn": 0,
-            "rightColumn": 518,
-            "topRow": 0,
-            "bottomRow": 520,
-            "parentId": "ozm6zwjk4b",
-            "widgetId": "qrqizehc5b"
-          }
-        ],
+        "rightColumn": 64,
+        "widgetId": "ozm6zwjk4b",
+        "topRow": 0,
+        "bottomRow": 56,
+        "parentRowSpace": 40,
+        "isVisible": true,
+        "type": "FORM_WIDGET",
+        "version": 1,
+        "parentId": "0",
         "blueprint": {
           "view": [
             {
               "type": "CANVAS_WIDGET",
-              "position": {
-                "top": 0,
-                "left": 0
-              },
+              "position": { "top": 0, "left": 0 },
               "props": {
                 "containerStyle": "none",
                 "canExtend": false,
                 "detachFromLayout": true,
-                "children": [
-                ],
+                "children": [],
                 "blueprint": {
                   "view": [
                     {
                       "type": "TEXT_WIDGET",
-                      "size": {
-                        "rows": 1,
-                        "cols": 12
-                      },
-                      "position": {
-                        "top": 0,
-                        "left": 0
-                      },
+                      "size": { "rows": 1, "cols": 12 },
+                      "position": { "top": 0, "left": 0 },
                       "props": {
                         "text": "Form",
                         "textStyle": "HEADING"
@@ -259,14 +54,8 @@
                     },
                     {
                       "type": "FORM_BUTTON_WIDGET",
-                      "size": {
-                        "rows": 1,
-                        "cols": 4
-                      },
-                      "position": {
-                        "top": 11,
-                        "left": 12
-                      },
+                      "size": { "rows": 1, "cols": 4 },
+                      "position": { "top": 11, "left": 12 },
                       "props": {
                         "text": "Submit",
                         "buttonStyle": "PRIMARY_BUTTON",
@@ -276,14 +65,8 @@
                     },
                     {
                       "type": "FORM_BUTTON_WIDGET",
-                      "size": {
-                        "rows": 1,
-                        "cols": 4
-                      },
-                      "position": {
-                        "top": 11,
-                        "left": 8
-                      },
+                      "size": { "rows": 1, "cols": 4 },
+                      "position": { "top": 11, "left": 8 },
                       "props": {
                         "text": "Reset",
                         "buttonStyle": "SECONDARY_BUTTON",
@@ -297,16 +80,403 @@
             }
           ]
         },
-        "type": "FORM_WIDGET",
         "isLoading": false,
         "parentColumnSpace": 74,
-        "parentRowSpace": 40,
         "leftColumn": 0,
-        "rightColumn": 16,
-        "topRow": 0,
-        "bottomRow": 14,
-        "parentId": "0",
-        "widgetId": "ozm6zwjk4b"
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "widgetName": "Canvas1",
+            "rightColumn": 2072,
+            "detachFromLayout": true,
+            "widgetId": "qrqizehc5b",
+            "containerStyle": "none",
+            "topRow": 0,
+            "bottomRow": 540,
+            "parentRowSpace": 1,
+            "isVisible": true,
+            "canExtend": false,
+            "type": "CANVAS_WIDGET",
+            "version": 1,
+            "parentId": "ozm6zwjk4b",
+            "blueprint": {
+              "view": [
+                {
+                  "type": "TEXT_WIDGET",
+                  "size": { "rows": 1, "cols": 12 },
+                  "position": { "top": 0, "left": 0 },
+                  "props": { "text": "Form", "textStyle": "HEADING" }
+                },
+                {
+                  "type": "FORM_BUTTON_WIDGET",
+                  "size": { "rows": 1, "cols": 4 },
+                  "position": { "top": 11, "left": 12 },
+                  "props": {
+                    "text": "Submit",
+                    "buttonStyle": "PRIMARY_BUTTON",
+                    "disabledWhenInvalid": true,
+                    "resetFormOnClick": true
+                  }
+                },
+                {
+                  "type": "FORM_BUTTON_WIDGET",
+                  "size": { "rows": 1, "cols": 4 },
+                  "position": { "top": 11, "left": 8 },
+                  "props": {
+                    "text": "Reset",
+                    "buttonStyle": "SECONDARY_BUTTON",
+                    "disabledWhenInvalid": false,
+                    "resetFormOnClick": true
+                  }
+                }
+              ]
+            },
+            "minHeight": 520,
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [],
+            "children": [
+              {
+                "widgetName": "Text1",
+                "rightColumn": 48,
+                "textAlign": "LEFT",
+                "widgetId": "c481ah2q0i",
+                "topRow": 0,
+                "bottomRow": 4,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "fontStyle": "BOLD",
+                "version": 1,
+                "textColor": "#231F20",
+                "parentId": "qrqizehc5b",
+                "isLoading": false,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "fontSize": "HEADING1",
+                "text": "Form"
+              },
+              {
+                "resetFormOnClick": true,
+                "widgetName": "FormButton1",
+                "rightColumn": 64,
+                "isDefaultClickDisabled": true,
+                "buttonColor": "#03B365",
+                "widgetId": "zsu1y41p1e",
+                "topRow": 48,
+                "bottomRow": 52,
+                "isVisible": true,
+                "type": "FORM_BUTTON_WIDGET",
+                "version": 1,
+                "recaptchaType": "V3",
+                "parentId": "qrqizehc5b",
+                "isLoading": false,
+                "disabledWhenInvalid": true,
+                "leftColumn": 48,
+                "dynamicBindingPathList": [],
+                "buttonVariant": "PRIMARY",
+                "text": "Submit"
+              },
+              {
+                "resetFormOnClick": true,
+                "widgetName": "FormButton2",
+                "rightColumn": 48,
+                "isDefaultClickDisabled": true,
+                "buttonColor": "#03B365",
+                "widgetId": "7o0r2rp3s1",
+                "topRow": 48,
+                "bottomRow": 52,
+                "isVisible": true,
+                "type": "FORM_BUTTON_WIDGET",
+                "version": 1,
+                "recaptchaType": "V3",
+                "parentId": "qrqizehc5b",
+                "isLoading": false,
+                "disabledWhenInvalid": false,
+                "leftColumn": 32,
+                "dynamicBindingPathList": [],
+                "buttonVariant": "PRIMARY",
+                "text": "Reset"
+              },
+              {
+                "widgetName": "Table1",
+                "columnOrder": [
+                  "id",
+                  "email",
+                  "userName",
+                  "productName",
+                  "orderAmount"
+                ],
+                "isVisibleDownload": true,
+                "topRow": 4,
+                "bottomRow": 25,
+                "parentRowSpace": 10,
+                "isSortable": true,
+                "type": "TABLE_WIDGET",
+                "parentColumnSpace": 71.5,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [
+                  { "key": "tableData" },
+                  { "key": "primaryColumns.id.computedValue" },
+                  { "key": "primaryColumns.email.computedValue" },
+                  { "key": "primaryColumns.userName.computedValue" },
+                  {
+                    "key": "primaryColumns.productName.computedValue"
+                  },
+                  {
+                    "key": "primaryColumns.orderAmount.computedValue"
+                  }
+                ],
+                "primaryColumns": {
+                  "id": {
+                    "index": 0,
+                    "width": 150,
+                    "id": "id",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "fontStyle": "REGULAR",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "id",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.id))}}"
+                  },
+                  "email": {
+                    "index": 1,
+                    "width": 150,
+                    "id": "email",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "fontStyle": "REGULAR",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "email",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.email))}}"
+                  },
+                  "userName": {
+                    "index": 2,
+                    "width": 150,
+                    "id": "userName",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "fontStyle": "REGULAR",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "userName",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.userName))}}"
+                  },
+                  "productName": {
+                    "index": 3,
+                    "width": 150,
+                    "id": "productName",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "fontStyle": "REGULAR",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "productName",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.productName))}}"
+                  },
+                  "orderAmount": {
+                    "index": 4,
+                    "width": 150,
+                    "id": "orderAmount",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "fontStyle": "REGULAR",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "orderAmount",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.orderAmount))}}"
+                  }
+                },
+                "delimiter": ",",
+                "migrated": true,
+                "derivedColumns": {},
+                "rightColumn": 64,
+                "textSize": "PARAGRAPH",
+                "widgetId": "xptqefixji",
+                "isVisibleFilters": true,
+                "tableData": "{{[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]}}",
+                "isVisible": true,
+                "label": "Data",
+                "searchKey": "",
+                "fontStyle": "REGULAR",
+                "version": 3,
+                "parentId": "qrqizehc5b",
+                "isLoading": false,
+                "horizontalAlignment": "LEFT",
+                "isVisibleSearch": true,
+                "isVisiblePagination": true,
+                "verticalAlignment": "CENTER"
+              },
+              {
+                "isRequired": true,
+                "widgetName": "Input1",
+                "rightColumn": 20,
+                "widgetId": "r3xvjtuhad",
+                "topRow": 30,
+                "bottomRow": 34,
+                "parentRowSpace": 40,
+                "isVisible": true,
+                "label": "",
+                "type": "INPUT_WIDGET_V2",
+                "version": 1,
+                "parentId": "qrqizehc5b",
+                "isLoading": false,
+                "parentColumnSpace": 71.5,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [{ "key": "defaultText" }],
+                "resetOnSubmit": true,
+                "inputType": "TEXT",
+                "defaultText": "{{Table1.selectedRow.email}}"
+              },
+              {
+                "widgetName": "Text2",
+                "rightColumn": 16,
+                "textAlign": "LEFT",
+                "widgetId": "672gf8vm2q",
+                "topRow": 26,
+                "bottomRow": 30,
+                "parentRowSpace": 40,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "fontStyle": "BOLD",
+                "version": 1,
+                "textColor": "#231F20",
+                "parentId": "qrqizehc5b",
+                "isLoading": false,
+                "parentColumnSpace": 71.5,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "fontSize": "PARAGRAPH",
+                "text": "Email"
+              },
+              {
+                "isRequired": true,
+                "rightColumn": 64,
+                "widgetName": "Dropdown1",
+                "widgetId": "dwh49bulj9",
+                "topRow": 36,
+                "bottomRow": 40,
+                "parentRowSpace": 40,
+                "isVisible": true,
+                "label": "",
+                "type": "MULTI_SELECT_WIDGET_V2",
+                "version": 1,
+                "parentId": "qrqizehc5b",
+                "isLoading": false,
+                "defaultOptionValue": "",
+                "selectionType": "MULTI_SELECT",
+                "dynamicTriggerPathList": [],
+                "parentColumnSpace": 71.5,
+                "dynamicBindingPathList": [],
+                "leftColumn": 24,
+                "options": "[\n  {\n    \"label\": \"Option 1\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"Option 2\",\n    \"value\": \"2\"\n  },\n  {\n    \"label\": \"Option 3\",\n    \"value\": \"3\"\n  },\n  {\n    \"label\": \"Option 4\",\n    \"value\": \"4\"\n  },\n  {\n    \"label\": \"Option 5\",\n    \"value\": \"5\"\n  }\n]"
+              },
+              {
+                "widgetName": "PhoneInput1",
+                "dialCode": "+1",
+                "displayName": "Phone Input",
+                "iconSVG": "/static/media/icon.ec4f5c23.svg",
+                "topRow": 30,
+                "bottomRow": 34,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 9.75,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 24,
+                "dynamicBindingPathList": [{ "key": "defaultText" }],
+                "countryCode": "US",
+                "labelStyle": "",
+                "isDisabled": false,
+                "key": "2en0bgew0x",
+                "isRequired": true,
+                "rightColumn": 44,
+                "widgetId": "kqxx5c8dug",
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "",
+                "version": 1,
+                "parentId": "qrqizehc5b",
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "iconAlign": "left",
+                "defaultText": "{{Table1.selectedRow.id}}"
+              },
+              {
+                "widgetName": "CurrencyInput1",
+                "displayName": "Currency Input",
+                "iconSVG": "/static/media/icon.01a1e03d.svg",
+                "topRow": 36,
+                "bottomRow": 40,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 9.75,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [{ "key": "defaultText" }],
+                "labelStyle": "",
+                "isDisabled": false,
+                "key": "8ked77j728",
+                "isRequired": true,
+                "rightColumn": 20,
+                "widgetId": "067zok1ef3",
+                "isVisible": true,
+                "label": "",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "qrqizehc5b",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "decimals": 2,
+                "iconAlign": "left",
+                "defaultText": "{{Table1.selectedRow.orderAmount}}",
+                "currencyCode": "USD"
+              }
+            ]
+          }
+        ]
       }
     ]
   }
