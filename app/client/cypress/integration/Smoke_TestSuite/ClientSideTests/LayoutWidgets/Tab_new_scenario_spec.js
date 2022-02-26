@@ -1,10 +1,6 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../locators/Layout.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tabsWithWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 
 describe("Tab widget test", function() {
   before(() => {
@@ -29,9 +25,12 @@ describe("Tab widget test", function() {
       .click({ force: true });
     cy.get(publish.checkboxWidget).should("be.visible");
     cy.get(publish.radioWidget).should("be.visible");
+
     cy.get(publish.buttonWidget)
       .contains("Confirm")
-      .click({ force: true });
+      .click({
+        force: true,
+      });
   });
 });
 
