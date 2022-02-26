@@ -5,6 +5,8 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
+import { getBindingOrConfigPathsForEntitySelectorControl } from "entities/Action/actionProperties";
+import { allowedControlTypes } from "components/formControls/utils";
 
 const dropDownFieldConfig: any = {
   label: "",
@@ -17,8 +19,6 @@ const inputFieldConfig: any = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
 };
-
-const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
 
 // Component for the icons
 const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
@@ -64,8 +64,12 @@ function EntitySelectorComponent(props: any) {
     <EntitySelectorContainer>
       {schema &&
         schema.length > 0 &&
-        schema.map(
-          (singleSchema: any, index: number) =>
+        schema.map((singleSchema: any, index: number) => {
+          const columnPath = getBindingOrConfigPathsForEntitySelectorControl(
+            configProperty,
+            index,
+          );
+          return (
             allowedControlTypes.includes(singleSchema.controlType) && (
               <>
                 {singleSchema.controlType === "DROP_DOWN" ? (
@@ -74,8 +78,8 @@ function EntitySelectorComponent(props: any) {
                       ...dropDownFieldConfig,
                       ...singleSchema,
                       customStyles,
-                      configProperty: `${configProperty}.column_${index + 1}`,
-                      key: `${configProperty}.column_${index + 1}`,
+                      configProperty: columnPath,
+                      key: columnPath,
                     }}
                     formName={props.formName}
                   />
@@ -85,8 +89,8 @@ function EntitySelectorComponent(props: any) {
                       ...inputFieldConfig,
                       ...singleSchema,
                       customStyles,
-                      configProperty: `${configProperty}.column_${index + 1}`,
-                      key: `${configProperty}.column_${index + 1}`,
+                      configProperty: columnPath,
+                      key: columnPath,
                     }}
                     formName={props.formName}
                   />
@@ -98,8 +102,9 @@ function EntitySelectorComponent(props: any) {
                   />
                 )}
               </>
-            ),
-        )}
+            )
+          );
+        })}
     </EntitySelectorContainer>
   );
 }
