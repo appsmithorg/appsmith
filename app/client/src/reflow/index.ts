@@ -3,307 +3,163 @@ import _ from "lodash";
 import { getMovementMap } from "./reflowHelpers";
 import {
   CollidingSpaceMap,
+  CollisionMap,
   GridProps,
   MovementLimitMap,
+  OrientationAccessors,
+  PrevReflowState,
   ReflowDirection,
   ReflowedSpaceMap,
-  SecondaryCollisionMap,
+  SecondOrderCollisionMap,
+  SpaceAttributes,
   SpaceMap,
 } from "./reflowTypes";
 import {
   changeExitContainerDirection,
-  compareNumbers,
   filterCommonSpaces,
-  flattenArrayToGlobalCollisionMap,
+  buildArrayToCollisionMap,
   getAccessor,
-  getCollidingSpaces,
+  getCollidingSpaceMap,
   getDelta,
+  getMaxSpaceAttributes,
   getModifiedOccupiedSpacesMap,
+  getOrientationAccessors,
   getShouldReflow,
   getSpacesMapFromArray,
+  getSortedOccupiedSpaces,
+  getSortedNewPositions,
+  getSortedCollidingSpaces,
+  getCalculatedDirection,
+  getOrientationAccessor,
 } from "./reflowUtils";
 
 /**
  * Reflow method that returns the displacement metrics of all other colliding spaces
  *
- * @param newPositions new/current positions of the space/block
- * @param OGPositions original positions of the space before movement
+ * @param newSpacePositions new/current positions array of the space/block
+ * @param OGSpacePositions original positions array of the space before movement
  * @param occupiedSpaces array of all the occupied spaces on the canvas
  * @param direction direction of movement of the moving space
  * @param gridProps properties of the canvas's grid
  * @param forceDirection boolean to force the direction on certain scenarios
  * @param shouldResize boolean to indicate if colliding spaces should resize
- * @param immediateExitContainer boolean to indicate if the space exited a nested canvas
- * @param prevPositions last known position of the space
- * @param prevCollidingSpaces last known colliding spaces of the dragging/resizing space
+ * @param prevReflowState this contains a map of reference to the key values of previous reflow method call to back trace widget movements
+ * @param exitContainerId sting, Id of recent exit container
  * @returns movement information of the dragging/resizing space and other colliding spaces
  */
 export function reflow(
-  newPositionsArray: OccupiedSpace[],
-  OGPositionsArray: OccupiedSpace[],
-  occupiedSpacesArray: OccupiedSpace[],
+  newSpacePositions: OccupiedSpace[],
+  OGSpacePositions: OccupiedSpace[],
+  occupiedSpaces: OccupiedSpace[],
   direction: ReflowDirection,
   gridProps: GridProps,
   forceDirection = false,
   shouldResize = true,
-  immediateExitContainer?: string,
-  prevSpacesArray?: OccupiedSpace[],
-  prevCollidingSpaces: CollidingSpaceMap = { horizontal: {}, vertical: {} },
-  prevMovementMap?: ReflowedSpaceMap,
-  prevSecondaryCollisionMap?: SecondaryCollisionMap,
+  prevReflowState: PrevReflowState = {} as PrevReflowState,
+  exitContainerId?: string,
 ) {
-  const newPositionsMap = getSpacesMapFromArray(newPositionsArray);
-  const OGPositionsMap = getSpacesMapFromArray(OGPositionsArray);
-  const OccupiedSpacesMap = getSpacesMapFromArray(occupiedSpacesArray);
-  const prevSpacesMap = getSpacesMapFromArray(prevSpacesArray);
-
-  const secondaryCollisionMap: SecondaryCollisionMap = {};
+  const newSpacePositionsMap = getSpacesMapFromArray(newSpacePositions);
+  const OGSpacePositionsMap = getSpacesMapFromArray(OGSpacePositions);
+  const occupiedSpacesMap = getSpacesMapFromArray(occupiedSpaces);
 
   const [primaryDirection, secondaryDirection] = getCalculatedDirection(
-    newPositionsMap,
-    prevSpacesMap,
+    newSpacePositionsMap,
+    prevReflowState.prevSpacesMap,
     direction,
   );
 
   const movementLimitMap: MovementLimitMap = {};
-
-  let currentDirection = forceDirection ? direction : primaryDirection;
-  if (!OGPositionsArray || direction === ReflowDirection.UNSET) {
-    return {
-      movementMap: prevMovementMap || {},
-      movementLimit: {
-        canHorizontalMove: true,
-        canVerticalMove: true,
-      },
-    };
-  }
-  const {
-    direction: directionAccessor,
-    isHorizontal,
-    parallelMax,
-    parallelMin,
-    perpendicularMax,
-    perpendicularMin,
-  } = getAccessor(currentDirection);
-  filterCommonSpaces(newPositionsMap, OccupiedSpacesMap);
-  const globalMovementMap: ReflowedSpaceMap = {};
   const globalCollidingSpaces: CollidingSpaceMap = {
     horizontal: {},
     vertical: {},
   };
-  const spaceChanges = {
-    first: { max: perpendicularMax, min: perpendicularMin },
-    second: { max: parallelMax, min: parallelMin },
-  };
-  const orientation: {
-    first: "horizontal" | "vertical";
-    second: "horizontal" | "vertical";
-  } = isHorizontal
-    ? { first: "horizontal", second: "vertical" }
-    : { first: "vertical", second: "horizontal" };
-  // First Time
-  let directionalOccupiedSpacesMap = getModifiedOccupiedSpacesMap(
-    OccupiedSpacesMap,
-    prevMovementMap,
-    isHorizontal,
-    gridProps,
-    spaceChanges.first.max,
-    spaceChanges.first.min,
-  );
-  let filteredOccupiedSpaces = Object.values(directionalOccupiedSpacesMap);
-  let newSpacesArray = newPositionsArray
-    .sort((a, b) => {
-      return a[directionAccessor] - b[directionAccessor];
-    })
-    .map((a) => {
-      return { ...a, order: true };
-    });
-  filteredOccupiedSpaces.sort((a, b) => {
-    return a[directionAccessor] - b[directionAccessor];
-  });
-  const firstPrevCollisionMap =
-    (prevCollidingSpaces && prevCollidingSpaces[orientation.first]) || {};
-  const { collidingSpaceMap, isColliding } = getCollidingSpaces(
-    newSpacesArray,
-    currentDirection,
-    filteredOccupiedSpaces,
-    prevCollidingSpaces,
-    isHorizontal,
-    prevSpacesMap,
-    forceDirection,
-  );
 
-  const collidingSpacesArray = Object.values(collidingSpaceMap).filter(
-    (a) => a.isHorizontal === isHorizontal,
-  );
-  let firstMovementMap: ReflowedSpaceMap = {};
-  if (collidingSpacesArray.length) {
-    collidingSpacesArray.sort((a, b) => {
-      const collisionKeyA = a.id,
-        collisionKeyB = b.id;
-      if (prevCollidingSpaces) {
-        if (
-          firstPrevCollisionMap[collisionKeyA] &&
-          firstPrevCollisionMap[collisionKeyB]
-        ) {
-          return (
-            firstPrevCollisionMap[collisionKeyA].order -
-            firstPrevCollisionMap[collisionKeyB].order
-          );
-        } else if (firstPrevCollisionMap[collisionKeyA]) return -1;
-        else if (firstPrevCollisionMap[collisionKeyB]) return 1;
-      }
-
-      return a.order - b.order;
-    });
-
-    changeExitContainerDirection(
-      collidingSpaceMap,
-      immediateExitContainer,
-      currentDirection,
-    );
-
-    const tempId = newSpacesArray[0].id;
-    const delta = getDelta(
-      OGPositionsMap[tempId],
-      newPositionsMap[tempId],
-      currentDirection,
-    );
-
-    const { movementMap, movementVariablesMap } = getMovementMap(
-      filteredOccupiedSpaces,
-      directionalOccupiedSpacesMap,
-      OccupiedSpacesMap,
-      collidingSpacesArray,
-      collidingSpaceMap,
-      secondaryCollisionMap,
-      gridProps,
-      delta,
-      shouldResize,
-      newSpacesArray,
-      currentDirection,
-      isHorizontal,
-      newPositionsMap,
-      prevCollidingSpaces,
-      prevSpacesMap,
-      prevMovementMap,
-      prevSecondaryCollisionMap,
-    );
-
-    globalCollidingSpaces[orientation.first] = flattenArrayToGlobalCollisionMap(
-      newPositionsMap,
-      collidingSpacesArray,
-    );
-    firstMovementMap = { ...movementMap };
-    getShouldReflow(movementLimitMap, movementVariablesMap, delta);
+  if (!OGSpacePositionsMap || direction === ReflowDirection.UNSET) {
+    return {
+      movementMap: prevReflowState.prevMovementMap,
+      movementLimit: {
+        canHorizontalMove: true,
+        canVerticalMove: true,
+      },
+    };
   }
 
-  //once more from the top
+  let currentDirection = forceDirection ? direction : primaryDirection;
+
+  const currentAccessor = getAccessor(currentDirection);
+  const { isHorizontal } = currentAccessor;
+
+  //filter out the newSpacePositions from the occupiedSpacesMap
+  filterCommonSpaces(newSpacePositionsMap, occupiedSpacesMap);
+
+  const maxSpaceAttributes = getMaxSpaceAttributes(currentAccessor);
+
+  const orientation: OrientationAccessors = getOrientationAccessors(
+    isHorizontal,
+  );
+
+  const delta = getDelta(newSpacePositionsMap, OGSpacePositionsMap, direction);
+
+  //Reflow in the current orientation
+  const {
+    collidingSpaces: primaryCollidingSpaces,
+    isColliding: primaryIsColliding,
+    movementMap: primaryMovementMap,
+    movementVariablesMap: primaryMovementVariablesMap,
+    secondOrderCollisionMap: primarySecondOrderCollisionMap,
+  } = getOrientationalMovementInfo(
+    newSpacePositionsMap,
+    occupiedSpacesMap,
+    currentDirection,
+    isHorizontal,
+    gridProps,
+    delta,
+    shouldResize,
+    forceDirection,
+    exitContainerId,
+    maxSpaceAttributes.primary,
+    prevReflowState,
+  );
+
+  globalCollidingSpaces[orientation.primary] = buildArrayToCollisionMap(
+    primaryCollidingSpaces,
+  );
+  getShouldReflow(movementLimitMap, primaryMovementVariablesMap, delta);
+
+  //Reflow in the opposite orientation
   if (!forceDirection && secondaryDirection)
     currentDirection = secondaryDirection;
-  const secondPrevCollisionMap =
-    (prevCollidingSpaces && prevCollidingSpaces[orientation.second]) || {};
-  directionalOccupiedSpacesMap = getModifiedOccupiedSpacesMap(
-    OccupiedSpacesMap,
-    firstMovementMap,
+  const {
+    collidingSpaces: secondaryCollidingSpaces,
+    isColliding: secondaryIsColliding,
+    movementMap,
+    movementVariablesMap: secondaryMovementVariablesMap,
+    secondOrderCollisionMap,
+  } = getOrientationalMovementInfo(
+    newSpacePositionsMap,
+    occupiedSpacesMap,
+    currentDirection,
     !isHorizontal,
     gridProps,
-    spaceChanges.second.max,
-    spaceChanges.second.min,
-  );
-  filteredOccupiedSpaces = Object.values(directionalOccupiedSpacesMap);
-  newSpacesArray = newPositionsArray
-    .sort((a, b) => {
-      return a[directionAccessor] - b[directionAccessor];
-    })
-    .map((a) => {
-      return { ...a, order: true };
-    });
-  filteredOccupiedSpaces.sort((a, b) => {
-    return a[directionAccessor] - b[directionAccessor];
-  });
-
-  const {
-    collidingSpaceMap: secondCollidingSpaceMap,
-    isColliding: secondIsColliding,
-  } = getCollidingSpaces(
-    newSpacesArray,
-    currentDirection,
-    filteredOccupiedSpaces,
-    prevCollidingSpaces,
-    !isHorizontal,
-    prevSpacesMap,
+    delta,
+    shouldResize,
     forceDirection,
-    flattenArrayToGlobalCollisionMap(newPositionsMap, collidingSpacesArray),
+    exitContainerId,
+    maxSpaceAttributes.secondary,
+    prevReflowState,
+    primaryMovementMap || {},
+    globalCollidingSpaces[orientation.primary],
+    primarySecondOrderCollisionMap,
   );
 
-  const secondCollidingSpacesArray = Object.values(
-    secondCollidingSpaceMap,
-  ).filter((a) => a.isHorizontal === !isHorizontal);
-  let secondMovementMap: ReflowedSpaceMap = {};
-  if (secondCollidingSpacesArray.length) {
-    secondCollidingSpacesArray.sort((a, b) => {
-      const collisionKeyA = a.id,
-        collisionKeyB = b.id;
-      if (prevCollidingSpaces) {
-        if (
-          secondPrevCollisionMap[collisionKeyA] &&
-          secondPrevCollisionMap[collisionKeyB]
-        ) {
-          return (
-            secondPrevCollisionMap[collisionKeyA].order -
-            secondPrevCollisionMap[collisionKeyB].order
-          );
-        } else if (secondPrevCollisionMap[collisionKeyA]) return -1;
-        else if (secondPrevCollisionMap[collisionKeyB]) return 1;
-      }
-
-      return a.order - b.order;
-    });
-    changeExitContainerDirection(
-      collidingSpaceMap,
-      immediateExitContainer,
-      currentDirection,
+  if (secondaryIsColliding) {
+    globalCollidingSpaces[orientation.secondary] = buildArrayToCollisionMap(
+      secondaryCollidingSpaces,
     );
-
-    const tempId = newSpacesArray[0].id;
-    const delta = getDelta(
-      OGPositionsMap[tempId],
-      newPositionsMap[tempId],
-      currentDirection,
-    );
-
-    const { movementMap, movementVariablesMap } = getMovementMap(
-      filteredOccupiedSpaces,
-      directionalOccupiedSpacesMap,
-      OccupiedSpacesMap,
-      secondCollidingSpacesArray,
-      secondCollidingSpaceMap,
-      secondaryCollisionMap,
-      gridProps,
-      delta,
-      shouldResize,
-      newSpacesArray,
-      currentDirection,
-      !isHorizontal,
-      newPositionsMap,
-      prevCollidingSpaces,
-      prevSpacesMap,
-      prevMovementMap,
-      prevSecondaryCollisionMap,
-      firstMovementMap,
-    );
-    secondMovementMap = { ...movementMap };
-    globalCollidingSpaces[
-      orientation.second
-    ] = flattenArrayToGlobalCollisionMap(
-      newPositionsMap,
-      secondCollidingSpacesArray,
-    );
-    getShouldReflow(movementLimitMap, movementVariablesMap, delta);
+    getShouldReflow(movementLimitMap, secondaryMovementVariablesMap, delta);
   }
 
-  if (!isColliding && !secondIsColliding) {
+  if (!primaryIsColliding && !secondaryIsColliding) {
     return {
       movementLimit: {
         canHorizontalMove: true,
@@ -312,68 +168,126 @@ export function reflow(
     };
   }
 
-  const firstKeys = Object.keys(firstMovementMap || {});
-  const secondKeys = Object.keys(secondMovementMap || {});
-  const reflowedKeys = _.uniq([...firstKeys, ...secondKeys]);
-
-  for (const key of reflowedKeys) {
-    globalMovementMap[key] = {
-      ...firstMovementMap[key],
-      ...secondMovementMap[key],
-    };
-  }
-
-  //eslint-disable-next-line
-  console.log(
-    "reflow Post",
-    _.cloneDeep({
-      direction: [primaryDirection, secondaryDirection, direction],
-      collidingSpaceMap: globalCollidingSpaces,
-      movementLimitMap,
-      prevCollidingSpaces,
-      prevSecondaryCollisionMap,
-    }),
-  );
   return {
     movementLimitMap,
-    movementMap: globalMovementMap,
+    movementMap: movementMap || primaryMovementMap,
     collidingSpaceMap: globalCollidingSpaces,
-    secondaryCollisionMap,
+    secondOrderCollisionMap:
+      secondOrderCollisionMap || primarySecondOrderCollisionMap,
   };
 }
 
-function getCalculatedDirection(
-  newSpacesMap: SpaceMap,
-  prevSpacesMap: SpaceMap,
-  passedDirection: ReflowDirection,
+/**
+ * Reflow method that returns the movement variables in a particular orientation, like "horizontal" or "vertical"
+ *
+ * @param newSpacePositionsMap new/current positions map of the space/block
+ * @param occupiedSpacesMap all the occupied spaces map on the canvas
+ * @param direction direction of movement of the moving space
+ * @param isHorizontal boolean to indicate if the orientation is horizontal
+ * @param gridProps properties of the canvas's grid
+ * @param delta X and Y distance from original positions
+ * @param shouldResize boolean to indicate if colliding spaces should resize
+ * @param forceDirection boolean to force the direction on certain scenarios
+ * @param exitContainerId string, Id of recent exit container
+ * @param maxSpaceAttributes object containing accessors for maximum and minimum dimensions in a particular direction
+ * @param prevReflowState this contains a map of reference to the key values of previous reflow method call to back trace widget movements
+ * @param primaryMovementMap movement map/information from previous run of the algorithm
+ * @param primaryCollisionMap direct collision spaces map on the previous run of the algorithm
+ * @returns movement information of the dragging/resizing space and other colliding spaces
+ */
+function getOrientationalMovementInfo(
+  newSpacePositionsMap: SpaceMap,
+  occupiedSpacesMap: SpaceMap,
+  direction: ReflowDirection,
+  isHorizontal: boolean,
+  gridProps: GridProps,
+  delta = { X: 0, Y: 0 },
+  shouldResize: boolean,
+  forceDirection: boolean,
+  exitContainerId: string | undefined,
+  maxSpaceAttributes: { max: SpaceAttributes; min: SpaceAttributes },
+  prevReflowState: PrevReflowState,
+  primaryMovementMap?: ReflowedSpaceMap,
+  primaryCollisionMap?: CollisionMap,
+  primarySecondOrderCollisionMap?: SecondOrderCollisionMap,
 ) {
-  if (passedDirection.indexOf("|") >= 0) return [passedDirection];
-  for (const key in newSpacesMap) {
-    if (newSpacesMap[key] && prevSpacesMap[key]) {
-      const { left: newLeft, top: newTop } = newSpacesMap[key];
-      const { left: prevLeft, top: prevTop } = prevSpacesMap[key];
+  const {
+    prevCollidingSpaceMap,
+    prevMovementMap,
+    prevSpacesMap,
+  } = prevReflowState;
+  const accessors = getAccessor(direction);
+  const orientationAccessor = getOrientationAccessor(isHorizontal);
 
-      if (newTop !== prevTop && newLeft !== prevLeft) {
-        return [
-          compareNumbers(newTop, prevTop, true)
-            ? ReflowDirection.BOTTOM
-            : ReflowDirection.TOP,
-          compareNumbers(newLeft, prevLeft, true)
-            ? ReflowDirection.RIGHT
-            : ReflowDirection.LEFT,
-        ];
-      }
-      if (newTop !== prevTop)
-        return compareNumbers(newTop, prevTop, true)
-          ? [ReflowDirection.BOTTOM]
-          : [ReflowDirection.TOP];
-      if (newLeft !== prevLeft)
-        return compareNumbers(newLeft, prevLeft, true)
-          ? [ReflowDirection.RIGHT]
-          : [ReflowDirection.LEFT];
+  const orientationOccupiedSpacesMap = getModifiedOccupiedSpacesMap(
+    occupiedSpacesMap,
+    primaryMovementMap || prevMovementMap,
+    isHorizontal,
+    gridProps,
+    maxSpaceAttributes.max,
+    maxSpaceAttributes.min,
+  );
 
-      return [passedDirection];
-    }
+  const sortedOccupiedSpaces = getSortedOccupiedSpaces(
+    orientationOccupiedSpacesMap,
+    accessors,
+  );
+  const newSpacePositions = getSortedNewPositions(
+    newSpacePositionsMap,
+    accessors,
+  );
+  const prevCollisionMap =
+    (prevCollidingSpaceMap && prevCollidingSpaceMap[orientationAccessor]) || {};
+
+  const { collidingSpaceMap, isColliding } = getCollidingSpaceMap(
+    newSpacePositions,
+    sortedOccupiedSpaces,
+    direction,
+    prevCollidingSpaceMap,
+    isHorizontal,
+    prevSpacesMap,
+    forceDirection,
+    primaryCollisionMap,
+  );
+
+  const collidingSpaces = getSortedCollidingSpaces(
+    collidingSpaceMap,
+    isHorizontal,
+    prevCollisionMap,
+  );
+
+  if (!collidingSpaces || !collidingSpaces.length) return {};
+
+  if (!primaryMovementMap) {
+    changeExitContainerDirection(collidingSpaceMap, exitContainerId, direction);
   }
-  return [passedDirection];
+  const {
+    movementMap,
+    movementVariablesMap,
+    secondOrderCollisionMap,
+  } = getMovementMap(
+    newSpacePositions,
+    newSpacePositionsMap,
+    sortedOccupiedSpaces,
+    orientationOccupiedSpacesMap,
+    occupiedSpacesMap,
+    collidingSpaces,
+    collidingSpaceMap,
+    gridProps,
+    delta,
+    shouldResize,
+    direction,
+    isHorizontal,
+    prevReflowState,
+    primaryMovementMap,
+    primarySecondOrderCollisionMap,
+  );
+
+  return {
+    movementMap,
+    movementVariablesMap,
+    secondOrderCollisionMap,
+    isColliding,
+    collidingSpaces,
+  };
 }

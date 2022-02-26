@@ -1,19 +1,24 @@
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
-import { isEmpty, throttle } from "lodash";
+import { debounce, isEmpty, throttle } from "lodash";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import {
   CollidingSpace,
+  CollidingSpaceMap,
   GridProps,
   MovementLimitMap,
+  PrevReflowState,
   ReflowDirection,
   ReflowedSpaceMap,
-  SecondaryCollisionMap,
+  SecondOrderCollisionMap,
 } from "reflow/reflowTypes";
-import { getLimitedMovementMap } from "reflow/reflowUtils";
+import {
+  getLimitedMovementMap,
+  getSpacesMapFromArray,
+} from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
@@ -63,17 +68,21 @@ export const useReflow = (
   const prevPositions = useRef<OccupiedSpace[] | undefined>(OGPositions);
   const prevCollidingSpaces = useRef<WidgetCollidingSpaceMap>();
   const prevMovementMap = useRef<ReflowedSpaceMap>({});
-  const prevSecondaryCollisionMap = useRef<SecondaryCollisionMap>({});
+  const prevSecondOrderCollisionMap = useRef<SecondOrderCollisionMap>({});
 
   useEffect(() => {
-    if (!isReflowingGlobal) {
-      isReflowing.current = false;
-      prevPositions.current = [];
-      prevCollidingSpaces.current = { horizontal: {}, vertical: {} };
-      prevMovementMap.current = {};
-      prevSecondaryCollisionMap.current = {};
-    }
+    //debouncing to only have it run when the user has completely stopped reflow
+    debounce(() => {
+      if (!isReflowingGlobal) {
+        isReflowing.current = false;
+        prevPositions.current = [...OGPositions];
+        prevCollidingSpaces.current = { horizontal: {}, vertical: {} };
+        prevMovementMap.current = {};
+        prevSecondOrderCollisionMap.current = {};
+      }
+    }, 300);
   }, [isReflowingGlobal]);
+
   // will become a state if we decide that resize should be a "toggle on-demand" feature
   const shouldResize = true;
   return function reflowSpaces(
@@ -84,11 +93,18 @@ export const useReflow = (
     forceDirection = false,
     immediateExitContainer?: string,
   ) {
+    const prevReflowState: PrevReflowState = {
+      prevSpacesMap: getSpacesMapFromArray(prevPositions.current),
+      prevCollidingSpaceMap: prevCollidingSpaces.current as CollidingSpaceMap,
+      prevMovementMap: prevMovementMap.current,
+      prevSecondOrderCollisionMap: prevSecondOrderCollisionMap.current,
+    };
+
     const {
       collidingSpaceMap,
       movementLimitMap,
       movementMap,
-      secondaryCollisionMap,
+      secondOrderCollisionMap,
     } = reflow(
       newPositions,
       OGPositions,
@@ -97,16 +113,13 @@ export const useReflow = (
       gridProps,
       forceDirection,
       shouldResize,
+      prevReflowState,
       immediateExitContainer,
-      prevPositions.current,
-      prevCollidingSpaces.current,
-      prevMovementMap.current,
-      prevSecondaryCollisionMap.current,
     );
 
     prevPositions.current = newPositions;
     prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
-    prevSecondaryCollisionMap.current = secondaryCollisionMap || {};
+    prevSecondOrderCollisionMap.current = secondOrderCollisionMap || {};
 
     let correctedMovementMap = movementMap || {};
 
@@ -156,6 +169,7 @@ export const useReflow = (
     };
   };
 };
+
 function getBottomMostRow(newPositions: OccupiedSpace[]): number {
   return newPositions
     .map((space) => space.bottom)

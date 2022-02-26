@@ -52,10 +52,6 @@ export type Delta = {
   Y: number;
 };
 
-export type MovingSpace = OccupiedSpace & {
-  moving: true;
-};
-
 export type CollidingSpace = OccupiedSpace & {
   direction: ReflowDirection;
   collidingValue: number;
@@ -64,7 +60,7 @@ export type CollidingSpace = OccupiedSpace & {
   order: number;
 };
 
-export type SecondaryCollision = OccupiedSpace & {
+export type SecondOrderCollision = OccupiedSpace & {
   children: {
     [key: string]: OccupiedSpace & {
       direction: ReflowDirection;
@@ -74,8 +70,8 @@ export type SecondaryCollision = OccupiedSpace & {
   };
 };
 
-export type SecondaryCollisionMap = {
-  [key: string]: SecondaryCollision;
+export type SecondOrderCollisionMap = {
+  [key: string]: SecondOrderCollision;
 };
 
 export type MovementLimitMap = {
@@ -137,4 +133,22 @@ export type ReflowedSpaceMap = {
   [key: string]: ReflowedSpace;
 };
 
+export type PrevReflowState = {
+  prevSpacesMap: SpaceMap;
+  prevCollidingSpaceMap: CollidingSpaceMap;
+  prevMovementMap: ReflowedSpaceMap;
+  prevSecondOrderCollisionMap: SecondOrderCollisionMap;
+};
+
 export type SpaceMap = { [id: string]: OccupiedSpace };
+
+export type DirectionalVariables = {
+  [key: string]: {
+    [direction: string]: [number, number, CollisionAccessors, ReflowDirection];
+  };
+};
+
+export type OrientationAccessors = {
+  primary: "horizontal" | "vertical";
+  secondary: "horizontal" | "vertical";
+};
