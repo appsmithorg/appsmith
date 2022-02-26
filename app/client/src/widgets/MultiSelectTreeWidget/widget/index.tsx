@@ -426,9 +426,7 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   filterValues(values: string[] | undefined) {
-    const options = this.props.options
-      ? this.flat(this.props.options as DropdownOption[])
-      : [];
+    const options = this.props.options ? this.flat(this.props.options) : [];
     if (isArray(values)) {
       return values.filter((o) => {
         const index = findIndex(options, { value: o });

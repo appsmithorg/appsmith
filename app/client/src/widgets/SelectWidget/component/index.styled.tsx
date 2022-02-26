@@ -164,7 +164,7 @@ export const DropdownStyles = createGlobalStyle<{
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-width-${id} {
-    min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
 
     & .${Classes.INPUT_GROUP} {
        width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
@@ -172,7 +172,6 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `}
   .select-popover-wrapper {
-    width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: 0;
     background: white;
