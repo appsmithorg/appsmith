@@ -99,8 +99,8 @@ function* setFormEvaluationSagaAsync(
             queueOfValuesToBeFetched,
             formId,
             evalOutput,
-            action.payload.datasourceId,
-            action.payload.pluginId,
+            action.payload.datasourceId ? action.payload.datasourceId : "",
+            action.payload.pluginId ? action.payload.pluginId : "",
           );
         }
       }
