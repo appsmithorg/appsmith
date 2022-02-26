@@ -8,6 +8,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 import { QueryActionConfig } from "../entities/Action";
+import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -116,9 +117,11 @@ export const initFormEvaluations = (
 export const startFormEvaluations = (
   formId: string,
   formData: QueryActionConfig,
+  datasourceId: string,
+  pluginId: string,
 ) => {
   return {
     type: ReduxActionTypes.RUN_FORM_EVALUATION,
-    payload: { formId, actionConfiguration: formData },
+    payload: { formId, actionConfiguration: formData, datasourceId, pluginId },
   };
 };
