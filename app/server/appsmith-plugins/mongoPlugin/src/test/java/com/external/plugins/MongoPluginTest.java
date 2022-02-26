@@ -185,6 +185,17 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
+    @Test
+    public void testDatasourceFailWithInvalidDefaultDatabaseName() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().setDefaultDatabaseName("abcd");
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
+    }
 
     /*
      * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization.

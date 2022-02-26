@@ -108,6 +108,7 @@ function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {
     <TooltipWrapper>
       <TooltipComponent content={createMessage(COPY_SSH_KEY)}>
         <Icon
+          className="t--copy-ssh-key"
           fillColor={Colors.DARK_GRAY}
           hoverFillColor={Colors.GRAY2}
           name="duplicate"
@@ -124,9 +125,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
   const { generateSSHKey } = useSSHKeyPair();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showKeyRegeneratedMessage, setShowKeyRegeneratedMessage] = useState(
-    false,
-  );
+  const [showKeyGeneratedMessage, setShowKeyGeneratedMessage] = useState(true);
 
   const learnMoreClickHandler = () => {
     AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
@@ -139,7 +138,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
     generateSSHKey();
     setShowConfirmation(false);
     setIsMenuOpen(false);
-    setShowKeyRegeneratedMessage(true);
+    setShowKeyGeneratedMessage(true);
     Toaster.show({
       text: createMessage(SSH_KEY_GENERATED),
       variant: Variant.success,
@@ -220,13 +219,13 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
           </Menu>
         </MoreMenuWrapper>
       </FlexRow>
-      {showKeyRegeneratedMessage && (
+      {showKeyGeneratedMessage && (
         <NotificationBannerContainer>
           <NotificationBanner
             canClose
             className={"enterprise"}
             learnMoreClickHandler={learnMoreClickHandler}
-            onClose={() => setShowKeyRegeneratedMessage(false)}
+            onClose={() => setShowKeyGeneratedMessage(false)}
             variant={NotificationVariant.info}
           >
             <div>

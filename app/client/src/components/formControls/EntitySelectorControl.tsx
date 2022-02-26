@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
+import { allowedControlTypes } from "components/formControls/utils";
 
 const dropDownFieldConfig: any = {
   label: "",
@@ -16,8 +17,6 @@ const inputFieldConfig: any = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
 };
-
-const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
 
 // Component for the icons
 const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
@@ -54,8 +53,8 @@ function EntitySelectorComponent(props: any) {
     <EntitySelectorContainer key={`ES_${configProperty}`}>
       {schema &&
         schema.length > 0 &&
-        schema.map(
-          (singleSchema: any, index: number) =>
+        schema.map((singleSchema: any, index: number) => {
+          return (
             allowedControlTypes.includes(singleSchema.controlType) && (
               <React.Fragment key={`ES_FRAG_${singleSchema.configProperty}`}>
                 {singleSchema.controlType === "DROP_DOWN" ? (
@@ -87,8 +86,9 @@ function EntitySelectorComponent(props: any) {
                   />
                 )}
               </React.Fragment>
-            ),
-        )}
+            )
+          );
+        })}
     </EntitySelectorContainer>
   );
 }

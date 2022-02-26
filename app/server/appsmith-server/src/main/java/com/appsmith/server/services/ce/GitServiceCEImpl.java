@@ -36,6 +36,7 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -547,13 +548,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                 // Add BE analytics
                 .flatMap(tuple -> {
                     String status = tuple.getT1();
-                    Application application = tuple.getT2();
-                    return addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_COMMIT.getEventName(),
-                            application,
-                            application.getGitApplicationMetadata().getIsRepoPrivate()
-                    )
-                    .thenReturn(status);
+                    Application childApplication = tuple.getT2();
+                    // Update json schema versions so that we can detect if the next update was made by DB migration or
+                    // by the user
+                    Application update = new Application();
+                    update.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+                    update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+                    return applicationService.update(childApplication.getId(), update)
+                            .then(addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_COMMIT.getEventName(),
+                                    childApplication,
+                                    childApplication.getGitApplicationMetadata().getIsRepoPrivate()
+                            ))
+                            .thenReturn(status);
                 });
 
         return Mono.create(sink -> commitMono
@@ -2087,6 +2094,52 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .thenReturn(gitAuth);
+    }
+
+    @Override
+    public Mono<Boolean> testConnection(String defaultApplicationId) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInvalidDefaultApplicationGitMetadata(gitApplicationMetadata)) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                    }
+                    return gitExecutor.testConnection(
+                            gitApplicationMetadata.getGitAuth().getPublicKey(),
+                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                            gitApplicationMetadata.getRemoteUrl()
+                    ).zipWith(Mono.just(application))
+                            .onErrorResume(error -> {
+                                log.error("Error while testing the connection to th remote repo " + gitApplicationMetadata.getRemoteUrl() + " ", error);
+                                return addAnalyticsForGitOperation(
+                                        AnalyticsEvents.GIT_TEST_CONNECTION.getEventName(),
+                                        application,
+                                        error.getClass().getName(),
+                                        error.getMessage(),
+                                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                                ).flatMap(application1 -> {
+                                    if (error instanceof TransportException) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                                    }
+                                    if (error instanceof InvalidRemoteException) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
+                                    }
+                                    if (error instanceof TimeoutException) {
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                    }
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
+                                });
+
+                            });
+                })
+                .flatMap(objects -> {
+                    Application application = objects.getT2();
+                    return addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_TEST_CONNECTION.getEventName(),
+                            application,
+                            application.getGitApplicationMetadata().getIsRepoPrivate()
+                    ).thenReturn(objects.getT1());
+                });
     }
 
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
