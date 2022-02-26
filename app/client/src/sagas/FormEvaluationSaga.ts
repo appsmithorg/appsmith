@@ -127,6 +127,7 @@ function* fetchDynamicValuesSaga(
       formId,
       datasourceId,
       pluginId,
+      key,
     );
   }
   // Set the values to the state once all values are fetched
@@ -142,6 +143,7 @@ function* fetchDynamicValueSaga(
   actionId: string,
   datasourceId: string,
   pluginId: string,
+  configProperty: string,
 ) {
   try {
     const { config } = value.fetchDynamicValues as DynamicValues;
@@ -152,6 +154,7 @@ function* fetchDynamicValueSaga(
     // Call the API to fetch the dynamic values
     const response = yield call(PluginsApi.fetchDynamicFormValues, url, {
       actionId,
+      configProperty,
       datasourceId,
       pluginId,
       ...params,
