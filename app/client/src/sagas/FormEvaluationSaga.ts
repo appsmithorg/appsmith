@@ -87,16 +87,18 @@ function* setFormEvaluationSagaAsync(
         // Once all the actions are done, extract the actions that need to be fetched dynamically
         const formId = action.payload.formId;
         const evalOutput = workerResponse[formId];
-        const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
-          evalOutput,
-        );
-        // Pass the queue to the saga to fetch the dynamic values
-        yield call(
-          fetchDynamicValuesSaga,
-          queueOfValuesToBeFetched,
-          formId,
-          evalOutput,
-        );
+        if (!!evalOutput && typeof evalOutput === "object") {
+          const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
+            evalOutput,
+          );
+          // Pass the queue to the saga to fetch the dynamic values
+          yield call(
+            fetchDynamicValuesSaga,
+            queueOfValuesToBeFetched,
+            formId,
+            evalOutput,
+          );
+        }
       }
     } catch (e) {
       log.error(e);
@@ -112,11 +114,10 @@ function* fetchDynamicValuesSaga(
   evalOutput: FormEvalOutput,
 ) {
   for (const key of Object.keys(queueOfValuesToBeFetched)) {
-    evalOutput = yield call(
+    evalOutput[key].fetchDynamicValues = yield call(
       fetchDynamicValueSaga,
       queueOfValuesToBeFetched[key],
-      key,
-      evalOutput,
+      Object.assign({}, evalOutput[key].fetchDynamicValues as DynamicValues),
     );
   }
   // Set the values to the state once all values are fetched
@@ -128,34 +129,31 @@ function* fetchDynamicValuesSaga(
 
 function* fetchDynamicValueSaga(
   value: ConditionalOutput,
-  key: string,
-  evalOutput: FormEvalOutput,
+  dynamicFetchedValues: DynamicValues,
 ) {
   try {
     const { config } = value.fetchDynamicValues as DynamicValues;
     const { url } = config;
 
-    (evalOutput[key].fetchDynamicValues as DynamicValues).hasStarted = true;
+    dynamicFetchedValues.hasStarted = true;
 
     // Call the API to fetch the dynamic values
     const response = yield call(PluginsApi.fetchDynamicFormValues, url);
-    (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
+    dynamicFetchedValues.isLoading = false;
     if (!!response && response instanceof Array) {
-      (evalOutput[key].fetchDynamicValues as DynamicValues).data = response;
-      (evalOutput[key]
-        .fetchDynamicValues as DynamicValues).hasFetchFailed = false;
+      dynamicFetchedValues.data = response;
+      dynamicFetchedValues.hasFetchFailed = false;
     } else {
-      (evalOutput[key]
-        .fetchDynamicValues as DynamicValues).hasFetchFailed = true;
-      (evalOutput[key].fetchDynamicValues as DynamicValues).data = [];
+      dynamicFetchedValues.hasFetchFailed = true;
+      dynamicFetchedValues.data = [];
     }
   } catch (e) {
     log.error(e);
-    (evalOutput[key].fetchDynamicValues as DynamicValues).hasFetchFailed = true;
-    (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
-    (evalOutput[key].fetchDynamicValues as DynamicValues).data = [];
+    dynamicFetchedValues.hasFetchFailed = true;
+    dynamicFetchedValues.isLoading = false;
+    dynamicFetchedValues.data = [];
   }
-  return evalOutput;
+  return dynamicFetchedValues;
 }
 
 function* formEvaluationChangeListenerSaga() {
