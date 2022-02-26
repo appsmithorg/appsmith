@@ -88,7 +88,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.get(".t--propery-page-title")
       .type("TableUpdated", { delay: 300 })
       .type("{enter}");
-    cy.wait("@updateLayout").should(
+    cy.wait("@updateWidgetName").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
