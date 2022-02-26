@@ -98,8 +98,6 @@ function* setFormEvaluationSagaAsync(
             formId,
             evalOutput,
           );
-        } else {
-          console.error("Ayush senses something bad", evalOutput);
         }
       }
     } catch (e) {
