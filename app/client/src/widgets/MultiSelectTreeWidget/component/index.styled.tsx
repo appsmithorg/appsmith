@@ -89,7 +89,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `}
 .rc-tree-select-dropdown-hidden {
-	display: none ;
+	display: none;
 }
 .rc-tree-select-item-group {
 	color: #999;
@@ -270,7 +270,6 @@ border: 1px solid #E8E8E8;
   margin-top: 5px;
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-  overflow-x: scroll;
   > div {
       min-width: ${({ dropDownWidth }) => dropDownWidth}px;
     }
@@ -434,7 +433,6 @@ border: 1px solid #E8E8E8;
 	text-decoration: none;
 	vertical-align: top;
 	cursor: pointer;
-  flex: 1;
   overflow-wrap: break-word;
   white-space: nowrap;
   overflow: hidden;
