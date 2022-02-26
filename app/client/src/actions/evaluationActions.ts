@@ -8,7 +8,6 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 import { QueryActionConfig } from "../entities/Action";
-import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
