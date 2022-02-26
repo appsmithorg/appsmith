@@ -87,16 +87,20 @@ function* setFormEvaluationSagaAsync(
         // Once all the actions are done, extract the actions that need to be fetched dynamically
         const formId = action.payload.formId;
         const evalOutput = workerResponse[formId];
-        const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
-          evalOutput,
-        );
-        // Pass the queue to the saga to fetch the dynamic values
-        yield call(
-          fetchDynamicValuesSaga,
-          queueOfValuesToBeFetched,
-          formId,
-          evalOutput,
-        );
+        if (!!evalOutput && typeof evalOutput === "object") {
+          const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
+            evalOutput,
+          );
+          // Pass the queue to the saga to fetch the dynamic values
+          yield call(
+            fetchDynamicValuesSaga,
+            queueOfValuesToBeFetched,
+            formId,
+            evalOutput,
+          );
+        } else {
+          console.error("Ayush senses something bad", evalOutput);
+        }
       }
     } catch (e) {
       log.error(e);
