@@ -370,7 +370,8 @@ class MultiSelectTreeWidget extends BaseWidget<
     const filteredValue = this.filterValues(values);
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
       <MultiTreeSelectComponent
         allowClear={this.props.allowClear}
@@ -388,7 +389,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         }}
         expandAll={this.props.expandAll}
         isFilterable
-        isValid={this.props.isValid}
+        isValid={!isInvalid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -414,6 +415,9 @@ class MultiSelectTreeWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   flat(array: DropdownOption[]) {
@@ -468,6 +472,7 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  isDirty?: boolean;
 }
 
 export default MultiSelectTreeWidget;
