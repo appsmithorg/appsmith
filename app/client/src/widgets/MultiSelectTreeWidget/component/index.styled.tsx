@@ -89,7 +89,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `}
 .rc-tree-select-dropdown-hidden {
-	display: block !important ;
+	display: none ;
 }
 .rc-tree-select-item-group {
 	color: #999;

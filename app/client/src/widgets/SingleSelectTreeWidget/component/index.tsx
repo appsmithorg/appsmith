@@ -26,17 +26,13 @@ import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
+import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
 
 export interface TreeSelectProps
   extends Required<
     Pick<
       SelectProps,
-      | "disabled"
-      | "options"
-      | "placeholder"
-      | "loading"
-      | "dropdownStyle"
-      | "allowClear"
+      "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
     >
   > {
   value?: DefaultValueType;
@@ -50,6 +46,7 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
+  options?: DefaultOptionType[];
 }
 
 const getSvg = (expanded: boolean) => (

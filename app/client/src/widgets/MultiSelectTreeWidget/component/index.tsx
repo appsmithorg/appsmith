@@ -28,17 +28,13 @@ import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
+import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
 
 export interface TreeSelectProps
   extends Required<
     Pick<
       SelectProps,
-      | "disabled"
-      | "options"
-      | "placeholder"
-      | "loading"
-      | "dropdownStyle"
-      | "allowClear"
+      "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
     >
   > {
   value?: DefaultValueType;
@@ -56,6 +52,7 @@ export interface TreeSelectProps
   filterText?: string;
   widgetId: string;
   isFilterable: boolean;
+  options?: DefaultOptionType[];
 }
 
 const getSvg = (expanded: boolean) => (
@@ -118,7 +115,6 @@ function MultiTreeSelectComponent({
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
-  const [filteredOptions, setFilteredOptions] = useState(options);
   const _menu = useRef<HTMLElement | null>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
@@ -174,7 +170,7 @@ function MultiTreeSelectComponent({
         <div className={`${loading ? Classes.SKELETON : ""}`}>{menu}</div>
       </>
     ),
-    [filteredOptions, loading, isFilterable, filter],
+    [loading, isFilterable, filter],
   );
 
   const onClear = useCallback(() => onChange([], []), []);
@@ -224,6 +220,7 @@ function MultiTreeSelectComponent({
         dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${widgetId}`}
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
+        filterTreeNode
         getPopupContainer={getDropdownPosition}
         inputIcon={
           <Icon
@@ -248,9 +245,10 @@ function MultiTreeSelectComponent({
             name="close-x"
           />
         }
+        searchValue={filter}
         showArrow
         showCheckedStrategy={mode}
-        showSearch
+        showSearch={false}
         style={{ width: "100%" }}
         switcherIcon={switcherIcon}
         transitionName="rc-tree-select-dropdown-slide-up"
