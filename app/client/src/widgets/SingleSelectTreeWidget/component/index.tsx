@@ -1,7 +1,9 @@
 import React, {
+  ChangeEvent,
   ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -21,9 +23,8 @@ import {
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
-import { Classes } from "@blueprintjs/core";
+import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import _ from "lodash";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
@@ -46,6 +47,9 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
+  filterText?: string;
+  widgetId: string;
+  isFilterable: boolean;
   options?: DefaultOptionType[];
 }
 
@@ -91,6 +95,8 @@ function SingleSelectTreeComponent({
   dropdownStyle,
   dropDownWidth,
   expandAll,
+  filterText,
+  isFilterable,
   isValid,
   labelStyle,
   labelText,
@@ -101,9 +107,12 @@ function SingleSelectTreeComponent({
   options,
   placeholder,
   value,
+  widgetId,
   width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
+  const [filter, setFilter] = useState(filterText ?? "");
+
   const _menu = useRef<HTMLElement | null>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
@@ -122,7 +131,46 @@ function SingleSelectTreeComponent({
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
   const onClear = useCallback(() => onChange([], []), []);
-  const id = _.uniqueId();
+
+  const clearButton = useMemo(
+    () => (
+      <Button
+        disabled={disabled}
+        icon="cross"
+        minimal
+        onClick={() => setFilter("")}
+      />
+    ),
+    [],
+  );
+  const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    setFilter(event.target.value);
+  };
+
+  const dropdownRender = useCallback(
+    (
+      menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
+    ) => (
+      <>
+        {isFilterable ? (
+          <InputGroup
+            autoFocus
+            leftIcon="search"
+            onChange={onQueryChange}
+            onKeyDown={(e) => e.stopPropagation()}
+            placeholder="Filter..."
+            rightElement={clearButton}
+            small
+            type="text"
+            value={filter}
+          />
+        ) : null}
+        <div className={`${loading ? Classes.SKELETON : ""}`}>{menu}</div>
+      </>
+    ),
+    [loading, isFilterable, filter],
+  );
 
   return (
     <TreeSelectContainer
@@ -132,7 +180,7 @@ function SingleSelectTreeComponent({
     >
       <DropdownStyles
         dropDownWidth={dropDownWidth}
-        id={id}
+        id={widgetId}
         parentWidth={width - WidgetContainerDiff}
       />
       {labelText && (
@@ -166,8 +214,10 @@ function SingleSelectTreeComponent({
           />
         }
         disabled={disabled}
-        dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${id}`}
+        dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${widgetId}`}
+        dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
+        filterTreeNode
         getPopupContainer={getDropdownPosition}
         inputIcon={
           <Icon
@@ -185,7 +235,7 @@ function SingleSelectTreeComponent({
         onClear={onClear}
         placeholder={placeholder}
         showArrow
-        showSearch
+        showSearch={false}
         style={{ width: "100%" }}
         switcherIcon={switcherIcon}
         transitionName="rc-tree-select-dropdown-slide-up"

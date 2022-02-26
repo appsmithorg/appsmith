@@ -225,6 +225,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
     border-radius: 100%;
     border-collapse: separate;
     transition: all .3s;
+    flex-shrink: 0;
   }
 }
 
@@ -232,7 +233,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
   min-height: 100px;
   position: absolute;
   background: #fff;
-  width: 100%;
+  width: auto;
   border-radius: 0px;
   margin-top: 5px;
   background: white;
@@ -263,6 +264,55 @@ ${({ dropDownWidth, id, parentWidth }) => `
     box-shadow: none;
     outline: none !important;
   }
+  & .${Classes.INPUT_GROUP} {
+      padding: 12px 12px 8px 12px;
+      min-width: 180px;
+
+      & > .${Classes.ICON} {
+        &:first-child {
+          left: 12px;
+          top: 14px;
+          margin: 9px;
+          color: ${Colors.GREY_7};
+
+          & > svg {
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+      & > .${Classes.INPUT_ACTION} {
+        &:last-child {
+          right: 13px;
+          top: 13px;
+
+          .${Classes.BUTTON} {
+            min-height: 34px;
+            min-width: 35px;
+            margin: 0px;
+            color: ${Colors.GREY_6} !important;
+
+            &:hover {
+              color: ${Colors.GREY_10} !important;
+              background: ${Colors.GREY_2};
+              border-radius: 0;
+            }
+          }
+        }
+      }
+      .${Classes.INPUT} {
+        height: 36px;
+        padding-left: 29px !important;
+        font-size: 14px;
+        border: 1px solid ${Colors.GREY_3};
+        color: ${Colors.GREY_10};
+        box-shadow: 0px 0px 0px 0px;
+        &:focus {
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
+        }
+      }
+    }
   .rc-tree-select-item {
     font-size: 16px;
     line-height: 1.5;
@@ -350,7 +400,11 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	text-decoration: none;
 	vertical-align: top;
 	cursor: pointer;
-  flex: 1
+  overflow-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 0;
 }
 
 .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner:after {
@@ -593,7 +647,9 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	display: inline-block;
   margin-left: 10px;
   font-size: 14px !important;
-  color: ${Colors.GREY_8}
+  color: ${Colors.GREY_8};
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rc-tree-select-tree-indent {
 	display: inline-block;
@@ -744,6 +800,7 @@ export const TreeSelectContainer = styled.div<{
       text-overflow: ellipsis;
       pointer-events: none;
       font-size: 14px;
+      width: calc(100% - 40px);
     }
   }
   .rc-tree-select-multiple {

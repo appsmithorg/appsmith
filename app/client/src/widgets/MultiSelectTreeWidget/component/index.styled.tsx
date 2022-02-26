@@ -981,11 +981,6 @@ export const TreeSelectContainer = styled.div<{
     }
   }
 `;
-/* export const StyledCheckbox = styled(Checkbox)`
-  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
-    margin: 0;
-  }
-`; */
 
 export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
