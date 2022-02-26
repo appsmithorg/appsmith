@@ -89,7 +89,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `}
 .rc-tree-select-dropdown-hidden {
-	display: none;
+	display: block !important ;
 }
 .rc-tree-select-item-group {
 	color: #999;
@@ -265,11 +265,15 @@ border: 1px solid #E8E8E8;
   min-height: 100px;
   position: absolute;
   background: #fff;
-  width: 100%;
+  width: auto;
   border-radius: 0px;
   margin-top: 5px;
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+  overflow-x: scroll;
+  > div {
+      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
+    }
     &&&& .${Classes.ALIGN_LEFT} {
         font-size: 16px;
         padding-bottom: 10px;
@@ -296,12 +300,64 @@ border: 1px solid #E8E8E8;
 						box-shadow: none;
 						outline: none !important;
     }
+    & .${Classes.INPUT_GROUP} {
+      padding: 12px 12px 8px 12px;
+      min-width: 180px;
+
+      & > .${Classes.ICON} {
+        &:first-child {
+          left: 12px;
+          top: 14px;
+          margin: 9px;
+          color: ${Colors.GREY_7};
+
+          & > svg {
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+      & > .${Classes.INPUT_ACTION} {
+        &:last-child {
+          right: 13px;
+          top: 13px;
+
+          .${Classes.BUTTON} {
+            min-height: 34px;
+            min-width: 35px;
+            margin: 0px;
+            color: ${Colors.GREY_6} !important;
+
+            &:hover {
+              color: ${Colors.GREY_10} !important;
+              background: ${Colors.GREY_2};
+              border-radius: 0;
+            }
+          }
+        }
+      }
+      .${Classes.INPUT} {
+        height: 36px;
+        padding-left: 29px !important;
+        font-size: 14px;
+        border: 1px solid ${Colors.GREY_3};
+        color: ${Colors.GREY_10};
+        box-shadow: 0px 0px 0px 0px;
+        &:focus {
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
+        }
+      }
+    }
     .rc-tree-select-item {
 	font-size: 16px;
 	line-height: 1.5;
 	padding: 5px 16px;
 	align-items: center;
 	cursor: pointer;
+}
+.rc-tree-select-tree-list-holder-inner {
+  overflow: hidden;
 }
 .rc-tree-select-item-option-state {
 	.bp3-control.bp3-checkbox {
@@ -378,7 +434,12 @@ border: 1px solid #E8E8E8;
 	text-decoration: none;
 	vertical-align: top;
 	cursor: pointer;
-  flex: 1
+  flex: 1;
+  overflow-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 0;
 }
 
 .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
@@ -576,6 +637,8 @@ border: 1px solid #E8E8E8;
   margin-left: 10px;
   font-size: 14px !important;
   color: ${Colors.GREY_8};
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rc-tree-select-tree-indent {
 	display: inline-block;
@@ -918,9 +981,26 @@ export const TreeSelectContainer = styled.div<{
     }
   }
 `;
-export const StyledCheckbox = styled(Checkbox)`
+/* export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     margin: 0;
+  }
+`; */
+
+export const StyledCheckbox = styled(Checkbox)`
+  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 38px;
+    padding-bottom: 0 !important;
+    color: ${Colors.GREY_8} !important;
+    display: flex;
+    align-items: center;
+    &:hover {
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_9} !important;
+    }
   }
 `;
 

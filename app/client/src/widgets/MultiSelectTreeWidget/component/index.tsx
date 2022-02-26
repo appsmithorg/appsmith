@@ -1,7 +1,9 @@
 import React, {
+  ChangeEvent,
   ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -22,8 +24,7 @@ import {
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
-import { Classes } from "@blueprintjs/core";
-import _ from "lodash";
+import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
@@ -52,6 +53,9 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
+  filterText?: string;
+  widgetId: string;
+  isFilterable: boolean;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -96,6 +100,8 @@ function MultiTreeSelectComponent({
   dropdownStyle,
   dropDownWidth,
   expandAll,
+  filterText,
+  isFilterable,
   isValid,
   labelStyle,
   labelText,
@@ -107,9 +113,12 @@ function MultiTreeSelectComponent({
   options,
   placeholder,
   value,
+  widgetId,
   width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
+  const [filter, setFilter] = useState(filterText ?? "");
+  const [filteredOptions, setFilteredOptions] = useState(options);
   const _menu = useRef<HTMLElement | null>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
@@ -117,6 +126,18 @@ function MultiTreeSelectComponent({
   useEffect(() => {
     setKey(Math.random());
   }, [expandAll]);
+
+  const clearButton = useMemo(
+    () => (
+      <Button
+        disabled={disabled}
+        icon="cross"
+        minimal
+        onClick={() => setFilter("")}
+      />
+    ),
+    [],
+  );
 
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -127,9 +148,36 @@ function MultiTreeSelectComponent({
     }
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
+  const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    setFilter(event.target.value);
+  };
+
+  const dropdownRender = useCallback(
+    (
+      menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
+    ) => (
+      <>
+        {isFilterable ? (
+          <InputGroup
+            autoFocus
+            leftIcon="search"
+            onChange={onQueryChange}
+            onKeyDown={(e) => e.stopPropagation()}
+            placeholder="Filter..."
+            rightElement={clearButton}
+            small
+            type="text"
+            value={filter}
+          />
+        ) : null}
+        <div className={`${loading ? Classes.SKELETON : ""}`}>{menu}</div>
+      </>
+    ),
+    [filteredOptions, loading, isFilterable, filter],
+  );
 
   const onClear = useCallback(() => onChange([], []), []);
-  const id = _.uniqueId();
   return (
     <TreeSelectContainer
       allowClear={allowClear}
@@ -139,7 +187,7 @@ function MultiTreeSelectComponent({
     >
       <DropdownStyles
         dropDownWidth={dropDownWidth}
-        id={id}
+        id={widgetId}
         parentWidth={width - WidgetContainerDiff}
       />
       {labelText && (
@@ -173,7 +221,8 @@ function MultiTreeSelectComponent({
           />
         }
         disabled={disabled}
-        dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${id}`}
+        dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${widgetId}`}
+        dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         getPopupContainer={getDropdownPosition}
         inputIcon={
