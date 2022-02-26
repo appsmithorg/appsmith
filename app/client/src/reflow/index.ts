@@ -1,5 +1,4 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import _ from "lodash";
 import { getMovementMap } from "./reflowHelpers";
 import {
   CollidingSpaceMap,
