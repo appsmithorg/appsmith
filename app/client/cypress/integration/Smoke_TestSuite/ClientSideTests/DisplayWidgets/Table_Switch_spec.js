@@ -56,24 +56,6 @@ describe("Table Widget and Switch binding Functionality", function() {
     );
   });
 
-  it("Selected row and binding with Text widget", function() {
-    cy.wait(5000);
-    cy.get(".t--table-multiselect")
-      .eq(1)
-      .click({ force: true });
-    cy.get(".t--draggable-textwidget .bp3-ui-text span").should(
-      "contain.text",
-      "30",
-    );
-    cy.get(".t--table-multiselect")
-      .eq(0)
-      .click({ force: true });
-    cy.get(".t--draggable-textwidget .bp3-ui-text span").should(
-      "contain.text",
-      "29",
-    );
-  });
-
   afterEach(() => {
     // put your clean up code if any
   });
