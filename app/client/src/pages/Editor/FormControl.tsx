@@ -133,6 +133,7 @@ function FormConfig(props: FormConfigProps) {
   );
 }
 
+// Updated the memo function to allow for disabled props to be compared
 export default memo(FormControl, (prevProps, nextProps) => {
   return (
     prevProps === nextProps &&

@@ -597,6 +597,7 @@ export function EditorJSONtoForm(props: Props) {
     }
   };
 
+  // Extract the output of conditionals attached to the form from the state
   const extractConditionalOutput = (section: any): ConditionalOutput => {
     let conditionalOutput: ConditionalOutput = {};
     if (
@@ -663,6 +664,7 @@ export function EditorJSONtoForm(props: Props) {
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
     let enabled = true;
     if (!!section) {
+      // If the section is a nested component, recursively check for conditional statements
       if ("schema" in section && section.schema.length > 0) {
         section.schema.forEach((subSection: any) => {
           const conditionalOutput = extractConditionalOutput({

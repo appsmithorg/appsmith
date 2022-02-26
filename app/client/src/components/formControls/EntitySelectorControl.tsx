@@ -1,7 +1,6 @@
 import React from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -39,15 +38,6 @@ const EntitySelectorContainer = styled.div`
   justify-content: space-between;
 `;
 
-export const StyledBottomLabel = styled(FormLabel)`
-  margin-top: 5px;
-  margin-left: 5px;
-  font-weight: 400;
-  font-size: 12px;
-  color: ${Colors.GREY_7};
-  line-height: 16px;
-`;
-
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
 
@@ -67,7 +57,7 @@ function EntitySelectorComponent(props: any) {
         schema.map(
           (singleSchema: any, index: number) =>
             allowedControlTypes.includes(singleSchema.controlType) && (
-              <>
+              <React.Fragment key={`ES_FRAG_${singleSchema.configProperty}`}>
                 {singleSchema.controlType === "DROP_DOWN" ? (
                   <FormControl
                     config={{
@@ -96,13 +86,15 @@ function EntitySelectorComponent(props: any) {
                     size={IconSize.SMALL}
                   />
                 )}
-              </>
+              </React.Fragment>
             ),
         )}
     </EntitySelectorContainer>
   );
 }
 
+// This is a wrapper component that just encapsulated the children dropdown and dynamic text
+// components & changes their appearance
 export default function EntitySelectorControl(
   props: EntitySelectorControlProps,
 ) {

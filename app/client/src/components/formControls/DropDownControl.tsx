@@ -34,7 +34,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         <Field
           component={renderDropdown}
           name={this.props.configProperty}
-          props={{ ...this.props, width }} // Passing options and isLoading in props allows the component to get the updated values
+          props={{ ...this.props, width }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>
@@ -96,10 +96,17 @@ export interface DropDownControlProps extends ControlProps {
   isLoading: boolean;
 }
 
-const mapStateToProps = (state: AppState, ownProps: DropDownControlProps) => {
+const mapStateToProps = (
+  state: AppState,
+  ownProps: DropDownControlProps,
+): { isLoading: boolean; options: DropdownOption[] } => {
+  // Added default options to prevent error when options is undefined
+  let isLoading = false;
+  let options: DropdownOption[] = ownProps.fetchOptionsCondtionally
+    ? []
+    : ownProps.options;
+
   try {
-    let isLoading = false;
-    let options: DropdownOption[] = ownProps.options;
     if (ownProps.fetchOptionsCondtionally) {
       const dynamicFetchedValues = getDynamicFetchedValues(
         state,
@@ -111,10 +118,11 @@ const mapStateToProps = (state: AppState, ownProps: DropDownControlProps) => {
     return { isLoading, options };
   } catch (e) {
     return {
-      isLoading: false,
-      options: ownProps.fetchOptionsCondtionally ? [] : ownProps.options,
+      isLoading,
+      options,
     };
   }
 };
 
+// Connecting this componenet to the state to allow for dynamic fetching of options to be updated.
 export default connect(mapStateToProps)(DropDownControl);

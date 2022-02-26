@@ -112,11 +112,10 @@ function* fetchDynamicValuesSaga(
   evalOutput: FormEvalOutput,
 ) {
   for (const key of Object.keys(queueOfValuesToBeFetched)) {
-    evalOutput = yield call(
+    evalOutput[key].fetchDynamicValues = yield call(
       fetchDynamicValueSaga,
       queueOfValuesToBeFetched[key],
-      key,
-      Object.assign({}, evalOutput),
+      Object.assign({}, evalOutput[key].fetchDynamicValues as DynamicValues),
     );
   }
   // Set the values to the state once all values are fetched
@@ -128,34 +127,31 @@ function* fetchDynamicValuesSaga(
 
 function* fetchDynamicValueSaga(
   value: ConditionalOutput,
-  key: string,
-  evalOutput: FormEvalOutput,
+  dynamicFetchedValues: DynamicValues,
 ) {
   try {
     const { config } = value.fetchDynamicValues as DynamicValues;
     const { url } = config;
 
-    (evalOutput[key].fetchDynamicValues as DynamicValues).hasStarted = true;
+    dynamicFetchedValues.hasStarted = true;
 
     // Call the API to fetch the dynamic values
     const response = yield call(PluginsApi.fetchDynamicFormValues, url);
-    (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
+    dynamicFetchedValues.isLoading = false;
     if (!!response && response instanceof Array) {
-      (evalOutput[key].fetchDynamicValues as DynamicValues).data = response;
-      (evalOutput[key]
-        .fetchDynamicValues as DynamicValues).hasFetchFailed = false;
+      dynamicFetchedValues.data = response;
+      dynamicFetchedValues.hasFetchFailed = false;
     } else {
-      (evalOutput[key]
-        .fetchDynamicValues as DynamicValues).hasFetchFailed = true;
-      (evalOutput[key].fetchDynamicValues as DynamicValues).data = [];
+      dynamicFetchedValues.hasFetchFailed = true;
+      dynamicFetchedValues.data = [];
     }
   } catch (e) {
     log.error(e);
-    (evalOutput[key].fetchDynamicValues as DynamicValues).hasFetchFailed = true;
-    (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
-    (evalOutput[key].fetchDynamicValues as DynamicValues).data = [];
+    dynamicFetchedValues.hasFetchFailed = true;
+    dynamicFetchedValues.isLoading = false;
+    dynamicFetchedValues.data = [];
   }
-  return evalOutput;
+  return dynamicFetchedValues;
 }
 
 function* formEvaluationChangeListenerSaga() {

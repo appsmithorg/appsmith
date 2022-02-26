@@ -34,6 +34,8 @@ export const getApiName = (state: AppState, id: string) => {
 export const getFormEvaluationState = (state: AppState): FormEvaluationState =>
   state.evaluations.formEvaluation;
 
+// Selector to return the fetched values of the form components, only called for components that
+// have the fetchOptionsDynamically option set to true
 export const getDynamicFetchedValues = (
   state: AppState,
   configProperty: string,
