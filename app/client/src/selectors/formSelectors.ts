@@ -1,13 +1,17 @@
 import { getFormValues, isValid, getFormInitialValues } from "redux-form";
 import { AppState } from "reducers";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import {
+  DynamicValues,
+  FormEvaluationState,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 import { createSelector } from "reselect";
-import _ from "lodash";
+import { replace } from "lodash";
 import { getDataTree } from "./dataTreeSelectors";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
 import { EvaluationError } from "utils/DynamicBindingUtils";
+import { getActionIdFromURL } from "pages/Editor/Explorer/helpers";
 
 type GetFormData = (
   state: AppState,
@@ -29,6 +33,16 @@ export const getApiName = (state: AppState, id: string) => {
 
 export const getFormEvaluationState = (state: AppState): FormEvaluationState =>
   state.evaluations.formEvaluation;
+
+// Selector to return the fetched values of the form components, only called for components that
+// have the fetchOptionsDynamically option set to true
+export const getDynamicFetchedValues = (
+  state: AppState,
+  configProperty: string,
+): DynamicValues =>
+  state.evaluations.formEvaluation[getActionIdFromURL() as string][
+    configProperty
+  ].fetchDynamicValues as DynamicValues;
 
 type ConfigErrorProps = { configProperty: string; formName: string };
 
@@ -53,7 +67,7 @@ export const getConfigErrors = createSelector(
         const actionError = action && action?.__evaluation__?.errors;
 
         // get the configProperty for this form control and format it to resemble the format used in the action details errors object.
-        const formattedConfig = _.replace(
+        const formattedConfig = replace(
           configProperty,
           "actionConfiguration",
           "config",

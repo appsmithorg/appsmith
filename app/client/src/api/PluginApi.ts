@@ -60,8 +60,9 @@ class PluginsApi extends Api {
   // Definition to fetch the dynamic data via the URL passed in the config
   static fetchDynamicFormValues(
     url: string,
+    body: Record<string, any>,
   ): AxiosPromise<GenericApiResponse<DropdownOption[]>> {
-    return Api.get(url);
+    return Api.post(url, body);
   }
 }
 

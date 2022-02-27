@@ -36,6 +36,7 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -547,13 +548,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                 // Add BE analytics
                 .flatMap(tuple -> {
                     String status = tuple.getT1();
-                    Application application = tuple.getT2();
-                    return addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_COMMIT.getEventName(),
-                            application,
-                            application.getGitApplicationMetadata().getIsRepoPrivate()
-                    )
-                    .thenReturn(status);
+                    Application childApplication = tuple.getT2();
+                    // Update json schema versions so that we can detect if the next update was made by DB migration or
+                    // by the user
+                    Application update = new Application();
+                    update.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+                    update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+                    return applicationService.update(childApplication.getId(), update)
+                            .then(addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_COMMIT.getEventName(),
+                                    childApplication,
+                                    childApplication.getGitApplicationMetadata().getIsRepoPrivate()
+                            ))
+                            .thenReturn(status);
                 });
 
         return Mono.create(sink -> commitMono

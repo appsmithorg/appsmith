@@ -10,9 +10,9 @@ import { BuilderRouteParams } from "constants/routes";
 import { curlImportFormValues, curlImportSubmitHandler } from "./helpers";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
-import Button from "components/editorComponents/Button";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import CloseEditor from "../../../components/editorComponents/CloseEditor";
+import Button, { Size } from "components/ads/Button";
 
 const StyledForm = styled(Form)`
   flex: 1;
@@ -50,7 +50,6 @@ const CurlImportFormContainer = styled.div`
 
 const CurlImport = styled.div`
   font-size: 20px;
-  padding: 20px;
 
   .backBtn {
     padding-bottom: 3px;
@@ -65,10 +64,11 @@ const CurlImport = styled.div`
 
 const CurlContainer = styled.div`
   margin-top: 20px;
-  padding-left: 70px;
-  padding-right: 70px;
+  padding-left: 16px;
+  padding-right: 16px;
 
   .inputLabel {
+    margin-bottom: 5px;
     font-weight: 500;
     font-size: 14px;
     color: ${Colors.BLUE_BAYOUX};
@@ -76,25 +76,38 @@ const CurlContainer = styled.div`
 `;
 
 const DividerLine = styled.div`
-  border: 1px solid ${Colors.CONCRETE};
+  border: 2px solid ${Colors.CONCRETE};
 `;
 
 const Header = styled.div`
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 10px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+
   .header {
+    display: flex;
+    width: auto;
+    align-items: center;
+  }
+
+  .text {
     font-weight: 500;
     font-size: 24px;
     line-height: 32px;
-    padding-left: 20px;
-    padding-top: 10px;
+    padding-left: 10px;
+  }
+  .curlImageContainer {
+    background-color: ${Colors.GREY_2};
+    border-radius: 9999px;
   }
   .curlImage {
-    float: left;
-    margin-top: -5px;
-    padding-right: 10px;
+    padding: 8px;
   }
-  .divider {
-    border: 1px solid ${Colors.CONCRETE};
-  }
+
   .closeBtn {
     position: absolute;
     left: 70%;
@@ -104,6 +117,16 @@ const Header = styled.div`
 const CurlLabel = styled.div`
   font-size: 12px;
   color: ${Colors.SLATE_GRAY};
+`;
+
+const ActionButtons = styled.div`
+  justify-self: flex-end;
+  display: flex;
+  align-items: center;
+
+  button:last-child {
+    margin-left: ${(props) => props.theme.spaces[7]}px;
+  }
 `;
 
 interface ReduxStateProps {
@@ -125,12 +148,26 @@ class CurlImportForm extends React.Component<Props> {
       <>
         <CloseEditor />
         <Header>
-          <p className="header">
-            <img alt="CURL" className="curlImage" src={CurlLogo} />
-            Import from CURL
-          </p>
-          <hr className="divider" />
+          <div className="header">
+            <div className="curlImageContainer">
+              <img alt="CURL" className="curlImage" src={CurlLogo} />
+            </div>
+            <p className="text">Import from CURL</p>
+          </div>
+
+          <ActionButtons className="t--formActionButtons">
+            <Button
+              className="importBtn t--importBtn"
+              isLoading={isImportingCurl}
+              onClick={handleSubmit(curlImportSubmitHandler)}
+              size={Size.large}
+              tag="button"
+              text="Import"
+              type="button"
+            />
+          </ActionButtons>
         </Header>
+        <DividerLine />
         <StyledForm onSubmit={handleSubmit(curlImportSubmitHandler)}>
           <CurlImport>
             <CurlContainer>
@@ -152,18 +189,6 @@ class CurlImportForm extends React.Component<Props> {
               </CurlImportFormContainer>
             </CurlContainer>
           </CurlImport>
-          <DividerLine />
-          <CurlImportFormContainer>
-            <Button
-              className="importBtn t--importBtn"
-              filled
-              intent="primary"
-              loading={isImportingCurl}
-              onClick={handleSubmit(curlImportSubmitHandler)}
-              size="small"
-              text="Import"
-            />
-          </CurlImportFormContainer>
         </StyledForm>
       </>
     );
