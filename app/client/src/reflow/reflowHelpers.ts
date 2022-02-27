@@ -30,7 +30,7 @@ import {
   getMaxY,
   getModifiedOccupiedSpacesMap,
   getReflowDistance,
-  getResizedDimension,
+  getReflowedDimension,
   getResizedDimensions,
   shouldReplaceOldMovement,
   sortCollidingSpacesByDistance,
@@ -653,7 +653,7 @@ function getHorizontalSpaceMovement(
     maxOccupiedSpace,
     shouldResize,
   );
-  const width = getResizedDimension(
+  const width = getReflowedDimension(
     collisionTree,
     direction,
     X,
@@ -721,7 +721,7 @@ function getVerticalSpaceMovement(
     maxOccupiedSpace,
     shouldResize,
   );
-  const height = getResizedDimension(
+  const height = getReflowedDimension(
     collisionTree,
     direction,
     Y,

@@ -24,29 +24,6 @@ import {
 } from "./reflowTypes";
 
 /**
- * Get if the space moved horizontally
- *
- * @param newPositions
- * @param prevPositions
- * @returns boolean
- */
-export function getIsHorizontalMove(
-  newSpacePositions: OccupiedSpace[],
-  prevPositions?: OccupiedSpace[],
-) {
-  if (!prevPositions || !prevPositions[0]) return true;
-
-  if (
-    prevPositions[0].left !== newSpacePositions[0].left ||
-    prevPositions[0].right !== newSpacePositions[0].right
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
-/**
  * method to determine if the newly calculated MovementValue should replace an old value of the same Space Id
  *
  * @param oldMovement
@@ -446,7 +423,7 @@ export function getCollidingSpacesInDirection(
  * @param prevSecondOrderCollisionMap
  * @returns object with boolean if the occupied space is to be added to array, also mentions if there is a change in direction
  */
-function ShouldAddToCollisionSpacesArray(
+export function ShouldAddToCollisionSpacesArray(
   newSpacePosition: CollidingSpace,
   OGPosition: OccupiedSpace,
   collidingSpace: OccupiedSpace,
@@ -1009,7 +986,7 @@ export function getReflowDistance(
  * @param shouldResize
  * @returns resized width or height of space
  */
-export function getResizedDimension(
+export function getReflowedDimension(
   collisionTree: CollisionTree,
   direction: ReflowDirection,
   travelDistance: number,
@@ -1355,7 +1332,7 @@ export function checkReCollisionWithOtherNewSpacePositions(
 }
 
 /**
- * If exact same spaces collide with each other agin in the current run and previous run
+ * If exact same spaces collide with each other again in the current run and previous run
  * calculate the direction they collide in
  * @param staticSpace
  * @param collidingSpace

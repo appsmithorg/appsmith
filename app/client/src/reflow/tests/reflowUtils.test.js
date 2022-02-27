@@ -1,7 +1,6 @@
 import { ReflowDirection } from "reflow/reflowTypes";
 import {
   getAccessor,
-  getIsHorizontalMove,
   shouldReplaceOldMovement,
   getResizedDimensions,
   sortCollidingSpacesByDistance,
@@ -12,8 +11,9 @@ import {
   getMaxX,
   getMaxY,
   getReflowDistance,
-  getResizedDimension,
+  getReflowedDimension,
   getCollidingSpaceMap,
+  ShouldAddToCollisionSpacesArray,
 } from "../reflowUtils";
 import { HORIZONTAL_RESIZE_LIMIT, VERTICAL_RESIZE_LIMIT } from "../reflowTypes";
 
@@ -24,35 +24,6 @@ const gridProps = {
 };
 
 describe("Test reflow util methods", () => {
-  describe("Test getIsHorizontalMove method", () => {
-    it("should return true when there is a difference in horizontal direction coordinates", () => {
-      const newPositions = {
-          left: 20,
-          right: 40,
-        },
-        oldPositions = {
-          left: 10,
-          right: 30,
-        };
-      expect(getIsHorizontalMove(newPositions, oldPositions)).toBe(true);
-    });
-    it("should return false when there is no difference  horizontal direction coordinates", () => {
-      const newPositions = [
-          {
-            left: 20,
-            right: 40,
-          },
-        ],
-        oldPositions = [
-          {
-            left: 20,
-            right: 40,
-          },
-        ];
-      expect(getIsHorizontalMove(newPositions, oldPositions)).toBe(false);
-    });
-  });
-
   describe("Test shouldReplaceOldMovement method", () => {
     it("should return true when Space's new movement coordinate is farther than the olds'", () => {
       const newMovement = {
@@ -779,7 +750,7 @@ describe("Test reflow util methods", () => {
     });
   });
 
-  describe("Test getResizedDimension method", () => {
+  describe("Test getReflowedDimension method", () => {
     const collisionTree = {
         id: "1234",
         left: 90,
@@ -802,7 +773,7 @@ describe("Test reflow util methods", () => {
 
       it("should return height when resize is off", () => {
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.TOP,
             travelDistance * gridProps.parentRowSpace,
@@ -817,7 +788,7 @@ describe("Test reflow util methods", () => {
 
       it("should return height before resize threshold", () => {
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.TOP,
             travelDistance * gridProps.parentRowSpace,
@@ -836,7 +807,7 @@ describe("Test reflow util methods", () => {
           maxDistance +
           (dimensionBeforeCollision - emptySpaces) * gridProps.parentRowSpace;
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.TOP,
             travelDistance * gridProps.parentRowSpace,
@@ -852,7 +823,7 @@ describe("Test reflow util methods", () => {
       it("should return min height after resize threshold after reaching min height", () => {
         dimensionBeforeCollision = 130;
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.TOP,
             travelDistance * gridProps.parentRowSpace,
@@ -875,7 +846,7 @@ describe("Test reflow util methods", () => {
 
       it("should return width when resize is off", () => {
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.LEFT,
             travelDistance * gridProps.parentColumnSpace,
@@ -890,7 +861,7 @@ describe("Test reflow util methods", () => {
 
       it("should return width before resize threshold", () => {
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.LEFT,
             travelDistance * gridProps.parentColumnSpace,
@@ -911,7 +882,7 @@ describe("Test reflow util methods", () => {
           (dimensionBeforeCollision - emptySpaces) *
             gridProps.parentColumnSpace;
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.LEFT,
             travelDistance * gridProps.parentColumnSpace,
@@ -927,7 +898,7 @@ describe("Test reflow util methods", () => {
       it("should return min width after resize threshold after reaching min width", () => {
         dimensionBeforeCollision = 150;
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.LEFT,
             travelDistance * gridProps.parentColumnSpace,
@@ -950,7 +921,7 @@ describe("Test reflow util methods", () => {
 
       it("should return width when resize is off", () => {
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.RIGHT,
             travelDistance * gridProps.parentColumnSpace,
@@ -965,7 +936,7 @@ describe("Test reflow util methods", () => {
 
       it("should return width before resize threshold", () => {
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.RIGHT,
             travelDistance * gridProps.parentColumnSpace,
@@ -987,7 +958,7 @@ describe("Test reflow util methods", () => {
             gridProps.parentColumnSpace -
           maxDistance;
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.RIGHT,
             travelDistance * gridProps.parentColumnSpace,
@@ -1003,7 +974,7 @@ describe("Test reflow util methods", () => {
       it("should return min width after resize threshold after reaching min width", () => {
         dimensionBeforeCollision = -150;
         expect(
-          getResizedDimension(
+          getReflowedDimension(
             collisionTree,
             ReflowDirection.RIGHT,
             travelDistance * gridProps.parentColumnSpace,
@@ -1016,6 +987,142 @@ describe("Test reflow util methods", () => {
           ),
         ).toBe(HORIZONTAL_RESIZE_LIMIT * gridProps.parentColumnSpace);
       });
+    });
+  });
+  describe("Test ShouldAddToCollisionSpacesArray method", () => {
+    const newSpacePosition = {
+      id: "1234",
+      left: 40,
+      top: 30,
+      right: 60,
+      bottom: 90,
+      children: [],
+    };
+    const OGPosition = {
+      id: "1234",
+      left: 40,
+      top: 30,
+      right: 60,
+      bottom: 70,
+      children: [],
+    };
+    const collidingSpace = {
+      id: "1235",
+      left: 30,
+      top: 80,
+      right: 50,
+      bottom: 110,
+      children: [],
+    };
+    const gridProps = {
+      parentRowSpace: 10,
+      parentRowSpace: 10,
+    };
+    const accessors = getAccessor(ReflowDirection.BOTTOM);
+
+    it("should return false if not intersecting", () => {
+      const localCollidingSpace = {
+        id: "1235",
+        left: 30,
+        top: 90,
+        right: 50,
+        bottom: 110,
+        children: [],
+      };
+      expect(
+        ShouldAddToCollisionSpacesArray(
+          newSpacePosition,
+          OGPosition,
+          localCollidingSpace,
+          ReflowDirection.BOTTOM,
+        ).shouldAddToArray,
+      ).toBe(false);
+    });
+    it("should return true while intersecting after confirming with previous movement map", () => {
+      const prevMovementMap = {
+        "1235": {
+          directionY: ReflowDirection.BOTTOM,
+        },
+      };
+      expect(
+        ShouldAddToCollisionSpacesArray(
+          newSpacePosition,
+          OGPosition,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          accessors,
+          true,
+          gridProps,
+          ReflowDirection.BOTTOM,
+          prevMovementMap,
+        ).shouldAddToArray,
+      ).toBe(true);
+    });
+    it("should return false while intersecting after failing confirmation with previous movement map", () => {
+      const prevMovementMap = {
+        "1235": {
+          directionY: ReflowDirection.TOP,
+        },
+      };
+      expect(
+        ShouldAddToCollisionSpacesArray(
+          newSpacePosition,
+          OGPosition,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          accessors,
+          true,
+          gridProps,
+          ReflowDirection.BOTTOM,
+          prevMovementMap,
+        ).shouldAddToArray,
+      ).toBe(false);
+    });
+    it("should return true while intersecting with isSecondaryCollidingWidget as false", () => {
+      expect(
+        ShouldAddToCollisionSpacesArray(
+          newSpacePosition,
+          OGPosition,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          accessors,
+          false,
+          gridProps,
+          ReflowDirection.BOTTOM,
+        ).shouldAddToArray,
+      ).toBe(true);
+    });
+
+    it("should return true while intersecting with isSecondaryCollidingWidget as true and no prevSecondOrderCollisionMap", () => {
+      expect(
+        ShouldAddToCollisionSpacesArray(
+          newSpacePosition,
+          OGPosition,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          accessors,
+          true,
+          gridProps,
+          ReflowDirection.BOTTOM,
+          {},
+        ).shouldAddToArray,
+      ).toBe(true);
+    });
+    it("should return true while intersecting with isSecondaryCollidingWidget as true, no prevMovementMap but with prevSecondOrderCollisionMap", () => {
+      expect(
+        ShouldAddToCollisionSpacesArray(
+          newSpacePosition,
+          OGPosition,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          accessors,
+          true,
+          gridProps,
+          ReflowDirection.BOTTOM,
+          {},
+          {},
+        ).shouldAddToArray,
+      ).toBe(true);
     });
   });
 });
