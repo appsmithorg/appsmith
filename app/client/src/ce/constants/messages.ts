@@ -462,7 +462,7 @@ export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
 export const NO_JS_FUNCTION_TO_RUN = (
   JSObjectName: string,
 ) => `${JSObjectName} has no function,
-  please create a function.`;
+  please add a function to run.`;
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";

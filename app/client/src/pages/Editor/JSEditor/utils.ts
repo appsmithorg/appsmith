@@ -1,7 +1,7 @@
 import { parse, Node } from "acorn";
 import { ancestor } from "acorn-walk";
 import { CodeEditorGutter } from "components/editorComponents/CodeEditor";
-import { JSAction } from "entities/JSCollection";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import {
   ECMA_VERSION,
   NodeTypes,
@@ -108,3 +108,11 @@ export const convertJSActionToDropdownOption = (
   data: JSAction,
   hasCustomBadge: !!JSAction.actionConfiguration.isAsync,
 });
+
+export const getActionFromJsCollection = (
+  actionId: string | null,
+  jsCollection: JSCollection,
+): JSAction | null => {
+  if (!actionId) return null;
+  return jsCollection.actions.find((action) => action.id === actionId) || null;
+};

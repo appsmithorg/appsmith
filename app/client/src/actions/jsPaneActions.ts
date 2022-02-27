@@ -4,6 +4,8 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { RefactorAction, SetFunctionPropertyPayload } from "api/JSActionAPI";
+import { JSCollectionActiveActionUpdateStatus } from "reducers/entityReducers/jsActionsReducer";
+
 export const createNewJSCollection = (
   pageId: string,
 ): ReduxAction<{ pageId: string }> => ({
@@ -28,7 +30,11 @@ export const updateJSCollectionBody = (
   payload: { body, id, isReplay },
 });
 
-export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
+export const updateJSCollectionSuccess = (payload: {
+  data: JSCollection;
+  activeActionStatus: JSCollectionActiveActionUpdateStatus;
+  activeActionId: string;
+}) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
     payload,
@@ -86,23 +92,6 @@ export const updateFunctionProperty = (payload: SetFunctionPropertyPayload) => {
 export const updateJSFunction = (payload: SetFunctionPropertyPayload) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_INIT,
-    payload,
-  };
-};
-
-export const updateActiveJsAction = (payload: {
-  activeActionId: string;
-  jsCollectionId: string;
-}) => {
-  return {
-    type: ReduxActionTypes.SET_ACTIVE_JS_FUNCTION,
-    payload,
-  };
-};
-
-export const resetActiveJsAction = (payload: { jsCollectionId: string }) => {
-  return {
-    type: ReduxActionTypes.RESET_ACTIVE_JS_FUNCTION,
     payload,
   };
 };

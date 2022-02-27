@@ -18,7 +18,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import {
+  JSCollectionActiveActionUpdateStatus,
+  JSCollectionData,
+} from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
@@ -251,13 +254,6 @@ function* updateJSCollection(data: {
             jsCollection,
             createMessage(JS_FUNCTION_UPDATE_SUCCESS),
           );
-          yield put(
-            updateActiveJsAction({
-              activeActionId:
-                updatedActions[updatedActions.length - 1].id || "",
-              jsCollectionId: jsCollection.id,
-            }),
-          );
         }
         if (deletedActions && deletedActions.length) {
           pushLogsForObjectUpdate(
@@ -268,29 +264,36 @@ function* updateJSCollection(data: {
         }
 
         // handle update of active js function
+        let updateStatus: JSCollectionActiveActionUpdateStatus =
+          JSCollectionActiveActionUpdateStatus.NoUpdates;
+        let newActiveActionId = "";
+        const responseData: JSCollection = response.data;
+
         if (newActions && newActions.length) {
-          yield put(
-            updateActiveJsAction({
-              activeActionId: newActions[newActions.length - 1].id || "",
-              jsCollectionId: jsCollection.id,
-            }),
-          );
+          updateStatus = JSCollectionActiveActionUpdateStatus.Update;
+          newActiveActionId =
+            responseData.actions.find(
+              (action) =>
+                action.name === newActions[newActions.length - 1].name,
+            )?.id || "";
         } else if (updatedActions && updatedActions.length) {
-          yield put(
-            updateActiveJsAction({
-              activeActionId:
-                updatedActions[updatedActions.length - 1].id || "",
-              jsCollectionId: jsCollection.id,
-            }),
-          );
+          updateStatus = JSCollectionActiveActionUpdateStatus.Update;
+          newActiveActionId =
+            responseData.actions.find(
+              (action) =>
+                action.name === updatedActions[updatedActions.length - 1].name,
+            )?.id || "";
         } else if (deletedActions && deletedActions.length) {
-          yield put(
-            resetActiveJsAction({
-              jsCollectionId: jsCollection.id,
-            }),
-          );
+          updateStatus = JSCollectionActiveActionUpdateStatus.Reset;
         }
-        yield put(updateJSCollectionSuccess({ data: response?.data }));
+
+        yield put(
+          updateJSCollectionSuccess({
+            data: response?.data,
+            activeActionStatus: updateStatus,
+            activeActionId: newActiveActionId,
+          }),
+        );
       }
     }
   } catch (error) {

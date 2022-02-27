@@ -793,14 +793,14 @@ export const getJSActions = (
   return jsCollection?.config.actions ?? [];
 };
 
-export const getActiveJSAction = (
+export const getActiveJSActionId = (
   state: AppState,
   jsCollectionId: string,
-): JSAction | null => {
+): string | null => {
   const jsCollection = state.entities.jsActions.find(
     (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
   );
-  return jsCollection?.activeJSAction ?? null;
+  return jsCollection?.activeJSActionId ?? null;
 };
 
 export const getIsExecutingJSAction = (

@@ -31,18 +31,20 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
 import { AppState } from "reducers";
 import {
-  getActiveJSAction,
+  getActiveJSActionId,
   getIsExecutingJSAction,
   getJSActions,
 } from "selectors/entitiesSelector";
 import {
   convertJSActionsToDropdownOptions,
   convertJSActionToDropdownOption,
+  getActionFromJsCollection,
   getJSFunctionsLineGutters,
   JSActionDropdownOption,
 } from "./utils";
 import { NO_FUNCTION_DROPDOWN_OPTION } from "./constants";
 import { DropdownOnSelect } from "components/ads";
+import { isMac } from "utils/helpers";
 
 const Form = styled.form`
   display: flex;
@@ -155,18 +157,22 @@ function JSEditorForm(props: Props) {
     (state: AppState) => getJSActions(state, currentJSAction.id),
     isEqual,
   );
-  const activeJSAction = useSelector((state: AppState) =>
-    getActiveJSAction(state, currentJSAction.id),
+  const activeJSActionId = useSelector((state: AppState) =>
+    getActiveJSActionId(state, currentJSAction.id),
   );
 
   const [selectedJSActionOption, setSelectedJSActionOption] = useState<
     JSActionDropdownOption
-  >(
-    () =>
-      (activeJSAction && convertJSActionToDropdownOption(activeJSAction)) ||
-      convertJSActionsToDropdownOptions(jsActions)[0] ||
-      NO_FUNCTION_DROPDOWN_OPTION,
-  );
+  >(() => {
+    const activeJsAction =
+      activeJSActionId &&
+      getActionFromJsCollection(activeJSActionId, currentJSAction);
+    return (
+      (activeJsAction && convertJSActionToDropdownOption(activeJsAction)) ||
+      convertJSActionToDropdownOption(jsActions[0]) ||
+      NO_FUNCTION_DROPDOWN_OPTION
+    );
+  });
 
   const isExecutingCurrentJSAction = useSelector((state: AppState) =>
     getIsExecutingJSAction(
@@ -194,7 +200,7 @@ function JSEditorForm(props: Props) {
   );
 
   const customKeyMap = {
-    combination: "Ctrl-Enter",
+    combination: isMac() ? "Cmd-Enter" : "Ctrl-Enter",
     onKeyDown: () => {
       selectedJSActionOption.data && runJSAction(selectedJSActionOption.data);
     },
@@ -219,16 +225,26 @@ function JSEditorForm(props: Props) {
   };
 
   useEffect(() => {
-    activeJSAction &&
+    const activeJsAction =
+      activeJSActionId &&
+      getActionFromJsCollection(activeJSActionId, currentJSAction);
+    if (activeJsAction) {
       setSelectedJSActionOption(
-        convertJSActionToDropdownOption(activeJSAction),
+        convertJSActionToDropdownOption(activeJsAction),
       );
-  }, [activeJSAction]);
+    } else {
+      if (!isEmpty(jsActions)) {
+        setSelectedJSActionOption(
+          convertJSActionToDropdownOption(jsActions[0]),
+        );
+      }
+    }
+  }, [activeJSActionId]);
 
   useEffect(() => {
     if (isEmpty(jsActions)) {
-      setSelectedJSActionOption(NO_FUNCTION_DROPDOWN_OPTION),
-        !disableRunFunctionality && setDisableRunFunctionality(true);
+      setSelectedJSActionOption(NO_FUNCTION_DROPDOWN_OPTION);
+      !disableRunFunctionality && setDisableRunFunctionality(true);
     } else {
       disableRunFunctionality && setDisableRunFunctionality(false);
     }

@@ -8,7 +8,7 @@ export const DEFAULTS = {
   GAP_SIZE: "10px",
 };
 
-export const DEFAULT_DROPDOWN_OPTION: JSActionDropdownOption = {
+export const NO_SELECTION_DROPDOWN_OPTION: JSActionDropdownOption = {
   label: "No function selected",
   value: "",
   data: null,
