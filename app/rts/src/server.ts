@@ -48,10 +48,6 @@ function main() {
     const server = new http.Server(app);
     const io = new Server(server, {
         path: RTS_BASE_PATH,
-        // TODO: Remove this CORS configuration.
-        cors: {
-            origin: "*",
-        },
     });
 
     const port = 8091;

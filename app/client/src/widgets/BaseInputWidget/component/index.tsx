@@ -98,11 +98,14 @@ const InputComponentWrapper = styled((props) => (
         `};
       box-shadow: none;
       border: 1px solid;
-      border-color: ${({ hasError }) =>
-        hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
+      border-color: ${({ hasError }) => {
+        return hasError
+          ? `${Colors.DANGER_SOLID} !important;`
+          : `${Colors.GREY_3};`;
+      }} 
       ${(props) =>
         props.numeric &&
         `
@@ -205,7 +208,6 @@ const InputComponentWrapper = styled((props) => (
         top: 3px;
       }
       input:not(:first-child) {
-        border-left: 1px solid transparent;
         line-height: 16px;
 
         &:hover:not(:focus) {

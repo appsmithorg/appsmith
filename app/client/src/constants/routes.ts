@@ -1,6 +1,6 @@
 const { compile, match } = require("path-to-regexp");
 
-import { getQueryParamsObject } from "utils/helpers";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 
 export const BASE_URL = "/";
 export const ORG_URL = "/org";

@@ -1,4 +1,5 @@
 1. Get the application URL by running these commands:
+
 {{- if .Values.ingress.enabled }}
 {{- if not .Values.ingress.hosts }}
   kubectl get ingress --namespace {{ .Release.Namespace }}
@@ -6,7 +7,9 @@
 {{- range $host := .Values.ingress.hosts }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}/
 {{- end }}
+
 Please update your DNS records with your domain by the address. You can use following command to get Appsmith address:
+
   kubectl get ingress --namespace {{ .Release.Namespace }}
 {{- else if contains "NodePort" .Values.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "appsmith.fullname" . }})
@@ -22,5 +25,6 @@ Please update your DNS records with your domain by the address. You can use foll
   export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+
 To expose your Appsmith service to be accessible from the Internet, please refer to our docs here https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#expose-appsmith
 {{- end }}

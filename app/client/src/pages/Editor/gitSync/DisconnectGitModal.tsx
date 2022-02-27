@@ -116,6 +116,7 @@ function DisconnectGitModal() {
                 {createMessage(NONE_REVERSIBLE_MESSAGE)}
               </Text>
               <Link
+                className="t--disconnect-learn-more"
                 color={Colors.CRIMSON}
                 link={gitDisconnectDocumentUrl}
                 onClick={() => {
@@ -172,7 +173,10 @@ function DisconnectGitModal() {
             />
           </ButtonContainer>
         </BodyContainer>
-        <CloseBtnContainer onClick={handleClose}>
+        <CloseBtnContainer
+          className="t--close-disconnect-modal"
+          onClick={handleClose}
+        >
           <Icon
             fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
             name="close-modal"

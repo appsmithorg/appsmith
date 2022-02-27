@@ -1,5 +1,5 @@
 const dsl = require("../../../../fixtures/basicDsl.json");
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 

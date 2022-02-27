@@ -85,11 +85,8 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
     );
 
   if ("schema" in formConfig && !!formConfig.schema)
-    formConfig.schema.forEach((config: FormConfig, index: number) =>
-      generateInitialEvalState({
-        ...config,
-        configProperty: `${formConfig.configProperty}.column_${index + 1}`,
-      }),
+    formConfig.schema.forEach((config: FormConfig) =>
+      generateInitialEvalState({ ...config }),
     );
 };
 
