@@ -5,5 +5,6 @@
   "cancelCommentButton": "[data-cy='add-comment-cancel']",
   "inlineCommentThreadPin": ".t--inline-comment-pin-trigger-",
   "toggleCommentModeOnUnread": ".t--toggle-comment-mode-on--unread",
-  "toggleCommentModeOn": ".t--toggle-comment-mode-on"
+  "toggleCommentModeOn": ".t--toggle-comment-mode-on",
+  "toggleCommentModeOff": ".t--switch-comment-mode-off"
 }
