@@ -22,6 +22,8 @@ let isEvaluating = false; // Flag to maintain the queue of evals
 
 export type FormEvalActionPayload = {
   formId: string;
+  datasourceId?: string;
+  pluginId?: string;
   actionConfiguration?: ActionConfig;
   editorConfig?: FormConfig[];
   settingConfig?: FormConfig[];
@@ -97,6 +99,8 @@ function* setFormEvaluationSagaAsync(
             queueOfValuesToBeFetched,
             formId,
             evalOutput,
+            action.payload.datasourceId ? action.payload.datasourceId : "",
+            action.payload.pluginId ? action.payload.pluginId : "",
           );
         }
       }
@@ -112,12 +116,18 @@ function* fetchDynamicValuesSaga(
   queueOfValuesToBeFetched: Record<string, ConditionalOutput>,
   formId: string,
   evalOutput: FormEvalOutput,
+  datasourceId: string,
+  pluginId: string,
 ) {
   for (const key of Object.keys(queueOfValuesToBeFetched)) {
     evalOutput[key].fetchDynamicValues = yield call(
       fetchDynamicValueSaga,
       queueOfValuesToBeFetched[key],
       Object.assign({}, evalOutput[key].fetchDynamicValues as DynamicValues),
+      formId,
+      datasourceId,
+      pluginId,
+      key,
     );
   }
   // Set the values to the state once all values are fetched
@@ -130,15 +140,25 @@ function* fetchDynamicValuesSaga(
 function* fetchDynamicValueSaga(
   value: ConditionalOutput,
   dynamicFetchedValues: DynamicValues,
+  actionId: string,
+  datasourceId: string,
+  pluginId: string,
+  configProperty: string,
 ) {
   try {
     const { config } = value.fetchDynamicValues as DynamicValues;
-    const { url } = config;
+    const { params, url } = config;
 
     dynamicFetchedValues.hasStarted = true;
 
     // Call the API to fetch the dynamic values
-    const response = yield call(PluginsApi.fetchDynamicFormValues, url);
+    const response = yield call(PluginsApi.fetchDynamicFormValues, url, {
+      actionId,
+      configProperty,
+      datasourceId,
+      pluginId,
+      ...params,
+    });
     dynamicFetchedValues.isLoading = false;
     if (!!response && response instanceof Array) {
       dynamicFetchedValues.data = response;
