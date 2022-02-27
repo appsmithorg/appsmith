@@ -9,7 +9,7 @@ import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
 import { createMessage, NO_LOGS } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import { thinScrollbar } from "constants/DefaultTheme";
 
 const LIST_HEADER_HEIGHT = "38px";

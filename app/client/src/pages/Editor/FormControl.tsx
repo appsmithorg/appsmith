@@ -51,7 +51,7 @@ function FormControl(props: FormControlProps) {
         props.formName,
         props?.multipleConfig,
       ),
-    [],
+    [props],
   );
 
   if (hidden) return null;
@@ -133,7 +133,13 @@ function FormConfig(props: FormConfigProps) {
   );
 }
 
-export default memo(FormControl);
+// Updated the memo function to allow for disabled props to be compared
+export default memo(FormControl, (prevProps, nextProps) => {
+  return (
+    prevProps === nextProps &&
+    prevProps.config.disabled === nextProps.config.disabled
+  );
+});
 
 function renderFormConfigTop(props: { config: ControlProps }) {
   const {
