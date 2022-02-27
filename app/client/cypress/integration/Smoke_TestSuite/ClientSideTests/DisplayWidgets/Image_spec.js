@@ -79,7 +79,6 @@ describe("Image Widget Functionality", function() {
   });
 
   it("In case of an image loading error, show off the error message", () => {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("imagewidget");
     // Invalid image url
     const invalidImageUrl = "https://www.example.com/does-not-exist.jpg";
