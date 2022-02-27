@@ -8,7 +8,6 @@ interface RequestDropdownProps {
   options: Array<{
     value: string;
     label?: string;
-    id?: string;
   }>;
   placeholder: string;
   width?: string;
@@ -27,13 +26,12 @@ function RequestDropdownField(props: RequestDropdownProps) {
     }),
     label: "",
     placeholderText: props.placeholder,
-    height: props.height,
     customStyles: {
       height: props.height,
       width: props.width,
     },
     formName: DATASOURCE_REST_API_FORM,
-    className: props.className,
+    containerClassName: props.className,
   };
   return (
     <FormControl

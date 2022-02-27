@@ -39,6 +39,7 @@ export interface ControlProps extends ControlData, ControlFunctions {
   extraData?: ControlData[];
   formName: string;
   nestedFormControl?: boolean;
+  containerClassName?: string;
 }
 
 export interface ControlData {

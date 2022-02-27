@@ -47,6 +47,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
             ...this.props,
             width,
             height,
+            containerClassName: this.props?.containerClassName,
           }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
@@ -65,6 +66,7 @@ function renderDropdown(
     meta?: Partial<WrappedFieldMetaProps>;
     width: string;
     height: string;
+    containerClassName?: string;
   } & DropDownControlProps,
 ): JSX.Element {
   let selectedValue = props.input?.value;
@@ -83,6 +85,7 @@ function renderDropdown(
   return (
     <Dropdown
       boundary="window"
+      containerClassName={props.containerClassName}
       disabled={props.disabled}
       dontUsePortal={false}
       dropdownMaxHeight="250px"

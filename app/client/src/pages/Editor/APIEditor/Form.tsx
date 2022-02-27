@@ -67,7 +67,6 @@ import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
-import { replayHighlightClass } from "globalStyles/portals";
 
 const Form = styled.form`
   position: relative;
@@ -232,6 +231,7 @@ const Wrapper = styled.div`
   height: calc(100% - 118px);
   position: relative;
 `;
+
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -389,6 +389,15 @@ const FormRowWithLabel = styled(FormRow)`
   }
   & svg {
     cursor: pointer;
+  }
+`;
+
+const StyledRequestDropdownField = styled(RequestDropdownField)`
+  .bp3-popover-target > div > div {
+    background: rgb(9, 7, 7);
+  }
+  .bp3-popover-target > div > div span {
+    color: #fff;
   }
 `;
 
@@ -610,8 +619,8 @@ function ApiEditorForm(props: Props) {
             <BoundaryContainer
               data-replay-id={btoa("actionConfiguration.httpMethod")}
             >
-              <RequestDropdownField
-                className={`t--apiFormHttpMethod ${replayHighlightClass}`}
+              <StyledRequestDropdownField
+                className={`t--apiFormHttpMethod request-dropdown`}
                 height={"38px"}
                 name="actionConfiguration.httpMethod"
                 options={HTTP_METHOD_OPTIONS}
