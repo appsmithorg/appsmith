@@ -2137,20 +2137,13 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<Application> deleteBranch(String defaultApplicationId, String branchName) {
-        /**
-         *
-         * Cannont delete current branch
-         * Stale branch no app in db
-         * Branch does not exist in repo
-         * Branch with origin/
-         */
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, gitApplicationMetadata.getRepoName());
                     return gitExecutor.deleteBranch(repoPath, branchName)
-                            .flatMap(gitBranch -> {
-                                if(gitBranch.equals(Boolean.FALSE)) {
+                            .flatMap(isBranchDeleted -> {
+                                if(Boolean.FALSE.equals(isBranchDeleted)) {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch. Branch does not exists in the repo"));
                                 }
                                 return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
