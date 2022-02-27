@@ -29,6 +29,7 @@ describe("Entity explorer tests related to copy query", function() {
 
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
+      cy.CheckAndUnfoldEntityItem("DATASOURCES");
       cy.NavigateToActiveDSQueryPane(datasourceName);
     });
 

@@ -27,6 +27,7 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
   it("validation of  data displayed in select widget based on row selected", function() {
     cy.isSelectRow(2);
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.get(widgetsPage.defaultSingleSelectValue)
       .first()
       .invoke("text")
