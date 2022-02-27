@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useEffect } from "react";
+import React, { useCallback, useMemo, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -32,12 +32,24 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
+import { tailwindLayers } from "constants/Layers";
+import useResize from "utils/hooks/useResize";
+import classNames from "classnames";
+import { Colors } from "constants/Colors";
 
 const StyledEntity = styled(Entity)`
   &.pages {
-    & > div:not(.t--entity-item) {
-      max-height: 138px !important;
-      overflow-y: auto !important;
+    /* & > div:not(.t--entity-item) { */
+    min-height: 80px;
+    max-height: 138px !important;
+    overflow-y: auto !important;
+    /* } */
+
+    & > .t--entity-item {
+      position: sticky;
+      top: 0;
+      background-color: ${Colors.WHITE};
+      z-index: 1;
     }
   }
   &.page .${EntityClassNames.PRE_RIGHT_ICON} {
@@ -57,6 +69,10 @@ function Pages() {
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
+  const pagesSectionRef = useRef<HTMLDivElement>(null);
+  const { onMouseDown, onMouseUp, onTouchStart, resizing } = useResize(
+    pagesSectionRef,
+  );
 
   useEffect(() => {
     document.getElementsByClassName("activePage")[0]?.scrollIntoView();
@@ -114,44 +130,61 @@ function Pages() {
   );
 
   const pageElements = useMemo(
-    () =>
-      pages.map((page) => {
-        const icon = page.isDefault ? defaultPageIcon : pageIcon;
-        const rightIcon = !!page.isHidden ? hiddenPageIcon : null;
-        const isCurrentPage = currentPageId === page.pageId;
-        const contextMenu = (
-          <PageContextMenu
-            applicationId={applicationId as string}
-            className={EntityClassNames.CONTEXT_MENU}
-            isDefaultPage={page.isDefault}
-            isHidden={!!page.isHidden}
-            key={page.pageId + "_context-menu"}
-            name={page.pageName}
-            pageId={page.pageId}
-          />
-        );
+    () => (
+      <>
+        {pages.map((page) => {
+          const icon = page.isDefault ? defaultPageIcon : pageIcon;
+          const rightIcon = !!page.isHidden ? hiddenPageIcon : null;
+          const isCurrentPage = currentPageId === page.pageId;
+          const contextMenu = (
+            <PageContextMenu
+              applicationId={applicationId as string}
+              className={EntityClassNames.CONTEXT_MENU}
+              isDefaultPage={page.isDefault}
+              isHidden={!!page.isHidden}
+              key={page.pageId + "_context-menu"}
+              name={page.pageName}
+              pageId={page.pageId}
+            />
+          );
 
-        return (
-          <StyledEntity
-            action={() => switchPage(page.pageId)}
-            className={`page ${isCurrentPage && "activePage"}`}
-            contextMenu={contextMenu}
-            entityId={page.pageId}
-            icon={icon}
-            isDefaultExpanded={isCurrentPage}
-            key={page.pageId}
-            name={page.pageName}
-            onNameEdit={resolveAsSpaceChar}
-            preRightIcon={isCurrentPage ? currentPageIcon : ""}
-            rightIcon={rightIcon}
-            searchKeyword={""}
-            step={1}
-            updateEntityName={(id, name) =>
-              updatePage(id, name, !!page.isHidden)
-            }
+          return (
+            <StyledEntity
+              action={() => switchPage(page.pageId)}
+              className={`page ${isCurrentPage && "activePage"}`}
+              contextMenu={contextMenu}
+              entityId={page.pageId}
+              icon={icon}
+              isDefaultExpanded={isCurrentPage}
+              key={page.pageId}
+              name={page.pageName}
+              onNameEdit={resolveAsSpaceChar}
+              preRightIcon={isCurrentPage ? currentPageIcon : ""}
+              rightIcon={rightIcon}
+              searchKeyword={""}
+              step={1}
+              updateEntityName={(id, name) =>
+                updatePage(id, name, !!page.isHidden)
+              }
+            />
+          );
+        })}
+        {/* RESIZOR */}
+        <div
+          className={`testtt absolute bottom-0 left-0 w-full h-2 group cursor-ns-resize ${tailwindLayers.resizer}`}
+          onMouseDown={onMouseDown}
+          onTouchEnd={onMouseUp}
+          onTouchStart={onTouchStart}
+        >
+          <div
+            className={classNames({
+              "w-full h-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
+              "bg-gray-300": resizing,
+            })}
           />
-        );
-      }),
+        </div>
+      </>
+    ),
     [pages, currentPageId, applicationId],
   );
 
@@ -161,6 +194,7 @@ function Pages() {
       addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
       alwaysShowRightIcon
       className="group pages"
+      collapseRef={pagesSectionRef}
       entityId="Pages"
       icon={""}
       isDefaultExpanded

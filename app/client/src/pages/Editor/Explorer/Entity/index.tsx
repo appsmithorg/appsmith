@@ -198,6 +198,7 @@ export type EntityProps = {
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
   isSticky?: boolean;
+  collapseRef?: React.Ref<HTMLDivElement>;
 };
 
 export const Entity = forwardRef(
@@ -356,7 +357,12 @@ export const Entity = forwardRef(
             )}
             <Loader isVisible={isUpdating} />
           </EntityItem>
-          <Collapse active={props.active} isOpen={isOpen} step={props.step}>
+          <Collapse
+            active={props.active}
+            isOpen={isOpen}
+            ref={props.collapseRef || null}
+            step={props.step}
+          >
             {props.children}
           </Collapse>
         </Wrapper>

@@ -4,10 +4,12 @@ import { Collapse } from "@blueprintjs/core";
 
 const CollapsedContainer = styled.div<{ step: number; active?: boolean }>`
   overflow: hidden;
+  position: relative;
 `;
 export function EntityCollapse(props: {
   children: ReactNode;
   isOpen: boolean;
+  ref?: React.Ref<HTMLDivElement>;
   step: number;
   active?: boolean;
 }) {
