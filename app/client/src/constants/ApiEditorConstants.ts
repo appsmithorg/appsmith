@@ -9,6 +9,7 @@ export enum HTTP_METHOD {
   PUT = "PUT",
   DELETE = "DELETE",
   PATCH = "PATCH",
+  PROPFIND = "PROPFIND",
 }
 
 export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
@@ -17,6 +18,7 @@ export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
   PUT: "#5BB749",
   DELETE: "#E22C2C",
   PATCH: "#6D6D6D",
+  PROPFIND: "#457AE6",
 };
 
 export enum API_EDITOR_TABS {
