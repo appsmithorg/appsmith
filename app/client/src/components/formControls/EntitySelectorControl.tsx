@@ -1,11 +1,9 @@
 import React from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
-import { getBindingOrConfigPathsForEntitySelectorControl } from "entities/Action/actionProperties";
 import { allowedControlTypes } from "components/formControls/utils";
 
 const dropDownFieldConfig: any = {
@@ -39,15 +37,6 @@ const EntitySelectorContainer = styled.div`
   justify-content: space-between;
 `;
 
-export const StyledBottomLabel = styled(FormLabel)`
-  margin-top: 5px;
-  margin-left: 5px;
-  font-weight: 400;
-  font-size: 12px;
-  color: ${Colors.GREY_7};
-  line-height: 16px;
-`;
-
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
 
@@ -61,25 +50,20 @@ function EntitySelectorComponent(props: any) {
   };
 
   return (
-    <EntitySelectorContainer>
+    <EntitySelectorContainer key={`ES_${configProperty}`}>
       {schema &&
         schema.length > 0 &&
         schema.map((singleSchema: any, index: number) => {
-          const columnPath = getBindingOrConfigPathsForEntitySelectorControl(
-            configProperty,
-            index,
-          );
           return (
             allowedControlTypes.includes(singleSchema.controlType) && (
-              <>
+              <React.Fragment key={`ES_FRAG_${singleSchema.configProperty}`}>
                 {singleSchema.controlType === "DROP_DOWN" ? (
                   <FormControl
                     config={{
                       ...dropDownFieldConfig,
                       ...singleSchema,
                       customStyles,
-                      configProperty: columnPath,
-                      key: columnPath,
+                      key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
@@ -89,19 +73,19 @@ function EntitySelectorComponent(props: any) {
                       ...inputFieldConfig,
                       ...singleSchema,
                       customStyles,
-                      configProperty: columnPath,
-                      key: columnPath,
+                      key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
                 )}
                 {index < schema.length - 1 && (
                   <CenteredIcon
+                    key={`ES_ICON_${configProperty}`}
                     name="double-arrow-right"
                     size={IconSize.SMALL}
                   />
                 )}
-              </>
+              </React.Fragment>
             )
           );
         })}
@@ -109,6 +93,8 @@ function EntitySelectorComponent(props: any) {
   );
 }
 
+// This is a wrapper component that just encapsulated the children dropdown and dynamic text
+// components & changes their appearance
 export default function EntitySelectorControl(
   props: EntitySelectorControlProps,
 ) {
@@ -122,7 +108,7 @@ export default function EntitySelectorControl(
     <EntitySelectorComponent
       configProperty={configProperty}
       formName={formName}
-      key={configProperty}
+      key={`ES_PARENT_${configProperty}`}
       name={configProperty}
       schema={schema}
     />

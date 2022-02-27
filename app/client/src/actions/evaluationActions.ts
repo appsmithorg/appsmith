@@ -116,9 +116,11 @@ export const initFormEvaluations = (
 export const startFormEvaluations = (
   formId: string,
   formData: QueryActionConfig,
+  datasourceId: string,
+  pluginId: string,
 ) => {
   return {
     type: ReduxActionTypes.RUN_FORM_EVALUATION,
-    payload: { formId, actionConfiguration: formData },
+    payload: { formId, actionConfiguration: formData, datasourceId, pluginId },
   };
 };
