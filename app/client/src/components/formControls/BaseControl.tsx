@@ -53,7 +53,12 @@ export interface ControlData {
   validationMessage?: string;
   validationRegex?: string;
   dataType?: InputType;
-  initialValue?: string | boolean | number | Record<string, string>;
+  initialValue?:
+    | string
+    | boolean
+    | number
+    | Record<string, string>
+    | Array<string>;
   info?: string; //helper text
   isRequired?: boolean;
   conditionals?: ConditonalObject; // Object that contains the conditionals config
