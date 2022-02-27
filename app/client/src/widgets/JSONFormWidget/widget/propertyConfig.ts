@@ -1,16 +1,20 @@
+import { Alignment } from "@blueprintjs/core";
+
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Alignment } from "@blueprintjs/core";
 import {
   ButtonVariantTypes,
   ButtonBorderRadiusTypes,
   ButtonPlacementTypes,
 } from "components/constants";
 import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
+import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
+import { ComputedSchemaStatus, computeSchema } from "./helper";
+import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -21,7 +25,7 @@ export const sourceDataValidationFn = (
   props: JSONFormWidgetProps,
   _?: any,
 ) => {
-  if (value === undefined) {
+  if (_.isNil(value)) {
     return {
       isValid: true,
       parsed: {},
@@ -48,6 +52,51 @@ export const sourceDataValidationFn = (
     };
   }
 };
+
+const onGenerateFormClick = ({
+  batchUpdateProperties,
+  props,
+}: OnButtonClickProps) => {
+  const widgetProperties: JSONFormWidgetProps = props.widgetProperties;
+
+  if (widgetProperties.autoGenerateForm) return;
+
+  const currSourceData = widgetProperties[EVALUATION_PATH]?.evaluatedValues
+    ?.sourceData as Record<string, any> | Record<string, any>[];
+
+  const prevSourceData = widgetProperties.schema?.__root_schema__?.sourceData;
+
+  const { dynamicPropertyPathList, schema, status } = computeSchema({
+    currentDynamicPropertyPathList: widgetProperties.dynamicPropertyPathList,
+    currSourceData,
+    prevSchema: widgetProperties.schema,
+    prevSourceData,
+    widgetName: widgetProperties.widgetName,
+  });
+
+  if (status === ComputedSchemaStatus.LIMIT_EXCEEDED) {
+    batchUpdateProperties({ fieldLimitExceeded: true });
+    return;
+  }
+
+  if (status === ComputedSchemaStatus.UNCHANGED) {
+    if (widgetProperties.fieldLimitExceeded) {
+      batchUpdateProperties({ fieldLimitExceeded: false });
+    }
+    return;
+  }
+
+  if (status === ComputedSchemaStatus.UPDATED) {
+    batchUpdateProperties({
+      dynamicPropertyPathList,
+      schema,
+      fieldLimitExceeded: false,
+    });
+  }
+};
+
+const generateFormCTADisabled = (widgetProps: JSONFormWidgetProps) =>
+  widgetProps.autoGenerateForm;
 
 const generateButtonStyleControlsFor = (prefix: string) => [
   {
@@ -252,6 +301,35 @@ export default [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      {
+        helpText:
+          "CAUTION!!! When auto generate form is enabled, the form fields would regenerate if there is any change of source data (keys change or value type changes eg from string to number). If disabled then the fields and their configuration won't change with the change of source data.",
+        propertyName: "autoGenerateForm",
+        label: "Auto Generate Form",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        propertyName: "generateFormButton",
+        label: "",
+        controlType: "BUTTON",
+        isJSConvertible: false,
+        isBindProperty: false,
+        buttonLabel: "Generate Form",
+        onClick: onGenerateFormClick,
+        disabled: generateFormCTADisabled,
+        isTriggerProperty: false,
+        dependencies: [
+          "autoGenerateForm",
+          "schema",
+          "sourceData",
+          "fieldLimitExceeded",
+        ],
       },
       {
         propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,

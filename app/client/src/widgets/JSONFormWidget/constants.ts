@@ -50,6 +50,9 @@ export enum DataType {
   FUNCTION = "function",
 }
 
+export type Obj = Record<string, any>;
+export type JSON = Obj | Obj[];
+
 export type FieldComponentBaseProps = {
   defaultValue?: string | number;
   isDisabled: boolean;
@@ -137,8 +140,14 @@ export type FieldState<TObj> =
   | FieldState<TObj>[]
   | TObj;
 
+export type HookResponse =
+  | Array<{ propertyPath: string; propertyValue: any }>
+  | undefined;
+
 export const ARRAY_ITEM_KEY = "__array_item__";
 export const ROOT_SCHEMA_KEY = "__root_schema__";
+
+export const MAX_ALLOWED_FIELDS = 50;
 
 export const RESTRICTED_KEYS = [ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY];
 

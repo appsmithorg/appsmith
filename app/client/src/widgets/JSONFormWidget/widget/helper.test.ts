@@ -7,6 +7,8 @@ import {
 } from "../constants";
 import schemaTestData from "../schemaTestData";
 import {
+  ComputedSchemaStatus,
+  computeSchema,
   dynamicPropertyPathListFromSchema,
   generateFieldState,
   getGrandParentPropertyPath,
@@ -465,5 +467,200 @@ describe(".dynamicPropertyPathListFromSchema", () => {
     const result = dynamicPropertyPathListFromSchema(schema);
 
     expect(result).toEqual(expectedPathList);
+  });
+});
+
+describe(".computeSchema", () => {
+  it("returns LIMIT_EXCEEDED state when source data exceeds limit", () => {
+    const sourceData = {
+      number: 10,
+      text: "text",
+      object1: {
+        number: 10,
+        text: "text",
+        obj: {
+          arr: {
+            number: 10,
+            text: "text",
+            arr: ["a", "b"],
+            obj: {
+              a: 10,
+              c: 20,
+            },
+          },
+        },
+      },
+      object2: {
+        number: 10,
+        text: "text",
+        obj: {
+          arr: {
+            number: 10,
+            text: "text",
+            arr: ["a", "b"],
+            obj: {
+              a: 10,
+              c: 20,
+            },
+          },
+        },
+      },
+      arr2: ["1", "2"],
+      arr1: [
+        {
+          number: 10,
+          text: "text",
+          obj: {
+            arr: {
+              number: 10,
+              text: "text",
+              arr: ["a", "b"],
+              obj: {
+                a: 10,
+                c: 20,
+              },
+            },
+          },
+        },
+        {
+          number1: 10,
+          text2: "text",
+          obj: {
+            arr: {
+              number: 10,
+              text: "text",
+              arr: ["a", "b"],
+              obj1: {
+                a: 10,
+                c: 20,
+              },
+            },
+          },
+        },
+      ],
+    };
+
+    const response = computeSchema({
+      currSourceData: sourceData,
+      widgetName: "JSONForm1",
+    });
+
+    expect(response.status).toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
+    expect(response.dynamicPropertyPathList).toBeUndefined();
+    expect(response.schema).toBeUndefined();
+  });
+
+  it("returns UNCHANGED status no source data is passed", () => {
+    const inputSourceData = [undefined, {}];
+
+    inputSourceData.forEach((sourceData) => {
+      const response = computeSchema({
+        currSourceData: sourceData,
+        widgetName: "JSONForm1",
+      });
+
+      expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
+      expect(response.dynamicPropertyPathList).toBeUndefined();
+      expect(response.schema).toBeUndefined();
+    });
+  });
+
+  it("returns UNCHANGED status when prev and curr source data are same", () => {
+    const currSourceData = {
+      obj: {
+        number: 10,
+        arrayOfString: ["test"],
+      },
+      string: "test",
+    };
+
+    const prevSourceData = {
+      obj: {
+        number: 10,
+        arrayOfString: ["test"],
+      },
+      string: "test",
+    };
+
+    const response = computeSchema({
+      currSourceData,
+      prevSourceData,
+      widgetName: "JSONForm1",
+    });
+
+    expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
+    expect(response.dynamicPropertyPathList).toBeUndefined();
+    expect(response.schema).toBeUndefined();
+  });
+
+  it("returns new schema when prevSchema is not provided", () => {
+    const response = computeSchema({
+      currSourceData: schemaTestData.initialDataset.dataSource,
+      widgetName: "JSONForm1",
+    });
+
+    const expectedDynamicPropertyPathList = [
+      { key: "schema.__root_schema__.children.dob.defaultValue" },
+      { key: "schema.__root_schema__.children.boolean.defaultValue" },
+    ];
+
+    expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);
+    expect(response.dynamicPropertyPathList).toEqual(
+      expectedDynamicPropertyPathList,
+    );
+    expect(response.schema).toEqual(schemaTestData.initialDataset.schemaOutput);
+  });
+
+  it("returns retains existing dynamicBindingPropertyPathList", () => {
+    const existingDynamicBindingPropertyPathList = [
+      { key: "dummy.path1" },
+      { key: "dummy.path2" },
+    ];
+
+    const expectedDynamicPropertyPathList = [
+      ...existingDynamicBindingPropertyPathList,
+      { key: "schema.__root_schema__.children.dob.defaultValue" },
+      { key: "schema.__root_schema__.children.boolean.defaultValue" },
+    ];
+
+    const response = computeSchema({
+      currSourceData: schemaTestData.initialDataset.dataSource,
+      currentDynamicPropertyPathList: existingDynamicBindingPropertyPathList,
+      widgetName: "JSONForm1",
+    });
+
+    expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);
+    expect(response.dynamicPropertyPathList).toEqual(
+      expectedDynamicPropertyPathList,
+    );
+    expect(response.schema).toEqual(schemaTestData.initialDataset.schemaOutput);
+  });
+
+  it("returns updated schema when new key added to existing data source", () => {
+    const existingDynamicBindingPropertyPathList = [
+      { key: "dummy.path1" },
+      { key: "dummy.path2" },
+    ];
+
+    const expectedDynamicPropertyPathList = [
+      ...existingDynamicBindingPropertyPathList,
+      { key: "schema.__root_schema__.children.dob.defaultValue" },
+    ];
+    const response = computeSchema({
+      currSourceData:
+        schemaTestData.withRemovedAddedKeyToInitialDataset.dataSource,
+      prevSourceData: schemaTestData.initialDataset.dataSource,
+      prevSchema: schemaTestData.initialDataset.schemaOutput,
+      currentDynamicPropertyPathList: existingDynamicBindingPropertyPathList,
+      widgetName: "JSONForm1",
+    });
+
+    expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);
+    expect(response.dynamicPropertyPathList).toEqual(
+      expectedDynamicPropertyPathList,
+    );
+    expect(response.schema).toEqual(
+      schemaTestData.withRemovedAddedKeyToInitialDataset.schemaOutput,
+    );
   });
 });

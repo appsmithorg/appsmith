@@ -1,13 +1,21 @@
+import equal from "fast-deep-equal/es6";
+import { difference, isEmpty } from "lodash";
+import log from "loglevel";
+
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { MetaInternalFieldState } from ".";
 import {
   ARRAY_ITEM_KEY,
-  FieldType,
+  AUTO_JS_ENABLED_FIELDS,
   FieldState,
+  FieldType,
+  JSON,
+  MAX_ALLOWED_FIELDS,
   Schema,
   SchemaItem,
-  AUTO_JS_ENABLED_FIELDS,
 } from "../constants";
+import { countFields } from "../helper";
+import SchemaParser from "../schemaParser";
 
 type FieldStateItem = {
   isRequired?: boolean;
@@ -18,6 +26,27 @@ type FieldStateItem = {
 };
 
 type MetaFieldState = FieldState<FieldStateItem>;
+
+type PathList = Array<{ key: string }>;
+type ComputedSchema = {
+  status: ComputedSchemaStatus;
+  schema?: Schema;
+  dynamicPropertyPathList?: PathList;
+};
+
+type ComputeSchemaProps = {
+  currSourceData?: JSON;
+  prevSourceData?: JSON;
+  prevSchema?: Schema;
+  widgetName: string;
+  currentDynamicPropertyPathList?: PathList;
+};
+
+export enum ComputedSchemaStatus {
+  LIMIT_EXCEEDED = "LIMIT_EXCEEDED",
+  UNCHANGED = "UNCHANGED",
+  UPDATED = "UPDATED",
+}
 
 // propertyPath -> "schema[0].children[0].fieldType"
 // returns parentPropertyPath -> "schema[0].children[0]"
@@ -199,4 +228,64 @@ export const dynamicPropertyPathListFromSchema = (
   });
 
   return paths;
+};
+
+const computeDynamicPropertyPathList = (
+  schema: Schema,
+  currentDynamicPropertyPathList?: PathList,
+) => {
+  const pathListFromSchema = dynamicPropertyPathListFromSchema(schema);
+  const pathListFromProps = (currentDynamicPropertyPathList || []).map(
+    ({ key }) => key,
+  );
+
+  const newPaths = difference(pathListFromSchema, pathListFromProps);
+
+  return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
+};
+
+/**
+ * Compute schema parses the currSourceData and returns the schema.
+ */
+export const computeSchema = ({
+  currentDynamicPropertyPathList,
+  currSourceData,
+  prevSchema,
+  prevSourceData,
+  widgetName,
+}: ComputeSchemaProps): ComputedSchema => {
+  // Hot path - early exit
+  if (isEmpty(currSourceData) || equal(prevSourceData, currSourceData)) {
+    return {
+      status: ComputedSchemaStatus.UNCHANGED,
+    };
+  }
+
+  const count = countFields(currSourceData);
+  if (count > MAX_ALLOWED_FIELDS) {
+    return {
+      status: ComputedSchemaStatus.LIMIT_EXCEEDED,
+    };
+  }
+
+  const start = performance.now();
+
+  const schema = SchemaParser.parse(widgetName, currSourceData, prevSchema);
+
+  log.debug(
+    "JSONForm widget schema parsing took",
+    performance.now() - start,
+    "ms",
+  );
+
+  const dynamicPropertyPathList = computeDynamicPropertyPathList(
+    schema,
+    currentDynamicPropertyPathList,
+  );
+
+  return {
+    status: ComputedSchemaStatus.UPDATED,
+    dynamicPropertyPathList,
+    schema,
+  };
 };

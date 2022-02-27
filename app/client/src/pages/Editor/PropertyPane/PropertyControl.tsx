@@ -432,6 +432,7 @@ const PropertyControl = memo((props: Props) => {
             config,
             {
               onPropertyChange: onPropertyChange,
+              onBatchUpdateProperties: onBatchUpdateProperties,
               openNextPanel: openPanel,
               deleteProperties: onDeleteProperties,
               theme: props.theme,

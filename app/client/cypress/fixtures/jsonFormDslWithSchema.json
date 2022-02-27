@@ -337,6 +337,7 @@
             "hideCard": false,
             "parentColumnSpace": 18.0625,
             "dynamicTriggerPathList": [],
+            "autoGenerateForm": true,
             "leftColumn": 18,
             "dynamicBindingPathList": [
                 {

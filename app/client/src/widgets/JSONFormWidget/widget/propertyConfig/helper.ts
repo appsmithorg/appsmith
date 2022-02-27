@@ -3,7 +3,13 @@ import { get } from "lodash";
 import SchemaParser, {
   sanitizeSchemaItemKey,
 } from "widgets/JSONFormWidget/schemaParser";
-import { FieldType, SchemaItem, ARRAY_ITEM_KEY, Schema } from "../../constants";
+import {
+  FieldType,
+  SchemaItem,
+  ARRAY_ITEM_KEY,
+  Schema,
+  HookResponse,
+} from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
 
@@ -13,7 +19,7 @@ export const fieldTypeUpdateHook = (
   props: JSONFormWidgetProps,
   propertyPath: string,
   fieldType: FieldType,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+): HookResponse => {
   const { schema, widgetName } = props;
   const schemaItemPath = getParentPropertyPath(propertyPath);
   const schemaItem: SchemaItem = get(props, schemaItemPath, {});
@@ -110,7 +116,7 @@ export const updateChildrenDisabledStateHook = (
   props: JSONFormWidgetProps,
   propertyPath: string,
   isDisabled: boolean,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+): HookResponse => {
   const schemaItemPath = getParentPropertyPath(propertyPath);
   const schemaItem: SchemaItem = get(props, schemaItemPath, {});
 
@@ -143,7 +149,7 @@ export const accessorUpdateHook = (
   props: JSONFormWidgetProps,
   propertyPath: string,
   accessor: string,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+): HookResponse => {
   const schemaItemPath = getParentPropertyPath(propertyPath);
   const schemaPath = getGrandParentPropertyPath(propertyPath);
   const schema: Schema = get(props, schemaPath, {});

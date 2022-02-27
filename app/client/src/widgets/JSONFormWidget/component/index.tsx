@@ -8,11 +8,16 @@ import WidgetStyleContainer, {
 } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { Color } from "constants/Colors";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { FIELD_MAP, ROOT_SCHEMA_KEY, Schema } from "../constants";
+import {
+  FIELD_MAP,
+  MAX_ALLOWED_FIELDS,
+  ROOT_SCHEMA_KEY,
+  Schema,
+} from "../constants";
 import { FormContextProvider } from "../FormContext";
 import { isEmpty, pick } from "lodash";
 import { RenderMode, RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
-import { JSONFormWidgetState, MAX_ALLOWED_FIELDS } from "../widget";
+import { JSONFormWidgetState } from "../widget";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 
 type StyledContainerProps = {

@@ -53,6 +53,7 @@
     "backgroundColor": "#fff",
     "disabledWhenInvalid": true,
     "fixedFooter": true,
+    "autoGenerateForm": true,
     "schema": {
         "__root_schema__": {
             "children": {

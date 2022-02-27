@@ -21,6 +21,8 @@ export const CONFIG = {
     title: "Form",
     version: 1,
     widgetName: "JSONForm",
+    autoGenerateForm: true,
+    fieldLimitExceeded: false,
     submitButtonStyles: {
       buttonColor: Colors.GREEN,
       buttonVariant: ButtonVariantTypes.PRIMARY,

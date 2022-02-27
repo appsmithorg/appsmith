@@ -95,6 +95,7 @@ const getAndSetPath = (from: any, to: any, path: string) => {
 const populateEvaluatedWidgetProperties = (
   evaluatedWidget: DataTreeWidget,
   propertyPath: string,
+  dependencies: string[] = [],
 ) => {
   if (!evaluatedWidget || !evaluatedWidget[EVALUATION_PATH]) return;
 
@@ -105,16 +106,18 @@ const populateEvaluatedWidgetProperties = (
     evaluatedValues: {},
   };
 
-  getAndSetPath(
-    evaluatedWidgetPath?.errors,
-    evaluatedProperties.errors,
-    propertyPath,
-  );
-  getAndSetPath(
-    evaluatedWidgetPath?.evaluatedValues,
-    evaluatedProperties.evaluatedValues,
-    propertyPath,
-  );
+  [propertyPath, ...dependencies].forEach((path) => {
+    getAndSetPath(
+      evaluatedWidgetPath?.errors,
+      evaluatedProperties.errors,
+      path,
+    );
+    getAndSetPath(
+      evaluatedWidgetPath?.evaluatedValues,
+      evaluatedProperties.evaluatedValues,
+      path,
+    );
+  });
 
   return evaluatedProperties;
 };
@@ -143,6 +146,7 @@ export const getWidgetPropsForPropertyName = (
       widgetProperties[EVALUATION_PATH] = populateEvaluatedWidgetProperties(
         evaluatedWidget,
         propertyName,
+        dependencies,
       );
 
       return widgetProperties;

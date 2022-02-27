@@ -1,9 +1,9 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
-const jsonFormDslWithoutSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
+const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 
 const fieldPrefix = ".t--jsonformfield";
 
-describe("JSON Form Widget Field Render", () => {
+describe("JSON Form Widget AutoGenerate Enabled", () => {
   it("generates fields with valid source data json", () => {
     cy.addDsl(dslWithoutSchema);
     const sourceData = {
@@ -100,7 +100,7 @@ describe("JSON Form Widget Field Render", () => {
   });
 
   it("modifies field when source data changes", () => {
-    cy.addDsl(jsonFormDslWithoutSchemaAndWithoutSourceData);
+    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData);
 
     const modifiedSourceData = {
       name: "John",

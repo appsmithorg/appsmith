@@ -1,13 +1,11 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
-import log from "loglevel";
 import { connect } from "react-redux";
-import { debounce, difference, isEmpty } from "lodash";
+import { debounce, difference } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import propertyConfig from "./propertyConfig";
-import SchemaParser from "../schemaParser";
 import { AppState } from "reducers";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
@@ -16,17 +14,20 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { FieldState, Schema } from "../constants";
 import {
+  ComputedSchemaStatus,
+  computeSchema,
   dynamicPropertyPathListFromSchema,
   generateFieldState,
 } from "./helper";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { countFields } from "../helper";
 
 export interface JSONFormWidgetProps extends WidgetProps {
+  autoGenerateForm?: boolean;
   borderColor?: string;
   borderRadius?: number;
   boxShadow?: BoxShadow;
+  fieldLimitExceeded: boolean;
   boxShadowColor?: string;
   canvasWidgets: Record<string, WidgetProps>;
   disabledWhenInvalid?: boolean;
@@ -49,13 +50,11 @@ export type MetaInternalFieldState = FieldState<{
 }>;
 
 export type JSONFormWidgetState = {
-  fieldLimitExceeded: boolean;
   isSubmitting: boolean;
   metaInternalFieldState: MetaInternalFieldState;
 };
 
 const SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT = 400;
-export const MAX_ALLOWED_FIELDS = 50;
 
 class JSONFormWidget extends BaseWidget<
   JSONFormWidgetProps,
@@ -70,8 +69,7 @@ class JSONFormWidget extends BaseWidget<
     );
   }
 
-  state: JSONFormWidgetState = {
-    fieldLimitExceeded: false,
+  state = {
     isSubmitting: false,
     metaInternalFieldState: {},
   };
@@ -117,54 +115,47 @@ class JSONFormWidget extends BaseWidget<
     return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
   };
 
+  /**
+   * Why this computation cannot be done in the updateHook of the sourceData property
+   *
+   * For the case where a binding is used for the sourceData eg {{Table1.selectedRow}},
+   * we would have to look at the __evaluation__ object to find the evaluated value of this
+   * property but as the updateHook runs before the evaluations evaluate the {{Table1.selectedRow}}
+   * we would get stale/previous data from the __evaluations__ object.
+   * So it will always stay 1 step behind the actual value.
+   */
   constructAndSaveSchemaIfRequired = (prevProps?: JSONFormWidgetProps) => {
+    if (!this.props.autoGenerateForm) return;
+
+    const widget = this.props.canvasWidgets[
+      this.props.widgetId
+    ] as JSONFormWidgetProps;
     const prevSourceData = prevProps?.sourceData;
     const currSourceData = this.props?.sourceData;
-    const widget = this.props.canvasWidgets[this.props.widgetId];
 
-    if (isEmpty(currSourceData)) {
-      return;
-    }
-    // Hot path - early exit
-    if (equal(prevSourceData, currSourceData)) {
-      return;
-    }
-
-    const count = countFields(currSourceData);
-    if (count > MAX_ALLOWED_FIELDS && !this.state.fieldLimitExceeded) {
-      this.setState((prevState) => ({
-        ...prevState,
-        fieldLimitExceeded: true,
-      }));
-      return;
-    }
-
-    if (this.state.fieldLimitExceeded) {
-      this.setState((prevState) => ({
-        ...prevState,
-        fieldLimitExceeded: false,
-      }));
-    }
-
-    const start = performance.now();
-
-    const schema = SchemaParser.parse(
-      widget.widgetName,
+    const { dynamicPropertyPathList, schema, status } = computeSchema({
+      currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
       currSourceData,
-      widget.schema,
-    );
-
-    const dynamicPropertyPathList = this.computeDynamicPropertyPathList(schema);
-
-    log.debug(
-      "JSONForm widget schema parsing took",
-      performance.now() - start,
-      "ms",
-    );
-
-    this.batchUpdateWidgetProperty({
-      modify: { schema, dynamicPropertyPathList },
+      prevSchema: widget.schema,
+      prevSourceData,
+      widgetName: widget.widgetName,
     });
+
+    if (status === ComputedSchemaStatus.UNCHANGED) return;
+
+    if (
+      status === ComputedSchemaStatus.LIMIT_EXCEEDED &&
+      !this.props.fieldLimitExceeded
+    ) {
+      this.updateWidgetProperty("fieldLimitExceeded", true);
+      return;
+    }
+
+    if (status === ComputedSchemaStatus.UPDATED) {
+      this.batchUpdateWidgetProperty({
+        modify: { schema, dynamicPropertyPathList, fieldLimitExceeded: false },
+      });
+    }
   };
 
   updateFormData = (values: any) => {
@@ -237,7 +228,7 @@ class JSONFormWidget extends BaseWidget<
         boxShadowColor={this.props.boxShadowColor}
         disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
-        fieldLimitExceeded={this.state.fieldLimitExceeded}
+        fieldLimitExceeded={this.props.fieldLimitExceeded}
         fixedFooter={this.props.fixedFooter}
         isSubmitting={this.state.isSubmitting}
         onSubmit={this.onSubmit}

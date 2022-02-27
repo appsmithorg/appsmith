@@ -32,6 +32,7 @@
             "version": 1,
             "widgetName": "JSONForm1",
             "type": "JSON_FORM_WIDGET",
+            "autoGenerateForm": true,
             "hideCard": false,
             "displayName": "JSON Form",
             "key": "cak4mvjrvr",

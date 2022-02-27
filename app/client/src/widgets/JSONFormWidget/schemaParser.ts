@@ -15,13 +15,13 @@ import {
   DataType,
   FIELD_MAP,
   FIELD_TYPE_TO_POTENTIAL_DATA,
+  FieldComponentBaseProps,
   FieldType,
+  getBindingTemplate,
+  RESTRICTED_KEYS,
   ROOT_SCHEMA_KEY,
   Schema,
   SchemaItem,
-  getBindingTemplate,
-  RESTRICTED_KEYS,
-  FieldComponentBaseProps,
 } from "./constants";
 
 type Obj = Record<string, any>;

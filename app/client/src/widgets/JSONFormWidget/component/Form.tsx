@@ -119,6 +119,17 @@ const scrolledToBottom = (element: HTMLElement) => {
   return scrollHeight - scrollTop === clientHeight;
 };
 
+const hasOverflowingContent = (element: HTMLElement) => {
+  const { clientHeight, scrollHeight } = element;
+  return scrollHeight > clientHeight;
+};
+
+const applyScrollClass = (element: HTMLElement, shouldApply: boolean) => {
+  shouldApply
+    ? element.classList.add(FOOTER_SCROLL_ACTIVE_CLASS_NAME)
+    : element.classList.remove(FOOTER_SCROLL_ACTIVE_CLASS_NAME);
+};
+
 function Form<TValues = any>({
   backgroundColor,
   children,
@@ -161,31 +172,34 @@ function Form<TValues = any>({
     return () => subscription.unsubscribe();
   }, []);
 
+  const isOverflowing = formRef.current
+    ? hasOverflowingContent(formRef.current)
+    : false;
+  /**
+   * If fixedFooter changes from false to true and not scrolled to the bottom
+   * then we add the active class to the footer.
+   */
+  useEffect(() => {
+    if (fixedFooter && footerRef.current && formRef.current) {
+      const hasScrolledToBottom = scrolledToBottom(formRef.current);
+      const shouldApplyClass = !hasScrolledToBottom && isOverflowing;
+      applyScrollClass(footerRef.current, shouldApplyClass);
+    }
+  }, [fixedFooter, isOverflowing]);
+
+  const onScroll = (event: React.UIEvent<HTMLFormElement, UIEvent>) => {
+    if (fixedFooter && footerRef.current) {
+      const hasScrolledToBottom = scrolledToBottom(event.currentTarget);
+      applyScrollClass(footerRef.current, !hasScrolledToBottom);
+    }
+  };
+
   const onReset = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault();
     const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
 
     if (typeof defaultValues === "object") {
       reset(defaultValues);
-    }
-  };
-
-  useEffect(() => {
-    if (
-      fixedFooter &&
-      footerRef.current &&
-      formRef.current &&
-      !scrolledToBottom(formRef.current)
-    ) {
-      footerRef.current.classList.add(FOOTER_SCROLL_ACTIVE_CLASS_NAME);
-    }
-  }, [fixedFooter]);
-
-  const onScroll = (event: React.UIEvent<HTMLFormElement, UIEvent>) => {
-    if (fixedFooter && footerRef.current) {
-      scrolledToBottom(event.currentTarget)
-        ? footerRef.current.classList.remove(FOOTER_SCROLL_ACTIVE_CLASS_NAME)
-        : footerRef.current.classList.add(FOOTER_SCROLL_ACTIVE_CLASS_NAME);
     }
   };
 
