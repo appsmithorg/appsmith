@@ -1649,7 +1649,7 @@
 					"timeoutInMillisecond":10000,
 					"paginationType":"NONE",
 					"encodeParamsToggle":true,
-					"body":"SELECT * FROM user_data ORDER BY id LIMIT 20;",
+					"body":"SELECT * FROM user_data ORDER BY id LIMIT 10;",
 					"pluginSpecifiedTemplates":[
 						{
 							"value":false

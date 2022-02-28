@@ -51,11 +51,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
-import {
-  clearActionResponse,
-  setActionProperty,
-} from "actions/pluginActionActions";
-import { QueryAction } from "entities/Action";
+import { clearActionResponse } from "actions/pluginActionActions";
 import {
   importApplication,
   updateApplicationLayout,
@@ -148,16 +144,6 @@ function* setUpTourAppSaga() {
   );
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
-  let body = (query?.config as QueryAction).actionConfiguration.body;
-  body = body?.replace("10", "20");
-  yield put(
-    setActionProperty({
-      actionId: query?.config.id ?? "",
-      propertyName: "actionConfiguration.body",
-      value: body,
-    }),
-  );
-  yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   yield put(clearActionResponse(query?.config.id ?? ""));
   const applicationId = yield select(getCurrentApplicationId);
   history.push(

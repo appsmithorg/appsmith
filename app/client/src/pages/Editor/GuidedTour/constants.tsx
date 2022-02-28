@@ -264,15 +264,8 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            <b>Edit</b> the getCustomers query below to fetch data. Replace the{" "}
-            <b>limit</b> {`"20"`} with {`"10"`}.
-          </>
-        ),
-      },
-      {
-        text: (
-          <>
-            Now hit the <RunButton>RUN</RunButton> button to see the response.
+            This command will fetch the first 10 items in the user_data
+            database. Hit <RunButton>RUN</RunButton> to see the response.
           </>
         ),
       },
