@@ -94,6 +94,7 @@ import {
   TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -681,7 +682,14 @@ function* executePluginActionSaga(
   }
 
   if (pluginAction.confirmBeforeExecute) {
-    const confirmed = yield call(requestModalConfirmationSaga);
+    const modalPayload = {
+      name: pluginAction.name,
+      modalOpen: true,
+      modalType: ModalType.RUN_ACTION,
+    };
+
+    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+
     if (!confirmed) {
       yield put({
         type: ReduxActionTypes.RUN_ACTION_CANCELLED,
