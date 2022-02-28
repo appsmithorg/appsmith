@@ -72,6 +72,7 @@ const baseDataTree = {
   JS_file: { ...JS_object_tree, name: "JS_file" },
   Select1: { ...Select_tree, name: "Select1" },
   Select2: { ...Select_tree, name: "Select2" },
+  Select3: { ...Select_tree, name: "Select3" },
   Query1: { ...Query_tree, name: "Query1" },
   Query2: { ...Query_tree, name: "Query2" },
   Query3: { ...Query_tree, name: "Query3" },
@@ -108,6 +109,11 @@ describe("Widget loading state utils", () => {
         "Select2.selectedOptionLabel",
         "Select2",
       ],
+      "Select3.options": [
+        "Select3.selectedOptionValue",
+        "Select3.selectedOptionLabel",
+        "Select3",
+      ],
     };
 
     // Select1.options -> JS_file.func1 -> Query1.data
@@ -122,16 +128,17 @@ describe("Widget loading state utils", () => {
 
     // Select1.options -> JS_file.func1 -> Query1.data
     // Select2.options -> JS_file.func2 -> Query2.data
+    // Select3.options -> none
     it("handles multiple dependencies", () => {
       const loadingEntites = findLoadingEntities(
-        ["Query1", "Query2"],
+        ["Query1", "Query2", "Query3"],
         baseDataTree,
         baseInverseMap,
       );
       expect(loadingEntites).toStrictEqual(new Set(["Select1", "Select2"]));
     });
 
-    // Query3
+    // none -> Query3.data
     it("handles no dependencies", () => {
       const loadingEntites = findLoadingEntities(
         ["Query3"],
@@ -168,8 +175,8 @@ describe("Widget loading state utils", () => {
         "Query1.config.body": ["Query1.config"],
         "Query1.data": ["JS_file.internalFunc", "Query1"],
 
-        "JS_file.func1": ["Select1.options"],
         "JS_file.internalFunc": ["JS_file.func1"],
+        "JS_file.func1": ["Select1.options"],
 
         "Select1.options": [
           "Select1.selectedOptionValue",
@@ -194,8 +201,8 @@ describe("Widget loading state utils", () => {
           "Query1.config.body": ["Query1.config"],
           "Query1.data": ["JS_file2.internalFunc", "Query1"],
 
-          "JS_file1.func1": ["Select1.options"],
           "JS_file2.internalFunc": ["JS_file1.func1"],
+          "JS_file1.func1": ["Select1.options"],
 
           "Select1.options": [
             "Select1.selectedOptionValue",
@@ -205,6 +212,40 @@ describe("Widget loading state utils", () => {
         },
       );
       expect(loadingEntites).toStrictEqual(new Set(["Select1"]));
+    });
+
+    /* Select1.options -> JS.func1 -> Query1.data,
+       Select2.options -> Query2.data,
+       JS.func2 -> Query2.run
+
+       When Query2 is called.
+       Only Select2 should be listed, not Select1.
+    */
+    it("handles selective dependencies in same JS file", () => {
+      const loadingEntites = findLoadingEntities(["Query2"], baseDataTree, {
+        "Query1.config": ["Query1"],
+        "Query1.config.body": ["Query1.config"],
+        "Query1.data": ["JS_file.func1"],
+
+        "Query2.config": ["Query2"],
+        "Query2.config.body": ["Query2.config"],
+        "Query2.data": ["JS_file.func2"],
+
+        "JS_file.func1": ["Select1.options"],
+        "JS_file.func2": ["Select2.options"],
+
+        "Select1.options": [
+          "Select1.selectedOptionValue",
+          "Select1.selectedOptionLabel",
+          "Select1",
+        ],
+        "Select2.options": [
+          "Select2.selectedOptionValue",
+          "Select2.selectedOptionLabel",
+          "Select2",
+        ],
+      });
+      expect(loadingEntites).toStrictEqual(new Set(["Select2"]));
     });
   });
 
@@ -393,7 +434,7 @@ describe("Widget loading state utils", () => {
        When Query2 is called.
        Only Select2 should be listed, not Select1.
     */
-    it("handles multiple dependencies in same JS file", () => {
+    it("handles selective dependencies in same JS file", () => {
       const dependants = getEntityDependants(
         ["Query2"],
         {
@@ -401,11 +442,11 @@ describe("Widget loading state utils", () => {
             "Query1.data": ["JS_file.func1"],
           },
           Query2: {
-            "Query2.run": ["JS_file.func2"],
-            "Query2.data": ["Select2.options"],
+            "Query2.data": ["JS_file.func2"],
           },
           JS_file: {
             "JS_file.func1": ["Select1.options"],
+            "JS_file.func2": ["Select2.options"],
           },
         },
         new Set<string>(),
