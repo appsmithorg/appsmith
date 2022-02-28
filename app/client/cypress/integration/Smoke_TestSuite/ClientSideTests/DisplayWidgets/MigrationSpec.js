@@ -250,7 +250,9 @@ describe("Migration Validate", function() {
           },
         ).then(() => cy.wait(500)); //allow time for n/w to finish
 
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+          timeout: 30000,
+        })
           .eq(0)
           .invoke("text")
           .then((addreduce) => {
@@ -285,7 +287,9 @@ describe("Migration Validate", function() {
           },
         ).then(() => cy.wait(500)); //allow time for n/w to finish
 
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+          timeout: 30000,
+        })
           .eq(0)
           .invoke("text")
           .then((addreduce) => {
@@ -425,7 +429,9 @@ describe("Migration Validate", function() {
           },
         ).then(() => cy.wait(500)); //allow time for n/w to finish
 
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+          timeout: 30000,
+        })
           .eq(0)
           .invoke("text")
           .then((addreduce) => {
@@ -460,7 +466,9 @@ describe("Migration Validate", function() {
           },
         ).then(() => cy.wait(500)); //allow time for n/w to finish
 
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+          timeout: 30000,
+        })
           .eq(0)
           .invoke("text")
           .then((addreduce) => {

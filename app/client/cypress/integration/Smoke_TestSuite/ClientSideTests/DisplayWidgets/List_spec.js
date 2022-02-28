@@ -65,7 +65,6 @@ describe("List Widget Functionality", function() {
 
     disallowed.forEach((widget) => {
       cy.dragAndDropToWidget(widget, "listwidget", { x: 50, y: 50 });
-      cy.assertPageSave();
       cy.validateToastMessage(
         "This widget cannot be used inside the list widget.",
       );
