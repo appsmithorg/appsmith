@@ -148,7 +148,7 @@ export default function Group({
                     />
                   </div>
                 );
-              case SettingTypes.REDIRECT:
+              case SettingTypes.UNEDITABLEFIELD:
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}

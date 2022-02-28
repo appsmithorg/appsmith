@@ -78,11 +78,6 @@ APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
 # APPSMITH_DISABLE_INTERCOM=
 # *******************************
 
-# ******** Form Login Config *************
-# APPSMITH_FORM_LOGIN_DISABLED=
-# APPSMITH_SIGNUP_DISABLED=
-# ****************************************
-
 # APPSMITH_PLUGIN_MAX_RESPONSE_SIZE_MB=5
 
 EOF
