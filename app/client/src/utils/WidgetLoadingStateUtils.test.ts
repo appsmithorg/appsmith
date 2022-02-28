@@ -1,5 +1,6 @@
 import { PluginType } from "entities/Action";
 import {
+  DataTreeAction,
   DataTreeJSAction,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -46,10 +47,34 @@ const Select_tree: DataTreeWidget = {
   animateLoading: true,
 };
 
+const Query_tree: DataTreeAction = {
+  data: {},
+  actionId: "",
+  config: {},
+  pluginType: PluginType.DB,
+  pluginId: "",
+  name: "",
+  run: {},
+  clear: {},
+  dynamicBindingPathList: [],
+  bindingPaths: {},
+  ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  dependencyMap: {},
+  logBlackList: {},
+  datasourceUrl: "",
+  responseMeta: {
+    isExecutionSuccess: true,
+  },
+  isLoading: false,
+};
+
 const baseDataTree = {
   JS_file: { ...JS_object_tree, name: "JS_file" },
   Select1: { ...Select_tree, name: "Select1" },
   Select2: { ...Select_tree, name: "Select2" },
+  Query1: { ...Query_tree, name: "Query1" },
+  Query2: { ...Query_tree, name: "Query2" },
+  Query3: { ...Query_tree, name: "Query3" },
 };
 
 describe("Widget loading state utils", () => {
@@ -160,10 +185,9 @@ describe("Widget loading state utils", () => {
       const loadingEntites = findLoadingEntities(
         ["Query1"],
         {
+          ...baseDataTree,
           JS_file1: { ...JS_object_tree, name: "JS_file1" },
           JS_file2: { ...JS_object_tree, name: "JS_file2" },
-          Select1: { ...Select_tree, name: "Select1" },
-          Select2: { ...Select_tree, name: "Select2" },
         },
         {
           "Query1.config": ["Query1"],

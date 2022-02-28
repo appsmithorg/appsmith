@@ -16,7 +16,9 @@ export const groupAndFilterDependantsMap = (
 
   Object.entries(inverseMap).forEach(([fullDependencyPath, dependants]) => {
     const dependencyEntityName = fullDependencyPath.split(".")[0];
-    const isJS_Object = isJSObject(dataTree[dependencyEntityName]);
+    const dataTreeEntity = dataTree[dependencyEntityName];
+    if (!dataTreeEntity) return;
+    const isJS_Object = isJSObject(dataTreeEntity);
 
     const entityDependantsMap = entitiesDepMap[dependencyEntityName] || {};
     let entityPathDependants = entityDependantsMap[fullDependencyPath] || [];
