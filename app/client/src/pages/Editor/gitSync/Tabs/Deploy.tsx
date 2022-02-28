@@ -213,6 +213,7 @@ function Deploy() {
           <TextInput
             $padding="8px 14px"
             autoFocus
+            className="t--commit-comment-input"
             disabled={commitInputDisabled}
             fill
             height={`${Math.min(autogrowHeight, 80)}px`}
@@ -253,7 +254,7 @@ function Deploy() {
         )}
         {pullRequired && !isConflicting && (
           <Button
-            className="t--commit-button"
+            className="t--pull-button"
             isLoading={isPullingProgress}
             onClick={handlePull}
             size={Size.large}
