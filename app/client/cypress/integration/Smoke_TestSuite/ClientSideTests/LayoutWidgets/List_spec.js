@@ -111,6 +111,7 @@ describe("Container Widget Functionality", function() {
     // now we are on the second page which shows first the 3rd item in the list
     cy.get(commonlocators.TextInside).then(function($lis) {
       expect($lis.eq(0)).to.contain(items[2].first_name);
+      expect($lis.eq(1)).to.contain(items[3].first_name);
     });
     cy.get(publishPage.backToEditor).click({ force: true });
   });
