@@ -301,7 +301,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
   });
 
-  it.only("11. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function() {
+  it("11. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function() {
     cy.NavigateToHome();
     cy.get(homePage.createNew)
       .first()
@@ -375,6 +375,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
     });
 
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedWidgetChart)
       .click()
