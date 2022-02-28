@@ -30,6 +30,10 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { Toaster, Variant } from "components/ads";
+import {
+  connectedMethods,
+  saveAllowed,
+} from "@appsmith/utils/adminSettingsHelpers";
 const {
   disableLoginForm,
   enableGithubOAuth,
@@ -102,12 +106,7 @@ export function SettingsForm(
   );
 
   const onSave = () => {
-    const connectedMethods = [
-      enableGoogleOAuth,
-      enableGithubOAuth,
-      !disableLoginForm,
-    ].filter(Boolean);
-    if (connectedMethods.length >= 1) {
+    if (saveAllowed(props.settings)) {
       dispatch(saveSettings(props.settings));
     } else {
       saveBlocked();
@@ -143,11 +142,6 @@ export function SettingsForm(
 
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
-    const connectedMethods = [
-      enableGoogleOAuth,
-      enableGithubOAuth,
-      !disableLoginForm,
-    ].filter(Boolean);
     if (connectedMethods.length >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
         if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
