@@ -62,6 +62,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
@@ -105,6 +106,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     private enum PublishType {
         UNPUBLISHED, PUBLISHED
+    }
+
+    private enum IdType {
+        RESOURCE_ID, DEFAULT_RESOURCE_ID
     }
 
     /**
@@ -787,7 +792,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                     return existingPagesMono
                                             .flatMap(existingPagesList -> {
-                                                List<String> invalidPageIds = new ArrayList<>();
+                                                Set<String> invalidPageIds = new HashSet<>();
                                                 for (NewPage newPage : existingPagesList) {
                                                     if(!validPageIds.contains(newPage.getId())) {
                                                         invalidPageIds.add(newPage.getId());
@@ -814,7 +819,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .collectList();
                 })
                 .flatMap(existingActions ->
-                        importAndSaveAction(importedNewActionList,
+                        importAndSaveAction(
+                                importedNewActionList,
                                 existingActions,
                                 importedApplication,
                                 branchName,
@@ -831,7 +837,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             // Updating the existing application for git-sync
                             if (!StringUtils.isEmpty(applicationId)) {
                                 // Remove unwanted actions
-                                List<String> invalidActionIds = new ArrayList<>();
+                                Set<String> invalidActionIds = new HashSet<>();
                                 for (NewAction action : existingActions) {
                                     if (!savedActionIds.contains(action.getId())) {
                                         invalidActionIds.add(action.getId());
@@ -858,20 +864,55 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     if (importedActionCollectionList == null) {
                         return Mono.just(true);
                     }
-
-                    return importAndSaveActionCollectionAndUpdateActionsWithCollectionIds(
+                    Set<String> savedCollectionIds = new HashSet<>();
+                    return importAndSaveActionCollection(
                             importedActionCollectionList,
                             existingActionCollections,
                             importedApplication,
                             branchName,
                             pageNameMap, pluginMap,
                             unpublishedCollectionIdToActionIdsMap,
-                            publishedCollectionIdToActionIdsMap,
-                            unpublishedActionIdToCollectionIdMap,
-                            publishedActionIdToCollectionIdMap
-                    )
-                            .then()
-                            .thenReturn(true);
+                            publishedCollectionIdToActionIdsMap
+                        )
+                        .flatMap(tuple -> {
+                            final String importedActionCollectionId = tuple.getT1();
+                            ActionCollection savedActionCollection = tuple.getT2();
+                            savedCollectionIds.add(savedActionCollection.getId());
+                            return updateActionsWithImportedCollectionIds(
+                                    importedActionCollectionId,
+                                    savedActionCollection,
+                                    unpublishedCollectionIdToActionIdsMap,
+                                    publishedCollectionIdToActionIdsMap,
+                                    unpublishedActionIdToCollectionIdMap,
+                                    publishedActionIdToCollectionIdMap
+                            );
+                        })
+                        .collectList()
+                        .flatMap(ignore -> {
+                            // Updating the existing application for git-sync
+                            if (!StringUtils.isEmpty(applicationId)) {
+                                // Remove unwanted actions
+                                Set<String> invalidCollectionIds = new HashSet<>();
+                                for (ActionCollection collection : existingActionCollections) {
+                                    if (!savedCollectionIds.contains(collection.getId())) {
+                                        invalidCollectionIds.add(collection.getId());
+                                    }
+                                }
+                                return Flux.fromIterable(invalidCollectionIds)
+                                        .flatMap(collectionId -> actionCollectionService.deleteUnpublishedActionCollection(collectionId)
+                                                // return an empty collection so that the filter can remove it from the list
+                                                .onErrorResume(throwable -> {
+                                                    log.debug("Failed to delete collection with id {} during import", collectionId);
+                                                    log.error(throwable.getMessage());
+                                                    return Mono.empty();
+                                                })
+                                        )
+                                        .then()
+                                        .thenReturn(savedCollectionIds);
+                            }
+                            return Mono.just(savedCollectionIds);
+                        })
+                        .thenReturn(true);
                 })
                 .flatMap(ignored -> {
                     // Don't update gitAuth as we are using @Encrypted for private key
@@ -926,13 +967,19 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     /**
-     * This function will set the mongoEscapedWidgets if present in the page along with setting the policies for the page
+     * Method to
+     * - save imported pages
+     * - update the mongoEscapedWidgets if present in the page
+     * - set the policies for the page
+     * - update default resource ids along with branch-name if the application is connected to git
      *
      * @param pages                         pagelist extracted from the imported JSON file
      * @param application                   saved application where pages needs to be added
      * @param publishedMongoEscapedWidget   widget list those needs to be escaped for published layout
      * @param unpublishedMongoEscapedWidget widget list those needs to be escaped for unpublished layout
-     * @return saved pages
+     * @param branchName                    to which branch pages should be imported if application is connected to git
+     * @param existingPages                 existing pages in DB if the application is connected to git
+     * @return                              flux of saved pages in DB
      */
     private Flux<NewPage> importAndSavePages(List<NewPage> pages,
                                              Application application,
@@ -1020,6 +1067,31 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         });
     }
 
+    /**
+     * Method to
+     * - save imported actions with updated policies
+     * - update default resource ids along with branch-name if the application is connected to git
+     * - update the map of imported collectionIds to the actionIds in saved in DB
+     *
+     * @param importedNewActionList action list extracted from the imported JSON file
+     * @param existingActions       actions already present in DB connected to the application
+     * @param importedApplication   imported and saved application in DB
+     * @param branchName            branch to which the actions needs to be saved if the application is connected to git
+     * @param pageNameMap           map of page name to saved page in DB
+     * @param actionIdMap           empty map which will be used to store actionIds from imported file to actual actionIds from DB
+     *                              this will eventually be used to update on page load actions
+     * @param pluginMap             map of plugin name to saved plugin id in DB
+     * @param datasourceMap         map of plugin name to saved datasource id in DB
+     * @param unpublishedCollectionIdToActionIdsMap
+     *                              empty map which will be used to store unpublished collectionId from imported file to
+     *                              actual actionIds from DB, format for value will be <defaultActionId, actionId>
+     *                              for more details please check defaultToBranchedActionIdsMap {@link ActionCollectionDTO}
+     * @param publishedCollectionIdToActionIdsMap
+     *                              empty map which will be used to store published collectionId from imported file to
+     *                              actual actionIds from DB, format for value will be <defaultActionId, actionId>
+     *                              for more details please check defaultToBranchedActionIdsMap{@link ActionCollectionDTO}
+     * @return                      saved actions in DB
+     */
     private Flux<NewAction> importAndSaveAction(List<NewAction> importedNewActionList,
                                                 List<NewAction> existingActions,
                                                 Application importedApplication,
@@ -1158,7 +1230,25 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
     }
 
-    private Flux<NewAction> importAndSaveActionCollectionAndUpdateActionsWithCollectionIds(
+    /**
+     * Method to
+     * - save imported actionCollections with updated policies
+     * - update default resource ids along with branch-name if the application is connected to git
+     *
+     * @param importedActionCollectionList  action list extracted from the imported JSON file
+     * @param existingActionCollections     actions already present in DB connected to the application
+     * @param importedApplication           imported and saved application in DB
+     * @param branchName                    branch to which the actions needs to be saved if the application is connected to git
+     * @param pageNameMap                   map of page name to saved page in DB
+     * @param pluginMap                     map of plugin name to saved plugin id in DB
+     * @param unpublishedCollectionIdToActionIdsMap
+     * @param publishedCollectionIdToActionIdsMap
+     *                                      map of importedCollectionId to saved actions in DB
+     *                                      <defaultActionId, actionId> for more details please check
+     *                                      defaultToBranchedActionIdsMap {@link ActionCollectionDTO}
+     * @return                              tuple of imported actionCollectionId and saved actionCollection in DB
+     */
+    private Flux<Tuple2<String, ActionCollection>> importAndSaveActionCollection(
             List<ActionCollection> importedActionCollectionList,
             List<ActionCollection> existingActionCollections,
             Application importedApplication,
@@ -1166,9 +1256,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             Map<String, NewPage> pageNameMap,
             Map<String, String> pluginMap,
             Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap,
-            Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap,
-            Map<String, List<String>> unpublishedActionIdToCollectionIdMap,
-            Map<String, List<String>> publishedActionIdToCollectionIdMap) {
+            Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap) {
 
         final String organizationId = importedApplication.getOrganizationId();
         return Flux.fromIterable(importedActionCollectionList)
@@ -1269,27 +1357,34 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             Mono.just(importedActionCollectionId),
                             saveNewCollectionAndUpdateDefaultResources(actionCollection, branchName)
                     );
-                })
-                .flatMap(tuple -> {
-                    final String importedActionCollectionId = tuple.getT1();
-                    final String savedActionCollectionId = tuple.getT2().getId();
-                    final String defaultCollectionId = tuple.getT2().getDefaultResources().getCollectionId();
-                    List<String> collectionIds = List.of(savedActionCollectionId, defaultCollectionId);
-                    unpublishedCollectionIdToActionIdsMap
-                            .getOrDefault(importedActionCollectionId, Map.of())
-                            .forEach((defaultActionId, actionId) -> {
-                                unpublishedActionIdToCollectionIdMap.putIfAbsent(actionId, collectionIds);
-                            });
-                    publishedCollectionIdToActionIdsMap
-                            .getOrDefault(importedActionCollectionId, Map.of())
-                            .forEach((defaultActionId, actionId) -> {
-                                publishedActionIdToCollectionIdMap.putIfAbsent(actionId, collectionIds);
-                            });
-                    final HashSet<String> actionIds = new HashSet<>();
-                    actionIds.addAll(unpublishedActionIdToCollectionIdMap.keySet());
-                    actionIds.addAll(publishedActionIdToCollectionIdMap.keySet());
-                    return Flux.fromIterable(actionIds);
-                })
+                });
+    }
+
+    private Flux<NewAction> updateActionsWithImportedCollectionIds(
+            String importedActionCollectionId,
+            ActionCollection savedActionCollection,
+            Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap,
+            Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap,
+            Map<String, List<String>> unpublishedActionIdToCollectionIdMap,
+            Map<String, List<String>> publishedActionIdToCollectionIdMap) {
+
+        final String savedActionCollectionId = savedActionCollection.getId();
+        final String defaultCollectionId = savedActionCollection.getDefaultResources().getCollectionId();
+        List<String> collectionIds = List.of(savedActionCollectionId, defaultCollectionId);
+        unpublishedCollectionIdToActionIdsMap
+                .getOrDefault(importedActionCollectionId, Map.of())
+                .forEach((defaultActionId, actionId) -> {
+                    unpublishedActionIdToCollectionIdMap.putIfAbsent(actionId, collectionIds);
+                });
+        publishedCollectionIdToActionIdsMap
+                .getOrDefault(importedActionCollectionId, Map.of())
+                .forEach((defaultActionId, actionId) -> {
+                    publishedActionIdToCollectionIdMap.putIfAbsent(actionId, collectionIds);
+                });
+        final HashSet<String> actionIds = new HashSet<>();
+        actionIds.addAll(unpublishedActionIdToCollectionIdMap.keySet());
+        actionIds.addAll(publishedActionIdToCollectionIdMap.keySet());
+        return Flux.fromIterable(actionIds)
                 .flatMap(actionId -> newActionRepository.findById(actionId, MANAGE_ACTIONS))
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
