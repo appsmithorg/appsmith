@@ -162,6 +162,7 @@ export function getShouldReflow(
         else canVerticalMove = false;
       }
     }
+
     let prevCanHorizontalMove = true,
       prevCanVerticalMove = true;
     if (existingMovementLimits[movementKey]) {
@@ -170,6 +171,7 @@ export function getShouldReflow(
         canVerticalMove: prevCanVerticalMove,
       } = existingMovementLimits[movementKey]);
     }
+
     existingMovementLimits[movementKey] = {
       canVerticalMove: canVerticalMove && prevCanVerticalMove,
       canHorizontalMove: canHorizontalMove && prevCanHorizontalMove,
@@ -259,6 +261,7 @@ export function getCollidingSpaceMap(
         isColliding = true;
         const currentSpaceId = occupiedSpace.id;
 
+        //sometimes direction mentioned cannot be trusted a direction is intelligently calculated
         let movementDirection = getCorrectedDirection(
           occupiedSpace,
           prevSpacesMap && prevSpacesMap[newSpacePosition.id]
@@ -269,6 +272,9 @@ export function getCollidingSpaceMap(
           prevCollidingSpaceMap && prevCollidingSpaceMap[orientationalAccessor],
           isHorizontalMove,
         );
+
+        // if in case this is a second run of the getMovementMap,
+        //direction should be same as first or primary run.
         if (
           primaryCollisionMap &&
           primaryCollisionMap[occupiedSpace.id] &&
@@ -276,6 +282,9 @@ export function getCollidingSpaceMap(
             newSpacePosition.id
         )
           movementDirection = primaryCollisionMap[occupiedSpace.id].direction;
+
+        // if incase of the previous run of the entire reflow algorithm, then even though it might be in
+        //the opposite orientation of current, we should still consider the previous direction
         if (
           prevCollidingSpaceMap &&
           prevCollidingSpaceMap[oppositeOrientationalAccessor] &&
@@ -289,6 +298,7 @@ export function getCollidingSpaceMap(
             prevCollidingSpaceMap[oppositeOrientationalAccessor][
               occupiedSpace.id
             ].direction;
+
         const {
           direction: directionAccessor,
           directionIndicator,
@@ -297,6 +307,8 @@ export function getCollidingSpaceMap(
 
         if (isHorizontal !== isHorizontalMove) continue;
 
+        // If this particular space is already colliding with another dragging space,
+        // then the highest in the particular direction will override the lowest value
         const currentCollidingSpace = collidingSpaceMap[currentSpaceId];
         if (
           !currentCollidingSpace ||
@@ -336,7 +348,7 @@ export function getCollidingSpaceMap(
  * @param prevReflowState
  * @param occupiedSpaces
  * @param occupiedSpaces
- * @param isSecondaryCollidingWidget
+ * @param isDirectCollidingSpace
  * @returns Colliding Spaces Array
  */
 export function getCollidingSpacesInDirection(
@@ -347,7 +359,7 @@ export function getCollidingSpacesInDirection(
   gridProps: GridProps,
   prevReflowState: PrevReflowState,
   occupiedSpaces?: OccupiedSpace[],
-  isSecondaryCollidingWidget = false,
+  isDirectCollidingSpace = false,
 ) {
   const collidingSpaces: CollidingSpace[] = [];
   const occupiedSpacesInDirection = filterSpaceByDirection(
@@ -361,6 +373,7 @@ export function getCollidingSpacesInDirection(
 
   let order = 1;
   for (const occupiedSpace of occupiedSpacesInDirection) {
+    // determines if the space acn be added to the list of colliding spaces, if so in what direction
     const {
       changedDirection,
       collidingValue,
@@ -372,7 +385,7 @@ export function getCollidingSpacesInDirection(
       occupiedSpace,
       direction,
       accessor,
-      isSecondaryCollidingWidget,
+      isDirectCollidingSpace,
       gridProps,
       globalDirection,
       prevMovementMap,
@@ -416,7 +429,7 @@ export function getCollidingSpacesInDirection(
  * @param collidingSpace
  * @param direction
  * @param accessor
- * @param isSecondaryCollidingWidget
+ * @param isDirectCollidingSpace
  * @param gridProps
  * @param globalDirection
  * @param prevMovementMap
@@ -429,12 +442,13 @@ export function ShouldAddToCollisionSpacesArray(
   collidingSpace: OccupiedSpace,
   direction: ReflowDirection,
   accessor: CollisionAccessors,
-  isSecondaryCollidingWidget: boolean,
+  isDirectCollidingSpace: boolean,
   gridProps: GridProps,
   globalDirection: ReflowDirection,
   prevMovementMap?: ReflowedSpaceMap,
   prevSecondOrderCollisionMap?: SecondOrderCollisionMap,
 ) {
+  // not intersecting then dont add to array
   if (!areIntersecting(collidingSpace, newSpacePosition))
     return { shouldAddToArray: false };
 
@@ -456,6 +470,7 @@ export function ShouldAddToCollisionSpacesArray(
     children: {},
   };
 
+  // if these two spaces previously collided then it calculates how it collided
   if (prevCollisionMap.children[collidingSpace.id]) {
     return getCollisionStatusBasedOnPrevValue(
       newSpacePosition,
@@ -472,6 +487,7 @@ export function ShouldAddToCollisionSpacesArray(
     ? "directionX"
     : "directionY";
 
+  // if it collided in the previous run in this particular orientation the previous direction is considered
   if (
     prevMovementMap &&
     prevMovementMap[collidingSpace.id] &&
@@ -483,8 +499,10 @@ export function ShouldAddToCollisionSpacesArray(
     return { shouldAddToArray };
   }
 
-  if (!isSecondaryCollidingWidget) return { shouldAddToArray: true };
+  // if this particular space does not collide directly with dragging spaces then can directly be added to list
+  if (!isDirectCollidingSpace) return { shouldAddToArray: true };
 
+  // next to condition return true if they dont have enough data to move forward because it is the first time reflow algorithm is run
   if (!prevSecondOrderCollisionMap) return { shouldAddToArray: true };
 
   if (!prevMovementMap || !prevMovementMap[newSpacePosition.id])
@@ -499,6 +517,9 @@ export function ShouldAddToCollisionSpacesArray(
     parallelMin,
   );
 
+  //determines if should be added by comparing previous value to now,
+  // for example if previous bottom of dragging space is lesser than top of colliding space,
+  //then it should collide in the bottom direction
   const shouldAddToArray = compareNumbers(
     collidingSpace[oppositeDirection],
     prevStaticSpace[directionAccessor],
@@ -510,6 +531,8 @@ export function ShouldAddToCollisionSpacesArray(
     ...newSpacePosition,
     [oppositeDirection]: newSpacePosition.collidingValue,
   };
+
+  // if this cant be added in mentioned direction but still intersects, then we determine the correct direction
   if (
     !shouldAddToArray &&
     areIntersecting(collidingSpace, currentStaticSpace)
@@ -647,12 +670,14 @@ function getCorrectedDirection(
 ): ReflowDirection {
   if (forceDirection) return direction;
 
+  // if previously collided in that direction then it should be that direction
   if (prevCollidingSpaces && prevCollidingSpaces[collidingSpace.id]) {
     return prevCollidingSpaces[collidingSpace.id].direction;
   }
+
   let primaryDirection: ReflowDirection = direction,
     secondaryDirection: ReflowDirection | undefined = undefined;
-
+  // this is for composite directions for resizing while dragging the corner handles
   if (direction.indexOf("|") >= 0) {
     const directions = direction.split("|");
 
@@ -665,10 +690,12 @@ function getCorrectedDirection(
     }
   }
 
+  // if first run the return direction
   if (!prevPositions) return primaryDirection;
 
   const primaryAccessors = getAccessor(primaryDirection);
 
+  // check if they can collide based on previous location of the dragging space
   const isCorrectDirection = compareNumbers(
     collidingSpace[primaryAccessors.oppositeDirection],
     prevPositions[primaryAccessors.direction],
@@ -682,6 +709,7 @@ function getCorrectedDirection(
     return secondaryDirection;
   }
 
+  //if all the conditions doesn't match then we have to determine manually
   return getVerifiedDirection(
     collidingSpace,
     prevPositions,
@@ -705,6 +733,7 @@ function getVerifiedDirection(
   direction: ReflowDirection,
   isHorizontalMove: boolean,
 ) {
+  // determines direction by comparing if it can collide in all the directions
   if (isHorizontalMove) {
     if (collidingSpace.bottom <= prevPositions.top) {
       return ReflowDirection.TOP;
@@ -783,7 +812,7 @@ export function getOppositeDirection(
 }
 
 /**
- *
+ * Accessors are used to access space's dimension based on direction
  * @param direction
  * @returns accessors
  */
@@ -1296,6 +1325,8 @@ export function checkReCollisionWithOtherNewSpacePositions(
           ].direction;
       }
 
+      //if this is being run for the second orientation, no matter what direction is predicted,
+      //it has to collide in the passed direction
       if (isSecondRun) currentDirection = direction;
 
       const currentAccessors = getAccessor(currentDirection);
@@ -1308,23 +1339,22 @@ export function checkReCollisionWithOtherNewSpacePositions(
         order: 0,
       };
 
-      if (currentDirection === direction) {
-        if (
-          compareNumbers(
-            currentCollidingSpace.collidingValue,
-            collidingSpace.collidingValue,
-            accessor.directionIndicator > 0,
-          )
-        ) {
-          stopCollisionCheck = true;
-          collidingSpaceMap[collidingSpace.id] = currentCollidingSpace;
-          globalCollidingSpaces.splice(
-            insertionIndex + 1,
-            0,
-            currentCollidingSpace,
-          );
-          delete globalProcessedNodes[collidingSpace.id];
-        }
+      if (
+        currentDirection === direction &&
+        compareNumbers(
+          currentCollidingSpace.collidingValue,
+          collidingSpace.collidingValue,
+          accessor.directionIndicator > 0,
+        )
+      ) {
+        stopCollisionCheck = true;
+        collidingSpaceMap[collidingSpace.id] = currentCollidingSpace;
+        globalCollidingSpaces.splice(
+          insertionIndex + 1,
+          0,
+          currentCollidingSpace,
+        );
+        delete globalProcessedNodes[collidingSpace.id];
       }
     }
   }

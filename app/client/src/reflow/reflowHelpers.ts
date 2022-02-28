@@ -1,6 +1,5 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import _ from "lodash";
 import { isEmpty } from "lodash";
 import {
   CollidingSpace,
@@ -72,6 +71,7 @@ export function getMovementMap(
   primarySecondOrderCollisionMap?: SecondOrderCollisionMap,
 ) {
   const movementMap: ReflowedSpaceMap = { ...primaryMovementMap };
+  //create a tree structure of collision
   const { collisionTrees, secondOrderCollisionMap } = getCollisionTree(
     newSpacePositions,
     occupiedSpaces,
@@ -93,6 +93,7 @@ export function getMovementMap(
 
   const directionalVariables: DirectionalVariables = {};
 
+  //solve the tree structure to get the movement values
   for (let i = 0; i < collisionTrees.length; i++) {
     const childNode = collisionTrees[i];
     const childDirection = childNode.direction;
@@ -136,6 +137,7 @@ export function getMovementMap(
     ];
   }
 
+  //based on the movement values and the depth of the dragging space from the borders, movement limits are calculated
   const movementVariablesMap = getMovementVariables(
     newSpacePositionsMap,
     directionalVariables,
@@ -144,16 +146,6 @@ export function getMovementMap(
     shouldResize,
   );
 
-  //eslint-disable-next-line
-  console.log(
-    "Reflow Object",
-    _.cloneDeep({
-      collidingSpaces,
-      collidingSpaceMap,
-      collisionTrees,
-      movementMap,
-    }),
-  );
   return {
     movementVariablesMap,
     movementMap,
@@ -189,15 +181,19 @@ function getCollisionTree(
   isSecondRun: boolean,
   primarySecondOrderCollisionMap?: SecondOrderCollisionMap,
 ) {
+  //To calculate the tree, you iterate over the directly colliding spaces
   const collisionTrees: CollisionTree[] = [];
   const secondOrderCollisionMap: SecondOrderCollisionMap = {
     ...primarySecondOrderCollisionMap,
   };
 
+  //globalProcessedNodes are the global cache to not generate the collision tree for spaces already the children of some other child
+  //this is done for the sake of performance
   const globalProcessedNodes: { [key: string]: boolean } = {};
   for (let i = 0; i < collidingSpaces.length; i++) {
     const collidingSpace = collidingSpaces[i];
     if (!globalProcessedNodes[collidingSpace.id]) {
+      // This is required if we suddenly switch orientations, like from horizontal to vertical or vice versa
       const {
         currentAccessors,
         currentCollidingSpace,
@@ -216,6 +212,7 @@ function getCollisionTree(
         globalProcessedNodes,
       );
 
+      // this method recursively builds the tree structure
       const currentCollisionTree = getCollisionTreeHelper(
         newSpacePositions,
         currentOccSpaces,
@@ -294,11 +291,15 @@ function getCollisionTreeHelper(
   if (!collidingSpace) return;
   const collisionTree: CollisionTree = { ...collidingSpace, children: {} };
 
+  // we resize the space to either increase the width or height based on movement
+  //for the sake of finding all the colliding spaces
   const resizedDimensions = getResizedDimensions(collisionTree, accessors);
 
   const filteredNewSpacePositions = newSpacePositions.filter(
     (a) => a.id !== collidingSpace.collidingId,
   );
+
+  //check if the space again collides with other dragging spaces in group widget scenario
   if (
     checkReCollisionWithOtherNewSpacePositions(
       resizedDimensions,
@@ -316,6 +317,7 @@ function getCollisionTreeHelper(
   )
     return;
 
+  // to get it's colliding spaces
   const {
     collidingSpaces,
     occupiedSpacesInDirection,
@@ -345,11 +347,15 @@ function getCollisionTreeHelper(
 
   sortCollidingSpacesByDistance(collidingSpaces);
 
+  // currentProcessedNodes, this is local cache that is different from global cache to allow the spaces,
+  // to be added to branches below this node but not is any branch at same or higher depth
+  //again done for performance
   const currentProcessedNodes: {
     [key: string]: boolean;
   } = {};
   for (const currentCollidingSpace of collidingSpaces) {
     if (!currentProcessedNodes[currentCollidingSpace.id]) {
+      // If in case it changes orientation
       const {
         currentAccessors,
         currentCollidingSpace: modifiedCollidingSpace,
@@ -369,6 +375,7 @@ function getCollisionTreeHelper(
         currentProcessedNodes,
       );
 
+      //Recursively call to build the tree
       const currentCollisionTree = getCollisionTreeHelper(
         filteredNewSpacePositions,
         currentOccSpaces,
@@ -438,6 +445,8 @@ function getModifiedArgumentsForCollisionTree(
   let currentOccSpacesMap = { ...occupiedSpacesMap };
   let currentCollidingSpace = { ...collidingSpace };
 
+  //modify the occupied spaces to be in the other orientation,
+  // if the current orientation of the colliding space is different from the parent space
   if (collidingSpace.direction !== direction) {
     if (currentAccessors.isHorizontal !== isHorizontal) {
       currentOccSpacesMap = getModifiedOccupiedSpacesMap(
@@ -546,7 +555,10 @@ function getMovementMapHelper(
         currentEmptySpaces = childEmptySpaces;
       }
 
+      //maxOccupiedSpace is the maximum dimension that is occupied by all the spaces above it in the tree
       maxOccupiedSpace = Math.max(maxOccupiedSpace, occupiedSpace || 0);
+      // depth is the number of spaces it has below it in the tree,
+      //useful to calculate resized dimensions for spaces colliding with boundaries
       depth = Math.max(depth, currentDepth);
     }
   } else {
@@ -558,6 +570,7 @@ function getMovementMapHelper(
     }
   }
 
+  //It calculates mainly the X, Y, width, height of the spaces to transform the existing spaces
   const getSpaceMovement = accessors.isHorizontal
     ? getHorizontalSpaceMovement
     : getVerticalSpaceMovement;
@@ -575,6 +588,8 @@ function getMovementMapHelper(
   );
 
   if (
+    // If a value already exists in the movement map,
+    // this method is used to check if the current one should override the existing movement values of the space
     !shouldReplaceOldMovement(
       movementMap[collisionTree.id],
       movementObj,
@@ -608,6 +623,7 @@ function getMovementMapHelper(
     ...movementMap[collisionTree.id],
     ...movementObj,
   };
+
   return {
     occupiedSpace:
       maxOccupiedSpace +
@@ -645,6 +661,7 @@ function getHorizontalSpaceMovement(
   { X }: Delta,
   shouldResize: boolean,
 ) {
+  //maxX is the maximum leeway left for the space before it cannot move anymore in the X axis
   const maxX = getMaxX(
     collisionTree,
     gridProps,
@@ -713,6 +730,7 @@ function getVerticalSpaceMovement(
   { Y }: Delta,
   shouldResize: boolean,
 ) {
+  //maxY is the maximum leeway left for the space before it cannot move anymore in the Y axis
   const maxY = getMaxY(
     collisionTree,
     gridProps,
@@ -774,11 +792,14 @@ function getMovementVariables(
 ) {
   const newSpacePositionIds = Object.keys(directionalVariables);
   const movementVariablesMap: SpaceMovementMap = {};
+
   for (const newSpacePositionId of newSpacePositionIds) {
     if (!newSpacePositionsMap[newSpacePositionId]) continue;
+
     const movementVariables = directionalVariables[newSpacePositionId];
     const directionalKeys = Object.keys(movementVariables);
     const directionalMovements: DirectionalMovement[] = [];
+
     for (const directionKey of directionalKeys) {
       const [
         staticDepth,
@@ -786,6 +807,7 @@ function getMovementVariables(
         accessors,
         reflowDirection,
       ] = movementVariables[directionKey];
+
       const maxMethod = accessors.isHorizontal ? getMaxX : getMaxY;
       const gridDistance = accessors.isHorizontal
         ? gridProps.parentColumnSpace
@@ -802,6 +824,7 @@ function getMovementVariables(
         ) +
         delta[coordinateKey] +
         accessors.directionIndicator * gridDistance;
+
       directionalMovements.push({
         maxMovement,
         directionalIndicator: accessors.directionIndicator,
@@ -809,6 +832,7 @@ function getMovementVariables(
         isHorizontal: accessors.isHorizontal,
       });
     }
+
     movementVariablesMap[newSpacePositionId] = directionalMovements;
   }
   return movementVariablesMap;

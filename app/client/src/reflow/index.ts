@@ -99,6 +99,9 @@ export function reflow(
 
   const delta = getDelta(newSpacePositionsMap, OGSpacePositionsMap, direction);
 
+  // Reflow is split into two orientation, current direction's orientation is done first
+  //and based on that reflowed values, opposite orientation is taken up next.
+
   //Reflow in the current orientation
   const {
     collidingSpaces: primaryCollidingSpaces,
@@ -218,6 +221,8 @@ function getOrientationalMovementInfo(
   const accessors = getAccessor(direction);
   const orientationAccessor = getOrientationAccessor(isHorizontal);
 
+  //modifying the occupied space's dimension based on the orientation and previous movement maps
+  //for example,  if current orientation is horizontal, then top and bottom of the spaces is modified to be equal to previous reflowed Y values
   const orientationOccupiedSpacesMap = getModifiedOccupiedSpacesMap(
     occupiedSpacesMap,
     primaryMovementMap || prevMovementMap,
@@ -231,13 +236,16 @@ function getOrientationalMovementInfo(
     orientationOccupiedSpacesMap,
     accessors,
   );
+
   const newSpacePositions = getSortedNewPositions(
     newSpacePositionsMap,
     accessors,
   );
+
   const prevCollisionMap =
     (prevCollidingSpaceMap && prevCollidingSpaceMap[orientationAccessor]) || {};
 
+  //gets a map of all colliding spaces of the current dragging spaces
   const { collidingSpaceMap, isColliding } = getCollidingSpaceMap(
     newSpacePositions,
     sortedOccupiedSpaces,
@@ -260,6 +268,7 @@ function getOrientationalMovementInfo(
   if (!primaryMovementMap) {
     changeExitContainerDirection(collidingSpaceMap, exitContainerId, direction);
   }
+
   const {
     movementMap,
     movementVariablesMap,

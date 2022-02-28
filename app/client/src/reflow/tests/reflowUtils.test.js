@@ -1,4 +1,4 @@
-import { ReflowDirection } from "reflow/reflowTypes";
+import { ReflowDirection, SpaceAttributes } from "reflow/reflowTypes";
 import {
   getAccessor,
   shouldReplaceOldMovement,
@@ -14,6 +14,13 @@ import {
   getReflowedDimension,
   getCollidingSpaceMap,
   ShouldAddToCollisionSpacesArray,
+  filterSpaceByDirection,
+  filterCommonSpaces,
+  getSpacesMapFromArray,
+  buildArrayToCollisionMap,
+  getModifiedOccupiedSpacesMap,
+  checkReCollisionWithOtherNewSpacePositions,
+  getCalculatedDirection,
 } from "../reflowUtils";
 import { HORIZONTAL_RESIZE_LIMIT, VERTICAL_RESIZE_LIMIT } from "../reflowTypes";
 
@@ -1123,6 +1130,589 @@ describe("Test reflow util methods", () => {
           {},
         ).shouldAddToArray,
       ).toBe(true);
+    });
+  });
+  describe("Test filterSpaceByDirection and filterCommonSpaces method", () => {
+    const occupiedSpaceMap = {
+      "1235": {
+        id: "1235",
+        left: 10,
+        top: 10,
+        right: 35,
+        bottom: 25,
+      },
+      "1236": {
+        id: "1236",
+        left: 30,
+        top: 20,
+        right: 50,
+        bottom: 35,
+      },
+      "1237": {
+        id: "1237",
+        left: 40,
+        top: 10,
+        right: 40,
+        bottom: 55,
+      },
+      "1238": {
+        id: "1238",
+        left: 90,
+        top: 60,
+        right: 130,
+        bottom: 90,
+      },
+    };
+    const filteredSpaceMap = {
+      "1237": {
+        id: "1237",
+        left: 40,
+        top: 10,
+        right: 40,
+        bottom: 55,
+      },
+      "1238": {
+        id: "1238",
+        left: 90,
+        top: 60,
+        right: 130,
+        bottom: 90,
+      },
+    };
+    it("filters spaces in a BOTTOM direction", () => {
+      const spaceToFilterFrom = {
+        id: "1234",
+        left: 40,
+        top: 50,
+        right: 80,
+        bottom: 70,
+      };
+
+      expect(
+        filterSpaceByDirection(
+          spaceToFilterFrom,
+          Object.values(occupiedSpaceMap),
+          ReflowDirection.BOTTOM,
+        ),
+      ).toEqual(Object.values(filteredSpaceMap));
+    });
+
+    it("filters out common spaces", () => {
+      const spacesToFilter = {
+        "1236": {},
+        "1235": {},
+      };
+      filterCommonSpaces(spacesToFilter, occupiedSpaceMap);
+      expect(occupiedSpaceMap).toEqual(filteredSpaceMap);
+    });
+  });
+  describe("Test getSpacesMapFromArray method", () => {
+    const occupiedSpaceMap = {
+      "1235": {
+        id: "1235",
+        left: 10,
+        top: 10,
+        right: 35,
+        bottom: 25,
+      },
+      "1236": {
+        id: "1236",
+        left: 30,
+        top: 20,
+        right: 50,
+        bottom: 35,
+      },
+      "1237": {
+        id: "1237",
+        left: 40,
+        top: 10,
+        right: 40,
+        bottom: 55,
+      },
+      "1238": {
+        id: "1238",
+        left: 90,
+        top: 60,
+        right: 130,
+        bottom: 90,
+      },
+    };
+    it("should return an map from array", () => {
+      expect(getSpacesMapFromArray(Object.values(occupiedSpaceMap))).toEqual(
+        occupiedSpaceMap,
+      );
+    });
+  });
+  describe("Test buildArrayToCollisionMap method", () => {
+    const collidingSpaces = [
+      {
+        id: "1235",
+        left: 10,
+        top: 10,
+        right: 35,
+        bottom: 25,
+        collidingValue: 20,
+        direction: ReflowDirection.BOTTOM,
+      },
+      {
+        id: "1236",
+        left: 30,
+        top: 20,
+        right: 50,
+        bottom: 35,
+        collidingValue: 10,
+        direction: ReflowDirection.LEFT,
+      },
+      {
+        id: "1237",
+        left: 40,
+        top: 10,
+        right: 40,
+        bottom: 55,
+        collidingValue: 10,
+        direction: ReflowDirection.TOP,
+      },
+      {
+        id: "1235",
+        left: 10,
+        top: 10,
+        right: 35,
+        bottom: 25,
+        collidingValue: 40,
+        direction: ReflowDirection.BOTTOM,
+      },
+      {
+        id: "1237",
+        left: 40,
+        top: 10,
+        right: 40,
+        bottom: 55,
+        collidingValue: 50,
+        direction: ReflowDirection.TOP,
+      },
+      {
+        id: "1238",
+        left: 90,
+        top: 60,
+        right: 130,
+        bottom: 90,
+        collidingValue: 30,
+        direction: ReflowDirection.BOTTOM,
+      },
+    ];
+    it("should return an map from array", () => {
+      const collidingSpaceMap = {
+        "1236": {
+          id: "1236",
+          left: 30,
+          top: 20,
+          right: 50,
+          bottom: 35,
+          collidingValue: 10,
+          direction: ReflowDirection.LEFT,
+          order: 2,
+        },
+        "1237": {
+          id: "1237",
+          left: 40,
+          top: 10,
+          right: 40,
+          bottom: 55,
+          collidingValue: 10,
+          direction: ReflowDirection.TOP,
+          order: 3,
+        },
+        "1235": {
+          id: "1235",
+          left: 10,
+          top: 10,
+          right: 35,
+          bottom: 25,
+          collidingValue: 40,
+          direction: ReflowDirection.BOTTOM,
+          order: 4,
+        },
+        "1238": {
+          id: "1238",
+          left: 90,
+          top: 60,
+          right: 130,
+          bottom: 90,
+          collidingValue: 30,
+          direction: ReflowDirection.BOTTOM,
+          order: 5,
+        },
+      };
+      expect(buildArrayToCollisionMap(collidingSpaces)).toEqual(
+        collidingSpaceMap,
+      );
+    });
+  });
+  describe("Test getModifiedOccupiedSpacesMap method", () => {
+    const occupiedSpaceMap = {
+      "1236": {
+        id: "1236",
+        left: 30,
+        top: 20,
+        right: 50,
+        bottom: 35,
+      },
+      "1237": {
+        id: "1237",
+        left: 40,
+        top: 10,
+        right: 40,
+        bottom: 55,
+      },
+      "1235": {
+        id: "1235",
+        left: 10,
+        top: 10,
+        right: 35,
+        bottom: 25,
+      },
+      "1238": {
+        id: "1238",
+        left: 90,
+        top: 60,
+        right: 130,
+        bottom: 90,
+      },
+    };
+    const gridProps = {
+      parentColumnSpace: 10,
+      parentRowSpace: 10,
+    };
+    const prevMovementMap = {
+      "1236": {
+        Y: 10,
+        height: 150,
+      },
+      "1237": {
+        X: 20,
+        width: 180,
+      },
+      "1238": {
+        X: -100,
+        Y: -80,
+        width: 400,
+        height: 200,
+      },
+    };
+    it("should return horizontally modified occupied spaces map", () => {
+      const modifiedOccupiedSpacesMap = {
+        "1235": {
+          id: "1235",
+          left: 10,
+          top: 10,
+          right: 35,
+          bottom: 25,
+        },
+        "1236": {
+          id: "1236",
+          left: 30,
+          top: 20,
+          right: 50,
+          bottom: 35,
+        },
+        "1237": {
+          id: "1237",
+          left: 42,
+          top: 10,
+          right: 60,
+          bottom: 55,
+        },
+        "1238": {
+          id: "1238",
+          left: 80,
+          top: 60,
+          right: 120,
+          bottom: 90,
+        },
+      };
+      expect(
+        getModifiedOccupiedSpacesMap(
+          occupiedSpaceMap,
+          prevMovementMap,
+          false,
+          gridProps,
+          SpaceAttributes.right,
+          SpaceAttributes.left,
+        ),
+      ).toEqual(modifiedOccupiedSpacesMap);
+    });
+    it("should return vertically modified occupied spaces map", () => {
+      const modifiedOccupiedSpacesMap = {
+        "1235": {
+          id: "1235",
+          left: 10,
+          top: 10,
+          right: 35,
+          bottom: 25,
+        },
+        "1236": {
+          id: "1236",
+          left: 30,
+          top: 21,
+          right: 50,
+          bottom: 36,
+        },
+        "1237": {
+          id: "1237",
+          left: 40,
+          top: 10,
+          right: 40,
+          bottom: 55,
+        },
+        "1238": {
+          id: "1238",
+          left: 90,
+          top: 52,
+          right: 130,
+          bottom: 72,
+        },
+      };
+      expect(
+        getModifiedOccupiedSpacesMap(
+          occupiedSpaceMap,
+          prevMovementMap,
+          true,
+          gridProps,
+          SpaceAttributes.bottom,
+          SpaceAttributes.top,
+        ),
+      ).toEqual(modifiedOccupiedSpacesMap);
+    });
+  });
+  describe("Test checkReCollisionWithOtherNewSpacePositions", () => {
+    const newSpacePositions = [
+      {
+        id: "1235",
+        left: 10,
+        top: 10,
+        right: 35,
+        bottom: 25,
+      },
+      {
+        id: "1236",
+        left: 30,
+        top: 20,
+        right: 50,
+        bottom: 35,
+      },
+      {
+        id: "1237",
+        left: 40,
+        top: 10,
+        right: 60,
+        bottom: 55,
+      },
+    ];
+    it("should return false if there is no intersection", () => {
+      const collidingSpace = {
+        id: "1234",
+        left: 110,
+        top: 130,
+        right: 150,
+        bottom: 170,
+      };
+      expect(
+        checkReCollisionWithOtherNewSpacePositions(
+          collidingSpace,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          ReflowDirection.BOTTOM,
+          newSpacePositions,
+          [],
+          1,
+          {},
+          {},
+          {},
+        ),
+      ).toBe(false);
+    });
+    it("should return false when there is intersection but previous direction does not match", () => {
+      const collidingSpace = {
+        id: "1234",
+        left: 40,
+        top: 45,
+        right: 60,
+        bottom: 60,
+      };
+      const prevCollidingSpaceMap = {
+        horizontal: {
+          1234: {
+            collidingId: "1237",
+            direction: ReflowDirection.LEFT,
+          },
+        },
+      };
+      expect(
+        checkReCollisionWithOtherNewSpacePositions(
+          collidingSpace,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          ReflowDirection.BOTTOM,
+          newSpacePositions,
+          [],
+          1,
+          {},
+          {},
+          { prevCollidingSpaceMap },
+        ),
+      ).toBe(false);
+    });
+    it("should return false when there is intersection and direction matches but colliding value is lesser than before", () => {
+      const collidingSpace = {
+        id: "1234",
+        left: 40,
+        top: 45,
+        right: 60,
+        bottom: 60,
+        collidingValue: 60,
+      };
+      expect(
+        checkReCollisionWithOtherNewSpacePositions(
+          collidingSpace,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          ReflowDirection.BOTTOM,
+          newSpacePositions,
+          [],
+          1,
+          {},
+          {},
+          {},
+        ),
+      ).toBe(false);
+    });
+    it("should return true when there is intersection and direction matches but colliding value is greater than before", () => {
+      const collidingSpace = {
+        id: "1234",
+        left: 40,
+        top: 45,
+        right: 60,
+        bottom: 60,
+        collidingValue: 50,
+      };
+      expect(
+        checkReCollisionWithOtherNewSpacePositions(
+          collidingSpace,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          ReflowDirection.BOTTOM,
+          newSpacePositions,
+          [],
+          1,
+          {},
+          {},
+          {},
+        ),
+      ).toBe(true);
+    });
+    it("should return true when there is intersection, colliding value is greater than before, previous direction does not match but is second run so it is forced in current direction", () => {
+      const collidingSpace = {
+        id: "1234",
+        left: 40,
+        top: 45,
+        right: 60,
+        bottom: 60,
+        collidingValue: 50,
+      };
+      const prevCollidingSpaceMap = {
+        horizontal: {
+          1234: {
+            collidingId: "1237",
+            direction: ReflowDirection.LEFT,
+          },
+        },
+      };
+      expect(
+        checkReCollisionWithOtherNewSpacePositions(
+          collidingSpace,
+          collidingSpace,
+          ReflowDirection.BOTTOM,
+          ReflowDirection.BOTTOM,
+          newSpacePositions,
+          [],
+          1,
+          {},
+          {},
+          { prevCollidingSpaceMap },
+          true,
+        ),
+      ).toBe(true);
+    });
+  });
+
+  describe("Test getCalculatedDirection method", () => {
+    it("should return passed direction for composite direction", () => {
+      expect(
+        getCalculatedDirection({}, {}, ReflowDirection.BOTTOMLEFT),
+      ).toEqual([ReflowDirection.BOTTOMLEFT]);
+    });
+    it("should return Top direction if moved only in top direction, regardless of passed direction", () => {
+      const newSpacePositions = {
+        "1234": {
+          top: 50,
+          left: 70,
+        },
+      };
+      const prevSpacePositions = {
+        "1234": {
+          top: 55,
+          left: 70,
+        },
+      };
+      expect(
+        getCalculatedDirection(
+          newSpacePositions,
+          prevSpacePositions,
+          ReflowDirection.BOTTOM,
+        ),
+      ).toEqual([ReflowDirection.TOP]);
+    });
+    it("should return right direction if moved only in right direction, regardless of passed direction", () => {
+      const newSpacePositions = {
+        "1234": {
+          top: 50,
+          left: 70,
+        },
+      };
+      const prevSpacePositions = {
+        "1234": {
+          top: 50,
+          left: 65,
+        },
+      };
+      expect(
+        getCalculatedDirection(
+          newSpacePositions,
+          prevSpacePositions,
+          ReflowDirection.BOTTOM,
+        ),
+      ).toEqual([ReflowDirection.RIGHT]);
+    });
+    it("should return bottom and left direction if moved in both bottom and left direction, regardless of passed direction", () => {
+      const newSpacePositions = {
+        "1234": {
+          top: 50,
+          left: 70,
+        },
+      };
+      const prevSpacePositions = {
+        "1234": {
+          top: 45,
+          left: 75,
+        },
+      };
+      expect(
+        getCalculatedDirection(
+          newSpacePositions,
+          prevSpacePositions,
+          ReflowDirection.BOTTOM,
+        ),
+      ).toEqual([ReflowDirection.BOTTOM, ReflowDirection.LEFT]);
     });
   });
 });
