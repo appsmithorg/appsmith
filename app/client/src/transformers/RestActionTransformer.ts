@@ -6,6 +6,7 @@ import { ApiAction } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";
 import cloneDeep from "lodash/cloneDeep";
+import { isNil } from "lodash";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = cloneDeep(data);
@@ -75,9 +76,17 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
 // Filters empty key-value pairs or key-value-type(Multipart) from form data, headers and query params
 function removeEmptyPairs(keyValueArray: any) {
   if (!keyValueArray || !keyValueArray.length) return keyValueArray;
+
   return keyValueArray.filter(
     (data: any) =>
-      data &&
-      (!isEmpty(data.key) || !isEmpty(data.value) || !isEmpty(data.type)),
+      (data?.value || data?.key || data?.type) &&
+      !(
+        isEmpty(data.key) ||
+        isEmpty(data.value) ||
+        isEmpty(data.type) ||
+        isNil(data.value) ||
+        isNil(data.key) ||
+        data.value.includes("undefined")
+      ),
   );
 }
