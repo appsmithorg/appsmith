@@ -61,13 +61,34 @@ describe("Input widget V2 - ", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Number");
     [
-      "test:",
-      "test123:123",
-      "123:123",
-      "-:-",
-      ":",
-      "$100.22:100.22",
-      "test@appsmith.com:",
+      "invalid:null:null:false",
+      "invalid123:123:123:true",
+      "123:123:123:true",
+      "-:null:null:false",
+      ":null:null:true",
+      "$100.22:100.22:100.22:true",
+      "invalid@appsmith.com:null:null:false",
+      "1.001:1.001:1.001:true",
+      "1.1.:null:null:false",
+    ].forEach((text) => {
+      enterAndTest(text.split(":")[0], text.split(":")[1]);
+    });
+
+    cy.get(".t--property-control-required label")
+      .last()
+      .click({ force: true });
+
+    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+    [
+      "invalid:null:null:true",
+      "invalid123:123:123:true",
+      "123:123:123:true",
+      "-:null:null:false",
+      ":null:null:true",
+      "$100.22:100.22:100.22:true",
+      "invalid@appsmith.com:null:null:false",
+      "1.001:1.001:1.001:true",
+      "1.1.:null:null:false",
     ].forEach((text) => {
       enterAndTest(text.split(":")[0], text.split(":")[1]);
     });

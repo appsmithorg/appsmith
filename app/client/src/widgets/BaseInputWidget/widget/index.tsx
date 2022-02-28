@@ -313,7 +313,12 @@ class BaseInputWidget<
     if (result.success && this.props.resetOnSubmit) {
       //Resets isDirty
       super.resetChildrenMetaProperty(this.props.widgetId);
-      this.props.updateWidgetMetaProperty("text", "");
+
+      if (this.props.type === "INPUT_WIDGET_V2") {
+        this.props.updateWidgetMetaProperty("inputText", "");
+      } else {
+        this.props.updateWidgetMetaProperty("text", "");
+      }
 
       /*
        *  Value is a derived property in CURRENCY_INPUT_WIDGET &
