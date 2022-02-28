@@ -1293,7 +1293,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     /**
-     * We assume that the repo already exists via the connect or commit api
+     * Method to pull application json files from remote repo, make a commit with the changes present in local DB and
+     * make a system commit to remote repo
      *
      * @param defaultApplicationId application for which we want to pull remote changes and merge
      * @param branchName    remoteBranch from which the changes will be pulled and merged
@@ -1302,24 +1303,20 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName) {
         /*
-         * 1.Dehydrate the application from Mongodb so that the file system has latest application data
+         * 1.Dehydrate the application from DB so that the file system has the latest application data
          * 2.Do git pull after the rehydration and merge the remote changes to the current branch
-         *   On Merge conflict - create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
-         * 3.Then rehydrate from the file system to mongodb so that the latest changes from remote are rendered to the application
-         * 4.Get the latest application mono from the mongodb and send it back to client
+         *   On Merge conflict - throw exception and ask user to resolve these conflicts on remote
+         *   TODO create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
+         * 3.Then rehydrate from the file system to DB so that the latest changes from remote are rendered to the application
+         * 4.Get the latest application from the DB and send it back to client
          * */
 
         Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
                 .flatMap(defaultApplication -> {
-                    /*
-                     * There are two cases. If the branchName is defaultBranch, defaultApplication will be used
-                     * Else, get the Application object for the given branchName
-                     * */
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
                     return Mono.zip(Mono.just(defaultApplication), getStatus(defaultGitMetadata.getDefaultApplicationId(), branchName));
                 })
                 .flatMap(tuple -> {
-
                     Application defaultApplication = tuple.getT1();
                     GitStatusDTO status = tuple.getT2();
                     // Check if the repo is clean
@@ -2051,6 +2048,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
+    /**
+     * Method to allow client to discard changes present in DB and sync with remote repo
+     *
+     * @param defaultApplicationId root application id
+     * @param branchName           branch for which the discard changes from DB is required
+     * @param doPull               query param to indicate if the pull is required during the discard operation
+     *                             true => pull remote changes
+     *                             false => rehydrate the application from local repo
+     * @return                     updated application
+     */
     @Override
     public Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull) {
 
@@ -2291,8 +2298,22 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
+    /**
+     * Method to pull the files from remote repo and rehydrate the application
+     *
+     * @param defaultApplication application which acts as the root for the concerned branch
+     * @param branchName         branch for which the pull is required
+     * @return                   pull DTO with updated application
+     */
     private Mono<GitPullDTO> pullAndRehydrateApplication(Application defaultApplication, String branchName) {
 
+        /*
+        1. Checkout to the concerned branch
+        2. Do git pull after
+            On Merge conflict - throw exception and ask user to resolve these conflicts on remote
+            TODO create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
+        3. Rehydrate the application from filesystem so that the latest changes from remote are rendered to the application
+        */
         GitApplicationMetadata gitData = defaultApplication.getGitApplicationMetadata();
         if (isInvalidDefaultApplicationGitMetadata(gitData)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
@@ -2305,7 +2326,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         return branchedApplicationMono
             .flatMap(branchedApplication -> {
 
-                // 2. git pull origin branchName
+                // git checkout and pull origin branchName
                 try {
                     Mono<MergeStatusDTO> pullStatusMono = gitExecutor.checkoutToBranch(repoSuffix, branchName)
                             .then(gitExecutor.pullApplication(
@@ -2328,7 +2349,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
                             })
                             .cache();
-                    //3. Hydrate from file system to db
+                    // Rehydrate the application from file system
                     Mono<ApplicationJson> applicationJsonMono = pullStatusMono
                             .then(
                                     fileUtils.reconstructApplicationJsonFromGitRepo(
@@ -2348,7 +2369,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 Application branchedApplication = tuple.getT2();
                 ApplicationJson applicationJson = tuple.getT3();
 
-                //4. Get the latest application mono with all the changes
+                // Get the latest application with all the changes
+                // Commit and push changes to sync with remote
                 return importExportApplicationService
                         .importApplicationInOrganization(branchedApplication.getOrganizationId(), applicationJson, branchedApplication.getId(), branchName)
                         .flatMap(application -> addAnalyticsForGitOperation(
