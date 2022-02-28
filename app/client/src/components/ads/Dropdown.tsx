@@ -941,6 +941,11 @@ export default function Dropdown(props: DropdownProps) {
     "100%",
   );
 
+  let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
+  if (props.height) {
+    dropdownHeight = props.height;
+  }
+
   const dropdownWrapperRef = useCallback(
     (ref: HTMLDivElement) => {
       if (ref) {
@@ -971,7 +976,7 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={errorFlag}
-        height={props.height || "38px"}
+        height={dropdownHeight}
         isMultiSelect={props.isMultiSelect}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
@@ -1015,7 +1020,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={"38px"}
+      height={dropdownHeight}
       onKeyDown={handleKeydown}
       role="listbox"
       tabIndex={0}
