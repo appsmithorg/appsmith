@@ -1204,21 +1204,18 @@ describe(".getKeysFromSchema", () => {
     const result = getKeysFromSchema(
       testData.initialDataset.schemaOutput.__root_schema__.children,
       ["originalIdentifier"],
-      { includeCustomField: false },
     );
 
     expect(result).toEqual(expectedOutput);
   });
 
   it("return empty array for empty schema", () => {
-    const result = getKeysFromSchema({}, ["originalIdentifier"], {
-      includeCustomField: false,
-    });
+    const result = getKeysFromSchema({}, ["originalIdentifier"]);
 
     expect(result).toEqual([]);
   });
 
-  it("return keys and skips custom field keys", () => {
+  it("return keys for non custom fields only", () => {
     const schema = cloneDeep(
       testData.initialDataset.schemaOutput.__root_schema__.children,
     );
@@ -1236,7 +1233,7 @@ describe(".getKeysFromSchema", () => {
     ];
 
     const result = getKeysFromSchema(schema, ["originalIdentifier"], {
-      includeCustomField: false,
+      onlyNonCustomFieldKeys: true,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -1260,12 +1257,26 @@ describe(".getKeysFromSchema", () => {
       "address",
     ];
 
-    const result = getKeysFromSchema(schema, ["originalIdentifier"], {
-      includeCustomField: true,
-    });
+    const result = getKeysFromSchema(schema, ["originalIdentifier"]);
 
     expect(result).toEqual(expectedOutput);
   });
+});
+
+it("return only custom field keys", () => {
+  const schema = cloneDeep(
+    testData.initialDataset.schemaOutput.__root_schema__.children,
+  );
+
+  schema.name.isCustomField = true;
+
+  const expectedOutput = ["name"];
+
+  const result = getKeysFromSchema(schema, ["originalIdentifier"], {
+    onlyCustomFieldKeys: true,
+  });
+
+  expect(result).toEqual(expectedOutput);
 });
 
 describe("#applyPositions", () => {

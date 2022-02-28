@@ -49,6 +49,11 @@ type SchemaItemsByFieldOptions = {
   widgetName: string;
 };
 
+type GetKeysFromSchemaOptions = {
+  onlyNonCustomFieldKeys?: boolean;
+  onlyCustomFieldKeys?: boolean;
+};
+
 /**
  *
  * This method takes in array of object and squishes every object in the
@@ -224,20 +229,33 @@ export const fieldTypeFor = (value: any) => {
   return potentialFieldType;
 };
 
+const extractProperties = (
+  schemaItem: SchemaItem,
+  properties: (keyof SchemaItem)[],
+) => properties.map((property) => schemaItem[property]);
+
+/**
+ * Returns keys mentioned in keyProperties from schemaItems present in schema.
+ * By default it will look into all the field. This setting can be altered by providing
+ * options i.e setting onlyCustomFieldKeys to true would return keys from customField schemaItem
+ * setting onlyNonCustomFieldKeys to true would return keys from regular schemaItem
+ *
+ */
 export const getKeysFromSchema = (
   schema: Schema,
   keyProperties: (keyof SchemaItem)[],
-  { includeCustomField = false },
+  options?: GetKeysFromSchemaOptions,
 ) => {
+  const { onlyCustomFieldKeys = false, onlyNonCustomFieldKeys = false } =
+    options || {};
+
   return Object.values(schema).reduce<string[]>((keys, schemaItem) => {
     if (
-      includeCustomField ||
-      (!includeCustomField && !schemaItem.isCustomField)
+      (onlyCustomFieldKeys && schemaItem.isCustomField) ||
+      (onlyNonCustomFieldKeys && !schemaItem.isCustomField) ||
+      (!onlyCustomFieldKeys && !onlyNonCustomFieldKeys)
     ) {
-      const propertyKeys = keyProperties.map(
-        (keyProperty) => schemaItem[keyProperty],
-      );
-      return [...keys, ...propertyKeys];
+      return [...keys, ...extractProperties(schemaItem, keyProperties)];
     }
 
     return keys;
@@ -313,9 +331,7 @@ export const hasNullOrUndefined = (items: any[]) =>
  */
 export const sanitizeSchemaItemKey = (key: string, schema: Schema) => {
   const existingKeys = [
-    ...getKeysFromSchema(schema, ["identifier", "name"], {
-      includeCustomField: true,
-    }),
+    ...getKeysFromSchema(schema, ["identifier", "name"]),
     ...RESTRICTED_KEYS,
   ];
 
@@ -620,9 +636,24 @@ class SchemaParser {
     );
     const currObj = currSourceData as Obj;
 
-    const currKeys = Object.keys(currSourceData);
+    const customFieldAccessors = getKeysFromSchema(prevSchema, ["accessor"], {
+      onlyCustomFieldKeys: true,
+    });
+
+    /**
+     * This removes all the keys are present in the currSourceData that matches/exists
+     * as a custom field.
+     * Removing custom field keys from the currKeys and prevKeys eliminates the chance of
+     * such keys getting picked up by newKeys/removedKeys/modifiedKeys thus completely removes
+     * the chance of any processing on them.
+     */
+    const currKeys = difference(
+      Object.keys(currSourceData),
+      customFieldAccessors,
+    );
+    // Only looking into the non custom field keys
     const prevKeys = getKeysFromSchema(prevSchema, ["originalIdentifier"], {
-      includeCustomField: false,
+      onlyNonCustomFieldKeys: true,
     });
 
     const newKeys = difference(currKeys, prevKeys);
