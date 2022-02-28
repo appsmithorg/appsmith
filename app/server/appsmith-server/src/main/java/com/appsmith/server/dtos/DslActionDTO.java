@@ -19,6 +19,8 @@ public class DslActionDTO {
     String id;
     @JsonIgnore
     String defaultActionId;
+    @JsonIgnore
+    String defaultCollectionId;
     String name;
     String collectionId;
     Boolean clientSideExecution;
