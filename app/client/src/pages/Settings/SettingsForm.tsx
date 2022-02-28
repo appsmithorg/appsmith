@@ -45,7 +45,7 @@ const Wrapper = styled.div`
 `;
 
 const SettingsFormWrapper = styled.div`
-  max-width: 634px;
+  max-width: 634rem;
 `;
 
 export const BottomSpace = styled.div`

@@ -24,7 +24,7 @@ const HeaderWrapper = styled.div`
   align-items: center;
   margin-bottom: 8px;
   .help-icon {
-    margin-left: 5px;
+    margin-left: 4px;
     cursor: pointer;
     svg {
       border-radius: 50%;

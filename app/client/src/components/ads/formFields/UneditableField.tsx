@@ -6,13 +6,14 @@ import {
 } from "redux-form";
 import InputComponent, { InputType } from "../TextInput";
 import { Intent } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 
 const Label = styled.div`
   font-size: 14px;
   margin: 8px 0;
-  color: #4b4848;
+  color: ${Colors.CHARCOAL};
 `;
 
 const InputCopyWrapper = styled.div`
