@@ -99,6 +99,7 @@ export type DropdownProps = CommonComponentProps &
     removeSelectedOption?: DropdownOnSelect;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
+    allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
   };
 export interface DefaultDropDownValueNodeProps {
@@ -643,6 +644,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   selected: DropdownOption | DropdownOption[];
   optionWidth: string;
   isMultiSelect?: boolean;
+  allowDeselection?: boolean;
   isOpen: boolean; // dropdown popover options flashes when closed, this prop helps to make sure it never happens again.
 }
 
@@ -716,7 +718,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               key={index}
               onClick={
                 // users should be able to unselect a selected option by clicking the option again.
-                isSelected
+                isSelected && props.allowDeselection
                   ? () => props.selectedOptionClickHandler(option)
                   : () => props.optionClickHandler(option)
               }
@@ -837,7 +839,7 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
-  //Removes selected option
+  //Removes selected option, should be called when allowDeselection=true
   const selectedOptionClickHandler = useCallback(
     (optionToBeRemoved: DropdownOption) => {
       let selectedOptions: DropdownOption | DropdownOption[] = [];
@@ -1032,6 +1034,7 @@ export default function Dropdown(props: DropdownProps) {
         {dropdownTrigger}
         <RenderDropdownOptions
           {...props}
+          allowDeselection={props.allowDeselection}
           isMultiSelect={props.isMultiSelect}
           isOpen={isOpen}
           optionClickHandler={optionClickHandler}
