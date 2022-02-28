@@ -14,7 +14,7 @@ import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
 import { createMessage } from "@appsmith/constants/messages";
 import { Callout } from "components/ads/CalloutV2";
-import { RedirectUrlReduxForm } from "./RedirectUrlForm";
+import { RedirectUrlReduxForm } from "components/ads/formFields/RedirectUrlForm";
 import Accordion from "./Accordion";
 
 type GroupProps = {
