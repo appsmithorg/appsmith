@@ -458,7 +458,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             sb.append("\"" + path + "\"");
             sb.append(" ");
             boolean isPrepareStmt = true;
-            if (value.equals(" ") && operator.name().equals("EQ")) {
+            if (value.equals(StringUtils.SPACE) && operator.name().equals("EQ")) {
                 sb.append("IS NULL");
                 isPrepareStmt = false;
             } else {

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -255,7 +256,7 @@ public class GetValuesMethod implements Method {
         //Change empty condition value("") to " " to bypass Null validation
         whereConditions.stream()
                 .filter(val -> val.getValue().equals("") && val.getOperator().name().equals("EQ"))
-                .forEach(val -> val.setValue(" "));
+                .forEach(val -> val.setValue(StringUtils.SPACE));
 
 
         // At least 1 condition exists
