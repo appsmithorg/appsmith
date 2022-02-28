@@ -61,6 +61,7 @@ export interface ChartComponentProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor?: string;
 }
 
 const CanvasContainer = styled.div<
