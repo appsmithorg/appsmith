@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.github.mwiede</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.61</version>
+            <version>0.1.72</version>
         </dependency>
 
         <dependency>
