@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { useDispatch } from "react-redux";
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useRef, useEffect } from "react";
 
 import {
   getCurrentApplicationId,
@@ -59,6 +59,7 @@ export function MainContainerLayoutControl() {
   const dispatch = useDispatch();
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
+  const timerRef = useRef<number | null>(null);
 
   const buttonRefs: Array<HTMLButtonElement | null> = [];
 
@@ -71,6 +72,16 @@ export function MainContainerLayoutControl() {
       (each) => each.type === (appLayout?.type || AppsmithDefaultLayout.type),
     );
   }, [appLayout]);
+
+  const selectedIndex = useMemo(() => {
+    const index = AppsmithLayouts.findIndex(
+      (each) => each.type === (appLayout?.type || AppsmithDefaultLayout.type),
+    );
+
+    return index === -1 ? 0 : index;
+  }, [appLayout]);
+
+  const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
 
   /**
    * updates the app layout
@@ -92,18 +103,31 @@ export function MainContainerLayoutControl() {
     [dispatch, appLayout],
   );
 
+  useEffect(() => {
+    return () => {
+      if (!timerRef.current) return;
+      clearTimeout(timerRef.current);
+    };
+  }, []);
+
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
     if (!buttonRefs.length) return;
     switch (event.key) {
+      case "Tab":
+        // Using setTimeout for a small delay
+        timerRef.current = setTimeout(() => setFocusedIndex(selectedIndex), 0);
+        break;
       case "ArrowRight":
       case "Right":
         const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
         buttonRefs[rightIndex]?.focus();
+        setFocusedIndex(rightIndex);
         break;
       case "ArrowLeft":
       case "Left":
         const leftIndex = index === 0 ? buttonRefs.length - 1 : index - 1;
         buttonRefs[leftIndex]?.focus();
+        setFocusedIndex(leftIndex);
         break;
     }
   };
@@ -130,10 +154,13 @@ export function MainContainerLayoutControl() {
                   "bg-gray-100 hover:bg-gray-200 focus:bg-gray-200":
                     selectedLayout?.name !== layoutOption.name,
                 })}
-                onClick={() => updateAppLayout(layoutOption)}
+                onClick={() => {
+                  updateAppLayout(layoutOption);
+                  setFocusedIndex(index);
+                }}
                 onKeyDown={(event) => handleKeyDown(event, index)}
                 ref={(input) => buttonRefs.push(input)}
-                tabIndex={index === 0 ? 0 : -1}
+                tabIndex={index === focusedIndex ? 0 : -1}
               >
                 <Icon
                   fillColor={Colors.BLACK}
