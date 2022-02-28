@@ -23,12 +23,17 @@ const Container = styled.div`
 
   .discord {
     margin-top: ${(props) => props.theme.spaces[3]}px;
+    display: flex;
+    flex-direction: row;
   }
 
   .discord-link {
     cursor: pointer;
+    display: flex;
+    flex-direction: row;
     color: ${(props) => props.theme.colors.globalSearch.searchItemText};
     font-weight: 700;
+    align-items: center;
   }
 `;
 
@@ -54,8 +59,8 @@ function ResultsNotFound() {
           }}
         >
           <StyledDiscordIcon color="red" height={22} width={24} />
-          Discord Server
-        </span>{" "}
+          Discord Server&nbsp;
+        </span>
         for more help.
       </span>
     </Container>
