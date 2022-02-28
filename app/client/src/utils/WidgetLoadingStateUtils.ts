@@ -98,7 +98,7 @@ export const getEntityDependants = (
           dependantEntityFullPaths.add(dependantPath);
 
           const childDependants = getEntityDependants(
-            Array.from(dependantEntityFullPaths),
+            [dependantPath],
             allEntitiesDependantsmap,
             visitedPaths,
           );

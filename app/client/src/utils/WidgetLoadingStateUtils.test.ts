@@ -375,6 +375,29 @@ describe("Widget loading state utils", () => {
       });
     });
 
+    it("handles specific entity paths", () => {
+      const dependants = getEntityDependants(
+        ["JS_file.func2"], // specific path
+        {
+          Query1: {
+            "Query1.data": ["JS_file.func1"],
+          },
+          Query2: {
+            "Query2.data": ["JS_file.func2"],
+          },
+          JS_file: {
+            "JS_file.func1": ["Select1.options"],
+            "JS_file.func2": ["Select2.options"],
+          },
+        },
+        new Set<string>(),
+      );
+      expect(dependants).toStrictEqual({
+        names: new Set(["Select2"]),
+        fullPaths: new Set(["Select2.options"]),
+      });
+    });
+
     // Select1.options -> JS_file.func1 -> JS_file.internalFunc -> Query1.data
     it("handles JS self-dependencies", () => {
       const dependants = getEntityDependants(
