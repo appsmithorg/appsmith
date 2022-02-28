@@ -95,6 +95,7 @@ import {
   TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
@@ -706,7 +707,14 @@ function* executePluginActionSaga(
   }
 
   if (pluginAction.confirmBeforeExecute) {
-    const confirmed = yield call(requestModalConfirmationSaga);
+    const modalPayload = {
+      name: pluginAction.name,
+      modalOpen: true,
+      modalType: ModalType.RUN_ACTION,
+    };
+
+    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+
     if (!confirmed) {
       yield put({
         type: ReduxActionTypes.RUN_ACTION_CANCELLED,
