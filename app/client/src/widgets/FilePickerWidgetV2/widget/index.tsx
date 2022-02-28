@@ -457,21 +457,24 @@ class FilePickerWidget extends BaseWidget<
       log.debug("Error in initializing uppy");
     }
 
-    // when widget is dragged from main container to other widget i.e. form / container and wise versa
-    // this widget will create everytime and uppy dashboard initialize and lost selected files
-    // but if selectedFiles exist in redux, internally re-upload files to show in dashboard
+    // widget file data is stored in 2 places : redux store & internal state for uppy 3rd party lib
+    // On widget re-render internal state is cleared but file data is still there in redux store
+    // try to populate internal lib state from redux store props
     if (_.size(this.props.selectedFiles)) {
+      // get file data from store
       const selectedFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
         : [];
-      // clear meta property selectedFiles, coz when we add from addFile method as below
-      // files-added hook will update meta property again.
+      // addFile func on uppy state will also populate widget meta props
+      // which may create conflict if file already exists there
+      // so clear file from meta props before calling addFile
       this.props.updateWidgetMetaProperty("selectedFiles", []);
       selectedFiles.forEach(async (file: any) => {
         // convert base64 data to blob
         const fileRes = await fetch(file.data);
         const blob = await fileRes.blob();
         try {
+          // populate both local state and meta props of file widget
           this.state.uppy.addFile({
             name: file.name,
             type: file.type,
