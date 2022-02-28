@@ -146,3 +146,22 @@ export const actionPathFromName = (
   }
   return `${actionName}.${path}`;
 };
+
+export enum PaginationSubComponent {
+  Limit = "limit",
+  Offset = "offset",
+}
+
+export enum SortingSubComponent {
+  Column = "column",
+  Order = "order",
+}
+
+export enum WhereClauseSubComponent {
+  Condition = "condition",
+  Children = "children",
+  Key = "key",
+  Value = "value",
+}
+
+export const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
