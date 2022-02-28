@@ -966,7 +966,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: resultValue,
     };
   },
-  [ValidationTypes.IDENTIFIER]: (
+  [ValidationTypes.JAVASCRIPT_IDENTIFIER]: (
     config: ValidationConfig,
     value: unknown,
   ): ValidationResponse => {
