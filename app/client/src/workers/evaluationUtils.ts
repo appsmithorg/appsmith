@@ -839,3 +839,22 @@ export const overrideWidgetProperties = (
     }
   }
 };
+
+export const updateEvaluatedJSCollection = (
+  tree: DataTree,
+  fullPropertyPath: string,
+  evalPropertyValue: Record<string, unknown>,
+) => {
+  const pathArray = fullPropertyPath.split(".");
+  const jsCollectionName = pathArray[0];
+
+  if (
+    fullPropertyPath === `${jsCollectionName}.body` &&
+    isTrueObject(evalPropertyValue)
+  ) {
+    for (const key in evalPropertyValue) {
+      _.set(tree, `${jsCollectionName}.${key}`, evalPropertyValue[key]);
+    }
+  }
+  return tree;
+};

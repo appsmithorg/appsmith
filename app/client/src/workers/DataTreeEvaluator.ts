@@ -48,6 +48,7 @@ import {
   getParams,
   updateJSCollectionInDataTree,
   removeFunctionsAndVariableJSCollection,
+  updateEvaluatedJSCollection,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -697,7 +698,11 @@ export default class DataTreeEvaluator {
             _.set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
           } else if (isJSAction(entity)) {
-            return currentTree;
+            return updateEvaluatedJSCollection(
+              currentTree,
+              fullPropertyPath,
+              evalPropertyValue,
+            );
           } else {
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           }
