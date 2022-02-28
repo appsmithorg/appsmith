@@ -92,9 +92,8 @@ export default {
       dependencies: ["primaryColumns", "accessorMap"],
       isBindProperty: true,
       isTriggerProperty: false,
-      isJSConvertible: true,
       validation: {
-        type: ValidationTypes.IDENTIFIER,
+        type: ValidationTypes.JAVASCRIPT_IDENTIFIER,
       },
     },
     {
