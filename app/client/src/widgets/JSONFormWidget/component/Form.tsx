@@ -44,7 +44,6 @@ type StyledFooterProps = {
   backgroundColor?: string;
 };
 
-const BUTTON_HEIGHT = 30;
 const BUTTON_WIDTH = 110;
 const FOOTER_BUTTON_GAP = 10;
 const FOOTER_DEFAULT_BG_COLOR = "#fff";
@@ -52,22 +51,15 @@ const FOOTER_PADDING_TOP = FORM_PADDING_Y;
 const TITLE_MARGIN_BOTTOM = 16;
 const FOOTER_SCROLL_ACTIVE_CLASS_NAME = "scroll-active";
 
-const StyleFormFooterPlaceholder = styled.div`
-  min-height: ${BUTTON_HEIGHT + FOOTER_PADDING_TOP}px;
-`;
-
 const StyledFormFooter = styled.div<StyledFooterProps>`
   background-color: ${({ backgroundColor }) =>
     backgroundColor || FOOTER_DEFAULT_BG_COLOR};
   bottom: 0;
   display: flex;
   justify-content: flex-end;
-  padding-bottom: ${({ fixedFooter }) => (fixedFooter ? FORM_PADDING_Y : 0)}px;
-  padding-right: ${({ fixedFooter }) =>
-    fixedFooter ? FORM_PADDING_X + 6 : 0}px;
+  padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
   padding-top: ${FOOTER_PADDING_TOP}px;
-  position: ${({ fixedFooter }) => fixedFooter && "fixed"};
-  right: 0;
+  position: ${({ fixedFooter }) => fixedFooter && "sticky"};
   width: 100%;
 
   &.${FOOTER_SCROLL_ACTIVE_CLASS_NAME} {
@@ -95,7 +87,6 @@ const StyledForm = styled.form<StyledFormProps>`
   flex-direction: column;
   height: 100%;
   overflow-y: ${({ scrollContents }) => (scrollContents ? "auto" : "hidden")};
-  padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
 `;
 
 const StyledTitle = styled(Text)`
@@ -108,6 +99,7 @@ const StyledTitle = styled(Text)`
 const StyledFormBody = styled.div<StyledFormBodyProps>`
   height: ${({ stretchBodyVertically }) =>
     stretchBodyVertically ? "100%" : "auto"};
+  padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
 `;
 
 const StyledResetButtonWrapper = styled.div`
@@ -214,10 +206,6 @@ function Form<TValues = any>({
           <StyledTitle>{title}</StyledTitle>
           {children}
         </StyledFormBody>
-        {/* {This placeholder div makes sure there is ample amount of space
-          at the bottom for the buttons to occupy as in fixed mode the div looses its
-          spacing } */}
-        {fixedFooter && <StyleFormFooterPlaceholder />}
         <StyledFormFooter
           backgroundColor={backgroundColor}
           fixedFooter={fixedFooter}
