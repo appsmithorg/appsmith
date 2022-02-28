@@ -78,6 +78,7 @@ import reactor.util.function.Tuple2;
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -784,7 +785,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(part -> {
                     final Param param = new Param();
-                    param.setKey(part.name());
+                    param.setKey(URLDecoder.decode(part.name(), StandardCharsets.UTF_8));
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
