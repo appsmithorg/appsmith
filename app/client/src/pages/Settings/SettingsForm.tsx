@@ -102,11 +102,12 @@ export function SettingsForm(
   );
 
   const onSave = () => {
-    if (
-      ("APPSMITH_FORM_LOGIN_DISABLED" in props.settings &&
-        (enableGithubOAuth || enableGoogleOAuth)) ||
-      !("APPSMITH_FORM_LOGIN_DISABLED" in props.settings)
-    ) {
+    const connectedMethods = [
+      enableGoogleOAuth,
+      enableGithubOAuth,
+      !disableLoginForm,
+    ].filter(Boolean);
+    if (connectedMethods.length >= 1) {
       dispatch(saveSettings(props.settings));
     } else {
       saveBlocked();
