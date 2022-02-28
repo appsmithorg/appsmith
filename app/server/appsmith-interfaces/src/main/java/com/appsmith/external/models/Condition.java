@@ -73,11 +73,15 @@ public class Condition {
         return condition;
     }
 
+    /**
+     * To evaluate 'Path' and 'Operator' to be available for filtering
+     * 'Values' not evaluated for availability, to support searching empty values
+     * @param condition
+     * @return  Boolean
+     */
     public static Boolean isValid(Condition condition) {
 
-        if (StringUtils.isEmpty(condition.getPath()) ||
-                (condition.getOperator() == null) ||
-                StringUtils.isEmpty((CharSequence) condition.getValue())) {
+        if (StringUtils.isEmpty(condition.getPath()) || (condition.getOperator() == null)) {
             return false;
         }
 

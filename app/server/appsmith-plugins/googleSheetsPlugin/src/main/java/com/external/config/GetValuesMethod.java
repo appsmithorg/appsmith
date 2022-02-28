@@ -4,14 +4,12 @@ import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.services.FilterDataService;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -252,12 +250,6 @@ public class GetValuesMethod implements Method {
         if (whereConditions == null || whereConditions.size() == 0) {
             return false;
         }
-
-        //Change empty condition value("") to " " to bypass Null validation
-        whereConditions.stream()
-                .filter(val -> val.getValue().equals("") && val.getOperator().name().equals("EQ"))
-                .forEach(val -> val.setValue(StringUtils.SPACE));
-
 
         // At least 1 condition exists
         return true;

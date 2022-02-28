@@ -191,11 +191,6 @@ public class FilterDataServiceTest {
             Condition condition = new Condition("productName", "EQ", "");
             whereConditionList.add(condition);
 
-            //Precondition for whereConditionList implemented in GetValuesMethod.isWhereConditionConfigured(..)
-            whereConditionList.stream()
-                    .filter(val -> val.getValue().equals("") && val.getOperator().name().equals("EQ"))
-                    .forEach(val -> val.setValue(" ")); // Setting null fails in null validation
-
             ArrayNode filteredData = filterDataService.filterData(items, whereConditionList);
 
             assertEquals(filteredData.size(), 2);

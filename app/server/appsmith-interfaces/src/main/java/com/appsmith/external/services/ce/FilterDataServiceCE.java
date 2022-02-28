@@ -432,8 +432,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     private String generateWhereClauseOldFormat(List<Condition> conditions, LinkedList<PreparedStatementValueDTO> values, Map<String, DataType> schema) {
 
         StringBuilder sb = new StringBuilder();
-
+        Boolean isEmptyConditionValue = false;
         Boolean firstCondition = true;
+
         for (Condition condition : conditions) {
 
             if (firstCondition) {
@@ -457,10 +458,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
             sb.append("\"" + path + "\"");
             sb.append(" ");
-            boolean isPrepareStmt = true;
-            if (value.equals(StringUtils.SPACE) && operator.name().equals("EQ")) {
+
+            if (value.equals(StringUtils.EMPTY) && operator.name().equals("EQ")) {
                 sb.append("IS NULL");
-                isPrepareStmt = false;
+                isEmptyConditionValue = true;
             } else {
                 sb.append(sqlOp);
             }
@@ -491,7 +492,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 value = valueBuilder.toString();
                 sb.append(value);
 
-            } else if (isPrepareStmt) {
+            } else if (!isEmptyConditionValue) {
                 // Not an array. Simply add a placeholder
                 sb.append("?");
                 values.add(new PreparedStatementValueDTO(value, schema.get(path)));
