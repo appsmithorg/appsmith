@@ -2637,7 +2637,7 @@ Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
     const selector = `.t--widget-card-draggable-${widgetType}`;
-    cy.wait(500);
+    cy.wait(800);
     cy.get(selector)
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });

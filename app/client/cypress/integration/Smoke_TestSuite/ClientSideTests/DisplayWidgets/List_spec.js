@@ -56,14 +56,16 @@ describe("List Widget Functionality", function() {
     ];
 
     allowed.forEach((widget) => {
-      cy.dragAndDropToWidget(widget, "listwidget", { x: 50, y: 50 }).wait(1000);
-      cy.get(`.t--widget-${widget}`).should("exist");
+      cy.dragAndDropToWidget(widget, "listwidget", { x: 50, y: 50 });
+      cy.assertPageSave();
+      cy.get(`.t--draggable-${widget}`).should("exist");
       cy.get(widgetsPage.removeWidget).click({ force: true });
       cy.wait("@updateLayout");
     });
 
     disallowed.forEach((widget) => {
-      cy.dragAndDropToWidget(widget, "listwidget", { x: 50, y: 50 }).wait(1000);
+      cy.dragAndDropToWidget(widget, "listwidget", { x: 50, y: 50 });
+      cy.assertPageSave();
       cy.validateToastMessage(
         "This widget cannot be used inside the list widget.",
       );
