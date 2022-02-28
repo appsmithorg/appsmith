@@ -51,6 +51,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
   const guidedTourEnabled = useSelector(inGuidedTour);
 
+  // State use to Focus title on Mount and F2 key press
+  const [isEditingDefault, setIsEditingDefault] = useState(
+    !props.isPanelTitle ? isNew : undefined,
+  );
+
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf
   const widgets = useSelector(getExistingWidgetNames, isEqual);
@@ -114,11 +119,9 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     setName(props.title);
   }, [props.title]);
 
-  // Focus title on F2
-
-  const [isEditingDefault, setIsEditingDefault] = useState(
-    !props.isPanelTitle ? isNew : undefined,
-  );
+  useEffect(() => {
+    setIsEditingDefault(true);
+  }, []);
 
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === "F2") {
@@ -133,7 +136,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  });
+  }, []);
 
   return props.widgetId || props.isPanelTitle ? (
     <div className="flex items-center w-full px-3 space-x-1 z-3">
