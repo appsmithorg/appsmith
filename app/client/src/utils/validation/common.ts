@@ -161,11 +161,5 @@ export function getExpectedValue(
       };
     case ValidationTypes.TABLE_PROPERTY:
       return getExpectedValue(config.params as ValidationConfig);
-    case ValidationTypes.IDENTIFIER:
-      return {
-        type: "URL",
-        example: `https://www.example.com`,
-        autocompleteDataType: AutocompleteDataType.STRING,
-      };
   }
 }
