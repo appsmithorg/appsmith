@@ -1,10 +1,10 @@
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { call, fork, put, select, take, TakeEffect } from "redux-saga/effects";
+import { call, fork, put, select, take } from "redux-saga/effects";
 import {
   getEvaluationInverseDependencyMap,
   getDataTree,
 } from "../selectors/dataTreeSelectors";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "../selectors/entitiesSelector";
 import {
   ActionData,
@@ -75,7 +75,7 @@ export const groupAndFilterDependantsMap = (
 // e.g. widgets that depend on a list of actions
 export const getEntityDependants = (
   fullEntityPaths: string[],
-  entitiesDependantsmap: GroupedDependencyMap,
+  allEntitiesDependantsmap: GroupedDependencyMap,
   visitedPaths: Set<string>,
 ): { names: Set<string>; fullPaths: Set<string> } => {
   const dependantEntityNames = new Set<string>();
@@ -84,9 +84,10 @@ export const getEntityDependants = (
   fullEntityPaths.forEach((fullEntityPath) => {
     const entityPathArray = fullEntityPath.split(".");
     const entityName = entityPathArray[0];
-    if (!(entityName in entitiesDependantsmap)) return;
-    const entityDependantsMap = entitiesDependantsmap[entityName];
+    if (!(entityName in allEntitiesDependantsmap)) return;
+    const entityDependantsMap = allEntitiesDependantsmap[entityName];
 
+    // goes through properties of an entity
     Object.entries(entityDependantsMap).forEach(
       ([fullDependencyPath, dependants]) => {
         // skip other properties, when searching for a specific entityPath
@@ -98,6 +99,7 @@ export const getEntityDependants = (
           return;
         }
 
+        // goes through dependants of a property
         dependants.forEach((dependantPath) => {
           const dependantEntityName = dependantPath.split(".")[0];
           // Marking visited paths to avoid infinite recursion.
@@ -111,7 +113,7 @@ export const getEntityDependants = (
 
           const childDependants = getEntityDependants(
             Array.from(dependantEntityFullPaths),
-            entitiesDependantsmap,
+            allEntitiesDependantsmap,
             visitedPaths,
           );
           childDependants.names.forEach((childDependantName) => {
@@ -160,43 +162,29 @@ function* setWidgetsLoadingSaga() {
       inverseMap,
       dataTree,
     );
-    const loadingEntities = getEntityDependants(
+    const loadingEntitiesDetails = getEntityDependants(
       isLoadingActions,
       entitiesDependantsMap,
       new Set<string>(),
     );
 
-    // eslint-disable-next-line
-    console.log("Hello INVERSE_MAP", inverseMap);
-    // eslint-disable-next-line
-    console.log("Hello ENTITY_MAP", entitiesDependantsMap);
-    // eslint-disable-next-line
-    console.log("Hello LOADING ACTIONS", isLoadingActions);
-    // eslint-disable-next-line
-    console.log("Hello LOADING ENITIES", loadingEntities);
-    // eslint-disable-next-line
-    console.log("Hello ------------------");
-
     // check animateLoading is active on current widgets and set
-    Object.entries(dataTree).forEach(([entityName, entity]) => {
-      if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
-        if (get(dataTree, [entityName, "animateLoading"]) === false) {
-          loadingEntities.names.delete(entityName);
-        }
+    const filteredLoadingEntityNames = new Set<string>();
+    loadingEntitiesDetails.names.forEach((entityName) => {
+      get(dataTree, [entityName, "animateLoading"]) === true &&
+        filteredLoadingEntityNames.add(entityName);
     });
 
     yield put({
       type: ReduxActionTypes.SET_LOADING_ENTITIES,
-      payload: loadingEntities.names,
+      payload: filteredLoadingEntityNames,
     });
   }
 }
 
 function* actionExecutionChangeListenerSaga() {
   while (true) {
-    const takeEffect: TakeEffect = yield take(ACTION_EXECUTION_REDUX_ACTIONS);
-    // eslint-disable-next-line
-    console.log("Hello REDUX", takeEffect.type, takeEffect);
+    yield take(ACTION_EXECUTION_REDUX_ACTIONS);
     yield fork(setWidgetsLoadingSaga);
   }
 }
