@@ -103,7 +103,7 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success'
@@ -426,7 +426,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+        job:
+          [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+          ]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -610,7 +636,7 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
