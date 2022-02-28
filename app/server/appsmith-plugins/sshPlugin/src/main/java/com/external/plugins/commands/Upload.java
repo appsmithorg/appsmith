@@ -10,6 +10,7 @@ import com.jcraft.jsch.SftpException;
 import java.io.ByteArrayInputStream;
 import java.util.Map;
 
+//TODO remove
 public class Upload extends SSHCommand {
 
     public Upload(Session session) {

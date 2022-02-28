@@ -58,18 +58,15 @@ public class SSHPlugin extends BasePlugin {
             ActionExecutionResult result = new ActionExecutionResult();
             try {
                 String commandStr = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), COMMAND);
+                // todo remove this
                 System.out.println("Got the commandStr: " + commandStr);
 
-                SSHCommand command;
-                switch (commandStr) {
-                    case "RUN":
-                        command = new Execute(session);
-                        break;
-                    case "UPLOAD":
-                        command = new Upload(session);
-                        break;
-                    default:
-                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid SSH command found. Please select a command from the \"Command\" dropdown and try again");
+                // todo Remove UPLOAD and amend commit
+                final SSHCommand command;
+                if (commandStr != null && commandStr.equalsIgnoreCase("RUN")) {
+                    command = new Execute(session);
+                } else {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid SSH command found.");
                 }
 
                 Map<String, Object> responseBody = command.execute(actionConfiguration);
