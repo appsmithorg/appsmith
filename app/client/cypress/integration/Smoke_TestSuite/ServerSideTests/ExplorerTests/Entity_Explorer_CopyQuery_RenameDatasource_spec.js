@@ -50,6 +50,7 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
+      cy.CheckAndUnfoldEntityItem("QUERIES/JS");
       agHelper.ActionContextMenuByEntityName("Query1", "Show Bindings");
       cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(5);
@@ -104,6 +105,7 @@ describe("Entity explorer tests related to copy query", function() {
       );
     });
 
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(".t--entity-name")
       .contains("Query1")
       .click();

@@ -32,6 +32,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
+    cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
