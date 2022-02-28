@@ -378,7 +378,8 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
       fill: ${(props) => btnColorStyles(props, "main").txtColor};
     }
   }
-  &:hover {
+  &:hover,
+  &:focus {
     text-decoration: none;
     background-color: ${(props) => btnColorStyles(props, "hover").bgColor};
     color: ${(props) => btnColorStyles(props, "hover").txtColor};

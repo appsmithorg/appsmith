@@ -139,11 +139,11 @@ export function PageHeader(props: PageHeaderProps) {
           size={IconSize.XXXXL}
         />
       )}
-      {isMobile && (
+      {isMobile && user && (
         <MobileSideBar
           isOpen={isMobileSidebarOpen}
-          name="Albin"
-          userName="albin@appsmith.com"
+          name={user.name}
+          userName={user.username}
         />
       )}
     </StyledPageHeader>
