@@ -4,9 +4,9 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import {
-  groupAndFilterDependantsMap,
   getEntityDependants,
-} from "sagas/WidgetLoadingSaga";
+  groupAndFilterDependantsMap,
+} from "utils/WidgetLoadingStateUtils";
 
 const JS_object_dsl: DataTreeJSAction = {
   pluginType: PluginType.JS,
