@@ -13,7 +13,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _, { findIndex } from "lodash";
-import FileDataTypes from "../constants";
+import FileDataTypes, { UPLOAD_IDENTIFIER } from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 import log from "loglevel";
@@ -347,40 +347,51 @@ class FilePickerWidget extends BaseWidget<
         : [];
 
       const fileCount = this.props.selectedFiles?.length || 0;
-      const fileReaderPromises = files.map((file, index) => {
-        return new Promise((resolve) => {
-          if (file.size < 5000 * 1000) {
-            const reader = new FileReader();
-            if (this.props.fileDataType === FileDataTypes.Base64) {
-              reader.readAsDataURL(file.data);
-            } else if (this.props.fileDataType === FileDataTypes.Binary) {
-              reader.readAsBinaryString(file.data);
-            } else {
-              reader.readAsText(file.data);
-            }
-            reader.onloadend = () => {
-              const newFile = {
-                type: file.type,
-                id: file.id,
-                data: reader.result,
-                name: file.meta ? file.meta.name : `File-${index + fileCount}`,
-                size: file.size,
-              };
-              resolve(newFile);
-            };
-          } else {
-            const data = createBlobUrl(file.data, this.props.fileDataType);
-            const newFile = {
-              type: file.type,
-              id: file.id,
-              data: data,
-              name: file.meta ? file.meta.name : `File-${index + fileCount}`,
-              size: file.size,
-            };
-            resolve(newFile);
-          }
-        });
-      });
+      const fileReaderPromises = [];
+      for (let index = 0; index < files.length; index++) {
+        const file = files[index];
+        // only process user uploaded file, skip internally uploaded file using addFile method.
+        if (file.source !== UPLOAD_IDENTIFIER) {
+          fileReaderPromises.push(
+            new Promise((resolve) => {
+              if (file.size < 5000 * 1000) {
+                const reader = new FileReader();
+                if (this.props.fileDataType === FileDataTypes.Base64) {
+                  reader.readAsDataURL(file.data);
+                } else if (this.props.fileDataType === FileDataTypes.Binary) {
+                  reader.readAsBinaryString(file.data);
+                } else {
+                  reader.readAsText(file.data);
+                }
+                reader.onloadend = () => {
+                  const newFile = {
+                    type: file.type,
+                    id: file.id,
+                    data: reader.result,
+                    name: file.meta
+                      ? file.meta.name
+                      : `File-${index + fileCount}`,
+                    size: file.size,
+                  };
+                  resolve(newFile);
+                };
+              } else {
+                const data = createBlobUrl(file.data, this.props.fileDataType);
+                const newFile = {
+                  type: file.type,
+                  id: file.id,
+                  data: data,
+                  name: file.meta
+                    ? file.meta.name
+                    : `File-${index + fileCount}`,
+                  size: file.size,
+                };
+                resolve(newFile);
+              }
+            }),
+          );
+        }
+      }
 
       Promise.all(fileReaderPromises).then((files) => {
         this.props.updateWidgetMetaProperty(
@@ -467,18 +478,18 @@ class FilePickerWidget extends BaseWidget<
         : [];
       // addFile func on uppy state will also populate widget meta props
       // which may create conflict if file already exists there
-      // so clear file from meta props before calling addFile
-      this.props.updateWidgetMetaProperty("selectedFiles", []);
+      // to prevent duplicate entry in redux, we added source flag.
       selectedFiles.forEach(async (file: any) => {
         // convert base64 data to blob
         const fileRes = await fetch(file.data);
         const blob = await fileRes.blob();
         try {
-          // populate both local state and meta props of file widget
+          // populate both local state
           this.state.uppy.addFile({
             name: file.name,
             type: file.type,
             data: blob,
+            source: UPLOAD_IDENTIFIER,
           });
         } catch (error) {
           log.debug("File already exist : " + file.name);
