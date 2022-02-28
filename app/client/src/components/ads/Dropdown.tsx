@@ -851,7 +851,11 @@ export default function Dropdown(props: DropdownProps) {
           (option: DropdownOption) => option.value !== optionToBeRemoved.value,
         );
       }
-      setSelected(selectedOptions);
+      if (Array.isArray(selectedOptions)) {
+        if (selectedOptions.length !== 0) setSelected(selectedOptions);
+      } else {
+        setSelected(selectedOptions);
+      }
       removeSelectedOption &&
         removeSelectedOption(optionToBeRemoved.value, optionToBeRemoved);
     },
