@@ -198,19 +198,19 @@ export const updateColumnAccessorHook = (
         propertyValue: { ...props.accessorMap, [columnId]: propertyValue },
       });
 
-      // if (props.primaryColumns && props.primaryColumns[columnId]) {
-      //   const computedValue = props.primaryColumns[columnId].computedValue;
-      //   const oldPropertyValue = props.primaryColumns[columnId].accessor;
+      if (props.primaryColumns && props.primaryColumns[columnId]) {
+        const computedValue = props.primaryColumns[columnId].computedValue;
+        const oldPropertyValue = props.primaryColumns[columnId].accessor;
 
-      //   const newComputedValue = computedValue
-      //     .split(`currentRow.${oldPropertyValue}`)
-      //     .join(`currentRow.${propertyValue}`);
+        const newComputedValue = computedValue
+          .split(`currentRow.${oldPropertyValue}`)
+          .join(`currentRow.${propertyValue}`);
 
-      //   propertiesToUpdate.push({
-      //     propertyPath: `primaryColumns.${columnId}.computedValue`,
-      //     propertyValue: newComputedValue,
-      //   });
-      // }
+        propertiesToUpdate.push({
+          propertyPath: `primaryColumns.${columnId}.computedValue`,
+          propertyValue: newComputedValue,
+        });
+      }
 
       return propertiesToUpdate;
     } else {
