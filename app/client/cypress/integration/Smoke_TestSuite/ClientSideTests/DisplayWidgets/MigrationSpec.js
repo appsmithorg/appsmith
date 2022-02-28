@@ -162,7 +162,9 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
+                timeout: 30000,
+              })
               .eq(0)
               .should("contain.text", "State:"),
           {
@@ -236,7 +238,9 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+                timeout: 30000,
+              })
               .eq(0)
               .should("contain.text", "CreditLimit:"),
           {
@@ -269,7 +273,9 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+                timeout: 30000,
+              })
               .eq(0)
               .should("contain.text", "CreditLimit:"),
           {
@@ -330,7 +336,9 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
+                timeout: 30000,
+              })
               .eq(0)
               .should("contain.text", "State:"),
           {
@@ -405,7 +413,9 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+                timeout: 30000,
+              })
               .eq(0)
               .should("contain.text", "CreditLimit:"),
           {
@@ -438,7 +448,9 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+                timeout: 30000,
+              })
               .eq(0)
               .should("contain.text", "CreditLimit:"),
           {
