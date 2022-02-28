@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { useDispatch } from "react-redux";
-import React, { useMemo, useCallback, useRef, useEffect } from "react";
+import React, { useMemo, useCallback } from "react";
 
 import {
   getCurrentApplicationId,
@@ -59,7 +59,6 @@ export function MainContainerLayoutControl() {
   const dispatch = useDispatch();
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const timerRef = useRef<number | null>(null);
 
   const buttonRefs: Array<HTMLButtonElement | null> = [];
 
@@ -103,20 +102,10 @@ export function MainContainerLayoutControl() {
     [dispatch, appLayout],
   );
 
-  useEffect(() => {
-    return () => {
-      if (!timerRef.current) return;
-      clearTimeout(timerRef.current);
-    };
-  }, []);
-
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
     if (!buttonRefs.length) return;
+
     switch (event.key) {
-      case "Tab":
-        // Using setTimeout for a small delay
-        timerRef.current = setTimeout(() => setFocusedIndex(selectedIndex), 0);
-        break;
       case "ArrowRight":
       case "Right":
         const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
@@ -135,7 +124,10 @@ export function MainContainerLayoutControl() {
   return (
     <div className="px-3 space-y-2 t--layout-control-wrapper">
       <p className="text-sm text-gray-700">Canvas Size</p>
-      <div className="flex justify-around">
+      <div
+        className="flex justify-around"
+        onBlur={() => setFocusedIndex(selectedIndex)}
+      >
         {AppsmithLayouts.map((layoutOption: any, index: number) => {
           return (
             <TooltipComponent
