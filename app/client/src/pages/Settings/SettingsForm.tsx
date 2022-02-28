@@ -28,17 +28,11 @@ import {
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { Toaster, Variant } from "components/ads";
 import {
   connectedMethods,
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
-const {
-  disableLoginForm,
-  enableGithubOAuth,
-  enableGoogleOAuth,
-} = getAppsmithConfigs();
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
