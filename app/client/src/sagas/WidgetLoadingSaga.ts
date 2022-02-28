@@ -16,11 +16,7 @@ import {
 } from "../constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import { get } from "lodash";
-import {
-  getEntityDependants,
-  groupAndFilterDependantsMap,
-} from "utils/WidgetLoadingStateUtils";
+import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";
 
 const ACTION_EXECUTION_REDUX_ACTIONS = [
   // Actions
@@ -50,26 +46,15 @@ function* setWidgetsLoadingSaga() {
     );
     const dataTree: DataTree = yield select(getDataTree);
 
-    const entitiesDependantsMap = groupAndFilterDependantsMap(
-      inverseMap,
-      dataTree,
-    );
-    const loadingEntitiesDetails = getEntityDependants(
+    const loadingEntities = findLoadingEntities(
       isLoadingActions,
-      entitiesDependantsMap,
-      new Set<string>(),
+      dataTree,
+      inverseMap,
     );
-
-    // check animateLoading is active on current widgets and set
-    const filteredLoadingEntityNames = new Set<string>();
-    loadingEntitiesDetails.names.forEach((entityName) => {
-      get(dataTree, [entityName, "animateLoading"]) === true &&
-        filteredLoadingEntityNames.add(entityName);
-    });
 
     yield put({
       type: ReduxActionTypes.SET_LOADING_ENTITIES,
-      payload: filteredLoadingEntityNames,
+      payload: loadingEntities,
     });
   }
 }

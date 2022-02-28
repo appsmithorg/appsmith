@@ -1,5 +1,5 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { set } from "lodash";
+import { get, set } from "lodash";
 import { isJSObject } from "workers/evaluationUtils";
 import { DependencyMap } from "./DynamicBindingUtils";
 
@@ -11,7 +11,7 @@ type GroupedDependencyMap = Record<string, DependencyMap>;
 export const groupAndFilterDependantsMap = (
   inverseMap: DependencyMap,
   dataTree: DataTree,
-) => {
+): GroupedDependencyMap => {
   const entitiesDepMap: GroupedDependencyMap = {};
 
   Object.entries(inverseMap).forEach(([fullDependencyPath, dependants]) => {
@@ -112,4 +112,29 @@ export const getEntityDependants = (
   });
 
   return { names: dependantEntityNames, fullPaths: dependantEntityFullPaths };
+};
+
+export const findLoadingEntities = (
+  isLoadingActions: string[],
+  dataTree: DataTree,
+  inverseMap: DependencyMap,
+): Set<string> => {
+  const entitiesDependantsMap = groupAndFilterDependantsMap(
+    inverseMap,
+    dataTree,
+  );
+  const loadingEntitiesDetails = getEntityDependants(
+    isLoadingActions,
+    entitiesDependantsMap,
+    new Set<string>(),
+  );
+
+  // check animateLoading is active on current widgets and set
+  const filteredLoadingEntityNames = new Set<string>();
+  loadingEntitiesDetails.names.forEach((entityName) => {
+    get(dataTree, [entityName, "animateLoading"]) === true &&
+      filteredLoadingEntityNames.add(entityName);
+  });
+
+  return filteredLoadingEntityNames;
 };
