@@ -166,10 +166,15 @@ function* setWidgetsLoadingSaga() {
       new Set<string>(),
     );
 
+    // eslint-disable-next-line
     console.log("Hello INVERSE_MAP", inverseMap);
+    // eslint-disable-next-line
     console.log("Hello ENTITY_MAP", entitiesDependantsMap);
+    // eslint-disable-next-line
     console.log("Hello LOADING ACTIONS", isLoadingActions);
+    // eslint-disable-next-line
     console.log("Hello LOADING ENITIES", loadingEntities);
+    // eslint-disable-next-line
     console.log("Hello ------------------");
 
     // check animateLoading is active on current widgets and set
@@ -190,6 +195,7 @@ function* setWidgetsLoadingSaga() {
 function* actionExecutionChangeListenerSaga() {
   while (true) {
     const takeEffect: TakeEffect = yield take(ACTION_EXECUTION_REDUX_ACTIONS);
+    // eslint-disable-next-line
     console.log("Hello REDUX", takeEffect.type, takeEffect);
     yield fork(setWidgetsLoadingSaga);
   }
