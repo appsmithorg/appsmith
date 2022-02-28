@@ -21,12 +21,14 @@ const LinkText = styled.div<{ color?: string }>`
 `;
 
 export default function Link({
+  className = "",
   color,
   hasIcon = true,
   link,
   onClick,
   text,
 }: {
+  className?: string;
   color?: string;
   hasIcon?: boolean;
   link: string;
@@ -37,7 +39,11 @@ export default function Link({
     onClick ? onClick() : window.open(link, "_blank");
   };
   return (
-    <LinkText color={color || Colors.CHARCOAL} onClick={clickHandler}>
+    <LinkText
+      className={className}
+      color={color || Colors.CHARCOAL}
+      onClick={clickHandler}
+    >
       <Text
         case={Case.UPPERCASE}
         color={color || Colors.CHARCOAL}

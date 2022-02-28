@@ -68,7 +68,6 @@ export const generateDataTreeWidget = (
 
   Object.entries(defaultProps).forEach(
     ([propertyName, defaultPropertyName]) => {
-      // why default value is undefined ?
       if (!(defaultPropertyName in widget)) {
         unInitializedDefaultProps[defaultPropertyName] = undefined;
       }
@@ -132,6 +131,7 @@ export const generateDataTreeWidget = (
     },
     meta: {
       ...overridingMetaProps,
+      ...widgetMetaProps,
     },
     propertyOverrideDependency,
     overridingPropertyPaths,

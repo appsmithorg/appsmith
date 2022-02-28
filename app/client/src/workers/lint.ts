@@ -75,6 +75,7 @@ export const getLintingErrors = (
     evil: false, // Use of eval not allowed
     funcscope: true, // Tolerate variable definition inside control statements
     sub: true, // Don't force dot notation
+    expr: true, // suppresses warnings about the use of expressions where normally you would expect to see assignments or function calls
     // environments
     browser: true,
     worker: true,

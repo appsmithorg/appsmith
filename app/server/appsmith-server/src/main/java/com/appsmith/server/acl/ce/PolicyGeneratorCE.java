@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.COMMENT_ON_THREAD;
+import static com.appsmith.server.acl.AclPermission.COMMENT_ON_THREADS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -30,6 +30,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
@@ -38,11 +39,12 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_COMMENT;
+import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_THREAD;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_THREADS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
@@ -81,6 +83,7 @@ public class PolicyGeneratorCE {
         createPagePolicyGraph();
         createActionPolicyGraph();
         createCommentPolicyGraph();
+        createThemePolicyGraph();
     }
 
     /**
@@ -142,11 +145,17 @@ public class PolicyGeneratorCE {
     }
 
     private void createCommentPolicyGraph() {
-        hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, COMMENT_ON_THREAD);
+        hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, COMMENT_ON_THREADS);
 
-        lateralGraph.addEdge(COMMENT_ON_THREAD, READ_THREAD);
+        lateralGraph.addEdge(COMMENT_ON_THREADS, READ_THREADS);
 
-        hierarchyGraph.addEdge(COMMENT_ON_THREAD, READ_COMMENT);
+        hierarchyGraph.addEdge(COMMENT_ON_THREADS, READ_COMMENTS);
+    }
+
+    private void createThemePolicyGraph() {
+        hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THEMES);
+        hierarchyGraph.addEdge(READ_APPLICATIONS, READ_THEMES);
+        lateralGraph.addEdge(MANAGE_THEMES, READ_THEMES);
     }
 
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class<? extends BaseDomain> destinationEntity) {
