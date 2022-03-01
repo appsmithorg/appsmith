@@ -5,7 +5,9 @@ import { TemplateLayout } from "./index";
 
 const LargeTemplate = styled(TemplateLayout)`
   border: 1px solid ${Colors.GEYSER_LIGHT};
+  display: flex;
   flex: 1;
+  flex-direction: column;
   max-width: 50%;
   cursor: pointer;
   &:hover {
@@ -23,6 +25,7 @@ const LargeTemplate = styled(TemplateLayout)`
     }
     .description {
       ${(props) => getTypographyByKey(props, "p1")}
+      flex: 1;
     }
   }
 

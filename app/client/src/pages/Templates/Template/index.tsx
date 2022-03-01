@@ -38,6 +38,9 @@ const StyledImage = styled.img`
 const TemplateContent = styled.div`
   border-top: 0.73px solid ${Colors.GEYSER_LIGHT};
   padding: 16px 25px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 
   .title {
     ${(props) => getTypographyByKey(props, "h4")}
