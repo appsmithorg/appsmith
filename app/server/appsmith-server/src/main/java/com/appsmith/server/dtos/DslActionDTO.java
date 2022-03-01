@@ -24,6 +24,7 @@ public class DslActionDTO {
     String name;
     String collectionId;
     Boolean clientSideExecution;
+    Boolean confirmBeforeExecute;
     PluginType pluginType;
     Set<String> jsonPathKeys;
     Integer timeoutInMillisecond = DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
