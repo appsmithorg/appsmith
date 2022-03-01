@@ -229,7 +229,7 @@ function* evaluateActionParams(
       value = yield call(readBlob, value);
     }
 
-    formData.append(key, value);
+    formData.append(encodeURIComponent(key), value);
   }
 }
 
