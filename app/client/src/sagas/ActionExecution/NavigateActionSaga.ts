@@ -9,15 +9,12 @@ import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import {
-  BUILDER_PAGE_URL,
-  convertToQueryParams,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { convertToQueryParams } from "constants/routes";
 import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { NavigateActionDescription } from "entities/DataTree/actionTriggers";
+import { builderURL, viewerURL } from "AppsmithRouteFactory";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -61,13 +58,11 @@ export default function* navigateActionSaga(
     // uses query BUILDER_PAGE_URL
     const path =
       appMode === APP_MODE.EDIT
-        ? BUILDER_PAGE_URL({
-            applicationSlug,
-            pageSlug,
+        ? builderURL({
             pageId: page.pageId,
             params,
           })
-        : getApplicationViewerPageURL({
+        : viewerURL({
             applicationSlug,
             pageSlug,
             pageId: page.pageId,

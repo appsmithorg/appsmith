@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useRef } from "react";
-import store from "store";
+import { store } from "store";
 import { useDispatch, useSelector } from "react-redux";
 import {
   collabResetEditorsPointersData,

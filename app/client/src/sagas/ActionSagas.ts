@@ -41,9 +41,7 @@ import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getActionById,
   getCurrentPageId,
-  selectCurrentApplicationSlug,
   selectPageSlugById,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -69,13 +67,7 @@ import {
   getActions,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
-import {
-  API_EDITOR_ID_URL,
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  QUERIES_EDITOR_ID_URL,
-} from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
@@ -93,7 +85,6 @@ import { merge, get } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
 import {
@@ -119,6 +110,13 @@ import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
+import {
+  apiEditorIdURL,
+  builderURL,
+  integrationEditorURL,
+  queryEditorIdURL,
+  saasEditorApiIdURL,
+} from "AppsmithRouteFactory";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -410,16 +408,10 @@ export function* deleteActionSaga(
     if (!!actionPayload.payload.onSuccess) {
       actionPayload.payload.onSuccess();
     } else {
-      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-      const pageId: string = yield select(getCurrentPageId);
-
       history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationSlug,
-          pageSlug,
-          pageId,
-          INTEGRATION_TABS.NEW,
-        ),
+        integrationEditorURL({
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
     }
 
@@ -605,11 +597,8 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { pageId, queryId } = action.payload;
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   history.push(
-    BUILDER_PAGE_URL({
-      applicationSlug,
-      pageSlug,
+    builderURL({
       pageId,
       params: {
         isSnipingMode: "true",
@@ -733,34 +722,35 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
   const pageSlug: string = yield select(selectPageSlugById(action.pageId));
 
   if (isApi) {
     history.push(
-      API_EDITOR_ID_URL(applicationSlug, pageSlug, action.pageId, action.id),
+      apiEditorIdURL({
+        pageSlug,
+        pageId: action.pageId,
+        apiId: action.id,
+      }),
     );
   }
   if (isQuery) {
     history.push(
-      QUERIES_EDITOR_ID_URL(
-        applicationSlug,
+      queryEditorIdURL({
         pageSlug,
-        action.pageId,
-        action.id,
-      ),
+        pageId: action.pageId,
+        queryId: action.id,
+      }),
     );
   }
   if (isSaas) {
     const plugin: Plugin = yield select(getPlugin, action.pluginId);
     history.push(
-      SAAS_EDITOR_API_ID_URL(
-        applicationSlug,
+      saasEditorApiIdURL({
         pageSlug,
-        action.pageId,
-        plugin.packageName,
-        action.id,
-      ),
+        pageId: action.pageId,
+        pluginPackageName: plugin.packageName,
+        apiId: action.id,
+      }),
     );
   }
 }
@@ -902,14 +892,11 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       if (callback) callback(effectRaceResult.success.payload);
       break;
     case SlashCommand.NEW_INTEGRATION:
-      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
       history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationSlug,
-          pageSlug,
+        integrationEditorURL({
           pageId,
-          INTEGRATION_TABS.NEW,
-        ),
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
       break;
     case SlashCommand.NEW_QUERY:

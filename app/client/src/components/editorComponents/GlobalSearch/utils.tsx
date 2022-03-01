@@ -21,9 +21,9 @@ import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { getCurlImportPageURL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
 import history from "utils/history";
+import { curlImportPageURL } from "AppsmithRouteFactory";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -365,15 +365,15 @@ export const actionOperations: ActionOperation[] = [
       from: EventLocation,
     ) => {
       const queryParams = getQueryParams();
-      const curlImportURL = getCurlImportPageURL(
+      const curlImportURL = curlImportPageURL({
         applicationSlug,
         pageSlug,
         pageId,
-        {
+        params: {
           from,
           ...queryParams,
         },
-      );
+      });
       history.push(curlImportURL);
     },
   },

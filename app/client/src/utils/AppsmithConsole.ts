@@ -6,7 +6,7 @@ import {
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { Severity, LogActionPayload, Log } from "entities/AppsmithConsole";
 import moment from "moment";
-import store from "store";
+import { store } from "store";
 
 function dispatchAction(action: ReduxAction<unknown>) {
   store.dispatch(action);

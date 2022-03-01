@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 import { ThemeProvider } from "constants/DefaultTheme";
 import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
-import store from "store";
+import { store } from "store";
 import CodeEditor from "./index";
 import {
   EditorSize,

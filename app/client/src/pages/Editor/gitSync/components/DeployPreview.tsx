@@ -3,9 +3,6 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as CloudyIcon } from "assets/icons/ads/cloudy-line.svg";
 import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
-
-// import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
 import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import {
@@ -19,6 +16,7 @@ import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { viewerURL } from "AppsmithRouteFactory";
 
 const Container = styled.div`
   display: flex;
@@ -68,7 +66,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
-    const path = getApplicationViewerPageURL({
+    const path = viewerURL({
       applicationSlug,
       pageSlug,
       pageId,

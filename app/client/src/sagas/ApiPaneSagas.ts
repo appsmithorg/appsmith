@@ -25,13 +25,7 @@ import {
   HTTP_METHOD,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
-import {
-  API_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
@@ -66,6 +60,11 @@ import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Plugin } from "api/PluginApi";
 import { getDisplayFormat } from "selectors/apiPaneSelectors";
+import {
+  apiEditorIdURL,
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+} from "AppsmithRouteFactory";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -123,14 +122,16 @@ function* redirectToNewIntegrations(
   }>,
 ) {
   history.push(
-    INTEGRATION_EDITOR_URL(
-      action.payload.applicationSlug,
-      action.payload.pageSlug,
-      action.payload.pageId,
-      INTEGRATION_TABS.ACTIVE,
-      INTEGRATION_EDITOR_MODES.AUTO,
-      action.payload.params,
-    ),
+    integrationEditorURL({
+      applicationSlug: action.payload.applicationSlug,
+      pageSlug: action.payload.pageSlug,
+      pageId: action.payload.pageId,
+      selectedTab: INTEGRATION_TABS.ACTIVE,
+      params: {
+        ...action.payload.params,
+        mode: INTEGRATION_EDITOR_MODES.AUTO,
+      },
+    }),
   );
 }
 
@@ -467,9 +468,15 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
     const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     const pageId: string = yield select(getCurrentPageId);
     history.push(
-      API_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, id, {
-        editName: "true",
-        from: "datasources",
+      apiEditorIdURL({
+        applicationSlug,
+        pageSlug,
+        pageId,
+        apiId: id,
+        params: {
+          editName: "true",
+          from: "datasources",
+        },
       }),
     );
   }
@@ -483,20 +490,14 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   // Only look at API plugins
   if (plugin.type !== PluginType.API) return;
 
-  const pageId: string = yield select(getCurrentPageId);
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(
-      applicationSlug,
-      pageSlug,
-      pageId,
-      actionPayload.payload.id,
-      {
+    datasourcesEditorIdURL({
+      datasourceId: actionPayload.payload.id,
+      params: {
         from: "datasources",
         ...getQueryParams(),
       },
-    ),
+    }),
   );
 }
 
@@ -569,10 +570,11 @@ function* handleApiNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-    const pageId: string = yield select(getCurrentPageId);
     history.push(
-      API_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, actionId, params),
+      apiEditorIdURL({
+        apiId: actionId,
+        params,
+      }),
     );
   }
 }

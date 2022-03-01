@@ -28,7 +28,7 @@ import {
   addApiToPage,
 } from "actions/providerActions";
 import { getDuplicateName } from "utils/AppsmithUtils";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -37,6 +37,7 @@ import {
   getCurrentApplicationId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
+import { integrationEditorURL } from "AppsmithRouteFactory";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -299,28 +300,18 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
     return (
       <TemplateDetailPage>
         <ProviderInfoTopSection>
-          {/* <SearchContainer>
-            <SearchBar
-              icon="search"
-              input={{
-                onChange: this.handleSearchChange,
-              }}
-              placeholder="Search"
-            />
-          </SearchContainer> */}
-
           <Icon
             className="backBtn"
             icon="chevron-left"
             iconSize={16}
             onClick={() =>
               history.push(
-                INTEGRATION_EDITOR_URL(
+                integrationEditorURL({
                   applicationSlug,
                   pageSlug,
                   pageId,
-                  INTEGRATION_TABS.ACTIVE,
-                ),
+                  selectedTab: INTEGRATION_TABS.ACTIVE,
+                }),
               )
             }
           />
@@ -328,12 +319,12 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             className="backBtnText"
             onClick={() =>
               history.push(
-                INTEGRATION_EDITOR_URL(
+                integrationEditorURL({
                   applicationSlug,
                   pageSlug,
                   pageId,
-                  INTEGRATION_TABS.ACTIVE,
-                ),
+                  selectedTab: INTEGRATION_TABS.ACTIVE,
+                }),
               )
             }
           >

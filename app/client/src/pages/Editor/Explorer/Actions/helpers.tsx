@@ -2,19 +2,18 @@ import React, { ReactNode, useMemo } from "react";
 import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
-import {
-  API_EDITOR_ID_URL,
-  QUERIES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL,
-} from "constants/routes";
 
 import { Plugin } from "api/PluginApi";
-import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { groupBy } from "lodash";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import {
+  apiEditorIdURL,
+  queryEditorIdURL,
+  saasEditorApiIdURL,
+} from "AppsmithRouteFactory";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed
@@ -30,12 +29,6 @@ export type ActionGroupConfig = {
     id: string,
     pluginType: PluginType,
     plugin?: Plugin,
-  ) => string;
-  generateCreatePageURL: (
-    applicationId: string,
-    pageId: string,
-    selectedTab: string,
-    mode?: string,
   ) => string;
   getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
 };
@@ -58,20 +51,24 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       plugin?: Plugin,
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
-        return SAAS_EDITOR_API_ID_URL(
+        return saasEditorApiIdURL({
           applicationSlug,
           pageSlug,
           pageId,
-          plugin.packageName,
-          id,
-        );
+          pluginPackageName: plugin.packageName,
+          apiId: id,
+        });
       } else if (
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE
       ) {
-        return QUERIES_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, id);
+        return queryEditorIdURL({
+          pageSlug,
+          pageId,
+          queryId: id,
+        });
       } else {
-        return API_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, id);
+        return apiEditorIdURL({ pageSlug, pageId, apiId: id });
       }
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
@@ -87,7 +84,6 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
     },
-    generateCreatePageURL: INTEGRATION_EDITOR_URL,
   },
 ];
 

@@ -9,7 +9,6 @@ import {
   storeAsDatasource,
 } from "actions/datasourceActions";
 import history from "utils/history";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
 import Text, { TextType } from "components/ads/Text";
 import { AuthType } from "entities/Datasource/RestAPIForm";
@@ -27,13 +26,9 @@ import {
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { selectURLSlugs } from "selectors/editorSelectors";
+import { datasourcesEditorIdURL } from "AppsmithRouteFactory";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
-  applicationId?: string;
-  currentPageId: string;
-  applicationSlug: string;
-  pageSlug: string;
 }
 
 interface ReduxDispatchProps {
@@ -86,7 +81,7 @@ type Props = ReduxStateProps & ReduxDispatchProps;
 
 function ApiAuthentication(props: Props): JSX.Element {
   const dispatch = useDispatch();
-  const { applicationSlug, currentPageId, datasource, pageSlug } = props;
+  const { datasource } = props;
   const authType = get(
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
@@ -104,13 +99,10 @@ function ApiAuthentication(props: Props): JSX.Element {
       const id = get(datasource, "id");
       props.setDatasourceEditorMode(id, false);
       history.push(
-        DATA_SOURCES_EDITOR_ID_URL(
-          applicationSlug,
-          pageSlug,
-          currentPageId,
-          id,
-          getQueryParams(),
-        ),
+        datasourcesEditorIdURL({
+          datasourceId: id,
+          params: getQueryParams(),
+        }),
       );
     }
   };
@@ -154,14 +146,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     }
   }
 
-  const { applicationSlug, pageSlug } = selectURLSlugs(state);
-
   return {
     datasource: datasourceMerged,
-    currentPageId: state.entities.pageList.currentPageId,
-    applicationId: state.entities.pageList.applicationId,
-    applicationSlug,
-    pageSlug,
   };
 };
 

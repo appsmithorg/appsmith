@@ -8,12 +8,6 @@ import {
 import history from "utils/history";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
-import {
-  SAAS_EDITOR_DATASOURCE_ID_URL,
-  SAAS_EDITOR_API_ID_URL,
-} from "pages/Editor/SaaSEditor/constants";
-
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { getFormData } from "selectors/formSelectors";
@@ -24,24 +18,22 @@ import { get } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Plugin } from "api/PluginApi";
+import {
+  saasEditorApiIdURL,
+  saasEditorDatasourceIdURL,
+} from "AppsmithRouteFactory";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
   // Only look at SAAS plugins
   if (plugin.type !== PluginType.SAAS) return;
 
-  const pageId: string = yield select(getCurrentPageId);
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-
   history.push(
-    SAAS_EDITOR_DATASOURCE_ID_URL(
-      applicationSlug,
-      pageSlug,
-      pageId,
-      plugin.packageName,
-      actionPayload.payload.id,
-      { from: "datasources" },
-    ),
+    saasEditorDatasourceIdURL({
+      pluginPackageName: plugin.packageName,
+      datasourceId: actionPayload.payload.id,
+      params: { from: "datasources" },
+    }),
   );
 }
 
@@ -50,20 +42,15 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const plugin: Plugin = yield select(getPlugin, pluginId);
 
   if (plugin.type !== "SAAS") return;
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-  const pageId: string = yield select(getCurrentPageId);
   history.push(
-    SAAS_EDITOR_API_ID_URL(
-      applicationSlug,
-      pageSlug,
-      pageId,
-      plugin.packageName,
-      id,
-      {
+    saasEditorApiIdURL({
+      pluginPackageName: plugin.packageName,
+      apiId: id,
+      params: {
         editName: "true",
         from: "datasources",
       },
-    ),
+    }),
   );
 }
 

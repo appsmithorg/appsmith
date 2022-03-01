@@ -96,9 +96,9 @@ export const fetchPublishedPageSuccess = (
   payload: undefined,
 });
 
-export const updateCurrentPage = (id: string) => ({
+export const updateCurrentPage = (id: string, slug?: string) => ({
   type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
-  payload: { id },
+  payload: { id, slug },
 });
 
 export const initCanvasLayout = (

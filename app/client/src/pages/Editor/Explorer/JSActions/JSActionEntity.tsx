@@ -1,16 +1,16 @@
 import React, { memo, useCallback } from "react";
 import Entity, { EntityClassNames } from "../Entity";
-import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getJSCollection } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
+import { jsCollectionIdURL } from "AppsmithRouteFactory";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;
@@ -26,7 +26,6 @@ const getUpdateJSObjectName = (id: string, name: string) => {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
     const pageId = useSelector(getCurrentPageId) as string;
     const jsAction = useSelector((state: AppState) =>
       getJSCollection(state, props.id),
@@ -34,16 +33,10 @@ export const ExplorerJSCollectionEntity = memo(
     const navigateToJSCollection = useCallback(() => {
       if (jsAction.id) {
         history.push(
-          JS_COLLECTION_ID_URL(
-            applicationSlug,
-            pageSlug,
-            pageId,
-            jsAction.id,
-            {},
-          ),
+          jsCollectionIdURL({ pageId, collectionId: jsAction.id, params: {} }),
         );
       }
-    }, [pageId]);
+    }, [pageId, jsAction.id]);
     const contextMenu = (
       <JSCollectionEntityContextMenu
         className={EntityClassNames.CONTEXT_MENU}

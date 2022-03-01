@@ -17,7 +17,7 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateTo
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
-import { JS_COLLECTION_ID_URL } from "constants/routes";
+import { jsCollectionIdURL } from "AppsmithRouteFactory";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -131,12 +131,12 @@ export const useEntityLink = () => {
         }
       } else if (isJSAction(entity)) {
         history.push(
-          JS_COLLECTION_ID_URL(
+          jsCollectionIdURL({
             applicationSlug,
             pageSlug,
             pageId,
-            entity.actionId,
-          ),
+            collectionId: entity.actionId,
+          }),
         );
       }
     },

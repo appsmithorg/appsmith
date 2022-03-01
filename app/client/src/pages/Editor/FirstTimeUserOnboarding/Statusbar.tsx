@@ -1,6 +1,5 @@
 import { Icon } from "@blueprintjs/core";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getOnboardingCheckListUrl } from "constants/routes";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import React, { SyntheticEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +8,6 @@ import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getCanvasWidgets,
@@ -37,6 +35,7 @@ import {
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { Colors } from "constants/Colors";
+import { onboardingCheckListUrl } from "AppsmithRouteFactory";
 
 const Wrapper = styled.div<{ active: boolean }>`
   width: 100%;
@@ -192,8 +191,6 @@ const useStatus = (): { percentage: number; content: string } => {
 
 export function OnboardingStatusbar(props: RouteComponentProps) {
   const dispatch = useDispatch();
-  const pageId = useSelector(getCurrentPageId);
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const { content, percentage } = useStatus();
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
   const isGenerateAppPage =
@@ -231,9 +228,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       className="sticky top-0 t--onboarding-statusbar"
       data-testid="statusbar-container"
       onClick={() => {
-        history.push(
-          getOnboardingCheckListUrl(applicationSlug, pageSlug, pageId),
-        );
+        history.push(onboardingCheckListUrl());
       }}
     >
       {!isFirstTimeUserOnboardingComplete && (

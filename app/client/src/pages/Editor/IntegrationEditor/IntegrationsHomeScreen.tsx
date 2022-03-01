@@ -16,11 +16,7 @@ import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
 import { Datasource, MockDatasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
-import {
-  INTEGRATION_TABS,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_EDITOR_MODES,
-} from "constants/routes";
+import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
 import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
@@ -30,6 +26,7 @@ import {
   getCurrentApplicationId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
+import { integrationEditorURL } from "AppsmithRouteFactory";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -338,14 +335,13 @@ class IntegrationsHomeScreen extends React.Component<
         delete queryParams.mode;
         delete queryParams.from;
         history.replace(
-          INTEGRATION_EDITOR_URL(
+          integrationEditorURL({
             applicationSlug,
             pageSlug,
             pageId,
-            INTEGRATION_TABS.NEW,
-            "",
-            queryParams,
-          ),
+            selectedTab: INTEGRATION_TABS.NEW,
+            params: queryParams,
+          }),
         );
       }
     } else if (
@@ -354,22 +350,22 @@ class IntegrationsHomeScreen extends React.Component<
     ) {
       // User will be taken to active tab if there are datasources
       history.replace(
-        INTEGRATION_EDITOR_URL(
+        integrationEditorURL({
           applicationSlug,
           pageSlug,
           pageId,
-          INTEGRATION_TABS.ACTIVE,
-        ),
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
       );
     } else if (redirectMode === INTEGRATION_EDITOR_MODES.MOCK) {
       // If there are no datasources -> new user
       history.replace(
-        INTEGRATION_EDITOR_URL(
+        integrationEditorURL({
           applicationSlug,
           pageSlug,
           pageId,
-          INTEGRATION_TABS.NEW,
-        ),
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
       this.onSelectSecondaryMenu(
         getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
@@ -390,12 +386,12 @@ class IntegrationsHomeScreen extends React.Component<
     } = this.props;
     if (dataSources.length === 0 && prevProps.dataSources.length > 0) {
       history.replace(
-        INTEGRATION_EDITOR_URL(
+        integrationEditorURL({
           applicationSlug,
           pageSlug,
           pageId,
-          INTEGRATION_TABS.NEW,
-        ),
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
       this.onSelectSecondaryMenu(
         getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
@@ -415,14 +411,15 @@ class IntegrationsHomeScreen extends React.Component<
       return;
     }
     history.push(
-      INTEGRATION_EDITOR_URL(
+      integrationEditorURL({
         applicationSlug,
         pageSlug,
         pageId,
-        activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
-          ? INTEGRATION_TABS.ACTIVE
-          : INTEGRATION_TABS.NEW,
-      ),
+        selectedTab:
+          activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
+            ? INTEGRATION_TABS.ACTIVE
+            : INTEGRATION_TABS.NEW,
+      }),
     );
     this.setState({
       activeSecondaryMenuId:

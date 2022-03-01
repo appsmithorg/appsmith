@@ -3,7 +3,7 @@ import { Link, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
-import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
+import { AppViewerRouteParams } from "constants/routes";
 import { AppState } from "reducers";
 import { theme } from "constants/DefaultTheme";
 import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
@@ -23,6 +23,7 @@ import {
 } from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
 import { DSLWidget } from "widgets/constants";
+import { builderURL } from "AppsmithRouteFactory";
 
 const Section = styled.section`
   background: ${(props) => props.theme.colors.artboard};
@@ -68,7 +69,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
         <p>
           Please add widgets to this page in the&nbsp;
           <Link
-            to={BUILDER_PAGE_URL({
+            to={builderURL({
               applicationSlug: this.props.applicationSlug,
               pageSlug: this.props.pageSlug,
               pageId: this.props.match.params.pageId as string,

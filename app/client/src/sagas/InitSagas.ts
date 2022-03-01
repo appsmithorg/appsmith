@@ -60,11 +60,7 @@ import { getIsEditorInitialized, getPageById } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
-import {
-  addBranchParam,
-  getApplicationEditorPageURL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { addBranchParam } from "constants/routes";
 import history from "utils/history";
 import {
   fetchGitStatusInit,
@@ -75,6 +71,7 @@ import {
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import PageApi, { FetchPageResponse } from "api/PageApi";
 import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
+import { builderURL, viewerURL } from "AppsmithRouteFactory";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -126,6 +123,7 @@ function* initiateURLUpdate(
   const currentApplication: CurrentApplicationData = yield select(
     getCurrentApplication,
   );
+  if (!currentApplication.applicationVersion) return;
   const applicationSlug = currentApplication.slug as string;
   const currentPage: Page = yield select(getPageById(pageId));
   const pageSlug = currentPage?.slug as string;
@@ -136,8 +134,8 @@ function* initiateURLUpdate(
   if (isURLDeprecated(window.location.pathname) || !pageIdInUrl) {
     originalUrl =
       appMode === APP_MODE.EDIT
-        ? getApplicationEditorPageURL(applicationSlug, pageSlug, pageId)
-        : getApplicationViewerPageURL({ applicationSlug, pageSlug, pageId });
+        ? builderURL({ applicationSlug, pageSlug, pageId })
+        : viewerURL({ applicationSlug, pageSlug, pageId });
   } else {
     // For urls which has pageId in it,
     // replace the placeholder values of application slug and page slug with real slug names.

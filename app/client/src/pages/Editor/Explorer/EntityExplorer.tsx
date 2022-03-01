@@ -10,7 +10,6 @@ import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
@@ -26,10 +25,10 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
+import { builderURL } from "AppsmithRouteFactory";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -75,8 +74,6 @@ const StyledDivider = styled(Divider)`
 function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-  const currentPageId = useSelector(getCurrentPageId) as string;
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
@@ -91,21 +88,13 @@ function EntityExplorer(props: IPanelProps) {
   const noResults = false;
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
-    history.push(
-      BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId: currentPageId }),
-    );
+    history.push(builderURL());
     openPanel({ component: WidgetSidebar });
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [
-    openPanel,
-    applicationSlug,
-    pageSlug,
-    isFirstTimeUserOnboardingEnabled,
-    currentPageId,
-  ]);
+  }, [openPanel, isFirstTimeUserOnboardingEnabled]);
 
   /**
    * filter entitites

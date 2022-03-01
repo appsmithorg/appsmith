@@ -22,7 +22,6 @@ import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ReduxAction } from "constants/ReduxActionConstants";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
@@ -33,6 +32,7 @@ import {
   getCurrentApplicationId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
+import { saasEditorDatasourceIdURL } from "AppsmithRouteFactory";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -255,13 +255,13 @@ class DatasourceEditorRouter extends React.Component<Props> {
     }
     if (pluginDatasourceForm === "DatasourceSaaSForm") {
       history.push(
-        SAAS_EDITOR_DATASOURCE_ID_URL(
-          this.props.applicationSlug,
-          this.props.pageSlug,
+        saasEditorDatasourceIdURL({
+          applicationSlug: this.props.applicationSlug,
+          pageSlug: this.props.pageSlug,
           pageId,
           pluginPackageName,
           datasourceId,
-        ),
+        }),
       );
       return;
     }

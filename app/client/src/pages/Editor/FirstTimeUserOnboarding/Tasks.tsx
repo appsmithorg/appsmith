@@ -19,7 +19,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -40,6 +40,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import IntroductionModal from "./IntroductionModal";
+import { integrationEditorURL } from "AppsmithRouteFactory";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -132,12 +133,12 @@ export default function OnboardingTasks() {
                 from: "CANVAS",
               });
               history.push(
-                INTEGRATION_EDITOR_URL(
+                integrationEditorURL({
                   applicationSlug,
                   pageSlug,
                   pageId,
-                  INTEGRATION_TABS.NEW,
-                ),
+                  selectedTab: INTEGRATION_TABS.NEW,
+                }),
               );
             }}
             tag="button"
@@ -186,12 +187,12 @@ export default function OnboardingTasks() {
                 from: "CANVAS",
               });
               history.push(
-                INTEGRATION_EDITOR_URL(
+                integrationEditorURL({
                   applicationSlug,
                   pageSlug,
                   pageId,
-                  INTEGRATION_TABS.ACTIVE,
-                ),
+                  selectedTab: INTEGRATION_TABS.ACTIVE,
+                }),
               );
             }}
             tag="button"

@@ -15,14 +15,12 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
-import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
@@ -61,6 +59,7 @@ import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { updateReplayEntity } from "actions/pageActions";
+import { jsCollectionIdURL } from "AppsmithRouteFactory";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -109,9 +108,12 @@ function* handleJSCollectionCreatedSaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
   const { id } = actionPayload.payload;
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-  const pageId: string = yield select(getCurrentPageId);
-  history.push(JS_COLLECTION_ID_URL(applicationSlug, pageSlug, pageId, id, {}));
+  history.push(
+    jsCollectionIdURL({
+      collectionId: id,
+      params: {},
+    }),
+  );
 }
 
 function* handleEachUpdateJSCollection(update: JSUpdate) {
@@ -275,10 +277,11 @@ function* handleJSObjectNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-    const pageId = yield select(getCurrentPageId);
     history.push(
-      JS_COLLECTION_ID_URL(applicationSlug, pageSlug, pageId, actionId, params),
+      jsCollectionIdURL({
+        collectionId: actionId,
+        params,
+      }),
     );
   }
 }

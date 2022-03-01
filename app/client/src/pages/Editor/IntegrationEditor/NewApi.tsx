@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -19,6 +18,7 @@ import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSele
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { selectURLSlugs } from "selectors/editorSelectors";
+import { curlImportPageURL } from "AppsmithRouteFactory";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -218,15 +218,15 @@ function NewApiScreen(props: Props) {
         });
 
         delete queryParams.isGeneratePageMode;
-        const curlImportURL = getCurlImportPageURL(
+        const curlImportURL = curlImportPageURL({
           applicationSlug,
           pageSlug,
           pageId,
-          {
+          params: {
             from: "datasources",
             ...queryParams,
           },
-        );
+        });
 
         history.push(curlImportURL);
         break;

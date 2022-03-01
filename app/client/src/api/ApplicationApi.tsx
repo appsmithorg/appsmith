@@ -49,6 +49,7 @@ export interface ApplicationResponsePayload {
   unreadCommentThreads?: number;
   gitApplicationMetadata: GitApplicationMetadata;
   slug: string;
+  applicationVersion: number;
 }
 
 type FetchApplicationResponseData = ApplicationResponsePayload & {

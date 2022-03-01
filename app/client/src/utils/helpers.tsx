@@ -28,10 +28,10 @@ import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
-  BUILDER_URL,
-  BUILDER_URL_DEPRECATED,
-  VIEWER_URL,
-  VIEWER_URL_DEPRECATED,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
 
@@ -707,8 +707,8 @@ export const captureInvalidDynamicBindingPath = (
 export const isURLDeprecated = (url: string) => {
   return !!matchPath(url, {
     path: [
-      trimQueryString(BUILDER_URL_DEPRECATED),
-      trimQueryString(VIEWER_URL_DEPRECATED),
+      trimQueryString(BUILDER_PATH_DEPRECATED),
+      trimQueryString(VIEWER_PATH_DEPRECATED),
     ],
     strict: false,
     exact: false,
@@ -721,7 +721,7 @@ export const getUpdatedRoute = (
 ) => {
   let updatedPath = path;
   const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
-    path: [trimQueryString(BUILDER_URL), trimQueryString(VIEWER_URL)],
+    path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
     strict: false,
     exact: false,
   });

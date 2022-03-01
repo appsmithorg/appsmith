@@ -19,7 +19,6 @@ import {
 } from "utils/storage";
 
 import { getCurrentUser } from "selectors/usersSelectors";
-import { BUILDER_PAGE_URL, QUERIES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import TourApp from "pages/Editor/GuidedTour/app.json";
 
@@ -70,6 +69,7 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { builderURL, queryEditorIdURL } from "AppsmithRouteFactory";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -119,7 +119,6 @@ function* setUpTourAppSaga() {
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const containerWidget = Object.values(widgets).find(
     (widget) => widget.type === "CONTAINER_WIDGET",
   );
@@ -161,12 +160,10 @@ function* setUpTourAppSaga() {
   yield put(clearActionResponse(query?.config.id ?? ""));
   const applicationId: string = yield select(getCurrentApplicationId);
   history.push(
-    QUERIES_EDITOR_ID_URL(
-      applicationSlug,
-      pageSlug,
-      query?.config.pageId ?? "",
-      query?.config.id ?? "",
-    ),
+    queryEditorIdURL({
+      pageId: query?.config.pageId ?? "",
+      queryId: query?.config.id ?? "",
+    }),
   );
 
   yield put(
@@ -371,7 +368,7 @@ function* firstTimeUserOnboardingInitSaga(
   });
   const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   history.replace(
-    BUILDER_PAGE_URL({
+    builderURL({
       applicationSlug,
       pageSlug,
       pageId: action.payload.pageId,

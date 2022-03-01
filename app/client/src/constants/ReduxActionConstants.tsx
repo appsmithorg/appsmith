@@ -939,6 +939,7 @@ export interface ApplicationPayload {
   modifiedBy?: string;
   modifiedAt?: string;
   pages: ApplicationPagePayload[];
+  applicationVersion: number;
 }
 
 export interface CurrentApplicationData extends ApplicationPayload {

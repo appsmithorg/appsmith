@@ -9,8 +9,8 @@ import {
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
   VIEWER_FORK_PATH,
-  VIEWER_URL,
-  VIEWER_URL_DEPRECATED,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import {
   PageListPayload,
@@ -193,12 +193,12 @@ class AppViewer extends Component<Props> {
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={VIEWER_URL}
+                        path={VIEWER_PATH}
                       />
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={VIEWER_URL_DEPRECATED}
+                        path={VIEWER_PATH_DEPRECATED}
                       />
                       <SentryRoute
                         component={AppViewerPageContainer}

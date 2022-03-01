@@ -3,12 +3,12 @@ import { useAppWideAndOtherDatasource } from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 import { useSelector } from "store";
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
 import { keyBy } from "lodash";
 import Entity from "./Entity";
 import history from "utils/history";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import EntityPlaceholder from "./Entity/Placeholder";
 import {
   createMessage,
@@ -18,6 +18,7 @@ import styled from "styled-components";
 import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";
 import { useDatasourceIdFromURL } from "./helpers";
+import { integrationEditorURL } from "AppsmithRouteFactory";
 
 const emptyNode = (
   <EntityPlaceholder step={0}>
@@ -42,31 +43,26 @@ const ShowAll = styled.div`
 const Datasources = React.memo(() => {
   const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
   const pageId = useSelector(getCurrentPageId) || "";
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const plugins = useSelector(getPlugins);
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
   const addDatasource = useCallback(() => {
     history.push(
-      INTEGRATION_EDITOR_URL(
-        applicationSlug,
-        pageSlug,
+      integrationEditorURL({
         pageId,
-        INTEGRATION_TABS.NEW,
-      ),
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
     );
-  }, [applicationSlug, pageSlug, pageId]);
+  }, [pageId]);
   const activeDatasourceId = useDatasourceIdFromURL();
 
   const listDatasource = useCallback(() => {
     history.push(
-      INTEGRATION_EDITOR_URL(
-        applicationSlug,
-        pageSlug,
+      integrationEditorURL({
         pageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
-  }, [applicationSlug, pageSlug, pageId]);
+  }, [pageId]);
 
   const datasourceElements = React.useMemo(
     () =>

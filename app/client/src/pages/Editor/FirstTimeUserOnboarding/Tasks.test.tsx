@@ -1,5 +1,6 @@
+import { integrationEditorURL } from "AppsmithRouteFactory";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";
 import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
@@ -63,12 +64,12 @@ describe("Tasks", () => {
     expect(button.length).toBe(1);
     fireEvent.click(button[0]);
     expect(history).toHaveBeenCalledWith(
-      INTEGRATION_EDITOR_URL(
-        initialState.ui.applications.currentApplication.slug,
-        initialState.entities.pageList.pages[0].slug,
-        initialState.entities.pageList.currentPageId,
-        INTEGRATION_TABS.NEW,
-      ),
+      integrationEditorURL({
+        applicationSlug: initialState.ui.applications.currentApplication.slug,
+        pageSlug: initialState.entities.pageList.pages[0].slug,
+        pageId: initialState.entities.pageList.currentPageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
     );
     const alt = await screen.findAllByTestId("onboarding-tasks-datasource-alt");
     expect(alt.length).toBe(1);
@@ -94,12 +95,12 @@ describe("Tasks", () => {
     expect(button.length).toBe(1);
     fireEvent.click(button[0]);
     expect(history).toHaveBeenCalledWith(
-      INTEGRATION_EDITOR_URL(
-        initialState.ui.applications.currentApplication.slug,
-        initialState.entities.pageList.pages[0].slug,
-        initialState.entities.pageList.currentPageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
+      integrationEditorURL({
+        applicationSlug: initialState.ui.applications.currentApplication.slug,
+        pageSlug: initialState.entities.pageList.pages[0].slug,
+        pageId: initialState.entities.pageList.currentPageId,
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
     const alt = await screen.findAllByTestId("onboarding-tasks-action-alt");
     expect(alt.length).toBe(1);

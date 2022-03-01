@@ -14,12 +14,11 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
-import { API_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { selectURLSlugs } from "selectors/editorSelectors";
+import { apiEditorIdURL } from "AppsmithRouteFactory";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { name, pageId, type } = action.payload;
@@ -38,8 +37,6 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
     const response: ApiResponse = yield CurlImportApi.curlImport(request);
     const isValidResponse: boolean = yield validateResponse(response);
 
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-
     if (isValidResponse) {
       AnalyticsUtil.logEvent("IMPORT_API", {
         importSource: CURL,
@@ -54,9 +51,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         payload: response.data,
       });
 
-      history.push(
-        API_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, response.data.id),
-      );
+      history.push(apiEditorIdURL({ pageId, apiId: response.data.id }));
     }
   } catch (error) {
     yield put({

@@ -3,10 +3,11 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
-  BUILDER_URL,
-  extractAppIdAndPageIdFromUrlDeprecated,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
   SIGNUP_SUCCESS_URL,
-  VIEWER_URL,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
@@ -42,25 +43,26 @@ export function SignupSuccess() {
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
         ) {
-          const params = extractAppIdAndPageIdFromUrlDeprecated(redirectUrl);
-          let pageId = params.pageId;
-          const applicationId = params.applicationId;
-          if (!applicationId && !pageId) {
-            const match = matchPath<{
-              applicationSlug: string;
-              pageSlug: string;
-              pageId: string;
-            }>(window.location.pathname, {
-              path: [trimQueryString(BUILDER_URL), trimQueryString(VIEWER_URL)],
-              strict: false,
-              exact: false,
-            });
-            if (match?.params) {
-              pageId = match.params.pageId;
-            }
-          }
+          const match = matchPath<{
+            applicationSlug: string;
+            pageSlug: string;
+            pageId: string;
+            applicationId: string;
+          }>(window.location.pathname, {
+            path: [
+              trimQueryString(BUILDER_PATH),
+              trimQueryString(BUILDER_PATH_DEPRECATED),
+              trimQueryString(VIEWER_PATH),
+              trimQueryString(VIEWER_PATH_DEPRECATED),
+            ],
+            strict: false,
+            exact: false,
+          });
+          const { applicationId, pageId } = match?.params || {};
           if (applicationId || pageId) {
-            dispatch(firstTimeUserOnboardingInit(applicationId, pageId));
+            dispatch(
+              firstTimeUserOnboardingInit(applicationId, pageId as string),
+            );
           }
         } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);

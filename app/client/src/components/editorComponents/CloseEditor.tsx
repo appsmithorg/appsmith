@@ -6,19 +6,14 @@ import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import {
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  getGenerateTemplateFormURL,
-} from "../../constants/routes";
-import { useSelector } from "react-redux";
+import { INTEGRATION_TABS } from "../../constants/routes";
 import { getQueryParams } from "../../utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
-  getCurrentPageId,
-  selectURLSlugs,
-} from "../../selectors/editorSelectors";
+  builderURL,
+  generateTemplateFormURL,
+  integrationEditorURL,
+} from "AppsmithRouteFactory";
 
 const IconContainer = styled.div`
   //width: 100%;
@@ -33,8 +28,6 @@ const IconContainer = styled.div`
 
 function CloseEditor() {
   const history = useHistory();
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-  const pageId = useSelector(getCurrentPageId) as string;
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
@@ -52,12 +45,8 @@ function CloseEditor() {
   // then route user back to `/generate-page/form`
   // else go back to BUILDER_PAGE
   const redirectURL = isGeneratePageInitiator
-    ? getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId)
-    : BUILDER_PAGE_URL({
-        applicationSlug,
-        pageSlug,
-        pageId,
-      });
+    ? generateTemplateFormURL()
+    : builderURL();
 
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
@@ -68,14 +57,10 @@ function CloseEditor() {
 
     const URL =
       redirectTo === "datasources"
-        ? INTEGRATION_EDITOR_URL(
-            applicationSlug,
-            pageSlug,
-            pageId,
-            integrationTab,
-            "",
-            getQueryParams(),
-          )
+        ? integrationEditorURL({
+            selectedTab: integrationTab,
+            params: getQueryParams(),
+          })
         : redirectURL;
     history.push(URL);
   };

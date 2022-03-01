@@ -40,8 +40,8 @@ import {
   getPlugins,
   getPluginSettingConfigs,
 } from "selectors/entitiesSelector";
-import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 import history from "utils/history";
+import { saasEditorApiIdURL } from "AppsmithRouteFactory";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -233,16 +233,17 @@ class ApiEditor extends React.Component<Props> {
         )}
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
-            SAAS_EDITOR_API_ID_URL(
-              this.props.applicationSlug,
-              this.props.pageSlug,
-              this.props.match.params.pageId,
-              getPackageNameFromPluginId(
-                this.props.pluginId,
-                this.props.plugins,
-              ) ?? "",
-              this.props.match.params.apiId,
-            ),
+            saasEditorApiIdURL({
+              applicationSlug: this.props.applicationSlug,
+              pageSlug: this.props.pageSlug,
+              pageId: this.props.match.params.pageId,
+              pluginPackageName:
+                getPackageNameFromPluginId(
+                  this.props.pluginId,
+                  this.props.plugins,
+                ) ?? "",
+              apiId: this.props.match.params.apiId,
+            }),
           )}
       </div>
     );

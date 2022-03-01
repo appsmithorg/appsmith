@@ -13,11 +13,7 @@ import {
   CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  AUTH_LOGIN_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/editorSelectors";
@@ -44,6 +40,7 @@ import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ShareButtonComponent } from "../../Editor/EditorHeader";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
+import { viewerURL } from "AppsmithRouteFactory";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -168,7 +165,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${
     window.location.origin
-  }${getApplicationViewerPageURL({
+  }${viewerURL({
     applicationSlug,
     pageSlug,
     pageId,

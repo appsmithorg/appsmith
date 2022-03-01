@@ -10,7 +10,7 @@ import GlobalHotKeys from "./GlobalHotKeys";
 import MainContainer from "./MainContainer";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
-import store from "store";
+import { store } from "store";
 import { sagasToRunForTests } from "test/sagas";
 import { all } from "@redux-saga/core/effects";
 import {

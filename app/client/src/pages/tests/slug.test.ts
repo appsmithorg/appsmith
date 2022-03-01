@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
-import store from "store";
+import { store } from "store";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
 import { setMockApplication, setMockPageList } from "./mockData";
 
@@ -10,7 +10,7 @@ describe("URL slug names", () => {
     setMockPageList();
     store.dispatch({
       type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
-      payload: "605c435a91dea93f0eaf91ba",
+      payload: { id: "605c435a91dea93f0eaf91ba", slug: "page-1" },
     });
   });
 

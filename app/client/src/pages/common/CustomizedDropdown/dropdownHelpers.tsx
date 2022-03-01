@@ -1,4 +1,4 @@
-import store from "store";
+import { store } from "store";
 import { IconNames } from "@blueprintjs/icons";
 import { Direction, Directions } from "utils/helpers";
 import { PopoverPosition } from "@blueprintjs/core";

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
@@ -17,6 +16,7 @@ import { Classes } from "components/ads/common";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
+import { datasourcesEditorIdURL } from "AppsmithRouteFactory";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -255,13 +255,13 @@ function ApiRightPane(props: any) {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   history.push(
-                                    DATA_SOURCES_EDITOR_ID_URL(
+                                    datasourcesEditorIdURL({
                                       applicationSlug,
                                       pageSlug,
-                                      props.currentPageId,
-                                      d.id,
-                                      getQueryParams(),
-                                    ),
+                                      pageId: props.currentPageId,
+                                      datasourceId: d.id,
+                                      params: getQueryParams(),
+                                    }),
                                   );
                                 }}
                                 size={IconSize.LARGE}

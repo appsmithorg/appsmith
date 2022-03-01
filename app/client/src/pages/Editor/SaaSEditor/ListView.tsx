@@ -25,7 +25,8 @@ import {
   getIsEditorInitialized,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
+import { integrationEditorURL } from "AppsmithRouteFactory";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -177,11 +178,11 @@ class ListView extends React.Component<Props> {
           buttonText="Go back to Datasources"
           onBackButton={() =>
             history.push(
-              INTEGRATION_EDITOR_URL(
+              integrationEditorURL({
                 applicationId,
                 pageId,
-                INTEGRATION_TABS.ACTIVE,
-              ),
+                selectedTab: INTEGRATION_TABS.ACTIVE,
+              }),
             )
           }
           title="Datasources/Queries Not found"

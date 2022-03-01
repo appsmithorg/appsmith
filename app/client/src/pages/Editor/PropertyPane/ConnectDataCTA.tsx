@@ -4,11 +4,7 @@ import { AppState } from "reducers";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
-import {
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
   setGlobalSearchQuery,
@@ -17,6 +13,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { WidgetType } from "constants/WidgetConstants";
+import { integrationEditorURL } from "AppsmithRouteFactory";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
@@ -71,13 +68,13 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
     history.push(
-      INTEGRATION_EDITOR_URL(
+      integrationEditorURL({
         applicationSlug,
         pageSlug,
         pageId,
-        INTEGRATION_TABS.NEW,
-        INTEGRATION_EDITOR_MODES.AUTO,
-      ),
+        selectedTab: INTEGRATION_TABS.NEW,
+        params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
+      }),
     );
     AnalyticsUtil.logEvent("CONNECT_DATA_CLICK", {
       widgetTitle,

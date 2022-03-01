@@ -10,13 +10,7 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
-import {
-  APPLICATIONS_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  QUERIES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -60,13 +54,17 @@ import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
+import {
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+  queryEditorIdURL,
+} from "AppsmithRouteFactory";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const pageId: string = yield select(getCurrentPageId);
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
@@ -75,12 +73,9 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const action = yield select(getAction, id);
   if (!action) {
     history.push(
-      INTEGRATION_EDITOR_URL(
-        applicationSlug,
-        pageSlug,
-        pageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
+      integrationEditorURL({
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
     return;
   }
@@ -187,8 +182,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   } = actionPayload.payload;
   if (pluginType === PluginType.DB || pluginType === PluginType.REMOTE) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-    const pageId: string = yield select(getCurrentPageId);
     const pluginTemplates = yield select(getPluginTemplates);
     const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates
@@ -196,10 +189,13 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       !!actionConfiguration.body || isEmpty(queryTemplate)
     );
     history.replace(
-      QUERIES_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, id, {
-        editName: "true",
-        showTemplate,
-        from: "datasources",
+      queryEditorIdURL({
+        queryId: id,
+        params: {
+          editName: "true",
+          showTemplate,
+          from: "datasources",
+        },
       }),
     );
   }
@@ -218,13 +214,13 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
     initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
   );
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(
+    datasourcesEditorIdURL({
       applicationSlug,
       pageSlug,
       pageId,
-      actionPayload.payload.id,
-      { from: "datasources", ...getQueryParams() },
-    ),
+      datasourceId: actionPayload.payload.id,
+      params: { from: "datasources", ...getQueryParams() },
+    }),
   );
 }
 
@@ -262,16 +258,11 @@ function* handleNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-    const pageId: string = yield select(getCurrentPageId);
     history.replace(
-      QUERIES_EDITOR_ID_URL(
-        applicationSlug,
-        pageSlug,
-        pageId,
-        actionId,
+      queryEditorIdURL({
+        queryId: actionId,
         params,
-      ),
+      }),
     );
   }
 }

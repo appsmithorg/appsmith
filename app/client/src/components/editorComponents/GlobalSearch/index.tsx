@@ -53,11 +53,6 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import {
-  BUILDER_PAGE_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  JS_COLLECTION_ID_URL,
-} from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -85,6 +80,11 @@ import {
   useFilteredPages,
   useFilteredWidgets,
 } from "./GlobalSearchHooks";
+import {
+  datasourcesEditorIdURL,
+  builderURL,
+  jsCollectionIdURL,
+} from "AppsmithRouteFactory";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -431,12 +431,12 @@ function GlobalSearch() {
     const { config } = item;
     const { id, pageId } = config;
     history.push(
-      JS_COLLECTION_ID_URL(
+      jsCollectionIdURL({
         applicationSlug,
-        pageIdToSlugMap[pageId],
+        pageSlug: pageIdToSlugMap[pageId],
         pageId,
-        id,
-      ),
+        collectionId: id,
+      }),
     );
     toggleShow();
   };
@@ -444,21 +444,19 @@ function GlobalSearch() {
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(
-        applicationSlug,
-        pageIdToSlugMap[item.pageId],
-        item.pageId,
-        item.id,
-        getQueryParams(),
-      ),
+      datasourcesEditorIdURL({
+        pageSlug: pageIdToSlugMap[item.pageId],
+        pageId: item.pageId,
+        datasourceId: item.id,
+        params: getQueryParams(),
+      }),
     );
   };
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
     history.push(
-      BUILDER_PAGE_URL({
-        applicationSlug,
+      builderURL({
         pageSlug: pageIdToSlugMap[item.pageId] as string,
         pageId: item.pageId,
       }),

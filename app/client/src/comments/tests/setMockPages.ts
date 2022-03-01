@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import store from "store";
+import { store } from "store";
 import {
   fetchPagesMockResponse,
   fetchApplicationThreadsMockResponse,

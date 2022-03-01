@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "constants/forms";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "./constants";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import AdsButton, { Category } from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
@@ -26,6 +25,7 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
+import { saasEditorDatasourceIdURL } from "AppsmithRouteFactory";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -37,8 +37,6 @@ interface StateProps extends JSONtoFormProps {
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
-  applicationSlug: string;
-  pageSlug: string;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -77,13 +75,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      applicationSlug,
       datasource,
       formData,
       match: {
-        params: { datasourceId, pageId, pluginPackageName },
+        params: { datasourceId, pluginPackageName },
       },
-      pageSlug,
     } = this.props;
 
     const params: string = location.search;
@@ -106,16 +102,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               className="t--edit-datasource"
               onClick={() => {
                 this.props.history.replace(
-                  SAAS_EDITOR_DATASOURCE_ID_URL(
-                    applicationSlug,
-                    pageSlug,
-                    pageId,
+                  saasEditorDatasourceIdURL({
                     pluginPackageName,
                     datasourceId,
-                    {
+                    params: {
                       viewMode: false,
                     },
-                  ),
+                  }),
                 );
               }}
               text="EDIT"

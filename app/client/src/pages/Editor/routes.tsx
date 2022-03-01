@@ -16,7 +16,6 @@ import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
-  BUILDER_PAGE_URL,
   BuilderRouteParams,
   INTEGRATION_EDITOR_PATH,
   API_EDITOR_ID_PATH,
@@ -30,6 +29,8 @@ import {
   GENERATE_TEMPLATE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   matchBuilderPath,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -53,6 +54,7 @@ import {
   getCurrentApplicationId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
+import { builderURL } from "AppsmithRouteFactory";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -79,6 +81,7 @@ const DrawerWrapper = styled.div<{
 interface RouterState {
   isVisible: boolean;
   isActionPath: Record<any, any> | null;
+  path: string;
 }
 
 type Props = RouteComponentProps<BuilderRouteParams> & {
@@ -87,22 +90,34 @@ type Props = RouteComponentProps<BuilderRouteParams> & {
   pageSlug: string;
 };
 
+function isANestedPath(path: string) {
+  return matchPath(path, {
+    path: [BUILDER_PATH, BUILDER_PATH_DEPRECATED],
+    strict: false,
+    exact: false,
+  });
+}
+
 class EditorsRouter extends React.Component<Props, RouterState> {
   constructor(props: Props) {
     super(props);
     const isOnBuilder = matchBuilderPath(window.location.pathname);
+    const match = isANestedPath(window.location.pathname);
     this.state = {
       isVisible: !isOnBuilder,
       isActionPath: this.isMatchPath(),
+      path: match?.path || "",
     };
   }
 
   componentDidUpdate(prevProps: Readonly<RouteComponentProps>): void {
     if (this.props.location.pathname !== prevProps.location.pathname) {
       const isOnBuilder = matchBuilderPath(window.location.pathname);
+      const match = isANestedPath(window.location.pathname);
       this.setState({
         isVisible: !isOnBuilder,
         isActionPath: this.isMatchPath(),
+        path: match?.path || "",
       });
     }
   }
@@ -125,14 +140,10 @@ class EditorsRouter extends React.Component<Props, RouterState> {
       { path: this.props.location.pathname },
     );
     e.stopPropagation();
-    const { pageId } = this.props.match.params;
-    const { applicationSlug, pageSlug } = this.props;
     this.setState({
       isVisible: false,
     });
-    this.props.history.replace(
-      BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId }),
-    );
+    this.props.history.replace(builderURL());
   };
 
   preventClose = (e: React.MouseEvent) => {
@@ -147,65 +158,70 @@ class EditorsRouter extends React.Component<Props, RouterState> {
           isVisible={this.state.isVisible}
           onClick={this.preventClose}
         >
-          <Switch>
+          <Switch key={this.state.path}>
             <SentryRoute
               component={IntegrationEditor}
               exact
-              path={INTEGRATION_EDITOR_PATH}
+              path={`${this.state.path}${INTEGRATION_EDITOR_PATH}`}
             />
             <SentryRoute
               component={ApiEditor}
               exact
-              path={API_EDITOR_ID_PATH}
+              path={`${this.state.path}${API_EDITOR_ID_PATH}`}
             />
             <SentryRoute
               component={QueryEditor}
               exact
-              path={QUERIES_EDITOR_ID_PATH}
+              path={`${this.state.path}${QUERIES_EDITOR_ID_PATH}`}
             />
             <SentryRoute
               component={JSEditor}
               exact
-              path={JS_COLLECTION_EDITOR_PATH}
+              path={`${this.state.path}${JS_COLLECTION_EDITOR_PATH}`}
             />
             <SentryRoute
               component={JSEditor}
               exact
-              path={JS_COLLECTION_ID_PATH}
+              path={`${this.state.path}${JS_COLLECTION_ID_PATH}`}
             />
 
             <SentryRoute
               component={CurlImportForm}
               exact
-              path={CURL_IMPORT_PAGE_PATH}
+              path={`${this.state.path}${CURL_IMPORT_PAGE_PATH}`}
             />
-            {SaaSEditorRoutes.map((props) => (
-              <SentryRoute exact key={props.path} {...props} />
+            {SaaSEditorRoutes.map(({ component, path }) => (
+              <SentryRoute
+                component={component}
+                exact
+                key={path}
+                path={`${this.state.path}${path}`}
+              />
             ))}
             <SentryRoute
               component={PagesEditor}
               exact
-              path={PAGE_LIST_EDITOR_PATH}
+              path={`${this.state.path}${PAGE_LIST_EDITOR_PATH}`}
             />
             <SentryRoute
               component={DataSourceEditor}
               exact
-              path={DATA_SOURCES_EDITOR_ID_PATH}
+              path={`${this.state.path}${DATA_SOURCES_EDITOR_ID_PATH}`}
             />
             <SentryRoute
               component={ProviderTemplates}
               exact
-              path={PROVIDER_TEMPLATE_PATH}
+              path={`${this.state.path}${PROVIDER_TEMPLATE_PATH}`}
             />
             <SentryRoute
               component={GeneratePage}
               exact
-              path={GENERATE_TEMPLATE_PATH}
+              path={`${this.state.path}${GENERATE_TEMPLATE_PATH}`}
             />
             <SentryRoute
               component={GeneratePage}
               exact
-              path={GENERATE_TEMPLATE_FORM_PATH}
+              path={`${this.state.path}${GENERATE_TEMPLATE_FORM_PATH}`}
             />
           </Switch>
         </PaneDrawer>

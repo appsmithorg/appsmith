@@ -9,7 +9,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
-import { getApplicationViewerPageURL } from "constants/routes";
 import OrgInviteUsersForm, { InviteButtonWidth } from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
@@ -17,6 +16,7 @@ import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
+import { viewerURL } from "AppsmithRouteFactory";
 
 const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
@@ -77,7 +77,7 @@ function AppInviteUsersForm(props: any) {
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const appViewEndPoint = React.useMemo(() => {
-    const url = getApplicationViewerPageURL({
+    const url = viewerURL({
       applicationSlug,
       pageSlug,
       pageId: defaultPageId,

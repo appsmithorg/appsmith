@@ -29,12 +29,6 @@ import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import {
-  BUILDER_PAGE_URL,
-  getApplicationViewerPageURL,
-  getGenerateTemplateURL,
-} from "constants/routes";
-import { AppState } from "reducers";
-import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
   generateSSHKeyPairSuccess,
@@ -83,6 +77,11 @@ import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { updateSlugNamesInURL } from "utils/helpers";
+import {
+  builderURL,
+  generateTemplateURL,
+  viewerURL,
+} from "AppsmithRouteFactory";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -120,7 +119,7 @@ export function* publishApplicationSaga(
       const currentStep: number = yield select(getCurrentStep);
       const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
-      let appicationViewPageUrl = getApplicationViewerPageURL({
+      let appicationViewPageUrl = viewerURL({
         applicationSlug,
         pageSlug,
         pageId: currentPageId,
@@ -241,9 +240,7 @@ export function* setDefaultApplicationPageSaga(
   action: ReduxAction<SetDefaultPageRequest>,
 ) {
   try {
-    const defaultPageId = yield select(
-      (state: AppState) => state.entities.pageList.defaultPageId,
-    );
+    const defaultPageId: string = yield select(getDefaultPageId);
     if (defaultPageId !== action.payload.id) {
       const request: SetDefaultPageRequest = action.payload;
       const response: ApiResponse = yield call(
@@ -365,7 +362,6 @@ export function* duplicateApplicationSaga(
       ApplicationApi.duplicateApplication,
       request,
     );
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
@@ -376,9 +372,11 @@ export function* duplicateApplicationSaga(
         type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
         payload: response.data,
       });
-      const pageURL = BUILDER_PAGE_URL({
-        applicationSlug,
-        pageSlug,
+      const { slug } = application;
+      const defaultPage = application.pages.find((page) => page.isDefault);
+      const pageURL = builderURL({
+        applicationSlug: slug,
+        pageSlug: defaultPage?.slug,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -509,17 +507,17 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-          pageURL = BUILDER_PAGE_URL({
+          pageURL = builderURL({
             applicationSlug: application.slug as string,
             pageSlug: defaultPageSlug,
             pageId: application.defaultPageId as string,
           });
         } else {
-          pageURL = getGenerateTemplateURL(
-            application.slug as string,
-            defaultPageSlug,
-            application.defaultPageId as string,
-          );
+          pageURL = generateTemplateURL({
+            applicationSlug: application.slug as string,
+            pageSlug: defaultPageSlug,
+            pageId: application.defaultPageId as string,
+          });
         }
         history.push(pageURL);
 
@@ -564,10 +562,13 @@ export function* forkApplicationSaga(
           application,
         },
       });
-      const pageURL = BUILDER_PAGE_URL({
+      const defaultPage = response.data.pages.find(
+        (page: ApplicationPagePayload) => page.isDefault,
+      );
+      const pageURL = builderURL({
         // Comeback
         applicationSlug: application.slug as string,
-        pageSlug: PLACEHOLDER_PAGE_SLUG,
+        pageSlug: defaultPage.slug,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -613,7 +614,7 @@ export function* importApplicationSaga(
           },
         });
         const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
-        const pageURL = BUILDER_PAGE_URL({
+        const pageURL = builderURL({
           //Comeback
           applicationSlug,
           pageSlug: PLACEHOLDER_PAGE_SLUG,

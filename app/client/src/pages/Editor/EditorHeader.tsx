@@ -6,10 +6,7 @@ import {
   CurrentApplicationData,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
@@ -87,6 +84,7 @@ import { isMac } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
+import { viewerURL } from "AppsmithRouteFactory";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -406,7 +404,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
-              currentDeployLink={getApplicationViewerPageURL({
+              currentDeployLink={viewerURL({
                 applicationSlug,
                 pageSlug,
                 pageId,
@@ -504,7 +502,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               </TooltipComponent>
 
               <DeployLinkButtonDialog
-                link={getApplicationViewerPageURL({
+                link={viewerURL({
                   applicationSlug,
                   pageSlug,
                   pageId,

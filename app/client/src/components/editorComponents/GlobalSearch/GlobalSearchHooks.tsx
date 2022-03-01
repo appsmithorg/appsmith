@@ -1,6 +1,6 @@
 import React from "react";
 import { createNewQueryAction } from "actions/apiPaneActions";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
@@ -24,6 +24,7 @@ import {
 import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { PluginType } from "entities/Action";
+import { integrationEditorURL } from "AppsmithRouteFactory";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
@@ -99,12 +100,12 @@ export const useFilteredFileOperations = (query = "") => {
           pageId: string,
         ) => {
           history.push(
-            INTEGRATION_EDITOR_URL(
+            integrationEditorURL({
               applicationSlug,
               pageSlug,
               pageId,
-              INTEGRATION_TABS.NEW,
-            ),
+              selectedTab: INTEGRATION_TABS.NEW,
+            }),
           );
         },
       },

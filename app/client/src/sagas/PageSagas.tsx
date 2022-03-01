@@ -52,7 +52,6 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import {
   captureInvalidDynamicBindingPath,
   isNameValid,
@@ -74,8 +73,7 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
-  selectCurrentApplicationSlug,
-  selectURLSlugs,
+  selectPageSlugById,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -98,7 +96,6 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
-import { getGenerateTemplateURL } from "../constants/routes";
 import {
   generateTemplateError,
   generateTemplateSuccess,
@@ -115,6 +112,7 @@ import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { builderURL, generateTemplateURL } from "AppsmithRouteFactory";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -214,6 +212,7 @@ export function* handleFetchedPage({
   const isValidResponse = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
+  const pageSlug = fetchPageResponse.data.slug;
 
   if (isValidResponse) {
     // Clear any existing caches
@@ -225,7 +224,7 @@ export function* handleFetchedPage({
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
     // set current page
-    yield put(updateCurrentPage(pageId));
+    yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
     yield put(
       fetchPageSuccess(
@@ -545,9 +544,6 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
-      const applicationSlug: string = yield select(
-        selectCurrentApplicationSlug,
-      );
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
         const firstTimeUserOnboardingApplicationId: string = yield select(
@@ -562,19 +558,17 @@ export function* createPageSaga(
           isFirstTimeUserOnboardingEnabled
         ) {
           history.push(
-            BUILDER_PAGE_URL({
-              applicationSlug: applicationSlug,
+            builderURL({
               pageSlug: response.data.slug,
               pageId: response.data.id,
             }),
           );
         } else {
           history.push(
-            getGenerateTemplateURL(
-              applicationSlug,
-              response.data.slug,
-              response.data.id,
-            ),
+            generateTemplateURL({
+              pageSlug: response.data.slug,
+              pageId: response.data.id,
+            }),
           );
         }
       }
@@ -635,14 +629,13 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
           dsl: undefined,
         },
       });
-      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
+      const pageSlug: string = yield select(selectPageSlugById(defaultPageId));
       const currentPageId: string = yield select(
         (state: AppState) => state.entities.pageList.currentPageId,
       );
       if (currentPageId === action.payload.id)
         history.push(
-          BUILDER_PAGE_URL({
-            applicationSlug,
+          builderURL({
             pageSlug,
             pageId: defaultPageId,
           }),
@@ -688,13 +681,8 @@ export function* clonePageSaga(
       yield put(selectMultipleWidgetsAction([]));
 
       if (!clonePageAction.payload.blockNavigation) {
-        const applicationSlug: string = yield select(
-          selectCurrentApplicationSlug,
-        );
         history.push(
-          BUILDER_PAGE_URL({
-            applicationSlug,
-            //Comeback
+          builderURL({
             pageSlug: response.data.slug,
             pageId: response.data.id,
           }),
@@ -1002,12 +990,8 @@ export function* generateTemplatePageSaga(
       // TODO : Add this to onSuccess (Redux Action)
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
       // TODO : Add it to onSuccessCallback
-      const applicationSlug: string = yield select(
-        selectCurrentApplicationSlug,
-      );
       history.replace(
-        BUILDER_PAGE_URL({
-          applicationSlug,
+        builderURL({
           pageSlug: response.data.page.slug,
           pageId,
         }),

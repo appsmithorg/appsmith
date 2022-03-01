@@ -2,7 +2,6 @@ import React from "react";
 import ActionCard from "./ActionCard";
 import { FormIcons } from "icons/FormIcons";
 import history from "utils/history";
-import { BUILDER_PAGE_URL, getGenerateTemplateFormURL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
@@ -15,6 +14,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { selectURLSlugs } from "selectors/editorSelectors";
+import { builderURL, generateTemplateFormURL } from "AppsmithRouteFactory";
 
 type routeId = {
   applicationSlug: string;
@@ -28,7 +28,7 @@ const routeToEmptyEditorFromGenPage = ({
   pageSlug,
 }: routeId): void => {
   AnalyticsUtil.logEvent("BUILD_FROM_SCRATCH_ACTION_CARD_CLICK");
-  history.push(BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId }));
+  history.push(builderURL({ applicationSlug, pageSlug, pageId }));
 };
 
 const goToGenPageForm = ({
@@ -37,7 +37,7 @@ const goToGenPageForm = ({
   pageSlug,
 }: routeId): void => {
   AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
-  history.push(getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId));
+  history.push(generateTemplateFormURL({ applicationSlug, pageSlug, pageId }));
 };
 
 function ActionCards() {

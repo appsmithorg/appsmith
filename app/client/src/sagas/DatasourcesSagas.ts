@@ -42,13 +42,7 @@ import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 
-import {
-  API_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
   API_EDITOR_FORM_NAME,
@@ -79,16 +73,12 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
-import {
-  APPSMITH_TOKEN_STORAGE_KEY,
-  SAAS_EDITOR_DATASOURCE_ID_URL,
-} from "pages/Editor/SaaSEditor/constants";
+import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "../utils/AppsmithUtils";
-import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 import { trimQueryString } from "utils/helpers";
@@ -97,6 +87,13 @@ import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import {
+  apiEditorIdURL,
+  datasourcesEditorIdURL,
+  generateTemplateFormURL,
+  integrationEditorURL,
+  saasEditorDatasourceIdURL,
+} from "AppsmithRouteFactory";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -185,21 +182,25 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       const isInGuidedTour: boolean = yield select(inGuidedTour);
       if (isGeneratePageInitiator) {
         history.push(
-          getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId, {
-            datasourceId: response.data.id,
+          generateTemplateFormURL({
+            applicationSlug,
+            pageSlug,
+            pageId,
+            params: {
+              datasourceId: response.data.id,
+            },
           }),
         );
       } else {
         if (isInGuidedTour) return;
         history.push(
-          INTEGRATION_EDITOR_URL(
+          integrationEditorURL({
             applicationSlug,
             pageSlug,
             pageId,
-            INTEGRATION_TABS.ACTIVE,
-            "",
-            getQueryParams(),
-          ),
+            selectedTab: INTEGRATION_TABS.ACTIVE,
+            params: getQueryParams(),
+          }),
         );
       }
     }
@@ -230,25 +231,22 @@ export function* deleteDatasourceSaga(
     );
 
     const isValidResponse = yield validateResponse(response);
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
     if (isValidResponse) {
-      const pageId = yield select(getCurrentPageId);
       const pluginPackageName = yield select((state: AppState) =>
         getPluginPackageFromDatasourceId(state, id),
       );
       const datasourcePathWithoutQuery = trimQueryString(
-        DATA_SOURCES_EDITOR_ID_URL(applicationSlug, pageSlug, pageId, id),
+        datasourcesEditorIdURL({
+          datasourceId: id,
+        }),
       );
 
       const saasPathWithoutQuery = trimQueryString(
-        SAAS_EDITOR_DATASOURCE_ID_URL(
-          applicationSlug,
-          pageSlug,
-          pageId,
+        saasEditorDatasourceIdURL({
           pluginPackageName,
-          id,
-        ),
+          datasourceId: id,
+        }),
       );
 
       if (
@@ -256,14 +254,13 @@ export function* deleteDatasourceSaga(
         window.location.pathname === saasPathWithoutQuery
       ) {
         history.push(
-          INTEGRATION_EDITOR_URL(
-            applicationSlug,
-            pageSlug,
-            pageId,
-            INTEGRATION_TABS.NEW,
-            INTEGRATION_EDITOR_MODES.AUTO,
-            getQueryParams(),
-          ),
+          integrationEditorURL({
+            selectedTab: INTEGRATION_TABS.NEW,
+            params: {
+              ...getQueryParams(),
+              mode: INTEGRATION_EDITOR_MODES.AUTO,
+            },
+          }),
         );
       }
 
@@ -701,23 +698,23 @@ function* changeDatasourceSaga(
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
-    DATA_SOURCES_EDITOR_ID_URL(
+    datasourcesEditorIdURL({
       applicationSlug,
       pageSlug,
       pageId,
-      datasource.id,
-    ),
+      datasourceId: datasource.id,
+    }),
   );
 
   if (history.location.pathname !== datasourcePath)
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(
+      datasourcesEditorIdURL({
         applicationSlug,
         pageSlug,
         pageId,
-        datasource.id,
-        getQueryParams(),
-      ),
+        datasourceId: datasource.id,
+        params: getQueryParams(),
+      }),
     );
   yield put(
     updateReplayEntity(data.id, _.omit(data, ["name"]), ENTITY_TYPE.DATASOURCE),
@@ -807,8 +804,6 @@ function* storeAsDatasourceSaga() {
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const state = yield select();
   const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-  const pageId: string = yield select(getCurrentPageId);
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
     getGenerateCRUDEnabledPluginMap,
   );
@@ -826,8 +821,10 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
     generateCRUDSupportedPlugin[updatedDatasource.pluginId]
   ) {
     history.push(
-      getGenerateTemplateFormURL(applicationSlug, pageSlug, pageId, {
-        datasourceId: updatedDatasource.id,
+      generateTemplateFormURL({
+        params: {
+          datasourceId: updatedDatasource.id,
+        },
       }),
     );
   } else if (
@@ -836,12 +833,10 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
     action.redirect
   ) {
     history.push(
-      API_EDITOR_ID_URL(
-        applicationSlug,
-        pageSlug,
-        actionRouteInfo.pageId,
-        actionRouteInfo.apiId,
-      ),
+      apiEditorIdURL({
+        pageId: actionRouteInfo.pageId,
+        apiId: actionRouteInfo.apiId,
+      }),
     );
   }
 

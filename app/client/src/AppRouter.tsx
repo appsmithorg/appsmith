@@ -8,7 +8,7 @@ import {
   BASE_LOGIN_URL,
   BASE_SIGNUP_URL,
   BASE_URL,
-  BUILDER_URL,
+  BUILDER_PATH,
   ORG_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
@@ -17,12 +17,12 @@ import {
   PROFILE,
   UNSUBSCRIBE_EMAIL_URL,
   SETUP,
-  VIEWER_URL,
-  ADMIN_SETTINGS_URL,
-  ADMIN_SETTINGS_CATEGORY_URL,
-  ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
-  BUILDER_URL_DEPRECATED,
-  VIEWER_URL_DEPRECATED,
+  VIEWER_PATH,
+  ADMIN_SETTINGS_PATH,
+  ADMIN_SETTINGS_CATEGORY_PATH,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -136,25 +136,25 @@ class AppRouter extends React.Component<any, any> {
                   path={UNSUBSCRIBE_EMAIL_URL}
                 />
                 <SentryRoute component={Setup} exact path={SETUP} />
-                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
+                <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
                 <SentryRoute
                   component={EditorLoader}
-                  path={BUILDER_URL_DEPRECATED}
+                  path={BUILDER_PATH_DEPRECATED}
                 />
-                <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
+                <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
                 <SentryRoute
                   component={AppViewerLoader}
-                  path={VIEWER_URL_DEPRECATED}
+                  path={VIEWER_PATH_DEPRECATED}
                 />
                 <Redirect
                   exact
-                  from={ADMIN_SETTINGS_URL}
-                  to={ADMIN_SETTINGS_CATEGORY_DEFAULT_URL}
+                  from={ADMIN_SETTINGS_PATH}
+                  to={ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH}
                 />
                 <SentryRoute
                   component={Settings}
                   exact
-                  path={ADMIN_SETTINGS_CATEGORY_URL}
+                  path={ADMIN_SETTINGS_CATEGORY_PATH}
                 />
                 <SentryRoute component={PageNotFound} />
               </Switch>

@@ -10,7 +10,7 @@ import {
   useHideComments,
 } from "pages/Editor/ToggleModeButton";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
+import { APPLICATIONS_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
@@ -33,12 +33,10 @@ import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
 } from "@appsmith/constants/messages";
-import {
-  getCurrentApplicationId,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
+import { pageListEditorURL } from "AppsmithRouteFactory";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -99,8 +97,6 @@ export const GetNavigationMenuData = ({
     }
   };
 
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-
   const deployOptions = [
     {
       text: createMessage(DEPLOY_MENU_OPTION),
@@ -159,9 +155,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(
-          PAGE_LIST_EDITOR_URL(applicationSlug, pageSlug, params.pageId),
-        );
+        history.push(pageListEditorURL({ pageId: params.pageId }));
       },
       type: MenuTypes.MENU,
       isVisible: true,

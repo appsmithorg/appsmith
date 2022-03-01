@@ -5,7 +5,6 @@ import React, { useCallback } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
-import { useParams } from "react-router";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
@@ -17,13 +16,8 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import {
-  DATA_SOURCES_EDITOR_ID_URL,
-  getGenerateTemplateFormURL,
-} from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import Menu from "components/ads/Menu";
 import { IconSize } from "../../../components/ads/Icon";
 import Icon from "components/ads/Icon";
@@ -37,7 +31,11 @@ import TooltipComponent from "components/ads/Tooltip";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
-import { selectURLSlugs } from "selectors/editorSelectors";
+import {
+  datasourcesEditorIdURL,
+  generateTemplateFormURL,
+  saasEditorDatasourceIdURL,
+} from "AppsmithRouteFactory";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -157,9 +155,6 @@ function DatasourceCard(props: DatasourceCardProps) {
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
-
-  const params = useParams<{ pageId: string }>();
-
   const { datasource, plugin } = props;
   const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
     datasource.pluginId
@@ -181,40 +176,32 @@ function DatasourceCard(props: DatasourceCardProps) {
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
 
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
-        SAAS_EDITOR_DATASOURCE_ID_URL(
-          applicationSlug,
-          pageSlug,
-          params.pageId,
-          plugin.packageName,
-          datasource.id,
-          {
+        saasEditorDatasourceIdURL({
+          pluginPackageName: plugin.packageName,
+          datasourceId: datasource.id,
+          params: {
             from: "datasources",
             ...getQueryParams(),
           },
-        ),
+        }),
       );
     } else {
       dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
-        DATA_SOURCES_EDITOR_ID_URL(
-          applicationSlug,
-          pageSlug,
-          params.pageId,
-          datasource.id,
-          {
+        datasourcesEditorIdURL({
+          datasourceId: datasource.id,
+          params: {
             from: "datasources",
             ...getQueryParams(),
           },
-        ),
+        }),
       );
     }
-  }, [datasource.id, params, plugin]);
+  }, [datasource.id, plugin]);
 
   const routeToGeneratePage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -224,9 +211,11 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
-      getGenerateTemplateFormURL(applicationSlug, pageSlug, params.pageId, {
-        datasourceId: datasource.id,
-        new_page: true,
+      generateTemplateFormURL({
+        params: {
+          datasourceId: datasource.id,
+          new_page: true,
+        },
       }),
     );
   };

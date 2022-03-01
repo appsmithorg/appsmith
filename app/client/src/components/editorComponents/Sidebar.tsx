@@ -15,7 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import {
   getFirstTimeUserOnboardingComplete,
@@ -24,7 +23,6 @@ import {
 import Explorer from "pages/Editor/Explorer";
 import Switcher from "components/ads/Switcher";
 import { trimQueryString } from "utils/helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import AppComments from "comments/AppComments/AppComments";
 import { setExplorerActiveAction } from "actions/explorerActions";
 import {
@@ -42,6 +40,7 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { Colors } from "constants/Colors";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { builderURL } from "AppsmithRouteFactory";
 
 type Props = {
   width: number;
@@ -53,7 +52,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   let tooltipTimeout: number;
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
-  const pageId = useSelector(getCurrentPageId) as string;
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -63,7 +61,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const resizer = useHorizontalResize(
     sidebarRef,
     props.onWidthChange,
@@ -79,22 +76,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       id: "widgets",
       text: "Widgets",
       action: () => {
-        !(
-          trimQueryString(
-            BUILDER_PAGE_URL({
-              applicationSlug,
-              pageSlug,
-              pageId,
-            }),
-          ) === window.location.pathname
-        ) &&
-          history.push(
-            BUILDER_PAGE_URL({
-              applicationSlug,
-              pageSlug,
-              pageId,
-            }),
-          );
+        !(trimQueryString(builderURL()) === window.location.pathname) &&
+          history.push(builderURL());
         setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
         if (isFirstTimeUserOnboardingEnabled) {
           dispatch(toggleInOnboardingWidgetSelection(true));

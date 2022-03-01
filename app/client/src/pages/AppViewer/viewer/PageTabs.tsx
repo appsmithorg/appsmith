@@ -5,11 +5,7 @@ import {
   CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import {
-  getApplicationViewerPageURL,
-  PLACEHOLDER_APP_SLUG,
-  PLACEHOLDER_PAGE_SLUG,
-} from "constants/routes";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -20,6 +16,7 @@ import { useSelector } from "react-redux";
 
 import { trimQueryString } from "utils/helpers";
 import { getPageURL } from "utils/AppsmithUtils";
+import { viewerURL } from "AppsmithRouteFactory";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -162,7 +159,7 @@ export function PageTabs(props: Props) {
           isTabActive={
             pathname ===
             trimQueryString(
-              getApplicationViewerPageURL({
+              viewerURL({
                 applicationSlug:
                   currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
                 pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,

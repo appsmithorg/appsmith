@@ -1,10 +1,7 @@
 import { bindDataOnCanvas } from "actions/pluginActionActions";
+import { builderURL, integrationEditorURL } from "AppsmithRouteFactory";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";
 import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
@@ -78,12 +75,12 @@ describe("Checklist", () => {
     expect(banner.length).toBe(0);
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
-      INTEGRATION_EDITOR_URL(
-        initialState.ui.applications.currentApplication.slug,
-        initialState.entities.pageList.pages[0].slug,
-        initialState.entities.pageList.currentPageId,
-        INTEGRATION_TABS.NEW,
-      ),
+      integrationEditorURL({
+        applicationSlug: initialState.ui.applications.currentApplication.slug,
+        pageSlug: initialState.entities.pageList.pages[0].slug,
+        pageId: initialState.entities.pageList.currentPageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
     );
   });
 
@@ -96,12 +93,12 @@ describe("Checklist", () => {
     const actionButton = screen.queryAllByTestId("checklist-action-button");
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
-      INTEGRATION_EDITOR_URL(
-        initialState.ui.applications.currentApplication.slug,
-        initialState.entities.pageList.pages[0].slug,
-        initialState.entities.pageList.currentPageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
+      integrationEditorURL({
+        applicationSlug: initialState.ui.applications.currentApplication.slug,
+        pageSlug: initialState.entities.pageList.pages[0].slug,
+        pageId: initialState.entities.pageList.currentPageId,
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
   });
 
@@ -112,7 +109,7 @@ describe("Checklist", () => {
     const widgetButton = screen.queryAllByTestId("checklist-widget-button");
     fireEvent.click(widgetButton[0]);
     expect(history).toHaveBeenCalledWith(
-      BUILDER_PAGE_URL({
+      builderURL({
         applicationSlug: initialState.ui.applications.currentApplication.slug,
         pageSlug: initialState.entities.pageList.pages[0].slug,
         pageId: initialState.entities.pageList.currentPageId,

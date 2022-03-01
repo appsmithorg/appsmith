@@ -1,6 +1,6 @@
-import { BUILDER_PAGE_URL, getApplicationViewerPageURL } from "./routes";
+import { builderURL, viewerURL } from "AppsmithRouteFactory";
 
-describe("BUILDER_PAGE_URL", () => {
+describe("builderURL", () => {
   let location: typeof window.location;
   beforeAll(() => {
     location = window.location;
@@ -9,7 +9,7 @@ describe("BUILDER_PAGE_URL", () => {
 
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
-    const pageURL = BUILDER_PAGE_URL({
+    const pageURL = builderURL({
       applicationSlug: ":applicationSlug",
       pageSlug: ":pageSlug",
       pageId: ":pageId",
@@ -20,7 +20,7 @@ describe("BUILDER_PAGE_URL", () => {
 
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
-    const pageURL = BUILDER_PAGE_URL({
+    const pageURL = builderURL({
       applicationSlug: ":applicationSlug",
       pageSlug: ":pageSlug",
       pageId: ":pageId",
@@ -35,7 +35,7 @@ describe("BUILDER_PAGE_URL", () => {
   });
 });
 
-describe("getApplicationViewerPageURL", () => {
+describe("viewerURL", () => {
   let location: typeof window.location;
   beforeAll(() => {
     location = window.location;
@@ -43,7 +43,7 @@ describe("getApplicationViewerPageURL", () => {
 
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
-    const pageURL = getApplicationViewerPageURL({
+    const pageURL = viewerURL({
       applicationSlug: ":applicationSlug",
       pageSlug: ":pageSlug",
       pageId: ":pageId",
@@ -54,7 +54,7 @@ describe("getApplicationViewerPageURL", () => {
 
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
-    const pageURL = getApplicationViewerPageURL({
+    const pageURL = viewerURL({
       applicationSlug: ":applicationSlug",
       pageSlug: ":pageSlug",
       pageId: ":pageId",

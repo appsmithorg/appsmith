@@ -1,10 +1,6 @@
 import React, { useEffect, useState, useRef, useContext, useMemo } from "react";
 import styled, { ThemeContext } from "styled-components";
 import {
-  getApplicationViewerPageURL,
-  BUILDER_PAGE_URL,
-} from "constants/routes";
-import {
   Card,
   Classes,
   HTMLDivProps,
@@ -55,6 +51,7 @@ import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
+import { builderURL, viewerURL } from "AppsmithRouteFactory";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -583,13 +580,17 @@ export function ApplicationCard(props: ApplicationCardProps) {
     initials += props.application.name[1].toUpperCase() || "";
   }
 
-  const viewApplicationURL = getApplicationViewerPageURL({
+  const viewApplicationURL = viewerURL({
     applicationSlug: props.application.slug as string,
+    applicationVersion: props.application.applicationVersion,
     pageSlug: defaultPageSlug || "page",
+    applicationId: props.application.id,
     pageId: props.application.defaultPageId as string,
   });
-  const editApplicationURL = BUILDER_PAGE_URL({
+  const editApplicationURL = builderURL({
     applicationSlug: props.application.slug as string,
+    applicationVersion: props.application.applicationVersion,
+    applicationId: props.application.id,
     pageSlug: defaultPageSlug || "page",
     pageId: props.application.defaultPageId as string,
   });

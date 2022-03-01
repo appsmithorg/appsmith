@@ -4,18 +4,15 @@ import {
   moveActionRequest,
 } from "actions/pluginActionActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import { noop } from "lodash";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
 import history from "utils/history";
 import ContextMenuTrigger from "../ContextMenuTrigger";
-import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
+import { ContextMenuPopoverModifiers } from "../helpers";
 import { useNewActionName } from "./helpers";
-import { selectURLSlugs } from "selectors/editorSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -29,6 +26,7 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "@appsmith/constants/messages";
+import { builderURL } from "AppsmithRouteFactory";
 
 type EntityContextMenuProps = {
   id: string;
@@ -38,8 +36,6 @@ type EntityContextMenuProps = {
 };
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
-  const params = useParams<ExplorerURLParams>();
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
@@ -158,13 +154,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           intent: "danger",
           onSelect: () =>
             deleteActionFromPage(props.id, props.name, () => {
-              history.push(
-                BUILDER_PAGE_URL({
-                  applicationSlug,
-                  pageSlug,
-                  pageId: params.pageId,
-                }),
-              );
+              history.push(builderURL());
             }),
         },
       ]}

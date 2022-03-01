@@ -1,27 +1,25 @@
 import { get } from "lodash";
 import styled, { useTheme } from "styled-components";
-import { useParams, useHistory } from "react-router";
+import { useHistory } from "react-router";
 import React, { useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ControlIcons } from "icons/ControlIcons";
 import { IconWrapper } from "components/ads/Icon";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import Button, { Size } from "components/ads/Button";
 import PageListItem, { Action } from "./PageListItem";
 import { Page } from "constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getPageList,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import DraggableList from "components/ads/DraggableList";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { builderURL } from "AppsmithRouteFactory";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -68,10 +66,8 @@ function PagesEditor() {
   const dispatch = useDispatch();
   const history = useHistory();
   const pages = useSelector(getPageList);
-  const params = useParams<ExplorerURLParams>();
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -115,9 +111,7 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(
-      BUILDER_PAGE_URL({ applicationSlug, pageSlug, pageId: params.pageId }),
-    );
+    history.push(builderURL());
   }, []);
 
   /**

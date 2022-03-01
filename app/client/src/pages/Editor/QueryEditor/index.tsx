@@ -3,11 +3,7 @@ import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  QueryEditorRouteParams,
-} from "constants/routes";
+import { INTEGRATION_TABS, QueryEditorRouteParams } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
 import { deleteAction, runAction } from "actions/pluginActionActions";
@@ -15,7 +11,6 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
@@ -44,6 +39,7 @@ import {
 import { getUIComponent } from "./helpers";
 import { diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { integrationEditorURL } from "AppsmithRouteFactory";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -84,8 +80,6 @@ type ReduxStateProps = {
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
   applicationId: string;
-  applicationSlug: string;
-  pageSlug: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -166,7 +160,6 @@ class QueryEditor extends React.Component<Props> {
 
   render() {
     const {
-      applicationSlug,
       dataSources,
       editorConfig,
       isCreating,
@@ -176,7 +169,6 @@ class QueryEditor extends React.Component<Props> {
       match: {
         params: { queryId },
       },
-      pageSlug,
       pluginId,
       pluginIds,
       pluginImages,
@@ -190,12 +182,10 @@ class QueryEditor extends React.Component<Props> {
     // custom function to return user to integrations page if action is not found
     const goToDatasourcePage = () =>
       history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationSlug,
-          pageSlug,
+        integrationEditorURL({
           pageId,
-          INTEGRATION_TABS.ACTIVE,
-        ),
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
       );
 
     // if the action can not be found, generate a entity not found page
@@ -225,12 +215,10 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationSlug,
-          pageSlug,
+        integrationEditorURL({
           pageId,
-          INTEGRATION_TABS.NEW,
-        ),
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
     };
     return (
@@ -282,7 +270,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const allPlugins = getPlugins(state);
   let uiComponent = UIComponentTypes.DbEditorForm;
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
-  const { applicationSlug, pageSlug } = selectURLSlugs(state);
 
   return {
     pluginImages: getPluginImages(state),
@@ -301,8 +288,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
     applicationId: getCurrentApplicationId(state),
-    applicationSlug,
-    pageSlug,
   };
 };
 

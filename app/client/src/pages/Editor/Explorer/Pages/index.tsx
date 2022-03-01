@@ -3,11 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
-import { BUILDER_PAGE_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { createPage, updatePage } from "actions/pageActions";
 import {
   hiddenPageIcon,
@@ -33,6 +31,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
+import { builderURL, pageListEditorURL } from "AppsmithRouteFactory";
 
 const StyledEntity = styled(Entity)`
   &.pages {
@@ -54,7 +53,6 @@ const StyledEntity = styled(Entity)`
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const pages: Page[] = useSelector(selectAllPages);
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
@@ -64,18 +62,14 @@ function Pages() {
     document.getElementsByClassName("activePage")[0]?.scrollIntoView();
   }, [currentPageId]);
 
-  const switchPage = useCallback(
-    (page: Page) => {
-      history.push(
-        BUILDER_PAGE_URL({
-          applicationSlug,
-          pageSlug: page.slug as string,
-          pageId: page.pageId,
-        }),
-      );
-    },
-    [applicationSlug],
-  );
+  const switchPage = useCallback((page: Page) => {
+    history.push(
+      builderURL({
+        pageSlug: page.slug as string,
+        pageId: page.pageId,
+      }),
+    );
+  }, []);
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
@@ -111,17 +105,12 @@ function Pages() {
   }, [pinned, dispatch, setExplorerPinnedAction]);
 
   const onClickRightIcon = useCallback(() => {
-    history.push(
-      PAGE_LIST_EDITOR_URL(applicationSlug, pageSlug, currentPageId),
-    );
-  }, [applicationSlug, pageSlug, currentPageId]);
+    history.push(pageListEditorURL({ pageId: currentPageId }));
+  }, [currentPageId]);
 
   const onPageListSelection = React.useCallback(
-    () =>
-      history.push(
-        PAGE_LIST_EDITOR_URL(applicationSlug, pageSlug, currentPageId),
-      ),
-    [applicationSlug, pageSlug, currentPageId],
+    () => history.push(pageListEditorURL({ pageId: currentPageId })),
+    [currentPageId],
   );
 
   const pageElements = useMemo(

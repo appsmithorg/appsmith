@@ -1,7 +1,6 @@
 import { takeLeading, all, put, select } from "redux-saga/effects";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import history from "../utils/history";
-import { BUILDER_PAGE_URL } from "../constants/routes";
 import { getCurrentPageId, selectURLSlugs } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "../selectors/entitiesSelector";
@@ -19,6 +18,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { builderURL } from "AppsmithRouteFactory";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -154,7 +154,7 @@ export function* bindDataToWidgetSaga(
     });
     const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     history.replace(
-      BUILDER_PAGE_URL({
+      builderURL({
         applicationSlug,
         pageSlug,
         pageId,

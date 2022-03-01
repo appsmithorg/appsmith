@@ -32,8 +32,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "constants/ReduxActionConstants";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { builderURL } from "AppsmithRouteFactory";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -503,7 +503,7 @@ export const getEditorURL = createSelector(
   getCurrentPageId,
   selectURLSlugs,
   (pageId: string, { applicationSlug, pageSlug }) =>
-    BUILDER_PAGE_URL({
+    builderURL({
       applicationSlug,
       pageSlug,
       pageId,

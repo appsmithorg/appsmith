@@ -1,4 +1,4 @@
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { builderURL } from "AppsmithRouteFactory";
 import history from "utils/history";
 
 export const navigateToCanvas = ({
@@ -13,7 +13,7 @@ export const navigateToCanvas = ({
   pageSlug: string;
 }) => {
   const currentPath = window.location.pathname;
-  const canvasEditorURL = `${BUILDER_PAGE_URL({
+  const canvasEditorURL = `${builderURL({
     applicationSlug,
     pageSlug,
     pageId,

@@ -18,11 +18,7 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../../Explorer/helpers";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  DATA_SOURCES_EDITOR_ID_URL,
-} from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
@@ -68,6 +64,10 @@ import {
   getFirstTimeUserOnboardingComplete,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
+import {
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+} from "AppsmithRouteFactory";
 
 //  ---------- Styles ----------
 
@@ -482,14 +482,13 @@ function GeneratePageForm() {
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
-      INTEGRATION_EDITOR_URL(
+      integrationEditorURL({
         applicationSlug,
         pageSlug,
-        currentPageId,
-        INTEGRATION_TABS.NEW,
-        "",
-        { isGeneratePageMode: "generate-page" },
-      ),
+        pageId: currentPageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+        params: { isGeneratePageMode: "generate-page" },
+      }),
     );
   };
 
@@ -544,13 +543,13 @@ function GeneratePageForm() {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_EDIT_DATASOURCE_CONFIG", {
       datasourceId: selectedDatasource.id,
     });
-    const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
+    const redirectURL = datasourcesEditorIdURL({
       applicationSlug,
       pageSlug,
-      currentPageId,
-      selectedDatasource.id as string,
-      { isGeneratePageMode: "generate-page" },
-    );
+      pageId: currentPageId,
+      datasourceId: selectedDatasource.id as string,
+      params: { isGeneratePageMode: "generate-page" },
+    });
     history.push(redirectURL);
   };
 
