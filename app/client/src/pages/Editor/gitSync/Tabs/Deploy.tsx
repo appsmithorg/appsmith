@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Title } from "../components/StyledComponents";
+import { Space, Title } from "../components/StyledComponents";
 import {
-  DEPLOY_YOUR_APPLICATION,
-  COMMIT_TO,
-  createMessage,
   COMMIT_AND_PUSH,
+  COMMIT_TO,
   COMMITTING_AND_PUSHING_CHANGES,
+  createMessage,
+  DEPLOY_YOUR_APPLICATION,
   FETCH_GIT_STATUS,
   GIT_NO_UPDATED_TOOLTIP,
   GIT_UPSTREAM_CHANGES,
@@ -18,18 +18,17 @@ import Button, { Size } from "components/ads/Button";
 import { LabelContainer } from "components/ads/Checkbox";
 
 import {
+  getConflictFoundDocUrlDeploy,
+  getGitCommitAndPushError,
   getGitStatus,
-  getIsFetchingGitStatus,
+  getIsCommitSuccessful,
   getIsCommittingInProgress,
+  getIsFetchingGitStatus,
   getIsPullingProgress,
   getPullFailed,
-  getGitCommitAndPushError,
   getUpstreamErrorDocUrl,
-  getConflictFoundDocUrlDeploy,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-
-import { Space } from "../components/StyledComponents";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 
@@ -40,7 +39,6 @@ import {
   fetchGitStatusInit,
   gitPullInit,
 } from "actions/gitSyncActions";
-import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 import StatusLoader from "../components/StatusLoader";
 import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
 import Statusbar, {

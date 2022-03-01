@@ -3,7 +3,7 @@ import styled from "constants/DefaultTheme";
 import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { useSelector } from "react-redux";
 import {
   getGitStatus,
@@ -11,7 +11,7 @@ import {
 } from "selectors/gitSyncSelectors";
 
 const Skeleton = styled.div`
-  width: 135px;
+  width: 100%;
   height: ${(props) => props.theme.spaces[9]}px;
   background: linear-gradient(
     90deg,
@@ -22,20 +22,21 @@ const Skeleton = styled.div`
 `;
 
 const Wrapper = styled.div`
-  width: 178px;
+  //width: 178px;
   height: ${(props) => props.theme.spaces[9]}px;
   display: flex;
+
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[3]}px;
   }
+
   .${Classes.TEXT} {
     padding-top: ${(props) => props.theme.spaces[1] - 2}px;
   }
 `;
 
-const GitChangedRow = styled.div`
-  display: flex;
-  align-items: center;
+const ChangeDifferences = styled.div`
+  margin-bottom: 2px;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
@@ -50,33 +51,33 @@ type GitSyncProps = {
   type: Kind;
 };
 
+const GIT_STATUS_MAP = {
+  [Kind.widget]: (status: any) => ({
+    message: `${status?.modifiedPages || 0} ${
+      (status?.modifiedPages || 0) === 1 ? "page" : "pages"
+    } updated`,
+    iconName: "widget",
+  }),
+  [Kind.query]: (status: any) => ({
+    message: `${status?.modifiedQueries || 0} ${
+      (status?.modifiedQueries || 0) === 1 ? "query" : "queries"
+    } modified`,
+    iconName: "query",
+  }),
+  [Kind.commit]: (status: any) => ({
+    message: `${status?.aheadCount || 0} ${
+      (status?.aheadCount || 0) === 1 ? "commit" : "commits"
+    } to push`,
+    iconName: "git-commit",
+  }),
+};
+
 function GitStatus(props: GitSyncProps) {
   const { type } = props;
   const status: any = useSelector(getGitStatus);
   const loading = useSelector(getIsFetchingGitStatus);
   // const loading = true;
-  let message = "",
-    iconName: IconName;
-  switch (type) {
-    case Kind.widget:
-      message = `${status?.modifiedPages || 0} page${
-        (status?.modifiedPages || 0) === 1 ? "" : "s"
-      } updated`;
-      iconName = "widget";
-      break;
-    case Kind.query:
-      message = `${status?.modifiedQueries || 0} ${
-        (status?.modifiedQueries || 0) === 1 ? "query" : "queries"
-      } modified`;
-      iconName = "query";
-      break;
-    case Kind.commit:
-      message = `${status?.aheadCount || 0} commit${
-        (status?.aheadCount || 0) === 1 ? "" : "s"
-      } to push`;
-      iconName = "git-commit";
-      break;
-  }
+  const { iconName, message } = GIT_STATUS_MAP[type](status);
   return loading ? (
     <Skeleton />
   ) : (
@@ -90,10 +91,10 @@ function GitStatus(props: GitSyncProps) {
 export default function GitChanged() {
   const gitStatus: any = useSelector(getGitStatus);
   return (
-    <GitChangedRow>
+    <ChangeDifferences>
       <GitStatus type={Kind.widget} />
       <GitStatus type={Kind.query} />
       {gitStatus?.aheadCount > 0 && <GitStatus type={Kind.commit} />}
-    </GitChangedRow>
+    </ChangeDifferences>
   );
 }
