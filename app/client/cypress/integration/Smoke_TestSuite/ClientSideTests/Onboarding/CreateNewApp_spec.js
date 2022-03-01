@@ -1,7 +1,7 @@
 const explorerLocators = require("../../../../locators/explorerlocators.json");
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const homePage = require("../../../../locators/HomePage.json");
+const homePage = require("../../../../locators/HomePage");
 
 describe("Creating new app after discontinuing guided tour should not start the same", function() {
   it("Creating new app after discontinuing guided tour should not start the same", function() {
