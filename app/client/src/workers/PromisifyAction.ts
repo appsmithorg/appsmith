@@ -106,11 +106,14 @@ export const completePromise = (requestId: string, result: EvalResult) => {
 export const confirmationPromise = function(
   requestId: string,
   func: any,
+  name: string,
   ...args: any[]
 ) {
   const payload: ActionDescription = {
     type: ActionTriggerType.CONFIRMATION_MODAL,
-    payload: {},
+    payload: {
+      funName: name,
+    },
   };
   return promisifyAction(requestId, payload).then(() => func(...args));
 };

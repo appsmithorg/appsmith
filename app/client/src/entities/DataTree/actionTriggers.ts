@@ -162,7 +162,7 @@ export type StopWatchingCurrentLocationDescription = {
 
 export type ConfirmationModal = {
   type: ActionTriggerType.CONFIRMATION_MODAL;
-  payload?: Record<string, never>;
+  payload?: Record<string, any>;
 };
 
 export type ActionDescription =

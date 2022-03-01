@@ -156,6 +156,7 @@ export const createGlobalData = (
               {},
               context?.requestId,
               resolvedObject[key],
+              key,
             );
           } else {
             dataTreeKey[key] = resolvedObject[key];
@@ -379,6 +380,7 @@ export function isFunctionAsync(
                 {},
                 "",
                 resolvedObject[key],
+                key,
               );
             } else {
               dataTreeKey[key] = resolvedObject[key];

@@ -45,6 +45,7 @@ import {
   watchCurrentLocation,
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -128,7 +129,12 @@ export function* executeActionTriggers(
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
       break;
     case ActionTriggerType.CONFIRMATION_MODAL:
-      const flag = yield call(requestModalConfirmationSaga);
+      const payloadInfo = {
+        name: trigger?.payload?.funName,
+        modalOpen: true,
+        modalType: ModalType.RUN_ACTION,
+      };
+      const flag = yield call(requestModalConfirmationSaga, payloadInfo);
       if (!flag) {
         throw new UserCancelledActionExecutionError();
       }
