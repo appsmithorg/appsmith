@@ -82,6 +82,7 @@ import {
   generateTemplateURL,
   viewerURL,
 } from "AppsmithRouteFactory";
+import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -240,7 +241,7 @@ export function* setDefaultApplicationPageSaga(
   action: ReduxAction<SetDefaultPageRequest>,
 ) {
   try {
-    const defaultPageId: string = yield select(getDefaultPageId);
+    const defaultPageId: string = yield select(selectDefaultPageId);
     if (defaultPageId !== action.payload.id) {
       const request: SetDefaultPageRequest = action.payload;
       const response: ApiResponse = yield call(
