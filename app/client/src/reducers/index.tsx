@@ -30,7 +30,7 @@ import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 import { PageCanvasStructureReduxState } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
+import { ModalActionReduxState } from "./uiReducers/modalActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 import { EvaluatedTreeState } from "./evaluationReducers/treeReducer";
@@ -90,7 +90,7 @@ export interface AppState {
     explorer: ExplorerReduxState;
     pageCanvasStructure: PageCanvasStructureReduxState;
     pageWidgets: PageWidgetsReduxState;
-    confirmRunAction: ConfirmRunActionReduxState;
+    modalAction: ModalActionReduxState;
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
