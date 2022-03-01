@@ -229,6 +229,7 @@ function RepoLimitExceededErrorModal() {
                 {createMessage(DISCONNECT_CAUSE_APPLICATION_BREAK)}
               </Text>
               <Link
+                className="t--learn-more-repo-limit-modal"
                 color={Colors.CRIMSON}
                 link={docURL}
                 text={createMessage(LEARN_MORE)}
@@ -238,7 +239,10 @@ function RepoLimitExceededErrorModal() {
           {applications.map((application: ApplicationPayload) => {
             const { gitApplicationMetadata } = application;
             return (
-              <ApplicationWrapper key={application.id}>
+              <ApplicationWrapper
+                className="t--connected-app-wrapper"
+                key={application.id}
+              >
                 <div>
                   <TextWrapper>
                     <Text color={Colors.OXFORD_BLUE} type={TextType.H4}>
@@ -252,6 +256,7 @@ function RepoLimitExceededErrorModal() {
                   </TextWrapper>
                 </div>
                 <Link
+                  className="t--disconnect-link"
                   color={Colors.CRIMSON}
                   hasIcon
                   link=""

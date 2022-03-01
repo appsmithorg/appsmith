@@ -3,6 +3,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Colors } from "constants/Colors";
+import { createMessage, IMAGE_LOAD_ERROR } from "ce/constants/messages";
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -26,8 +27,8 @@ export const StyledImage = styled.div<
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
-  background-image: ${(props) =>
-    `url(${props.imageError ? props.defaultImageUrl : props.imageUrl})`};
+  ${({ defaultImageUrl, imageError, imageUrl }) =>
+    !imageError && `background-image: url("${imageUrl || defaultImageUrl}")`};
   background-position: center;
   background-repeat: no-repeat;
   height: 100%;
@@ -84,6 +85,12 @@ const ControlBtn = styled.div`
   }
 `;
 
+const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 enum ZoomingState {
   MAX_ZOOMED_OUT = "MAX_ZOOMED_OUT",
   MAX_ZOOMED_IN = "MAX_ZOOMED_IN",
@@ -108,9 +115,10 @@ class ImageComponent extends React.Component<
       zoomingState: ZoomingState.MAX_ZOOMED_OUT,
     };
   }
+
   render() {
-    const { maxZoomLevel } = this.props;
-    const { imageRotation } = this.state;
+    const { imageUrl, maxZoomLevel } = this.props;
+    const { imageError, imageRotation } = this.state;
     const zoomActive =
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
@@ -119,6 +127,14 @@ class ImageComponent extends React.Component<
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
     if (this.props.onClick) cursor = "pointer";
+
+    if (imageUrl && imageError)
+      return (
+        <ErrorContainer data-testid="error-container">
+          {createMessage(IMAGE_LOAD_ERROR)}
+        </ErrorContainer>
+      );
+
     return (
       <Wrapper
         onMouseEnter={this.onMouseEnter}
@@ -203,7 +219,7 @@ class ImageComponent extends React.Component<
                     alt={this.props.widgetName}
                     onError={this.onImageError}
                     onLoad={this.onImageLoad}
-                    src={this.props.imageUrl}
+                    src={this.props.imageUrl || this.props.defaultImageUrl}
                     style={{
                       display: "none",
                     }}
