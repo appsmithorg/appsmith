@@ -2,7 +2,7 @@
   "identifier": "DELETE",
   "controlType" : "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'DELETE'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'DELETE'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Collection",
-          "configProperty": "actionConfiguration.formData.collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE"
         }
@@ -24,7 +24,7 @@
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.delete.query",
+          "configProperty": "actionConfiguration.formData.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -32,7 +32,7 @@
         },
         {
           "label": "Limit",
-          "configProperty": "actionConfiguration.formData.delete.limit",
+          "configProperty": "actionConfiguration.formData.limit.data",
           "controlType": "DROP_DOWN",
           "initialValue": "SINGLE",
           "options": [

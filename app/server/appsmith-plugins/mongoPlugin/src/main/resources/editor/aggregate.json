@@ -2,7 +2,7 @@
   "identifier": "AGGREGATE",
   "controlType" : "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'AGGREGATE'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'AGGREGATE'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Collection",
-          "configProperty": "actionConfiguration.formData.collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE"
         }
@@ -24,7 +24,7 @@
       "children": [
         {
           "label": "Array of Pipelines",
-          "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines",
+          "configProperty": "actionConfiguration.formData.arrayPipelines.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -34,7 +34,7 @@
     },
     {
       "label": "Limit",
-      "configProperty": "actionConfiguration.formData.aggregate.limit",
+      "configProperty": "actionConfiguration.formData.limit.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "initialValue": "10"

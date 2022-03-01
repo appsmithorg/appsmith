@@ -22,10 +22,10 @@ import java.util.Collections;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
+import static com.external.plugins.constants.FieldName.LIMIT;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
+import static com.external.plugins.constants.FieldName.PIPELINES;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
@@ -44,12 +44,12 @@ public class Aggregate extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresentInFormData(formData, AGGREGATE_PIPELINE)) {
-            this.pipeline = (String) getValueSafelyFromFormData(formData, AGGREGATE_PIPELINE);
+        if (validConfigurationPresentInFormData(formData, PIPELINES)) {
+            this.pipeline = (String) getValueSafelyFromFormData(formData, PIPELINES);
         }
 
-        if (validConfigurationPresentInFormData(formData, AGGREGATE_LIMIT)) {
-            this.limit = (String) getValueSafelyFromFormData(formData, AGGREGATE_LIMIT);
+        if (validConfigurationPresentInFormData(formData, LIMIT)) {
+            this.limit = (String) getValueSafelyFromFormData(formData, LIMIT);
         }
     }
 
@@ -119,8 +119,8 @@ public class Aggregate extends MongoCommand {
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
-        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, "[ {\"$sort\" : {\"_id\": 1} } ]");
-        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10");
+        setValueSafelyInFormData(configMap, PIPELINES, "[ {\"$sort\" : {\"_id\": 1} } ]");
+        setValueSafelyInFormData(configMap, LIMIT, "10");
 
 
         String rawQuery = "{\n" +

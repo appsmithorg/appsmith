@@ -18,10 +18,10 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDa
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.QUERY;
 
 @Getter
 @Setter
@@ -34,8 +34,8 @@ public class Count extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresentInFormData(formData, COUNT_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, COUNT_QUERY);
+        if (validConfigurationPresentInFormData(formData, QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, QUERY);
         }
     }
 
@@ -62,7 +62,7 @@ public class Count extends MongoCommand {
 
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "COUNT");
-        setValueSafelyInFormData(configMap, COUNT_QUERY, "{\"_id\": {\"$exists\": true}}");
+        setValueSafelyInFormData(configMap, QUERY, "{\"_id\": {\"$exists\": true}}");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +

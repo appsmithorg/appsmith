@@ -2,7 +2,7 @@
   "identifier": "SET_DOCUMENT",
   "controlType" : "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'SET_DOCUMENT'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'SET_DOCUMENT'}}"
   },
   "children" : [
     {
@@ -15,7 +15,7 @@
     },
     {
       "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
-      "configProperty": "actionConfiguration.formData.timestampValuePath",
+      "configProperty": "actionConfiguration.formData.timestampValuePath.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,

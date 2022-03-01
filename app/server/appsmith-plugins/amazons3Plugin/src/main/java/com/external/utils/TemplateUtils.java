@@ -15,13 +15,11 @@ import static com.external.plugins.AmazonS3Plugin.NO;
 import static com.external.plugins.AmazonS3Plugin.YES;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
-import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
-import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
-import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
-import static com.external.plugins.constants.FieldName.LIST_WHERE;
-import static com.external.plugins.constants.FieldName.READ_EXPIRY;
-import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
+import static com.external.plugins.constants.FieldName.DATATYPE;
+import static com.external.plugins.constants.FieldName.EXPIRY;
+import static com.external.plugins.constants.FieldName.SIGNED_URL;
+import static com.external.plugins.constants.FieldName.UNSIGNED_URL;
+import static com.external.plugins.constants.FieldName.WHERE;
 
 public class TemplateUtils {
 
@@ -107,8 +105,8 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.READ_FILE.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, READ_USING_BASE64_ENCODING, YES);
-        setValueSafelyInFormData(configMap, READ_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
+        setValueSafelyInFormData(configMap, DATATYPE, YES);
+        setValueSafelyInFormData(configMap, EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
 
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some
@@ -125,8 +123,8 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.UPLOAD_FILE_FROM_BODY.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, YES);
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
+        setValueSafelyInFormData(configMap, DATATYPE, YES);
+        setValueSafelyInFormData(configMap, EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
 
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some
@@ -144,8 +142,8 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.UPLOAD_MULTIPLE_FILES_FROM_BODY.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, YES);
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
+        setValueSafelyInFormData(configMap, DATATYPE, YES);
+        setValueSafelyInFormData(configMap, EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
 
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some
@@ -163,9 +161,11 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.LIST.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, NO);
-        setValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, YES);
-        setValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {{put("condition", "AND");}});
+        setValueSafelyInFormData(configMap, SIGNED_URL, NO);
+        setValueSafelyInFormData(configMap, UNSIGNED_URL, YES);
+        setValueSafelyInFormData(configMap, WHERE, new HashMap<String, Object>() {{
+            put("condition", "AND");
+        }});
 
         return new Template(LIST_FILES_TEMPLATE_NAME, configMap, new ActionConfiguration());
     }

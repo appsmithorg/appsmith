@@ -1,3 +1,4 @@
+import { ControlType } from "constants/PropertyControlConstants";
 import { isBoolean, get, set } from "lodash";
 import { HiddenType } from "./BaseControl";
 
