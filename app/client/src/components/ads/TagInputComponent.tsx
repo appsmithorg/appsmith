@@ -8,6 +8,9 @@ import {
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import { Colors } from "constants/Colors";
+import { Toaster } from "./Toast";
+import { Variant } from "./common";
+
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
 
@@ -58,6 +61,7 @@ type TagInputProps = {
   intent?: Intent;
   hasError?: boolean;
   customError: (values: any) => void;
+  checkValues?: (value: any) => boolean;
 };
 
 /**
@@ -71,6 +75,7 @@ function TagInputComponent(props: TagInputProps) {
     props.input.value && props.input.value.length > 0
       ? props.input.value.split(",")
       : [];
+  let removedValue = "";
 
   const [values, setValues] = useState<string[]>(_values || []);
   const [currentValue, setCurrentValue] = useState<string>("");
@@ -99,12 +104,27 @@ function TagInputComponent(props: TagInputProps) {
     setValues(newValues);
     props.input.onChange &&
       props.input.onChange(newValues.filter(Boolean).join(","));
-    validateEmail(newValues);
+    props.type === "email" && validateEmail(newValues);
   };
 
   const onTagsChange = (values: React.ReactNode[]) => {
     const _values = values as string[];
-    commitValues(_values);
+    if (props.checkValues) {
+      if (props.checkValues(removedValue)) {
+        commitValues(_values);
+      } else {
+        Toaster.show({
+          text: "This should not be removed.",
+          variant: Variant.danger,
+        });
+      }
+    } else {
+      commitValues(_values);
+    }
+  };
+
+  const onRemove = (value: React.ReactNode) => {
+    removedValue = value as string;
   };
 
   const onKeyDown = (e: any) => {
@@ -161,6 +181,7 @@ function TagInputComponent(props: TagInputProps) {
         onChange={onTagsChange}
         onInputChange={handleInputChange}
         onKeyDown={onKeyDown}
+        onRemove={onRemove}
         placeholder={props.placeholder}
         separator={props.separator || ","}
         tagProps={{

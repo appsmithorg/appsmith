@@ -16,6 +16,9 @@ import { createMessage } from "@appsmith/constants/messages";
 import { Callout } from "components/ads/CalloutV2";
 import { RedirectUrlReduxForm } from "components/ads/formFields/RedirectUrlForm";
 import Accordion from "./Accordion";
+import TagInputField from "./TagInputField";
+import { Classes } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 
 type GroupProps = {
   name?: string;
@@ -47,6 +50,29 @@ const GroupBody = styled.div`
   & .callout-link {
     > div {
       margin-top: 0px;
+    }
+  }
+  & .tag-input {
+    .t--admin-settings-tag-input {
+      label {
+        + div {
+          margin: 0;
+        }
+      }
+      .${Classes.TAG_INPUT}, .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
+        border: 1.2px solid ${Colors.ALTO2};
+        box-shadow: none;
+        .bp3-tag {
+          background: #f8f8f8;
+          color: #000;
+          svg:hover {
+            cursor: pointer;
+            path {
+              fill: currentColor;
+            }
+          }
+        }
+      }
     }
   }
 `;
@@ -158,6 +184,28 @@ export default function Group({
                     <RedirectUrlReduxForm
                       helpText={setting.helpText}
                       value={setting.value}
+                    />
+                  </div>
+                );
+              case SettingTypes.TAGINPUT:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : "tag-input"}
+                    data-testid="admin-settings-tag-input"
+                    key={setting.name || setting.id}
+                  >
+                    <TagInputField
+                      checkValues={(value: any) =>
+                        setting.checkValues ? setting.checkValues(value) : true
+                      }
+                      customError={(err: string) => console.log(err)}
+                      data-cy="t--tag-input"
+                      intent="success"
+                      label={setting.label}
+                      name={setting.name || setting.id}
+                      placeholder=""
+                      setting={setting}
+                      type="text"
                     />
                   </div>
                 );

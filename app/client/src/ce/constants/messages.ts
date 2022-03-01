@@ -1038,3 +1038,6 @@ export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
+
+export const REDIRECT_URL_TOOLTIP = () =>
+  "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";

@@ -7,6 +7,12 @@ import copy from "copy-to-clipboard";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import TooltipComponent from "../Tooltip";
+import { Position } from "@blueprintjs/core";
+import {
+  createMessage,
+  REDIRECT_URL_TOOLTIP,
+} from "@appsmith/constants/messages";
 
 const HelpIcon = HelpIcons.HELP_ICON;
 
@@ -65,12 +71,21 @@ function RedirectUrlForm(
     <Wrapper>
       <HeaderWrapper>
         <HeaderSecondary>Redirect URL</HeaderSecondary>
-        <HelpIcon
-          className={"help-icon"}
-          color={"#858282"}
-          height={13}
-          width={13}
-        />
+        <TooltipComponent
+          autoFocus={false}
+          content={createMessage(REDIRECT_URL_TOOLTIP)}
+          hoverOpenDelay={1000}
+          minWidth={"180px"}
+          openOnTargetFocus={false}
+          position={Position.RIGHT}
+        >
+          <HelpIcon
+            className={"help-icon"}
+            color={"#858282"}
+            height={13}
+            width={13}
+          />
+        </TooltipComponent>
       </HeaderWrapper>
       <BodyContainer>
         <UneditableField
