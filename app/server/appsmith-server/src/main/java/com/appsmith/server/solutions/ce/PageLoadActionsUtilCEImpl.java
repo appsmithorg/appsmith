@@ -992,6 +992,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         dslActionDTO.setName(actionDTO.getValidName());
         dslActionDTO.setCollectionId(actionDTO.getCollectionId());
         dslActionDTO.setClientSideExecution(actionDTO.getClientSideExecution());
+        dslActionDTO.setConfirmBeforeExecute(actionDTO.getConfirmBeforeExecute());
         if (actionDTO.getDefaultResources() != null) {
             dslActionDTO.setDefaultActionId(actionDTO.getDefaultResources().getActionId());
             dslActionDTO.setDefaultCollectionId(actionDTO.getDefaultResources().getCollectionId());

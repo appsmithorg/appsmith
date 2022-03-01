@@ -10,6 +10,7 @@ import {
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -89,22 +90,22 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
   };
 };
 
-export const showActionConfirmationModal = (show: boolean) => {
+export const showActionConfirmationModal = (payload: ModalInfo) => {
   return {
     type: ReduxActionTypes.SHOW_ACTION_MODAL,
-    payload: show,
+    payload,
   };
 };
 
-export const cancelActionConfirmationModal = () => {
+export const cancelActionConfirmationModal = (payload: string) => {
   return {
-    type: ReduxActionTypes.CANCEL_ACTION_MODAL,
+    type: ReduxActionTypes.CANCEL_ACTION_MODAL + `_FOR_${payload.trim()}`,
   };
 };
 
-export const acceptActionConfirmationModal = () => {
+export const acceptActionConfirmationModal = (payload: string) => {
   return {
-    type: ReduxActionTypes.CONFIRM_ACTION_MODAL,
+    type: ReduxActionTypes.CONFIRM_ACTION_MODAL + `_FOR_${payload.trim()}`,
   };
 };
 
