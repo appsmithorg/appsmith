@@ -17,6 +17,7 @@ export interface AudioRecorderWidgetProps extends WidgetProps {
   onRecordingStart?: string;
   onRecordingComplete?: string;
   blobURL?: string;
+  isDirty: boolean;
 }
 
 class AudioRecorderWidget extends BaseWidget<
@@ -117,16 +118,19 @@ class AudioRecorderWidget extends BaseWidget<
       blobURL: undefined,
       dataURL: undefined,
       rawBinary: undefined,
+      isDirty: false,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      isDirty: `{{ !!this.blobURL }}`,
-    };
+    return {};
   }
 
   handleRecordingStart = () => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     if (this.props.blobURL) {
       URL.revokeObjectURL(this.props.blobURL);
     }

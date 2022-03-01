@@ -216,7 +216,6 @@ class FilePickerWidget extends BaseWidget<
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
       files: `{{this.selectedFiles}}`,
-      isDirty: `{{ this.selectedFiles.length > 0 }}`,
     };
   }
 
@@ -224,6 +223,7 @@ class FilePickerWidget extends BaseWidget<
     return {
       selectedFiles: [],
       uploadedFileData: {},
+      isDirty: false,
     };
   }
 
@@ -384,6 +384,10 @@ class FilePickerWidget extends BaseWidget<
       });
 
       Promise.all(fileReaderPromises).then((files) => {
+        if (!this.props.isDirty) {
+          this.props.updateWidgetMetaProperty("isDirty", true);
+        }
+
         this.props.updateWidgetMetaProperty(
           "selectedFiles",
           dslFiles.concat(files),

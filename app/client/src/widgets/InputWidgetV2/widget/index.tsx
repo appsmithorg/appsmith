@@ -338,7 +338,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   componentDidUpdate(prevPorps: InputWidgetProps) {
     // If defaultText property has changed, reset isDirty to false
-    if (this.props.defaultText !== prevPorps.defaultText) {
+    if (
+      this.props.defaultText !== prevPorps.defaultText &&
+      this.props.isDirty
+    ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
@@ -393,9 +396,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     });
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-    if (value === this.props.defaultText) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
     }
   };
 

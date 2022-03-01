@@ -146,9 +146,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      isDirty: `{{ this.mode === "VIDEO" ? !!this.videoBlobURL : !!this.imageBlobURL }}`,
-    };
+    return {};
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -165,6 +163,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       videoBlobURL: undefined,
       videoDataURL: undefined,
       videoRawBinary: undefined,
+      isDirty: false,
     };
   }
 
@@ -216,6 +215,11 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
       return;
     }
+    // Set isDirty to true when an image is caputured
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     const base64Data = image.split(",")[1];
     const imageBlob = base64ToBlob(base64Data, "image/webp");
     const blobURL = URL.createObjectURL(imageBlob);
@@ -252,6 +256,10 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   };
 
   handleRecordingStart = () => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     if (this.props.onRecordingStart) {
       super.executeAction({
         triggerPropertyName: "onRecordingStart",
@@ -320,6 +328,7 @@ export interface CameraWidgetProps extends WidgetProps {
   onRecordingStop?: string;
   onVideoSave?: string;
   videoBlobURL?: string;
+  isDirty: boolean;
 }
 
 export default CameraWidget;

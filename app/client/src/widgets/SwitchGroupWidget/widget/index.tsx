@@ -1,5 +1,6 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
+import { xor } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -189,7 +190,6 @@ class SwitchGroupWidget extends BaseWidget<
           selectedValue => this.options.map(option => option.value).includes(selectedValue)
         )
       }}`,
-      isDirty: `{{ ((array1, array2) => {if (array1.length === array2.length) {return !array1.every(element => array2.includes(element));} return true;})(this.defaultSelectedValues, this.selectedValuesArray); }}`,
     };
   }
 
@@ -198,7 +198,14 @@ class SwitchGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: SwitchGroupWidgetProps): void {
-    if (this.props.defaultSelectedValues !== prevProps.defaultSelectedValues) {
+    if (
+      xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
+        .length > 0
+    ) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+
       this.props.updateWidgetMetaProperty(
         "selectedValuesArray",
         this.props.defaultSelectedValues,
@@ -243,6 +250,10 @@ class SwitchGroupWidget extends BaseWidget<
         selectedValuesArray = selectedValuesArray.filter(
           (item: string) => item !== value,
         );
+      }
+
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
       }
 
       this.props.updateWidgetMetaProperty(

@@ -121,18 +121,21 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     return {
       value: `{{!!this.isChecked}}`,
       isValid: `{{ this.isRequired ? !!this.isChecked : true }}`,
-      isDirty: `{{ this.isChecked !== this.defaultCheckedState }}`,
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       isChecked: undefined,
+      isDirty: false,
     };
   }
 
   componentDidUpdate(prevProps: CheckboxWidgetProps) {
-    if (this.props.defaultCheckedState !== prevProps.defaultCheckedState) {
+    if (
+      this.props.defaultCheckedState !== prevProps.defaultCheckedState &&
+      this.props.isDirty
+    ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
@@ -155,6 +158,10 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   onCheckChange = (isChecked: boolean) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("isChecked", isChecked, {
       triggerPropertyName: "onCheckChange",
       dynamicString: this.props.onCheckChange,

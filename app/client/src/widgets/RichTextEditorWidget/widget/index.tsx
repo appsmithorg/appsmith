@@ -133,6 +133,7 @@ class RichTextEditorWidget extends BaseWidget<
       defaultTextHtml: undefined,
       defaultTextMarkdown: undefined,
       isDefaultTextChanged: false,
+      isDirty: false,
     };
   }
 
@@ -152,11 +153,17 @@ class RichTextEditorWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
     if (this.props.defaultText !== prevProps.defaultText) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
       this.props.updateWidgetMetaProperty("isDefaultTextChanged", true);
     }
   }
 
   onValueChange = (text: string) => {
+    if (!(this.props.isDefaultTextChanged || this.props.isDirty)) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
     if (
       this.props.inputType === RTEFormats.HTML &&
       (!this.props.defaultTextHtml || this.props.isDefaultTextChanged)
@@ -224,6 +231,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   isVisible?: boolean;
   isRequired?: boolean;
   isToolbarHidden?: boolean;
+  isDirty: boolean;
 }
 
 export default RichTextEditorWidget;

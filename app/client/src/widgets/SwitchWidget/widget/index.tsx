@@ -131,17 +131,30 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       isSwitchedOn: undefined,
+      isDirty: false,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       value: `{{!!this.isSwitchedOn}}`,
-      isDirty: `{{ this.isSwitchedOn !== this.defaultSwitchState }}`,
     };
   }
 
+  componentDidUpdate(prevProps: SwitchWidgetProps): void {
+    if (
+      this.props.defaultSwitchState !== prevProps.defaultSwitchState &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+  }
+
   onChange = (isSwitchedOn: boolean) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("isSwitchedOn", isSwitchedOn, {
       triggerPropertyName: "onChange",
       dynamicString: this.props.onChange,
@@ -157,6 +170,7 @@ export interface SwitchWidgetProps extends WidgetProps {
   defaultSwitchState: boolean;
   alignWidget: AlignWidget;
   label: string;
+  isDirty: boolean;
 }
 
 export default SwitchWidget;

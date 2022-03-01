@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, findIndex } from "lodash";
+import { isArray, findIndex, xor } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -340,7 +340,6 @@ class MultiSelectTreeWidget extends BaseWidget<
       selectedOptionValues:
         '{{ this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) )}}',
       isValid: `{{ this.isRequired  ? this.selectedOptionValues?.length > 0 : true}}`,
-      isDirty: `{{ ((array1, array2) => {if (array1.length === array2.length) {return !array1.every(element => array2.includes(element));} return true;})(this.defaultOptionValue, this.selectedOptionValues); }}`,
     };
   }
 
@@ -355,8 +354,20 @@ class MultiSelectTreeWidget extends BaseWidget<
     return {
       selectedOptionValueArr: undefined,
       selectedLabel: [],
+      isDirty: false,
     };
   }
+
+  componentDidUpdate(prevProps: MultiSelectTreeWidgetProps): void {
+    if (
+      xor(this.props.defaultOptionValue, prevProps.defaultOptionValue).length >
+        0 &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+  }
+
   getPageView() {
     const options =
       isArray(this.props.options) &&
@@ -405,6 +416,9 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
     this.props.updateWidgetMetaProperty("selectedOptionValueArr", value);
     this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
       triggerPropertyName: "onOptionChange",
@@ -469,6 +483,7 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  isDirty: boolean;
 }
 
 export default MultiSelectTreeWidget;

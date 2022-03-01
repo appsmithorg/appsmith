@@ -205,8 +205,11 @@ class PhoneInputWidget extends BaseInputWidget<
         parseIncompletePhoneNumber(formattedValue),
       );
       this.props.updateWidgetMetaProperty("text", formattedValue);
+
       // If defaultText property has changed, reset isDirty to false
-      this.props.updateWidgetMetaProperty("isDirty", false);
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
     }
   }
 
@@ -250,9 +253,6 @@ class PhoneInputWidget extends BaseInputWidget<
       },
     });
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-    if (value === this.props.defaultText) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
   };

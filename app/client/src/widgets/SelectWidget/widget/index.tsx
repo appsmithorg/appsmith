@@ -334,6 +334,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       value: undefined,
       label: undefined,
       filterText: "",
+      isDirty: false,
     };
   }
 
@@ -342,13 +343,23 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
       selectedOptionLabel: `{{(()=>{const label = _.isPlainObject(this.label) ? this.label?.label : this.label; return label; })()}}`,
       selectedOptionValue: `{{(()=>{const value = _.isPlainObject(this.value) ? this.value?.value : this.value; return value; })()}}`,
-      isDirty: `{{ this.value !== this.defaultValue }}`,
     };
   }
 
   componentDidMount() {
     super.componentDidMount();
     this.changeSelectedOption();
+  }
+
+  componentDidUpdate(prevProps: SelectWidgetProps): void {
+    const defaultOptionValue =
+      this.props.defaultOptionValue.value ?? this.props.defaultOptionValue;
+    const prevDefaultOptionValue =
+      prevProps.defaultOptionValue.value ?? prevProps.defaultOptionValue;
+    // Reset isDirty to false if defaultOptionValue changes
+    if (defaultOptionValue !== prevDefaultOptionValue && this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   isStringOrNumber = (value: any): value is string | number =>
@@ -408,6 +419,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
     if (isChanged) {
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+
       this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
 
       this.props.updateWidgetMetaProperty("value", selectedOption.value ?? "", {

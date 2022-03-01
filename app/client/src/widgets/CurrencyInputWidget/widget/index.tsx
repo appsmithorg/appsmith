@@ -203,7 +203,12 @@ class CurrencyInputWidget extends BaseInputWidget<
       this.props.text === String(this.props.defaultText)
     ) {
       this.formatText();
-      // If defaultText property has changed, reset isDirty to false
+    }
+    // If defaultText property has changed, reset isDirty to false
+    if (
+      this.props.defaultText !== prevProps.defaultText &&
+      this.props.isDirty
+    ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
@@ -249,9 +254,6 @@ class CurrencyInputWidget extends BaseInputWidget<
 
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-    if (value === String(this.props.defaultText)) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
     }
   };
 
@@ -309,6 +311,10 @@ class CurrencyInputWidget extends BaseInputWidget<
       this.props.decimals,
       String(value),
     );
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("text", String(formattedValue), {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,

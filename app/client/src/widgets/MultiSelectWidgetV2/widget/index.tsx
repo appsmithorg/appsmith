@@ -399,7 +399,6 @@ class MultiSelectWidget extends BaseWidget<
       selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => _.isNil(o.label) ? o : o.label ) : [] }}`,
       selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) =>  _.isNil(o.value) ? o : o.value  ) : [] }}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
-      isDirty: `{{ ((array1, array2) => {if (array1.length === array2.length) {return !array1.map((o) => o.value).every(element => array2.includes(element));} return true;})(this.defaultOptionValue, this.selectedOptionValues); }}`,
     };
   }
 
@@ -414,7 +413,17 @@ class MultiSelectWidget extends BaseWidget<
     return {
       selectedOptions: undefined,
       filterText: "",
+      isDirty: false,
     };
+  }
+
+  componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
+    if (
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
