@@ -46,7 +46,6 @@ const customRender = (
   options?: Omit<RenderOptions, "queries">,
 ) => {
   let reduxStore = store;
-  console.log({ store });
   window.history.pushState({}, "Appsmith", state?.url || "/");
   if (state && state.initialState) {
     reduxStore = testStore(state.initialState || {});

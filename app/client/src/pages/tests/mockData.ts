@@ -11,7 +11,7 @@ export const fetchPagesMockResponse = {
     organizationId: "605c433c91dea93f0eaf91b5",
     pages: [
       {
-        id: "605c435a91dea93f0eaf91ba",
+        pageId: "605c435a91dea93f0eaf91ba",
         name: "Page1",
         isDefault: true,
         slug: "page-1",
