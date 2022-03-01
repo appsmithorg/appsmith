@@ -47,9 +47,10 @@ describe("MySQL noise test", function() {
     cy.get('.t--entity-name:contains("Page1")').click({ force: true });
     cy.wait(2000);
     // run kill query
-    cy.get(".bp3-button-text:contains('Kill Session')").click();
+    cy.get(".bp3-button-text:contains('Kill Session')").should("be.visible");
+    cy.get(".bp3-button-text:contains('Kill Session')").click({ force: true });
     // run refresh query
-    cy.get(".bp3-button-text:contains('Refresh Query')").click();
+    cy.get(".bp3-button-text:contains('Refresh Query')").click({ force: true });
     cy.wait(2000);
     cy.get(commonlocators.toastmsg).contains(
       "UncaughtPromiseRejection: NoiseTestQuery failed to execute",
