@@ -1207,6 +1207,14 @@ public class ApplicationServiceTest {
                     testWidget.put("testField", "{{ cloneActionTest.data }}");
                     children.add(testWidget);
 
+                    JSONObject secondWidget = new JSONObject();
+                    secondWidget.put("widgetName", "secondWidget");
+                    temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField1"))));
+                    secondWidget.put("dynamicBindingPathList", temp);
+                    secondWidget.put("testField1", "{{ testCollection1.cloneActionCollection1.data }}");
+                    children.add(secondWidget);
+
                     Layout layout = testPage.getLayouts().get(0);
                     layout.setDsl(parentDsl);
 
@@ -1218,11 +1226,20 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setOrganizationId(application.getOrganizationId());
                     actionCollectionDTO.setPluginId(testPlugin.getId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-                    actionCollectionDTO.setBody("collectionBody");
+                    actionCollectionDTO.setBody("export default {\n" +
+                            "\tgetData: async () => {\n" +
+                            "\t\tconst data = await cloneActionTest.run();\n" +
+                            "\t\treturn data;\n" +
+                            "\t}\n" +
+                            "}");
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("cloneActionCollection1");
                     action1.setActionConfiguration(new ActionConfiguration());
-                    action1.getActionConfiguration().setBody("mockBody");
+                    action1.getActionConfiguration().setBody(
+                            "async () => {\n" +
+                                    "\t\tconst data = await cloneActionTest.run();\n" +
+                                    "\t\treturn data;\n" +
+                                    "\t}");
                     actionCollectionDTO.setActions(List.of(action1));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
@@ -1304,13 +1321,18 @@ public class ApplicationServiceTest {
 
                         newPage.getUnpublishedPage()
                                 .getLayouts()
-                                .forEach(layout ->
-                                        layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                            dslActionDTOS.forEach(actionDTO -> {
-                                                assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
-                                            });
-                                        })
-                                );
+                                .forEach(layout -> {
+                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
+                                        assertThat(dslActionDTOS).hasSize(2);
+                                        dslActionDTOS.forEach(actionDTO -> {
+                                            assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
+                                            if (StringUtils.hasLength(actionDTO.getCollectionId())) {
+                                                assertThat(actionDTO.getDefaultCollectionId()).isEqualTo(actionDTO.getCollectionId());
+                                            }
+                                        });
+                                    });
+                                });
                     });
 
                     assertThat(actionList).hasSize(2);
