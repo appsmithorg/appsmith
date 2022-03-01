@@ -24,17 +24,14 @@ fi
 
 bash "$APP_TEMPLATE" "$APPSMITH_CUSTOM_DOMAIN" > /etc/nginx/sites-available/default
 
-python3 -c '
-from pathlib import Path
-import re
-import os
-index_path = Path("/opt/appsmith/editor/index.html")
-content = re.sub(
-	r"\b__(APPSMITH_[A-Z0-9_]+?)__\b",
-	lambda match: os.environ.get(match.group(1), match.group(0)),
-	index_path.read_text(),
+node -e '
+const fs = require("fs")
+const indexPath = "/opt/appsmith/editor/index.html"
+const content = fs.readFileSync(indexPath, "utf8").replace(
+	/\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
+	(placeholder, name) => (process.env[name] || placeholder)
 )
-index_path.write_text(content)
+fs.writeFileSync(indexPath, content)
 '
 
 exec nginx -g "daemon off;"
