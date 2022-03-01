@@ -115,7 +115,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    private void migrateFirestoreActionsFormData(NewAction uqiAction) {
+    public static void migrateFirestoreActionsFormData(NewAction uqiAction) {
         ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
         /**
          * Migrate unpublished action configuration data.
@@ -182,7 +182,7 @@ public class DatabaseChangelog2 {
 
     }
 
-    private void convertToFormDataObject(Map<String, Object> formDataMap, String key, Object value) {
+    private static void convertToFormDataObject(Map<String, Object> formDataMap, String key, Object value) {
         if (value == null) {
             return;
         }
@@ -194,7 +194,7 @@ public class DatabaseChangelog2 {
                 ));
     }
 
-    private void mapS3ToNewFormData(ActionDTO action, Map<String, Object> newUnpublishedFormDataMap) {
+    private static void mapS3ToNewFormData(ActionDTO action, Map<String, Object> newUnpublishedFormDataMap) {
         final Map<String, Object> unpublishedFormData = action.getActionConfiguration().getFormData();
         final String command = (String) unpublishedFormData.get("command");
         if (command == null) {
@@ -237,7 +237,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    private void migrateAmazonS3ActionsFormData(NewAction uqiAction) {
+    public static void migrateAmazonS3ActionsFormData(NewAction uqiAction) {
         ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
         /**
          * Migrate unpublished action configuration data.
@@ -289,7 +289,7 @@ public class DatabaseChangelog2 {
 
     }
 
-    private void mapMongoToNewFormData(ActionDTO action, Map<String, Object> f) {
+    private static void mapMongoToNewFormData(ActionDTO action, Map<String, Object> f) {
         final Map<String, Object> formData = action.getActionConfiguration().getFormData();
         final String command = (String) formData.get("command");
         if (command == null) {
@@ -360,7 +360,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    private void migrateMongoActionsFormData(NewAction uqiAction) {
+    public static void migrateMongoActionsFormData(NewAction uqiAction) {
         ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
         /**
          * Migrate unpublished action configuration data.
