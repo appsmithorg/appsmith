@@ -384,9 +384,13 @@ export function* initializeAppViewerSaga(
   let { applicationId } = action.payload;
 
   if (!applicationId) {
-    const currentPageInfo: FetchPageResponse = yield call(PageApi.fetchPage, {
-      id: pageId,
-    });
+    const currentPageInfo: FetchPageResponse = yield call(
+      PageApi.fetchPublishedPage,
+      {
+        pageId,
+        bustCache: true,
+      },
+    );
     applicationId = currentPageInfo.data.applicationId;
   }
 
