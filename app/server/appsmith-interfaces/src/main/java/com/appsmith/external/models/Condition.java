@@ -88,6 +88,13 @@ public class Condition {
         return true;
     }
 
+    /**
+     * To generate condition list based on selected condition
+     * Mandatory inputs validated are path and operator
+     * Value is optional and considered as a null input
+     * @param configurationList
+     * @return
+     */
     public static List<Condition> generateFromConfiguration(List<Object> configurationList) {
         List<Condition> conditionList = new ArrayList<>();
 
@@ -96,7 +103,7 @@ public class Condition {
             if (condition.entrySet().isEmpty()) {
                 // Its an empty object set by the client for UX. Ignore the same
                 continue;
-            } else if (!condition.keySet().containsAll(Set.of("path", "operator", "value"))) {
+            } else if (!condition.keySet().containsAll(Set.of("path", "operator"))) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Filtering Condition not configured properly");
             }
             conditionList.add(new Condition(
