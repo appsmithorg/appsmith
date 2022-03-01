@@ -198,7 +198,7 @@ export default function Group({
                       checkValues={(value: any) =>
                         setting.checkValues ? setting.checkValues(value) : true
                       }
-                      customError={(err: string) => console.log(err)}
+                      customError={(err: string) => null}
                       data-cy="t--tag-input"
                       intent="success"
                       label={setting.label}
