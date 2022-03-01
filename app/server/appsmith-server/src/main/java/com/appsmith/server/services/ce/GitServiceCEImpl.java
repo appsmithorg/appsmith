@@ -2055,16 +2055,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    /**
-     * Method to allow client to discard changes present in DB and sync with remote repo
-     *
-     * @param defaultApplicationId root application id
-     * @param branchName           branch for which the discard changes from DB is required
-     * @param doPull               query param to indicate if the pull is required during the discard operation
-     *                             true => pull remote changes
-     *                             false => rehydrate the application from local repo
-     * @return                     updated application
-     */
     @Override
     public Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull) {
 

@@ -1034,8 +1034,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         if (newPage.getGitSyncId() != null && savedPagesGitIdToPageMap.containsKey(newPage.getGitSyncId())) {
                             //Since the resource is already present in DB, just update resource
                             NewPage existingPage = savedPagesGitIdToPageMap.get(newPage.getGitSyncId());
-                            // newPage.setId(savedPagesGitIdToPageMap.get(newPage.getGitSyncId()).getId());
                             AppsmithBeanUtils.copyNestedNonNullProperties(newPage, existingPage);
+                            // Recover the deleted state present in DB from imported page
                             existingPage.getUnpublishedPage().setDeletedAt(newPage.getUnpublishedPage().getDeletedAt());
                             existingPage.setDeletedAt(newPage.getDeletedAt());
                             existingPage.setDeleted(newPage.getDeleted());
@@ -1126,7 +1126,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // If pageId is missing in the actionDTO create a fallback pageId
                     final String fallbackParentPageId = unpublishedAction.getPageId();
 
-                    // pageNameMap.get(action.getPageId())
                     if (unpublishedAction.getName() != null) {
                         unpublishedAction.setId(newAction.getId());
                         parentPage = updatePageInAction(unpublishedAction, pageNameMap, actionIdMap);
@@ -1156,6 +1155,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         //Since the resource is already present in DB, just update resource
                         NewAction existingAction = savedActionsGitIdToActionsMap.get(newAction.getGitSyncId());
                         AppsmithBeanUtils.copyNestedNonNullProperties(newAction, existingAction);
+                        // Recover the deleted state present in DB from imported action
                         existingAction.getUnpublishedAction().setDeletedAt(newAction.getUnpublishedAction().getDeletedAt());
                         existingAction.setDeletedAt(newAction.getDeletedAt());
                         existingAction.setDeleted(newAction.getDeleted());
@@ -1307,6 +1307,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         //Since the resource is already present in DB, just update resource
                         ActionCollection existingActionCollection = savedActionCollectionGitIdToCollectionsMap.get(actionCollection.getGitSyncId());
                         AppsmithBeanUtils.copyNestedNonNullProperties(actionCollection, existingActionCollection);
+                        // Recover the deleted state present in DB from imported actionCollection
                         existingActionCollection.getUnpublishedCollection().setDeletedAt(actionCollection.getUnpublishedCollection().getDeletedAt());
                         existingActionCollection.setDeletedAt(actionCollection.getDeletedAt());
                         existingActionCollection.setDeleted(actionCollection.getDeleted());
