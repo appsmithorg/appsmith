@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Space, Title } from "../components/StyledComponents";
 import {
+  CHANGES_MADE_SINCE_LAST_COMMIT,
   COMMIT_AND_PUSH,
   COMMIT_TO,
   COMMITTING_AND_PUSHING_CHANGES,
@@ -110,6 +111,12 @@ function SubmitWrapper(props: {
   return <div onKeyDown={onKeyDown}>{props.children}</div>;
 }
 
+const SubTitle = styled.div`
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  ${(props) => getTypographyByKey(props, "p1")};
+  color: ${Colors.BLACK};
+`;
+
 function Deploy() {
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
@@ -197,6 +204,7 @@ function Deploy() {
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
+      <SubTitle>{createMessage(CHANGES_MADE_SINCE_LAST_COMMIT)}</SubTitle>
       <Section>
         <GitChanged />
         <Row>

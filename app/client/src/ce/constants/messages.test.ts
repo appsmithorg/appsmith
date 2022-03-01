@@ -1,6 +1,7 @@
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
+  CHANGES_MADE_SINCE_LAST_COMMIT,
   COMMIT_AND_PUSH,
   COMMIT_CHANGES,
   COMMIT_TO,
@@ -209,10 +210,15 @@ describe("git-sync messages", () => {
       value: `Create an empty git repository and paste the remote URL here.`,
     },
     { key: "REMOTE_URL_VIA", value: "Remote URL via" },
+    {
+      key: "CHANGES_MADE_SINCE_LAST_COMMIT",
+      value: "Changes made since last commit",
+    },
   ];
   const functions = [
     CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
     CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
+    CHANGES_MADE_SINCE_LAST_COMMIT,
     COMMITTING_AND_PUSHING_CHANGES,
     COMMIT_AND_PUSH,
     COMMIT_CHANGES,

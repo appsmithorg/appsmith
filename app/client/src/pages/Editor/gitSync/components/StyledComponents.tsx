@@ -5,7 +5,7 @@ import { Colors } from "constants/Colors";
 export const Title = styled.p`
   ${(props) => getTypographyByKey(props, "h1")};
   margin: ${(props) =>
-    `${props.theme.spaces[7]}px 0px ${props.theme.spaces[4]}px 0px`};
+    `${props.theme.spaces[7]}px 0px ${props.theme.spaces[11]}px 0px`};
 `;
 
 export const Subtitle = styled.span`

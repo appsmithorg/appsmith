@@ -11,19 +11,19 @@ import {
 } from "selectors/gitSyncSelectors";
 
 const Skeleton = styled.div`
-  width: 100%;
+  width: 50%;
   height: ${(props) => props.theme.spaces[9]}px;
   background: linear-gradient(
     90deg,
     ${Colors.GREY_2} 0%,
     rgba(240, 240, 240, 0) 100%
   );
-  margin-right: ${(props) => props.theme.spaces[8] + 5}px;
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const Wrapper = styled.div`
-  //width: 178px;
   height: ${(props) => props.theme.spaces[9]}px;
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
   display: flex;
 
   .${Classes.ICON} {
@@ -35,8 +35,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const ChangeDifferences = styled.div`
-  margin-bottom: 2px;
+const Statuses = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
@@ -51,7 +50,7 @@ type GitSyncProps = {
   type: Kind;
 };
 
-const GIT_STATUS_MAP = {
+const STATUS_MAP = {
   [Kind.widget]: (status: any) => ({
     message: `${status?.modifiedPages || 0} ${
       (status?.modifiedPages || 0) === 1 ? "page" : "pages"
@@ -72,12 +71,12 @@ const GIT_STATUS_MAP = {
   }),
 };
 
-function GitStatus(props: GitSyncProps) {
+function Status(props: GitSyncProps) {
   const { type } = props;
   const status: any = useSelector(getGitStatus);
   const loading = useSelector(getIsFetchingGitStatus);
-  // const loading = true;
-  const { iconName, message } = GIT_STATUS_MAP[type](status);
+  const { iconName, message } = STATUS_MAP[type](status);
+
   return loading ? (
     <Skeleton />
   ) : (
@@ -88,13 +87,25 @@ function GitStatus(props: GitSyncProps) {
   );
 }
 
+function WidgetStatus() {
+  return <Status type={Kind.widget} />;
+}
+
+function QueryStatus() {
+  return <Status type={Kind.query} />;
+}
+
+function CommitStatus(gitStatus: any) {
+  return gitStatus?.aheadCount > 0 ? <Status type={Kind.commit} /> : null;
+}
+
 export default function GitChanged() {
   const gitStatus: any = useSelector(getGitStatus);
   return (
-    <ChangeDifferences>
-      <GitStatus type={Kind.widget} />
-      <GitStatus type={Kind.query} />
-      {gitStatus?.aheadCount > 0 && <GitStatus type={Kind.commit} />}
-    </ChangeDifferences>
+    <Statuses>
+      <WidgetStatus />
+      <QueryStatus />
+      <CommitStatus gitStatus={gitStatus} />
+    </Statuses>
   );
 }
