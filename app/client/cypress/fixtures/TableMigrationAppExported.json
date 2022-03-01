@@ -688,7 +688,7 @@
 													"isDisabled": false,
 													"isVisible": true,
 													"index": 0.0,
-													"onClick": "{{(async function() { await storeValue('addreduce',0); await ChangeCreditlimit.run()})()}}"
+													"onClick": "{{storeValue('addreduce','0');ChangeCreditlimit.run()}}"
 												},
 												"menuItem54mz4q42yo": {
 													"id": "menuItem54mz4q42yo",
@@ -1888,7 +1888,7 @@
 													"isDisabled": false,
 													"isVisible": true,
 													"index": 0.0,
-													"onClick": "{{(async function() { await storeValue('addreduce',0); await ChangeCreditlimit.run()})()}}"
+													"onClick": "{{storeValue('addreduce','0');ChangeCreditlimit.run()}}"
 												},
 												"menuItem54mz4q42yo": {
 													"id": "menuItem54mz4q42yo",
@@ -3084,7 +3084,7 @@
 													"isDisabled": false,
 													"isVisible": true,
 													"index": 0,
-													"onClick": "{{(async function() { await storeValue('addreduce',0); await ChangeCreditlimit.run()})()}}"
+													"onClick": "{{storeValue('addreduce','0');ChangeCreditlimit.run()}}"
 												},
 												"menuItem54mz4q42yo": {
 													"id": "menuItem54mz4q42yo",
@@ -4125,7 +4125,7 @@
 													"isDisabled": false,
 													"isVisible": true,
 													"index": 0.0,
-													"onClick": "{{(async function() { await storeValue('addreduce',0); await ChangeCreditlimit.run()})()}}"
+													"onClick": "{{storeValue('addreduce','0');ChangeCreditlimit.run()}}"
 												},
 												"menuItem54mz4q42yo": {
 													"id": "menuItem54mz4q42yo",
