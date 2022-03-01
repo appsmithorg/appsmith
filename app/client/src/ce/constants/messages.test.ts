@@ -1,4 +1,5 @@
 import {
+  ARE_YOU_SURE,
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
   CHANGES_ONLY_MIGRATION,
@@ -22,6 +23,10 @@ import {
   DEPLOY,
   DEPLOY_KEY_TITLE,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  DISCARD_CHANGES,
+  DISCARD_CHANGES_WARNING,
+  DISCARD_SUCCESS,
+  DISCARDING_AND_PULLING_CHANGES,
   DISCONNECT,
   DISCONNECT_CAUSE_APPLICATION_BREAK,
   DISCONNECT_EXISTING_REPOSITORIES,
@@ -137,7 +142,7 @@ describe("git-sync messages", () => {
     },
     {
       key: "REMOTE_URL_INPUT_PLACEHOLDER",
-      value: "git://example.com:user/repo.git",
+      value: "ssh://example.com:user/repo.git",
     },
     { key: "COPIED_SSH_KEY", value: "Copied SSH Key" },
     {
@@ -273,8 +278,29 @@ describe("git-sync messages", () => {
       value: "Appsmith update and user changes since last commit",
     },
     { key: "MERGED_SUCCESSFULLY", value: "Merged successfully" },
+    {
+      key: "DISCARD_CHANGES_WARNING",
+      value: "Discarding these changes will pull previous changes from Git.",
+    },
+    {
+      key: "DISCARD_SUCCESS",
+      value: "Discarded changes successfully.",
+    },
+    {
+      key: "DISCARDING_AND_PULLING_CHANGES",
+      value: "DISCARDING AND PULLING CHANGES...",
+    },
+    {
+      key: "ARE_YOU_SURE",
+      value: "Are you sure?",
+    },
+    {
+      key: "DISCARD_CHANGES",
+      value: "Discard changes",
+    },
   ];
   const functions = [
+    ARE_YOU_SURE,
     CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
     CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
     CHANGES_ONLY_MIGRATION,
@@ -297,11 +323,17 @@ describe("git-sync messages", () => {
     DEPLOY,
     DEPLOY_KEY_TITLE,
     DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+    DISCARDING_AND_PULLING_CHANGES,
+    DISCARD_CHANGES,
+    DISCARD_CHANGES_WARNING,
+    DISCARD_SUCCESS,
     DISCONNECT,
     DISCONNECT_CAUSE_APPLICATION_BREAK,
     DISCONNECT_EXISTING_REPOSITORIES,
     DISCONNECT_EXISTING_REPOSITORIES_INFO,
     DISCONNECT_GIT,
+    ERROR_GIT_AUTH_FAIL,
+    ERROR_GIT_INVALID_REMOTE,
     ERROR_WHILE_PULLING_CHANGES,
     FETCH_GIT_STATUS,
     FETCH_MERGE_STATUS,
@@ -338,8 +370,6 @@ describe("git-sync messages", () => {
     SUBMIT,
     UPDATE_CONFIG,
     USE_DEFAULT_CONFIGURATION,
-    ERROR_GIT_AUTH_FAIL,
-    ERROR_GIT_INVALID_REMOTE,
   ];
   functions.forEach((fn: () => string) => {
     it(`${fn.name} returns expected value`, () => {

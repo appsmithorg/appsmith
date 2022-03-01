@@ -6,6 +6,7 @@ export function createMessage(
 }
 
 export const YES = () => `Yes`;
+export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
@@ -645,6 +646,10 @@ export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
   "COMMITTING AND PUSHING CHANGES...";
+export const DISCARDING_AND_PULLING_CHANGES = () =>
+  "DISCARDING AND PULLING CHANGES...";
+export const DISCARD_SUCCESS = () => "Discarded changes successfully.";
+
 export const IS_MERGING = () => "MERGING CHANGES...";
 
 export const MERGE_CHANGES = () => "Merge changes";
@@ -658,7 +663,7 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
-  "git://example.com:user/repo.git";
+  "ssh://example.com:user/repo.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
@@ -749,11 +754,16 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
+export const DISCARD_CHANGES_WARNING = () =>
+  "Discarding these changes will pull previous changes from Git.";
+export const DISCARD_CHANGES = () => "Discard changes";
 
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";
+export const CHANGES_MADE_SINCE_LAST_COMMIT = () =>
+  "Changes made since last commit";
 export const CHANGES_ONLY_MIGRATION = () =>
   "Appsmith update changes since last commit";
 export const CHANGES_USER_AND_MIGRATION = () =>
