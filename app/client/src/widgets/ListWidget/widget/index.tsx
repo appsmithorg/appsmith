@@ -484,51 +484,29 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           "",
         );
 
-        if (
-          propertyValue.indexOf("currentItem") > -1 &&
-          propertyValue.indexOf("{{((currentItem) => {") === -1
-        ) {
-          const { jsSnippets } = getDynamicBindings(propertyValue);
-          const listItem = this.props.listData?.[itemIndex] || {};
-          const stringifiedListItem = JSON.stringify(listItem);
-          const escapedStringifiedListItem = escapeSpecialChars(
-            stringifiedListItem,
-          );
-          const newPropertyValue = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              if (next.indexOf("currentItem") > -1) {
-                return (
-                  prev +
-                  `{{((currentItem) => { ${next}})(JSON.parse('${escapedStringifiedListItem}'))}}`
-                );
-              }
-              return prev + `{{${next}}}`;
-            },
-            "",
-          );
-          set(widget, path, newPropertyValue);
-        }
-
-        if (
-          propertyValue.indexOf("currentIndex") > -1 &&
-          propertyValue.indexOf("{{((currentIndex) => {") === -1
-        ) {
-          const { jsSnippets } = getDynamicBindings(propertyValue);
-
-          const newPropertyValue = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              if (next.indexOf("currentIndex") > -1) {
-                return (
-                  prev +
-                  `{{((currentIndex) => { ${next}})(JSON.parse('${itemIndex}'))}}`
-                );
-              }
-              return prev + `{{${next}}}`;
-            },
-            "",
-          );
-          set(widget, path, newPropertyValue);
-        }
+        const { jsSnippets } = getDynamicBindings(propertyValue);
+        const listItem = this.props.listData?.[itemIndex] || {};
+        const stringifiedListItem = JSON.stringify(listItem);
+        const escapedStringifiedListItem = escapeSpecialChars(
+          stringifiedListItem,
+        );
+        const newPropertyValue = jsSnippets.reduce(
+          (prev: string, next: string) => {
+            return (
+              prev +
+              `{{
+                  (
+                    (currentItem, currentIndex) => { ${next} }
+                  )(
+                    JSON.parse('${escapedStringifiedListItem}'),
+                    JSON.parse('${itemIndex}')
+                  )
+                }}`
+            );
+          },
+          "",
+        );
+        set(widget, path, newPropertyValue);
       });
     }
 
