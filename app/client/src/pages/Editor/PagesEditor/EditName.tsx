@@ -13,7 +13,7 @@ import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, GO_TO_PAGE } from "constants/messages";
+import { createMessage, GO_TO_PAGE } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 

@@ -8,7 +8,6 @@ import {
 } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
-  HTTP_METHODS,
   API_EDITOR_TABS,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
@@ -47,7 +46,8 @@ import {
   API_EDITOR_TAB_TITLES,
   createMessage,
   WIDGET_BIND_HELP,
-} from "constants/messages";
+  API_PANE_NO_BODY,
+} from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
@@ -58,7 +58,7 @@ import {
   getAction,
   getActionResponses,
 } from "../../../selectors/entitiesSelector";
-import { isEmpty } from "lodash";
+import { isEmpty, isEqual } from "lodash";
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -70,6 +70,7 @@ import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 
 const Form = styled.form`
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -257,6 +258,7 @@ interface APIFormProps {
   hasResponse: boolean;
   suggestedWidgets?: SuggestedWidget[];
   updateDatasource: (datasource: Datasource) => void;
+  currentActionDatasourceId: string;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -535,6 +537,7 @@ function ApiEditorForm(props: Props) {
     actionConfigurationHeaders,
     actionConfigurationParams,
     actionName,
+    currentActionDatasourceId,
     handleSubmit,
     headersCount,
     hintMessages,
@@ -547,13 +550,15 @@ function ApiEditorForm(props: Props) {
     updateDatasource,
   } = props;
   const dispatch = useDispatch();
-  const allowPostBody =
-    httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
+  const allowPostBody = httpMethodFromForm;
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
-  const actions: Action[] = useSelector((state: AppState) =>
-    state.entities.actions.map((action) => action.config),
+  // passing lodash's equality function to ensure that this selector does not cause a rerender multiple times.
+  // it checks each value to make sure none has changed before recomputing the actions.
+  const actions: Action[] = useSelector(
+    (state: AppState) => state.entities.actions.map((action) => action.config),
+    isEqual,
   );
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
@@ -618,6 +623,7 @@ function ApiEditorForm(props: Props) {
             <DatasourceWrapper className="t--dataSourceField">
               <EmbeddedDatasourcePathField
                 actionName={actionName}
+                codeEditorVisibleOverflow
                 name="actionConfiguration.path"
                 placeholder="https://mock-api.appsmith.com/users"
                 pluginId={pluginId}
@@ -706,7 +712,7 @@ function ApiEditorForm(props: Props) {
                     ) : (
                       <NoBodyMessage>
                         <Text type={TextType.P2}>
-                          This request does not have a body
+                          {createMessage(API_PANE_NO_BODY)}
                         </Text>
                       </NoBodyMessage>
                     ),
@@ -752,6 +758,7 @@ function ApiEditorForm(props: Props) {
           <DataSourceList
             actionName={actionName}
             applicationId={props.applicationId}
+            currentActionDatasourceId={currentActionDatasourceId}
             currentPageId={props.currentPageId}
             datasources={props.datasources}
             hasResponse={props.hasResponse}
@@ -800,6 +807,8 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     get(datasourceFromAction, "datasourceConfiguration.queryParameters") || [];
 
   const apiId = selector(state, "id");
+  const currentActionDatasourceId = selector(state, "datasource.id");
+
   const actionName = getApiName(state, apiId) || "";
   const headers = selector(state, "actionConfiguration.headers");
   let headersCount = 0;
@@ -849,6 +858,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     httpMethodFromForm,
     actionConfigurationHeaders,
     actionConfigurationParams,
+    currentActionDatasourceId,
     datasourceHeaders,
     datasourceParams,
     headersCount,

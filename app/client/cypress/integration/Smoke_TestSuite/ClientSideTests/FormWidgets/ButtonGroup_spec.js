@@ -67,9 +67,7 @@ describe("Button Group Widget Functionality", function() {
 
   it("Update icon alignment and Verify buttons alignments", function() {
     // align right
-    cy.get(
-      ".t--property-control-iconalignment > .bp3-button-group.bp3-fill .bp3-button",
-    )
+    cy.get(".t--property-control-iconalignment .t--button-tab-left")
       .first()
       .click();
     cy.wait(200);
@@ -78,9 +76,7 @@ describe("Button Group Widget Functionality", function() {
       .eq(0)
       .should("have.css", "flex-direction", "row");
     // align left
-    cy.get(
-      ".t--property-control-iconalignment > .bp3-button-group.bp3-fill .bp3-button",
-    )
+    cy.get(".t--property-control-iconalignment .t--button-tab-right")
       .last()
       .click();
     cy.wait(200);

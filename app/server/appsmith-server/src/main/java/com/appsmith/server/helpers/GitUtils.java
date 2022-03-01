@@ -5,11 +5,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import org.eclipse.jgit.util.StringUtils;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,6 +74,9 @@ public class GitUtils {
      * @return git hosting provider
      */
     public static String getGitProviderName(String sshUrl) {
+        if(StringUtils.isEmptyOrNull(sshUrl)) {
+            return "";
+        }
         return sshUrl.split("\\.")[0]
                 .replaceFirst("git@", "");
     }

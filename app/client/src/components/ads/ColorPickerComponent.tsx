@@ -125,7 +125,10 @@ function ColorBoard(props: ColorBoardProps) {
           {props.selectedColor === color && <CheckedIcon />}
         </ColorTab>
       ))}
-      <EmptyColorIconWrapper onClick={() => props.selectColor("")}>
+      <EmptyColorIconWrapper
+        color="transparent"
+        onClick={() => props.selectColor("")}
+      >
         <NoColorIcon>
           <div className="line" />
         </NoColorIcon>

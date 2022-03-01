@@ -117,9 +117,6 @@ ingress:
     # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts: []
     # - host: appsmith-domain.me
-    #   paths:
-    #     - path: /
-    #       pathType: ImplementationSpecific
   ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hosts` parameter
   ## You can:
   ##   - Use the `ingress.secrets` parameter to create this TLS secret

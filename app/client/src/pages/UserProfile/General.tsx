@@ -12,7 +12,7 @@ import { Variant } from "components/ads/common";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "reducers";
 import UserProfileImagePicker from "components/ads/UserProfileImagePicker";

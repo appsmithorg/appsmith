@@ -2,52 +2,19 @@ package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.SSLDetails;
 import com.arangodb.ArangoDB.Builder;
 import org.pf4j.util.StringUtils;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 
 public class SSLUtils {
-
-    private static final String X_509_TYPE = "X.509";
-    private static final String CERT_ALIAS = "caCert";
-    private static final String SSL_PROTOCOL = "TLS";
-
-    public static SSLContext getSslContext(DatasourceConfiguration datasourceConfiguration) throws CertificateException
-            , KeyStoreException, IOException, NoSuchAlgorithmException, KeyManagementException {
-        InputStream certificateIs =
-                new ByteArrayInputStream(datasourceConfiguration.getConnection().getSsl()
-                        .getCaCertificateFile().getDecodedContent());
-        CertificateFactory certificateFactory = CertificateFactory.getInstance(X_509_TYPE);
-        X509Certificate caCertificate =
-                (X509Certificate) certificateFactory.generateCertificate(certificateIs);
-
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(null);
-        keyStore.setCertificateEntry(CERT_ALIAS, caCertificate);
-
-        TrustManagerFactory trustManagerFactory =
-                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(keyStore);
-
-        SSLContext sslContext = SSLContext.getInstance(SSL_PROTOCOL);
-        sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
-
-        return sslContext;
-    }
 
     public static boolean isCaCertificateAvailable(DatasourceConfiguration datasourceConfiguration) {
         if (datasourceConfiguration.getConnection() != null
@@ -97,7 +64,7 @@ public class SSLUtils {
             case FILE:
             case BASE64_STRING:
                 try {
-                    builder.sslContext(getSslContext(datasourceConfiguration));
+                    builder.sslContext(SSLHelper.getSslContext(datasourceConfiguration.getConnection().getSsl().getCaCertificateFile()));
                 } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException
                         | KeyManagementException e) {
                     throw new AppsmithPluginException(

@@ -72,7 +72,7 @@ import {
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
@@ -457,7 +457,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               canOutsideClickClose
               headerIcon={{
                 name: "right-arrow",
-                bgColor: "transparent",
+                bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
               orgId={orgId}

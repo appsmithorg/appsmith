@@ -1,6 +1,6 @@
 import Button from "components/ads/Button";
 import styled from "constants/DefaultTheme";
-import { createMessage, SNIPPET_TOOLTIP } from "constants/messages";
+import { createMessage, SNIPPET_TOOLTIP } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import React from "react";
 import { useDispatch } from "react-redux";

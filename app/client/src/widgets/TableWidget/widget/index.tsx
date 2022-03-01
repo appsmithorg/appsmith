@@ -168,7 +168,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
+              backgroundColor: cellProperties.buttonColor || "transparent",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               buttonVariant:
                 cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY,
@@ -896,7 +896,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       );
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{(currentRow) => { ${next} }}} `;
+        return prev + `{{(currentRow) => { return (${next}) }}} `;
       }, "");
       if (modifiedAction) {
         super.executeAction({

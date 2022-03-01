@@ -15,7 +15,7 @@ import {
   ACTION_INVALID_NAME_ERROR,
   ACTION_NAME_CONFLICT_ERROR,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 type NameEditorProps = {
   checkForGuidedTour?: boolean;

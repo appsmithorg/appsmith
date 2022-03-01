@@ -6,7 +6,7 @@ import {
   createMessage,
   DEBUGGER_TRIGGER_ERROR,
   TRIGGER_ACTION_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";

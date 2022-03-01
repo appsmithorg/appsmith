@@ -16,7 +16,10 @@ import { Classes } from "@blueprintjs/core";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import NameEditorComponent from "components/utils/NameEditorComponent";
-import { ACTION_NAME_PLACEHOLDER, createMessage } from "constants/messages";
+import {
+  ACTION_NAME_PLACEHOLDER,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;

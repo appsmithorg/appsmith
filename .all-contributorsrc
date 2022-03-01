@@ -400,6 +400,16 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "prsidhu",
+      "name": "Preet Sidhu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5424788?v=4",
+      "profile": "https://github.com/prsidhu",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

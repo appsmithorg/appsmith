@@ -8,7 +8,10 @@ import { debounce } from "lodash";
 import produce from "immer";
 import { useLocation } from "react-router";
 
-import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
+import {
+  createMessage,
+  WIDGET_SIDEBAR_CAPTION,
+} from "@appsmith/constants/messages";
 import { matchBuilderPath } from "constants/routes";
 import { AppState } from "reducers";
 

@@ -1,5 +1,6 @@
 package com.external.config;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
@@ -16,6 +17,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public interface Method {
 
@@ -69,5 +72,19 @@ public interface Method {
         }
         // By default, no transformation takes place
         return response;
+    }
+
+    /**
+     * Method for custom DataType Mapping based on plugin,
+     * so here in GoogleSheet, DataTypes like Integer, Long, Float will be processed as Double as required.
+     * For example, another plugin may implement this method to process all DataType as String etc.
+     * @return  -   Map containing custom DataType to be considered against input DataType.
+     */
+    default Map<DataType, DataType> getDataTypeConversionMap() {
+        Map<DataType, DataType> conversionMap = new HashMap<DataType, DataType>();
+        conversionMap.put(DataType.INTEGER, DataType.DOUBLE);
+        conversionMap.put(DataType.LONG, DataType.DOUBLE);
+        conversionMap.put(DataType.FLOAT, DataType.DOUBLE);
+        return conversionMap;
     }
 }

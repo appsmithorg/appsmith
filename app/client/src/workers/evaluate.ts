@@ -23,6 +23,7 @@ export type EvalResult = {
 export enum EvaluationScriptType {
   EXPRESSION = "EXPRESSION",
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
+  ASYNC_ANONYMOUS_FUNCTION = "ASYNC_ANONYMOUS_FUNCTION",
   TRIGGERS = "TRIGGERS",
 }
 
@@ -44,6 +45,14 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   }
   callback(${ScriptTemplate})
   `,
+  [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
+  async function callback (script) {
+    const userFunction = script;
+    const result = await userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return result;
+  }
+  callback(${ScriptTemplate})
+  `,
   [EvaluationScriptType.TRIGGERS]: `
   async function closedFunction () {
     const result = await ${ScriptTemplate};
@@ -58,9 +67,11 @@ const getScriptType = (
   isTriggerBased = false,
 ): EvaluationScriptType => {
   let scriptType = EvaluationScriptType.EXPRESSION;
-  if (evalArgumentsExist) {
+  if (evalArgumentsExist && isTriggerBased) {
+    scriptType = EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION;
+  } else if (evalArgumentsExist && !isTriggerBased) {
     scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
-  } else if (isTriggerBased) {
+  } else if (isTriggerBased && !evalArgumentsExist) {
     scriptType = EvaluationScriptType.TRIGGERS;
   }
   return scriptType;
@@ -96,6 +107,7 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export const createGlobalData = (
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  isTriggerBased: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) => {
@@ -114,15 +126,21 @@ export const createGlobalData = (
       });
     }
   }
-  //// Add internal functions to dataTree;
-  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
-    dataTree,
-    context?.requestId,
-  );
-  ///// Adding Data tree with functions
-  Object.keys(dataTreeWithFunctions).forEach((datum) => {
-    GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-  });
+  if (isTriggerBased) {
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+      dataTree,
+      context?.requestId,
+    );
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+  } else {
+    Object.keys(dataTree).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTree[datum];
+    });
+  }
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
@@ -188,6 +206,7 @@ export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
@@ -198,6 +217,7 @@ export default function evaluateSync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      isJSCollection,
       context,
       evalArguments,
     );
@@ -266,6 +286,7 @@ export async function evaluateAsync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      true,
       { ...context, requestId },
       evalArguments,
     );

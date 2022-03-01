@@ -1,0 +1,31 @@
+{
+  "identifier": "DELETE_MULTIPLE_FILES",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'DELETE_MULTIPLE_FILES'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Bucket to Query",
+      "children": [
+        {
+          "label": "Bucket Name",
+          "configProperty": "actionConfiguration.formData.bucket",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "List of Files",
+          "configProperty": "actionConfiguration.path",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": "",
+          "placeholderText": "[\"myDir/file1.txt\", \"myDir/file2.txt\"]"
+        }
+      ]
+    }
+  ]
+}

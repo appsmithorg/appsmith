@@ -75,7 +75,7 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import {
   CopiedWidgetGroup,

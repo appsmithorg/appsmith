@@ -14,6 +14,7 @@ export const CONFIG = {
     version: 1,
     dialCode: getDefaultISDCode().dial_code,
     allowDialCodeChange: false,
+    allowFormatting: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

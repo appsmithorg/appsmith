@@ -52,7 +52,6 @@ module.exports = {
       fusioncharts: {
         licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),
       },
-      optimizely: parseConfig("__APPSMITH_OPTIMIZELY_KEY__"),
       enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__"),
       algolia: {
         apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),

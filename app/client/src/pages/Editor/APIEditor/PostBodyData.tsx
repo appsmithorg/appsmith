@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { formValueSelector } from "redux-form";
 import {
-  ApiContentTypes,
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants";
@@ -23,6 +22,8 @@ import MultiSwitch from "components/ads/MultiSwitch";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Classes } from "components/ads/common";
+import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
@@ -39,11 +40,20 @@ const JSONEditorFieldWrapper = styled.div`
   }
 `;
 
+const NoBodyMessage = styled.div`
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+
+  .${Classes.TEXT} {
+    color: ${(props) => props.theme.colors.apiPane.body.text};
+  }
+`;
 interface PostDataProps {
   displayFormat: any;
   dataTreePath: string;
   theme?: EditorTheme;
-  updateBodyContentType: (contentType: ApiContentTypes, apiId: string) => void;
+  updateBodyContentType: (contentType: string, apiId: string) => void;
   apiId: string;
 }
 
@@ -64,12 +74,15 @@ function PostBodyData(props: Props) {
     updateBodyContentType,
   } = props;
 
-  const tabComponentsMap = (
-    key: string,
-    contentType: ApiContentTypes,
-  ): JSX.Element => {
+  const tabComponentsMap = (key: string, contentType: string): JSX.Element => {
     return {
-      [ApiContentTypes.JSON]: (
+      [POST_BODY_FORMAT_OPTIONS.NONE]: (
+        <NoBodyMessage id="NoBodyMessageDiv">
+          {" "}
+          {createMessage(API_PANE_NO_BODY)}{" "}
+        </NoBodyMessage>
+      ),
+      [POST_BODY_FORMAT_OPTIONS.JSON]: (
         <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
           <DynamicTextField
             border={CodeEditorBorder.ALL_SIDE}
@@ -87,7 +100,7 @@ function PostBodyData(props: Props) {
           />
         </JSONEditorFieldWrapper>
       ),
-      [ApiContentTypes.FORM_URLENCODED]: (
+      [POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED]: (
         <KeyValueFieldArray
           dataTreePath={`${dataTreePath}.bodyFormData`}
           key={key}
@@ -98,7 +111,7 @@ function PostBodyData(props: Props) {
         />
       ),
 
-      [ApiContentTypes.MULTIPART_FORM_DATA]: (
+      [POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA]: (
         <KeyValueFieldArray
           dataTreePath={`${dataTreePath}.bodyFormData`}
           hasType
@@ -110,7 +123,7 @@ function PostBodyData(props: Props) {
         />
       ),
 
-      [ApiContentTypes.RAW]: (
+      [POST_BODY_FORMAT_OPTIONS.RAW]: (
         <JSONEditorFieldWrapper key={key}>
           <DynamicTextField
             border={CodeEditorBorder.ALL_SIDE}
@@ -129,15 +142,13 @@ function PostBodyData(props: Props) {
   return (
     <PostBodyContainer>
       <MultiSwitch
-        onSelect={(title: ApiContentTypes) =>
-          updateBodyContentType(title, apiId)
-        }
+        onSelect={(title: string) => updateBodyContentType(title, apiId)}
         selected={displayFormat}
         tabs={POST_BODY_FORMAT_TITLES.map((el) => {
           return {
             key: el.key,
             title: el.title,
-            panelComponent: tabComponentsMap(el.key, el.title),
+            panelComponent: tabComponentsMap(el.key, el.key),
           };
         })}
       />
@@ -148,16 +159,17 @@ function PostBodyData(props: Props) {
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 const mapDispatchToProps = (dispatch: any) => ({
-  updateBodyContentType: (contentType: ApiContentTypes, apiId: string) =>
+  updateBodyContentType: (contentType: string, apiId: string) =>
     dispatch(updateBodyContentType(contentType, apiId)),
 });
 
 export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
-  const displayFormat =
-    extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[3];
-
+  const displayFormat = extraFormData["displayFormat"] || {
+    label: POST_BODY_FORMAT_OPTIONS.RAW,
+    value: POST_BODY_FORMAT_OPTIONS.RAW,
+  };
   return {
     displayFormat,
     apiId,

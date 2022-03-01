@@ -28,7 +28,7 @@ import {
   FIND_OR_CREATE_A_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import { Branch } from "entities/GitSync";
 import Button, { Category, Size } from "components/ads/Button";
@@ -354,6 +354,7 @@ function Header({
             position={Position.TOP}
           >
             <Icon
+              className="t--sync-branches"
               fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
               hoverFillColor={Colors.BLACK}
               name="refresh"
@@ -367,6 +368,7 @@ function Header({
         </div>
       </div>
       <Icon
+        className="t--close-branch-list"
         fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
         hoverFillColor={Colors.BLACK}
         name="close-modal"

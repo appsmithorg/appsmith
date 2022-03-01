@@ -15,7 +15,7 @@ import {
   LATEST_DP_TITLE,
   LATEST_DP_SUBTITLE,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Text, { TextType, Case } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
@@ -81,7 +81,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
       )} ago`
     : "";
   return lastDeployedAt ? (
-    <Container>
+    <Container className="t--git-deploy-preview">
       <CloudIconWrapper>
         {props.showSuccess ? (
           <SuccessTick height="30px" width="30px" />

@@ -8,7 +8,7 @@ import {
   GIT_CONFLICTING_INFO,
   LEARN_MORE,
   OPEN_REPO,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Theme } from "constants/DefaultTheme";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector } from "store";

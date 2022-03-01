@@ -48,7 +48,10 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
+import {
+  createMessage,
+  LINK_COPIED_SUCCESSFULLY,
+} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";

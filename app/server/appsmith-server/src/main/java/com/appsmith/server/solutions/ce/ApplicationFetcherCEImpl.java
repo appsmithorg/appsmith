@@ -1,22 +1,28 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseNode;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -28,15 +34,19 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static java.util.stream.Collectors.toMap;
 
 
+@Slf4j
 @RequiredArgsConstructor
 public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
@@ -52,6 +62,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final ApplicationRepository applicationRepository;
     private final ReleaseNotesService releaseNotesService;
     private final ResponseUtils responseUtils;
+    private final NewPageService newPageService;
 
     /**
      * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
@@ -159,6 +170,26 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                                 return userHomepageDTO;
                             });
                 })
+                .flatMap(userHomepageDTO -> {
+                    List<String> applicationIds = userHomepageDTO.getOrganizationApplications().stream()
+                            .map(organizationApplicationsDTO ->
+                                    organizationApplicationsDTO.getApplications().stream()
+                                            .map(BaseDomain::getId).collect(Collectors.toList())
+                            ).flatMap(Collection::stream).collect(Collectors.toList());
+
+                    // fetch the page slugs for the applications
+                    return newPageService.findPageSlugsByApplicationIds(applicationIds, READ_PAGES)
+                            .collectMultimap(NewPage::getApplicationId)
+                            .map(applicationPageMap -> {
+                                for (OrganizationApplicationsDTO orgApps : userHomepageDTO.getOrganizationApplications()) {
+                                    for (Application application : orgApps.getApplications()) {
+                                        setDefaultPageSlug(application, applicationPageMap, Application::getPages, NewPage::getUnpublishedPage);
+                                        setDefaultPageSlug(application, applicationPageMap, Application::getPublishedPages, NewPage::getPublishedPage);
+                                    }
+                                }
+                                return userHomepageDTO;
+                            });
+                })
                 .flatMap(userHomepageDTO -> Mono.zip(
                         Mono.just(userHomepageDTO),
                         releaseNotesService.getReleaseNodes()
@@ -181,5 +212,38 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
                             .thenReturn(userHomepageDTO);
                 });
+    }
+
+    private void setDefaultPageSlug(
+            Application application,
+            Map<String, Collection<NewPage>> applicationPageMap,
+            Function<Application, List<ApplicationPage>> getPages,
+            Function<NewPage, PageDTO> getPage
+    ) {
+        List<ApplicationPage> applicationPages = getPages.apply(application);
+        if(!CollectionUtils.isEmpty(applicationPages)) {
+            Optional<ApplicationPage> defaultPageOptional = applicationPages.stream()
+                    .filter(ApplicationPage::isDefault)
+                    .findFirst();
+
+            if(defaultPageOptional.isPresent()) {
+                ApplicationPage defaultPage = defaultPageOptional.get();
+                Collection<NewPage> pages = applicationPageMap.get(application.getId());
+                if(!CollectionUtils.isEmpty(pages)) {
+                    Optional<NewPage> newPageDetails = pages.stream()
+                            .filter(newPage -> newPage.getId().equals(defaultPage.getId()))
+                            .findFirst();
+
+                    if(newPageDetails.isPresent()) {
+                        NewPage newPage = newPageDetails.get();
+                        defaultPage.setSlug(getPage.apply(newPage).getSlug());
+                    } else {
+                        log.error("page not found for application id {}, page id {}", application.getId(), defaultPage.getId());
+                    }
+                } else {
+                    log.error("no page found for application {}", application.getId());
+                }
+            }
+        }
     }
 }

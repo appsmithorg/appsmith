@@ -88,7 +88,9 @@ export const useAppWideAndOtherDatasource = () => {
     return acc;
   }, new Set());
   return allDatasources
-    .sort((ds1, ds2) => ds1.name?.localeCompare(ds2.name))
+    .sort((ds1, ds2) =>
+      ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
+    )
     .reduce(
       (acc: any, ds) => {
         if (appWideDatasourcesIds.has(ds.id)) {

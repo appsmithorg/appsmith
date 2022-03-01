@@ -11,7 +11,7 @@ import {
   GIT_UPSTREAM_CHANGES,
   PULL_CHANGES,
   READ_DOCUMENTATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
 import Button, { Size } from "components/ads/Button";
@@ -213,6 +213,7 @@ function Deploy() {
           <TextInput
             $padding="8px 14px"
             autoFocus
+            className="t--commit-comment-input"
             disabled={commitInputDisabled}
             fill
             height={`${Math.min(autogrowHeight, 80)}px`}
@@ -253,7 +254,7 @@ function Deploy() {
         )}
         {pullRequired && !isConflicting && (
           <Button
-            className="t--commit-button"
+            className="t--pull-button"
             isLoading={isPullingProgress}
             onClick={handlePull}
             size={Size.large}
