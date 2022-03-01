@@ -37,6 +37,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import { pageListEditorURL } from "AppsmithRouteFactory";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -57,13 +58,18 @@ export const GetNavigationMenuData = ({
 
   const isGitConnected = useSelector(getIsGitConnected);
 
-  const openGitConnectionPopup = () =>
+  const openGitConnectionPopup = () => {
+    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+      source: "Application name menu (top left)",
+    });
+
     dispatch(
       setIsGitSyncModalOpen({
         isOpen: true,
         tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
+  };
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -104,6 +110,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy",
     },
     {
       text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
@@ -111,6 +118,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy-current-version",
     },
   ];
 
@@ -121,6 +129,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: false,
+      className: "t--app-name-menu-deploy-connect-to-git",
     });
   }
 
@@ -186,6 +195,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.PARENT,
       isVisible: true,
       children: deployOptions,
+      className: "t--app-name-menu-deploy-parent",
     },
     {
       text: "Help",

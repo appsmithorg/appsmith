@@ -17,11 +17,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { sha256 } from "js-sha256";
 import moment from "moment";
-import log from "loglevel";
 import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
@@ -34,8 +30,6 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
-
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const snapToGrid = (
   columnWidth: number,
@@ -492,28 +486,6 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
   }
 };
 
-export function bootIntercom(user?: User) {
-  if (intercomAppID && window.Intercom) {
-    let { email, username } = user || {};
-    let name;
-    if (!cloudHosting) {
-      username = sha256(username || "");
-      // keep email undefined so that users are prompted to enter it when they reach out on intercom
-      email = undefined;
-    } else {
-      name = user?.name;
-    }
-
-    window.Intercom("boot", {
-      app_id: intercomAppID,
-      user_id: username,
-      email,
-      // keep name undefined instead of an empty string so that intercom auto assigns a name
-      name,
-    });
-  }
-}
-
 export const stopClickEventPropagation = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
 ) => {
@@ -600,28 +572,6 @@ export const trimQueryString = (value = "") => {
 export const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
   return decodeURIComponent(params.get(key) || "");
-};
-
-/**
- * get query params object
- * ref: https://stackoverflow.com/a/8649003/1543567
- */
-export const getQueryParamsObject = () => {
-  const search = window.location.search.substring(1);
-  if (!search) return {};
-  try {
-    return JSON.parse(
-      '{"' +
-        decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"') +
-        '"}',
-    );
-  } catch (e) {
-    log.error(e, "error parsing search string");
-    return {};
-  }
 };
 
 /*

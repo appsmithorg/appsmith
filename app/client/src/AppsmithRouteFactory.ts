@@ -4,7 +4,7 @@ import {
   GEN_TEMPLATE_URL,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import { getQueryParamsObject } from "utils/helpers";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 
 export const LEGACY_URL_APP_VERSION = 1;
 export const SLUG_URL_APP_VERSION = 2;

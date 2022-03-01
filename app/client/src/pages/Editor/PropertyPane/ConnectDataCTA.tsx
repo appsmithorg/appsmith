@@ -24,10 +24,11 @@ const StyledDiv = styled.div`
   props.theme.spaces[7]}px;
   margin: ${(props) => props.theme.spaces[2]}px 0px;
 
-  a:first-child {
+  button:first-child {
     margin-top: ${(props) => props.theme.spaces[2]}px;
+    width: 100%;
   }
-  a:nth-child(2) {
+  button:nth-child(2) {
     border: none;
     background-color: transparent;
     text-transform: none;
@@ -37,7 +38,7 @@ const StyledDiv = styled.div`
     ${(props) => getTypographyByKey(props, "p3")}
     margin-top: ${(props) => props.theme.spaces[2]}px;
 
-    :hover {
+    :hover, :focus {
       text-decoration: underline;
     }
   }
@@ -90,11 +91,15 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
         category={Category.primary}
         onClick={onClick}
         size={Size.large}
+        tabIndex={0}
+        tag="button"
         text="CONNECT DATA"
       />
       <Button
         category={Category.tertiary}
         onClick={openHelpModal}
+        tabIndex={0}
+        tag="button"
         text="Learn more"
       />
     </StyledDiv>

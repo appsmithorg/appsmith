@@ -55,7 +55,12 @@ type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   changeQueryPage: (queryId: string) => void;
-  runFormEvaluation: (formId: string, formData: QueryActionConfig) => void;
+  runFormEvaluation: (
+    formId: string,
+    formData: QueryActionConfig,
+    datasourceId: string,
+    pluginId: string,
+  ) => void;
   initFormEvaluation: (
     editorConfig: any,
     settingConfig: any,
@@ -154,6 +159,8 @@ class QueryEditor extends React.Component<Props> {
       this.props.runFormEvaluation(
         this.props.formData.id,
         this.props.formData.actionConfiguration,
+        this.props.formData.datasource.id,
+        this.props.formData.pluginId,
       );
     }
   }
@@ -298,8 +305,13 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   changeQueryPage: (queryId: string) => {
     dispatch(changeQuery(queryId));
   },
-  runFormEvaluation: (formId: string, formData: QueryActionConfig) => {
-    dispatch(startFormEvaluations(formId, formData));
+  runFormEvaluation: (
+    formId: string,
+    formData: QueryActionConfig,
+    datasourceId: string,
+    pluginId: string,
+  ) => {
+    dispatch(startFormEvaluations(formId, formData, datasourceId, pluginId));
   },
   initFormEvaluation: (
     editorConfig: any,

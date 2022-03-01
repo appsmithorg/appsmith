@@ -80,7 +80,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
       )} ago`
     : "";
   return lastDeployedAt ? (
-    <Container>
+    <Container className="t--git-deploy-preview">
       <CloudIconWrapper>
         {props.showSuccess ? (
           <SuccessTick height="30px" width="30px" />

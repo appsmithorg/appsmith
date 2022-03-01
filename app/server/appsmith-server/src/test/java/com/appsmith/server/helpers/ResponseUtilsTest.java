@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -129,5 +130,41 @@ public class ResponseUtilsTest {
         for (ApplicationPage applicationPage : application.getPublishedPages()) {
             Assert.assertEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
         }
+    }
+
+    @Test
+    public void getApplication_withMultipleSchemaVersions_returnsCorrectManualUpdate() {
+        Application application = gson.fromJson(String.valueOf(jsonNode.get("application")), Application.class);
+
+        final Application applicationCopy = new Application();
+        AppsmithBeanUtils.copyNestedNonNullProperties(application, applicationCopy);
+
+        application.setServerSchemaVersion(null);
+        Assert.assertNull(application.getIsManualUpdate());
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), true);
+
+        application.setClientSchemaVersion(null);
+        application.setIsManualUpdate(null);
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), true);
+
+        application.setIsManualUpdate(null);
+        application.setServerSchemaVersion(1000);
+        application.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), false);
+
+        application.setIsManualUpdate(null);
+        application.setClientSchemaVersion(1000);
+        application.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), false);
+
+        application.setIsManualUpdate(null);
+        application.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        application.setClientSchemaVersion(JsonSchemaVersions.serverVersion);
+        responseUtils.updateApplicationWithDefaultResources(application);
+        Assert.assertEquals(application.getIsManualUpdate(), true);
     }
 }

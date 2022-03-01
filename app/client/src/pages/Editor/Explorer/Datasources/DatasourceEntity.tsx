@@ -22,6 +22,7 @@ import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
 } from "AppsmithRouteFactory";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -34,6 +35,7 @@ type ExplorerDatasourceEntityProps = {
 
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
+    const guidedTourEnabled = useSelector(inGuidedTour);
     const dispatch = useDispatch();
     const icon = getPluginIcon(props.plugin);
     const switchDatasource = useCallback(() => {
@@ -97,6 +99,10 @@ const ExplorerDatasourceEntity = React.memo(
       isDefaultExpanded = true;
     } else if (queryAction && isStoredDatasource(queryAction.datasource)) {
       isDefaultExpanded = queryAction.datasource.id === props.datasource.id;
+    }
+    // In guided tour we want the datasource structure to be shown only when expanded
+    if (guidedTourEnabled) {
+      isDefaultExpanded = false;
     }
 
     return (

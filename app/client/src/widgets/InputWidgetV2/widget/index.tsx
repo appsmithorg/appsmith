@@ -391,8 +391,13 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   getPageView() {
     const value = this.props.text ?? "";
-    let isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    let isInvalid = false;
+    if (this.props.isDirty) {
+      isInvalid = "isValid" in this.props && !this.props.isValid;
+    } else {
+      isInvalid = false;
+    }
+
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {

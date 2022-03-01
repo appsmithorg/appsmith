@@ -52,7 +52,7 @@ import { flashElementsById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -1163,12 +1163,9 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     });
 
     const pageId: string = yield select(getCurrentPageId);
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
     navigateToCanvas({
       pageId,
-      applicationSlug,
-      pageSlug,
       widgetId: newWidget.newWidgetId,
     });
   } catch (error) {
