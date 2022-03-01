@@ -99,6 +99,7 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
+import { getBasePath } from "pages/Editor/Explorer/helpers";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -355,16 +356,17 @@ export default function* executePluginActionTriggerSaga(
 
 function* runActionShortcutSaga() {
   const location = window.location.pathname;
+  const basePath = getBasePath();
   const match: any = matchPath(location, {
     path: [
-      trimQueryString(API_EDITOR_BASE_PATH),
-      trimQueryString(API_EDITOR_ID_PATH),
-      trimQueryString(QUERIES_EDITOR_BASE_PATH),
-      trimQueryString(QUERIES_EDITOR_ID_PATH),
-      trimQueryString(API_EDITOR_PATH_WITH_SELECTED_PAGE_ID),
-      trimQueryString(INTEGRATION_EDITOR_PATH),
-      trimQueryString(SAAS_EDITOR_API_ID_PATH),
-      CURL_IMPORT_PAGE_PATH,
+      trimQueryString(`${basePath}${API_EDITOR_BASE_PATH}`),
+      trimQueryString(`${basePath}${API_EDITOR_ID_PATH}`),
+      trimQueryString(`${basePath}${QUERIES_EDITOR_BASE_PATH}`),
+      trimQueryString(`${basePath}${QUERIES_EDITOR_ID_PATH}`),
+      trimQueryString(`${basePath}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
+      trimQueryString(`${basePath}${INTEGRATION_EDITOR_PATH}`),
+      trimQueryString(`${basePath}${SAAS_EDITOR_API_ID_PATH}`),
+      `${basePath}${CURL_IMPORT_PAGE_PATH}`,
     ],
     exact: true,
     strict: false,

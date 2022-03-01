@@ -31,7 +31,14 @@ export const fetchApplicationMockResponse: FetchApplicationResponse = {
     slug: "my-application",
     organizationId: "",
     evaluationVersion: 1,
-    pages: fetchPagesMockResponse.data.pages,
+    pages: [
+      {
+        id: "605c435a91dea93f0eaf91ba",
+        name: "Page1",
+        isDefault: true,
+        slug: "page-1",
+      },
+    ],
     appIsExample: false,
     gitApplicationMetadata: undefined,
     applicationVersion: 2,

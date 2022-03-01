@@ -508,12 +508,16 @@ export function* createApplicationSaga(
             payload: application.id,
           });
           pageURL = builderURL({
+            applicationId: application.id,
+            applicationVersion: application.applicationVersion,
             applicationSlug: application.slug as string,
             pageSlug: defaultPageSlug,
             pageId: application.defaultPageId as string,
           });
         } else {
           pageURL = generateTemplateURL({
+            applicationId: application.id,
+            applicationVersion: application.applicationVersion,
             applicationSlug: application.slug as string,
             pageSlug: defaultPageSlug,
             pageId: application.defaultPageId as string,
