@@ -31,7 +31,7 @@ import os
 index_path = Path("/opt/appsmith/editor/index.html")
 content = re.sub(
 	r"\b__(APPSMITH_[A-Z0-9_]+?)__\b",
-	lambda match: [print(match.group(0), os.environ.get(match.group(1), None)), os.environ.get(match.group(1), match.group(0))][-1],
+	lambda match: os.environ.get(match.group(1), match.group(0)),
 	index_path.read_text(),
 )
 index_path.write_text(content)
