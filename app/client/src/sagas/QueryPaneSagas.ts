@@ -110,7 +110,14 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
   // Once the initial values are set, we can run the evaluations based on them.
-  yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
+  yield put(
+    startFormEvaluations(
+      id,
+      formInitialValues.actionConfiguration,
+      action.datasource.id,
+      pluginId,
+    ),
+  );
 
   yield put(
     updateReplayEntity(
