@@ -60,7 +60,7 @@ type TagInputProps = {
   /** Intent of the tags, which defines their color */
   intent?: Intent;
   hasError?: boolean;
-  customError: (values: any) => void;
+  customError?: (values: any) => void;
   checkValues?: (value: any) => boolean;
 };
 
@@ -94,9 +94,9 @@ function TagInputComponent(props: TagInputProps) {
           error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
         }
       });
-      props.customError(error);
+      props.customError?.(error);
     } else {
-      props.customError("");
+      props.customError?.("");
     }
   };
 

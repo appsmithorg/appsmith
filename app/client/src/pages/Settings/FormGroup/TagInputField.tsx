@@ -34,7 +34,7 @@ type TagListFieldProps = {
   label?: string;
   intent: Intent;
   setting: Setting;
-  customError: (err: string) => void;
+  customError?: (err: string) => void;
   checkValues?: (value: any) => boolean;
 };
 
