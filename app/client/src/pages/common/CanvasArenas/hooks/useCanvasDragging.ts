@@ -420,7 +420,7 @@ export const useCanvasDragging = (
                 originalPositions,
                 currentDirection.current,
                 false,
-                !canReflowBasedOnMouseSpeed,
+                !widgetOccupiedSpace || !canReflowBasedOnMouseSpeed,
                 firstMove,
                 immediateExitContainer,
               );
