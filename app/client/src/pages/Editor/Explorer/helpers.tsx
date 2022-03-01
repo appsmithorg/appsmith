@@ -5,6 +5,8 @@ import {
   QUERIES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
+  BUILDER_PATH_DEPRECATED,
+  BUILDER_PATH,
 } from "constants/routes";
 
 import {
@@ -40,21 +42,32 @@ export type ExplorerFileEntity = {
   entity: ActionData | JSCollectionData;
 };
 
+export const getBasePath = () => {
+  const baseMatch = matchPath(window.location.pathname, {
+    path: [BUILDER_PATH_DEPRECATED, BUILDER_PATH],
+    strict: false,
+    exact: false,
+  });
+  return baseMatch?.path;
+};
+
 export const getActionIdFromURL = () => {
+  const basePath = getBasePath();
+  if (!basePath) return;
   const apiMatch = matchPath<{ apiId: string }>(window.location.pathname, {
-    path: API_EDITOR_ID_PATH,
+    path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
   if (apiMatch?.params?.apiId) {
     return apiMatch.params.apiId;
   }
   const match = matchPath<{ queryId: string }>(window.location.pathname, {
-    path: QUERIES_EDITOR_ID_PATH,
+    path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
   if (match?.params?.queryId) {
     return match.params.queryId;
   }
   const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
-    path: SAAS_EDITOR_API_ID_PATH,
+    path: `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
   });
   if (saasMatch?.params?.apiId) {
     return saasMatch.params.apiId;
@@ -62,10 +75,12 @@ export const getActionIdFromURL = () => {
 };
 
 export const getJSCollectionIdFromURL = () => {
+  const basePath = getBasePath();
+  if (!basePath) return;
   const functionMatch = matchPath<{ collectionId: string }>(
     window.location.pathname,
     {
-      path: JS_COLLECTION_ID_PATH,
+      path: `${basePath}${JS_COLLECTION_ID_PATH}`,
     },
   );
   if (functionMatch?.params?.collectionId) {
@@ -74,8 +89,10 @@ export const getJSCollectionIdFromURL = () => {
 };
 
 export const getQueryIdFromURL = () => {
+  const basePath = getBasePath();
+  if (!basePath) return;
   const match = matchPath<{ queryId: string }>(window.location.pathname, {
-    path: QUERIES_EDITOR_ID_PATH,
+    path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
   if (match?.params?.queryId) {
     return match.params.queryId;
@@ -84,8 +101,10 @@ export const getQueryIdFromURL = () => {
 
 export const useDatasourceIdFromURL = () => {
   const location = useLocation();
+  const basePath = getBasePath();
+  if (!basePath) return;
   const match = matchPath<{ datasourceId: string }>(location.pathname, {
-    path: DATA_SOURCES_EDITOR_ID_PATH,
+    path: `${basePath}${DATA_SOURCES_EDITOR_ID_PATH}`,
   });
   if (match?.params?.datasourceId) {
     return match.params.datasourceId;
@@ -93,7 +112,7 @@ export const useDatasourceIdFromURL = () => {
   const saasMatch = matchPath<{ datasourceId: string }>(
     window.location.pathname,
     {
-      path: SAAS_EDITOR_DATASOURCE_ID_PATH,
+      path: `${basePath}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
     },
   );
   if (saasMatch?.params?.datasourceId) {

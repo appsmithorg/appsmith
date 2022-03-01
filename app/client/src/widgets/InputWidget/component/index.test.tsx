@@ -1,4 +1,4 @@
-import { store } from "store";
+import store from "store";
 import React from "react";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
 import InputComponent from "./";

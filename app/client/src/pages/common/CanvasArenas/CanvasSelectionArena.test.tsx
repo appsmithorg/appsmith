@@ -12,7 +12,7 @@ import {
 } from "test/testCommon";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
-import { store } from "store";
+import store from "store";
 import { sagasToRunForTests } from "test/sagas";
 import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import { UpdatedMainContainer } from "test/testMockedWidgets";

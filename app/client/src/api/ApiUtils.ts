@@ -12,7 +12,7 @@ import {
 } from "@appsmith/constants/ApiConstants";
 import log from "loglevel";
 import { ActionExecutionResponse } from "api/ActionAPI";
-import { store } from "store";
+import store from "store";
 import { logoutUser } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";

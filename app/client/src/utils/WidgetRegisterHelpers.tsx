@@ -1,7 +1,7 @@
 import React from "react";
 
 import * as Sentry from "@sentry/react";
-import { store } from "store";
+import store from "store";
 
 import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";

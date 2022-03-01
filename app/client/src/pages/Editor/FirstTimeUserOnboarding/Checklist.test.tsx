@@ -1,4 +1,5 @@
 import { bindDataOnCanvas } from "actions/pluginActionActions";
+import { updateURLFactory } from "AppsmithRouteFactory";
 import { builderURL, integrationEditorURL } from "AppsmithRouteFactory";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -45,6 +46,7 @@ describe("Checklist", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    updateURLFactory({ applicationId: 1, pageId: 2 });
   });
 
   afterEach(() => {
@@ -79,6 +81,7 @@ describe("Checklist", () => {
         applicationSlug: initialState.ui.applications.currentApplication.slug,
         pageSlug: initialState.entities.pageList.pages[0].slug,
         pageId: initialState.entities.pageList.currentPageId,
+        applicationId: initialState.entities.pageList.applicationId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -95,6 +98,7 @@ describe("Checklist", () => {
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
         applicationSlug: initialState.ui.applications.currentApplication.slug,
+        applicationId: initialState.entities.pageList.applicationId,
         pageSlug: initialState.entities.pageList.pages[0].slug,
         pageId: initialState.entities.pageList.currentPageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
@@ -111,6 +115,7 @@ describe("Checklist", () => {
     expect(history).toHaveBeenCalledWith(
       builderURL({
         applicationSlug: initialState.ui.applications.currentApplication.slug,
+        applicationId: initialState.entities.pageList.applicationId,
         pageSlug: initialState.entities.pageList.pages[0].slug,
         pageId: initialState.entities.pageList.currentPageId,
       }),

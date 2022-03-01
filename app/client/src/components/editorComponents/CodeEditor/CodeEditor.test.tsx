@@ -1,5 +1,5 @@
 import CodeEditor from "./index";
-import { store } from "store";
+import store from "store";
 import TestRenderer from "react-test-renderer";
 import React from "react";
 import { Provider } from "react-redux";

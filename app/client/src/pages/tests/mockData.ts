@@ -1,6 +1,6 @@
 import { FetchApplicationResponse } from "api/ApplicationApi";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { store } from "store";
+import store from "store";
 
 export const fetchPagesMockResponse = {
   responseMeta: {

@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect } from "react";
-import { store, useSelector } from "store";
+import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";

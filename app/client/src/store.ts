@@ -56,7 +56,7 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
   return next(action);
 };
 
-export const store = createStore(
+export default createStore(
   appReducer,
   composeWithDevTools(
     reduxBatch,

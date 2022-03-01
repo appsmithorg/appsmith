@@ -75,14 +75,14 @@ function baseURLBuilder(
   const shouldUseLegacyURLs = applicationVersion <= 1;
 
   let basePath = "";
-  pageId = pageId || BASE_URL_BUILDER_PARAMS.pageId;
+  pageId = pageId ?? BASE_URL_BUILDER_PARAMS.pageId;
   if (shouldUseLegacyURLs) {
-    applicationId = applicationId || BASE_URL_BUILDER_PARAMS.applicationId;
+    applicationId = applicationId ?? BASE_URL_BUILDER_PARAMS.applicationId;
     basePath = `/applications/${applicationId}/pages/${pageId}`;
   } else {
     applicationSlug =
-      applicationSlug || BASE_URL_BUILDER_PARAMS.applicationSlug;
-    pageSlug = pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug;
+      applicationSlug ?? BASE_URL_BUILDER_PARAMS.applicationSlug;
+    pageSlug = pageSlug ?? BASE_URL_BUILDER_PARAMS.pageSlug;
     basePath = `/${applicationSlug}/${pageSlug}-${pageId}`;
   }
   basePath += mode === APP_MODE.EDIT ? "/edit" : "";

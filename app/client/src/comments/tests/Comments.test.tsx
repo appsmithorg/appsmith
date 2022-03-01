@@ -2,7 +2,7 @@ import React from "react";
 import userEvent from "@testing-library/user-event";
 import { unmountComponentAtNode } from "react-dom";
 import OverlayCommentsWrapper from "../inlineComments/OverlayCommentsWrapper";
-import { store } from "store";
+import store from "store";
 import { createEvent, fireEvent, render, waitFor } from "test/testUtils";
 import { fetchApplicationCommentsRequest } from "actions/commentActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
