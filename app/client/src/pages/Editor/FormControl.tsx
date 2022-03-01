@@ -5,7 +5,6 @@ import { useSelector, shallowEqual } from "react-redux";
 import { getFormValues } from "redux-form";
 import FormControlFactory from "utils/FormControlFactory";
 import Tooltip from "components/ads/Tooltip";
-import { ToggleJSONToRawButton } from "components/editorComponents/form/ToggleJSONToRaw";
 import {
   FormLabel,
   FormInputHelperText,
@@ -13,6 +12,7 @@ import {
   FormInputErrorText,
   FormInfoText,
   FormSubtitleText,
+  FormInputSwitchToJsonButton,
   FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
@@ -62,7 +62,6 @@ function FormControl(props: FormControlProps) {
       configErrors={configErrors}
       formName={props.formName}
       multipleConfig={props?.multipleConfig}
-      viewType={viewType}
     >
       <div className={`t--form-control-${props.config.controlType}`}>
         {FormConfigMemoizedValue}
@@ -85,7 +84,7 @@ function FormConfig(props: FormConfigProps) {
     top = (
       <div style={{ display: "flex" }}>
         {props.multipleConfig?.map((config) => {
-          return renderFormConfigTop({ config, viewType: props.viewType });
+          return renderFormConfigTop({ config });
         })}
       </div>
     );
@@ -117,17 +116,11 @@ function FormConfig(props: FormConfigProps) {
         {props.config.controlType === "CHECKBOX" ? (
           <>
             {props.children}
-            {renderFormConfigTop({
-              config: props.config,
-              viewType: props.viewType,
-            })}
+            {renderFormConfigTop({ config: props.config })}
           </>
         ) : (
           <>
-            {renderFormConfigTop({
-              config: props.config,
-              viewType: props.viewType,
-            })}
+            {renderFormConfigTop({ config: props.config })}
             {props.children}
           </>
         )}
@@ -148,12 +141,9 @@ export default memo(FormControl, (prevProps, nextProps) => {
   );
 });
 
-function renderFormConfigTop(props: {
-  config: ControlProps;
-  viewType: string | undefined;
-}) {
+function renderFormConfigTop(props: { config: ControlProps }) {
   const {
-    // displayType,
+    displayType,
     encrypted,
     isRequired,
     label,
@@ -193,11 +183,10 @@ function renderFormConfigTop(props: {
           {urlText}
         </FormInputAnchor>
       )}
-      {props.viewType && (
-        <ToggleJSONToRawButton
-          toggleProperty={`${props.config.configProperty}.viewType`}
-          viewType={props.viewType}
-        />
+      {displayType && (
+        <FormInputSwitchToJsonButton type="button">
+          {displayType === "JSON" ? "SWITCH TO GUI" : "SWITCH TO JSON EDITOR"}
+        </FormInputSwitchToJsonButton>
       )}
     </React.Fragment>
   );
