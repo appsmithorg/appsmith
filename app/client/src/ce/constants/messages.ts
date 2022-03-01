@@ -1035,7 +1035,7 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 // Templates
 export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
-export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the Template";
+export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
 export const SELECT_ORGANISATION = () => "Select Organization";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
@@ -1053,9 +1053,9 @@ export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
 export const INDUSTRY = () => "Industry";
-export const DATASOURCES = () => "Data Sources";
+export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note:";
-export const NOTE_MESSAGE = () => "You can add your data sources as well";
+export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets Used";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
 
