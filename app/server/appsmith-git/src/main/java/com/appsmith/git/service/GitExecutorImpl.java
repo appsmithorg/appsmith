@@ -33,6 +33,7 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileSystemUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -68,6 +69,10 @@ public class GitExecutorImpl implements GitExecutor {
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflict with the base branch.";
+
+    private enum FILE_TYPES {
+        PAGES, QUERIES, JS_OBJECTS, DATASOURCES
+    }
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -461,31 +466,43 @@ public class GitExecutorImpl implements GitExecutor {
                 modifiedAssets.addAll(status.getRemoved());
                 modifiedAssets.addAll(status.getUncommittedChanges());
                 modifiedAssets.addAll(status.getUntracked());
-                response.setAdded(status.getAdded());
-                response.setRemoved(status.getRemoved());
 
-                long modifiedPages = 0L;
-                long modifiedQueries = 0L;
-                long modifiedJSObjects = 0L;
-                long modifiedDatasources = 0L;
-                for (String x : modifiedAssets) {
-                    if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
-                        modifiedPages++;
-                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
-                        modifiedQueries++;
-                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/")) {
-                        modifiedJSObjects++;
-                    } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
-                        modifiedDatasources++;
-                    }
+                Set<String> addedAndUntrackedFiles = new HashSet<>();
+                addedAndUntrackedFiles.addAll(status.getAdded());
+                addedAndUntrackedFiles.addAll(status.getUntracked());
+                response.setAdded(addedAndUntrackedFiles);
+                if(!CollectionUtils.isEmpty(addedAndUntrackedFiles)) {
+                    Long[] addedCount = updateStatusCount(addedAndUntrackedFiles);
+                    response.setAddedPages(addedCount[FILE_TYPES.PAGES.ordinal()]);
+                    response.setAddedQueries(addedCount[FILE_TYPES.QUERIES.ordinal()]);
+                    response.setAddedJSObjects(addedCount[FILE_TYPES.JS_OBJECTS.ordinal()]);
+                    response.setAddedDatasources(addedCount[FILE_TYPES.DATASOURCES.ordinal()]);
                 }
+
+                Set<String> removedAndUncommittedFiles = new HashSet<>();
+                removedAndUncommittedFiles.addAll(status.getRemoved());
+                removedAndUncommittedFiles.addAll(status.getUncommittedChanges());
+                removedAndUncommittedFiles.removeAll(status.getModified());
+                response.setRemoved(removedAndUncommittedFiles);
+                if(!CollectionUtils.isEmpty(removedAndUncommittedFiles)) {
+                    Long[] removedCount = updateStatusCount(removedAndUncommittedFiles);
+                    response.setRemovedPages(removedCount[FILE_TYPES.PAGES.ordinal()]);
+                    response.setRemovedQueries(removedCount[FILE_TYPES.QUERIES.ordinal()]);
+                    response.setRemovedJSObjects(removedCount[FILE_TYPES.JS_OBJECTS.ordinal()]);
+                    response.setRemovedDatasources(removedCount[FILE_TYPES.DATASOURCES.ordinal()]);
+                }
+
+                if(!CollectionUtils.isEmpty(status.getModified())) {
+                    Long[] modifiedCount = updateStatusCount(status.getModified());
+                    response.setModifiedPages(modifiedCount[FILE_TYPES.PAGES.ordinal()]);
+                    response.setModifiedQueries(modifiedCount[FILE_TYPES.QUERIES.ordinal()]);
+                    response.setModifiedJSObjects(modifiedCount[FILE_TYPES.JS_OBJECTS.ordinal()]);
+                    response.setModifiedDatasources(modifiedCount[FILE_TYPES.DATASOURCES.ordinal()]);
+                }
+
                 response.setModified(modifiedAssets);
                 response.setConflicting(status.getConflicting());
                 response.setIsClean(status.isClean());
-                response.setModifiedPages(modifiedPages);
-                response.setModifiedQueries(modifiedQueries);
-                response.setModifiedJSObjects(modifiedJSObjects);
-                response.setModifiedDatasources(modifiedDatasources);
 
                 BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
                 if (trackingStatus != null) {
@@ -514,6 +531,22 @@ public class GitExecutorImpl implements GitExecutor {
         .flatMap(response -> response)
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
+    }
+
+    private Long[] updateStatusCount(Set<String> fileNames) {
+        Long[] fileCount = {0L, 0L, 0L, 0L};
+        for (String x : fileNames) {
+            if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
+                fileCount[FILE_TYPES.PAGES.ordinal()]++;
+            } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
+                fileCount[FILE_TYPES.QUERIES.ordinal()]++;
+            } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/")) {
+                fileCount[FILE_TYPES.JS_OBJECTS.ordinal()]++;
+            } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
+                fileCount[FILE_TYPES.DATASOURCES.ordinal()]++;
+            }
+        }
+        return fileCount;
     }
 
     @Override
