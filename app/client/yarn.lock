@@ -3346,6 +3346,11 @@
   version "1.1.1"
   resolved "https://registry.npmjs.org/@types/shallowequal/-/shallowequal-1.1.1.tgz"
 
+"@types/showdown@^1.9.4":
+  version "1.9.4"
+  resolved "https://registry.yarnpkg.com/@types/showdown/-/showdown-1.9.4.tgz#5385adf34143abad9309561661fa6c781d2ab962"
+  integrity sha512-50ehC3IAijfkvoNqmQ+VL73S7orOxmAK8ljQAFBv8o7G66lAZyxQj1L3BAv2dD86myLXI+sgKP1kcxAaxW356w==
+
 "@types/sinonjs__fake-timers@^6.0.2":
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/@types/sinonjs__fake-timers/-/sinonjs__fake-timers-6.0.3.tgz#79df6f358ae8f79e628fe35a63608a0ea8e7cf08"
