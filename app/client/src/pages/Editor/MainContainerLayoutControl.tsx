@@ -63,21 +63,13 @@ export function MainContainerLayoutControl() {
   const buttonRefs: Array<HTMLButtonElement | null> = [];
 
   /**
-   * return selected layout. if there is no app
+   * return selected layout index. if there is no app
    * layout, use the default one ( fluid )
    */
-  const selectedLayout = useMemo(() => {
-    return AppsmithLayouts.find(
-      (each) => each.type === (appLayout?.type || AppsmithDefaultLayout.type),
-    );
-  }, [appLayout]);
-
   const selectedIndex = useMemo(() => {
-    const index = AppsmithLayouts.findIndex(
+    return AppsmithLayouts.findIndex(
       (each) => each.type === (appLayout?.type || AppsmithDefaultLayout.type),
     );
-
-    return index === -1 ? 0 : index;
   }, [appLayout]);
 
   const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
@@ -127,6 +119,7 @@ export function MainContainerLayoutControl() {
       <div
         className="flex justify-around"
         onBlur={() => setFocusedIndex(selectedIndex)}
+        role="tablist"
       >
         {AppsmithLayouts.map((layoutOption: any, index: number) => {
           return (
@@ -140,11 +133,9 @@ export function MainContainerLayoutControl() {
             >
               <button
                 className={classNames({
-                  "border-transparent border flex items-center justify-center p-2 flex-grow": true,
-                  "bg-white border-gray-300":
-                    selectedLayout?.name === layoutOption.name,
-                  "bg-gray-100 hover:bg-gray-200 focus:bg-gray-200":
-                    selectedLayout?.name !== layoutOption.name,
+                  "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200": true,
+                  "bg-white border-gray-300": selectedIndex === index,
+                  "bg-gray-100 hover:bg-gray-200": selectedIndex !== index,
                 })}
                 onClick={() => {
                   updateAppLayout(layoutOption);
@@ -152,6 +143,7 @@ export function MainContainerLayoutControl() {
                 }}
                 onKeyDown={(event) => handleKeyDown(event, index)}
                 ref={(input) => buttonRefs.push(input)}
+                role="tab"
                 tabIndex={index === focusedIndex ? 0 : -1}
               >
                 <Icon
