@@ -33,5 +33,6 @@
     "activeTab": "span:contains('Active')",
     "createNew": ".t--entity-add-btn.group.files",
     "blankAPI": "span:contains('New Blank API')",
+    "newJSObject": "span:contains('New JS Object')",
     "addQuery": ".files .t--entity-add-btn"
 }
