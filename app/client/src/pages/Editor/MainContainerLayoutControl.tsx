@@ -119,7 +119,6 @@ export function MainContainerLayoutControl() {
       <div
         className="flex justify-around"
         onBlur={() => setFocusedIndex(selectedIndex)}
-        role="tablist"
       >
         {AppsmithLayouts.map((layoutOption: any, index: number) => {
           return (
@@ -143,7 +142,6 @@ export function MainContainerLayoutControl() {
                 }}
                 onKeyDown={(event) => handleKeyDown(event, index)}
                 ref={(input) => buttonRefs.push(input)}
-                role="tab"
                 tabIndex={index === focusedIndex ? 0 : -1}
               >
                 <Icon

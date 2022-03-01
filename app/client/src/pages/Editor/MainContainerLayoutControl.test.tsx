@@ -9,6 +9,12 @@ import { ThemeProvider } from "constants/DefaultTheme";
 import store from "../../store";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 
+function navigateWithArrowKeys(key: string, noOfPresses: number) {
+  for (let i = 0; i < noOfPresses; i++) {
+    userEvent.keyboard(key);
+  }
+}
+
 describe("<MainContainerLayoutControl />", () => {
   const getTestComponent = () => (
     <ThemeProvider theme={lightTheme}>
@@ -23,43 +29,37 @@ describe("<MainContainerLayoutControl />", () => {
     userEvent.tab();
 
     // Should focus on the first component
-    const tab = screen.getAllByRole("tab")[0];
+    const tab = screen.getAllByRole("button")[0];
     expect(tab).toHaveFocus();
   });
 
   it("{ArrowRight} should focus the next item", () => {
     render(getTestComponent());
+    const tabs = screen.getAllByRole("button");
     userEvent.tab();
-    let tab;
 
-    userEvent.keyboard("{ArrowRight}");
-    tab = screen.getAllByRole("tab")[1];
-    expect(tab).toHaveFocus();
+    navigateWithArrowKeys("{ArrowRight}", 1);
+    expect(tabs[1]).toHaveFocus();
+
+    // Focus back on the first element
+    userEvent.keyboard("{ArrowLeft}");
 
     // Arrow Right after the last item should focus the first item again
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{ArrowRight}");
-    tab = screen.getAllByRole("tab")[0];
-    expect(tab).toHaveFocus();
+    navigateWithArrowKeys("{ArrowRight}", tabs.length);
+    expect(tabs[0]).toHaveFocus();
   });
 
   it("{ArrowLeft} should focus the next item", async () => {
     render(getTestComponent());
+    const tabs = screen.getAllByRole("button");
     userEvent.tab();
-    let tab;
 
-    userEvent.keyboard("{ArrowLeft}");
-    tab = screen.getAllByRole("tab")[4];
-    expect(tab).toHaveFocus();
+    // Arrow Left on the First item should focus on the last item
+    navigateWithArrowKeys("{ArrowLeft}", 1);
+    expect(tabs[tabs.length - 1]).toHaveFocus();
 
-    // Arrow Right after the last item should focus the first item again
-    userEvent.keyboard("{ArrowLeft}");
-    userEvent.keyboard("{ArrowLeft}");
-    userEvent.keyboard("{ArrowLeft}");
-    userEvent.keyboard("{ArrowLeft}");
-    tab = screen.getAllByRole("tab")[0];
-    expect(tab).toHaveFocus();
+    navigateWithArrowKeys("{ArrowLeft}", tabs.length - 1);
+
+    expect(tabs[0]).toHaveFocus();
   });
 });
