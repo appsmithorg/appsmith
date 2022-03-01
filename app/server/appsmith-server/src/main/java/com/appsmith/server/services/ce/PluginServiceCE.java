@@ -16,6 +16,8 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
 
     Flux<Plugin> getDefaultPlugins();
 
+    Flux<Plugin> getDefaultPluginIcons();
+
     Mono<Organization> installPlugin(PluginOrgDTO plugin);
 
     Flux<Organization> installDefaultPlugins(List<Plugin> plugins);

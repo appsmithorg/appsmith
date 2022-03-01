@@ -10,6 +10,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
   });
 
   it("Datepicker default date validation with js binding", function() {
+    cy.wait(7000);
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
@@ -56,6 +57,35 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.selectDateFormat("DD/MM/YYYY HH:mm");
     cy.closePropertyPane();
     cy.assertDateFormat();
+  });
+
+  it("Datepicker should not change the display data unless user selects the date", () => {
+    cy.openPropertyPane("datepickerwidget2");
+
+    cy.testJsontext(
+      "defaultdate",
+      '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
+    );
+    cy.get(formWidgetsPage.toggleJsMinDate).click();
+    cy.get(".t--property-control-mindate .bp3-input").clear();
+    cy.get(".t--property-control-mindate .bp3-input").type("2020-02-01");
+
+    cy.selectDateFormat("D MMMM, YYYY");
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
+      "contain.value",
+      "4 May, 2021",
+    );
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").trigger("focus");
+    cy.get(".DayPicker-NavButton--next").click({ force: true });
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
+      "contain.value",
+      "4 May, 2021",
+    );
+    cy.get(formWidgetsPage.toggleJsMinDate).click();
+    cy.testJsontext(
+      "mindate",
+      "{{moment().subtract(10, 'days').toISOString()}}",
+    );
   });
 
   it("Datepicker default date validation message", function() {
