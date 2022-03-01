@@ -47,6 +47,7 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
+  className?: string;
   count?: number;
   disabled?: boolean;
   icon: IconName;
@@ -97,6 +98,7 @@ const capitalizeFirstLetter = (string = " ") => {
 // `;
 
 function QuickActionButton({
+  className = "",
   count = 0,
   disabled = false,
   icon,
@@ -106,9 +108,15 @@ function QuickActionButton({
 }: QuickActionButtonProps) {
   return (
     <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
-      <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
+      <QuickActionButtonContainer
+        className={className}
+        disabled={disabled}
+        onClick={onClick}
+      >
         {loading ? (
-          <SpinnerLoader height="16px" width="16px" />
+          <div className="t--loader-quick-git-action">
+            <SpinnerLoader height="16px" width="16px" />
+          </div>
         ) : (
           <div>
             <Icon name={icon} size={IconSize.XL} />
@@ -166,6 +174,7 @@ const getQuickActionButtons = ({
 }) => {
   return [
     {
+      className: "t--bottom-bar-commit",
       count: changesToCommit,
       icon: "plus" as IconName,
       loading: isFetchingGitStatus,
@@ -173,6 +182,7 @@ const getQuickActionButtons = ({
       tooltipText: createMessage(COMMIT_CHANGES),
     },
     {
+      className: "t--bottom-bar-pull",
       count: gitStatus?.behindCount,
       icon: "down-arrow-2" as IconName,
       onClick: () => !pullDisabled && pull(),
@@ -181,6 +191,7 @@ const getQuickActionButtons = ({
       loading: showPullLoadingState,
     },
     {
+      className: "t--bottom-bar-merge",
       icon: "fork" as IconName,
       onClick: merge,
       tooltipText: createMessage(MERGE),
@@ -239,28 +250,34 @@ function ConnectGitPlaceholder() {
   return (
     <Container>
       <Tooltip
+        autoFocus={false}
         content={tooltipContent}
         disabled={!isTooltipEnabled}
         modifiers={{
           preventOverflow: { enabled: true },
         }}
+        openOnTargetFocus={false}
       >
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
           <StyledIcon />
           {isGitConnectionEnabled ? (
             <Button
               category={Category.tertiary}
+              className="t--connect-git-bottom-bar"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
                   source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });
+
                 dispatch(showConnectGitModal());
               }}
               size={Size.small}
               text={createMessage(CONNECT_GIT_BETA)}
             />
           ) : (
-            <PlaceholderButton>{createMessage(CONNECT_GIT)}</PlaceholderButton>
+            <PlaceholderButton className="t--disabled-connect-git-bottom-bar">
+              {createMessage(CONNECT_GIT)}
+            </PlaceholderButton>
           )}
         </Container>
       </Tooltip>

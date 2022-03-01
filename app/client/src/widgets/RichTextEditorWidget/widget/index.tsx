@@ -9,7 +9,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-const showdown = require("showdown");
+import showdown from "showdown";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
