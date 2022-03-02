@@ -479,6 +479,7 @@ public class RestApiPlugin extends BasePlugin {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
                                 responseDataType = ResponseDataType.IMAGE;
+
                             } else if (binaryDataTypes.contains(contentType.toString())) {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
