@@ -2098,7 +2098,9 @@ public class GitServiceCEImpl implements GitServiceCE {
         if (Boolean.TRUE.equals(doPull)) {
             return defaultApplicationMono
                     .flatMap(defaultApplication -> this.pullAndRehydrateApplication(defaultApplication, branchName))
-                    .map(GitPullDTO::getApplication);
+                    .map(GitPullDTO::getApplication)
+                    .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
+                    .map(responseUtils::updateApplicationWithDefaultResources);
         }
 
         // Rehydrate the application from local file system
@@ -2120,7 +2122,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 importExportApplicationService
                                         .importApplicationInOrganization(branchedApplication.getOrganizationId(), applicationJson, branchedApplication.getId(), branchName)
                             );
-                });
+                })
+                .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
