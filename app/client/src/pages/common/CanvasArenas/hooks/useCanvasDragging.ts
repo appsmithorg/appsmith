@@ -2,6 +2,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, isEqual, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
@@ -382,6 +383,19 @@ export const useCanvasDragging = (
               y: 0,
             },
           );
+          const mouseTop =
+            Math.round(e.offsetY - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
+            gridProps.parentRowSpace;
+          const mouseLeft =
+            Math.round(e.offsetX - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
+            gridProps.parentColumnSpace;
+          const mousePosition = {
+            id: "test",
+            top: mouseTop,
+            left: mouseLeft,
+            bottom: mouseTop + 1,
+            right: mouseLeft + 1,
+          };
           const needsReflow = !(
             lastSnappedPosition.leftColumn === leftColumn &&
             lastSnappedPosition.topRow === topRow
@@ -421,6 +435,7 @@ export const useCanvasDragging = (
                 !canReflowBasedOnMouseSpeed,
                 firstMove,
                 immediateExitContainer,
+                mousePosition,
               );
             }
 
@@ -461,7 +476,6 @@ export const useCanvasDragging = (
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
             };
-
             const drawingBlocks = blocksToDraw.map((each) => ({
               ...each,
               left: each.left + delta.left,

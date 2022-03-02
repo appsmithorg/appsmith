@@ -14,6 +14,7 @@ import {
 import { getLimitedMovementMap } from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import { areIntersecting } from "utils/WidgetPropsUtils";
 
 type WidgetCollidingSpace = CollidingSpace & {
   type: string;
@@ -32,6 +33,7 @@ export interface ReflowInterface {
     shouldSkipContainerReflow?: boolean,
     forceDirection?: boolean,
     immediateExitContainer?: string,
+    mousePosition?: OccupiedSpace,
   ): {
     canHorizontalMove: boolean;
     canVerticalMove: boolean;
@@ -73,6 +75,7 @@ export const useReflow = (
     shouldSkipContainerReflow = false,
     forceDirection = false,
     immediateExitContainer?: string,
+    mousePosition?: OccupiedSpace,
   ) {
     const { collidingSpaceMap, movementLimit, movementMap } = reflow(
       newPositions,
@@ -104,7 +107,11 @@ export const useReflow = (
         (collidingSpaceMap as WidgetCollidingSpaceMap) || {},
       );
       for (const collidingSpace of collidingSpaces) {
-        if (checkIsDropTarget(collidingSpace.type)) {
+        if (
+          checkIsDropTarget(collidingSpace.type) &&
+          mousePosition &&
+          areIntersecting(mousePosition, collidingSpace)
+        ) {
           correctedMovementMap = {};
         }
       }
