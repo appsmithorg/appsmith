@@ -1,17 +1,20 @@
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { useSelector } from "store";
-import { SetProgress, FileType } from "components/ads/FilePicker";
+import { FileType, SetProgress } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
-import { importApplication } from "actions/applicationActions";
+import {
+  importApplication,
+  setOrgIdForImport,
+} from "actions/applicationActions";
 import {
   createMessage,
-  IMPORT_APPLICATION_MODAL_LABEL,
-  IMPORT_APPLICATION_MODAL_TITLE,
   IMPORT_APP_FROM_FILE_MESSAGE,
   IMPORT_APP_FROM_FILE_TITLE,
   IMPORT_APP_FROM_GIT_MESSAGE,
   IMPORT_APP_FROM_GIT_TITLE,
+  IMPORT_APPLICATION_MODAL_LABEL,
+  IMPORT_APPLICATION_MODAL_TITLE,
 } from "@appsmith/constants/messages";
 import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
@@ -19,7 +22,6 @@ import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setOrgIdForImport } from "actions/applicationActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -29,6 +31,10 @@ import { Classes } from "@blueprintjs/core";
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
     min-height: unset;
+
+    & .${Classes.DIALOG_CLOSE_BUTTON} {
+      margin-top: -2px;
+    }
 
     & .${Classes.ICON} {
       &:hover {

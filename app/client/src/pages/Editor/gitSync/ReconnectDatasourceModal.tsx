@@ -219,6 +219,9 @@ const DBFormWrapper = styled.div`
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
   }
+  .t--delete-datasource {
+    display: none;
+  }
 `;
 
 function TooltipContent() {
