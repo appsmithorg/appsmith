@@ -147,7 +147,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
             : "string";
         if (column.metaProperties && !column.metaProperties.isHidden) {
           tableRow.push({
-            value: data[column.accessor],
+            value: data[column.alias],
             type: type,
           });
         }

@@ -153,7 +153,8 @@ export interface TableColumnMetaProps {
 export interface TableColumnProps {
   id: string;
   Header: string;
-  accessor: string;
+  alias: string;
+  accessor: any;
   width?: number;
   minWidth: number;
   draggable: boolean;
@@ -210,7 +211,7 @@ export interface ColumnProperties {
   iconButtonStyle?: ButtonStyleType;
   isCellVisible?: boolean;
   isAscOrder?: boolean;
-  accessor?: string;
+  alias?: string;
 }
 
 export const ConditionFunctions: {
