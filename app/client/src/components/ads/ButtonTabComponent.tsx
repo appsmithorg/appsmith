@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { ControlIcons, ControlIconName } from "icons/ControlIcons";
-import { JsxElement } from "typescript";
+import { ControlIcons } from "icons/ControlIcons";
 import _ from "lodash";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
