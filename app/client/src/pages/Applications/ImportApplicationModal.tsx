@@ -27,6 +27,7 @@ import { getIsImportingApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import Dialog from "../../components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
+import getFeatureFlags from "../../utils/featureFlags";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
@@ -257,6 +258,8 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   }, [appFileToBeUploaded, importingApplication]);
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
+  const isGitImportFeatureEnabled = getFeatureFlags().GIT_IMPORT;
+
   return (
     <StyledDialog
       canOutsideClickClose
@@ -289,7 +292,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
             uploadIcon="file-line"
           />
         </FileImportCard>
-        <GitImportCard handler={onGitImport} />
+        {isGitImportFeatureEnabled && <GitImportCard handler={onGitImport} />}
       </Row>
     </StyledDialog>
   );
