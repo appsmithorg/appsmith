@@ -7,7 +7,19 @@ import {
 } from "./component/Constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WithMeta } from "widgets/MetaHOC";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
+export type EditableCell = {
+  column: string;
+  index: number;
+  value: string;
+  initialValue: string;
+};
+
+export enum EditableCellActions {
+  SAVE = "SAVE",
+  DISCARD = "DISCARD",
+}
 export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   nextPageKey?: string;
   prevPageKey?: string;
@@ -45,6 +57,10 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     order: SortOrderTypes | null;
   };
   totalRecordsCount?: number;
+  transientTableData: {
+    [key: string]: Record<string, string>;
+  };
+  editableCell: EditableCell;
 }
 
 export const getCurrentRowBinding = (
@@ -82,3 +98,16 @@ export const DEFAULT_BUTTON_LABEL = "Action";
 export const DEFAULT_MENU_VARIANT = "PRIMARY";
 
 export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
+
+export type TransientDataPayload = {
+  [key: string]: string | number;
+  __original_index__: number;
+};
+
+export type OnColumnEventArgs = {
+  rowIndex: number;
+  action: string;
+  onComplete?: () => void;
+  triggerPropertyName: string;
+  eventType: EventType;
+};

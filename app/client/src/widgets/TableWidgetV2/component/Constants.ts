@@ -123,6 +123,7 @@ export interface CellLayoutProperties {
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
+  isCellEditable: boolean;
 }
 
 export type MenuItems = Record<
@@ -212,6 +213,8 @@ export interface ColumnProperties {
   isCellVisible?: boolean;
   isAscOrder?: boolean;
   alias: string;
+  isCellEditable: boolean; // Cell level editability
+  isEditable: boolean; // column level edtitability
 }
 
 export const ConditionFunctions: {
@@ -289,3 +292,33 @@ export const ConditionFunctions: {
     return !moment(a).isBefore(moment(b), "d");
   },
 };
+
+export enum JUSTIFY_CONTENT {
+  LEFT = "flex-start",
+  CENTER = "center",
+  RIGHT = "flex-end",
+}
+
+export enum TEXT_ALIGN {
+  LEFT = "left",
+  CENTER = "center",
+  RIGHT = "right",
+}
+
+export enum ALIGN_ITEMS {
+  TOP = "flex-start",
+  CENTER = "center",
+  BOTTOM = "flex-end",
+}
+
+export enum IMAGE_HORIZONTAL_ALIGN {
+  LEFT = "left",
+  CENTER = "center",
+  RIGHT = "right",
+}
+
+export enum IMAGE_VERTICAL_ALIGN {
+  TOP = "top",
+  CENTER = "center",
+  BOTTOM = "bottom",
+}

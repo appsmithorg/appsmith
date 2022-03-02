@@ -13,6 +13,7 @@ export type CheckboxProps = CommonComponentProps & {
   backgroundColor?: string;
   fill?: boolean;
   name?: string;
+  className?: string;
 };
 
 export const Checkmark = styled.span<{
@@ -117,7 +118,7 @@ const useUpdate = (intitialValue?: boolean) => {
 };
 
 function Checkbox(props: CheckboxProps) {
-  const { fill = true } = props;
+  const { className, fill = true } = props;
   const [checked, setChecked] = useUpdate(props.isDefaultChecked);
 
   const onChangeHandler = (checked: boolean) => {
@@ -128,6 +129,7 @@ function Checkbox(props: CheckboxProps) {
   return (
     <StyledCheckbox
       $fill={fill}
+      className={className}
       data-cy={props.cypressSelector}
       disabled={props.disabled}
     >

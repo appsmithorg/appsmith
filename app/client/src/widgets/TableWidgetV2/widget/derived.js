@@ -269,13 +269,14 @@ export default {
       });
     }
 
-    /* Populate meta keys (__originalIndex__, __primaryKey__) */
+    /* Populate meta keys (__originalIndex__, __primaryKey__) and transient values */
     processedTableData = processedTableData.map((row, index) => ({
       ...row,
       __originalIndex__: index,
       __primaryKey__: props.primaryColumnId
         ? row[props.primaryColumnId]
         : undefined,
+      ...props.transientTableData[index],
     }));
 
     const columns = props.orderedTableColumns;
