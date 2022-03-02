@@ -65,4 +65,6 @@ public interface GitServiceCE {
 
     Mono<Boolean> testConnection(String defaultApplicationId);
 
+    Mono<Application> deleteBranch(String defaultApplicationId, String branchName);
+
 }
