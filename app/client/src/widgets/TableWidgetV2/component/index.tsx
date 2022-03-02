@@ -125,9 +125,9 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     const hidden: string[] = [];
     columns.forEach((item) => {
       if (item.isHidden) {
-        hidden.push(item.accessor);
+        hidden.push(item.alias);
       } else {
-        order.push(item.accessor);
+        order.push(item.alias);
       }
     });
     return {
@@ -222,7 +222,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         columnType !== ColumnTypes.IMAGE &&
         columnType !== ColumnTypes.VIDEO
       ) {
-        _sortTableColumn(column.accessor, asc);
+        _sortTableColumn(column.alias, asc);
       }
     }
   };
