@@ -72,7 +72,7 @@ export const transformTableDataIntoCsv = (props: {
     const csvDataRow = [];
     for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
       const column = props.columns[colIndex];
-      let value = data[column.accessor];
+      let value = data[column.alias];
       if (column.metaProperties && !column.metaProperties.isHidden) {
         value =
           isString(value) && value.includes("\n")

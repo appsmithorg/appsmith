@@ -122,7 +122,7 @@ export function Table(props: TableProps) {
   const tableHeadercolumns = React.useMemo(
     () =>
       props.columns.filter((column: ReactTableColumnProps) => {
-        return column.accessor !== "actions";
+        return column.alias !== "actions";
       }),
     [columnString],
   );

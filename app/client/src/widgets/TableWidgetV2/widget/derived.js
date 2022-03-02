@@ -78,7 +78,9 @@ export default {
       });
     }
 
-    return triggeredRow;
+    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
+
+    return _.omit(triggeredRow, keysToBeOmitted);
   },
   //
   getSelectedRows: (props, moment, _) => {
@@ -151,15 +153,7 @@ export default {
     let data;
 
     if (_.isArray(props.tableData)) {
-      const accessorMap = props.accessorMap || {};
-      data = props.tableData.map((row) => {
-        const newRow = {};
-        Object.entries(row).forEach((entry) => {
-          newRow[accessorMap[entry[0]] || entry[0]] = entry[1];
-        });
-
-        return newRow;
-      });
+      data = props.tableData;
     } else {
       data = [];
     }
@@ -265,7 +259,7 @@ export default {
         computedValues.forEach((computedValue, index) => {
           processedTableData[index] = {
             ...processedTableData[index],
-            [column.accessor]: computedValue,
+            [column.alias]: computedValue,
           };
         });
       });
@@ -479,7 +473,6 @@ export default {
           }
         } catch (e) {
           filterResult = false;
-          console.error(e);
         }
 
         /* if one filter condition is not satisfied and filter operator is AND, bailout early */
