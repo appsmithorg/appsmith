@@ -353,15 +353,14 @@ function ReconnectDatasourceModal() {
   }, [isConfigFetched, selectedDatasourceId, queryIsImport]);
 
   useEffect(() => {
-    if (selectedDatasourceId) {
-      const selectedDatasourceConfig = datasources.find(
-        (datasource: Datasource) => datasource.id === selectedDatasourceId,
+    const id = selectedDatasourceId;
+    if (id) {
+      const config = datasources.find(
+        (datasource: Datasource) => datasource.id === id,
       );
-      if (selectedDatasourceConfig && !selectedDatasourceConfig.isConfigured) {
-        const data =
-          selectedDatasourceId in datasourceDrafts
-            ? datasourceDrafts[selectedDatasourceId]
-            : selectedDatasourceConfig;
+      const notConfigured = config && !config.isConfigured;
+      if (notConfigured) {
+        const data = id in datasourceDrafts ? datasourceDrafts[id] : config;
 
         dispatch(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
       }
@@ -401,24 +400,19 @@ function ReconnectDatasourceModal() {
 
   // checking of full configured
   useEffect(() => {
-    const unconfiguredDSList = datasources.filter(
-      (ds: Datasource) => !ds.isConfigured,
-    );
-    if (unconfiguredDSList.length > 0) {
-      let nextDatasource: Datasource | undefined = undefined;
-      if (selectedDatasourceId) {
-        const selectedIndex = datasources.findIndex(
-          (ds: Datasource) => ds.id === selectedDatasourceId,
-        );
-        nextDatasource = datasources
-          .slice(selectedIndex + 1)
+    const id = selectedDatasourceId;
+    const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
+    if (pending.length > 0) {
+      let next: Datasource | undefined = undefined;
+      if (id) {
+        const index = datasources.findIndex((ds: Datasource) => ds.id === id);
+        next = datasources
+          .slice(index + 1)
           .find((ds: Datasource) => !ds.isConfigured);
       }
-      if (!nextDatasource) {
-        nextDatasource = unconfiguredDSList[0];
-      }
-      setSelectedDatasourceId(nextDatasource.id);
-      setDatasource(nextDatasource);
+      next = next || pending[0];
+      setSelectedDatasourceId(next.id);
+      setDatasource(next);
     } else if (appURL) {
       window.open(appURL, "_self");
     }
