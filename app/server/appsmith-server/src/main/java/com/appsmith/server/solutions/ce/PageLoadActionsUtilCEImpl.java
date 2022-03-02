@@ -518,7 +518,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * Breadth First level by level traversal is used to compute each set of such independent actions.
      *
      * @param dag                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
-     * @param pageLoadActionSet
      * @param onPageLoadActionSet
      * @param actionNames           : All the action names for the page
      * @return
@@ -995,6 +994,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         dslActionDTO.setClientSideExecution(actionDTO.getClientSideExecution());
         if (actionDTO.getDefaultResources() != null) {
             dslActionDTO.setDefaultActionId(actionDTO.getDefaultResources().getActionId());
+            dslActionDTO.setDefaultCollectionId(actionDTO.getDefaultResources().getCollectionId());
         }
 
         if (actionDTO.getActionConfiguration() != null) {

@@ -25,6 +25,10 @@
       {
         "label": "Delete file",
         "fileName" : "delete.json"
+      },
+      {
+        "label": "Delete multiple files",
+        "fileName" : "delete_many.json"
       }
     ]
   }

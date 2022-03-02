@@ -61,7 +61,7 @@ export default function Group({
   const state = useSelector((state) => state);
   return (
     <GroupWrapper data-testid="admin-settings-group-wrapper">
-      <GroupHeader>{createMessage(() => name || "")}</GroupHeader>
+      {name && <GroupHeader>{createMessage(() => name)}</GroupHeader>}
       <GroupBody>
         {settings &&
           settings.map((setting) => {

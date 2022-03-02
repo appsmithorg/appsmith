@@ -1,15 +1,23 @@
 import { ApiActionConfig } from "entities/Action";
-import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
-import { zipObject } from "lodash";
+import { DEFAULT_ACTION_TIMEOUT } from "ce/constants/ApiConstants";
 
-export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
-const HTTP_METHOD_COLORS = [
-  "#457AE6",
-  "#EABB0C",
-  "#5BB749",
-  "#E22C2C",
-  "#6D6D6D",
-];
+// This constant lists all the support HTTP methods & their color in
+// the entity explorer
+export enum HTTP_METHOD {
+  GET = "GET",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
+  PATCH = "PATCH",
+}
+
+export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
+  GET: "#457AE6",
+  POST: "#EABB0C",
+  PUT: "#5BB749",
+  DELETE: "#E22C2C",
+  PATCH: "#6D6D6D",
+};
 
 export enum API_EDITOR_TABS {
   HEADERS = "HEADERS",
@@ -20,12 +28,7 @@ export enum API_EDITOR_TABS {
   AUTHENTICATION = "AUTHENTICATION",
 }
 
-export const HTTP_METHOD_COLOR_MAP = zipObject(
-  HTTP_METHODS,
-  HTTP_METHOD_COLORS,
-);
-
-export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map((method) => ({
+export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHOD).map((method) => ({
   value: method,
 }));
 
@@ -36,13 +39,38 @@ export const EMPTY_KEY_VALUE_PAIRS = [
   { key: "", value: "" },
 ];
 
+export enum ApiContentType {
+  NONE = "none",
+  JSON = "json",
+  FORM_URLENCODED = "x-www-form-urlencoded",
+  MULTIPART_FORM_DATA = "multi-part/form-data",
+  RAW = "text/plain",
+}
+
+// This lists all the support content types in the API body. The value field is the
+// value for the content-type header. In the UI, these content types are displayed in the
+// order defined here.
+export const POST_BODY_FORMAT_OPTIONS: Record<
+  keyof typeof ApiContentType, // using the key of ApiContentType enum as the key property of this Record type.
+  string
+> = {
+  NONE: "none",
+  JSON: "application/json",
+  FORM_URLENCODED: "application/x-www-form-urlencoded",
+  MULTIPART_FORM_DATA: "multipart/form-data",
+  RAW: "text/plain",
+};
+
 export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
-  httpMethod: HTTP_METHODS[0],
+  httpMethod: HTTP_METHOD.GET,
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
   body: "",
+  formData: {
+    apiContentType: POST_BODY_FORMAT_OPTIONS.NONE,
+  },
   pluginSpecifiedTemplates: [
     {
       // JSON smart substitution
@@ -54,35 +82,21 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE_HEADER_KEY = "content-type";
 
-export enum ApiContentTypes {
-  JSON = "json",
-  FORM_URLENCODED = "x-www-form-urlencoded",
-  MULTIPART_FORM_DATA = "multi-part",
-  RAW = "raw",
-}
-
-export const POST_BODY_FORMAT_OPTIONS: Array<{
-  label: ApiContentTypes;
-  value: string;
-}> = [
-  { label: ApiContentTypes.JSON, value: "application/json" },
-  {
-    label: ApiContentTypes.FORM_URLENCODED,
-    value: "application/x-www-form-urlencoded",
-  },
-  { label: ApiContentTypes.MULTIPART_FORM_DATA, value: "multipart/form-data" },
-  { label: ApiContentTypes.RAW, value: "raw" },
-];
-
-export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map((option) => {
-  return option.value;
-});
-
-export const POST_BODY_FORMAT_TITLES = POST_BODY_FORMAT_OPTIONS.map(
+export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
   (option) => {
-    return { title: option.label, key: option.value };
+    return option;
   },
 );
+
+export const POST_BODY_FORMAT_OPTIONS_ARRAY = Object.values(
+  POST_BODY_FORMAT_OPTIONS,
+);
+
+export const POST_BODY_FORMAT_TITLES = Object.entries(
+  POST_BODY_FORMAT_OPTIONS,
+).map((option) => {
+  return { title: option[0], key: option[1] };
+});
 
 export enum MultiPartOptionTypes {
   TEXT = "Text",

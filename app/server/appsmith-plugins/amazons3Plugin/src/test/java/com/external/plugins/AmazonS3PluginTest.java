@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
@@ -15,7 +16,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
@@ -42,7 +42,6 @@ import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_FILE_NAME;
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_URL_EXPIRY_IN_MINUTES;
@@ -61,6 +60,16 @@ import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.READ_EXPIRY;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
+import static com.external.utils.TemplateUtils.CREATE_FILE_TEMPLATE_NAME;
+import static com.external.utils.TemplateUtils.CREATE_MULTIPLE_FILES_TEMPLATE_NAME;
+import static com.external.utils.TemplateUtils.DEFAULT_DIR;
+import static com.external.utils.TemplateUtils.DELETE_FILE_TEMPLATE_NAME;
+import static com.external.utils.TemplateUtils.DELETE_MULTIPLE_FILES_TEMPLATE_NAME;
+import static com.external.utils.TemplateUtils.FILE_PICKER_DATA_EXPRESSION;
+import static com.external.utils.TemplateUtils.FILE_PICKER_MULTIPLE_FILES_DATA_EXPRESSION;
+import static com.external.utils.TemplateUtils.LIST_FILES_TEMPLATE_NAME;
+import static com.external.utils.TemplateUtils.LIST_OF_FILES_STRING;
+import static com.external.utils.TemplateUtils.READ_FILE_TEMPLATE_NAME;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1091,7 +1100,7 @@ public class AmazonS3PluginTest {
 
                     // Check list files template
                     Template listFilesTemplate = templates.get(0);
-                    assertEquals("List files", listFilesTemplate.getTitle());
+                    assertEquals(LIST_FILES_TEMPLATE_NAME, listFilesTemplate.getTitle());
                     
 
                     Map<String, Object> listFilesConfig = (Map<String, Object>) listFilesTemplate.getConfiguration();
@@ -1104,7 +1113,7 @@ public class AmazonS3PluginTest {
 
                     // Check read file template
                     Template readFileTemplate = templates.get(1);
-                    assertEquals("Read file", readFileTemplate.getTitle());
+                    assertEquals(READ_FILE_TEMPLATE_NAME, readFileTemplate.getTitle());
                     assertEquals(DEFAULT_FILE_NAME, readFileTemplate.getActionConfiguration().getPath());
 
                     Map<String, Object> readFileConfig = (Map<String, Object>) readFileTemplate.getConfiguration();
@@ -1115,9 +1124,9 @@ public class AmazonS3PluginTest {
 
                     // Check create file template
                     Template createFileTemplate = templates.get(2);
-                    assertEquals("Create file", createFileTemplate.getTitle());
+                    assertEquals(CREATE_FILE_TEMPLATE_NAME, createFileTemplate.getTitle());
                     assertEquals(DEFAULT_FILE_NAME, createFileTemplate.getActionConfiguration().getPath());
-                    assertEquals("{{FilePicker1.files[0]}}", createFileTemplate.getActionConfiguration().getBody());
+                    assertEquals(FILE_PICKER_DATA_EXPRESSION, createFileTemplate.getActionConfiguration().getBody());
 
                     Map<String, Object> createFileConfig = (Map<String, Object>) createFileTemplate.getConfiguration();
                     assertEquals(AmazonS3Action.UPLOAD_FILE_FROM_BODY.name(),
@@ -1126,15 +1135,40 @@ public class AmazonS3PluginTest {
                     assertEquals(YES, getValueSafelyFromFormData(createFileConfig, CREATE_DATATYPE));
                     assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createFileConfig, CREATE_EXPIRY));
 
+                    // Check create multiple files template
+                    Template createMultipleFilesTemplate = templates.get(3);
+                    assertEquals(CREATE_MULTIPLE_FILES_TEMPLATE_NAME, createMultipleFilesTemplate.getTitle());
+                    assertEquals(DEFAULT_DIR, createMultipleFilesTemplate.getActionConfiguration().getPath());
+                    assertEquals(FILE_PICKER_MULTIPLE_FILES_DATA_EXPRESSION,
+                            createMultipleFilesTemplate.getActionConfiguration().getBody());
+
+                    Map<String, Object> createMultipleFilesConfig = (Map<String, Object>) createMultipleFilesTemplate.getConfiguration();
+                    assertEquals(AmazonS3Action.UPLOAD_MULTIPLE_FILES_FROM_BODY.name(),
+                            getValueSafelyFromFormData(createMultipleFilesConfig, COMMAND));
+                    assertEquals(expectedBucketName, getValueSafelyFromFormData(createMultipleFilesConfig, BUCKET));
+                    assertEquals(YES, getValueSafelyFromFormData(createMultipleFilesConfig, CREATE_DATATYPE));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createMultipleFilesConfig, CREATE_EXPIRY));
+
                     // Check delete file template
-                    Template deleteFileTemplate = templates.get(3);
-                    assertEquals("Delete file", deleteFileTemplate.getTitle());
+                    Template deleteFileTemplate = templates.get(4);
+                    assertEquals(DELETE_FILE_TEMPLATE_NAME, deleteFileTemplate.getTitle());
                     assertEquals(DEFAULT_FILE_NAME, deleteFileTemplate.getActionConfiguration().getPath());
 
                     Map<String, Object> deleteFileConfig = (Map<String, Object>) deleteFileTemplate.getConfiguration();
                     assertEquals(AmazonS3Action.DELETE_FILE.name(), getValueSafelyFromFormData(deleteFileConfig,
                             COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(deleteFileConfig, BUCKET));
+
+                    // Check delete multiple files template
+                    Template deleteMultipleFilesTemplate = templates.get(5);
+                    assertEquals(DELETE_MULTIPLE_FILES_TEMPLATE_NAME, deleteMultipleFilesTemplate.getTitle());
+                    assertEquals(LIST_OF_FILES_STRING, deleteMultipleFilesTemplate.getActionConfiguration().getPath());
+
+                    Map<String, Object> deleteMultipleFilesConfig =
+                            (Map<String, Object>) deleteMultipleFilesTemplate.getConfiguration();
+                    assertEquals(AmazonS3Action.DELETE_MULTIPLE_FILES.name(),
+                            getValueSafelyFromFormData(deleteMultipleFilesConfig, COMMAND));
+                    assertEquals(expectedBucketName, getValueSafelyFromFormData(deleteMultipleFilesConfig, BUCKET));
                 })
                 .verifyComplete();
     }
@@ -1187,5 +1221,55 @@ public class AmazonS3PluginTest {
                     assertEquals(expectedErrorMessage, error.getMessage());
                 })
                 .verify();
+    }
+
+    @Test
+    public void testDeleteMultipleFiles() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "[\"image1.png\", \"image2.png\"]";
+        actionConfiguration.setPath(dummyPath);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "DELETE_MULTIPLE_FILES");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 mockConnection = mock(AmazonS3.class);
+        when(mockConnection.deleteObjects(any())).thenReturn(new DeleteObjectsResult(new ArrayList<>()));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                mockConnection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    Map<String, String> node = (Map<String, String>) result.getBody();
+                    assertEquals("All files deleted successfully", node.get("status"));
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO("command", "DELETE_MULTIPLE_FILES",
+                            null, null, null)); // Action
+                    expectedRequestParams.add(new RequestParamDTO("bucket", "bucket_name",
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
+                    assertEquals(result.getRequest().getRequestParams().toString(),
+                            expectedRequestParams.toString());
+                })
+                .verifyComplete();
     }
 }

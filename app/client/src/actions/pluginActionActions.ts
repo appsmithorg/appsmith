@@ -1,6 +1,7 @@
 import { ActionResponse, PaginationField } from "api/ActionAPI";
 import {
   EvaluationReduxAction,
+  AnyReduxAction,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -30,7 +31,7 @@ export type FetchActionsPayload = {
 
 export const fetchActions = (
   { applicationId }: { applicationId: string },
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  postEvalActions: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
@@ -52,7 +53,7 @@ export const fetchActionsForView = ({
 
 export const fetchActionsForPage = (
   pageId: string,
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload> = [],
+  postEvalActions: Array<AnyReduxAction> = [],
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
@@ -63,7 +64,7 @@ export const fetchActionsForPage = (
 
 export const fetchActionsForPageSuccess = (
   actions: Action[],
-  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  postEvalActions?: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
@@ -88,22 +89,22 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
   };
 };
 
-export const showRunActionConfirmModal = (show: boolean) => {
+export const showActionConfirmationModal = (show: boolean) => {
   return {
-    type: ReduxActionTypes.SHOW_RUN_ACTION_CONFIRM_MODAL,
+    type: ReduxActionTypes.SHOW_ACTION_MODAL,
     payload: show,
   };
 };
 
-export const cancelRunActionConfirmModal = () => {
+export const cancelActionConfirmationModal = () => {
   return {
-    type: ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL,
+    type: ReduxActionTypes.CANCEL_ACTION_MODAL,
   };
 };
 
-export const acceptRunActionConfirmModal = () => {
+export const acceptActionConfirmationModal = () => {
   return {
-    type: ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL,
+    type: ReduxActionTypes.CONFIRM_ACTION_MODAL,
   };
 };
 

@@ -19,7 +19,6 @@ import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
-import SettingsBreadcrumbs from "./SettingsBreadcrumbs";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -35,11 +34,15 @@ export const BottomSpace = styled.div`
   height: ${(props) => props.theme.settings.footerHeight + 20}px;
 `;
 
+export const HeaderWrapper = styled.div`
+  margin-bottom: 16px;
+`;
+
 export const SettingsHeader = styled.h2`
   font-size: 24px;
   font-weight: 500;
   text-transform: capitalize;
-  margin-bottom: 0;
+  margin-bottom: 0px;
 `;
 
 export const SettingsSubHeader = styled.div`
@@ -110,14 +113,15 @@ export function SettingsForm(
 
   return (
     <Wrapper>
-      <SettingsBreadcrumbs category={category} subCategory={subCategory} />
       <SettingsFormWrapper>
-        <SettingsHeader>
-          {getSettingLabel(details?.title || (subCategory ?? category))}
-        </SettingsHeader>
-        {details?.subText && (
-          <SettingsSubHeader>{details.subText}</SettingsSubHeader>
-        )}
+        <HeaderWrapper>
+          <SettingsHeader>
+            {getSettingLabel(details?.title || (subCategory ?? category))}
+          </SettingsHeader>
+          {details?.subText && (
+            <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+          )}
+        </HeaderWrapper>
         <Group
           category={category}
           settings={settings}

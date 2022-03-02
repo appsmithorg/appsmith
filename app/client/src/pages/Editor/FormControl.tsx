@@ -13,6 +13,7 @@ import {
   FormInfoText,
   FormSubtitleText,
   FormInputSwitchToJsonButton,
+  FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
 import { AppState } from "reducers";
@@ -50,7 +51,7 @@ function FormControl(props: FormControlProps) {
         props.formName,
         props?.multipleConfig,
       ),
-    [],
+    [props],
   );
 
   if (hidden) return null;
@@ -132,7 +133,13 @@ function FormConfig(props: FormConfigProps) {
   );
 }
 
-export default memo(FormControl);
+// Updated the memo function to allow for disabled props to be compared
+export default memo(FormControl, (prevProps, nextProps) => {
+  return (
+    prevProps === nextProps &&
+    prevProps.config.disabled === nextProps.config.disabled
+  );
+});
 
 function renderFormConfigTop(props: { config: ControlProps }) {
   const {
@@ -153,12 +160,12 @@ function renderFormConfigTop(props: { config: ControlProps }) {
           <p className="label-icon-wrapper">
             {label} {isRequired && "*"}{" "}
             {encrypted && (
-              <>
+              <FormEncrytedSection>
                 <FormIcons.LOCK_ICON height={12} keepColors width={12} />
                 <FormSubtitleText config={props.config}>
                   Encrypted
                 </FormSubtitleText>
-              </>
+              </FormEncrytedSection>
             )}
             {tooltipText && (
               <Tooltip content={tooltipText} hoverOpenDelay={1000}>

@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -40,7 +40,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static java.util.stream.Collectors.toMap;
@@ -151,7 +151,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     // Store the default resource ids
                     // Only store defaultPageId for collectionDTO level resource
                     DefaultResources defaultDTOResource =  new DefaultResources();
-                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(collection.getDefaultResources(), defaultDTOResource);
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(collection.getDefaultResources(), defaultDTOResource);
 
                     defaultDTOResource.setApplicationId(null);
                     defaultDTOResource.setCollectionId(null);
@@ -163,7 +163,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                     // Only store branchName, defaultApplicationId and defaultActionCollectionId for ActionCollection level resource
                     DefaultResources defaults = new DefaultResources();
-                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
                     defaults.setPageId(null);
                     if(StringUtils.isEmpty(defaults.getApplicationId())) {
                         defaults.setApplicationId(actionCollection.getApplicationId());

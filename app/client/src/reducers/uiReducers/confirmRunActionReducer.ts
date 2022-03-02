@@ -6,7 +6,7 @@ const initialState: ConfirmRunActionReduxState = {
 };
 
 const confirmRunActionReducer = createReducer(initialState, {
-  [ReduxActionTypes.SHOW_RUN_ACTION_CONFIRM_MODAL]: (
+  [ReduxActionTypes.SHOW_ACTION_MODAL]: (
     state: ConfirmRunActionReduxState,
     action: ReduxAction<boolean>,
   ) => {

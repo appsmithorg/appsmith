@@ -44,6 +44,7 @@ import { ReactComponent as CameraIcon } from "assets/icons/widget/camera.svg";
 import { ReactComponent as MapChartIcon } from "assets/icons/widget/map-chart.svg";
 import { ReactComponent as PhoneInput } from "assets/icons/widget/phoneInput.svg";
 import { ReactComponent as CurrencyInput } from "assets/icons/widget/currencyInput.svg";
+import { ReactComponent as CircularProgressIcon } from "assets/icons/widget/circular-progress.svg";
 
 /* eslint-disable react/display-name */
 
@@ -276,6 +277,11 @@ export const WidgetIcons: {
   CURRENCY_INPUT_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <CurrencyInput />
+    </StyledIconWrapper>
+  ),
+  CIRCULAR_PROGRESS_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CircularProgressIcon />
     </StyledIconWrapper>
   ),
 };

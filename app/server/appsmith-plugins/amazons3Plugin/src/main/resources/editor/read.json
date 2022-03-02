@@ -31,12 +31,6 @@
           "initialValue": ""
         },
         {
-          "label": "Expiry Duration of Signed URL (Minutes)",
-          "configProperty": "actionConfiguration.formData.read.expiry",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "initialValue": "5"
-        },
-        {
           "label": "Base64 Encode File - Yes/No",
           "configProperty": "actionConfiguration.formData.read.usingBase64Encoding",
           "controlType": "DROP_DOWN",

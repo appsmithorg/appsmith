@@ -31,6 +31,7 @@ export const resetWidgetMetaProperty = (
     payload: {
       widgetId,
     },
+    postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
   });
 };
 

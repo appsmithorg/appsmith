@@ -194,6 +194,9 @@ We love our contributors! We're committed to fostering an open and welcoming env
     <td align="center"><a href="https://www.rafaaudibert.dev"><img src="https://avatars.githubusercontent.com/u/32079912?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Rafael Baldasso Audibert</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=rafaeelaudibert" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/yaldram"><img src="https://avatars.githubusercontent.com/u/13429535?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Arsalan Yaldram</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=yaldram" title="Code">💻</a> <a href="#ideas-yaldram" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/prsidhu"><img src="https://avatars.githubusercontent.com/u/5424788?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Preet Sidhu</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=prsidhu" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Aprsidhu" title="Bug reports">🐛</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->

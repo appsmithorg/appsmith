@@ -94,7 +94,7 @@ public class ApplicationControllerTest {
                         "        \"status\": 500,\n" +
                         "        \"success\": false,\n" +
                         "        \"error\": {\n" +
-                        "            \"code\": 5016,\n" +
+                        "            \"code\": 5017,\n" +
                         "            \"message\": \"Failed to upload file with error: Part headers exceeded the memory usage limit of 131072 bytes\"\n" +
                         "        }\n" +
                         "    }\n" +

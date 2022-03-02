@@ -128,7 +128,8 @@ const SelectedDatasourceInfoContainer = styled.div`
   align-items: center;
   padding: 2px 8px;
   background-color: ${Colors.LIGHT_GREEN_CYAN};
-  margin-right: 5px;
+  margin-right: 2px;
+  margin-left: 3px;
   text-transform: uppercase;
   & p {
     font-style: normal;
@@ -141,6 +142,7 @@ const SelectedDatasourceInfoContainer = styled.div`
     letter-spacing: 0.4px;
     text-transform: uppercase;
     color: ${Colors.GREEN};
+    white-space: nowrap;
   }
 `;
 

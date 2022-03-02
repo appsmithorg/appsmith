@@ -1,6 +1,7 @@
-import { all, takeEvery } from "redux-saga/effects";
+import { all, takeEvery, race, put, take } from "redux-saga/effects";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import history from "utils/history";
+import { showActionConfirmationModal } from "actions/pluginActionActions";
 
 function* redirectWindowLocationSaga(
   actionPayload: ReduxAction<{ url: string }>,
@@ -20,4 +21,15 @@ export default function* root() {
       redirectWindowLocationSaga,
     ),
   ]);
+}
+
+export function* requestModalConfirmationSaga() {
+  yield put(showActionConfirmationModal(true));
+
+  const { accept } = yield race({
+    cancel: take(ReduxActionTypes.CANCEL_ACTION_MODAL),
+    accept: take(ReduxActionTypes.CONFIRM_ACTION_MODAL),
+  });
+
+  return !!accept;
 }
