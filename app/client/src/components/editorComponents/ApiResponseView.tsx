@@ -7,10 +7,9 @@ import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
-import _ from "lodash";
+import { isArray, isEmpty } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
@@ -36,6 +35,7 @@ import Button, { Size } from "components/ads/Button";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
+import VirtualizedJsonViewer from "pages/Editor/QueryEditor/VirtualizedJsonViewer";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -239,11 +239,21 @@ function ApiResponseView(props: Props) {
   };
 
   const messages = response?.messages;
-  let responseHeaders;
+  let responseHeaders = {};
 
   // if no headers are present in the response, use the default body text.
   if (response.headers) {
-    responseHeaders = response.headers;
+    Object.entries(response.headers).map(([key, value]) => {
+      if (isArray(value) && value.length < 2)
+        return (responseHeaders = {
+          ...responseHeaders,
+          [key]: value[0],
+        });
+      return (responseHeaders = {
+        ...responseHeaders,
+        [key]: value,
+      });
+    });
   } else {
     responseHeaders = {}; // if the response headers is empty show an empty object.
   }
@@ -277,7 +287,7 @@ function ApiResponseView(props: Props) {
             />
           )}
           <ResponseDataContainer>
-            {_.isEmpty(response.statusCode) ? (
+            {isEmpty(response.statusCode) ? (
               <NoResponseContainer>
                 <Icon name="no-response" />
                 <Text type={TextType.P1}>
@@ -294,15 +304,7 @@ function ApiResponseView(props: Props) {
                 </Text>
               </NoResponseContainer>
             ) : (
-              <ReadOnlyEditor
-                folding
-                height={"100%"}
-                input={{
-                  value: response.body
-                    ? JSON.stringify(response.body, null, 2)
-                    : "",
-                }}
-              />
+              <VirtualizedJsonViewer src={response.body} />
             )}
           </ResponseDataContainer>
         </ResponseTabWrapper>
@@ -329,7 +331,7 @@ function ApiResponseView(props: Props) {
             />
           )}
           <ResponseDataContainer>
-            {_.isEmpty(response.statusCode) ? (
+            {isEmpty(response.statusCode) ? (
               <NoResponseContainer>
                 <Icon name="no-response" />
                 <Text type={TextType.P1}>
@@ -346,15 +348,7 @@ function ApiResponseView(props: Props) {
                 </Text>
               </NoResponseContainer>
             ) : (
-              <ReadOnlyEditor
-                folding
-                height={"100%"}
-                input={{
-                  value: response.body
-                    ? JSON.stringify(responseHeaders, null, 2)
-                    : "",
-                }}
-              />
+              <VirtualizedJsonViewer src={responseHeaders} />
             )}
           </ResponseDataContainer>
         </ResponseTabWrapper>
@@ -415,7 +409,7 @@ function ApiResponseView(props: Props) {
                   </Text>
                 </Flex>
               )}
-              {!_.isEmpty(response.body) && Array.isArray(response.body) && (
+              {!isEmpty(response.body) && Array.isArray(response.body) && (
                 <Flex>
                   <Text type={TextType.P3}>Result: </Text>
                   <Text type={TextType.H5}>

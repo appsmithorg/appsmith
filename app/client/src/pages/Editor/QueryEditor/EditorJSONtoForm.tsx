@@ -11,7 +11,6 @@ import {
 } from "react-select";
 import { Datasource } from "entities/Datasource";
 import { Colors } from "constants/Colors";
-import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
@@ -789,10 +788,10 @@ export function EditorJSONtoForm(props: Props) {
             </HelpSection>
           )}
           {output &&
-            (!isTableResponse ? (
+            (isTableResponse ? (
               <Table data={output} tableBodyHeight={tableBodyHeight} />
             ) : (
-              <VirtualizedJsonViewer panelRef={panelRef} src={output} />
+              <VirtualizedJsonViewer src={output} />
             ))}
           {!output && !error && (
             <NoResponseContainer>

@@ -1,81 +1,131 @@
-import React, { useCallback } from "react";
-import ReactJson from "react-json-view";
+/* eslint-disable react-hooks/rules-of-hooks */
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import {
-  FixedSizeList as List,
-  ListChildComponentProps,
-  areEqual,
-} from "react-window";
+import { VariableSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
-import isEqual from "lodash/isEqual";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import customJsonViewerStyles from "./VirtualizedJsonViewerStyles";
+import { isArray } from "lodash";
 
 type Props = {
-  src: Record<string, any>;
-  panelRef: any;
+  src: Record<string, any> | unknown;
 };
 
-const OutputContainer = styled.div`
-  background: #f5f6f7;
-  border: 1px solid #d0d7dd;
-  box-sizing: border-box;
-  padding: 6px;
-`;
+const HighlightContainer = styled.div`
+  display: block;
+  margin: 0;
 
-const ResponseContent = styled.div`
-  overflow: auto;
+  & .highlighter span {
+    font-family: monospace;
+  }
 `;
-
-// const Record = styled(Card)`
-//   margin: 5px;
-//   border-radius: 0;
-//   span.string-value {
-//     overflow-wrap: anywhere;
-//   }
-// `;
 
 function VirtualizedJsonViewer(props: Props) {
-  const { panelRef, src } = props;
+  const { src } = props;
 
-  const panel = props.panelRef.current;
+  // regex to convert stringified integers back to actual integers.
+  const REGEX = /"(-|)([0-9]+(?:\.[0-9]+)?)"/g;
 
-  const reactJsonProps = {
-    name: null,
-    enableClipboard: false,
-    displayObjectSize: false,
-    displayDataTypes: false,
-    collapsed: 1,
-    style: { fontSize: "14px" },
-  };
+  // ref value for the Variable Size List.
+  const listRef: any = useRef({});
+
+  // object to store all the heights of every row element to be rendered.
+  let rowHeights: Record<string, number> = {};
 
   type rowRenderProps = {
     index: number;
-    key: number;
     style: any;
   };
 
-  // eslint-disable-next-line react/display-name
-  const renderReactJson = ({ data, index, style }: any) => {
-    const itemData = data[index];
-    console.log("prev", index);
+  function getRowHeight(index: number) {
+    // get the row height of the current index from our rowHeights.
+    return rowHeights[index] || 200;
+  }
+
+  const setRowHeight = (index: number, size: number) => {
+    // this will make react window Virtualized list recalculate the height of the row elements.
+    listRef.current.resetAfterIndex(0);
+
+    // store the height of the row element in the rowHeights object.
+    rowHeights = { ...rowHeights, [index]: size };
+  };
+
+  const renderReactJson = ({ index, style }: rowRenderProps) => {
+    // ref value for the current row element.
+    const rowRef: any = useRef({});
+
+    useEffect(() => {
+      if (rowRef.current) {
+        setRowHeight(index, rowRef.current.clientHeight);
+      }
+    }, [rowRef]);
+
+    if (!isArray(src)) return <div> No Element here </div>;
+
+    // stringify item object.
+    const stringifiedItemData = JSON.stringify(src[index], null, 2);
+    // convert stringified json numbers back to actual numbers for proper highlighting.
+    const itemData = stringifiedItemData.replace(REGEX, "$1$2");
+
     return (
-      <div
-        key={index}
-        style={{
-          ...style,
-          top: `${parseFloat(style?.top) + 40}px`,
-          height: `${parseFloat(style?.height) + 40}px`,
-        }}
-      >
-        {/* <ReactJson key={index} src={data[index]} {...reactJsonProps} /> */}
-        <pre style={{ height: "auto" }}>{JSON.stringify(itemData)}</pre>
+      <div key={index} style={style}>
+        <HighlightContainer
+          ref={rowRef}
+          style={{
+            height: "auto",
+          }}
+        >
+          <SyntaxHighlighter
+            className="highlighter"
+            customStyle={{
+              paddingTop: "0px",
+              paddingBottom: "0px",
+              fontSize: "14px",
+              letterSpacing: "0.5px",
+            }}
+            language="json"
+            style={customJsonViewerStyles}
+          >
+            {/* {`${index === 0 ? "[\n" : ""}${JSON.stringify(itemData, null, 2)},${
+              index === src.length - 1 ? "\n]" : ""
+            }`} */}
+            {/* {`${JSON.stringify(itemData, null, 2)}`} */}
+            {itemData}
+          </SyntaxHighlighter>
+          {/* <ReactJson id={index} src={itemData} {...reactJsonProps} /> */}
+        </HighlightContainer>
       </div>
     );
   };
-  //   );
-  //   const memoizedRenderReactJson = useCallback(
-  //     (props: any) => renderReactJson(props),
-  //     [],
-  //   );
+
+  if (!src) {
+    return null;
+  }
+
+  // if it is not an array render just one item.
+  if (!isArray(src)) {
+    return (
+      <HighlightContainer
+        style={{
+          height: "auto",
+        }}
+      >
+        <SyntaxHighlighter
+          className="highlighter"
+          customStyle={{
+            paddingTop: "0px",
+            paddingBottom: "0px",
+            fontSize: "14px",
+            letterSpacing: "0.5px",
+          }}
+          language="json"
+          style={customJsonViewerStyles}
+        >
+          {`${JSON.stringify(src, null, 2)}`}
+        </SyntaxHighlighter>
+      </HighlightContainer>
+    );
+  }
 
   return (
     <div
@@ -86,23 +136,24 @@ function VirtualizedJsonViewer(props: Props) {
         position: "relative",
       }}
     >
-      <AutoSizer>
-        {({ height, width }) => (
-          <List
-            // height={panel.getBoundingClientRect().height}
-            height={height}
-            itemCount={src.length}
-            itemData={src}
-            itemSize={5}
-            //   rowRenderer={renderReactJson}
-            // overscanCount={10}
-            // width={panel.getBoundingClientRect().width}
-            width={width}
-          >
-            {renderReactJson}
-          </List>
-        )}
-      </AutoSizer>
+      {isArray(src) && (
+        <AutoSizer>
+          {({ height, width }) => (
+            <List
+              // remove 5(could be any number) from the auto generated height to prevent incessant re-rendering by the list.
+              // kind of like an offset value to be specific.
+              height={height - 5}
+              itemCount={src.length}
+              itemData={src}
+              itemSize={getRowHeight}
+              ref={listRef}
+              width={width}
+            >
+              {renderReactJson}
+            </List>
+          )}
+        </AutoSizer>
+      )}
     </div>
   );
 }
