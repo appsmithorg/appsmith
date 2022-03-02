@@ -3,13 +3,16 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { debounce, isEmpty, throttle } from "lodash";
+import { debounce, isEmpty, isEqual, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
-import { isReflowEnabled } from "selectors/widgetReflowSelectors";
+import {
+  getReflowThresholds,
+  isReflowEnabled,
+} from "selectors/widgetReflowSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
@@ -42,6 +45,7 @@ export const useCanvasDragging = (
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   const { devicePixelRatio: scale = 1 } = window;
   const reflowEnabled = useSelector(isReflowEnabled);
+  const reflowThresholds = useSelector(getReflowThresholds, isEqual);
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -318,18 +322,12 @@ export const useCanvasDragging = (
         };
 
         const canReflowForCurrentMouseMove = () => {
-          const {
-            maxNegativeAcc,
-            maxPositiveAcc,
-            maxSpeed,
-            prevAcceleration,
-            prevSpeed,
-          } = mouseAttributesRef.current;
-          const limit = Math.abs(
-            prevAcceleration < 0 ? maxNegativeAcc : maxPositiveAcc,
-          );
+          const { prevAcceleration, prevSpeed } = mouseAttributesRef.current;
           const acceleration = Math.abs(prevAcceleration);
-          return acceleration < limit / 10 || prevSpeed < maxSpeed / 10;
+          return (
+            acceleration < reflowThresholds.accThreshold ||
+            prevSpeed < reflowThresholds.speedThreshold
+          );
         };
         const getMouseMoveDirection = (event: any) => {
           if (lastMousePosition) {
@@ -420,7 +418,7 @@ export const useCanvasDragging = (
                 originalPositions,
                 currentDirection.current,
                 false,
-                !widgetOccupiedSpace || !canReflowBasedOnMouseSpeed,
+                !canReflowBasedOnMouseSpeed,
                 firstMove,
                 immediateExitContainer,
               );
