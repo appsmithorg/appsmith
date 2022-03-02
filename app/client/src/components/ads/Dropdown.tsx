@@ -687,14 +687,6 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
         maxHeight={props.dropdownMaxHeight || "auto"}
       >
         {options.map((option: DropdownOption, index: number) => {
-          if (renderOption) {
-            return renderOption({
-              option,
-              index,
-              optionClickHandler,
-              optionWidth,
-            });
-          }
           let isSelected = false;
           if (
             props.isMultiSelect &&
@@ -707,6 +699,15 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
           } else {
             isSelected =
               (props.selected as DropdownOption).value === option.value;
+          }
+          if (renderOption) {
+            return renderOption({
+              option,
+              index,
+              optionClickHandler,
+              optionWidth,
+              isSelectedNode: isSelected,
+            });
           }
           return !option.isSectionHeader ? (
             <OptionWrapper
@@ -839,10 +840,17 @@ export default function Dropdown(props: DropdownProps) {
   //Removes selected option
   const selectedOptionClickHandler = useCallback(
     (optionToBeRemoved: DropdownOption) => {
+      let selectedOptions: DropdownOption | DropdownOption[] = [];
       setIsOpen(false);
-      const selectedOptions = (selected as DropdownOption[]).filter(
-        (option: DropdownOption) => option.value !== optionToBeRemoved.value,
-      );
+      if (!Array.isArray(selected)) {
+        if (optionToBeRemoved.value === selected.value) {
+          selectedOptions = optionToBeRemoved;
+        }
+      } else {
+        selectedOptions = selected.filter(
+          (option: DropdownOption) => option.value !== optionToBeRemoved.value,
+        );
+      }
       setSelected(selectedOptions);
       removeSelectedOption &&
         removeSelectedOption(optionToBeRemoved.value, optionToBeRemoved);

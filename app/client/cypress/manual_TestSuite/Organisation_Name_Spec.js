@@ -1,4 +1,4 @@
-const homePage = require("../../../locators/HomePage.json");
+import homePage from "../../../locators/HomePage";
 
 describe("Checking for error message on Organisation Name ", function() {
   it("Ensure of Inactive Submit button ", function() {

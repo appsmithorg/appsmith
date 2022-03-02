@@ -45,11 +45,6 @@ describe("Linting warning validation with Checkbox widget", function() {
     cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
       .contains(
-        "Expected an assignment or function call and instead saw an expression",
-      );
-    cy.get(commonlocators.lintErrorMsg)
-      .should("be.visible")
-      .contains(
         "'function closure expressions' is only available in Mozilla JavaScript extensions (use moz option)",
       );
   });

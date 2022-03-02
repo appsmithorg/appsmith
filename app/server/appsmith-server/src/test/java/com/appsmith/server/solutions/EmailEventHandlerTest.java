@@ -182,7 +182,7 @@ public class EmailEventHandlerTest {
         );
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
-                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
+                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap(), eq(authorUserName)
         );
     }
 
@@ -254,7 +254,7 @@ public class EmailEventHandlerTest {
 
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
-                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
+                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap(), eq(authorUserName)
         );
     }
 

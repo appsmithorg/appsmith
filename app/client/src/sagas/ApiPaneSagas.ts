@@ -67,6 +67,7 @@ import {
 } from "utils/ApiPaneUtils";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { getDisplayFormat } from "selectors/apiPaneSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -138,7 +139,8 @@ function* handleUpdateBodyContentType(
 ) {
   const { apiId, title } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  // this is a previous value gotten before the updated content type has been set
+
+  // this is the previous value gotten before the new content type has been set
   const previousContentType =
     values.actionConfiguration?.formData?.apiContentType;
 
@@ -150,31 +152,37 @@ function* handleUpdateBodyContentType(
     return;
   }
 
-  // this is the update for the new api contentType
-  // update the api content type so it can be persisted.
+  // this is the update for the new apicontentType
+  // Quick Context: APiContentype is the field that represents the content type the user wants while in RAW mode.
+  // users should be able to set the content type to whatever they want.
   let formData = { ...values.actionConfiguration.formData };
   if (formData === undefined) formData = {};
-  formData["apiContentType"] = title;
+  formData["apiContentType"] =
+    title === POST_BODY_FORMAT_OPTIONS.RAW ||
+    title === POST_BODY_FORMAT_OPTIONS.NONE
+      ? previousContentType
+      : title;
 
   yield put(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.formData", formData),
   );
 
-  if (displayFormatValue === POST_BODY_FORMAT_OPTIONS.RAW) {
-    // update the content type header if raw has been selected
-    yield put({
-      type: ReduxActionTypes.SET_EXTRA_FORMDATA,
-      payload: {
-        id: apiId,
-        values: {
-          displayFormat: {
-            label: displayFormatValue,
-            value: displayFormatValue,
-          },
+  // Quick Context: The extra formadata action is responsible for updating the current multi switch mode you see on api editor body tab
+  // whenever a user selects a new content type through the tab e.g application/json, this action is dispatched to update that value, which is then read in the PostDataBody file
+  // to show the appropriate content type section.
+
+  yield put({
+    type: ReduxActionTypes.SET_EXTRA_FORMDATA,
+    payload: {
+      id: apiId,
+      values: {
+        displayFormat: {
+          label: title,
+          value: title,
         },
       },
-    });
-  }
+    },
+  });
 
   const headers = cloneDeep(values.actionConfiguration.headers);
 
@@ -186,24 +194,18 @@ function* handleUpdateBodyContentType(
   );
   const indexToUpdate = getIndextoUpdate(headers, contentTypeHeaderIndex);
 
-  // If the user has selected "None" as the body type & there was a content-type
+  // If the user has selected "None" or "Raw" as the body type & there was a content-type
   // header present in the API configuration, keep the previous content type header
-  // but if the user has selected "raw", set the content header to text/plain
+  // this is done to ensure user input isn't cleared off if they switch to raw or none mode.
+  // however if the user types in a new value, we use the updated value (formValueChangeSaga - line 426).
   if (
-    displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE &&
+    (displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE ||
+      displayFormatValue === POST_BODY_FORMAT_OPTIONS.RAW) &&
     indexToUpdate !== -1
   ) {
     headers[indexToUpdate] = {
       key: previousContentType ? CONTENT_TYPE_HEADER_KEY : "",
       value: previousContentType ? previousContentType : "",
-    };
-  } else if (
-    displayFormatValue === POST_BODY_FORMAT_OPTIONS.RAW &&
-    indexToUpdate !== -1
-  ) {
-    headers[indexToUpdate] = {
-      key: CONTENT_TYPE_HEADER_KEY,
-      value: POST_BODY_FORMAT_OPTIONS.RAW,
     };
   } else {
     headers[indexToUpdate] = {
@@ -212,6 +214,7 @@ function* handleUpdateBodyContentType(
     };
   }
 
+  // update the new header values.
   yield put(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
   );
@@ -235,18 +238,19 @@ function* handleUpdateBodyContentType(
 }
 
 function* initializeExtraFormDataSaga() {
-  const state = yield select();
-  const { extraformData } = state.ui.apiPane;
   const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
-  // const headers = get(values, "actionConfiguration.headers");
-  const apiContentType = get(
-    values,
-    "actionConfiguration.formData.apiContentType",
-  );
 
-  if (!extraformData[values.id]) {
-    yield call(setHeaderFormat, values.id, apiContentType);
+  // when initializing, check if theres a display format present, if not use Json display format as default.
+  const extraFormData = yield select(getDisplayFormat, values.id);
+
+  // as a fail safe, if no display format is present, use Raw mode
+  const rawApiContentType = extraFormData?.displayFormat?.value
+    ? extraFormData?.displayFormat?.value
+    : POST_BODY_FORMAT_OPTIONS.RAW;
+
+  if (!extraFormData) {
+    yield call(setHeaderFormat, values.id, rawApiContentType);
   }
 }
 
@@ -296,6 +300,7 @@ function* changeApiSaga(
 function* setHeaderFormat(apiId: string, apiContentType?: string) {
   // use the current apiContentType to set appropriate Headers for action
   let displayFormat;
+
   if (apiContentType) {
     if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE) {
       displayFormat = {
@@ -336,8 +341,9 @@ export function* updateFormFields(
   const value = actionPayload.payload;
   log.debug("updateFormFields: " + JSON.stringify(value));
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  let apiContentType = values.actionConfiguration.formData.apiContentType;
 
+  // get current content type of the action
+  let apiContentType = values.actionConfiguration.formData.apiContentType;
   if (field === "actionConfiguration.httpMethod") {
     const { actionConfiguration } = values;
     if (!actionConfiguration.headers) return;
@@ -370,14 +376,7 @@ export function* updateFormFields(
         };
       }
     }
-    // change apiContentType when user changes api Http Method
-    yield put(
-      change(
-        API_EDITOR_FORM_NAME,
-        "actionConfiguration.formData.apiContentType",
-        apiContentType,
-      ),
-    );
+
     yield put(
       change(
         API_EDITOR_FORM_NAME,
@@ -385,9 +384,6 @@ export function* updateFormFields(
         actionConfigurationHeaders,
       ),
     );
-  } else if (field.includes("actionConfiguration.headers")) {
-    const apiId = get(values, "id");
-    yield call(setHeaderFormat, apiId, apiContentType);
   }
 }
 
@@ -424,29 +420,21 @@ function* formValueChangeSaga(
       }),
     );
     // when user types a content type value, update actionConfiguration.formData.apiContent type as well.
+    // we don't do this initally because we want to specifically catch user editing the content-type value
     if (
       field === `actionConfiguration.headers[${contentTypeHeaderIndex}].value`
     ) {
-      if (
-        // if the value is not a registered content type, make the default apiContentType raw but don't change header
-        Object.values(POST_BODY_FORMAT_OPTIONS).includes(actionPayload.payload)
-      ) {
-        yield put(
-          change(
-            API_EDITOR_FORM_NAME,
-            "actionConfiguration.formData.apiContentType",
-            actionPayload.payload,
-          ),
-        );
-      } else {
-        yield put(
-          change(
-            API_EDITOR_FORM_NAME,
-            "actionConfiguration.formData.apiContentType",
-            POST_BODY_FORMAT_OPTIONS.RAW,
-          ),
-        );
-      }
+      yield put(
+        change(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.formData.apiContentType",
+          actionPayload.payload,
+        ),
+      );
+      const apiId = get(values, "id");
+      // when the user specifically sets a new content type value, we check if the input value is a supported post body type and switch to it
+      // if it does not we set the default to Raw mode.
+      yield call(setHeaderFormat, apiId, actionPayload.payload);
     }
   }
   yield all([
