@@ -388,30 +388,15 @@ function ReconnectDatasourceModal() {
     }
   }, [pageId, appId]);
 
-  // checking of full configured
+  // redirecting if all are configured
   useEffect(() => {
-    const unconfiguredDSList = datasources.filter(
-      (ds: Datasource) => !ds.isConfigured,
-    );
-    if (unconfiguredDSList.length > 0) {
-      let nextDatasource: Datasource | undefined = undefined;
-      if (selectedDatasourceId) {
-        const selectedIndex = datasources.findIndex(
-          (ds: Datasource) => ds.id === selectedDatasourceId,
-        );
-        nextDatasource = datasources
-          .slice(selectedIndex + 1)
-          .find((ds: Datasource) => !ds.isConfigured);
-      }
-      if (!nextDatasource) {
-        nextDatasource = unconfiguredDSList[0];
-      }
-      setSelectedDatasourceId(nextDatasource.id);
-      setDatasource(nextDatasource);
-    } else if (appURL) {
+    if (
+      appURL &&
+      datasources.filter((ds: Datasource) => !ds.isConfigured).length < 1
+    ) {
       window.open(appURL, "_self");
     }
-  }, [datasources, appURL]);
+  }, [appURL, datasources]);
   return (
     <>
       <Dialog
