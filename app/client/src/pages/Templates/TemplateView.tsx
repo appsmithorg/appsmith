@@ -61,7 +61,7 @@ const Wrapper = styled.div`
 const TemplateViewWrapper = styled.div`
   padding-right: ${(props) => props.theme.spaces[12]}px;
   padding-left: ${(props) => props.theme.spaces[12]}px;
-  padding-bottom: 84px;
+  padding-bottom: 80px;
 `;
 
 const Title = styled(Text)`
@@ -86,6 +86,7 @@ const IframeWrapper = styled.div`
 const DescriptionWrapper = styled.div`
   display: flex;
   gap: ${(props) => props.theme.spaces[17]}px;
+  margin-top: ${(props) => props.theme.spaces[15]}px;
 `;
 
 const DescriptionColumn = styled.div`
