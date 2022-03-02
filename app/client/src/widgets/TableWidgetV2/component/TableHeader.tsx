@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Icon, NumericInput, Keys } from "@blueprintjs/core";
 import {
-  RowWrapper,
+  TableHeaderContentWrapper,
   PaginationWrapper,
   PaginationItemWrapper,
   CommonFunctionsMenuWrapper,
@@ -192,9 +192,9 @@ function TableHeader(props: TableHeaderProps) {
       )}
       {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
         <PaginationWrapper>
-          <RowWrapper className="show-page-items">
+          <TableHeaderContentWrapper className="show-page-items">
             {props.tableData?.length} Records
-          </RowWrapper>
+          </TableHeaderContentWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
             disabled={props.currentPageIndex === 0}
@@ -206,7 +206,7 @@ function TableHeader(props: TableHeaderProps) {
           >
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <RowWrapper>
+          <TableHeaderContentWrapper>
             Page{" "}
             <PageNumberInput
               disabled={props.pageCount === 1}
@@ -215,7 +215,7 @@ function TableHeader(props: TableHeaderProps) {
               updatePageNo={props.updatePageNo}
             />{" "}
             of {props.pageCount}
-          </RowWrapper>
+          </TableHeaderContentWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
             disabled={props.currentPageIndex === props.pageCount - 1}

@@ -10,6 +10,7 @@ import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
+import { EditableCell } from "../constants";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -41,6 +42,7 @@ interface ReactTableComponentProps {
   isVisible?: boolean;
   isLoading: boolean;
   editMode: boolean;
+  editableCell: EditableCell;
   width: number;
   height: number;
   pageSize: number;
@@ -48,7 +50,6 @@ interface ReactTableComponentProps {
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
-  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
@@ -86,6 +87,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     compactMode,
     delimiter,
     disableDrag,
+    editableCell,
     editMode,
     filters,
     handleReorderColumn,
@@ -257,6 +259,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         disableDrag(true);
       }}
       editMode={editMode}
+      editableCell={editableCell}
       enableDrag={() => {
         disableDrag(false);
       }}
@@ -330,6 +333,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     isEqual(prev.tableData, next.tableData) &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
-    JSON.stringify(prev.columns) === JSON.stringify(next.columns)
+    JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
+    JSON.stringify(prev.editableCell) === JSON.stringify(next.editableCell)
   );
 });

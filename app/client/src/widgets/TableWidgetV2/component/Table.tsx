@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { reduce } from "lodash";
+import { pick, reduce } from "lodash";
 import {
   useTable,
   usePagination,
@@ -9,16 +9,11 @@ import {
   Row,
 } from "react-table";
 import {
+  RowWrapper,
   TableWrapper,
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
-import {
-  TableHeaderCell,
-  renderEmptyRows,
-  renderCheckBoxCell,
-  renderCheckBoxHeaderCell,
-} from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import {
@@ -33,6 +28,13 @@ import { Colors } from "constants/Colors";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
+import { renderEmptyRows } from "./renderHelpers/EmptyCellRenderer";
+import {
+  renderBodyCheckBoxCell,
+  renderHeaderCheckBoxCell,
+} from "./renderHelpers/CheckboxCellRenderer";
+import { HeaderCell } from "./cellComponents/HeaderCell";
+import { EditableCell } from "../constants";
 
 interface TableProps {
   width: number;
@@ -47,6 +49,7 @@ interface TableProps {
   data: Array<Record<string, unknown>>;
   totalRecordsCount?: number;
   editMode: boolean;
+  editableCell: EditableCell;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   selectTableRow: (row: {
@@ -112,12 +115,13 @@ export function Table(props: TableProps) {
     }
     props.handleResizeColumn(columnWidthMap);
   };
-  const data = React.useMemo(() => props.data, [props.data]);
-  const columnString = JSON.stringify({
-    columns: props.columns,
-    compactMode: props.compactMode,
-    columnWidthMap: props.columnWidthMap,
-  });
+  const data = React.useMemo(() => props.data, [
+    props.data,
+    props.editableCell,
+  ]);
+  const columnString = JSON.stringify(
+    pick(props, ["columns", "compactMode", "columnWidthMap", "editableCell"]),
+  );
   const columns = React.useMemo(() => props.columns, [columnString]);
   const tableHeadercolumns = React.useMemo(
     () =>
@@ -299,14 +303,14 @@ export function Table(props: TableProps) {
                 return (
                   <div {...headerRowProps} className="tr" key={index}>
                     {props.multiRowSelection &&
-                      renderCheckBoxHeaderCell(
+                      renderHeaderCheckBoxCell(
                         handleAllRowSelectClick,
                         rowSelectionState,
                       )}
                     {headerGroup.headers.map(
                       (column: any, columnIndex: number) => {
                         return (
-                          <TableHeaderCell
+                          <HeaderCell
                             column={column}
                             columnIndex={columnIndex}
                             columnName={column.Header}
@@ -351,7 +355,7 @@ export function Table(props: TableProps) {
                   row.index === selectedRowIndex ||
                   selectedRowIndices.includes(row.index);
                 return (
-                  <div
+                  <RowWrapper
                     {...rowProps}
                     className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
                     key={rowIndex}
@@ -362,7 +366,7 @@ export function Table(props: TableProps) {
                     }}
                   >
                     {props.multiRowSelection &&
-                      renderCheckBoxCell(isRowSelected)}
+                      renderBodyCheckBoxCell(isRowSelected)}
                     {row.cells.map((cell, cellIndex) => {
                       return (
                         <div
@@ -376,7 +380,7 @@ export function Table(props: TableProps) {
                         </div>
                       );
                     })}
-                  </div>
+                  </RowWrapper>
                 );
               })}
               {props.pageSize > subPage.length &&

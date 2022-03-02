@@ -1,5 +1,5 @@
+import { ColumnTypes } from "../widget/propertyUtils";
 import { renderCell } from "./TableUtilities";
-import { ColumnTypes } from "widgets/TableWidget/component/Constants";
 
 describe("Test table columnType Image render", () => {
   it("columnType Image accepts single image url and renders image correctly", () => {
