@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
   getActiveGitSyncModalTab,
+  getIsGitConnected,
   getIsGitSyncModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { setOrgIdForImport } from "actions/applicationActions";
 import Menu from "./Menu";
@@ -19,7 +19,6 @@ import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
