@@ -5,6 +5,7 @@ export function createMessage(
   return format(...args);
 }
 
+export const YES = () => `Yes`;
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
@@ -57,7 +58,7 @@ export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
 export const SIGNUP_PAGE_SUBTITLE = () => `Use your organization email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
-export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => ` Email`;
+export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
 export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
 export const SIGNUP_PAGE_NAME_INPUT_LABEL = () => `Name`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
@@ -586,6 +587,12 @@ export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
+export const REGENERATE_SSH_KEY = () => "Regenerate SSH Key";
+export const SSH_KEY = () => "SSH Key";
+export const COPY_SSH_KEY = () => "Copy SSH Key";
+export const SSH_KEY_GENERATED = () => "SSH Key generated";
+export const REGENERATE_KEY_CONFIRM_MESSAGE = () =>
+  "This might cause the application to break. This keys needs to be updated in your Git Repo too!";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
@@ -842,6 +849,7 @@ export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
 export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
 export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
 export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
@@ -1023,3 +1031,5 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+export const IMAGE_LOAD_ERROR = () => "Unable to display the image";

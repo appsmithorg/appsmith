@@ -1,8 +1,6 @@
 const dsl = require("../../../fixtures/mongoAppdsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
-const queryEditor = require("../../../locators/QueryEditor.json");
-const homePage = require("../../../locators/HomePage.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
 describe("Shopping cart App", function() {

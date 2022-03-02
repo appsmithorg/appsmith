@@ -206,6 +206,22 @@ helm install \
   stable-appsmith/appsmith --generate-name
 ```
 
+## Expose Appsmith
+- If you wish to publish your Appsmith to the world through the Internet, you will need to setup the Ingress controller firstly. Please refer to the section **Kubernetes NGINX Ingress Controller** in the [Prerequisites](https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#prerequisites)
+- In case of you have not install the Helm chart yet, you can run the below command to install it with exposing Appsmith
+```
+helm install stable-appsmith/appsmith --generate-name \
+--set ingress.enabled=true \
+--set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
+--set service.type=ClusterIP
+```
+- If you have installed Appsmith Helm chart, please run the `helm upgrade` command to upgrade the existing installation
+```
+helm upgrade --set ingress.enabled=true stable-appsmith/appsmith appsmith
+
+# Or this command if you are using values.yaml file
+helm upgrade --values values.yaml stable-appsmith/appsmith appsmith
+```
 ## Troubleshooting
 If at any time you encounter an error during the installation process, reach out to support@appsmith.com or join our Discord Server
 

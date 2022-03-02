@@ -18,9 +18,11 @@ public interface IFilterDataServiceCE {
     ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams);
 
     List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String,
-            DataType> schema);
+            DataType> schema, Map<DataType, DataType> dataTypeConversionMaps);
 
     void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema);
+
+    void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap);
 
     String generateTable(Map<String, DataType> schema);
 

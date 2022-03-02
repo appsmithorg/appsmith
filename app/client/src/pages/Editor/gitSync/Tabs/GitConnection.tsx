@@ -75,6 +75,7 @@ export const UrlOptionContainer = styled.div`
 
   & .primary {
   }
+
   margin-bottom: ${(props) => `${props.theme.spaces[3]}px`};
   margin-top: ${(props) => `${props.theme.spaces[11]}px`};
 `;
@@ -100,9 +101,12 @@ const Container = styled.div`
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: none;
+
   &::-webkit-scrollbar-thumb {
     background-color: transparent;
   }
+
   &::-webkit-scrollbar {
     width: 0px;
   }
@@ -394,6 +398,7 @@ function GitConnection({ isImport }: Props) {
             </Text>
             <Space horizontal size={1} />
             <Link
+              className="t--learn-more-ssh-url"
               color={Colors.PRIMARY_ORANGE}
               hasIcon={false}
               link={RepoUrlDocumentUrl || ""}
@@ -424,6 +429,7 @@ function GitConnection({ isImport }: Props) {
               <TooltipWrapper>
                 <TooltipComponent content="Disconnect Git">
                   <Icon
+                    className="t--git-disconnect-icon"
                     fillColor={Colors.DARK_GRAY}
                     hoverFillColor={Colors.ERROR_RED}
                     name="delete"
@@ -441,7 +447,8 @@ function GitConnection({ isImport }: Props) {
             <ButtonContainer topMargin={10}>
               <Button
                 category={Category.primary}
-                className="t--submit-repo-url-button"
+                className="t--generate-deploy-key-button t--submit-repo-url-button"
+                disabled={!remoteUrl || isInvalidRemoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
                 onClick={() => {
                   generateSSHKey();
@@ -476,7 +483,7 @@ function GitConnection({ isImport }: Props) {
           />
           <ButtonContainer topMargin={0}>
             {isConnectingToGit && (
-              <StatusbarWrapper>
+              <StatusbarWrapper className="t--connect-statusbar">
                 <Statusbar
                   completed={!submitButtonIsLoading}
                   message={createMessage(CONNECTING_REPO)}

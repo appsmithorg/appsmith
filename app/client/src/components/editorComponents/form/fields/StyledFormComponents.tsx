@@ -123,6 +123,12 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   }
 `;
 
+const FormEncrytedSection = styled.div`
+  display: flex;
+  margin-left: 12px;
+  align-items: center;
+`;
+
 interface FormLabelProps {
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
@@ -150,4 +156,5 @@ export {
   FormInputHelperText,
   FormInfoText,
   FormSubtitleText,
+  FormEncrytedSection,
 };

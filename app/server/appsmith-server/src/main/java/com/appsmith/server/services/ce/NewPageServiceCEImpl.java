@@ -524,4 +524,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 
+    @Override
+    public Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
+        return repository.findSlugsByApplicationIds(applicationIds, aclPermission);
+    }
 }
