@@ -272,6 +272,7 @@ export default {
       __primaryKey__: props.primaryColumnId
         ? row[props.primaryColumnId]
         : undefined,
+      ...props.transientTableData[index],
     }));
 
     const columns = props.orderedTableColumns;

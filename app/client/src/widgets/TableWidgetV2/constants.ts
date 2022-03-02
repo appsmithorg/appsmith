@@ -45,6 +45,9 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     order: SortOrderTypes | null;
   };
   totalRecordsCount?: number;
+  transientTableData: {
+    [key: string]: Record<string, string>;
+  };
 }
 
 export const getCurrentRowBinding = (
@@ -82,3 +85,8 @@ export const DEFAULT_BUTTON_LABEL = "Action";
 export const DEFAULT_MENU_VARIANT = "PRIMARY";
 
 export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
+
+export type TransientDataPayload = {
+  [key: string]: string | number;
+  __original_index__: number;
+};

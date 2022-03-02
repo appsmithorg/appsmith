@@ -41,6 +41,7 @@ import {
   DEFAULT_MENU_VARIANT,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
+  TransientDataPayload,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
@@ -97,6 +98,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         column: "",
         order: null,
       },
+      transientTableData: {},
     };
   }
 
@@ -295,6 +297,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 cellProperties,
                 componentWidth,
                 cellProperties.isCellVisible ?? true,
+                undefined,
+                undefined,
+                true,
+                (data: string) => {
+                  this.updateTransientTableData({
+                    __original_index__: props.cell.row.index,
+                    [props.cell.column.columnProperties.accessor]: data,
+                  });
+                },
               );
           }
         },
@@ -1180,6 +1191,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     return alias;
   }
+
+  updateTransientTableData = (data: TransientDataPayload) => {
+    const { __original_index__, ...transientData } = data;
+
+    this.props.updateWidgetMetaProperty("transientTableData", {
+      ...this.props.transientTableData,
+      [__original_index__]: {
+        ...this.props.transientTableData[__original_index__],
+        ...transientData,
+      },
+    });
+  };
 }
 
 export default TableWidget;

@@ -41,6 +41,7 @@ import {
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
+import { TransientDataPayload } from "../constants";
 
 export const renderCell = (
   value: any,
@@ -51,6 +52,8 @@ export const renderCell = (
   isCellVisible: boolean,
   onClick: () => void = noop,
   isSelected?: boolean,
+  onCellEditMode?: boolean,
+  onCellEdit?: (data: string) => void,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -148,6 +151,37 @@ export const renderCell = (
         );
       }
     default:
+      let cell;
+
+      if (onCellEditMode) {
+        cell = (
+          <input
+            defaultValue={value.toString()}
+            onChange={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onCellEdit && onCellEdit(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              // onCellEdit && onCellEdit(e.target.value);
+            }}
+            onKeyUp={(e) => {
+              e.stopPropagation();
+              // onCellEdit && onCellEdit(e.target.value);
+            }}
+            type="text"
+          />
+        );
+      } else {
+        cell =
+          value && columnType === ColumnTypes.URL && cellProperties.displayText
+            ? cellProperties.displayText
+            : !isNil(value) && !isNaN(value)
+            ? value.toString()
+            : "";
+      }
+
       return (
         <AutoToolTipComponent
           cellProperties={cellProperties}
@@ -157,11 +191,7 @@ export const renderCell = (
           tableWidth={tableWidth}
           title={!!value ? value.toString() : ""}
         >
-          {value && columnType === ColumnTypes.URL && cellProperties.displayText
-            ? cellProperties.displayText
-            : !isNil(value) && !isNaN(value)
-            ? value.toString()
-            : ""}
+          {cell}
         </AutoToolTipComponent>
       );
   }
