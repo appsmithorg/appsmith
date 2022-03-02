@@ -335,7 +335,7 @@ const ICON_LOOKUP = {
   loader: <LoaderLineIcon />,
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
-  members: <UserHeartLine />,
+  member: <UserHeartLine />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
   pin: <Pin />,
