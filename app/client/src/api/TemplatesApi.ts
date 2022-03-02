@@ -16,10 +16,6 @@ export interface Template {
   functions: string[];
   useCases: string[];
   datasources: string[];
-  minVersion: string;
-  minVersionPadded: string;
-  active: string;
-  new: string;
 }
 
 export interface FetchTemplatesResponse extends ApiResponse {
