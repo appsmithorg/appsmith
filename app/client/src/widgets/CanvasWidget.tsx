@@ -3,7 +3,9 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
+import { GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
@@ -57,9 +59,16 @@ class CanvasWidget extends ContainerWidget {
   }
 
   getPageView() {
+    let height = 0;
+    const snapRows = getCanvasSnapRows(
+      this.props.bottomRow,
+      this.props.canExtend,
+    );
+    height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     const style: CSSProperties = {
       width: "100%",
-      height: "100%",
+      height: `${height}px`,
       background: "none",
       position: "relative",
     };

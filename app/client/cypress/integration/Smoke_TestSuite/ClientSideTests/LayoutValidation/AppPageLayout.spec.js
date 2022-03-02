@@ -1,4 +1,4 @@
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 
 describe("Visual regression tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
