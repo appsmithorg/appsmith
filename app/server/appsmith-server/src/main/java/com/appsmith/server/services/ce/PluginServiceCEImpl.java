@@ -545,10 +545,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     /**
-     * This function reads from the folder editor/ starting with file root.json. root.json declares all the commands
-     * that would be present as well as the file from which the content should be loaded for the said command. For each
-     * command, the fileName parameter is then replaced with value parameter which is picked up from the command template
-     * map key IDENTIFIER.
+     * This function reads from the folder editor/ starting with file root.json. root.json declares all the combination
+     * of commands that would be present as well as the files from which the action types should be loaded.
      * @param plugin
      * @return Map of the editor in the format expected by the client for displaying all the UI fields with conditionals
      */
@@ -567,7 +565,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
             }
 
-            // Read the editor.json content.
+            // Read the root.json content.
             rootTree = objectMapper.readValue(resourceAsStream, ObjectNode.class);
         } catch (IOException e) {
             log.error("Error loading resource JSON for plugin {} and resourcePath {}", plugin.getPackageName(), resourcePath, e);
