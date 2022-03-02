@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useEffect } from "react";
+import React, { useCallback, useMemo, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -32,12 +32,14 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
+import { tailwindLayers } from "constants/Layers";
+import useResize from "utils/hooks/useResize";
 
 const StyledEntity = styled(Entity)`
   &.pages {
-    & > div:not(.t--entity-item) {
-      max-height: 138px !important;
-      overflow-y: auto !important;
+    & > div:not(.t--entity-item) > div {
+      /* max-height: 138px; */
+      overflow-y: auto;
     }
   }
   &.page .${EntityClassNames.PRE_RIGHT_ICON} {
@@ -57,6 +59,10 @@ function Pages() {
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
+  const pageResizeRef = useRef<HTMLDivElement>(null);
+  const { onMouseDown, onMouseUp, onTouchStart, resizing } = useResize(
+    pageResizeRef,
+  );
 
   useEffect(() => {
     document.getElementsByClassName("activePage")[0]?.scrollIntoView();
@@ -156,24 +162,39 @@ function Pages() {
   );
 
   return (
-    <StyledEntity
-      action={onPageListSelection}
-      addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
-      alwaysShowRightIcon
-      className="group pages"
-      entityId="Pages"
-      icon={""}
-      isDefaultExpanded
-      name="PAGES"
-      onClickPreRightIcon={onPin}
-      onClickRightIcon={onClickRightIcon}
-      onCreate={createPageCallback}
-      rightIcon={settingsIconWithTooltip}
-      searchKeyword={""}
-      step={0}
-    >
-      {pageElements}
-    </StyledEntity>
+    <div style={{ position: "relative" }}>
+      <StyledEntity
+        action={onPageListSelection}
+        addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
+        alwaysShowRightIcon
+        className="group pages"
+        collapseRef={pageResizeRef}
+        entityId="Pages"
+        icon={""}
+        isDefaultExpanded
+        name="PAGES"
+        onClickPreRightIcon={onPin}
+        onClickRightIcon={onClickRightIcon}
+        onCreate={createPageCallback}
+        rightIcon={settingsIconWithTooltip}
+        searchKeyword={""}
+        step={0}
+      >
+        {pageElements}
+      </StyledEntity>
+      <div
+        className={`absolute -bottom-2 left-0 w-full h-2 group testwhdv  cursor-ns-resize ${tailwindLayers.resizer}`}
+        onMouseDown={onMouseDown}
+        onTouchEnd={onMouseUp}
+        onTouchStart={onTouchStart}
+      >
+        <div
+          className={`w-full h-1 bg-transparent group-hover:bg-gray-300 transform transition ${
+            resizing ? "group-hover:bg-blue-500" : ""
+          }`}
+        />
+      </div>
+    </div>
   );
 }
 
