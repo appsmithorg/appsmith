@@ -5,7 +5,9 @@ describe("Fork a template to an organisation", () => {
   it("Fork a template to an organisation", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();
-    cy.get(templateLocators.templateForkButton).click();
+    cy.get(templateLocators.templateForkButton)
+      .first()
+      .click();
 
     cy.get(templateLocators.dialogForkButton).click();
     cy.get(commonlocators.canvas).should("be.visible");

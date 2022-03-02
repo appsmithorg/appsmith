@@ -184,6 +184,7 @@ export function PageHeader(props: PageHeaderProps) {
             </TabName>
             <TemplatesTabItem>
               <TabName
+                className="t--templates-tab"
                 isSelected={
                   matchTemplatesPath(location.pathname) ||
                   matchTemplatesIdPath(location.pathname)
