@@ -35,7 +35,6 @@ type TagListFieldProps = {
   intent: Intent;
   setting: Setting;
   customError?: (err: string) => void;
-  checkValues?: (value: any) => boolean;
 };
 
 function TagInputField(props: TagListFieldProps) {

@@ -195,9 +195,6 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     <TagInputField
-                      checkValues={(value: any) =>
-                        setting.checkValues ? setting.checkValues(value) : true
-                      }
                       data-cy="t--tag-input"
                       intent="success"
                       label={setting.label}

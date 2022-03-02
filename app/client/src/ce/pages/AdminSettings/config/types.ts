@@ -49,7 +49,6 @@ export interface Setting {
   isDisabled?: (values: Record<string, any>) => boolean;
   calloutType?: "Info" | "Warning";
   advanced?: Setting[];
-  checkValues?: (value: any) => boolean;
 }
 
 export interface Category {
