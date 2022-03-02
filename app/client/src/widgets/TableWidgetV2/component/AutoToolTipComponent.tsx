@@ -16,6 +16,12 @@ export const OpenNewTabIconWrapper = styled.div`
   position: relative;
 `;
 
+export const ColumnWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
+`;
+
 interface Props {
   isHidden?: boolean;
   isCellVisible?: boolean;
@@ -24,6 +30,7 @@ interface Props {
   cellProperties?: CellLayoutProperties;
   tableWidth?: number;
   columnType?: string;
+  className?: string;
 }
 
 function LinkWrapper(props: Props) {
@@ -89,30 +96,33 @@ function AutoToolTipComponent(props: Props) {
     return <LinkWrapper {...props} />;
   }
   return (
-    <CellWrapper
-      cellProperties={props.cellProperties}
-      isCellVisible={props.isCellVisible}
-      isHidden={props.isHidden}
-      isTextType
-      ref={ref}
-    >
-      {useToolTip && props.children ? (
-        <Tooltip
-          autoFocus={false}
-          content={
-            <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
-              {props.title}
-            </TooltipContentWrapper>
-          }
-          hoverOpenDelay={1000}
-          position="top"
-        >
-          {props.children}
-        </Tooltip>
-      ) : (
-        props.children
-      )}
-    </CellWrapper>
+    <ColumnWrapper className={props.className}>
+      <CellWrapper
+        cellProperties={props.cellProperties}
+        isCellVisible={props.isCellVisible}
+        isHidden={props.isHidden}
+        isTextType
+        ref={ref}
+      >
+        {useToolTip && props.children ? (
+          <Tooltip
+            autoFocus={false}
+            content={
+              <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
+                {props.title}
+              </TooltipContentWrapper>
+            }
+            hoverOpenDelay={1000}
+            position="top"
+          >
+            {props.children}
+          </Tooltip>
+        ) : (
+          props.children
+        )}
+      </CellWrapper>
+      {useToolTip && props.children && <>&nbsp;...&nbsp;&nbsp;&nbsp;</>}
+    </ColumnWrapper>
   );
 }
 

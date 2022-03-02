@@ -18,14 +18,6 @@ import _, {
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  renderCell,
-  renderDropdown,
-  renderActions,
-  renderMenuButton,
-  RenderMenuButtonProps,
-  renderIconButton,
-} from "../component/TableUtilities";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
@@ -40,8 +32,11 @@ import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
+  EditableCellActions,
+  OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
+  TransientDataPayload,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
@@ -51,6 +46,7 @@ import {
   getTableStyles,
   getSelectRowIndex,
   getSelectRowIndices,
+  getCellProperties,
 } from "./utilities";
 
 import {
@@ -63,11 +59,20 @@ import {
 import tablePropertyPaneConfig from "./propertyConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
-import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
 import { getSanitizedKey } from "widgets/WidgetUtils";
+import { renderDefault } from "../component/renderHelpers/DefaultRenderer";
+import { renderButton } from "../component/renderHelpers/ButtonRenderer";
+import { renderDropdown } from "../component/renderHelpers/DropdownRenderer";
+import {
+  renderMenuButton,
+  RenderMenuButtonProps,
+} from "../component/renderHelpers/MenuButtonRenderer";
+import { renderImage } from "../component/renderHelpers/ImageRenderer";
+import { renderVideo } from "../component/renderHelpers/VideoRenders";
+import { renderIconButton } from "../component/renderHelpers/IconButtonRenderer";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -81,7 +86,7 @@ const defaultFilter = [
   },
 ];
 
-class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
+class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
   }
@@ -98,6 +103,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         column: "",
         order: null,
       },
+      transientTableData: {},
+      editableCell: {},
     };
   }
 
@@ -184,7 +191,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               const buttonProps = {
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete: () => void) =>
-                  this.onCommandClick(rowIndex, action, onComplete),
+                  this.onColumnEvent({
+                    rowIndex,
+                    action,
+                    onComplete,
+                    triggerPropertyName: "onClick",
+                    eventType: EventType.ON_CLICK,
+                  }),
                 backgroundColor:
                   cellProperties.buttonColor || DEFAULT_BUTTON_COLOR,
                 buttonLabelColor:
@@ -199,7 +212,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   },
                 ],
               };
-              return renderActions(buttonProps, isHidden, cellProperties);
+              return renderButton(buttonProps, isHidden, cellProperties);
 
             case COLUMN_TYPES.DROPDOWN:
               let options = [];
@@ -220,25 +233,35 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
             case COLUMN_TYPES.IMAGE:
               const onClick = column.onClick
-                ? () => this.onCommandClick(rowIndex, column.onClick, noop)
+                ? () =>
+                    this.onColumnEvent({
+                      rowIndex,
+                      action: column.onClick,
+                      triggerPropertyName: "onClick",
+                      eventType: EventType.ON_CLICK,
+                    })
                 : noop;
 
-              return renderCell(
-                props.cell.value,
-                column.columnType,
-                isHidden,
-                cellProperties,
-                componentWidth,
-                cellProperties.isCellVisible ?? true,
-                onClick,
-                isSelected,
-              );
+              return renderImage({
+                value: props.cell.value,
+                isHidden: isHidden,
+                cellProperties: cellProperties,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                onClick: onClick,
+                isSelected: isSelected,
+              });
 
             case COLUMN_TYPES.MENUBUTTON:
               const menuButtonProps: RenderMenuButtonProps = {
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete?: () => void) =>
-                  this.onCommandClick(rowIndex, action, onComplete),
+                  this.onColumnEvent({
+                    rowIndex,
+                    action,
+                    onComplete,
+                    triggerPropertyName: "onClick",
+                    eventType: EventType.ON_CLICK,
+                  }),
                 isDisabled: !!cellProperties.isDisabled,
                 menuItems: cellProperties.menuItems,
                 isCompact: !!cellProperties.isCompact,
@@ -264,7 +287,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               const iconButtonProps = {
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete: () => void) =>
-                  this.onCommandClick(rowIndex, action, onComplete),
+                  this.onColumnEvent({
+                    rowIndex,
+                    action,
+                    onComplete,
+                    triggerPropertyName: "onClick",
+                    eventType: EventType.ON_CLICK,
+                  }),
                 columnActions: [
                   {
                     id: column.id,
@@ -288,15 +317,98 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 cellProperties,
               );
 
+            case ColumnTypes.VIDEO:
+              return renderVideo({
+                value: props.cell.value,
+                isHidden: isHidden,
+                cellProperties: cellProperties,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+              });
+
             default:
-              return renderCell(
-                props.cell.value,
-                column.columnType,
-                isHidden,
-                cellProperties,
-                componentWidth,
-                cellProperties.isCellVisible ?? true,
-              );
+              const isColumnEditable = column.isEditable;
+              const isCellEditMode =
+                props.cell.column.alias === this.props.editableCell.column &&
+                rowIndex === this.props.editableCell.index;
+              return renderDefault({
+                value: props.cell.value,
+                columnType: column.columnType,
+                isHidden: isHidden,
+                cellProperties: cellProperties,
+                tableWidth: componentWidth,
+                isCellEditable:
+                  (isColumnEditable && cellProperties.isCellEditable) ?? false,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                isCellEditMode: isCellEditMode,
+                onCellTextChange: (data: string) => {
+                  this.props.updateWidgetMetaProperty("editableCell", {
+                    ...this.props.editableCell,
+                    value: data,
+                  });
+                },
+                toggleCellEditMode: (
+                  enable: boolean,
+                  action?: EditableCellActions,
+                ) => {
+                  if (enable) {
+                    this.props.updateWidgetMetaProperty("editableCell", {
+                      column: props.cell.column.alias,
+                      index: rowIndex,
+                      value: props.cell.value,
+                      // To revert back to previous on discard
+                      initialValue: props.cell.value,
+                    });
+
+                    /*
+                     * We need to clear the selectedRowIndex and selectedRowIndices
+                     * if the rows are sorted, to avoid selectedRow jumping to
+                     * different page.
+                     */
+                    if (this.props.sortOrder.column) {
+                      if (this.props.multiRowSelection) {
+                        this.props.updateWidgetMetaProperty(
+                          "selectedRowIndices",
+                          [],
+                        );
+                      } else {
+                        this.props.updateWidgetMetaProperty(
+                          "selectedRowIndex",
+                          -1,
+                        );
+                      }
+                    }
+                  } else {
+                    if (
+                      action === EditableCellActions.SAVE &&
+                      props.cell.value !== this.props.editableCell.initialValue
+                    ) {
+                      this.updateTransientTableData({
+                        __original_index__: this.getRowOriginalIndex(rowIndex),
+                        [props.cell.column.columnProperties.alias]:
+                          props.cell.value,
+                      });
+
+                      if (props.cell.column.columnProperties.onSubmit) {
+                        this.onColumnEvent({
+                          rowIndex: rowIndex,
+                          action: props.cell.column.columnProperties.onSubmit,
+                          triggerPropertyName: "onSubmit",
+                          eventType: EventType.ON_SUBMIT,
+                        });
+                      }
+                    }
+                    this.props.updateWidgetMetaProperty("editableCell", {});
+                    /*
+                     * We need to let the evaulations compute derived property (filteredTableData)
+                     * before we clear the editableCell to avoid the text flickering
+                     * TODO(Balaji): Need to find a different way to wait before clearing
+                     */
+                    // setTimeout(() => {
+                    //   this.props.updateWidgetMetaProperty("editableCell", {});
+                    // }, 100);
+                  }
+                },
+              });
           }
         },
       };
@@ -421,6 +533,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
         }
       });
+
+      /*
+       * Inject the edited cell value from the editableCell object
+       */
+      if (this.props.editableCell.index === rowIndex) {
+        const { column, value } = this.props.editableCell;
+
+        newRow[column] = value;
+      }
 
       return newRow;
     });
@@ -650,6 +771,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
 
+    /*
+     * Clear transient table data and editablecell when tableData changes
+     */
+    if (isTableDataModified) {
+      this.props.updateWidgetMetaProperty("transientTableData", {});
+      this.props.updateWidgetMetaProperty("editableCell", {});
+    }
+
     if (!pageNo) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
@@ -867,6 +996,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
+          editableCell={this.props.editableCell}
           filters={this.props.filters}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
@@ -879,7 +1009,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleSearch={isVisibleSearch}
           multiRowSelection={this.props.multiRowSelection}
           nextPageClick={this.handleNextPageClick}
-          onCommandClick={this.onCommandClick}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
           pageSize={
@@ -981,19 +1110,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   /*
    * Function to handle customColumn button type click interactions
    */
-  onCommandClick = (
-    rowIndex: number,
-    action: string,
-    onComplete?: () => void,
-  ) => {
+  onColumnEvent = ({
+    rowIndex,
+    action,
+    onComplete = noop,
+    triggerPropertyName,
+    eventType,
+  }: OnColumnEventArgs) => {
     const { filteredTableData = [] } = this.props;
 
     try {
       const row = filteredTableData[rowIndex];
-      this.props.updateWidgetMetaProperty(
-        "triggeredRowIndex",
-        row[ORIGINAL_INDEX_KEY],
-      );
 
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
@@ -1001,17 +1128,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }, "");
 
       if (modifiedAction) {
-        super.executeAction({
-          triggerPropertyName: "onClick",
-          dynamicString: modifiedAction,
-          event: {
-            type: EventType.ON_CLICK,
-            callback: onComplete,
+        this.props.updateWidgetMetaProperty(
+          "triggeredRowIndex",
+          row[ORIGINAL_INDEX_KEY],
+          {
+            triggerPropertyName: triggerPropertyName,
+            dynamicString: modifiedAction,
+            event: {
+              type: eventType,
+              callback: onComplete,
+            },
+            globalContext: { currentRow: row },
           },
-          globalContext: { currentRow: row },
-        });
+        );
       } else {
-        onComplete?.();
+        onComplete();
       }
     } catch (error) {
       log.debug("Error parsing row action", error);
@@ -1199,6 +1330,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return column.originalId === originalId;
     });
   }
+  updateTransientTableData = (data: TransientDataPayload) => {
+    const { __original_index__, ...transientData } = data;
+
+    this.props.updateWidgetMetaProperty("transientTableData", {
+      ...this.props.transientTableData,
+      [__original_index__]: {
+        ...this.props.transientTableData[__original_index__],
+        ...transientData,
+      },
+    });
+  };
+
+  getRowOriginalIndex = (index: number) => {
+    const { filteredTableData } = this.props;
+
+    if (filteredTableData) {
+      const row = filteredTableData[index];
+
+      if (row) {
+        return row[ORIGINAL_INDEX_KEY];
+      }
+    }
+
+    return -1;
+  };
 }
 
-export default TableWidget;
+export default TableWidgetV2;

@@ -1,8 +1,17 @@
 import styled, { css } from "styled-components";
-import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
+import {
+  TableSizes,
+  CellLayoutProperties,
+  JUSTIFY_CONTENT,
+  ALIGN_ITEMS,
+  IMAGE_HORIZONTAL_ALIGN,
+  IMAGE_VERTICAL_ALIGN,
+  TEXT_ALIGN,
+} from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import { EditableRowHoverStyle } from "./cellComponents/TextCell";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -103,8 +112,7 @@ export const TableWrapper = styled.div<{
       background: ${Colors.ATHENS_GRAY_DARKER};
     }
     .td {
-      height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
-      line-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
+      min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
       padding: 0;
     }
     .thead {
@@ -284,36 +292,6 @@ export const ActionWrapper = styled.div<{
   }
 `;
 
-const JUSTIFY_CONTENT = {
-  LEFT: "flex-start",
-  CENTER: "center",
-  RIGHT: "flex-end",
-};
-
-const TEXT_ALIGN = {
-  LEFT: "left",
-  CENTER: "center",
-  RIGHT: "right",
-};
-
-const ALIGN_ITEMS = {
-  TOP: "flex-start",
-  CENTER: "center",
-  BOTTOM: "flex-end",
-};
-
-const IMAGE_HORIZONTAL_ALIGN = {
-  LEFT: "left",
-  CENTER: "center",
-  RIGHT: "right",
-};
-
-const IMAGE_VERTICAL_ALIGN = {
-  TOP: "top",
-  CENTER: "center",
-  BOTTOM: "bottom",
-};
-
 export const TableStyles = css<{
   cellProperties?: CellLayoutProperties;
   isTextType?: boolean;
@@ -344,13 +322,6 @@ export const TableStyles = css<{
     TEXT_SIZES[props?.cellProperties?.textSize]};
 `;
 
-export const DraggableHeaderWrapper = styled.div<{
-  horizontalAlignment?: CellAlignment;
-}>`
-  text-align: ${(props) =>
-    props?.horizontalAlignment && TEXT_ALIGN[props?.horizontalAlignment]};
-`;
-
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
   cellProperties?: CellLayoutProperties;
@@ -360,7 +331,6 @@ export const CellWrapper = styled.div<{
   isTextType?: boolean;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
-
   align-items: center;
   justify-content: flex-start;
   width: 100%;
@@ -510,7 +480,7 @@ export const CommonFunctionsMenuWrapper = styled.div<{
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
 `;
 
-export const RowWrapper = styled.div`
+export const TableHeaderContentWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -573,4 +543,8 @@ export const MenuCategoryWrapper = styled.div`
 
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
+`;
+
+export const RowWrapper = styled.div`
+  ${() => EditableRowHoverStyle}
 `;
