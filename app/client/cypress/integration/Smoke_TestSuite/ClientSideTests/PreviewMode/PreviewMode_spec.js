@@ -1,4 +1,6 @@
 const dsl = require("../../../../fixtures/previewMode.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const publishPage = require("../../../../locators/publishWidgetspage.json");
 
 describe("Preview mode functionality", function() {
   before(() => {
@@ -25,5 +27,26 @@ describe("Preview mode functionality", function() {
     cy.get(
       `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
     ).should("not.exist");
+  });
+
+  it("check invisible widget should not show in proview mode and should show in edit mode", function() {
+    cy.get(".t--switch-comment-mode-off").click();
+    cy.openPropertyPane("buttonwidget");
+    cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
+
+    // button should not show in preview mode
+    cy.get(".t--switch-preview-mode-toggle").click();
+    cy.get(`${publishPage.buttonWidget} button`).should("not.exist");
+
+    // Text widget should show
+    cy.get(`${publishPage.textWidget} .bp3-ui-text`).should("exist");
+
+    // button should show in edit mode
+    cy.get(".t--switch-comment-mode-off").click();
+    cy.get(`${publishPage.buttonWidget} button`).should("exist");
+  });
+
+  afterEach(() => {
+    // put your clean up code if any
   });
 });

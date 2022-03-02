@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Create new org and share with a user", function() {

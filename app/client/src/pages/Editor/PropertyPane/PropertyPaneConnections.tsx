@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from "react";
+import React, { memo, useMemo, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown, {
@@ -125,6 +125,7 @@ const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
 
 const OptionContentWrapper = styled.div<{
   hasError: boolean;
+  isSelected: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -134,6 +135,10 @@ const OptionContentWrapper = styled.div<{
   line-height: 8px;
   flex: 1;
   min-width: 0;
+  background-color: ${(props) =>
+    props.isSelected &&
+    !props.hasError &&
+    props.theme.colors.dropdown.hovered.bg};
 
   span:first-child {
     font-size: 10px;
@@ -210,7 +215,7 @@ const useDependencyList = (name: string) => {
   const dependencyOptions =
     entityDependencies?.directDependencies.map((e) => ({
       label: e,
-      value: getEntityId(e),
+      value: getEntityId(e) ?? e,
     })) ?? [];
   const inverseDependencyOptions =
     entityDependencies?.inverseDependencies.map((e) => ({
@@ -245,12 +250,28 @@ function OptionNode(props: any) {
     });
   };
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!props.isSelectedNode) return;
+    if (e.key === " " || e.key === "Enter") onClick();
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [props.isSelectedNode]);
+
   return (
     <OptionWrapper
       fillIconColor={!entityInfo?.datasourceName}
       hasError={!!entityInfo?.hasError}
     >
-      <OptionContentWrapper hasError={!!entityInfo?.hasError} onClick={onClick}>
+      <OptionContentWrapper
+        hasError={!!entityInfo?.hasError}
+        isSelected={props.isSelectedNode}
+        onClick={onClick}
+      >
         <span>{entityInfo?.icon}</span>
         <Text type={TextType.H6}>
           {props.option.label}{" "}
@@ -297,6 +318,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
         <Tooltip
           content={tooltipText}
           disabled={props.isOpen}
+          openOnTargetFocus={false}
           position={props.tooltipPosition}
         >
           {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
@@ -360,7 +382,12 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         height={`${CONNECTION_HEIGHT}px`}
         options={dependencies.dependencyOptions}
         renderOption={(optionProps) => {
-          return <OptionNode option={optionProps.option} />;
+          return (
+            <OptionNode
+              isSelectedNode={optionProps.isSelectedNode}
+              option={optionProps.option}
+            />
+          );
         }}
         selected={selectedOption}
         showDropIcon={false}
@@ -389,7 +416,12 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
         renderOption={(optionProps) => {
-          return <OptionNode option={optionProps.option} />;
+          return (
+            <OptionNode
+              isSelectedNode={optionProps.isSelectedNode}
+              option={optionProps.option}
+            />
+          );
         }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}
