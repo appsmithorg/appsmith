@@ -56,7 +56,7 @@ const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_BODY} {
     padding: 0;
     margin-bottom: 0;
-    margin-top: 0;
+    margin-top: 8px;
   }
 `;
 
@@ -130,7 +130,7 @@ const FileImportCard = styled.div`
         }
 
         &.drag-drop-description {
-          color: ${Colors.GREY_6};
+          color: ${Colors.GREY_800};
         }
       }
     }
@@ -185,7 +185,7 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
       >
         {title}
       </Text>
-      <Text color={Colors.GREY_6} type={TextType.P1}>
+      <Text color={Colors.GREY_800} type={TextType.P1}>
         {message}
       </Text>
       {props.children}
