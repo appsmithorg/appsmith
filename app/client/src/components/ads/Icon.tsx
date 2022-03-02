@@ -69,6 +69,7 @@ import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
+import { ReactComponent as UserHeartLine } from "assets/icons/ads/user-heart-line.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -294,6 +295,7 @@ const ICON_LOOKUP = {
   "trending-flat": <TrendingFlat />,
   "unread-pin": <UnreadPin />,
   "user-2": <UserV2Icon />,
+  "user-heart-line": <UserHeartLine />,
   "view-all": <RightArrowIcon />,
   "view-less": <LeftArrowIcon />,
   "warning-line": <WarningLineIcon />,
@@ -333,6 +335,7 @@ const ICON_LOOKUP = {
   loader: <LoaderLineIcon />,
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
+  members: <UserHeartLine />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
   pin: <Pin />,
