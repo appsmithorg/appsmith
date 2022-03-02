@@ -62,6 +62,7 @@ export const promisifyAction = (
           const globalData = createGlobalData(
             dataTreeEvaluator.evalTree,
             dataTreeEvaluator.resolvedFunctions,
+            true,
             {
               requestId: workerRequestId,
             },

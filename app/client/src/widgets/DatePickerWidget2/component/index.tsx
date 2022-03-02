@@ -18,7 +18,7 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
@@ -240,10 +240,12 @@ class DatePickerComponent extends React.Component<
    * @param selectedDate
    */
   onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
-    const { onDateSelected } = this.props;
-    const date = selectedDate ? selectedDate.toISOString() : "";
-    this.setState({ selectedDate: date });
     if (isUserChange) {
+      const { onDateSelected } = this.props;
+      const date = selectedDate ? selectedDate.toISOString() : "";
+      this.setState({
+        selectedDate: date,
+      });
       onDateSelected(date);
     }
   };

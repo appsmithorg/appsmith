@@ -20,7 +20,7 @@ import {
   TEST_EMAIL_FAILURE,
   TEST_EMAIL_SUCCESS,
   TEST_EMAIL_SUCCESS_TROUBLESHOOT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 

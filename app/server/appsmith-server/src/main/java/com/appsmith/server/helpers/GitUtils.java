@@ -64,4 +64,20 @@ public class GitUtils {
 
         return !(HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_ACCEPTED == responseCode);
     }
+
+    /**
+     * Sample repo urls :
+     * git@gitPlatform.com:user/repoName.git
+     * gitPlatform
+     *
+     * @param sshUrl ssh url of repo
+     * @return git hosting provider
+     */
+    public static String getGitProviderName(String sshUrl) {
+        if(StringUtils.isEmptyOrNull(sshUrl)) {
+            return "";
+        }
+        return sshUrl.split("\\.")[0]
+                .replaceFirst("git@", "");
+    }
 }

@@ -25,7 +25,10 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { redoAction, undoAction } from "actions/pageActions";
 import { StyledToastContainer } from "components/ads/Toast";
-import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
+import {
+  createMessage,
+  SAVE_HOTKEY_TOASTER_MESSAGE,
+} from "@appsmith/constants/messages";
 
 describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");

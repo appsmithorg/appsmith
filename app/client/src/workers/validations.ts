@@ -24,7 +24,6 @@ import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
-
 import { findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
@@ -779,32 +778,25 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    const invalidResponse = {
-      isValid: false,
-      parsed: config.params?.default,
-      messages: [`Value does not match: ${getExpectedType(config)}`],
-    };
-    if (value === undefined || value === null || !isString(value)) {
-      if (!config.params?.required) {
-        return {
-          isValid: true,
-          parsed: value,
-        };
-      }
-      return invalidResponse;
-    }
-    if (isString(value)) {
-      if (value === "" && !config.params?.required) {
-        return {
-          isValid: true,
-          parsed: config.params?.default,
-        };
-      } else if (value === "" && config.params?.required) {
-        return invalidResponse;
-      }
+    let isValid = false;
+    let parsed = value;
+    let message = "";
 
-      if (!moment(value).isValid()) return invalidResponse;
+    if (_.isNil(value) || value === "") {
+      parsed = config.params?.default;
 
+      if (config.params?.required) {
+        isValid = false;
+        message = `Value does not match: ${getExpectedType(config)}`;
+      } else {
+        isValid = true;
+      }
+    } else if (typeof value === "object" && moment(value).isValid()) {
+      //Date and moment object
+      isValid = true;
+      parsed = moment(value).toISOString(true);
+    } else if (isString(value)) {
+      //Date string
       if (
         value === moment(value).toISOString() ||
         value === moment(value).toISOString(true)
@@ -813,11 +805,29 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           isValid: true,
           parsed: value,
         };
+      } else if (moment(value).isValid()) {
+        isValid = true;
+        parsed = moment(value).toISOString(true);
+      } else {
+        isValid = false;
+        message = `Value does not match: ${getExpectedType(config)}`;
+        parsed = config.params?.default;
       }
-      if (moment(value).isValid())
-        return { isValid: true, parsed: moment(value).toISOString(true) };
+    } else {
+      isValid = false;
+      message = `Value does not match: ${getExpectedType(config)}`;
     }
-    return invalidResponse;
+
+    const result: ValidationResponse = {
+      isValid,
+      parsed,
+    };
+
+    if (message) {
+      result.messages = [message];
+    }
+
+    return result;
   },
   [ValidationTypes.FUNCTION]: (
     config: ValidationConfig,
@@ -831,12 +841,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, {}, undefined, [
-          value,
-          props,
-          _,
-          moment,
-        ]);
+        const { result } = evaluate(
+          config.params.fnString,
+          {},
+          {},
+          false,
+          undefined,
+          [value, props, _, moment],
+        );
         return result;
       } catch (e) {
         log.error("Validation function error: ", { e });

@@ -1,6 +1,9 @@
+// Leaving this require here. The path-to-regexp module has a commonJS version and an ESM one.
+// We are loading the correct one with the typings with our compilerOptions property "moduleResolution" set to "node". Ref: https://stackoverflow.com/questions/59013618/unable-to-find-module-path-to-regexp
+// All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
 const { compile, match } = require("path-to-regexp");
 
-import { getQueryParamsObject } from "utils/helpers";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
@@ -428,7 +431,12 @@ export const getOnboardingCheckListUrl = (
 
 export const ADMIN_SETTINGS_URL = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_URL = "/settings/general";
-export const ADMIN_SETTINGS_CATEGORY_URL = "/settings/:category";
-export function getAdminSettingsCategoryUrl(category: string) {
-  return `${ADMIN_SETTINGS_URL}/${category}`;
+export const ADMIN_SETTINGS_CATEGORY_URL = "/settings/:category/:subCategory?";
+export function getAdminSettingsCategoryUrl(
+  category: string,
+  subCategory?: string,
+) {
+  return `${ADMIN_SETTINGS_URL}/${category}${
+    subCategory ? "/" + subCategory : ""
+  }`;
 }

@@ -49,7 +49,7 @@ import {
   createMessage,
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
 import { Organization } from "constants/orgConstants";

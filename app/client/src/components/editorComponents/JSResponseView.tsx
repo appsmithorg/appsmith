@@ -13,7 +13,7 @@ import {
   PARSING_ERROR,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
@@ -177,7 +177,7 @@ function JSResponseView(props: Props) {
   const actionList = jsObject?.actions;
   const sortedActionList = actionList && sortBy(actionList, "name");
   const response =
-    selectActionId && !!responses[selectActionId]
+    selectActionId && selectActionId in responses
       ? responses[selectActionId]
       : "";
   const isRunning = selectActionId && !!isExecuting[selectActionId];

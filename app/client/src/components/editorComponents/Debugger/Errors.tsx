@@ -4,9 +4,9 @@ import styled from "styled-components";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { BlankState } from "./helpers";
-import { createMessage, NO_ERRORS } from "constants/messages";
+import { createMessage, NO_ERRORS } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import { thinScrollbar } from "constants/DefaultTheme";
 
 const ContainerWrapper = styled.div`

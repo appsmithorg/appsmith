@@ -132,13 +132,15 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             .body(BodyInserters.fromValue(Map.of(
                                     "userId", ipAddress,
                                     "context", Map.of("ip", ipAddress),
-                                    "properties", Map.of("instanceId", statsData.getT1()),
-                                    "numOrgs", statsData.getT3(),
-                                    "numApps", statsData.getT4(),
-                                    "numPages", statsData.getT5(),
-                                    "numActions", statsData.getT6(),
-                                    "numDatasources", statsData.getT7(),
-                                    "numUsers", statsData.getT8(),
+                                    "properties", Map.of(
+                                            "instanceId", statsData.getT1(),
+                                            "numOrgs", statsData.getT3(),
+                                            "numApps", statsData.getT4(),
+                                            "numPages", statsData.getT5(),
+                                            "numActions", statsData.getT6(),
+                                            "numDatasources", statsData.getT7(),
+                                            "numUsers", statsData.getT8()
+                                    ),
                                     "event", "instance_stats"
                             )))
                             .retrieve()

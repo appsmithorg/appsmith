@@ -42,7 +42,7 @@ const Tab = styled.div<{ selected: boolean }>`
 type MultiSwitchProps<T> = CommonComponentProps & {
   tabs: Array<TabProp<T>>;
   selected: { title: T; value: string };
-  onSelect: (title: T) => void;
+  onSelect: (title: string) => void;
 };
 
 export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
@@ -54,8 +54,9 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
       <TabList>
         {props.tabs.map((tab) => (
           <Tab
+            data-cy={`tab--${tab.title}`}
             key={tab.key}
-            onClick={() => props.onSelect(tab.title)}
+            onClick={() => props.onSelect(tab.key)}
             selected={props.selected.value === tab.key}
           >
             <Text case={Case.UPPERCASE} type={TextType.P3}>

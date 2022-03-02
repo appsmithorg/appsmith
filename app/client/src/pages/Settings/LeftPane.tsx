@@ -3,7 +3,8 @@ import { getAdminSettingsCategoryUrl } from "constants/routes";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { SettingsFactory } from "./SettingsConfig";
+import AdminConfig from "./config";
+import { Category } from "@appsmith/pages/AdminSettings/config/types";
 
 const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -15,19 +16,22 @@ const Wrapper = styled.div`
 const HeaderContainer = styled.div``;
 
 const StyledHeader = styled.div`
-  font-size: 20px;
-  text-transform: capitalize;
+  font-size: 14px;
+  height: 20px;
+  line-height: 17px;
+  letter-spacing: -0.24px;
+  text-transform: uppercase;
   margin: 40px 16px 16px;
   color: ${Colors.MASALA};
 `;
 
 const CategoryList = styled.ul`
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 16px;
   list-style-type: none;
 `;
 
-const Category = styled.li``;
+const CategoryItem = styled.li``;
 
 const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
@@ -51,43 +55,68 @@ const StyledLink = styled(Link)<{ $active: boolean }>`
 `;
 
 function useSettingsCategory() {
-  return Array.from(SettingsFactory.categories)
-    .map((setting: string) => {
-      return {
-        label: setting.replace(/-/g, " "),
-        slug: setting,
-      };
-    })
-    .sort((a, b) => {
-      if (a.label == "general") return -1;
-      else if (b.label == "general") return 1;
-      if (a.label == "advanced") return 1;
-      else if (b.label == "advanced") return -1;
-      return a.label < b.label ? -1 : 1;
-    });
+  return Array.from(AdminConfig.categories);
+}
+
+function Categories({
+  categories,
+  currentCategory,
+  currentSubCategory,
+  parentCategory,
+  showSubCategory,
+}: {
+  categories?: Category[];
+  parentCategory?: Category;
+  currentCategory: string;
+  currentSubCategory?: string;
+  showSubCategory?: boolean;
+}) {
+  return (
+    <CategoryList className="t--settings-category-list">
+      {categories?.map((config) => (
+        <CategoryItem key={config.slug}>
+          <StyledLink
+            $active={
+              !!currentSubCategory && showSubCategory
+                ? currentSubCategory == config.slug
+                : currentCategory == config.slug
+            }
+            className={`t--settings-category-${config.slug}`}
+            to={
+              !parentCategory
+                ? getAdminSettingsCategoryUrl(config.slug)
+                : getAdminSettingsCategoryUrl(parentCategory.slug, config.slug)
+            }
+          >
+            {config.title}
+          </StyledLink>
+          {showSubCategory && (
+            <Categories
+              categories={config.children}
+              currentCategory={currentCategory}
+              currentSubCategory={currentSubCategory}
+              parentCategory={config}
+            />
+          )}
+        </CategoryItem>
+      ))}
+    </CategoryList>
+  );
 }
 
 export default function LeftPane() {
   const categories = useSettingsCategory();
-  const { category } = useParams() as any;
+  const { category, subCategory } = useParams() as any;
   return (
     <Wrapper>
       <HeaderContainer>
         <StyledHeader>Appsmith Admin</StyledHeader>
       </HeaderContainer>
-      <CategoryList className="t--settings-category-list">
-        {categories.map((config) => (
-          <Category key={config.slug}>
-            <StyledLink
-              $active={category == config.slug}
-              className={`t--settings-category-${config.slug}`}
-              to={getAdminSettingsCategoryUrl(config.slug)}
-            >
-              {config.label}
-            </StyledLink>
-          </Category>
-        ))}
-      </CategoryList>
+      <Categories
+        categories={categories}
+        currentCategory={category}
+        currentSubCategory={subCategory}
+      />
     </Wrapper>
   );
 }

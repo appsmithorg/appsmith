@@ -1,4 +1,8 @@
 const AdminsSettingsLocators = require("../../../../locators/AdminsSettingsLocators.json");
+const {
+  GITHUB_SIGNUP_SETUP_DOC,
+  GOOGLE_SIGNUP_SETUP_DOC,
+} = require("../../../../../src/constants/ThirdPartyConstants");
 
 describe("Admin settings page", function() {
   beforeEach(() => {
@@ -63,10 +67,50 @@ describe("Admin settings page", function() {
     cy.url().should("contain", "/settings/version");
   });
 
-  it("should test that setting page back button redirects to home page", () => {
-    cy.get(AdminsSettingsLocators.backButton).should("be.visible");
-    cy.get(AdminsSettingsLocators.backButton).click();
-    cy.url().should("contain", "/applications");
+  it("should test that authentication page redirects", () => {
+    cy.visit("/settings/general");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.googleButton).click();
+    cy.url().should("contain", "/settings/authentication/google-auth");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.githubButton).click();
+    cy.url().should("contain", "/settings/authentication/github-auth");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.formloginButton).click();
+    cy.url().should("contain", "/settings/authentication/form-login");
+  });
+
+  it("should test that configure link redirects to google signup setup doc", () => {
+    cy.visit("/settings/general");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.googleButton).click();
+    cy.url().should("contain", "/settings/authentication/google-auth");
+    cy.get(AdminsSettingsLocators.readMoreLink).within(() => {
+      cy.get("a")
+        .should("have.attr", "target", "_blank")
+        .invoke("removeAttr", "target")
+        .click();
+      cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
+    });
+  });
+
+  it("should test that configure link redirects to github signup setup doc", () => {
+    cy.visit("/settings/general");
+    cy.get(AdminsSettingsLocators.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.get(AdminsSettingsLocators.githubButton).click();
+    cy.url().should("contain", "/settings/authentication/github-auth");
+    cy.get(AdminsSettingsLocators.readMoreLink).within(() => {
+      cy.get("a")
+        .should("have.attr", "target", "_blank")
+        .invoke("removeAttr", "target")
+        .click();
+      cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
+    });
   });
 
   it("should test save and clear buttons disabled state", () => {

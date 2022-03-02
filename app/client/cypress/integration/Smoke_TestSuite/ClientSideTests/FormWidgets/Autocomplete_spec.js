@@ -80,23 +80,19 @@ describe("Autocomplete using slash command and mustache tests", function() {
 
   it("Slash command and mustache autocomplete validation for textbox widget", function() {
     cy.openPropertyPane("textwidget");
-    cy.testCodeMirror("/");
-    cy.get(dynamicInputLocators.input)
-      .first()
-      .click({ force: true })
-      .then(() => {
-        cy.get(dynamicInputLocators.hints).should("exist");
-        // validates all autocomplete commands on entering / in text field
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
-          .should("have.text", "New Binding");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
-          .should("have.text", "Insert Snippet");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .last()
-          .should("have.text", "New Datasource");
-      });
+    cy.testCodeMirror("/").then(() => {
+      cy.get(dynamicInputLocators.hints).should("exist");
+      // validates all autocomplete commands on entering / in text field
+      cy.get(`${dynamicInputLocators.hints} li`)
+        .eq(1)
+        .should("have.text", "New Binding");
+      cy.get(`${dynamicInputLocators.hints} li`)
+        .eq(2)
+        .should("have.text", "Insert Snippet");
+      cy.get(`${dynamicInputLocators.hints} li`)
+        .last()
+        .should("have.text", "New Datasource");
+    });
     cy.get(dynamicInputLocators.input)
       .first()
       .click({ force: true })

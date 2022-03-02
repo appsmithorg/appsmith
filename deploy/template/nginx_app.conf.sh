@@ -42,7 +42,6 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
         sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\${APPSMITH_MARKETPLACE_ENABLED}';
         sub_filter __APPSMITH_SEGMENT_KEY__ '\${APPSMITH_SEGMENT_KEY}';
-        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '\${APPSMITH_OPTIMIZELY_KEY}';
         sub_filter __APPSMITH_ALGOLIA_API_ID__ '\${APPSMITH_ALGOLIA_API_ID}';
         sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
         sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\${APPSMITH_ALGOLIA_API_KEY}';
@@ -60,9 +59,6 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         sub_filter __APPSMITH_DISABLE_INTERCOM__ '\${APPSMITH_DISABLE_INTERCOM}';
     }
 
-    location /f {
-       proxy_pass https://cdn.optimizely.com/;
-    }
 
     location /api {
         proxy_pass http://appsmith-internal-server:8080;
@@ -103,7 +99,6 @@ $NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\${APPSM
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\${APPSMITH_MARKETPLACE_ENABLED}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_SEGMENT_KEY__ '\${APPSMITH_SEGMENT_KEY}';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '\${APPSMITH_OPTIMIZELY_KEY}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_ID__ '\${APPSMITH_ALGOLIA_API_ID}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\${APPSMITH_ALGOLIA_API_KEY}';
@@ -119,10 +114,6 @@ $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '\${APPSMITH_R
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '\${APPSMITH_RECAPTCHA_SECRET_KEY}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '\${APPSMITH_RECAPTCHA_ENABLED}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_DISABLE_INTERCOM__ '\${APPSMITH_DISABLE_INTERCOM}';
-$NGINX_SSL_CMNT    }
-$NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    location /f {
-$NGINX_SSL_CMNT       proxy_pass https://cdn.optimizely.com/;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /api {

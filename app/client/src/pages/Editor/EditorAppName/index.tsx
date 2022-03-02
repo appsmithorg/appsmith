@@ -235,7 +235,7 @@ export function EditorAppName(props: EditorAppNameProps) {
         {!isEditing && (
           <StyledIcon
             fillColor={theme.colors.navigationMenu.contentActive}
-            name={isPopoverOpen ? "upArrow" : "downArrow"}
+            name={isPopoverOpen ? "expand-less" : "down-arrow"}
             size={IconSize.XXL}
           />
         )}

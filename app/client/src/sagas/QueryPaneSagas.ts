@@ -43,7 +43,10 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
 import _ from "lodash";
-import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import {
+  createMessage,
+  ERROR_ACTION_RENAME_FAIL,
+} from "@appsmith/constants/messages";
 import get from "lodash/get";
 import {
   initFormEvaluations,
@@ -107,7 +110,14 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
   // Once the initial values are set, we can run the evaluations based on them.
-  yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
+  yield put(
+    startFormEvaluations(
+      id,
+      formInitialValues.actionConfiguration,
+      action.datasource.id,
+      pluginId,
+    ),
+  );
 
   yield put(
     updateReplayEntity(

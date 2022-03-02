@@ -35,6 +35,7 @@ const StyledBottomBorder = styled.div`
   height: 2px;
   width: 100%;
   left: -100%;
+  top: 9px;
   background-color: ${(props) =>
     props.theme.colors.header.activeTabBorderBottom};
   ${PageTab}:hover & {
@@ -75,8 +76,11 @@ function PageTabName({ name }: { name: string }) {
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
     <StyleTabText>
-      <div className="relative flex items-center justify-center flex-grow">
-        <span ref={tabNameRef}>{name}</span>
+      <div className="relative flex ">
+        <div className="relative flex items-center justify-center flex-grow">
+          <span ref={tabNameRef}>{name}</span>
+        </div>
+        {ellipsisActive && "..."}
       </div>
       <StyledBottomBorder />
     </StyleTabText>

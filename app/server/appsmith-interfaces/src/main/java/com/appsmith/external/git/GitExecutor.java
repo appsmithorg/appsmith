@@ -163,4 +163,13 @@ public interface GitExecutor {
      * @return created branch name
      */
     Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName);
+
+    /**
+     *
+     * @param publicKey public key
+     * @param privateKey private key
+     * @param remoteUrl remote repo ssh url
+     * @return boolean if the connection can be established with the given keys
+     */
+    Mono<Boolean> testConnection(String publicKey, String privateKey, String remoteUrl);
 }

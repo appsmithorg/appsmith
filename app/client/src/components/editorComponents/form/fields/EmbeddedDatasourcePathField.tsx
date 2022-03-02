@@ -38,7 +38,7 @@ import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConst
 import styled from "styled-components";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
-import Text, { TextType } from "components/ads/Text";
+import Text, { FontWeight, TextType } from "components/ads/Text";
 import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
@@ -54,6 +54,11 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { KeyValuePair } from "entities/Action";
+import _ from "lodash";
+import {
+  getDatasource,
+  getDatasourcesByPluginId,
+} from "selectors/entitiesSelector";
 
 type ReduxStateProps = {
   orgId: string;
@@ -75,6 +80,7 @@ type Props = EditorProps &
   ReduxDispatchProps & {
     input: Partial<WrappedFieldInputProps>;
     pluginId: string;
+    codeEditorVisibleOverflow: boolean; // this variable adds a custom style to the codeEditor when focused.
   };
 
 const DatasourceContainer = styled.div`
@@ -89,6 +95,43 @@ const DatasourceContainer = styled.div`
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};
     }
+  }
+`;
+
+const CustomToolTip = styled.span<{ width?: number }>`
+  visibility: hidden;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 0px;
+  background-color: ${Colors.CODE_GRAY};
+  color: ${Colors.ALABASTER_ALT};
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
+
+  position: absolute;
+  z-index: 1000;
+  bottom: 125%;
+  left: calc(-10px + ${(props) => (props.width ? props.width / 2 : 0)}px);
+  margin-left: -60px;
+
+  opacity: 0;
+  transition: opacity 0.01s 1s ease-in;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    height: 14px;
+    width: 14px;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: ${Colors.CODE_GRAY} transparent transparent transparent;
+  }
+
+  &.highlighter {
+    visibility: visible;
+    opacity: 1;
   }
 `;
 
@@ -145,7 +188,15 @@ function CustomHint(props: { datasource: Datasource }) {
 }
 
 const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
-class EmbeddedDatasourcePathComponent extends React.Component<Props> {
+class EmbeddedDatasourcePathComponent extends React.Component<
+  Props,
+  { highlightedElementWidth: number }
+> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { highlightedElementWidth: 0 };
+  }
+
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
     const { datasource, orgId, pluginId } = this.props;
     const urlHasUpdated =
@@ -356,8 +407,41 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     return "";
   };
 
+  // handles when user's mouse enters the highlighted component
+  handleMouseEnter = (event: MouseEvent) => {
+    if (
+      this.state.highlightedElementWidth !==
+      (event.currentTarget as HTMLElement).getBoundingClientRect()?.width
+    ) {
+      this.setState({
+        highlightedElementWidth: (event.currentTarget as HTMLElement).getBoundingClientRect()
+          ?.width,
+      });
+    }
+    // add class to trigger custom tooltip to show when mouse enters the component
+    document.getElementById("custom-tooltip")?.classList.add("highlighter");
+  };
+
+  // handles when user's mouse leaves the highlighted component
+  handleMouseLeave = () => {
+    // remove class to trigger custom tooltip to not show when mouse leaves the component.
+    document.getElementById("custom-tooltip")?.classList.remove("highlighter");
+  };
+
+  // if the next props is not equal to the current props, do not rerender, same for state
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    if (!_.isEqual(nextProps, this.props)) {
+      return true;
+    }
+    if (!_.isEqual(nextState, this.state)) {
+      return true;
+    }
+    return false;
+  }
+
   render() {
     const {
+      codeEditorVisibleOverflow,
       datasource,
       input: { value },
     } = this.props;
@@ -381,6 +465,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       showLightningMenu: false,
       fill: true,
       expected: getExpectedValue({ type: ValidationTypes.SAFE_URL }),
+      codeEditorVisibleOverflow,
+      showCustomToolTipForHighlightedText: true,
+      highlightedTextClassName: "datasource-highlight",
+      handleMouseEnter: this.handleMouseEnter,
+      handleMouseLeave: this.handleMouseLeave,
     };
 
     return (
@@ -390,8 +479,30 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
           evaluatedValue={this.handleEvaluatedValue()}
-          height="35px"
         />
+        {datasource && datasource.name !== "DEFAULT_REST_DATASOURCE" && (
+          <CustomToolTip
+            id="custom-tooltip"
+            width={this.state.highlightedElementWidth}
+          >
+            <Text
+              color={Colors.ALABASTER_ALT}
+              style={{ fontSize: "10px", display: "block", fontWeight: 600 }}
+              type={TextType.SIDE_HEAD}
+              weight={FontWeight.BOLD}
+            >
+              Datasource
+            </Text>{" "}
+            <Text
+              color={Colors.ALABASTER_ALT}
+              style={{ display: "block" }}
+              type={TextType.P3}
+            >
+              {" "}
+              {datasource?.name}{" "}
+            </Text>
+          </CustomToolTip>
+        )}
         {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
@@ -426,8 +537,9 @@ const mapStateToProps = (
   let datasourceMerged = datasourceFromAction;
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
-    const datasourceFromDataSourceList = state.entities.datasources.list.find(
-      (d) => d.id === datasourceFromAction.id,
+    const datasourceFromDataSourceList = getDatasource(
+      state,
+      datasourceFromAction.id,
     );
     if (datasourceFromDataSourceList) {
       datasourceMerged = merge(
@@ -441,9 +553,7 @@ const mapStateToProps = (
   return {
     orgId: state.ui.orgs.currentOrg.id,
     datasource: datasourceMerged,
-    datasourceList: state.entities.datasources.list.filter(
-      (d) => d.pluginId === ownProps.pluginId,
-    ),
+    datasourceList: getDatasourcesByPluginId(state, ownProps.pluginId),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: getCurrentApplicationId(state),
     dataTree: getDataTree(state),
@@ -469,6 +579,7 @@ function EmbeddedDatasourcePathField(
     placeholder?: string;
     theme: EditorTheme;
     actionName: string;
+    codeEditorVisibleOverflow?: boolean;
   },
 ) {
   return (

@@ -14,6 +14,7 @@ import {
   WELCOME_FORM_ROLE_FIELD_NAME,
   WELCOME_FORM_ROLE_NAME_FIELD_NAME,
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
+  WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
 } from "constants/forms";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
@@ -66,6 +67,7 @@ export type DetailsFormValues = {
   verifyPassword?: string;
   role?: string;
   useCase?: string;
+  custom_useCase?: string;
   role_name?: string;
 };
 
@@ -99,6 +101,9 @@ const validate = (values: DetailsFormValues) => {
     errors.useCase = "Please select a use case";
   }
 
+  if (values.useCase === "other" && !values.custom_useCase)
+    errors.custom_useCase = "Please enter a use case";
+
   return errors;
 };
 
@@ -116,7 +121,7 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
     roleInput.type = "text";
     roleInput.name = "role";
     roleInput.style.display = "none";
-    if (props.role != "other") {
+    if (props.role !== "other") {
       roleInput.value = props.role as string;
     } else {
       roleInput.value = props.role_name as string;
@@ -129,8 +134,16 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
     const useCaseInput = document.createElement("input");
     useCaseInput.type = "text";
     useCaseInput.name = "useCase";
-    useCaseInput.value = props.useCase as string;
     useCaseInput.style.display = "none";
+    if (props.useCase !== "other") {
+      useCaseInput.value = props.useCase as string;
+    } else {
+      useCaseInput.value = props.custom_useCase as string;
+      const customUseCaseInput: HTMLInputElement = document.querySelector(
+        `[name="custom_useCase"]`,
+      ) as HTMLInputElement;
+      if (customUseCaseInput) customUseCaseInput.remove();
+    }
     form.appendChild(useCaseInput);
     return true;
   };
@@ -172,6 +185,7 @@ export default connect((state: AppState) => {
     role: selector(state, WELCOME_FORM_ROLE_FIELD_NAME),
     role_name: selector(state, WELCOME_FORM_ROLE_NAME_FIELD_NAME),
     useCase: selector(state, WELCOME_FORM_USECASE_FIELD_NAME),
+    custom_useCase: selector(state, WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME),
   };
 }, null)(
   reduxForm<DetailsFormValues>({

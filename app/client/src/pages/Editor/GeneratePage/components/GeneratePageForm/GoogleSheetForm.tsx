@@ -27,7 +27,7 @@ import {
   GEN_CRUD_COLUMN_HEADER_TITLE,
   GEN_CRUD_NO_COLUMNS,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 type Props = {
   googleSheetPluginId: string;

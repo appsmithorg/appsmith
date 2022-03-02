@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
@@ -37,10 +38,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "application", srcApplicationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
         final Mono<Organization> targetOrganizationMono = organizationService.findById(targetOrganizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "organization", targetOrganizationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, targetOrganizationId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 

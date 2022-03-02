@@ -10,7 +10,7 @@ import {
   ONBOARDING_STATUS_STEPS_FOURTH,
   ONBOARDING_STATUS_STEPS_FIVETH,
   ONBOARDING_STATUS_STEPS_SIXTH,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 
 let container: any = null;

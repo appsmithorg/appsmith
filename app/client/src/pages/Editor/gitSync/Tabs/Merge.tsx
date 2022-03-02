@@ -11,7 +11,7 @@ import {
   FETCH_GIT_STATUS,
   IS_MERGING,
   MERGED_SUCCESSFULLY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled from "styled-components";
@@ -239,6 +239,7 @@ export default function Merge() {
       <Row>
         <Dropdown
           className={Classes.MERGE_DROPDOWN}
+          containerClassName={"t--merge-branch-dropdown-destination"}
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
@@ -279,6 +280,7 @@ export default function Merge() {
       ) : (
         showMergeButton && (
           <Button
+            className="t--git-merge-button"
             disabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}

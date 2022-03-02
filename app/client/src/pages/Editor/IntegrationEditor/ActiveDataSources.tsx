@@ -13,7 +13,7 @@ import {
   EMPTY_ACTIVE_DATA_SOURCES,
   GENERATE_APPLICATION_TITLE,
   GENERATE_APPLICATION_DESCRIPTION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};

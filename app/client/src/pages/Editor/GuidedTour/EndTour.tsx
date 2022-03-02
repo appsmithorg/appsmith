@@ -1,6 +1,6 @@
 import { enableGuidedTour } from "actions/onboardingActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { createMessage, END_TUTORIAL } from "constants/messages";
+import { createMessage, END_TUTORIAL } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";

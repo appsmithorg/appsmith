@@ -33,7 +33,7 @@ import {
   ONBOARDING_STATUS_GET_STARTED,
   createMessage,
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { Colors } from "constants/Colors";

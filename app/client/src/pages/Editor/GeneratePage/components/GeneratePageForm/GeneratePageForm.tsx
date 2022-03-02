@@ -34,7 +34,7 @@ import {
   GENERATE_PAGE_FORM_TITLE,
   createMessage,
   GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,

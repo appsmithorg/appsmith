@@ -1,6 +1,9 @@
 import React from "react";
 import { IconProps } from "constants/IconConstants";
-import { createMessage, LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  LIGHTNING_MENU_DATA_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";

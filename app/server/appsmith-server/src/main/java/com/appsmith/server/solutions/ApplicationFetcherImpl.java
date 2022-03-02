@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -19,9 +20,10 @@ public class ApplicationFetcherImpl extends ApplicationFetcherCEImpl implements 
                                   OrganizationService organizationService,
                                   ApplicationRepository applicationRepository,
                                   ReleaseNotesService releaseNotesService,
-                                  ResponseUtils responseUtils) {
+                                  ResponseUtils responseUtils,
+                                  NewPageService newPageService) {
 
         super(sessionUserService, userService, userDataService, organizationService, applicationRepository,
-                releaseNotesService, responseUtils);
+                releaseNotesService, responseUtils, newPageService);
     }
 }
