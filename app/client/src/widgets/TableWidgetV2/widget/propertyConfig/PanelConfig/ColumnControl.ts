@@ -74,22 +74,32 @@ export default {
       isTriggerProperty: false,
     },
     {
-      helpText: "The accessor that you use in selectedrowindex",
-      propertyName: "accessor",
-      label: "Accessor",
+      helpText: "The alias that you use in selectedrowindex",
+      propertyName: "alias",
+      label: "alias",
       controlType: "INPUT_TEXT",
       updateHook: updateColumnAccessorHook,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.DATE,
-          ColumnTypes.IMAGE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.TEXT,
-          ColumnTypes.VIDEO,
-          ColumnTypes.URL,
-        ]);
+        const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
+        let isDerivedProperty = false;
+
+        if (columnId && columnId[1] && props.primaryColumns[columnId[1]]) {
+          isDerivedProperty = props.primaryColumns[columnId[1]].isDerived;
+        }
+
+        return (
+          !isDerivedProperty ||
+          hideByColumnType(props, propertyPath, [
+            ColumnTypes.DATE,
+            ColumnTypes.IMAGE,
+            ColumnTypes.NUMBER,
+            ColumnTypes.TEXT,
+            ColumnTypes.VIDEO,
+            ColumnTypes.URL,
+          ])
+        );
       },
-      dependencies: ["primaryColumns", "accessorMap"],
+      dependencies: ["primaryColumns", "aliasMap"],
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
