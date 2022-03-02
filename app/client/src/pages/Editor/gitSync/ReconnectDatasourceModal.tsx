@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 
 import {
-  getOrganizationIdForImport,
   getImportedApplication,
   getIsDatasourceConfigForImportFetched,
+  getOrganizationIdForImport,
   getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback } from "react";
 import TabMenu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -39,16 +38,16 @@ import {
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
+  initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
   setIsReconnectingDatasourcesModalOpen,
+  setOrgIdForImport,
 } from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
-import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { initialize } from "redux-form";
 import TooltipComponent from "components/ads/Tooltip";
 import { BUILDER_PAGE_URL } from "constants/routes";
-import { setOrgIdForImport } from "actions/applicationActions";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
@@ -121,6 +120,7 @@ const ContentWrapper = styled.div`
 
     .t--collapse-section-container {
       width: 816px;
+
       & > div {
         color: ${Colors.BLACK};
       }
@@ -216,9 +216,11 @@ const TooltipWrapper = styled.div`
 const DBFormWrapper = styled.div`
   padding: 10px;
   width: calc(100% - 206px);
+
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
   }
+
   .t--delete-datasource {
     display: none;
   }
