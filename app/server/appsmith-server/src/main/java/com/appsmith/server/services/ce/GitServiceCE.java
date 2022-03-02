@@ -64,6 +64,8 @@ public interface GitServiceCE {
 
     Mono<Boolean> testConnection(String defaultApplicationId);
 
+    Mono<Application> deleteBranch(String defaultApplicationId, String branchName);
+
     Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull);
 
 }
