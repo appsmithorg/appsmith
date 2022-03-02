@@ -49,8 +49,6 @@ export interface DefaultPlugin {
   packageName: string;
   iconLocation?: string;
   allowUserDatasources?: boolean;
-  remotePlugin: boolean;
-  new: boolean;
 }
 
 class PluginsApi extends Api {
