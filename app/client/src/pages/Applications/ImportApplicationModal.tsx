@@ -27,6 +27,7 @@ import { getIsImportingApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import Dialog from "../../components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
+import getFeatureFlags from "../../utils/featureFlags";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
@@ -56,13 +57,14 @@ const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_BODY} {
     padding: 0;
     margin-bottom: 0;
-    margin-top: 0;
+    margin-top: 8px;
   }
 `;
 
 const TextWrapper = styled.div`
   padding: 0;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[12] + 4}px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
 `;
 
 const Row = styled.div`
@@ -130,7 +132,7 @@ const FileImportCard = styled.div`
         }
 
         &.drag-drop-description {
-          color: ${Colors.GREY_6};
+          color: ${Colors.GREY_800};
         }
       }
     }
@@ -185,7 +187,7 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
       >
         {title}
       </Text>
-      <Text color={Colors.GREY_6} type={TextType.P1}>
+      <Text color={Colors.GREY_800} type={TextType.P1}>
         {message}
       </Text>
       {props.children}
@@ -257,6 +259,8 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   }, [appFileToBeUploaded, importingApplication]);
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
+  const isGitImportFeatureEnabled = getFeatureFlags().GIT_IMPORT;
+
   return (
     <StyledDialog
       canOutsideClickClose
@@ -272,7 +276,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       width="710px"
     >
       <TextWrapper>
-        <Text type={TextType.P1}>
+        <Text color={Colors.COD_GRAY} type={TextType.P1}>
           {createMessage(IMPORT_APPLICATION_MODAL_LABEL)}
         </Text>
       </TextWrapper>
@@ -289,7 +293,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
             uploadIcon="file-line"
           />
         </FileImportCard>
-        <GitImportCard handler={onGitImport} />
+        {isGitImportFeatureEnabled && <GitImportCard handler={onGitImport} />}
       </Row>
     </StyledDialog>
   );
