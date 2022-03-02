@@ -13,9 +13,13 @@ import {
   createMessage,
   TEMPLATE_NOTIFICATION_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import {
+  getIsFetchingApplications,
+  getUserApplicationsOrgsList,
+} from "selectors/applicationSelectors";
 import { showTemplateNotificationSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
+import { AppState } from "reducers";
 
 const NotificationWrapper = styled.div`
   background-color: ${Colors.SEA_SHELL};
@@ -63,17 +67,25 @@ interface TemplatesTabItemProps {
 export function TemplatesTabItem(props: TemplatesTabItemProps) {
   const hasSeenNotification = useSelector(showTemplateNotificationSelector);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const organizationListLength = useSelector(
+    (state: AppState) => getUserApplicationsOrgsList(state).length,
+  );
   const location = useLocation();
   const dispatch = useDispatch();
 
   const showNotification =
     !hasSeenNotification &&
     !isFetchingApplications &&
-    !isNull(hasSeenNotification);
+    !isNull(hasSeenNotification) &&
+    organizationListLength;
+
+  const setNotificationSeenFlag = () => {
+    dispatch(setTemplateNotificationSeenAction(true));
+  };
 
   useEffect(() => {
     if (matchTemplatesPath(location.pathname) && !hasSeenNotification) {
-      dispatch(setTemplateNotificationSeenAction(true));
+      setNotificationSeenFlag();
     }
   }, [location.pathname, hasSeenNotification]);
 
@@ -84,6 +96,7 @@ export function TemplatesTabItem(props: TemplatesTabItemProps) {
           content={<TemplateFeatureNotification />}
           enforceFocus={false}
           isOpen={!!showNotification}
+          onClose={setNotificationSeenFlag}
           placement="bottom-start"
           portalClassName="templates-notification"
           targetTagName="div"
