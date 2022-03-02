@@ -36,7 +36,7 @@
 //     //   });
 //   });
 
-//   it.skip("2. Bug 10284 - Verify timeout issue with running JS Objects", function () {
+//   it.skip("2. Bug 10284, 11529 - Verify timeout issue with running JS Objects", function () {
 //     jsEditor.CreateJSObject('return "Success";', true);
 //     agHelper.expandCollapseEntity("Form1")
 //     agHelper.SelectEntityByName("Input2")
