@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
+import { JsxElement } from "typescript";
+import _ from "lodash";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
   min-width: 32px;
@@ -39,7 +41,7 @@ const FlexWrapper = styled.div`
 `;
 
 export interface ButtonTabOption {
-  icon: string;
+  icon: string | JSX.Element;
   value: string;
   width?: number;
 }
@@ -94,8 +96,13 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
     >
       {props.options.map(
         ({ icon, value, width = 24 }: ButtonTabOption, index: number) => {
-          const controlIconName: ControlIconName = icon;
-          const ControlIcon = ControlIcons[controlIconName];
+          let ControlIcon;
+          if (_.isString(icon)) {
+            const Icon = ControlIcons[icon];
+            ControlIcon = <Icon height={24} width={width} />;
+          } else {
+            ControlIcon = icon;
+          }
           const isSelected = valueSet.has(value);
           return (
             <ItemWrapper
@@ -111,7 +118,7 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
               role="tab"
               selected={isSelected}
             >
-              <ControlIcon height={24} width={width} />
+              {ControlIcon}
             </ItemWrapper>
           );
         },
