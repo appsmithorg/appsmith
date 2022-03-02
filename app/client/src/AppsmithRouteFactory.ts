@@ -33,7 +33,7 @@ type BaseURLBuilderParams = {
   applicationSlug: string;
   pageId: string;
   pageSlug: string;
-  applicationVersion: number;
+  applicationVersion?: number;
 };
 
 type URLBuilderParams = BaseURLBuilderParams & {
@@ -43,12 +43,11 @@ type URLBuilderParams = BaseURLBuilderParams & {
   params: Record<string, any>;
 };
 
-export const DEFAULT_BASE_URL_BUILDER_PARAMS = {
+export const DEFAULT_BASE_URL_BUILDER_PARAMS: BaseURLBuilderParams = {
   applicationId: "",
   applicationSlug: "",
   pageId: "",
   pageSlug: "",
-  applicationVersion: 1,
 };
 
 let BASE_URL_BUILDER_PARAMS = DEFAULT_BASE_URL_BUILDER_PARAMS;
@@ -72,7 +71,8 @@ function baseURLBuilder(
 
   applicationVersion =
     applicationVersion ?? BASE_URL_BUILDER_PARAMS.applicationVersion;
-  const shouldUseLegacyURLs = applicationVersion <= 1;
+  const shouldUseLegacyURLs =
+    typeof applicationVersion !== "undefined" && applicationVersion <= 1;
 
   let basePath = "";
   pageId = pageId ?? BASE_URL_BUILDER_PARAMS.pageId;

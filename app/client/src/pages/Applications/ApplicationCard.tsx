@@ -428,7 +428,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
   const defaultPageSlug = useMemo(() => {
-    const pages = props.application.pages;
+    const pages = props.application.pages || [];
     const defaultPage = pages.find((page) => page.isDefault);
     return defaultPage?.slug || defaultPage?.name;
   }, []);
