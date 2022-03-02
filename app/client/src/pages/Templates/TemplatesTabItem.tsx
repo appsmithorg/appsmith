@@ -83,6 +83,14 @@ export function TemplatesTabItem(props: TemplatesTabItemProps) {
         <Popover2
           content={<TemplateFeatureNotification />}
           isOpen={!!showNotification}
+          modifiers={{
+            offset: {
+              enabled: true,
+              options: {
+                offset: [0, 0],
+              },
+            },
+          }}
           placement="bottom-start"
           portalClassName="templates-notification"
           targetTagName="div"
