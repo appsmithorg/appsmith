@@ -30,7 +30,8 @@ public enum AnalyticsEvents {
     GIT_CHECKOUT_REMOTE_BRANCH,
     GIT_IMPORT,
     GIT_TEST_CONNECTION,
-    GIT_DELETE_BRANCH
+    GIT_DELETE_BRANCH,
+    GIT_DISCARD_CHANGES
     ;
 
     private final String eventName;
