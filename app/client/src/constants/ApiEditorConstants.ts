@@ -120,7 +120,7 @@ export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] = [
   },
   {
     label: MultiPartOptionTypes.ARRAY,
-    value: "FILE",
+    value: "ARRAY",
   },
 ];
 
