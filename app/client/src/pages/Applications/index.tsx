@@ -46,7 +46,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import Button, { Size, Category } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
@@ -78,14 +78,13 @@ import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
-import ImportApplicationModalOld from "./ImportApplicationModalOld";
 import {
   createMessage,
   DOCUMENTATION,
+  NO_APPS_FOUND,
   ORGANIZATIONS_HEADING,
   SEARCH_APPS,
   WELCOME_TOUR,
-  NO_APPS_FOUND,
 } from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
@@ -252,6 +251,7 @@ const OrgShareUsers = styled.div`
 
   & .t--options-icon {
     margin-left: 8px;
+
     svg {
       path {
         fill: #090707;
@@ -543,7 +543,6 @@ const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
       hover: color,
     })}`;
   }}
-
   .${Classes.ICON} {
     display: ${(props) => (!props.disabled ? "inline" : "none")};
     margin-left: 8px;
@@ -622,10 +621,6 @@ function ApplicationsSection(props: any) {
       }),
     );
   };
-
-  const ImportModal = getFeatureFlags().GIT_IMPORT
-    ? ImportApplicationModal
-    : ImportApplicationModalOld;
 
   function OrgMenuTarget(props: {
     orgName: string;
@@ -729,7 +724,7 @@ function ApplicationsSection(props: any) {
                 </Dialog>
               )}
               {selectedOrgIdForImportApplication && (
-                <ImportModal
+                <ImportApplicationModal
                   isModalOpen={
                     selectedOrgIdForImportApplication === organization.id
                   }
@@ -999,6 +994,7 @@ function ApplicationsSection(props: any) {
     </ApplicationContainer>
   );
 }
+
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
   searchApplications: (keyword: string) => void;
