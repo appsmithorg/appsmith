@@ -38,6 +38,7 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -1766,10 +1767,14 @@ public class GitServiceTest {
         Mono<String> commitAndPushMono = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
 
         StepVerifier
-                .create(commitAndPushMono)
-                .assertNext(commitMsg -> {
+                .create(commitAndPushMono.zipWhen(status -> applicationService.findByIdAndBranchName(gitConnectedApplication.getId(), DEFAULT_BRANCH)))
+                .assertNext(tuple -> {
+                    String commitMsg = tuple.getT1();
+                    Application application = tuple.getT2();
                     assertThat(commitMsg).contains("sample response for commit");
                     assertThat(commitMsg).contains("pushed successfully");
+                    assertThat(application.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                    assertThat(application.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
                 })
                 .verifyComplete();
     }

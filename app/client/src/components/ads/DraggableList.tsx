@@ -131,7 +131,14 @@ function DraggableList(props: any) {
     const originalIndex = props.args[0];
     const curIndex = order.current.indexOf(originalIndex);
     const pointerFromTop = props.xy[1];
-    if (listRef && listRef.current) {
+    /**
+     *  Checking for props.distance > 0 because:
+     *  this container is the first recipient of all mouse events
+     *  for self and children. Consequently, it treats a click as a drag request
+     *  and updates the position of the list item.
+     *  Checking for drag distance prevents this behavior.
+     */
+    if (listRef && listRef.current && props?.distance > 0) {
       const containerCoordinates = listRef?.current.getBoundingClientRect();
       const container = listRef.current;
       if (containerCoordinates) {
@@ -168,12 +175,12 @@ function DraggableList(props: any) {
 
           if (!dragging.current && Math.abs(displacement.current) > 10) {
             dragging.current = props.dragging;
-            updateDragging(dragging.current);
+            updateDragging && updateDragging(dragging.current);
           }
         } else {
           if (dragging.current) {
             dragging.current = props.dragging;
-            updateDragging(dragging.current);
+            updateDragging && updateDragging(dragging.current);
           }
         }
 
