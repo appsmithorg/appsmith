@@ -69,14 +69,14 @@ check_mongodb_uri() {
   echo "Checking APPSMITH_MONGODB_URI"
   isUriLocal=1
   if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
-    echo "Detect local MongoDB"
+    echo "Detected local MongoDB"
     isUriLocal=0
   fi
 }
 
 init_mongodb() {
   if [[ $isUriLocal -eq 0 ]]; then
-    echo "Initialize local database"
+    echo "Initializing local database"
     MONGO_DB_PATH="/appsmith-stacks/data/mongodb"
     MONGO_LOG_PATH="$MONGO_DB_PATH/log"
     MONGO_DB_KEY="$MONGO_DB_PATH/key"
@@ -90,7 +90,7 @@ init_mongodb() {
 }
 
 init_replica_set() {
-  echo "Check initialized database"
+  echo "Checking initialized database"
   shouldPerformInitdb=1
   for path in \
     "$MONGO_DB_PATH/WiredTiger" \
@@ -104,12 +104,12 @@ init_replica_set() {
   done
   
   if [[ $shouldPerformInitdb -gt 0 && $isUriLocal -eq 0 ]]; then
-    echo "Initialize Replica Set for local database"
+    echo "Initializing Replica Set for local database"
     # Start installed MongoDB service - Dependencies Layer
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
-    echo "Waiting 10s for mongodb initialize"
+    echo "Waiting 10s for MongoDB to start"
     sleep 10
-    echo "Seeding data"
+    echo "Creating MongoDB user"
     bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" > "/appsmith-stacks/configuration/mongo-init.js"
     mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
     echo "Enabling Replica Set"
@@ -117,7 +117,7 @@ init_replica_set() {
     openssl rand -base64 756 > "$MONGO_DB_KEY"
     chmod-mongodb-key "$MONGO_DB_KEY"
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGO_DB_KEY" --bind_ip localhost
-    echo "Waiting 10s for mongodb initialize with Replica Set"
+    echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
     mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
@@ -134,7 +134,7 @@ init_replica_set() {
       mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     else
       echo -e "\033[0;31m********************************************************************\033[0m"
-      echo -e "\033[0;31m*          Mongodb Replica Set is not enabled                      *\033[0m"
+      echo -e "\033[0;31m*          MongoDB Replica Set is not enabled                      *\033[0m"
       echo -e "\033[0;31m********************************************************************\033[0m"
       exit 1
     fi
