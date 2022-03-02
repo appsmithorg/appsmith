@@ -603,7 +603,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(actionCollection));
 
         Mockito
-                .when(newActionService.delete(Mockito.any()))
+                .when(newActionService.archiveById(Mockito.any()))
                 .thenReturn(Mono.just(new NewAction()));
 
         Mockito
