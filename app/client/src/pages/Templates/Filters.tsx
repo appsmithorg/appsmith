@@ -23,7 +23,7 @@ const FilterWrapper = styled.div`
   ${thinScrollbar}
 
   .more {
-    padding-left: ${(props) => props.theme.spaces[4]}px;
+    padding-left: ${(props) => props.theme.spaces[11]}px;
     margin-top: ${(props) => props.theme.spaces[2]}px;
     cursor: pointer;
   }
