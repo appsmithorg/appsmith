@@ -471,7 +471,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             sb.append(" ");
 
             // These are array operations. Convert value into appropriate format and then append
-            if ((value != null || (value != null && !value.equals(StringUtils.EMPTY))) &&
+            if (!(value == null || StringUtils.EMPTY.equals(value)) &&    //value should not be EMPTY or null
                     (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN)) {
 
                 StringBuilder valueBuilder = new StringBuilder("(");
