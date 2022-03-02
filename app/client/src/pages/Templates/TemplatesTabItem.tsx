@@ -82,6 +82,7 @@ export function TemplatesTabItem(props: TemplatesTabItemProps) {
       <StyledPopover>
         <Popover2
           content={<TemplateFeatureNotification />}
+          enforceFocus={false}
           isOpen={!!showNotification}
           placement="bottom-start"
           portalClassName="templates-notification"
