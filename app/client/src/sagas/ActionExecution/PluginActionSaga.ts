@@ -524,7 +524,10 @@ function* runActionSaga(
 
     yield put({
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
-      payload: { error, id: reduxAction.payload.id },
+      payload: {
+        error: appsmithConsoleErrorMessageList[0],
+        id: reduxAction.payload.id,
+      },
     });
     return;
   }
