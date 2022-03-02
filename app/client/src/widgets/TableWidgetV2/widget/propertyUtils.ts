@@ -173,9 +173,9 @@ export const updateColumnOrderHook = (
   }
 };
 
-const ACCESSOR_PATH_REGEX = /^primaryColumns\.(\w+)\.accessor$/;
+const ACCESSOR_PATH_REGEX = /^primaryColumns\.(\w+)\.alias$/;
 /*
- * Hook that updates accesor map and computedValue when a accessor
+ * Hook that updates accesor map and computedValue when a alias
  * is updated.
  */
 export const updateColumnAccessorHook = (
@@ -194,23 +194,23 @@ export const updateColumnAccessorHook = (
     if (columnId) {
       const propertiesToUpdate = [];
       propertiesToUpdate.push({
-        propertyPath: "accessorMap",
-        propertyValue: { ...props.accessorMap, [columnId]: propertyValue },
+        propertyPath: "aliasMap",
+        propertyValue: { ...props.aliasMap, [columnId]: propertyValue },
       });
 
-      if (props.primaryColumns && props.primaryColumns[columnId]) {
-        const computedValue = props.primaryColumns[columnId].computedValue;
-        const oldPropertyValue = props.primaryColumns[columnId].accessor;
+      // if (props.primaryColumns && props.primaryColumns[columnId]) {
+      //   const computedValue = props.primaryColumns[columnId].computedValue;
+      //   const oldPropertyValue = props.primaryColumns[columnId].alias;
 
-        const newComputedValue = computedValue
-          .split(`currentRow.${oldPropertyValue}`)
-          .join(`currentRow.${propertyValue}`);
+      //   const newComputedValue = computedValue
+      //     .split(`currentRow.${oldPropertyValue}`)
+      //     .join(`currentRow.${propertyValue}`);
 
-        propertiesToUpdate.push({
-          propertyPath: `primaryColumns.${columnId}.computedValue`,
-          propertyValue: newComputedValue,
-        });
-      }
+      //   propertiesToUpdate.push({
+      //     propertyPath: `primaryColumns.${columnId}.computedValue`,
+      //     propertyValue: newComputedValue,
+      //   });
+      // }
 
       return propertiesToUpdate;
     } else {

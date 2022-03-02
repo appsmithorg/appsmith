@@ -142,11 +142,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     orderedTableColumns.forEach((column: any) => {
       const isHidden = !column.isVisible;
-      const accessor = column.accessor;
       const columnData = {
         id: column.id,
         Header: column.label,
-        accessor: accessor,
+        alias: column.alias,
+        accessor: (row: any) => row[column.alias],
         width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
         minWidth: COLUMN_MIN_WIDTH,
         draggable: true,
@@ -351,8 +351,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const newRow: { [key: string]: any } = {};
 
       columns.forEach((column) => {
-        const { accessor } = column;
-        let value = row[accessor];
+        const { alias } = column;
+        let value = row[alias];
 
         if (column.metaProperties) {
           switch (column.metaProperties.type) {
@@ -390,18 +390,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     value = 1000 * Number(value);
                   }
 
-                  newRow[accessor] = moment(
+                  newRow[alias] = moment(
                     value as MomentInput,
                     inputFormat,
                   ).format(outputFormat);
                 } catch (e) {
                   log.debug("Unable to parse Date:", { e });
-                  newRow[accessor] = "";
+                  newRow[alias] = "";
                 }
               } else if (value) {
-                newRow[accessor] = "Invalid Value";
+                newRow[alias] = "Invalid Value";
               } else {
-                newRow[accessor] = "";
+                newRow[alias] = "";
               }
               break;
             default:
@@ -415,7 +415,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 data = JSON.stringify(value);
               }
 
-              newRow[accessor] = data;
+              newRow[alias] = data;
               break;
           }
         }
@@ -554,13 +554,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToAdd["columnOrder"] = Object.keys(tableColumns);
         }
 
-        const accessorMap: Record<string, string> = {};
+        const aliasMap: Record<string, string> = {};
 
         Object.values(tableColumns).forEach((column) => {
-          accessorMap[column.originalId] = column.accessor || column.originalId;
+          aliasMap[column.originalId] = column.alias || column.originalId;
         });
 
-        propertiesToAdd["accessorMap"] = accessorMap;
+        propertiesToAdd["aliasMap"] = aliasMap;
 
         const propertiesToUpdate: BatchPropertyUpdatePayload = {
           modify: propertiesToAdd,
@@ -907,9 +907,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   handleReorderColumn = (columnOrder: string[]) => {
-    columnOrder = columnOrder.map((accessor) =>
-      this.getColumnIdByAccessor(accessor),
-    );
+    columnOrder = columnOrder.map((alias) => this.getColumnIdByAccessor(alias));
 
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("columnOrder", columnOrder);
@@ -1167,12 +1165,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return "TABLE_WIDGET_V2";
   }
 
-  getColumnIdByAccessor(accessor: string) {
+  getColumnIdByAccessor(alias: string) {
     const { primaryColumns } = this.props;
 
     if (primaryColumns) {
       const column = Object.values(primaryColumns).find(
-        (column) => column.accessor === accessor,
+        (column) => column.alias === alias,
       );
 
       if (column) {
@@ -1180,7 +1178,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
 
-    return accessor;
+    return alias;
   }
 }
 
