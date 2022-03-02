@@ -46,6 +46,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -486,7 +487,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
-                    );
+                    )
+                    // Check if the Appsmith application and the default branch are same
+                    .flatMap(application -> {
+                        if(Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
+                                || application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                            return Mono.just(application);
+                        }
+                        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, application.getGitApplicationMetadata().getDefaultBranchName(), aclPermission)
+                                .switchIfEmpty(Mono.just(application));
+                    });
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(

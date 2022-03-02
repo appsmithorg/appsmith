@@ -2314,4 +2314,10 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication() {
+
+    }
 }
