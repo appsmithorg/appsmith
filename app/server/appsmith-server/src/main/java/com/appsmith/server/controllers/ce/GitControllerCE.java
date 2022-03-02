@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -205,6 +206,13 @@ public class GitControllerCE {
     public Mono<ResponseDTO<Boolean>> testGitConnection(@PathVariable String defaultApplicationId) {
         return service.testConnection(defaultApplicationId)
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
+    }
+
+    @DeleteMapping("/branch/{defaultApplicationId}")
+    public Mono<ResponseDTO<Application>> deleteBranch(@PathVariable String defaultApplicationId, @RequestParam String branchName) {
+        log.debug("Going to delete branch ", branchName);
+        return service.deleteBranch(defaultApplicationId, branchName)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
 
