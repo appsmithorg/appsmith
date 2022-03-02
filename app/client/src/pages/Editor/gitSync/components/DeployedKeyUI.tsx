@@ -108,6 +108,7 @@ function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {
     <TooltipWrapper>
       <TooltipComponent content={createMessage(COPY_SSH_KEY)}>
         <Icon
+          className="t--copy-ssh-key"
           fillColor={Colors.DARK_GRAY}
           hoverFillColor={Colors.GRAY2}
           name="duplicate"

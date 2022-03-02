@@ -814,7 +814,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 value: "HEADER",
               },
             ],
-            "Send client credentials with",
+            "Send client credentials with (on refresh token):",
             "",
             false,
             "",

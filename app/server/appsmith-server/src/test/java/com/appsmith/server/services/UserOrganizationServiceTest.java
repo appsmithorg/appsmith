@@ -277,10 +277,10 @@ class UserOrganizationServiceTest {
         StepVerifier.create(commentThreadMono).assertNext(commentThread -> {
             Set<Policy> policies = commentThread.getPolicies();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
             )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
             )).isTrue();
         }).verifyComplete();
     }
@@ -308,10 +308,10 @@ class UserOrganizationServiceTest {
         StepVerifier.create(commentThreadMono).assertNext(commentThread -> {
             Set<Policy> policies = commentThread.getPolicies();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
             )).isFalse();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
             )).isTrue();
         }).verifyComplete();
     }
@@ -346,13 +346,13 @@ class UserOrganizationServiceTest {
         StepVerifier.create(saveUserMono.then(commentThreadMono)).assertNext(commentThread -> {
             Set<Policy> policies = commentThread.getPolicies();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
             )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "new_test_user"
+                    policies, AclPermission.READ_THREADS.getValue(), "new_test_user"
             )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
             )).isTrue();
         }).verifyComplete();
     }

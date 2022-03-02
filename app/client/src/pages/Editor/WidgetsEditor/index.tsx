@@ -71,13 +71,17 @@ function WidgetsEditor() {
 
   // navigate to widget
   useEffect(() => {
-    if (!isFetchingPage && window.location.hash.length > 0) {
+    if (
+      !isFetchingPage &&
+      window.location.hash.length > 0 &&
+      !guidedTourEnabled
+    ) {
       const widgetIdFromURLHash = window.location.hash.substr(1);
       flashElementsById(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);
     }
-  }, [isFetchingPage, selectWidget]);
+  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
 

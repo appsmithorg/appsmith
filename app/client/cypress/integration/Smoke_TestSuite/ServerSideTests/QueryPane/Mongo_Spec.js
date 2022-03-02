@@ -1,8 +1,8 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+import homePage from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
-import homePage from "../../../../locators/HomePage.json";
 
 let datasourceName;
 

@@ -72,6 +72,7 @@ import {
   INTEGRATION_EDITOR_URL,
   QUERIES_EDITOR_ID_URL,
   QUERIES_EDITOR_URL,
+  CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import {
@@ -94,6 +95,10 @@ import {
   TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { getFormNames, getFormValues } from "redux-form";
+import { CURL_IMPORT_FORM } from "constants/forms";
+import { submitCurlImportForm } from "actions/importActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -312,7 +317,7 @@ export default function* executePluginActionTriggerSaga(
       yield call(executeAppAction, {
         event: { type: eventType },
         dynamicString: onError,
-        responseData: [payload.body, params],
+        callbackData: [payload.body, params],
         ...triggerMeta,
       });
     } else {
@@ -340,7 +345,7 @@ export default function* executePluginActionTriggerSaga(
       yield call(executeAppAction, {
         event: { type: eventType },
         dynamicString: onSuccess,
-        responseData: [payload.body, params],
+        callbackData: [payload.body, params],
         ...triggerMeta,
       });
     }
@@ -359,25 +364,46 @@ function* runActionShortcutSaga() {
       trimQueryString(API_EDITOR_URL_WITH_SELECTED_PAGE_ID()),
       trimQueryString(INTEGRATION_EDITOR_URL()),
       trimQueryString(SAAS_EDITOR_API_ID_URL()),
+      CURL_IMPORT_PAGE_PATH, // check if the current location matches a curl editor page
     ],
     exact: true,
     strict: false,
   });
+
+  // get the current form name
+  const currentFormNames = yield select(getFormNames());
+
   if (!match || !match.params) return;
   const { apiId, pageId, queryId } = match.params;
   const actionId = apiId || queryId;
-  if (!actionId) return;
-  const trackerId = apiId
-    ? PerformanceTransactionName.RUN_API_SHORTCUT
-    : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
-  PerformanceTracker.startTracking(trackerId, {
-    actionId,
-    pageId,
-  });
-  AnalyticsUtil.logEvent(trackerId as EventName, {
-    actionId,
-  });
-  yield put(runAction(actionId));
+  if (actionId) {
+    const trackerId = apiId
+      ? PerformanceTransactionName.RUN_API_SHORTCUT
+      : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
+    PerformanceTracker.startTracking(trackerId, {
+      actionId,
+      pageId,
+    });
+    AnalyticsUtil.logEvent(trackerId as EventName, {
+      actionId,
+    });
+    yield put(runAction(actionId));
+  } else if (
+    !!currentFormNames &&
+    currentFormNames.includes(CURL_IMPORT_FORM) &&
+    !actionId
+  ) {
+    // if the current form names include the curl form and there are no actionIds i.e. its not an api or query
+    // get the form values and call the submit curl import form function with its data
+    const formValues = yield select(getFormValues(CURL_IMPORT_FORM));
+
+    // if the user has not edited the curl input field, assign an empty string to it, so it doesnt throw an error.
+    if (!formValues?.curl) formValues["curl"] = "";
+
+    yield put(submitCurlImportForm(formValues));
+  } else {
+    return;
+  }
 }
 
 function* runActionSaga(
@@ -681,7 +707,14 @@ function* executePluginActionSaga(
   }
 
   if (pluginAction.confirmBeforeExecute) {
-    const confirmed = yield call(requestModalConfirmationSaga);
+    const modalPayload = {
+      name: pluginAction.name,
+      modalOpen: true,
+      modalType: ModalType.RUN_ACTION,
+    };
+
+    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+
     if (!confirmed) {
       yield put({
         type: ReduxActionTypes.RUN_ACTION_CANCELLED,

@@ -41,6 +41,19 @@
       return result;
     }
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+    const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+    if(CLOUD_HOSTING && ZIPY_KEY) {
+      const script = document.createElement('script');
+      script.crossOrigin = "anonymous";
+      script.defer = true;
+      script.src = "https://cdn.zipy.ai/sdk/v1.0/zipy.min.umd.js";
+      script.onload = () => {
+        window.zipy && window.zipy.init(ZIPY_KEY);
+      }
+      const head = document.getElementsByTagName('head')[0];
+      head && head.appendChild(script);
+    }
+
   </script>
 </head>
 

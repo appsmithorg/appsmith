@@ -45,8 +45,8 @@ const ALERT_STYLE_OPTIONS = [
 ];
 
 const RESET_CHILDREN_OPTIONS = [
-  { label: "Yes", value: "true", id: "true" },
-  { label: "No", value: "false", id: "false" },
+  { label: "true", value: "true", id: "true" },
+  { label: "false", value: "false", id: "false" },
 ];
 
 const FILE_TYPE_OPTIONS = [
@@ -404,6 +404,9 @@ const fieldConfigs: FieldConfigs = {
           break;
         case ActionType.getGeolocation:
           defaultParams = "(location) => { \n\t // add code here \n  }";
+          break;
+        case ActionType.resetWidget:
+          defaultParams = `"",true`;
           break;
         default:
           break;

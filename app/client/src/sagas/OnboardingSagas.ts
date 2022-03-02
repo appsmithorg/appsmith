@@ -39,7 +39,10 @@ import {
   setCurrentStep,
   toggleLoader,
 } from "actions/onboardingActions";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
 import WidgetFactory from "utils/WidgetFactory";
@@ -66,6 +69,8 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -258,6 +263,7 @@ function* updateWidgetTextSaga() {
               text: "Click to Update",
               rightColumn: buttonWidget.leftColumn + 24,
               bottomRow: buttonWidget.topRow + 5,
+              widgetName: GuidedTourEntityNames.BUTTON_WIDGET,
             },
           },
         },
@@ -285,11 +291,15 @@ function* selectWidgetSaga(
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
   });
 
   if (widget) {
+    // Navigate to the widget as well, usefull especially when we are not on the canvas
+    navigateToCanvas({ applicationId, pageId, widgetId: widget.widgetId });
     yield put(selectWidgetInitAction(widget.widgetId));
     // Delay to wait for the fields to render
     yield delay(1000);
