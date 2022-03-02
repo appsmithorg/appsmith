@@ -338,11 +338,12 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApplication").then((xhr) => {
+    const response = xhr.response;
+    expect(response.body.responseMeta.status).to.eq(201);
+    localStorage.setItem("applicationId", response.body.data.id);
+  });
+
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -360,14 +361,16 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
 });
 
 Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
+  let applicationId;
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApplication").then((xhr) => {
+    const response = xhr.response;
+    expect(response.body.responseMeta.status).to.eq(201);
+    applicationId = response.body.data.id;
+    localStorage.setItem("applicationId", applicationId);
+  });
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -1955,26 +1958,18 @@ Cypress.Commands.add("addDsl", (dsl) => {
 });
 
 Cypress.Commands.add("DeleteAppByApi", () => {
-  let currentURL;
-  let appId;
-  cy.url().then((url) => {
-    currentURL = url;
-    const myRegexp = /applications(.*)/;
-    const match = myRegexp.exec(currentURL);
-    appId = match ? match[1].split("/")[1] : null;
-
-    if (appId !== null) {
-      cy.log(appId + "appId");
-      cy.request({
-        method: "DELETE",
-        url: "api/v1/applications/" + appId,
-        failOnStatusCode: false,
-      }).then((response) => {
-        cy.log(response.body);
-        cy.log(response.status);
-      });
-    }
-  });
+  const appId = localStorage.getItem("applicationId");
+  if (appId !== null) {
+    cy.log(appId + "appId");
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + appId,
+      failOnStatusCode: false,
+    }).then((response) => {
+      cy.log(response.body);
+      cy.log(response.status);
+    });
+  }
 });
 
 Cypress.Commands.add("togglebar", (value) => {
