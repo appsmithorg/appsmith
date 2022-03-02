@@ -243,6 +243,15 @@ function TooltipContent() {
   );
 }
 
+function SuccessMessages() {
+  return (
+    <Section className="t--message-container">
+      <Message>{createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE1)}</Message>
+      <Message>{createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE2)}</Message>
+    </Section>
+  );
+}
+
 function ReconnectDatasourceModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -414,6 +423,26 @@ function ReconnectDatasourceModal() {
       window.open(appURL, "_self");
     }
   }, [datasources, appURL]);
+
+  const mappedDataSources = datasources.map((ds: Datasource) => {
+    return (
+      <ListItemWrapper
+        ds={ds}
+        key={ds.id}
+        onClick={onSelectDatasource}
+        plugin={{
+          name: pluginNames[ds.pluginId],
+          image: pluginImages[ds.pluginId],
+        }}
+        selected={ds.id === selectedDatasourceId}
+      />
+    );
+  });
+
+  const shouldShowDBForm =
+    isConfigFetched && !isLoading && !datasouce?.isConfigured;
+  const shouldShowSuccessMessages = datasouce && datasouce.isConfigured;
+
   return (
     <>
       <Dialog
@@ -445,23 +474,8 @@ function ReconnectDatasourceModal() {
               </Text>
             </Section>
             <ContentWrapper>
-              <ListContainer>
-                {datasources.map((ds: Datasource) => {
-                  return (
-                    <ListItemWrapper
-                      ds={ds}
-                      key={ds.id}
-                      onClick={onSelectDatasource}
-                      plugin={{
-                        name: pluginNames[ds.pluginId],
-                        image: pluginImages[ds.pluginId],
-                      }}
-                      selected={ds.id === selectedDatasourceId}
-                    />
-                  );
-                })}
-              </ListContainer>
-              {isConfigFetched && !isLoading && !datasouce?.isConfigured && (
+              <ListContainer>{mappedDataSources}</ListContainer>
+              {shouldShowDBForm && (
                 <DBFormWrapper>
                   <DatasourceForm
                     applicationId={appId}
@@ -471,16 +485,7 @@ function ReconnectDatasourceModal() {
                   />
                 </DBFormWrapper>
               )}
-              {datasouce && datasouce.isConfigured && (
-                <Section className="t--message-container">
-                  <Message>
-                    {createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE1)}
-                  </Message>
-                  <Message>
-                    {createMessage(RECONNECT_DATASOURCE_SUCCESS_MESSAGE2)}
-                  </Message>
-                </Section>
-              )}
+              {shouldShowSuccessMessages && SuccessMessages()}
             </ContentWrapper>
           </BodyContainer>
           <SkipToAppButtonWrapper>
