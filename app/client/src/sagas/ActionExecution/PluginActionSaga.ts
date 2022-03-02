@@ -317,7 +317,7 @@ export default function* executePluginActionTriggerSaga(
       yield call(executeAppAction, {
         event: { type: eventType },
         dynamicString: onError,
-        responseData: [payload.body, params],
+        callbackData: [payload.body, params],
         ...triggerMeta,
       });
     } else {
@@ -345,7 +345,7 @@ export default function* executePluginActionTriggerSaga(
       yield call(executeAppAction, {
         event: { type: eventType },
         dynamicString: onSuccess,
-        responseData: [payload.body, params],
+        callbackData: [payload.body, params],
         ...triggerMeta,
       });
     }
