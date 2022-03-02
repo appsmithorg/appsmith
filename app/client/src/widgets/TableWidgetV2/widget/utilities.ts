@@ -140,11 +140,6 @@ export function getTableStyles(props: TableStyles) {
   };
 }
 
-//TODO(Balaji): need to evaulate
-export const generateTableColumnId = (accessor: string) => {
-  return isNaN(Number(accessor)) ? accessor : `_${accessor}`;
-};
-
 export function getDefaultColumnProperties(
   id: string,
   index: number,
@@ -156,7 +151,7 @@ export function getDefaultColumnProperties(
     width: 150,
     originalId: id,
     id: getHash(id),
-    accessor: id,
+    alias: id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
@@ -172,7 +167,7 @@ export function getDefaultColumnProperties(
     label: id,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.processedTableData.map((currentRow) => ( currentRow.${id}))}}`,
+      : `{{${widgetName}.processedTableData.map((currentRow) => ( currentRow[\`${id}\`]))}}`,
   };
 
   return columnProps;

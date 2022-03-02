@@ -161,7 +161,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
       const type = column.metaProperties?.type || "text";
       return {
         label: column.Header,
-        value: column.accessor,
+        value: column.alias,
         type: type,
       };
     })

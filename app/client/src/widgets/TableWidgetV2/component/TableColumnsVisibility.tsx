@@ -101,7 +101,7 @@ function TableColumnsVisibility(props: TableColumnsVisibilityProps) {
   }
   const columns = props.columns.sort(
     (a: ReactTableColumnProps, b: ReactTableColumnProps) => {
-      return a.accessor > b.accessor ? 1 : b.accessor > a.accessor ? -1 : 0;
+      return a.alias > b.alias ? 1 : b.alias > a.alias ? -1 : 0;
     },
   );
   return (
@@ -136,9 +136,9 @@ function TableColumnsVisibility(props: TableColumnsVisibilityProps) {
                 ? props.hiddenColumns.slice()
                 : [];
               if (!option.isHidden) {
-                hiddenColumns.push(option.accessor);
+                hiddenColumns.push(option.alias);
               } else {
-                hiddenColumns.splice(hiddenColumns.indexOf(option.accessor), 1);
+                hiddenColumns.splice(hiddenColumns.indexOf(option.alias), 1);
               }
               props.updateHiddenColumns(hiddenColumns);
             }}

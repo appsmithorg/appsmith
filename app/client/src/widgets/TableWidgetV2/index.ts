@@ -38,7 +38,7 @@ export const CONFIG = {
         key: "primaryColumns._7359744396795533.computedValue",
       },
     ],
-    accessorMap: {
+    aliasMap: {
       step: "step",
       task: "task",
       status: "status",
@@ -50,7 +50,7 @@ export const CONFIG = {
         width: 150,
         id: "_7564271686515424",
         originalId: "step",
-        accessor: "step",
+        alias: "step",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
@@ -69,7 +69,7 @@ export const CONFIG = {
         width: 150,
         id: "_3356042849650782",
         originalId: "task",
-        accessor: "task",
+        alias: "task",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
@@ -88,7 +88,7 @@ export const CONFIG = {
         width: 150,
         id: "_2413015321063834",
         originalId: "status",
-        accessor: "status",
+        alias: "status",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
@@ -107,7 +107,7 @@ export const CONFIG = {
         width: 150,
         id: "_7359744396795533",
         originalId: "action",
-        accessor: "action",
+        alias: "action",
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "button",
@@ -167,7 +167,7 @@ export const CONFIG = {
               set(
                 primaryColumns,
                 `${columnId}.computedValue`,
-                `{{${widget.widgetName}.processedTableData.map((currentRow) => ( currentRow.${primaryColumns[columnId].accessor}))}}`,
+                `{{${widget.widgetName}.processedTableData.map((currentRow) => ( currentRow.${primaryColumns[columnId].alias}))}}`,
               );
               set(primaryColumns, `${columnId}.buttonColor`, Colors.GREEN);
               set(primaryColumns, `${columnId}.menuColor`, Colors.GREEN);
