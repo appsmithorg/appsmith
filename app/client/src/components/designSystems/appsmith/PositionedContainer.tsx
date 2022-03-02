@@ -79,9 +79,6 @@ export function PositionedContainer(props: PositionedContainerProps) {
       reflowEffected &&
       ((reflowHeight && reflowHeight !== props.style.componentHeight) ||
         (reflowWidth && reflowWidth !== props.style.componentWidth));
-    const effectedByReflow = hasReflowedPosition || hasReflowedDimensions;
-    const dropTargetStyles: CSSProperties =
-      isDropTarget && effectedByReflow ? { pointerEvents: "none" } : {};
     const reflowedPositionStyles: CSSProperties = hasReflowedPosition
       ? {
           transform: `translate(${reflowX}px,${reflowY}px)`,
@@ -110,7 +107,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       backgroundColor: "inherit",
       ...reflowedPositionStyles,
       ...reflowDimensionsStyles,
-      ...dropTargetStyles,
+      //...dropTargetStyles,
     };
     return styles;
   }, [

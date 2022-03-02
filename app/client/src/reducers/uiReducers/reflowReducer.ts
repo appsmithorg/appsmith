@@ -10,8 +10,8 @@ const initialState: widgetReflowState = {
   reflowingWidgets: {},
   enableReflow: true,
   cardShown: true,
-  accThreshold: 5000,
-  speedThreshold: 100,
+  accThreshold: 12000,
+  speedThreshold: 1200,
 };
 
 export const widgetReflowReducer = createReducer(initialState, {
