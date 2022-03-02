@@ -62,7 +62,8 @@ const StyledDialog = styled(Dialog)`
 
 const TextWrapper = styled.div`
   padding: 0;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[12] + 4}px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
 `;
 
 const Row = styled.div`
@@ -272,7 +273,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       width="710px"
     >
       <TextWrapper>
-        <Text type={TextType.P1}>
+        <Text color={Colors.COD_GRAY} type={TextType.P1}>
           {createMessage(IMPORT_APPLICATION_MODAL_LABEL)}
         </Text>
       </TextWrapper>
