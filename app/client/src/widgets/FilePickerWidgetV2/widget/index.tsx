@@ -332,13 +332,20 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
-    this.state.uppy.on("file-removed", (file: any) => {
-      const updatedFiles = this.props.selectedFiles
-        ? this.props.selectedFiles.filter((dslFile) => {
-            return file.id !== dslFile.id;
-          })
-        : [];
-      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+    this.state.uppy.on("file-removed", (file: any, reason: string) => {
+      /**
+       * reasons
+       *    removed-by-user: removed file by user
+       *    cancel-all: destroyed uppy instance and cleared all files
+       */
+      if (reason === "removed-by-user") {
+        const updatedFiles = this.props.selectedFiles
+          ? this.props.selectedFiles.filter((dslFile) => {
+              return file.name !== dslFile.name;
+            })
+          : [];
+        this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+      }
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {
