@@ -5,17 +5,6 @@ export type SentryConfig = {
   environment: string;
 };
 
-export enum FeatureFlagsEnum {}
-
-export type FeatureFlags = Record<FeatureFlagsEnum, boolean>;
-
-export type FeatureFlagConfig = {
-  remoteConfig?: {
-    optimizely: string;
-  };
-  default: FeatureFlags;
-};
-
 export interface AppsmithUIConfigs {
   sentry: {
     enabled: boolean;
@@ -56,12 +45,12 @@ export interface AppsmithUIConfigs {
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
   disableLoginForm: boolean;
+  disableSignup: boolean;
   enableMixpanel: boolean;
   enableTNCPP: boolean;
 
   cloudHosting: boolean;
 
-  featureFlag?: FeatureFlagConfig;
   logLevel: LogLevelDesc;
   appVersion: {
     id: string;

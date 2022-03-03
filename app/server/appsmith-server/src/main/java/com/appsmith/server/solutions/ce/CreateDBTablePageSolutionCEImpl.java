@@ -1,6 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
@@ -194,7 +194,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
                     ApplicationJson applicationJson = new ApplicationJson();
                     try {
-                        BeanCopyUtils.copyNestedNonNullProperties(fetchTemplateApplication(FILE_PATH), applicationJson);
+                        AppsmithBeanUtils.copyNestedNonNullProperties(fetchTemplateApplication(FILE_PATH), applicationJson);
                     } catch (IOException e) {
                         log.error(e.getMessage());
                     }

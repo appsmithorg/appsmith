@@ -10,7 +10,7 @@ import {
   createMessage,
   DEVIATION,
   END_CONFIRMATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import {

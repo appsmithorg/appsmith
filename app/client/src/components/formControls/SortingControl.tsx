@@ -6,6 +6,8 @@ import { FieldArray } from "redux-form";
 import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
+import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
+import { SortingSubComponent } from "./utils";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -56,6 +58,7 @@ const SortingDropdownContainer = styled.div`
   flex-direction: row;
   width: min-content;
   justify-content: space-between;
+  margin-bottom: 10px;
 `;
 
 // container for the column dropdown section
@@ -101,7 +104,6 @@ const StyledBottomLabelContainer = styled.div`
 `;
 
 export const StyledBottomLabel = styled(FormLabel)`
-  margin-top: 5px;
   margin-left: 5px;
   font-weight: 400;
   font-size: 12px;
@@ -110,8 +112,13 @@ export const StyledBottomLabel = styled(FormLabel)`
 `;
 
 function SortingComponent(props: any) {
-  const customStyles = {
-    width: `100%`,
+  const columnCustomStyles = {
+    width: "100%",
+    height: "30px",
+  };
+
+  const orderCustomStyles = {
+    width: "15vw",
     height: "30px",
   };
 
@@ -134,43 +141,55 @@ function SortingComponent(props: any) {
     <SortingContainer>
       {props.fields &&
         props.fields.length > 0 &&
-        props.fields.map((field: any, index: number) => (
-          <SortingDropdownContainer key={index}>
-            <ColumnDropdownContainer>
-              <FormControl
-                config={{
-                  ...columnFieldConfig,
-                  label: "",
-                  customStyles,
-                  configProperty: `${field}.column`,
-                }}
-                formName={props.formName}
-              />
-            </ColumnDropdownContainer>
-            <OrderDropdownContainer>
-              <FormControl
-                config={{
-                  ...orderFieldConfig,
-                  label: "",
-                  customStyles,
-                  configProperty: `${field}.order`,
-                }}
-                formName={props.formName}
-              />
-            </OrderDropdownContainer>
-            {/* Component to render the delete icon */}
-            {index !== 0 && (
-              <CenteredIcon
-                name="cross"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeletePressed(index);
-                }}
-                size={IconSize.SMALL}
-              />
-            )}
-          </SortingDropdownContainer>
-        ))}
+        props.fields.map((field: any, index: number) => {
+          const columnPath = getBindingOrConfigPathsForSortingControl(
+            SortingSubComponent.Column,
+            field,
+            undefined,
+          );
+          const OrderPath = getBindingOrConfigPathsForSortingControl(
+            SortingSubComponent.Order,
+            field,
+            undefined,
+          );
+          return (
+            <SortingDropdownContainer key={index}>
+              <ColumnDropdownContainer>
+                <FormControl
+                  config={{
+                    ...columnFieldConfig,
+                    customStyles: columnCustomStyles,
+                    configProperty: `${columnPath}`,
+                    nestedFormControl: true,
+                  }}
+                  formName={props.formName}
+                />
+              </ColumnDropdownContainer>
+              <OrderDropdownContainer>
+                <FormControl
+                  config={{
+                    ...orderFieldConfig,
+                    customStyles: orderCustomStyles,
+                    configProperty: `${OrderPath}`,
+                    nestedFormControl: true,
+                  }}
+                  formName={props.formName}
+                />
+              </OrderDropdownContainer>
+              {/* Component to render the delete icon */}
+              {index !== 0 && (
+                <CenteredIcon
+                  name="cross"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeletePressed(index);
+                  }}
+                  size={IconSize.SMALL}
+                />
+              )}
+            </SortingDropdownContainer>
+          );
+        })}
 
       <StyledBottomLabelContainer
         onClick={() =>

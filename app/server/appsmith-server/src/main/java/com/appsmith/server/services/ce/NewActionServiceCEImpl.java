@@ -60,9 +60,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
@@ -75,6 +77,9 @@ import reactor.util.function.Tuple2;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -90,7 +95,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -529,7 +534,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         List<Param> params = executeActionDTO.getParams();
         if (!CollectionUtils.isEmpty(params)) {
             for (Param param : params) {
-                // In case the parameter values turn out to be null, set it to empty string instead to allow the
+                // In case the parameter values turn out to be null, set it to empty string instead to allow
                 // the execution to go through no matter what.
                 if (!StringUtils.isEmpty(param.getKey()) && param.getValue() == null) {
                     param.setValue("");
@@ -547,35 +552,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .cache();
 
         Mono<ActionDTO> actionDTOMono = actionMono
-                .flatMap(dbAction -> {
-                    ActionDTO action;
-                    if (TRUE.equals(executeActionDTO.getViewMode())) {
-                        action = dbAction.getPublishedAction();
-                        // If the action has not been published, return error
-                        if (action == null) {
-                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
-                        }
-                    } else {
-                        action = dbAction.getUnpublishedAction();
-                    }
-
-                    // Now check for erroneous situations which would deter the execution of the action :
-
-                    // Error out with in case of an invalid action
-                    if (FALSE.equals(action.getIsValid())) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_ACTION,
-                                action.getName(),
-                                ArrayUtils.toString(action.getInvalids().toArray())
-                        ));
-                    }
-
-                    // Error out in case of JS Plugin (this is currently client side execution only)
-                    if (dbAction.getPluginType() == PluginType.JS) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-                    return Mono.just(action);
-                })
+                .flatMap(action -> getValidActionForExecution(executeActionDTO, actionId, action))
                 .cache();
 
         // 3. Instantiate the implementation class based on the query type
@@ -777,14 +754,101 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String branchName){
+    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName) {
 
-        return this.findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
-                .flatMap(branchedAction -> {
-                    executeActionDTO.setActionId(branchedAction.getId());
-                    return executeAction(executeActionDTO);
-                });
+        final ExecuteActionDTO dto = new ExecuteActionDTO();
+        return partFlux
+                .flatMap(part -> {
+                    final String key = part.name();
+                    if ("executeActionDTO".equals(key)) {
+                        return DataBufferUtils
+                                .join(part.content())
+                                .flatMap(executeActionDTOBuffer -> {
+                                    byte[] byteData = new byte[executeActionDTOBuffer.readableByteCount()];
+                                    executeActionDTOBuffer.read(byteData);
+                                    DataBufferUtils.release(executeActionDTOBuffer);
+                                    try {
+                                        return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
+                                    } catch (IOException e) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "executeActionDTO"));
+                                    }
+                                })
+                                .flatMap(executeActionDTO -> {
+                                    dto.setActionId(executeActionDTO.getActionId());
+                                    dto.setPaginationField(executeActionDTO.getPaginationField());
+                                    dto.setViewMode(executeActionDTO.getViewMode());
+
+                                    return Mono.empty();
+                                });
+                    }
+                    return Mono.just(part);
+                })
+                .flatMap(part -> {
+                    final Param param = new Param();
+                    param.setKey(URLDecoder.decode(part.name(), StandardCharsets.UTF_8));
+                    return DataBufferUtils
+                            .join(part.content())
+                            .map(dataBuffer -> {
+                                byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                dataBuffer.read(bytes);
+                                DataBufferUtils.release(dataBuffer);
+                                param.setValue(new String(bytes, StandardCharsets.UTF_8));
+                                return param;
+                            });
+                })
+                .collectList()
+                .flatMap(params -> {
+                    if(dto.getActionId() == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
+                    }
+                    dto.setParams(params);
+                    return Mono.just(dto);
+                })
+                .flatMap(executeActionDTO -> this
+                        .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
+                        .map(branchedAction -> {
+                            executeActionDTO.setActionId(branchedAction.getId());
+                            return executeActionDTO;
+                        })
+                )
+                .flatMap(this::executeAction);
     }
+
+    @Override
+    public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction) {
+        Mono<ActionDTO> actionDTOMono = Mono.just(newAction)
+                .flatMap(dbAction -> {
+                    ActionDTO action;
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        action = dbAction.getPublishedAction();
+                        // If the action has not been published, return error
+                        if (action == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
+                        }
+                    } else {
+                        action = dbAction.getUnpublishedAction();
+                    }
+
+                    // Now check for erroneous situations which would deter the execution of the action :
+
+                    // Error out with in case of an invalid action
+                    if (FALSE.equals(action.getIsValid())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_ACTION,
+                                action.getName(),
+                                ArrayUtils.toString(action.getInvalids().toArray())
+                        ));
+                    }
+
+                    // Error out in case of JS Plugin (this is currently client side execution only)
+                    if (dbAction.getPluginType() == PluginType.JS) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                    return Mono.just(action);
+                });
+        return actionDTOMono;
+    }
+
     /*
      * - Get label for request params.
      * - Transform request params list: [""] to a map: {"label": {"value": ...}}
@@ -1198,11 +1262,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return applicationService
                     .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
                     .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
-                    .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
-                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -1236,6 +1298,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params) {
         return this.getUnpublishedActions(params)
+                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
+        return this.getUnpublishedActions(params, branchName)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
@@ -1331,7 +1399,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.just(FALSE);
                     }
 
-                    // Extract names of existing pageload actions and new page load actions for quick lookup.
+                    // Extract names of existing page load actions and new page load actions for quick lookup.
                     Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions
                             .stream()
                             .map(ActionDTO::getValidName)

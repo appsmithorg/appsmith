@@ -34,7 +34,7 @@ interface ComponentState {
 interface ComponentProps {
   children: any;
   title: string;
-  defaultIsOpen: boolean;
+  defaultIsOpen?: boolean;
 }
 
 type Props = ComponentProps;

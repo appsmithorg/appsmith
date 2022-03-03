@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import Button, { Category, Size } from "components/ads/Button";
 
 import styled from "styled-components";
-import { createMessage, NEXT, BACK, SKIP } from "constants/messages";
+import { createMessage, NEXT, BACK, SKIP } from "@appsmith/constants/messages";
 import { useTransition, animated } from "react-spring";
 import Icon from "./Icon";
 

@@ -26,6 +26,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getDynamicBindings,
   combineDynamicBindings,
+  DynamicPath,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
@@ -859,4 +860,37 @@ export function updateListWidgetPropertiesOnChildDelete(
   }
 
   return clone;
+}
+
+/**
+ * Purge all paths in a provided widgets' dynamicTriggerPathList and dynamicBindingPathList, which no longer exist in the widget
+ * I call these paths orphaned dynamic paths
+ *
+ * @param widget : WidgetProps
+ *
+ * returns the updated widget
+ */
+
+// Purge all paths in a provided widgets' dynamicTriggerPathList, which don't exist in the widget
+export function purgeOrphanedDynamicPaths(widget: WidgetProps) {
+  // Attempt to purge only if there are dynamicTriggerPaths in this widget
+  if (widget.dynamicTriggerPathList && widget.dynamicTriggerPathList.length) {
+    // Filter out all the paths from the dynamicTriggerPathList which don't exist in the widget
+    widget.dynamicTriggerPathList = widget.dynamicTriggerPathList.filter(
+      (path: DynamicPath) => {
+        // Use lodash _.has to check if the path exists in the widget
+        return _.has(widget, path.key);
+      },
+    );
+  }
+  if (widget.dynamicBindingPathList && widget.dynamicBindingPathList.length) {
+    // Filter out all the paths from the dynamicBindingPaths which don't exist in the widget
+    widget.dynamicBindingPathList = widget.dynamicBindingPathList.filter(
+      (path: DynamicPath) => {
+        // Use lodash _.has to check if the path exists in the widget
+        return _.has(widget, path.key);
+      },
+    );
+  }
+  return widget;
 }

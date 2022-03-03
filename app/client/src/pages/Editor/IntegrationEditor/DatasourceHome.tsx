@@ -34,7 +34,6 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
 };
 
 const DatasourceHomePage = styled.div`
-  max-height: 95vh;
   .textBtn {
     justify-content: center;
     text-align: center;

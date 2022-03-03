@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,7 +37,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
-    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String branchName);
+    Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName);
+    
+    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 
@@ -87,6 +90,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
+
+    Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName);
 
     Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 

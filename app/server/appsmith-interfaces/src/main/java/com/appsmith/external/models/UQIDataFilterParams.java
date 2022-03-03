@@ -24,6 +24,6 @@ import java.util.Map;
 public class UQIDataFilterParams {
     Condition condition; // where condition.
     List<String> projectionColumns; // columns to show to user.
-    List<Map<String, Object>> sortBy; // columns to sort by in ascending or descending order.
+    List<Map<String, String>> sortBy; // columns to sort by in ascending or descending order.
     Map<String, String> paginateBy;  // limit and offset
 }

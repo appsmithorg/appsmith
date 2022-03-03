@@ -329,7 +329,7 @@ export const useCanvasDragging = (
             prevAcceleration < 0 ? maxNegativeAcc : maxPositiveAcc,
           );
           const acceleration = Math.abs(prevAcceleration);
-          return acceleration < limit / 5 || prevSpeed < maxSpeed / 5;
+          return acceleration < limit / 10 || prevSpeed < maxSpeed / 10;
         };
         const getMouseMoveDirection = (event: any) => {
           if (lastMousePosition) {

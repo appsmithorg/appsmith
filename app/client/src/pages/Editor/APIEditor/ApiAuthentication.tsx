@@ -26,7 +26,7 @@ import {
   SAVE_DATASOURCE,
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;

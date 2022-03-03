@@ -212,7 +212,12 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { callbackData, dataTree, dynamicTrigger } = requestData;
+        const {
+          callbackData,
+          dataTree,
+          dynamicTrigger,
+          globalContext,
+        } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -226,6 +231,9 @@ ctx.addEventListener(
           requestId,
           resolvedFunctions,
           callbackData,
+          {
+            globalContext,
+          },
         );
 
         break;
@@ -272,6 +280,7 @@ ctx.addEventListener(
           functionCall,
           evalTree,
           resolvedFunctions,
+          false,
           undefined,
         );
         return { errors, result };
@@ -283,7 +292,7 @@ ctx.addEventListener(
         // TODO find a way to do this for snippets
         return isTrigger
           ? evaluateAsync(expression, evalTree, "SNIPPET", {})
-          : evaluate(expression, evalTree, {});
+          : evaluate(expression, evalTree, {}, false);
       case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
         const { entity, entityId, entityType } = requestData;
         const replayObject = replayMap[entityId];

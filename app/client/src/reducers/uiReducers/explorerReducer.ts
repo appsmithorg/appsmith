@@ -113,6 +113,7 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.DELETE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
+  [ReduxActionTypes.DELETE_DATASOURCE_CANCELLED]: setEntityUpdateSuccess,
 
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR]: setEntityUpdateError,

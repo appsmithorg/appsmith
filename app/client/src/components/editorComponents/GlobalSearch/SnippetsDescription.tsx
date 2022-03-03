@@ -35,7 +35,7 @@ import {
   SNIPPET_COPY,
   SNIPPET_EXECUTE,
   SNIPPET_INSERT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";

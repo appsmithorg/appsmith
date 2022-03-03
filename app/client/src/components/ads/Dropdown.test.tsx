@@ -1,6 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import {
+  fireEvent,
   render,
   screen,
   waitForElementToBeRemoved,
@@ -23,20 +24,24 @@ const props = {
   showLabelOnly: true,
 };
 
-describe("<Dropdown />", () => {
-  const getTestComponent = (handleOnSelect: any = undefined) => (
-    <ThemeProvider theme={lightTheme}>
-      <Dropdown
-        containerClassName="dropdown-container"
-        onSelect={handleOnSelect}
-        options={props.options}
-        selected={props.selected}
-        showLabelOnly={props.showLabelOnly}
-      />
-      ,
-    </ThemeProvider>
-  );
+const getTestComponent = (
+  handleOnSelect: any = undefined,
+  allowDeselection?: boolean,
+) => (
+  <ThemeProvider theme={lightTheme}>
+    <Dropdown
+      allowDeselection={allowDeselection}
+      containerClassName="dropdown-container"
+      onSelect={handleOnSelect}
+      options={props.options}
+      selected={props.selected}
+      showLabelOnly={props.showLabelOnly}
+    />
+    ,
+  </ThemeProvider>
+);
 
+describe("<Dropdown /> - Keyboard Navigation", () => {
   it("Pressing tab should focus the component", () => {
     render(getTestComponent());
     userEvent.tab();
@@ -153,5 +158,69 @@ describe("<Dropdown />", () => {
     userEvent.keyboard("{Escape}");
     expect(screen.getByRole("listbox")).toHaveTextContent("Primary");
     expect(handleOnSelect).not.toHaveBeenCalled();
+  });
+});
+
+describe("<Dropdown /> - allowDeselection behaviour", () => {
+  it("Test default allowDeselection behaviour", async () => {
+    const handleOnSelect = jest.fn();
+    render(getTestComponent(handleOnSelect));
+    expect(screen.getByRole("listbox")).toHaveTextContent("Primary");
+
+    const dropdown = screen
+      .getByRole("listbox")
+      .querySelector(".bp3-popover-target");
+    expect(dropdown).not.toBeNull();
+
+    // open dropdown
+    fireEvent.click(dropdown as Element);
+    expect(screen.queryAllByRole("option")).toHaveLength(3);
+
+    // click on Second Item
+    fireEvent.click(screen.queryAllByRole("option")[1]);
+    expect(screen.getByRole("option", { selected: true })).toHaveTextContent(
+      props.options[1].label,
+    );
+    expect(screen.getByRole("listbox")).toHaveTextContent(
+      props.options[1].label,
+    );
+
+    // click on Second Item Again
+    fireEvent.click(screen.queryAllByRole("option")[1]);
+    expect(screen.getByRole("option", { selected: true })).toHaveTextContent(
+      props.options[1].label,
+    );
+    expect(screen.getByRole("listbox")).toHaveTextContent(
+      props.options[1].label,
+    );
+    expect(screen.getByRole("option", { selected: true })).not.toBeNull();
+  });
+
+  it("Test allowDeselection = true behaviour", async () => {
+    const handleOnSelect = jest.fn();
+    render(getTestComponent(handleOnSelect, true));
+    expect(screen.getByRole("listbox")).toHaveTextContent("Primary");
+
+    const dropdown = screen
+      .getByRole("listbox")
+      .querySelector(".bp3-popover-target");
+    expect(dropdown).not.toBeNull();
+
+    // open dropdown
+    fireEvent.click(dropdown as Element);
+    expect(screen.queryAllByRole("option")).toHaveLength(3);
+
+    // click on Third Item
+    fireEvent.click(screen.queryAllByRole("option")[2]);
+    expect(screen.getByRole("option", { selected: true })).toHaveTextContent(
+      props.options[2].label,
+    );
+    expect(screen.getByRole("listbox")).toHaveTextContent(
+      props.options[2].label,
+    );
+
+    // click on Third Item Again, that should unselect everything
+    fireEvent.click(screen.queryAllByRole("option")[2]);
+    expect(screen.queryByRole("option", { selected: true })).toBeNull();
   });
 });

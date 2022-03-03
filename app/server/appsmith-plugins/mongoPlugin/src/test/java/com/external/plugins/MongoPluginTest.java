@@ -27,17 +27,19 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.BSONTimestamp;
+import org.bson.types.Decimal128;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.springframework.data.mongodb.core.query.Query;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,8 +81,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 /**
  * Unit tests for MongoPlugin
@@ -122,7 +122,16 @@ public class MongoPluginTest {
                                         "netWorth", new BigDecimal("123456.789012"),
                                         "updatedByCommand", false
                                 )),
-                                new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
+                                new Document(Map.of(
+                                        "name", "Alden Cantrell",
+                                        "gender", "M",
+                                        "age", 30,
+                                        "dob", new Date(0),
+                                        "netWorth", Decimal128.parse("123456.789012"),
+                                        "updatedByCommand", false,
+                                        "aLong", 9_000_000_000_000_000_000L,
+                                        "ts", new BSONTimestamp(1421006159, 4)
+                                )),
                                 new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
                         ))).block();
                     }
@@ -188,13 +197,23 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
+    @Test
+    public void testDatasourceFailWithInvalidDefaultDatabaseName() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().setDefaultDatabaseName("abcd");
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
+    }
 
     /*
-     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization, then
-     *    also, it indicates a successful connection establishment.
+     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization.
      */
     @Test
-    public void testDatasourceWithUnauthorizedException() throws NoSuchFieldException {
+    public void testDatasourceWithUnauthorizedException() {
         /*
          * 1. Create mock exception of type: MongoCommandException.
          *      - mock method getErrorCodeName() to return String "Unauthorized".
@@ -202,6 +221,8 @@ public class MongoPluginTest {
         MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
         when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
         when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
+        when(mockMongoCommandException.getErrorMessage()).thenReturn("Mock error  : Expected 'something' , but got something else.\n" +
+                "Doc = [{find mockAction} {filter mockFilter} {limit 10} {$db mockDB} ...]");
 
         /*
          * 1. Spy MongoPluginExecutor class.
@@ -216,13 +237,13 @@ public class MongoPluginTest {
         doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
 
         /*
-         * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
+         * 1. Test that MongoCommandException with error code "Unauthorized" is not successful because of invalid credentials.
          */
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         StepVerifier
                 .create(spyMongoPluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
-                    assertTrue(datasourceTestResult.isSuccess());
+                    assertFalse(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }
@@ -580,6 +601,47 @@ public class MongoPluginTest {
                             "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
                     assertEquals(getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT),
                             "SINGLE");
+
+                    // Assert Count Command
+                    DatasourceStructure.Template countTemplate = templates.get(5);
+                    assertEquals(countTemplate.getTitle(), "Count");
+                    assertEquals(countTemplate.getBody(), "{\n" +
+                    "  \"count\": \"users\",\n" +
+                    "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
+                    "}\n");
+                    assertEquals(((Map<String, Object>) countTemplate.getConfiguration()).get(COMMAND), "COUNT");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COUNT_QUERY),
+                    "{\"_id\": {\"$exists\": true}}");
+
+                    // Assert Distinct Command
+                    DatasourceStructure.Template distinctTemplate = templates.get(6);
+                    assertEquals(distinctTemplate.getTitle(), "Distinct");
+                    assertEquals(distinctTemplate.getBody(), "{\n" +
+                    "  \"distinct\": \"users\",\n" +
+                    "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
+                    "  \"key\": \"_id\"," +
+                    "}\n");
+                    assertEquals(((Map<String, Object>) distinctTemplate.getConfiguration()).get(COMMAND), "DISTINCT");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_QUERY),
+                    "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_KEY),
+                    "_id");
+
+                    // Assert Aggregate Command
+                    DatasourceStructure.Template aggregateTemplate = templates.get(7);
+                    assertEquals(aggregateTemplate.getTitle(), "Aggregate");
+                    assertEquals(aggregateTemplate.getBody(), "{\n" +
+                    "  \"aggregate\": \"users\",\n" +
+                    "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
+                    "  \"limit\": 10,\n" +
+                    "  \"explain\": \"true\"\n" +
+                    "}\n");
+
+                    assertEquals(((Map<String, Object>) aggregateTemplate.getConfiguration()).get(COMMAND), "AGGREGATE");
+                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), AGGREGATE_PIPELINE),
+                    "[ {\"$sort\" : {\"_id\": 1} } ]");
+
+
                 })
                 .verifyComplete();
     }
@@ -1438,6 +1500,38 @@ public class MongoPluginTest {
     }
 
     @Test
+    public void testAggregateCommandWithInvalidQuery() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
+        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        // Invalid JSON object (issue: #5326)
+        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, "{$sort :{ _id  : 1 }}abcd");
+        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
+
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .expectErrorMatches(throwable -> {
+                    boolean sameClass = throwable.getClass().equals(AppsmithPluginException.class);
+                    if (sameClass) {
+                        var ape = ((AppsmithPluginException) throwable);
+                        return ape.getError().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR)
+                                && ape.getArgs()[0].equals("Pipeline stage is not a valid JSON object.");
+                    }
+                    return false;
+                })
+                .verify();
+    }
+
+    @Test
     public void testFindCommandProjection() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
@@ -1986,5 +2080,220 @@ public class MongoPluginTest {
         ));
         final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
         assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testSmartSubstitutionWithMongoTypesWithRawCommand1() {
+        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
+        List<String> documentIds = new ArrayList<>();
+        Flux.from(usersCollection.find())
+                .filter(doc -> doc.containsKey("aLong"))
+                .map(doc -> documentIds.add(doc.get("_id").toString()))
+                .collectList()
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        final String findQuery = "" +
+                "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "       \"_id\":{ $in: {{Input0}} },\n" +
+                "       \"dob\":{ $in: {{Input1}} },\n" +
+                "       \"netWorth\":{ $in: {{Input2}} },\n" +
+                "       \"aLong\": {{Input3}},\n" +
+                "       \"ts\":{ $in: {{Input4}} },\n" +
+                "   },\n" +
+                "}";
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(findQuery);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        final List<Param> params = new ArrayList<>();
+        final Param id = new Param("Input0", "[\"ObjectId('" + documentIds.get(0) + "')\"]" );
+        params.add(id);
+        final Param dob = new Param("Input1", "[\"ISODate('1970-01-01T00:00:00.000Z')\"]");
+        params.add(dob);
+        final Param netWorth = new Param("Input2", "['NumberDecimal(\"123456.789012\")']");
+        params.add(netWorth);
+        final Param aLong = new Param("Input3", "\"NumberLong(9000000000000000000)\"");
+        params.add(aLong);
+        final Param ts = new Param("Input4", "[\"Timestamp(1421006159, 4)\"]");
+        params.add(ts);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBsonSmartSubstitutionWithMongoTypesWithFindCommand() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setValueSafelyInFormData(configMap, FIND_QUERY, "\"{{Input1.text}}\"");
+        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
+        setValueSafelyInFormData(configMap, FIND_LIMIT, "{{Input3.text}}");
+        setValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
+
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("{ " +
+                "\"dob\": { \"$gte\": \"ISODate('2000-01-01T00:00:00.000Z')\" }, " +
+                "\"netWorth\": { \"$in\": [\"NumberDecimal(123456.789012)\"] } " +
+                "}");
+        params.add(param1);
+        Param param3 = new Param();
+        param3.setKey("Input2.text");
+        param3.setValue("1");
+        params.add(param3);
+        Param param4 = new Param();
+        param4.setKey("Input3.text");
+        param4.setValue("10");
+        params.add(param4);
+        Param param5 = new Param();
+        param5.setKey("Input4.text");
+        param5.setValue("users");
+        params.add(param5);
+        executeActionDTO.setParams(params);
+
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testSmartSubstitutionWithMongoTypes2() {
+        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
+        List<String> documentIds = new ArrayList<>();
+        Flux.from(usersCollection.find())
+                .filter(doc -> doc.containsKey("aLong"))
+                .map(doc -> documentIds.add(doc.get("_id").toString()))
+                .collectList()
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        final String findQuery = "" +
+                "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "       \"_id\": {{Input0}},\n" +
+                "       \"dob\": {{Input1}},\n" +
+                "       \"netWorth\": {{Input2}},\n" +
+                "       \"aLong\": {{Input3}},\n" +
+                "       \"ts\": {{Input4}},\n" +
+                "   },\n" +
+                "}";
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(findQuery);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        final List<Param> params = new ArrayList<>();
+        final Param id = new Param("Input0", "\"ObjectId(\\\"" + documentIds.get(0) + "\\\")\"");
+        params.add(id);
+        final Param dob = new Param("Input1", "\"ISODate(\\\"1970-01-01T00:00:00.000Z\\\")\"");
+        params.add(dob);
+        final Param netWorth = new Param("Input2", "\"NumberDecimal(\\\"123456.789012\\\")\"");
+        params.add(netWorth);
+        final Param aLong = new Param("Input3", "\"NumberLong(9000000000000000000)\"");
+        params.add(aLong);
+        final Param ts = new Param("Input4", "\"Timestamp(1421006159, 4)\"");
+        params.add(ts);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSmartSubstitutionWithMongoTypes3() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        final String findQuery = "" +
+                "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {{Input1}}\n" +
+                "}";
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(findQuery);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        final List<Param> params = new ArrayList<>();
+        final Param dob = new Param("Input1", "{\"dob\": \"ISODate(\\\"1970-01-01T00:00:00.000Z\\\")\"}");
+        params.add(dob);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
     }
 }

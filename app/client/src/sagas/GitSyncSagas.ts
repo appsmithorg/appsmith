@@ -48,7 +48,7 @@ import { fetchGitStatusSuccess } from "actions/gitSyncActions";
 import {
   createMessage,
   GIT_USER_UPDATED_SUCCESSFULLY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";

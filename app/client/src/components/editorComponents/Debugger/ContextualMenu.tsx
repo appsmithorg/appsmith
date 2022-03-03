@@ -23,7 +23,7 @@ import {
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_GOOGLE,
   DEBUGGER_SEARCH_SNIPPET,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";

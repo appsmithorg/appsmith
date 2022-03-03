@@ -73,7 +73,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
   OAUTH_AUTHORIZATION_SUCCESSFUL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import localStorage from "utils/localStorage";
@@ -95,6 +95,8 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -212,6 +214,23 @@ export function* deleteDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
   try {
+    const datasource = yield select(getDatasource, actionPayload.payload.id);
+
+    const modalPayload = {
+      name: datasource?.name,
+      modalOpen: true,
+      modalType: ModalType.DELETE_DATASOURCE,
+    };
+
+    // request confirmation from user before deleting datasource.
+    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+
+    if (!confirmed) {
+      return yield put({
+        type: ReduxActionTypes.DELETE_DATASOURCE_CANCELLED,
+      });
+    }
+
     const id = actionPayload.payload.id;
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
       id,
@@ -295,7 +314,7 @@ export function* deleteDatasourceSaga(
       text: error.message,
       source: {
         id: actionPayload.payload.id,
-        name: datasource.name,
+        name: datasource?.name ?? "Datasource name is not set",
         type: ENTITY_TYPE.DATASOURCE,
       },
     });

@@ -66,10 +66,11 @@ public class MySqlPluginTest {
     @ClassRule
     public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer(
             DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
-            .withUsername("mysql")
-            .withPassword("password")
+            .withUsername("root")
+            .withPassword("")
             .withDatabaseName("test_db")
-            .withEnv("TZ", "PDT");
+            .withEnv("TZ", "PDT")
+            .withEnv("MYSQL_ROOT_HOST", "%");
 
     private static String address;
     private static Integer port;
@@ -175,19 +176,8 @@ public class MySqlPluginTest {
 
     @Test
     public void testConnectMySQLContainerWithInvalidTimezone() {
-        DBAuth authDTO = new DBAuth();
-        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
-        authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
-        authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
-        authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
 
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
-        endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
-
-        final DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.setAuthentication(authDTO);
-        dsConfig.setEndpoints(List.of(endpoint));
+        final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
         dsConfig.setProperties(List.of(
                 new Property("serverTimezone", "UTC")
         ));
@@ -220,6 +210,106 @@ public class MySqlPluginTest {
 
         /* Reset dsConfig */
         dsConfig = createDatasourceConfiguration();
+    }
+
+
+    public DatasourceConfiguration createDatasourceConfigForContainerWithInvalidTZ() {
+        final DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
+        authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
+        authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
+
+        final Endpoint endpoint = new Endpoint();
+        endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
+        endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
+
+        final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        /* set endpoint */
+        dsConfig.setAuthentication(authDTO);
+        dsConfig.setEndpoints(List.of(endpoint));
+
+        /* set ssl mode */
+
+        dsConfig.setConnection(new com.appsmith.external.models.Connection());
+        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
+        dsConfig.getConnection().setSsl(new SSLDetails());
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+
+        return dsConfig;
+    }
+
+    @Test
+    public void testDatasourceWithNullPassword() {
+        final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
+
+        // adding a user with empty password
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainerWithInvalidTimezone);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection -> connection.createBatch()
+                        // adding a new user called 'mysql' with empty password
+                        .add("CREATE USER 'mysql'@'%';\n" +
+                                "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;\n" +
+                                "FLUSH PRIVILEGES;")
+                        )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+
+
+        // change to ordinary user
+        DBAuth auth = ((DBAuth) dsConfig.getAuthentication());
+        auth.setPassword("");
+        auth.setUsername("mysql");
+
+        // check user pass
+        assertEquals("mysql", auth.getUsername());
+        assertEquals("", auth.getPassword());
+
+
+        // Validate datastore
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.isEmpty());
+        // test connect
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
+                .verifyComplete();
+
+        /* Expect no error */
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> assertEquals(0, datasourceTestResult.getInvalids().size()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDatasourceWithRootUserAndNullPassword() {
+
+        final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
+
+        // check user pass
+        assertEquals("root", mySQLContainerWithInvalidTimezone.getUsername());
+        assertEquals("", mySQLContainerWithInvalidTimezone.getPassword());
+
+
+        // Validate datastore
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.isEmpty());
+        // test connect
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
+                .verifyComplete();
+
+        /* Expect no error */
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> assertEquals(0, datasourceTestResult.getInvalids().size()))
+                .verifyComplete();
+
     }
 
     @Test

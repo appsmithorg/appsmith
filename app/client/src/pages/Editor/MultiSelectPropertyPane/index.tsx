@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/react";
 import {
   createMessage,
   MULTI_SELECT_PROPERTY_PANE_MESSAGE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { getSelectedWidgets } from "selectors/ui";
@@ -24,13 +24,13 @@ function MultiSelectPropertyPane() {
         <p className="text-sm text-gray-700">
           {createMessage(MULTI_SELECT_PROPERTY_PANE_MESSAGE)}
         </p>
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col space-y-3 t-multi-widget-property-pane">
           {selectedWidgets.map((selectedWidgetId) => {
             if (!canvasWidgets[selectedWidgetId]) return;
-
+            const className = `py-1 border border-gray-300 hover:border-gray-500 t-multi-widget-button-${selectedWidgetId}`;
             return (
               <button
-                className="py-1 border border-gray-300 hover:border-gray-500"
+                className={className}
                 key={selectedWidgetId}
                 onClick={() => {
                   selectWidget(selectedWidgetId);

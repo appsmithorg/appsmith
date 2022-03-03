@@ -50,7 +50,7 @@ interface ReactTableComponentProps {
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
-  unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
+  unSelectAllRow: () => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: () => void;
@@ -241,7 +241,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     if (isSelect) {
       selectAllRow(pageData);
     } else {
-      unSelectAllRow(pageData);
+      unSelectAllRow();
     }
   };
 

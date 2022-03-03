@@ -13,7 +13,7 @@ import { EntryComponentProps } from "@draft-js-plugins/mention/lib/MentionSugges
 
 import Icon from "components/ads/Icon";
 
-import { INVITE_A_NEW_USER, createMessage } from "constants/messages";
+import { INVITE_A_NEW_USER, createMessage } from "@appsmith/constants/messages";
 import { USER_PHOTO_URL } from "constants/userConstants";
 
 import scrollIntoView from "scroll-into-view-if-needed";

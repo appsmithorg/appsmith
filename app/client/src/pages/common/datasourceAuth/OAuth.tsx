@@ -22,7 +22,7 @@ import { AppState } from "reducers";
 import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import AnalyticsUtil from "utils/AnalyticsUtil";

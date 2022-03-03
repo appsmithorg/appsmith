@@ -70,7 +70,7 @@ async function getPageRetry(pageId, retries) {
     }
   }
 
-  if (page == null) {
+  if (page === null) {
     throw new Error("Tried getting page " + retries + " times, but failed.");
   }
 

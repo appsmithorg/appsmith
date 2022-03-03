@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, SETTINGS_TOOLTIP } from "constants/messages";
+import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 
@@ -209,7 +209,7 @@ function ContextMenu(props: Props) {
       >
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
-            color={Colors.GREY_8}
+            color={Colors.GREY_9}
             height={16}
             onClick={noop}
             width={16}

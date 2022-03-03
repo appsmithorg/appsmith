@@ -12,7 +12,7 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
 
   it("Dropdown widget test with invalid binding value", function() {
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("selectwidget");
     cy.testJsontext("options", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.dropdownErrorMsg);
   });

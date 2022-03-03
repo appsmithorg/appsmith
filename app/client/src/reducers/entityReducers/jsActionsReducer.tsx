@@ -40,29 +40,16 @@ const jsActionsReducer = createReducer(initialState, {
     });
   },
   [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR]: () => initialState,
-  [ReduxActionTypes.CREATE_JS_ACTION_INIT]: (
+  [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<JSCollection>,
   ): JSCollectionDataState =>
     state.concat([
       {
-        config: { ...action.payload, id: action.payload.name },
+        config: { ...action.payload },
         isLoading: false,
       },
     ]),
-  [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: (
-    state: JSCollectionDataState,
-    action: ReduxAction<JSCollection>,
-  ): JSCollectionDataState =>
-    state.map((a) => {
-      if (
-        a.config.pageId === action.payload.pageId &&
-        a.config.id === action.payload.name
-      ) {
-        return { ...a, config: action.payload };
-      }
-      return a;
-    }),
   [ReduxActionErrorTypes.CREATE_JS_ACTION_ERROR]: (
     state: JSCollectionDataState,
     action: ReduxAction<JSCollection>,

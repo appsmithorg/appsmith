@@ -19,7 +19,7 @@ import {
   createMessage,
   ADD_PAGE_TOOLTIP,
   PAGE_PROPERTIES_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Page } from "constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";

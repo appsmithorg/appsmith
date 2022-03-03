@@ -13,7 +13,7 @@ import {
   CHOOSE_ACCESS_CONTROL_ROLES,
   ONBOARDING_INTRO_FOOTER,
   START_TUTORIAL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import React from "react";
 import { useEffect } from "react";

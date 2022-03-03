@@ -6,6 +6,7 @@ export const CONFIG = {
   name: "MultiSelect",
   iconSVG: IconSVG,
   needsMeta: true,
+  hideCard: true,
   defaults: {
     rows: 7,
     columns: 20,

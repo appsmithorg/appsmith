@@ -237,8 +237,9 @@ export function PreparedStatementViewer(props: {
     });
     return <div />;
   }
-  const stringSegments = value.split(/\$\d/);
-  const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
+  const stringSegments = value.split(/\$\d+/);
+  const $params = [...value.matchAll(/\$\d+/g)].map((matches) => matches[0]);
+
   const paramsWithTooltips = $params.map((param) => (
     <Tooltip content={<span>{parameters[param]}</span>} key={param}>
       <PreparedStatementParameter key={param}>
@@ -336,7 +337,10 @@ export const CurrentValueViewer = memo(
           </StyledTitle>
         )}
         <Collapse isOpen={openEvaluatedValue}>
-          <CurrentValueWrapper colorTheme={props.theme}>
+          <CurrentValueWrapper
+            className="t-property-evaluated-value"
+            colorTheme={props.theme}
+          >
             {content}
             {props.hasOwnProperty("evaluatedValue") && (
               <CopyIconWrapper

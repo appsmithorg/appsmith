@@ -11,7 +11,7 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -207,9 +207,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isTriggerProperty: false,
               validation: {
                 type: ValidationTypes.NUMBER,
-                params: {
-                  min: 1,
-                },
+                params: { min: 1, natural: true },
               },
               hidden: (props: InputWidgetProps) => {
                 return props.inputType !== InputTypes.TEXT;
@@ -304,7 +302,17 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               propertyName: "iconAlign",
               label: "Icon alignment",
               helpText: "Sets the icon alignment of input field",
-              controlType: "ICON_ALIGN",
+              controlType: "ICON_TABS",
+              options: [
+                {
+                  icon: "VERTICAL_LEFT",
+                  value: "left",
+                },
+                {
+                  icon: "VERTICAL_RIGHT",
+                  value: "right",
+                },
+              ],
               isBindProperty: false,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
@@ -355,7 +363,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             parsedValue = Number(value);
 
             if (isNaN(parsedValue)) {
-              parsedValue = undefined;
+              parsedValue = null;
             }
           }
           break;
@@ -383,8 +391,13 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   getPageView() {
     const value = this.props.text ?? "";
-    let isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    let isInvalid = false;
+    if (this.props.isDirty) {
+      isInvalid = "isValid" in this.props && !this.props.isValid;
+    } else {
+      isInvalid = false;
+    }
+
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {

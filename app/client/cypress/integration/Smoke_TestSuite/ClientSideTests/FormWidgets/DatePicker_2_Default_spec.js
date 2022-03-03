@@ -105,6 +105,16 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
     cy.assertDateFormat();
   });
+
+  it("Datepicker default date validation with js binding and default date with moment object", function() {
+    cy.openPropertyPane("datepickerwidget2");
+    cy.testJsontext("defaultdate", `{{moment("1/1/2012")}}`);
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
+      "contain.value",
+      "01/01/2012 00:00",
+    );
+  });
+
   it("Datepicker default date validation with js binding", function() {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
