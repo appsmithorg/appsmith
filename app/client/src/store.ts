@@ -31,7 +31,7 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
 ) => {
   switch (action.type) {
     case ReduxActionTypes.FETCH_APPLICATION_SUCCESS: {
-      const { applicationVersion = 2, id, slug } = action.payload;
+      const { applicationVersion, id, slug } = action.payload;
       updateURLFactory({
         applicationId: id,
         applicationSlug: slug,
