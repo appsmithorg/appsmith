@@ -39,6 +39,8 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
+const clone = require("rfdc/default");
+
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
 /* in the List Widget, "children.0.children.0.children.0.children" is the path to the list of all
@@ -691,7 +693,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(this.props.children);
+      const children = removeFalsyEntries(clone(this.props.children));
       const childCanvas = children[0];
 
       const canvasChildren = childCanvas.children;
