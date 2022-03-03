@@ -155,6 +155,105 @@ public class FilterDataServiceTest {
     }
 
     @Test
+    public void testFilterEmptyCondition() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            List<Condition> whereConditionList = new ArrayList<>();
+
+            Condition condition = new Condition("productName", "EQ", "");
+            whereConditionList.add(condition);
+
+            ArrayNode filteredData = filterDataService.filterData(items, whereConditionList);
+
+            assertEquals(filteredData.size(), 2);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testFilterEmptyAndNonEmptyCondition() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  }\n" +
+                "]";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            List<Condition> whereConditionList = new ArrayList<>();
+
+            Condition condition1 = new Condition("orderStatus", "EQ", "READY");
+            whereConditionList.add(condition1);
+
+            Condition condition2 = new Condition("productName", "EQ", null); //The UI sends null when that field is untouched
+            whereConditionList.add(condition2);
+
+            ArrayNode filteredData = filterDataService.filterData(items, whereConditionList);
+
+            assertEquals(filteredData.size(), 1);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
     public void testFilterInConditionForStrings() {
         String data = "[\n" +
                 "  {\n" +
