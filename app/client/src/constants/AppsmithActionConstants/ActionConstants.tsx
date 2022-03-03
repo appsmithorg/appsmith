@@ -24,10 +24,11 @@ export type TriggerSource = {
 export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
-  responseData?: Array<any>;
+  callbackData?: Array<any>;
   triggerPropertyName?: string;
   source?: TriggerSource;
   widgetId?: string;
+  globalContext?: Record<string, unknown>;
 };
 
 export type ContentType =
