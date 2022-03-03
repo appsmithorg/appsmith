@@ -1578,22 +1578,48 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
 
 /**
  * Usage:
- * Find the element which has a code editor input and then pass it in the function
+ * Find the element which has a code editor input and chain this command on it
  *
- * cy.get(...).then(el => cy.updateCodeInput(el, "test"));
+ * cy.get(...).updateCodeInput("test");
  *
  */
-Cypress.Commands.add("updateCodeInput", ($selector, value) => {
-  cy.get($selector)
+Cypress.Commands.add(
+  "updateCodeInput",
+  { prevSubject: true },
+  ($subject, value) => {
+    cy.wrap($subject)
+      .find(".CodeMirror")
+      .first()
+      .then((ins) => {
+        // There is an instance of CodeMirror in the dom node
+        // we use that to update the value directly instead of typing
+        const input = ins[0].CodeMirror;
+        input.focus();
+        cy.wait(200);
+        input.setValue(value);
+        cy.wait(200); //time for value to set
+        //input.focus();
+      });
+  },
+);
+
+/**
+ * Usage:
+ * Find the element which has a code editor input and chain this command on it
+ *
+ * cy.get(...).updateCodeInput("test");
+ *
+ */
+Cypress.Commands.add("readCodeInput", { prevSubject: true }, ($subject) => {
+  cy.wrap($subject)
     .find(".CodeMirror")
     .first()
     .then((ins) => {
+      // There is an instance of CodeMirror in the dom node
+      // we use that to update the value directly instead of typing
       const input = ins[0].CodeMirror;
-      input.focus();
-      cy.wait(200);
-      input.setValue(value);
-      cy.wait(200); //time for value to set
-      //input.focus();
+      const value = input.getValue();
+      return value;
     });
 });
 
@@ -1889,7 +1915,7 @@ Cypress.Commands.add("Createpage", (Pagename) => {
   cy.xpath(apiwidget.popover)
     .last()
     .click({ force: true });
-  /*  
+  /*
   cy.xpath(pages.popover)
     .last()
     .click({ force: true });
@@ -3026,6 +3052,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
+  cy.route("PUT", "/api/v1/collections/actions/*").as("editJSCollection");
+  cy.route("PUT", "/api/v1/collections/actions/move").as("moveJSCollection");
   cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
   cy.route("POST", "/api/v1/pages/crud-page").as("replaceLayoutWithCRUDPage");
 

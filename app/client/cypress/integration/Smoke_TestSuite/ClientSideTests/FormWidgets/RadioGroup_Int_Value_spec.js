@@ -22,7 +22,9 @@ describe("RadioGroup widget testing", function() {
     checkSelectedRadioValue(formWidgetsPage.radioWidget, "1");
 
     //Change the DSV to {{2}}
-    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "{{2}}");
+    cy.get(".t--property-control-defaultselectedvalue").updateCodeInput(
+      "{{2}}",
+    );
     cy.wait(200);
 
     //Radio with value=2 is selected
@@ -152,7 +154,7 @@ describe("RadioGroup widget testing", function() {
         input: `[
           {
             "label": "Yes",
-            "value": 
+            "value":
           },
           {
             "label": "No",

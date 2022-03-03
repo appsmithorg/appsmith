@@ -29,7 +29,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       .wait(200);
 
     //Check if the typed color red is reflecting in the background color and in the evaluated value
-    cy.updateCodeInput(widgetsPage.cellBackground, "red");
+    cy.get(widgetsPage.cellBackground).updateCodeInput("red");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
