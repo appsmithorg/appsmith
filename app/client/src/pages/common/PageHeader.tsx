@@ -189,7 +189,7 @@ export function PageHeader(props: PageHeaderProps) {
                   matchTemplatesPath(location.pathname) ||
                   matchTemplatesIdPath(location.pathname)
                 }
-                onClick={() => history.push(TEMPLATES_URL)}
+                onClick={() => history.push(TEMPLATES_PATH)}
               >
                 <div>Templates</div>
               </TabName>

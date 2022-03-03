@@ -68,7 +68,7 @@ export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
   match(VIEWER_PATH)(pathName) || match(VIEWER_PATH_DEPRECATED)(pathName);
 export const matchViewerForkPath = match(VIEWER_FORK_PATH);
-export const matchTemplatesPath = match(TEMPLATES_URL);
+export const matchTemplatesPath = match(TEMPLATES_PATH);
 export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
 
 export const addBranchParam = (branch: string) => {
