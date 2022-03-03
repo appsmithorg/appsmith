@@ -5,8 +5,8 @@ export default {
     switch (props.inputType) {
       case "NUMBER":
         try {
-          isEmpty = _.isNil(props.text);
-          value = Number(props.text);
+          isEmpty = _.isNil(props.text) || props.text === "";
+          value = isEmpty ? null : Number(props.text);
           hasValidValue = Number.isFinite(value);
           break;
         } catch (e) {
@@ -87,12 +87,14 @@ export default {
         }
       case "NUMBER":
         if (
+          !_.isNil(value) &&
           !_.isNil(props.maxNum) &&
           Number.isFinite(props.maxNum) &&
           props.maxNum < value
         ) {
           return false;
         } else if (
+          !_.isNil(value) &&
           !_.isNil(props.minNum) &&
           Number.isFinite(props.minNum) &&
           props.minNum > value

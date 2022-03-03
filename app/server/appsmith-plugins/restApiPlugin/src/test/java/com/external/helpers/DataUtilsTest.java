@@ -4,6 +4,7 @@ import com.appsmith.external.models.Property;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.codec.ByteArrayEncoder;
 import org.springframework.core.codec.ByteBufferEncoder;
 import org.springframework.core.codec.CharSequenceEncoder;
 import org.springframework.core.codec.DataBufferEncoder;
@@ -48,6 +49,7 @@ public class DataUtilsTest {
     public void createContext() {
         final List<HttpMessageWriter<?>> messageWriters = new ArrayList<>();
         messageWriters.add(new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
+        messageWriters.add(new EncoderHttpMessageWriter<>(new ByteArrayEncoder()));
         messageWriters.add(new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));
         messageWriters.add(new ResourceHttpMessageWriter());
         Jackson2JsonEncoder jsonEncoder = new Jackson2JsonEncoder();
@@ -91,7 +93,7 @@ public class DataUtilsTest {
         Mono<Void> result = bodyInserter.insert(request, this.context);
         StepVerifier.create(result).expectComplete().verify();
         StepVerifier.create(request.getBodyAsString())
-                .expectNext("\"\"")
+                .expectNext("")
                 .expectComplete()
                 .verify();
     }
@@ -123,9 +125,9 @@ public class DataUtilsTest {
                                     "Content-Length: 8\r\n" +
                                     "\r\n" +
                                     "textData"));
+                    Assert.assertTrue(content.contains("Content-Type: text/plain"));
                     Assert.assertTrue(content.contains(
                             "Content-Disposition: form-data; name=\"textType\"\r\n" +
-                                    "Content-Type: text/plain;charset=UTF-8\r\n" +
                                     "Content-Length: 8\r\n" +
                                     "\r\n" +
                                     "textData"));
