@@ -499,7 +499,7 @@ public class DatasourceServiceTest {
                     return datasource;
                 })
                 .flatMap(datasourceService::create)
-                .flatMap(datasource1 -> datasourceService.delete(datasource1.getId()));
+                .flatMap(datasource1 -> datasourceService.archiveById(datasource1.getId()));
 
         StepVerifier
                 .create(datasourceMono)
@@ -571,7 +571,7 @@ public class DatasourceServiceTest {
 
                     return layoutActionService.createSingleAction(action).thenReturn(datasource);
                 })
-                .flatMap(datasource -> datasourceService.delete(datasource.getId()));
+                .flatMap(datasource -> datasourceService.archiveById(datasource.getId()));
 
         StepVerifier
                 .create(datasourceMono)
@@ -640,7 +640,7 @@ public class DatasourceServiceTest {
                             .then(applicationPageService.deleteApplication(application.getId()))
                             .thenReturn(datasource);
                 })
-                .flatMap(datasource -> datasourceService.delete(datasource.getId()));
+                .flatMap(datasource -> datasourceService.archiveById(datasource.getId()));
 
         StepVerifier
                 .create(datasourceMono)
