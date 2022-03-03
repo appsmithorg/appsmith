@@ -8,6 +8,12 @@ import { MockPageDSL } from "test/testCommon";
 import Sidebar from "components/editorComponents/Sidebar";
 import { generateReactKey } from "utils/generators";
 jest.useFakeTimers();
+const pushState = jest.spyOn(window.history, "pushState");
+pushState.mockImplementation((state: any, title: any, url: any) => {
+  window.document.title = title;
+  window.location.pathname = url;
+});
+
 describe("Entity Explorer tests", () => {
   it("Should render Widgets tree in entity explorer", () => {
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
@@ -35,18 +41,22 @@ describe("Entity Explorer tests", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+    console.log("before render");
     const component = render(
       <MockPageDSL dsl={dsl}>
         <Sidebar />
       </MockPageDSL>,
     );
+    console.log("Past render");
     const widgetsTree: any = component.queryByText("WIDGETS", {
       selector: "div.t--entity-name",
     });
+    console.log("Past widgetTree");
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
     });
+    console.log("Past act");
     const tabsWidget: any = component.queryByText(children[0].widgetName);
     act(() => {
       fireEvent.click(tabsWidget);
