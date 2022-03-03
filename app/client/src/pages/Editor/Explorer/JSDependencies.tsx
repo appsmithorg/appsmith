@@ -11,11 +11,14 @@ import { Size } from "components/ads/Button";
 
 const Wrapper = styled.div`
   font-size: 14px;
+  font-size: clamp(12px, 0.7vw + 0.2rem, 16px);
 `;
 const ListItem = styled.li`
   list-style: none;
   color: ${Colors.GREY_8};
-  height: 36px;
+  height: calc(1rem + 1.3vw);
+  max-height: 36px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -50,7 +53,9 @@ const Title = styled.div`
   display: grid;
   grid-template-columns: 20px auto 20px;
   cursor: pointer;
-  height: 36px;
+  height: calc(1rem + 1.3vw);
+  max-height: 36px;
+  min-height: 32px;
   align-items: center;
   padding-right: 4px;
   padding-left: 0.25rem;
