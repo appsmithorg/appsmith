@@ -55,6 +55,7 @@ import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
+import history from "utils/history";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -773,9 +774,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
-                      href={editApplicationURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
+                      onClick={(e) => history.push(editApplicationURL)}
                       size={Size.medium}
                       text="Edit"
                     />
@@ -785,9 +786,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
-                      href={viewApplicationURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
+                      onClick={(e) => history.push(viewApplicationURL)}
                       size={Size.medium}
                       text="Launch"
                     />
