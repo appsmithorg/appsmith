@@ -39,6 +39,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
             jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
         });
         agHelper.ClickButton("Submit")
+        
     });
 
 });
