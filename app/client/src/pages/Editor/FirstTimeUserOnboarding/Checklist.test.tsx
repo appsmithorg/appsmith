@@ -46,7 +46,12 @@ describe("Checklist", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
-    updateURLFactory({ applicationId: 1, pageId: 2 });
+    updateURLFactory({
+      applicationSlug: initialState.ui.applications.currentApplication.slug,
+      applicationId: initialState.entities.pageList.applicationId,
+      pageSlug: initialState.entities.pageList.pages[0].slug,
+      pageId: initialState.entities.pageList.currentPageId,
+    });
   });
 
   afterEach(() => {
@@ -78,10 +83,6 @@ describe("Checklist", () => {
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
-        applicationSlug: initialState.ui.applications.currentApplication.slug,
-        pageSlug: initialState.entities.pageList.pages[0].slug,
-        pageId: initialState.entities.pageList.currentPageId,
-        applicationId: initialState.entities.pageList.applicationId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -97,10 +98,6 @@ describe("Checklist", () => {
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
-        applicationSlug: initialState.ui.applications.currentApplication.slug,
-        applicationId: initialState.entities.pageList.applicationId,
-        pageSlug: initialState.entities.pageList.pages[0].slug,
-        pageId: initialState.entities.pageList.currentPageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );
@@ -112,14 +109,7 @@ describe("Checklist", () => {
     expect(actionButton.length).toBe(0);
     const widgetButton = screen.queryAllByTestId("checklist-widget-button");
     fireEvent.click(widgetButton[0]);
-    expect(history).toHaveBeenCalledWith(
-      builderURL({
-        applicationSlug: initialState.ui.applications.currentApplication.slug,
-        applicationId: initialState.entities.pageList.applicationId,
-        pageSlug: initialState.entities.pageList.pages[0].slug,
-        pageId: initialState.entities.pageList.currentPageId,
-      }),
-    );
+    expect(history).toHaveBeenCalledWith(builderURL());
     expect(dispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
       payload: true,
