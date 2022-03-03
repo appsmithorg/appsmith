@@ -241,8 +241,8 @@ function ApiResponseView(props: Props) {
   const messages = response?.messages;
   let responseHeaders = {};
 
-  // if no headers are present in the response, use the default body text.
   if (response.headers) {
+    // transform response header to a more appropriate form.
     Object.entries(response.headers).map(([key, value]) => {
       if (isArray(value) && value.length < 2)
         return (responseHeaders = {
@@ -255,7 +255,8 @@ function ApiResponseView(props: Props) {
       });
     });
   } else {
-    responseHeaders = {}; // if the response headers is empty show an empty object.
+    // if the response headers is empty show an empty object.
+    responseHeaders = {};
   }
 
   const tabs = [

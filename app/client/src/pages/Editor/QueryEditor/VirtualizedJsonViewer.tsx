@@ -86,13 +86,8 @@ function VirtualizedJsonViewer(props: Props) {
             language="json"
             style={customJsonViewerStyles}
           >
-            {/* {`${index === 0 ? "[\n" : ""}${JSON.stringify(itemData, null, 2)},${
-              index === src.length - 1 ? "\n]" : ""
-            }`} */}
-            {/* {`${JSON.stringify(itemData, null, 2)}`} */}
             {itemData}
           </SyntaxHighlighter>
-          {/* <ReactJson id={index} src={itemData} {...reactJsonProps} /> */}
         </HighlightContainer>
       </div>
     );
@@ -140,7 +135,7 @@ function VirtualizedJsonViewer(props: Props) {
         <AutoSizer>
           {({ height, width }) => (
             <List
-              // remove 5(could be any number) from the auto generated height to prevent incessant re-rendering by the list.
+              // remove 5(could be any small number) from the auto generated height to prevent incessant re-rendering by the list.
               // kind of like an offset value to be specific.
               height={height - 5}
               itemCount={src.length}
