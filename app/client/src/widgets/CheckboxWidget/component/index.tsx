@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Classes } from "@blueprintjs/core";
@@ -28,9 +28,9 @@ function CheckboxComponent(props: CheckboxComponentProps) {
   /**
    * on check change
    */
-  const onCheckChange = useCallback(() => {
+  const onCheckChange = () => {
     props.onCheckChange(!props.isChecked);
-  }, [props.isChecked, props.onCheckChange]);
+  };
 
   return (
     <CheckboxContainer className={checkboxAlignClass}>

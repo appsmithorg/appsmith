@@ -97,10 +97,10 @@ function ColorPickerComponent(props: ColorPickerProps) {
   );
   const widgets = useSelector(getWidgets);
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
-  const DSLStringfied = JSON.stringify(widgets);
+  const DSLStringified = JSON.stringify(widgets);
   const applicationColors = useMemo(() => {
-    return extractColorsFromString(DSLStringfied);
-  }, [DSLStringfied]);
+    return extractColorsFromString(DSLStringified);
+  }, [DSLStringified]);
 
   useOnClickOutside([inputRef, popoverRef], () => {
     setFocussed(false);
@@ -114,7 +114,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
     debounce((color: string) => {
       props.changeColor(color);
     }, 250),
-    [props.changeColor],
+    [],
   );
 
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,9 +156,20 @@ function ColorPickerComponent(props: ColorPickerProps) {
             autoFocus={props.autoFocus}
             leftIcon={
               color ? (
-                <ColorIcon className="rounded-full" color={evaluatedValue} />
+                <ColorIcon
+                  className="rounded-full cursor-pointer"
+                  color={evaluatedValue}
+                  onClick={() => {
+                    setFocussed(true);
+                  }}
+                />
               ) : (
-                <ColorPickerIconContainer>
+                <ColorPickerIconContainer
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setFocussed(true);
+                  }}
+                >
                   <ColorPickerIcon />
                 </ColorPickerIconContainer>
               )

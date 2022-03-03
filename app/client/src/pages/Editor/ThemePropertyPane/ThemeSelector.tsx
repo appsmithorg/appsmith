@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import ThemeList from "./ThemeList";
 import {
   getAppThemes,
   getAppThemingStack,
@@ -36,12 +35,12 @@ function ThemeSelector() {
    * stores default system themes
    */
   const systemThemes = useMemo(() => {
-    return themes.filter(() => true);
+    return themes.filter((theme) => theme.isSystemTheme === true);
   }, [themes.length]);
 
   return (
     <div className="relative">
-      <header className="sticky top-0 items-center justify-between bg-white z-1 ">
+      <section className="sticky top-0 items-center justify-between bg-white z-1 ">
         <button
           className="inline-flex items-center px-3 py-2 space-x-1 text-gray-500 cursor-pointer t--theme-select-back-btn"
           onClick={onClickBack}
@@ -58,17 +57,31 @@ function ThemeSelector() {
         >
           <ThemeCard theme={selectedTheme} />
         </SettingSection>
-      </header>
+      </section>
       {userSavedThemes.length > 0 && (
-        <header className="relative px-3 py-3 space-y-3">
+        <section className="relative px-3 py-3 space-y-3">
           <h3 className="text-base font-medium capitalize">Your Themes</h3>
-          <ThemeList themes={userSavedThemes} />
-        </header>
+          {userSavedThemes.map((theme) => (
+            <ThemeCard
+              deletable={!theme.isSystemTheme}
+              key={`theme-card-${theme.id}`}
+              selectable
+              theme={theme}
+            />
+          ))}
+        </section>
       )}
-      <header className="relative px-3 py-3 space-y-3">
+      <section className="relative px-3 py-3 space-y-3">
         <h3 className="text-base font-medium capitalize">Featured Themes</h3>
-        <ThemeList themes={systemThemes} />
-      </header>
+        {systemThemes.map((theme) => (
+          <ThemeCard
+            deletable={!theme.isSystemTheme}
+            key={`theme-card-${theme.id}`}
+            selectable
+            theme={theme}
+          />
+        ))}
+      </section>
     </div>
   );
 }

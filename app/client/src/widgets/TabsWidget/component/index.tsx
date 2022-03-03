@@ -30,7 +30,6 @@ interface TabsComponentProps extends ComponentProps {
   shouldShowTabs: boolean;
   borderRadius: string;
   boxShadow?: string;
-
   primaryColor: string;
   onTabChange: (tabId: string) => void;
   tabs: Array<{

@@ -33,7 +33,6 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
   selectedTabWidgetId: string;
   borderRadius: string;
   boxShadow?: string;
-
   primaryColor: string;
 }
 

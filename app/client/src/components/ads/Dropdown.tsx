@@ -56,7 +56,7 @@ export interface RenderDropdownOptionType {
   optionWidth: string;
 }
 
-type RenderOption = ({
+export type RenderOption = ({
   hasError,
   index,
   option,

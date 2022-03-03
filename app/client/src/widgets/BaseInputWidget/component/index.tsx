@@ -220,8 +220,8 @@ const InputComponentWrapper = styled((props) => (
 
     label {
       ${labelStyle}
-      margin-right: 0px;
-      margin-bottom: 0px;
+      margin-right: 0;
+      margin-bottom: 0;
       text-align: right;
       align-self: flex-start;
       color: ${(props) =>
