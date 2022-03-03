@@ -1038,6 +1038,33 @@ export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
 
+// Templates
+export const MORE = () => "MORE";
+export const SHOW_LESS = () => "SHOW LESS";
+export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
+export const SELECT_ORGANISATION = () => "Select Organization";
+export const FORK_TEMPLATE = () => "FORK TEMPLATE";
+export const TEMPLATES = () => "TEMPLATES";
+export const FORK_THIS_TEMPLATE = () => "Fork this template";
+export const COULDNT_FIND_TEMPLATE = () =>
+  "Couldn’t find what you are looking for?";
+export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
+  "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
+export const REQUEST_TEMPLATE = () => "Request for a template";
+export const SEARCH_TEMPLATES = () => "Search templates";
+export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
+export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
+  "You can browse, fork, and make them your own here";
+export const GO_BACK = () => "GO BACK";
+export const OVERVIEW = () => "Overview";
+export const FUNCTION = () => "Function";
+export const INDUSTRY = () => "Industry";
+export const DATASOURCES = () => "Datasources";
+export const NOTE = () => "Note:";
+export const NOTE_MESSAGE = () => "You can add your datasources as well";
+export const WIDGET_USED = () => "Widgets Used";
+export const SIMILAR_TEMPLATES = () => "Similar Templates";
+
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
 export const REDIRECT_URL_TOOLTIP = () =>

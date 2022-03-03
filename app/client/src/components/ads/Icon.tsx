@@ -5,6 +5,7 @@ import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
 // import { ReactComponent as ExpandMore } from "assets/icons/ads/expand-more.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
+import { ReactComponent as Fork2Icon } from "assets/icons/ads/fork-2.svg";
 import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
@@ -259,6 +260,7 @@ const ICON_LOOKUP = {
   "expand-more": <ExpandMore />,
   "eye-off": <EyeOff />,
   "eye-on": <EyeOn />,
+  "fork-2": <Fork2Icon />,
   "file-transfer": <FileTransfer />,
   "git-branch": <GitBranchLineIcon />,
   "git-commit": <GitCommit />,
