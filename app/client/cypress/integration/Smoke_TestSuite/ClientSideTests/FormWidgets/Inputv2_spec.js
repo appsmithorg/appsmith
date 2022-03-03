@@ -42,6 +42,7 @@ describe("Input widget V2 - ", () => {
 
     cy.openPropertyPane(widgetName);
 
+    //required: on
     cy.get(".t--property-control-required label")
       .last()
       .click({ force: true });
@@ -54,6 +55,7 @@ describe("Input widget V2 - ", () => {
       "::false",
       "$100.22:$100.22:true",
       "test@appsmith.com:test@appsmith.com:true",
+      "::false",
     ].forEach((text) => enterAndTest(text.split(":")[0], text));
   });
 
@@ -65,15 +67,17 @@ describe("Input widget V2 - ", () => {
       "invalid123:123:123:true",
       "123:123:123:true",
       "-:null:null:false",
-      ":null:null:true",
+      ":null:null:false",
       "$100.22:100.22:100.22:true",
       "invalid@appsmith.com:null:null:false",
       "1.001:1.001:1.001:true",
       "1.1.:null:null:false",
     ].forEach((text) => {
-      enterAndTest(text.split(":")[0], text.split(":")[1]);
+      const split = text.split(":");
+      enterAndTest(split.shift(), split.join(":"));
     });
 
+    //required: off
     cy.get(".t--property-control-required label")
       .last()
       .click({ force: true });
@@ -90,28 +94,67 @@ describe("Input widget V2 - ", () => {
       "1.001:1.001:1.001:true",
       "1.1.:null:null:false",
     ].forEach((text) => {
-      enterAndTest(text.split(":")[0], text.split(":")[1]);
+      const split = text.split(":");
+      enterAndTest(split.shift(), split.join(":"));
     });
   });
 
   it("5. Validate DataType - PASSWORD can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Password");
-    ["test", "test123", "123", "-", "", "$100.22", "test@appsmith.com"].forEach(
-      (text) => {
-        enterAndTest(text, text);
-      },
-    );
+    [
+      "test:test:true",
+      "test123:test123:true",
+      "123:123:true",
+      "-:-:true",
+      "::true",
+      "$100.22:$100.22:true",
+      "test@appsmith.com:test@appsmith.com:true",
+    ].forEach((text) => enterAndTest(text.split(":")[0], text));
+
+    //required: on
+    cy.get(".t--property-control-required label")
+      .last()
+      .click({ force: true });
+
+    [
+      "test:test:true",
+      "test123:test123:true",
+      "123:123:true",
+      "-:-:true",
+      "::false",
+      "$100.22:$100.22:true",
+      "test@appsmith.com:test@appsmith.com:true",
+    ].forEach((text) => enterAndTest(text.split(":")[0], text));
   });
 
   it("6. Validate DataType - EMAIL can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Email");
-    ["test", "test123", "123", "-", "", "$100.22", "test@appsmith.com"].forEach(
-      (text) => {
-        enterAndTest(text, text);
-      },
-    );
+    [
+      "test:test:false",
+      "test123:test123:false",
+      "123:123:false",
+      "-:-:false",
+      "::false",
+      "$100.22:$100.22:false",
+      "test@appsmith.com:test@appsmith.com:true",
+    ].forEach((text) => enterAndTest(text.split(":")[0], text));
+
+    //required: off
+    cy.get(".t--property-control-required label")
+      .last()
+      .click({ force: true });
+
+    [
+      "test:test:false",
+      "test123:test123:false",
+      "123:123:false",
+      "-:-:false",
+      "::true",
+      "$100.22:$100.22:false",
+      "test@appsmith.com:test@appsmith.com:true",
+    ].forEach((text) => enterAndTest(text.split(":")[0], text));
   });
 
   it("7. Validating other properties - Input validity with #valid", () => {
@@ -134,7 +177,7 @@ describe("Input widget V2 - ", () => {
     if (text) {
       cy.get(`.t--widget-${widgetName} input`)
         .click()
-        .type(text); //.should('have.value', text);
+        .type(text);
     }
     cy.get(".t--widget-textwidget").should("contain", expected);
   }
