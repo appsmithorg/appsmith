@@ -33,12 +33,13 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
 import { tailwindLayers } from "constants/Layers";
-import useResize from "utils/hooks/useResize";
+import useResize, { DIRECTION } from "utils/hooks/useResize";
 
 const StyledEntity = styled(Entity)`
   &.pages {
-    & > div:not(.t--entity-item) > div {
-      /* max-height: 138px; */
+    & > div:not(.t--entity-item) > div > div {
+      max-height: 40vh;
+      min-height: 100px;
       overflow-y: auto;
     }
   }
@@ -60,8 +61,9 @@ function Pages() {
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
   const pageResizeRef = useRef<HTMLDivElement>(null);
-  const { onMouseDown, onMouseUp, onTouchStart, resizing } = useResize(
+  const { mouseDown, setMouseDown } = useResize(
     pageResizeRef,
+    DIRECTION.vertical,
   );
 
   useEffect(() => {
@@ -183,15 +185,13 @@ function Pages() {
         {pageElements}
       </StyledEntity>
       <div
-        className={`absolute -bottom-2 left-0 w-full h-2 group testwhdv  cursor-ns-resize ${tailwindLayers.resizer}`}
-        onMouseDown={onMouseDown}
-        onTouchEnd={onMouseUp}
-        onTouchStart={onTouchStart}
+        className={`absolute -bottom-2 left-0 w-full h-2 group cursor-ns-resize ${tailwindLayers.resizer}`}
+        onMouseDown={() => setMouseDown(true)}
       >
         <div
-          className={`w-full h-1 bg-transparent group-hover:bg-gray-300 transform transition ${
-            resizing ? "group-hover:bg-blue-500" : ""
-          }`}
+          className={`w-full h-1 bg-transparent hover:bg-gray-300 transform transition
+          ${mouseDown ? "hover:bg-blue-500" : ""}
+          `}
         />
       </div>
     </div>
