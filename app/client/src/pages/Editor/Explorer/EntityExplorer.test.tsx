@@ -41,22 +41,18 @@ describe("Entity Explorer tests", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
-    console.log("before render");
     const component = render(
       <MockPageDSL dsl={dsl}>
         <Sidebar />
       </MockPageDSL>,
     );
-    console.log("Past render");
     const widgetsTree: any = component.queryByText("WIDGETS", {
       selector: "div.t--entity-name",
     });
-    console.log("Past widgetTree");
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
     });
-    console.log("Past act");
     const tabsWidget: any = component.queryByText(children[0].widgetName);
     act(() => {
       fireEvent.click(tabsWidget);
