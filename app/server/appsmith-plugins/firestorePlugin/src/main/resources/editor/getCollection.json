@@ -10,7 +10,7 @@
       "configProperty": "actionConfiguration.path",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
+      "isRequired": true,
       "initialValue": ""
     },
     {
