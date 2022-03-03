@@ -1,4 +1,4 @@
-import DataTreeEvaluator from "./DataTreeEvaluator";
+import DataTreeEvaluator from "../DataTreeEvaluator";
 
 describe("DataTreeEvaluator", () => {
   let dataTreeEvaluator: DataTreeEvaluator;
