@@ -86,9 +86,10 @@ function renderDropdown(
   const onSelectOptions = (value: string | undefined) => {
     if (value) {
       if (props.isMultiSelect) {
-        if (Array.isArray(selectedValue) && !selectedValue.includes(value))
-          (selectedValue as string[]).push(value);
-        else {
+        if (Array.isArray(selectedValue)) {
+          if (!selectedValue.includes(value))
+            (selectedValue as string[]).push(value);
+        } else {
           selectedValue = [selectedValue as string, value];
         }
       } else selectedValue = value;
@@ -100,13 +101,14 @@ function renderDropdown(
   const onRemoveOptions = (value: string | undefined) => {
     if (value) {
       if (props.isMultiSelect) {
-        if (Array.isArray(selectedValue) && selectedValue.includes(value))
-          (selectedValue as string[]).splice(
-            (selectedValue as string[]).indexOf(value),
-            1,
-          );
-        else {
-          selectedValue = "";
+        if (Array.isArray(selectedValue)) {
+          if (selectedValue.includes(value))
+            (selectedValue as string[]).splice(
+              (selectedValue as string[]).indexOf(value),
+              1,
+            );
+        } else {
+          selectedValue = [];
         }
       } else selectedValue = "";
       props.input?.onChange(selectedValue);
