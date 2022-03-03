@@ -984,7 +984,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{(currentRow) => { ${next} }}} `;
+        return prev + `{{ ${next} }} `;
       }, "");
 
       if (modifiedAction) {
@@ -995,7 +995,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_CLICK,
             callback: onComplete,
           },
-          responseData: [row],
+          globalContext: { currentRow: row },
         });
       } else {
         onComplete?.();

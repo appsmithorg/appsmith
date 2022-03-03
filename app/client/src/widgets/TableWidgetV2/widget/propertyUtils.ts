@@ -2,7 +2,6 @@ import { Alignment } from "@blueprintjs/core";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import _, { get } from "lodash";
-import { ValidationResponse } from "constants/WidgetValidation";
 
 export enum ColumnTypes {
   TEXT = "text",
@@ -258,37 +257,4 @@ export const hideByColumnType = (
 
   const columnType = get(props, `${baseProperty}.columnType`, "");
   return !columnTypes.includes(columnType);
-};
-
-export const columnAccessorValidation = (
-  value: unknown,
-  props: TableWidgetProps,
-  _: any,
-): ValidationResponse => {
-  const validJavascriptIdentifier = /^[\p{L}\p{Nl}$_][\p{L}\p{Nl}$\p{Mn}\p{Mc}\p{Nd}\p{Pc}]*$/u;
-  let isValid = false;
-  let parsed = value;
-  let message = "";
-
-  if (_.isNil(value) || value === "") {
-    isValid = false;
-    parsed = "";
-    message = "Accessor cannot be empty";
-  } else if (
-    typeof value === "string" &&
-    validJavascriptIdentifier.test(value)
-  ) {
-    isValid = true;
-    parsed = value;
-  } else {
-    isValid = false;
-    parsed = "";
-    message = "Accessor should be valid Javascript identifier";
-  }
-
-  return {
-    isValid,
-    parsed,
-    messages: [message],
-  };
 };
