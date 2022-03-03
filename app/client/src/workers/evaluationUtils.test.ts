@@ -15,6 +15,9 @@ import {
   makeParentsDependOnChildren,
 } from "./evaluationUtils";
 import { warn as logWarn } from "loglevel";
+
+// to check if logWarn was called.
+// use jest.unmock, if the mock needs to be removed.
 jest.mock("loglevel");
 
 const BASE_WIDGET: DataTreeWidget = {
@@ -146,41 +149,6 @@ describe("Correctly handle paths", () => {
     const actual = getAllPaths(myTree);
     expect(actual).toStrictEqual(result);
   });
-  describe("makeParentsDependOnChildren", () => {
-    it("makes parent properties depend on child properties", () => {
-      let depMap: DependencyMap = {
-        Widget1: [],
-        "Widget1.defaultText": [],
-        "Widget1.defaultText.abc": [],
-      };
-      const allkeys: Record<string, true> = {
-        Widget1: true,
-        "Widget1.defaultText": true,
-        "Widget1.defaultText.abc": true,
-      };
-      depMap = makeParentsDependOnChildren(depMap, allkeys);
-      expect(depMap).toStrictEqual({
-        Widget1: ["Widget1.defaultText"],
-        "Widget1.defaultText": ["Widget1.defaultText.abc"],
-        "Widget1.defaultText.abc": [],
-      });
-    });
-
-    it("logs warning for child properties not listed in allKeys", () => {
-      const depMap: DependencyMap = {
-        Widget1: [],
-        "Widget1.defaultText": [],
-      };
-      const allkeys: Record<string, true> = {
-        Widget1: true,
-      };
-      makeParentsDependOnChildren(depMap, allkeys);
-      expect(logWarn).toBeCalledWith(
-        "makeParentsDependOnChild - Widget1.defaultText is not present in dataTree.",
-        "This might result in a cyclic dependency.",
-      );
-    });
-  });
 });
 
 describe("privateWidgets", () => {
@@ -267,6 +235,42 @@ describe("privateWidgets", () => {
 
     expect(expectedDataTreeWithoutPrivateWidgets).toStrictEqual(
       actualDataTreeWithoutPrivateWidgets,
+    );
+  });
+});
+
+describe("makeParentsDependOnChildren", () => {
+  it("makes parent properties depend on child properties", () => {
+    let depMap: DependencyMap = {
+      Widget1: [],
+      "Widget1.defaultText": [],
+      "Widget1.defaultText.abc": [],
+    };
+    const allkeys: Record<string, true> = {
+      Widget1: true,
+      "Widget1.defaultText": true,
+      "Widget1.defaultText.abc": true,
+    };
+    depMap = makeParentsDependOnChildren(depMap, allkeys);
+    expect(depMap).toStrictEqual({
+      Widget1: ["Widget1.defaultText"],
+      "Widget1.defaultText": ["Widget1.defaultText.abc"],
+      "Widget1.defaultText.abc": [],
+    });
+  });
+
+  it("logs warning for child properties not listed in allKeys", () => {
+    const depMap: DependencyMap = {
+      Widget1: [],
+      "Widget1.defaultText": [],
+    };
+    const allkeys: Record<string, true> = {
+      Widget1: true,
+    };
+    makeParentsDependOnChildren(depMap, allkeys);
+    expect(logWarn).toBeCalledWith(
+      "makeParentsDependOnChild - Widget1.defaultText is not present in dataTree.",
+      "This might result in a cyclic dependency.",
     );
   });
 });
