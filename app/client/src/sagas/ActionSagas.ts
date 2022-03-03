@@ -101,7 +101,7 @@ import {
 } from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import {
-  toggleShowGlobalSearchModal,
+  setGlobalSearchCategory,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
 import {
@@ -861,9 +861,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       );
 
       yield put(
-        toggleShowGlobalSearchModal(
-          filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
-        ),
+        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.SNIPPETS]),
       );
       yield put(
         setGlobalSearchFilterContext({

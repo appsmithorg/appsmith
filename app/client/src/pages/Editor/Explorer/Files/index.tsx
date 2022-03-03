@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { Colors } from "constants/Colors";
 import {
   filterCategories,
@@ -31,7 +31,7 @@ function Files() {
   const dispatch = useDispatch();
   const onCreate = useCallback(() => {
     dispatch(
-      toggleShowGlobalSearchModal(
+      setGlobalSearchCategory(
         filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
       ),
     );

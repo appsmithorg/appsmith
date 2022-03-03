@@ -62,7 +62,7 @@ import {
   STORE_VALUE,
   WATCH_GEO_LOCATION,
 } from "@appsmith/constants/messages";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
@@ -586,7 +586,7 @@ function useIntegrationsOptionTree() {
       className: "t--create-datasources-query-btn",
       onSelect: () => {
         dispatch(
-          toggleShowGlobalSearchModal(
+          setGlobalSearchCategory(
             filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
           ),
         );
