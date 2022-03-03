@@ -38,7 +38,8 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             label: "Icon",
             helpText: "Sets the icon to be used for the icon button",
             controlType: "ICON_SELECT",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
@@ -97,8 +98,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText: "Sets the style of the icon button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "buttonVariant",
