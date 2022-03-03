@@ -211,16 +211,16 @@ helm install \
 - In case of you have not install the Helm chart yet, you can run the below command to install it with exposing Appsmith
 ```
 helm install stable-appsmith/appsmith --generate-name \
---set ingress.enabled=true \
---set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
---set service.type=ClusterIP
+  --set ingress.enabled=true \
+  --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
+  --set service.type=ClusterIP
 ```
 - If you have installed Appsmith Helm chart, please run the `helm upgrade` command to upgrade the existing installation
 ```
 helm upgrade stable-appsmith/appsmith appsmith \
---set ingress.enabled=true \
---set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
---set service.type=ClusterIP
+  --set ingress.enabled=true \
+  --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
+  --set service.type=ClusterIP
 
 # Or this command if you are using values.yaml file
 helm upgrade --values values.yaml stable-appsmith/appsmith appsmith
