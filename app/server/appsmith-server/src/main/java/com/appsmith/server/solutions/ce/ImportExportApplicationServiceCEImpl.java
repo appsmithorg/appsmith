@@ -1410,7 +1410,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return ds;
                 })
                 // For git import exclude datasource configuration
-                .filter(ds -> applicationId != null ? ds.getName().equals(datasource.getName()) : ds.softEquals(datasource))
+                .filter(ds -> ds.getName().equals(datasource.getName()))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {

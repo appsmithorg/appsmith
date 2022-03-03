@@ -101,7 +101,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (!StringUtils.hasLength(datasource.getGitSyncId())) {
             datasource.setGitSyncId(datasource.getOrganizationId() + "_" + new ObjectId());
         }
-        datasource.setIsConfigured(false);
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (!StringUtils.hasLength(datasource.getName())) {
