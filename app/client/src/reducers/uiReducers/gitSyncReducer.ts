@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
+import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -381,6 +381,7 @@ export type GitStatusData = {
   modifiedPages: number;
   modifiedQueries: number;
   remoteBranch: string;
+  modifiedJSObjects: number;
 };
 
 type GitErrorPayloadType = {
