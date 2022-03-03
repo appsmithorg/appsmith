@@ -1300,64 +1300,32 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     /**
-     * We assume that the repo already exists via the connect or commit api
+     * Method to pull application json files from remote repo, make a commit with the changes present in local DB and
+     * make a system commit to remote repo
      *
-     * @param applicationId application for which we want to pull remote changes and merge
+     * @param defaultApplicationId application for which we want to pull remote changes and merge
      * @param branchName    remoteBranch from which the changes will be pulled and merged
      * @return return the status of pull operation
      */
     @Override
-    public Mono<GitPullDTO> pullApplication(String applicationId, String branchName) {
+    public Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName) {
         /*
-         * 1.Dehydrate the application from Mongodb so that the file system has latest application data
+         * 1.Dehydrate the application from DB so that the file system has the latest application data
          * 2.Do git pull after the rehydration and merge the remote changes to the current branch
-         *   On Merge conflict - create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
-         * 3.Then rehydrate from the file system to mongodb so that the latest changes from remote are rendered to the application
-         * 4.Get the latest application mono from the mongodb and send it back to client
+         *   On Merge conflict - throw exception and ask user to resolve these conflicts on remote
+         *   TODO create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
+         * 3.Then rehydrate from the file system to DB so that the latest changes from remote are rendered to the application
+         * 4.Get the latest application from the DB and send it back to client
          * */
 
-        Mono<GitPullDTO> pullMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
-                .flatMap(branchedApplication -> {
-                    // Check if the application is the default if not fetch the default application
-                    GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
-                    if (gitData == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
-                    }
-                    if (StringUtils.equalsIgnoreCase(branchedApplication.getId(), gitData.getDefaultApplicationId())) {
-                        return Mono.zip(Mono.just(branchedApplication), Mono.just(gitData));
-                    }
-                    return Mono.zip(
-                            Mono.just(branchedApplication),
-                            getApplicationById(gitData.getDefaultApplicationId())
-                                    .map(Application::getGitApplicationMetadata)
-                    );
+        Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
+                .flatMap(defaultApplication -> {
+                    GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
+                    return Mono.zip(Mono.just(defaultApplication), getStatus(defaultGitMetadata.getDefaultApplicationId(), branchName));
                 })
                 .flatMap(tuple -> {
-                    /*
-                     * There are two cases. If the branchName is defaultBranch, defaultApplication will be used
-                     * Else, get the Application object for the given branchName
-                     * */
-                    Application branchedApplication = tuple.getT1();
-                    GitApplicationMetadata defaultGitMetadata = tuple.getT2();
-
-                    Path repoSuffix = Paths.get(branchedApplication.getOrganizationId(),
-                            defaultGitMetadata.getDefaultApplicationId(),
-                            defaultGitMetadata.getRepoName());
-
-                    return Mono.zip(
-                            Mono.just(repoSuffix),
-                            getStatus(defaultGitMetadata.getDefaultApplicationId(), branchName),
-                            Mono.just(defaultGitMetadata.getGitAuth()),
-                            Mono.just(branchedApplication)
-                    );
-                })
-                .flatMap(tuple -> {
+                    Application defaultApplication = tuple.getT1();
                     GitStatusDTO status = tuple.getT2();
-                    Path repoSuffix = tuple.getT1();
-                    GitAuth gitAuth = tuple.getT3();
-                    Application branchedApplication = tuple.getT4();
-                    GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
-
                     // Check if the repo is clean
                     if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
                         return Mono.error(new AppsmithException(
@@ -1365,73 +1333,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 "pull",
                                 "There are uncommitted changes present in your local. Please commit them first and then try git pull"));
                     }
-
-                    // 2. git pull origin branchName
-                    Mono<MergeStatusDTO> pullStatus = null;
-                    try {
-                        pullStatus = gitExecutor.pullApplication(
-                                repoSuffix,
-                                gitApplicationMetadata.getRemoteUrl(),
-                                gitApplicationMetadata.getBranchName(),
-                                gitAuth.getPrivateKey(),
-                                gitAuth.getPublicKey())
-                                .onErrorResume(error -> {
-                                    if(error.getMessage().contains("conflict")) {
-                                        return Mono.error(new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage()));
-                                    }
-                                    else if (error.getMessage().contains("Nothing to fetch")) {
-                                        MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                                        mergeStatus.setStatus("Nothing to fetch from remote. All changes are up to date.");
-                                        mergeStatus.setMergeAble(true);
-                                        return Mono.just(mergeStatus);
-                                    }
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
-                                });
-                    } catch (IOException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-                    }
-
-                    return Mono.zip(pullStatus, Mono.just(branchedApplication));
-                })
-                .flatMap(objects -> {
-                    //3. Hydrate from file system to db
-                    Application branchedApplication = objects.getT2();
-                    MergeStatusDTO pullStatus = objects.getT1();
-                    Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationJsonFromGitRepo(
-                            branchedApplication.getOrganizationId(),
-                            branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
-                            branchedApplication.getGitApplicationMetadata().getRepoName(),
-                            branchName);
-                    return Mono.zip(Mono.just(pullStatus), Mono.just(branchedApplication), applicationJson);
-                })
-                .flatMap(tuple -> {
-                    MergeStatusDTO status = tuple.getT1();
-                    Application branchedApplication = tuple.getT2();
-                    ApplicationJson applicationJson = tuple.getT3();
-
-                    //4. Get the latest application mono with all the changes
-                    return importExportApplicationService
-                            .importApplicationInOrganization(branchedApplication.getOrganizationId(), applicationJson, branchedApplication.getId(), branchName)
-                            .flatMap(application -> addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_PULL.getEventName(),
-                                    application,
-                                    application.getGitApplicationMetadata().getIsRepoPrivate()
-                                )
-                                .thenReturn(application)
-                            )
-                            .flatMap(application -> {
-                                GitCommitDTO commitDTO = new GitCommitDTO();
-                                commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
-                                commitDTO.setDoPush(true);
-
-                                GitPullDTO gitPullDTO = new GitPullDTO();
-                                gitPullDTO.setMergeStatus(status);
-                                gitPullDTO.setApplication(responseUtils.updateApplicationWithDefaultResources(application));
-
-                                // Make commit and push after pull is successful to have a clean repo
-                                return this.commitApplication(commitDTO, application.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
-                                        .thenReturn(gitPullDTO);
-                            });
+                    return pullAndRehydrateApplication(defaultApplication, branchName);
                 });
 
         return Mono.create(sink -> pullMono
@@ -1613,15 +1515,26 @@ public class GitServiceCEImpl implements GitServiceCE {
                     try {
                         return Mono.zip(
                                 fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName),
-                                Mono.just(gitData.getGitAuth())
+                                Mono.just(gitData.getGitAuth()),
+                                Mono.just(repoSuffix)
                         );
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
                     }
                 })
-                .flatMap(tuple -> gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
-                        .then(gitExecutor.getStatus(tuple.getT1(), finalBranchName))
-                        .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()))));
+                .flatMap(tuple -> {
+                    Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName).cache();
+                    try {
+                        return gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
+                                .then(branchedStatusMono)
+                                // Remove any files which are copied by hard resetting the repo
+                                .then(gitExecutor.resetToLastCommit(tuple.getT3(), branchName))
+                                .then(branchedStatusMono)
+                                .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
+                    } catch (GitAPIException | IOException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
+                    }
+                });
 
         return Mono.create(sink -> statusMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -2171,6 +2084,49 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
+    @Override
+    public Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull) {
+
+        if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+        }
+        Mono<Application> branchedApplicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                .cache();
+        Mono<Application> defaultApplicationMono = this.getApplicationById(defaultApplicationId);
+
+        if (Boolean.TRUE.equals(doPull)) {
+            return defaultApplicationMono
+                    .flatMap(defaultApplication -> this.pullAndRehydrateApplication(defaultApplication, branchName))
+                    .map(GitPullDTO::getApplication)
+                    .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
+                    .map(responseUtils::updateApplicationWithDefaultResources);
+        }
+
+        // Rehydrate the application from local file system
+        return branchedApplicationMono
+                .flatMap(branchedApplication -> {
+                    GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
+                    if (gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+                    }
+                    Path repoSuffix = Paths.get(branchedApplication.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                    return gitExecutor.checkoutToBranch(repoSuffix, branchName)
+                                    .then(fileUtils.reconstructApplicationJsonFromGitRepo(
+                                            branchedApplication.getOrganizationId(),
+                                            branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                                            branchedApplication.getGitApplicationMetadata().getRepoName(),
+                                            branchName)
+                                    )
+                            .flatMap(applicationJson ->
+                                importExportApplicationService
+                                        .importApplicationInOrganization(branchedApplication.getOrganizationId(), applicationJson, branchedApplication.getId(), branchName)
+                            );
+                })
+                .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
+                .map(responseUtils::updateApplicationWithDefaultResources);
+    }
+
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
                                                                              List<Datasource> datasourceList) {
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
@@ -2370,5 +2326,103 @@ public class GitServiceCEImpl implements GitServiceCE {
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
                 });
+    }
+
+    /**
+     * Method to pull the files from remote repo and rehydrate the application
+     *
+     * @param defaultApplication application which acts as the root for the concerned branch
+     * @param branchName         branch for which the pull is required
+     * @return                   pull DTO with updated application
+     */
+    private Mono<GitPullDTO> pullAndRehydrateApplication(Application defaultApplication, String branchName) {
+
+        /*
+        1. Checkout to the concerned branch
+        2. Do git pull after
+            On Merge conflict - throw exception and ask user to resolve these conflicts on remote
+            TODO create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
+        3. Rehydrate the application from filesystem so that the latest changes from remote are rendered to the application
+        */
+        GitApplicationMetadata gitData = defaultApplication.getGitApplicationMetadata();
+        if (isInvalidDefaultApplicationGitMetadata(gitData)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+        }
+        Path repoSuffix = Paths.get(defaultApplication.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+
+        Mono<Application> branchedApplicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(branchName, defaultApplication.getId(), MANAGE_APPLICATIONS);
+
+        return branchedApplicationMono
+            .flatMap(branchedApplication -> {
+
+                // git checkout and pull origin branchName
+                try {
+                    Mono<MergeStatusDTO> pullStatusMono = gitExecutor.checkoutToBranch(repoSuffix, branchName)
+                            .then(gitExecutor.pullApplication(
+                                    repoSuffix,
+                                    gitData.getRemoteUrl(),
+                                    branchName,
+                                    gitData.getGitAuth().getPrivateKey(),
+                                    gitData.getGitAuth().getPublicKey()
+                            ))
+                            .onErrorResume(error -> {
+                                if(error.getMessage().contains("conflict")) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage()));
+                                }
+                                else if (error.getMessage().contains("Nothing to fetch")) {
+                                    MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                    mergeStatus.setStatus("Nothing to fetch from remote. All changes are up to date.");
+                                    mergeStatus.setMergeAble(true);
+                                    return Mono.just(mergeStatus);
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
+                            })
+                            .cache();
+                    // Rehydrate the application from file system
+                    Mono<ApplicationJson> applicationJsonMono = pullStatusMono
+                            .then(
+                                    fileUtils.reconstructApplicationJsonFromGitRepo(
+                                            branchedApplication.getOrganizationId(),
+                                            branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                                            branchedApplication.getGitApplicationMetadata().getRepoName(),
+                                            branchName)
+                            );
+
+                    return Mono.zip(pullStatusMono, Mono.just(branchedApplication), applicationJsonMono);
+                } catch (IOException e) {
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                }
+            })
+            .flatMap(tuple -> {
+                MergeStatusDTO status = tuple.getT1();
+                Application branchedApplication = tuple.getT2();
+                ApplicationJson applicationJson = tuple.getT3();
+
+                // Get the latest application with all the changes
+                // Commit and push changes to sync with remote
+                return importExportApplicationService
+                        .importApplicationInOrganization(branchedApplication.getOrganizationId(), applicationJson, branchedApplication.getId(), branchName)
+                        .flatMap(application -> addAnalyticsForGitOperation(
+                                        AnalyticsEvents.GIT_PULL.getEventName(),
+                                        application,
+                                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                                    )
+                                    .thenReturn(application)
+                        )
+                        .flatMap(application -> {
+                            GitCommitDTO commitDTO = new GitCommitDTO();
+                            commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
+                            commitDTO.setDoPush(true);
+
+                            GitPullDTO gitPullDTO = new GitPullDTO();
+                            gitPullDTO.setMergeStatus(status);
+                            gitPullDTO.setApplication(responseUtils.updateApplicationWithDefaultResources(application));
+
+                            // Make commit and push after pull is successful to have a clean repo
+                            return this.commitApplication(commitDTO, application.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
+                                    .thenReturn(gitPullDTO);
+                        });
+            });
     }
 }
