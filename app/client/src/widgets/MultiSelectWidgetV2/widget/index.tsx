@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, isString, isNumber } from "lodash";
+import { isArray, isEqual, isString, isNumber, xorWith } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -190,7 +190,7 @@ class MultiSelectWidget extends BaseWidget<
                 fn: defaultOptionValueValidation,
                 expected: {
                   type: "Array of values",
-                  example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+                  example: ` "option1, option2" | ['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
@@ -419,7 +419,11 @@ class MultiSelectWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
     if (
-      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      xorWith(
+        this.props.defaultOptionValue,
+        prevProps.defaultOptionValue,
+        isEqual,
+      ).length > 0 &&
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);

@@ -147,7 +147,6 @@ class RichTextEditorWidget extends BaseWidget<
     return {
       value: `{{this.text}}`,
       isValid: `{{ this.isRequired ? this.text && this.text.length : true }}`,
-      isDirty: `{{ this.inputType === "html" ? this.text !== this.defaultTextHtml : this.text !== this.defaultTextMarkdown }}`,
     };
   }
 

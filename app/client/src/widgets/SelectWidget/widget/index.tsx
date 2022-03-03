@@ -11,7 +11,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { findIndex, isArray, isNumber, isString } from "lodash";
+import { findIndex, isArray, isEqual, isNumber, isString } from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -352,12 +352,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: SelectWidgetProps): void {
-    const defaultOptionValue =
-      this.props.defaultOptionValue.value ?? this.props.defaultOptionValue;
-    const prevDefaultOptionValue =
-      prevProps.defaultOptionValue.value ?? prevProps.defaultOptionValue;
     // Reset isDirty to false if defaultOptionValue changes
-    if (defaultOptionValue !== prevDefaultOptionValue && this.props.isDirty) {
+    if (
+      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
+      this.props.isDirty
+    ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
