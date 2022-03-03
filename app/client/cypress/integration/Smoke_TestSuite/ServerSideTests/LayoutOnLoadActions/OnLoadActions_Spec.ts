@@ -1,8 +1,10 @@
 import { ApiPage } from "../../../../support/Pages/ApiPage";
 import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
+import { HomePage } from "../../../../support/Pages/HomePage";
 
 const apiPage = new ApiPage();
 const agHelper = new AggregateHelper();
+const homePage = new HomePage();
 
 describe("Layout OnLoad Actions tests", function () {
     let dsl: any;
@@ -14,6 +16,7 @@ describe("Layout OnLoad Actions tests", function () {
 
     it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function () {
         agHelper.AddDsl(dsl)
+        agHelper.SelectEntityByName('WIDGETS')
         agHelper.SelectEntityByName('Page1')
         cy.url().then((url) => {
             let currentURL = url;
@@ -48,7 +51,7 @@ describe("Layout OnLoad Actions tests", function () {
         apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize")
         apiPage.EnterParams('name', '{{RandomUser.data.results[0].name.first}}')
         apiPage.RunAPI()
-
+        agHelper.SelectEntityByName('WIDGETS')
         agHelper.SelectEntityByName('Page1')
 
         cy.url().then((url) => {
@@ -80,8 +83,8 @@ describe("Layout OnLoad Actions tests", function () {
     });
 
     it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
-        agHelper.NavigateToHome()
-        agHelper.CreateNewApplication()
+        homePage.NavigateToHome()
+        homePage.CreateNewApplication()
         agHelper.AddDsl(dsl)
 
         apiPage.CreateAndFillApi("https://source.unsplash.com/collection/1599413", "RandomFlora")
@@ -101,7 +104,7 @@ describe("Layout OnLoad Actions tests", function () {
         apiPage.CreateAndFillApi("https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}", "Genderize")
         apiPage.ValidateQueryParams({ key: "name", value: "{{RandomUser.data.results[0].name.first}}" }); // verifies Bug 10055
         apiPage.RunAPI()
-
+        agHelper.SelectEntityByName('WIDGETS')
         agHelper.SelectEntityByName('Page1')
 
         cy.url().then((url) => {
