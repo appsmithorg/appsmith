@@ -134,13 +134,14 @@ export function* executeActionTriggers(
 
 export function* executeAppAction(payload: ExecuteTriggerPayload) {
   const {
+    callbackData,
     dynamicString,
     event: { type },
-    responseData,
+    globalContext,
     source,
     triggerPropertyName,
   } = payload;
-  log.debug({ dynamicString, responseData });
+  log.debug({ dynamicString, callbackData, globalContext });
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
   }
@@ -150,7 +151,8 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     dynamicString,
     type,
     { source, triggerPropertyName },
-    responseData,
+    callbackData,
+    globalContext,
   );
 }
 

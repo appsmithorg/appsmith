@@ -9,7 +9,9 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
-import { DynamicValues } from "reducers/evaluationReducers/formEvaluationReducer";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+import { getDynamicFetchedValues } from "selectors/formSelectors";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
@@ -27,23 +29,12 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       width = this.props.customStyles.width;
     }
 
-    // Options will be set dynamically if the config has fetchOptionsConditionally set to true
-    let options = this.props.options;
-    let isLoading = false;
-    if (
-      this.props.fetchOptionsCondtionally &&
-      !!this.props.dynamicFetchedValues
-    ) {
-      options = this.props.dynamicFetchedValues.data;
-      isLoading = this.props.dynamicFetchedValues.isLoading;
-    }
-
     return (
       <DropdownSelect data-cy={this.props.configProperty} style={{ width }}>
         <Field
           component={renderDropdown}
           name={this.props.configProperty}
-          props={{ ...this.props, width, isLoading, options }} // Passing options and isLoading in props allows the component to get the updated values
+          props={{ ...this.props, width }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>
@@ -55,39 +46,38 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   }
 }
 
-function renderDropdown(props: {
-  input?: WrappedFieldInputProps;
-  meta?: WrappedFieldMetaProps;
-  props: DropDownControlProps;
-  width: string;
-  formName: string;
-  isLoading?: boolean;
-  options: DropdownOption[];
-  disabled?: boolean;
-}): JSX.Element {
+function renderDropdown(
+  props: {
+    input?: WrappedFieldInputProps;
+    meta?: Partial<WrappedFieldMetaProps>;
+    width: string;
+  } & DropDownControlProps,
+): JSX.Element {
   let selectedValue = props.input?.value;
   if (_.isUndefined(props.input?.value)) {
-    selectedValue = props?.props?.initialValue;
+    selectedValue = props?.initialValue;
   }
-
-  const selectedOption =
-    props.options.find(
-      (option: DropdownOption) => option.value === selectedValue,
-    ) || {};
+  let options: DropdownOption[] = [];
+  let selectedOption = {};
+  if (typeof props.options === "object" && Array.isArray(props.options)) {
+    options = props.options;
+    selectedOption =
+      options.find(
+        (option: DropdownOption) => option.value === selectedValue,
+      ) || {};
+  }
   return (
     <Dropdown
       boundary="window"
       disabled={props.disabled}
       dontUsePortal={false}
       dropdownMaxHeight="250px"
-      errorMsg={props.props?.errorText}
-      helperText={props.props?.info}
       isLoading={props.isLoading}
-      isMultiSelect={props?.props?.isMultiSelect}
+      isMultiSelect={props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth={props.width}
-      options={props.options}
-      placeholder={props.props?.placeholderText}
+      options={options}
+      placeholder={props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
       width={props.width}
@@ -103,7 +93,36 @@ export interface DropDownControlProps extends ControlProps {
   isMultiSelect?: boolean;
   isSearchable?: boolean;
   fetchOptionsCondtionally?: boolean;
-  dynamicFetchedValues?: DynamicValues;
+  isLoading: boolean;
 }
 
-export default DropDownControl;
+const mapStateToProps = (
+  state: AppState,
+  ownProps: DropDownControlProps,
+): { isLoading: boolean; options: DropdownOption[] } => {
+  // Added default options to prevent error when options is undefined
+  let isLoading = false;
+  let options: DropdownOption[] = ownProps.fetchOptionsCondtionally
+    ? []
+    : ownProps.options;
+
+  try {
+    if (ownProps.fetchOptionsCondtionally) {
+      const dynamicFetchedValues = getDynamicFetchedValues(
+        state,
+        ownProps.configProperty,
+      );
+      isLoading = dynamicFetchedValues.isLoading;
+      options = dynamicFetchedValues.data;
+    }
+    return { isLoading, options };
+  } catch (e) {
+    return {
+      isLoading,
+      options,
+    };
+  }
+};
+
+// Connecting this componenet to the state to allow for dynamic fetching of options to be updated.
+export default connect(mapStateToProps)(DropDownControl);

@@ -17,7 +17,7 @@ import queryPaneReducer from "./queryPaneReducer";
 import helpReducer from "./helpReducer";
 import apiNameReducer from "./apiNameReducer";
 import explorerReducer from "./explorerReducer";
-import confirmRunActionReducer from "./confirmRunActionReducer";
+import modalActionReducer from "./modalActionReducer";
 import themeReducer from "./themeReducer";
 import datasourceNameReducer from "./datasourceNameReducer";
 import pageCanvasStructureReducer from "reducers/uiReducers/pageCanvasStructureReducer";
@@ -63,7 +63,7 @@ const uiReducer = combineReducers({
   pageCanvasStructure: pageCanvasStructureReducer,
   pageWidgets: pageWidgetsReducer,
   theme: themeReducer,
-  confirmRunAction: confirmRunActionReducer,
+  modalAction: modalActionReducer,
   onBoarding: onBoardingReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,

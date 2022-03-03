@@ -236,7 +236,12 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     if(newPageDetails.isPresent()) {
                         NewPage newPage = newPageDetails.get();
-                        defaultPage.setSlug(getPage.apply(newPage).getSlug());
+                        PageDTO pageDTO = getPage.apply(newPage);
+                        if(pageDTO != null) {
+                            defaultPage.setSlug(pageDTO.getSlug());
+                        } else {
+                            log.error("page dto missing for application {} page {}", application.getId(), defaultPage.getId());
+                        }
                     } else {
                         log.error("page not found for application id {}, page id {}", application.getId(), defaultPage.getId());
                     }
