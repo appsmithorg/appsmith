@@ -1360,9 +1360,11 @@ export default class DataTreeEvaluator {
                 }
               }
               // If the whole binding was removed, then the value at this path would be a string without any bindings.
-              // In this case, if the path exists in the dependency map, then remove it as dependency no more exist for that property.
+              // In this case, if the path exists in the dependency map and is not meta property, then remove it.
               else if (
-                entity.bindingPaths[entityPropertyPath] &&
+                isWidget(entity) &&
+                entity.meta &&
+                !(entityPropertyPath in entity.meta) &&
                 fullPropertyPath in this.dependencyMap
               ) {
                 delete this.dependencyMap[fullPropertyPath];
