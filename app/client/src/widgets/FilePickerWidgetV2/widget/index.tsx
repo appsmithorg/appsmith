@@ -236,6 +236,22 @@ class FilePickerWidget extends BaseWidget<
       autoProceed: false,
       allowMultipleUploads: true,
       debug: false,
+      onBeforeFileAdded: (currentFile: any, files: any) => {
+        // this function run before a file is added to Uppy.
+        // find current uploaded file exits in previous files by file name
+        const exist = _.find(files, (file) => file.name === currentFile.name);
+        if (exist) {
+          this.state.uppy.info(
+            `Cannot add the duplicate file ${currentFile.name}, it already exists`,
+            "info",
+            3000,
+          );
+          // return false to abort adding the file
+          return false;
+        } else {
+          return true;
+        }
+      },
       restrictions: {
         maxFileSize: this.props.maxFileSize
           ? this.props.maxFileSize * 1024 * 1024
