@@ -7,6 +7,7 @@ import {
   AUTHOR_EMAIL,
   FORM_VALIDATION_INVALID_EMAIL,
   AUTHOR_NAME_CANNOT_BE_EMPTY,
+  USE_DEFAULT_CONFIGURATION,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
@@ -33,6 +34,7 @@ const InputContainer = styled.div<{ isValid: boolean }>`
   display: flex;
   align-items: center;
   margin-bottom: ${(props) => props.theme.spaces[props.isValid ? 7 : 12]}px;
+
   & > div {
     ${(props) =>
       !props.isValid ? `border: 1px solid ${Colors.ERROR_RED};` : ""}
@@ -52,6 +54,7 @@ const ButtonWrapper = styled.div`
   padding-top: 2px;
   margin-left: ${(props) => props.theme.spaces[6]}px;
   cursor: pointer;
+
   .edit-config-link {
     font-size: 12px;
     display: flex;
@@ -189,7 +192,7 @@ function UserGitProfileSettings({
             cypressSelector="t--use-global-config-checkbox"
             fill={false}
             isDefaultChecked={useGlobalConfig}
-            label="Use Default Configuration"
+            label={createMessage(USE_DEFAULT_CONFIGURATION)}
             onCheckChange={toggleUseDefaultConfig}
           />
           <ButtonWrapper onClick={goToGitProfile}>
