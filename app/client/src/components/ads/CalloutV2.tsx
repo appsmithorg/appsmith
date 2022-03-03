@@ -32,6 +32,7 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
     font-size: 12px;
     line-height: 16px;
   }
+  
   a {
     font-style: normal;
     font-weight: 600;
