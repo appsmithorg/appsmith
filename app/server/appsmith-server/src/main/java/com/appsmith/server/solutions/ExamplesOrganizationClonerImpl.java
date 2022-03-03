@@ -13,6 +13,7 @@ import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.ExamplesOrganizationClonerCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +36,11 @@ public class ExamplesOrganizationClonerImpl extends ExamplesOrganizationClonerCE
                                           NewActionService newActionService,
                                           LayoutActionService layoutActionService,
                                           ActionCollectionService actionCollectionService,
-                                          LayoutCollectionService layoutCollectionService) {
+                                          LayoutCollectionService layoutCollectionService,
+                                          ThemeService themeService) {
 
         super(organizationService, organizationRepository, datasourceService, datasourceRepository, configService,
                 sessionUserService, userService, applicationService, applicationPageService, newPageRepository,
-                newActionService, layoutActionService, actionCollectionService, layoutCollectionService);
+                newActionService, layoutActionService, actionCollectionService, layoutCollectionService, themeService);
     }
 }

@@ -58,7 +58,7 @@ export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
 export const SIGNUP_PAGE_SUBTITLE = () => `Use your organization email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
-export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => ` Email`;
+export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
 export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
 export const SIGNUP_PAGE_NAME_INPUT_LABEL = () => `Name`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
@@ -565,6 +565,7 @@ export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 
+export const USE_DEFAULT_CONFIGURATION = () => "Use default configuration";
 export const AUTHOR_NAME = () => "Author name";
 export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
@@ -609,7 +610,7 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
-export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste your URL here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
@@ -1031,3 +1032,5 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+export const IMAGE_LOAD_ERROR = () => "Unable to display the image";

@@ -17,7 +17,7 @@ import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
 

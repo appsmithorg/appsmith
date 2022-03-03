@@ -112,7 +112,7 @@ const useHorizontalResize = (
       unFocus(document, window);
 
       if (ref.current) {
-        const width = ref.current.getBoundingClientRect().width;
+        const width = ref.current.clientWidth;
         const current = event.touches[0].clientX;
         const positionDelta = position - current;
         const widthDelta = inverse ? -positionDelta : positionDelta;

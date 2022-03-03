@@ -1,6 +1,5 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -16,6 +15,8 @@ import com.appsmith.server.services.NewActionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -70,10 +72,10 @@ public class ActionControllerCE {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
-    @PostMapping("/execute")
-    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody ExecuteActionDTO executeActionDTO,
+    @PostMapping(value = "/execute", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Flux<Part> partFlux,
                                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newActionService.executeAction(executeActionDTO, branchName)
+        return newActionService.executeAction(partFlux, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
@@ -119,7 +121,7 @@ public class ActionControllerCE {
     /**
      * This function fetches all actions in edit mode.
      * To fetch the actions in view mode, check the function `getActionsForViewMode`
-     *
+     * <p>
      * The controller function is primarily used with param applicationId by the client to fetch the actions in edit
      * mode.
      *

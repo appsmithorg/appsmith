@@ -187,12 +187,30 @@ public class DataTypeStringUtils {
         return DataType.STRING;
     }
 
+    /**
+     *
+     * @param input input string which has a mustache expression that will be substituted by the replacement value
+     * @param replacement value that needs to be substituted in place of mustache expression
+     * @param replacementDataType nullable DataType that is used to provide Plugin Specific types, by setting this
+     *                            you can override the 'DataTypeStringUtils.stringToKnownDataTypeConverter(replacement)'
+     *                            default behavior.
+     * @param insertedParams keeps a list of tuple (replacement, data_type)
+     * @param smartSubstitutionUtils provides entry to plugin specific post-processing logic applied to replacement
+     *                               value before the final substitution happens
+     * @return
+     */
     public static String jsonSmartReplacementPlaceholderWithValue(String input,
                                                                   String replacement,
+                                                                  DataType replacementDataType,
                                                                   List<Map.Entry<String, String>> insertedParams,
                                                                   SmartSubstitutionInterface smartSubstitutionUtils) {
 
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        final DataType dataType;
+        if (replacementDataType == null) {
+            dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        } else {
+            dataType = replacementDataType;
+        }
 
         Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
@@ -240,6 +258,15 @@ public class DataTypeStringUtils {
             case BSON:
                 updatedReplacement = Matcher.quoteReplacement(replacement);
                 break;
+            case BSON_SPECIAL_DATA_TYPES:
+                /**
+                 * For this data type the replacement logic is handled via `sanitizeReplacement(...)` method.
+                 * Usually usage of special Mongo data types like `ObjectId` or `ISODate` falls into this category
+                 * (if it does not get detected as BSON). For complete list please check out `MongoSpecialDataTypes
+                 * .java`.
+                 */
+                updatedReplacement = replacement;
+                break;
             case DATE:
             case TIME:
             case ASCII:
@@ -262,7 +289,7 @@ public class DataTypeStringUtils {
         }
 
         if (smartSubstitutionUtils != null) {
-            updatedReplacement = smartSubstitutionUtils.sanitizeReplacement(updatedReplacement);
+            updatedReplacement = smartSubstitutionUtils.sanitizeReplacement(updatedReplacement, dataType);
         }
 
         input = placeholderPattern.matcher(input).replaceFirst(updatedReplacement);
