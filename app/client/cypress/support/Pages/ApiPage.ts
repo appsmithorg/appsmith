@@ -40,9 +40,7 @@ export class ApiPage {
         cy.get(this._resourceUrl).should("be.visible");
         this.EnterURL(url)
         agHelper.WaitAutoSave()
-        // Added because api name edit takes some time to
-        // reflect in api sidebar after the call passes.
-        agHelper.Sleep(2000);
+        agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
         cy.get(this._apiRunBtn).should("not.be.disabled");
         this.SetAPITimeout(queryTimeout)
     }
@@ -56,7 +54,7 @@ export class ApiPage {
     }
 
     EnterHeader(hKey: string, hValue: string) {
-        cy.get(this._apiTab('Header')).should('be.visible').click();
+        cy.get(this._apiTab('Headers')).eq(0).should('be.visible').click();
         cy.get(this._headerKey(0))
             .first()
             .click({ force: true })
@@ -98,7 +96,7 @@ export class ApiPage {
             .clear()
             .type(timeout.toString());
 
-        cy.get(this._apiTab('Header')).click();
+        cy.get(this._apiTab('Headers')).eq(0).click();
     }
 
     ValidateQueryParams(param: { key: string; value: string; }) {
