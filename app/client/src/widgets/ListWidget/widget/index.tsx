@@ -322,10 +322,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (!action) return;
 
     try {
-      const rowData = [this.props.listData?.[rowIndex]] || [];
+      const rowData = this.props.listData?.[rowIndex];
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{(currentItem) => { ${next} }}} `;
+        return prev + `{{${next}}} `;
       }, "");
 
       super.executeAction({
@@ -333,7 +333,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         event: {
           type: EventType.ON_CLICK,
         },
-        responseData: rowData,
+        globalContext: { currentItem: rowData },
       });
     } catch (error) {
       log.debug("Error parsing row action", error);

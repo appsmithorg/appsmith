@@ -83,6 +83,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -160,14 +161,6 @@ public class ImportExportApplicationServiceTests {
     private static Plugin installedJsPlugin;
     private static Boolean isSetupDone = false;
 
-    private Flux<ActionDTO> getActionsInApplication(Application application) {
-        return newPageService
-                // fetch the unpublished pages
-                .findByApplicationId(application.getId(), READ_PAGES, false)
-                .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
-                        Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), ""));
-    }
-
     @Before
     public void setup() {
         Mockito
@@ -226,6 +219,56 @@ public class ImportExportApplicationServiceTests {
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
         isSetupDone = true;
+    }
+
+    private Flux<ActionDTO> getActionsInApplication(Application application) {
+        return newPageService
+                // fetch the unpublished pages
+                .findByApplicationId(application.getId(), READ_PAGES, false)
+                .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
+                        Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), ""));
+    }
+
+    private FilePart createFilePart(String filePath) {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(
+                        new ClassPathResource(filePath),
+                        new DefaultDataBufferFactory(),
+                        4096)
+                .cache();
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
+
+        return filepart;
+
+    }
+
+    private Mono<ApplicationJson> createAppJson(String filePath) {
+        FilePart filePart = createFilePart(filePath);
+
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
+                .map(dataBuffer -> {
+                    byte[] data = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(data);
+                    DataBufferUtils.release(dataBuffer);
+                    return new String(data);
+                });
+
+        return stringifiedFile
+                .map(data -> {
+                    Gson gson = new Gson();
+                    Type fileType = new TypeToken<ApplicationJson>() {
+                    }.getType();
+                    return gson.fromJson(data, fileType);
+                });
+    }
+
+    private Organization createTemplateOrganization() {
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+        return organizationService.create(newOrganization).block();
     }
     
     @Test
@@ -338,10 +381,10 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithActionAndActionCollectionTest() {
-        
+
         Organization newOrganization = new Organization();
         newOrganization.setName("template-org-with-ds");
-        
+
         Application testApplication = new Application();
         testApplication.setName("ApplicationWithActionCollectionAndDatasource");
         testApplication = applicationPageService.createApplication(testApplication, orgId).block();
@@ -1221,41 +1264,520 @@ public class ImportExportApplicationServiceTests {
 
     }
 
-    private FilePart createFilePart(String filePath) {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-            .read(
-                new ClassPathResource(filePath),
-                new DefaultDataBufferFactory(),
-                4096)
-            .cache();
-    
-        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
-        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
-    
-        return filepart;
-    
+    /**
+     * Testcase for checking the discard changes flow for following events:
+     * 1. Import application in org
+     * 2. Add new page to the imported application
+     * 3. User tries to import application from same application json file
+     * 4. Added page will be removed
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChange_addNewPageAfterImport_addedPageRemoved() {
+
+        /*
+        1. Import application
+        2. Add single page to imported app
+        3. Import the application from same JSON with applicationId
+        4. Added page should be deleted from DB
+         */
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+        String orgId = createTemplateOrganization().getId();
+        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
+                .flatMap(applicationJson -> {
+                    applicationJson.getExportedApplication().setName("discard-change-page-added");
+                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                })
+                .flatMap(application -> {
+                    PageDTO page = new PageDTO();
+                    page.setName("discard-page-test");
+                    page.setApplicationId(application.getId());
+                    return applicationPageService.createPage(page);
+                })
+                .flatMap(page -> applicationRepository.findById(page.getApplicationId()))
+                .cache();
+
+        StepVerifier
+                .create(resultMonoWithoutDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<PageDTO> pageList = tuple.getT2();
+
+                    assertThat(application.getName()).isEqualTo("discard-change-page-added");
+                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(3);
+                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEditModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+
+                    assertThat(pageList).hasSize(3);
+
+                    ApplicationPage defaultAppPage = application.getPages()
+                            .stream()
+                            .filter(ApplicationPage::getIsDefault)
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(defaultAppPage).isNotNull();
+
+                    PageDTO defaultPageDTO = pageList.stream()
+                            .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
+
+                    assertThat(defaultPageDTO).isNotNull();
+                    assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
+
+                    List<String> pageNames = new ArrayList<>();
+                    pageList.forEach(page -> pageNames.add(page.getName()));
+                    assertThat(pageNames).contains("discard-page-test");
+                })
+                .verifyComplete();
+
+        // Import the same application again to find if the added page is deleted
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication ->
+                        applicationJsonMono
+                            .flatMap(applicationJson ->
+                                    importExportApplicationService
+                                            .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                            )
+                );
+
+        StepVerifier
+                .create(resultMonoWithDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<PageDTO> pageList = tuple.getT2();
+
+                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getPublishedPages()).hasSize(1);
+
+                    assertThat(pageList).hasSize(2);
+
+                    List<String> pageNames = new ArrayList<>();
+                    pageList.forEach(page -> pageNames.add(page.getName()));
+                    assertThat(pageNames).doesNotContain("discard-page-test");
+                })
+                .verifyComplete();
     }
 
-    private Mono<ApplicationJson> createAppJson(String filePath) {
-        FilePart filePart = createFilePart(filePath);
+    /**
+     * Testcase for checking the discard changes flow for following events:
+     * 1. Import application in org
+     * 2. Add new action to the imported application
+     * 3. User tries to import application from same application json file
+     * 4. Added action will be removed
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChange_addNewActionAfterImport_addedActionRemoved() {
 
-        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
-                .map(dataBuffer -> {
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-                    return new String(data);
-                });
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+        String orgId = createTemplateOrganization().getId();
 
-        return stringifiedFile
-                .map(data -> {
-                    Gson gson = new Gson();
-                    Type fileType = new TypeToken<ApplicationJson>() {
-                    }.getType();
-                    return gson.fromJson(data, fileType);
-                });
+        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
+                .flatMap(applicationJson -> {
+                    applicationJson.getExportedApplication().setName("discard-change-action-added");
+                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                })
+                .flatMap(application -> {
+                    ActionDTO action = new ActionDTO();
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasourceMap.get("DS1"));
+                    action.setName("discard-action-test");
+                    action.setPageId(application.getPages().get(0).getId());
+                    return layoutActionService.createAction(action);
+                })
+                .flatMap(actionDTO -> newActionService.getById(actionDTO.getId()))
+                .flatMap(newAction -> applicationRepository.findById(newAction.getApplicationId()))
+                .cache();
 
+        StepVerifier
+                .create(resultMonoWithoutDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                getActionsInApplication(application).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<ActionDTO> actionList = tuple.getT2();
+
+                    assertThat(application.getName()).isEqualTo("discard-change-action-added");
+                    assertThat(application.getOrganizationId()).isNotNull();
+
+
+                    List<String> actionNames = new ArrayList<>();
+                    actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
+                    assertThat(actionNames).contains("discard-action-test");
+                })
+                .verifyComplete();
+
+        // Import the same application again
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication ->
+                        applicationJsonMono
+                                .flatMap(applicationJson ->
+                                        importExportApplicationService
+                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                )
+                );
+
+        StepVerifier
+                .create(resultMonoWithDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                getActionsInApplication(application).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<ActionDTO> actionList = tuple.getT2();
+
+                    assertThat(application.getOrganizationId()).isNotNull();
+
+                    List<String> actionNames = new ArrayList<>();
+                    actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
+                    assertThat(actionNames).doesNotContain("discard-action-test");
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Testcase for checking the discard changes flow for following events:
+     * 1. Import application in org
+     * 2. Add actionCollection to the imported application
+     * 3. User tries to import application from same application json file
+     * 4. Added actionCollection will be removed
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChange_addNewActionCollectionAfterImport_addedActionCollectionRemoved() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
+        String orgId = createTemplateOrganization().getId();
+        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
+                .flatMap(applicationJson -> {
+                    applicationJson.getExportedApplication().setName("discard-change-collection-added");
+                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                })
+                .flatMap(application -> {
+                    ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+                    actionCollectionDTO1.setName("discard-action-collection-test");
+                    actionCollectionDTO1.setPageId(application.getPages().get(0).getId());
+                    actionCollectionDTO1.setApplicationId(application.getId());
+                    actionCollectionDTO1.setOrganizationId(application.getOrganizationId());
+                    actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("discard-action-collection-test-action");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    action1.getActionConfiguration().setBody("mockBody");
+                    actionCollectionDTO1.setActions(List.of(action1));
+                    actionCollectionDTO1.setPluginType(PluginType.JS);
+
+                    return layoutCollectionService.createCollection(actionCollectionDTO1);
+                })
+                .flatMap(actionCollectionDTO -> actionCollectionService.getById(actionCollectionDTO.getId()))
+                .flatMap(actionCollection -> applicationRepository.findById(actionCollection.getApplicationId()))
+                .cache();
+
+        StepVerifier
+                .create(resultMonoWithoutDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                getActionsInApplication(application).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<ActionCollection> actionCollectionList = tuple.getT2();
+                    final List<ActionDTO> actionList = tuple.getT3();
+
+                    assertThat(application.getName()).isEqualTo("discard-change-collection-added");
+                    assertThat(application.getOrganizationId()).isNotNull();
+
+                    List<String> actionCollectionNames = new ArrayList<>();
+                    actionCollectionList.forEach(actionCollection -> actionCollectionNames.add(actionCollection.getUnpublishedCollection().getName()));
+                    assertThat(actionCollectionNames).contains("discard-action-collection-test");
+
+                    List<String> actionNames = new ArrayList<>();
+                    actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
+                    assertThat(actionNames).contains("discard-action-collection-test-action");
+                })
+                .verifyComplete();
+
+        // Import the same application again
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication ->
+                        applicationJsonMono
+                                .flatMap(applicationJson ->
+                                        importExportApplicationService
+                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                )
+                );
+
+        StepVerifier
+                .create(resultMonoWithDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                getActionsInApplication(application).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<ActionCollection> actionCollectionList = tuple.getT2();
+                    final List<ActionDTO> actionList = tuple.getT3();
+
+                    assertThat(application.getOrganizationId()).isNotNull();
+
+                    List<String> actionCollectionNames = new ArrayList<>();
+                    actionCollectionList.forEach(actionCollection -> actionCollectionNames.add(actionCollection.getUnpublishedCollection().getName()));
+                    assertThat(actionCollectionNames).doesNotContain("discard-action-collection-test");
+
+                    List<String> actionNames = new ArrayList<>();
+                    actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
+                    assertThat(actionNames).doesNotContain("discard-action-collection-test-action");
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Testcase for checking the discard changes flow for following events:
+     * 1. Import application in org
+     * 2. Remove existing page from imported application
+     * 3. Import application from same application json file
+     * 4. Removed page will be restored
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChange_removeNewPageAfterImport_removedPageRestored() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+        String orgId = createTemplateOrganization().getId();
+        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
+                .flatMap(applicationJson -> {
+                    applicationJson.getExportedApplication().setName("discard-change-page-removed");
+                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                })
+                .flatMap(application -> {
+                    Optional<ApplicationPage> applicationPage = application
+                            .getPages()
+                            .stream()
+                            .filter(page -> !page.isDefault())
+                            .findFirst();
+                    return applicationPageService.deleteUnpublishedPage(applicationPage.get().getId());
+                })
+                .flatMap(page -> applicationRepository.findById(page.getApplicationId()))
+                .cache();
+
+        StepVerifier
+                .create(resultMonoWithoutDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<PageDTO> pageList = tuple.getT2();
+
+                    assertThat(application.getName()).isEqualTo("discard-change-page-removed");
+                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(1);
+
+                    assertThat(pageList).hasSize(1);
+                })
+                .verifyComplete();
+
+        // Import the same application again
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication ->
+                        applicationJsonMono
+                                .flatMap(applicationJson ->
+                                        importExportApplicationService
+                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                )
+                );
+
+        StepVerifier
+                .create(resultMonoWithDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<PageDTO> pageList = tuple.getT2();
+
+                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getPublishedPages()).hasSize(1);
+
+                    assertThat(pageList).hasSize(2);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Testcase for checking the discard changes flow for following events:
+     * 1. Import application in org
+     * 2. Remove existing action from imported application
+     * 3. Import application from same application json file
+     * 4. Removed action will be restored
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChange_removeNewActionAfterImport_removedActionRestored() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+        String orgId = createTemplateOrganization().getId();
+        final String[] deletedActionName = new String[1];
+        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
+                .flatMap(applicationJson -> {
+                    applicationJson.getExportedApplication().setName("discard-change-action-removed");
+                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                })
+                .flatMap(application -> {
+                    return getActionsInApplication(application)
+                            .next()
+                            .flatMap(actionDTO -> {
+                                deletedActionName[0] = actionDTO.getName();
+                                return newActionService.deleteUnpublishedAction(actionDTO.getId());
+                            })
+                            .then(applicationPageService.publish(application.getId(), true));
+                })
+                .cache();
+
+        StepVerifier
+                .create(resultMonoWithoutDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                getActionsInApplication(application).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<ActionDTO> actionList = tuple.getT2();
+
+                    assertThat(application.getName()).isEqualTo("discard-change-action-removed");
+                    assertThat(application.getOrganizationId()).isNotNull();
+
+                    List<String> actionNames = new ArrayList<>();
+                    actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
+                    assertThat(actionNames).doesNotContain(deletedActionName[0]);
+                })
+                .verifyComplete();
+
+        // Import the same application again
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication ->
+                        applicationJsonMono
+                                .flatMap(applicationJson ->
+                                        importExportApplicationService
+                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                )
+                );
+
+        StepVerifier
+                .create(resultMonoWithDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                getActionsInApplication(application).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<ActionDTO> actionList = tuple.getT2();
+
+                    assertThat(application.getOrganizationId()).isNotNull();
+
+                    List<String> actionNames = new ArrayList<>();
+                    actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
+                    assertThat(actionNames).contains(deletedActionName[0]);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Testcase for checking the discard changes flow for following events:
+     * 1. Import application in org
+     * 2. Remove existing actionCollection from imported application
+     * 3. Import application from same application json file
+     * 4. Removed actionCollection along-with actions will be restored
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChange_removeNewActionCollection_removedActionCollectionRestored() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+        String orgId = createTemplateOrganization().getId();
+        final String[] deletedActionCollectionNames = new String[1];
+        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
+                .flatMap(applicationJson -> {
+                    applicationJson.getExportedApplication().setName("discard-change-collection-removed");
+                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                })
+                .flatMap(application -> {
+                    return actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
+                            .next()
+                            .flatMap(actionCollection -> {
+                                deletedActionCollectionNames[0] = actionCollection.getUnpublishedCollection().getName();
+                                return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
+                            })
+                            .then(applicationPageService.publish(application.getId(), true));
+                })
+                .cache();
+
+        StepVerifier
+                .create(resultMonoWithoutDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<ActionCollection> actionCollectionList = tuple.getT2();
+
+                    assertThat(application.getName()).isEqualTo("discard-change-collection-removed");
+                    assertThat(application.getOrganizationId()).isNotNull();
+
+                    List<String> actionCollectionNames = new ArrayList<>();
+                    actionCollectionList.forEach(actionCollection -> actionCollectionNames.add(actionCollection.getUnpublishedCollection().getName()));
+                    assertThat(actionCollectionNames).doesNotContain(deletedActionCollectionNames);
+                })
+                .verifyComplete();
+
+        // Import the same application again
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication ->
+                        applicationJsonMono
+                                .flatMap(applicationJson ->
+                                        importExportApplicationService
+                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                )
+                );
+
+        StepVerifier
+                .create(resultMonoWithDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<ActionCollection> actionCollectionList = tuple.getT2();
+
+                    assertThat(application.getOrganizationId()).isNotNull();
+
+                    List<String> actionCollectionNames = new ArrayList<>();
+                    actionCollectionList.forEach(actionCollection -> actionCollectionNames.add(actionCollection.getUnpublishedCollection().getName()));
+                    assertThat(actionCollectionNames).contains(deletedActionCollectionNames);
+                })
+                .verifyComplete();
     }
     
 }
