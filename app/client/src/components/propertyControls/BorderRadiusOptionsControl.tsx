@@ -3,7 +3,6 @@ import * as React from "react";
 import TooltipComponent from "components/ads/Tooltip";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
-import classNames from "classnames";
 import { ButtonTabComponent } from "components/ads";
 
 /**
@@ -14,6 +13,27 @@ import { ButtonTabComponent } from "components/ads";
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
+
+const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
+  icon: (
+    <TooltipComponent
+      content={
+        <div>
+          <div>{optionKey}</div>
+        </div>
+      }
+      key={optionKey}
+      openOnTargetFocus={false}
+    >
+      <div
+        className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
+        style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
+      />
+    </TooltipComponent>
+  ),
+  value: borderRadiusOptions[optionKey],
+}));
+
 /**
  * ----------------------------------------------------------------------------
  * COMPONENT
@@ -29,33 +49,7 @@ class BorderRadiusOptionsControl extends BaseControl<
   public render() {
     return (
       <ButtonTabComponent
-        options={Object.keys(borderRadiusOptions).map((optionKey) => ({
-          icon: (
-            <TooltipComponent
-              content={
-                <div>
-                  <div>{optionKey}</div>
-                </div>
-              }
-              key={optionKey}
-              openOnTargetFocus={false}
-            >
-              <div
-                className={classNames({
-                  "w-5 h-5 border-t-2 border-l-2": true,
-                  "border-gray-800":
-                    this.props.evaluatedValue ===
-                    borderRadiusOptions[optionKey],
-                  "border-gray-500":
-                    this.props.evaluatedValue !==
-                    borderRadiusOptions[optionKey],
-                })}
-                style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
-              />
-            </TooltipComponent>
-          ),
-          value: borderRadiusOptions[optionKey],
-        }))}
+        options={options}
         selectButton={(value) => {
           this.updateProperty(this.props.propertyName, value);
         }}

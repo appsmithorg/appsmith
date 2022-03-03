@@ -9,6 +9,30 @@ export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
 
+const options = Object.keys(boxShadowOptions).map((optionKey) => ({
+  icon: (
+    <TooltipComponent
+      content={
+        <div>
+          <div>{optionKey}</div>
+        </div>
+      }
+      key={optionKey}
+      openOnTargetFocus={false}
+    >
+      <div
+        className="flex items-center justify-center w-5 h-5 bg-white"
+        style={{ boxShadow: boxShadowOptions[optionKey] }}
+      >
+        {boxShadowOptions[optionKey] === "none" && (
+          <CloseLineIcon className="text-gray-700" />
+        )}
+      </div>
+    </TooltipComponent>
+  ),
+  value: boxShadowOptions[optionKey],
+}));
+
 class BoxShadowOptionsControl extends BaseControl<
   BoxShadowOptionsControlProps
 > {
@@ -19,29 +43,7 @@ class BoxShadowOptionsControl extends BaseControl<
   public render() {
     return (
       <ButtonTabComponent
-        options={Object.keys(boxShadowOptions).map((optionKey) => ({
-          icon: (
-            <TooltipComponent
-              content={
-                <div>
-                  <div>{optionKey}</div>
-                </div>
-              }
-              key={optionKey}
-              openOnTargetFocus={false}
-            >
-              <div
-                className="flex items-center justify-center w-5 h-5 bg-white"
-                style={{ boxShadow: boxShadowOptions[optionKey] }}
-              >
-                {boxShadowOptions[optionKey] === "none" && (
-                  <CloseLineIcon className="text-gray-700" />
-                )}
-              </div>
-            </TooltipComponent>
-          ),
-          value: boxShadowOptions[optionKey],
-        }))}
+        options={options}
         selectButton={(value) => {
           this.updateProperty(this.props.propertyName, value);
         }}
