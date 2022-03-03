@@ -99,6 +99,8 @@ export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
 export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
 export const FORGOT_PASSWORD_SUCCESS_TEXT = () =>
   `A password reset link has been sent to`;
+export const FORGOT_PASSWORD_NEUTRAL_TEXT = (email: string) =>
+  `If ${email} has an account, then an email has been sent with a password reset link.`;
 
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;

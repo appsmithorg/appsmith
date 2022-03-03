@@ -18,7 +18,7 @@ import {
   FORGOT_PASSWORD_PAGE_TITLE,
   FORM_VALIDATION_EMPTY_EMAIL,
   FORM_VALIDATION_INVALID_EMAIL,
-  FORGOT_PASSWORD_SUCCESS_TEXT,
+  FORGOT_PASSWORD_NEUTRAL_TEXT,
   FORGOT_PASSWORD_PAGE_LOGIN_LINK,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -82,8 +82,10 @@ export const ForgotPassword = withTheme(
           {submitSucceeded && (
             <FormMessage
               intent="lightSuccess"
-              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)}
-                ${props.emailValue}`}
+              message={createMessage(
+                FORGOT_PASSWORD_NEUTRAL_TEXT,
+                props.emailValue,
+              )}
             />
           )}
           {!mailEnabled && (
