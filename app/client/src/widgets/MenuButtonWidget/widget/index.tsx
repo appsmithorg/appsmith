@@ -40,7 +40,6 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   menuColor?: string;
   borderRadius: ButtonBorderRadius;
   boxShadow?: string;
-
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;

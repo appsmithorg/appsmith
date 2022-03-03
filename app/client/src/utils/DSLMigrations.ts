@@ -97,7 +97,7 @@ const addLogBlackListToAllListWidgetChildren = (
  * @param currentDSL
  * @returns
  */
-export const addPrivateWidgetsToAllListWidgets = (
+const addPrivateWidgetsToAllListWidgets = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {

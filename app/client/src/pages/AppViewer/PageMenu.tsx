@@ -11,13 +11,13 @@ import {
 } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import classNames from "classnames";
-import PrimaryCTA from "../PrimaryCTA";
-import Button from "./../AppViewerButton";
+import PrimaryCTA from "./PrimaryCTA";
+import Button from "./AppViewerButton";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import BrandingBadge from "../BrandingBadgeMobile";
+import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 
@@ -64,7 +64,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
     });
   }
 
-  return appPages.length > 1 ? (
+  return (
     <>
       {/* BG OVERLAY */}
       <div
@@ -80,7 +80,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
       {/* MAIN CONTAINER */}
       <div
         className={classNames({
-          "fixed flex flex-col w-7/12 bg-white transform transition-all": true,
+          "fixed flex flex-col w-7/12 bg-white transform transition-all duration-400": true,
           "-left-full": !isOpen,
           "left-0": isOpen,
         })}
@@ -88,7 +88,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
           height: `calc(100% - ${headerHeight}px)`,
         }}
       >
-        <div className="flex-grow py-3 overflow-y-scroll" ref={menuRef}>
+        <div className="flex-grow py-3 overflow-y-auto" ref={menuRef}>
           {appPages.map((page) => (
             <NavLink
               activeClassName="border-r-3 font-semibold"
@@ -138,7 +138,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
         </div>
       </div>
     </>
-  ) : null;
+  );
 }
 
 export default PageMenu;

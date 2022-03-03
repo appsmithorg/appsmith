@@ -24,17 +24,18 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { useHideComments } from "pages/Editor/ToggleModeButton";
+import ToggleCommentModeButton, {
+  useHideComments,
+} from "pages/Editor/ToggleModeButton";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import HtmlTitle from "../AppViewerHtmlTitle";
-import PrimaryCTA from "../PrimaryCTA";
-import Button from "./../AppViewerButton";
+import HtmlTitle from "./AppViewerHtmlTitle";
+import PrimaryCTA from "./PrimaryCTA";
+import Button from "./AppViewerButton";
 import { Colors } from "constants/Colors";
 import MenuIcon from "remixicon-react/MenuFillIcon";
 import CloseIcon from "remixicon-react/CloseFillIcon";
 import PageMenu from "./PageMenu";
-import CommentModeButton from "./CommentModeButton";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 
 /**
@@ -126,7 +127,7 @@ type AppViewerHeaderProps = {
 export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const [isMenuOpen, setMenuOpen] = useState(false);
-  const headerRef = useRef<any>();
+  const headerRef = useRef<HTMLDivElement>(null);
   const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
@@ -152,7 +153,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             <HeaderSection className="justify-start flex-grow">
               <div
                 className="block w-5 h-5 cursor-pointer md:hidden"
-                onClick={() => setMenuOpen(!isMenuOpen)}
+                onClick={() => setMenuOpen((prevState) => !prevState)}
               >
                 {isMenuOpen ? (
                   <CloseIcon className="w-5 h-5" />
@@ -171,7 +172,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                 <div className="hidden space-x-2 md:flex">
                   {!shouldHideComments && (
                     <div>
-                      <CommentModeButton />
+                      <ToggleCommentModeButton />
                     </div>
                   )}
                   <FormDialogComponent

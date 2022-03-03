@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {
   IButtonProps,
   MaybeElement,
-  Button as BButton,
+  Button as BlueprintButton,
 } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { withTooltip } from "components/wds";
@@ -23,8 +23,43 @@ import {
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import withRecaptcha, { RecaptchaProps } from "./withRecaptcha";
 
+type ButtonStyleProps = {
+  buttonColor?: string;
+  buttonVariant?: ButtonVariant;
+  iconName?: IconName;
+  placement?: ButtonPlacement;
+  justifyContent?:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "space-evenly";
+};
+
+export interface ButtonProps
+  extends IButtonProps,
+    ButtonStyleProps,
+    RecaptchaProps {
+  variant?: keyof typeof VariantTypes;
+  boxShadow?: string;
+  borderRadius?: string;
+  tooltip?: string;
+  children?: React.ReactNode;
+  leftIcon?: IconName | MaybeElement;
+  isDisabled?: boolean;
+  isLoading?: boolean;
+}
+
+enum VariantTypes {
+  solid = "solid",
+  outline = "outline",
+  ghost = "ghost",
+  link = "link",
+}
+
 export const StyledButton = styled((props) => (
-  <BButton
+  <BlueprintButton
     {..._.omit(props, [
       "borderRadius",
       "boxShadow",
@@ -116,40 +151,6 @@ export const StyledButton = styled((props) => (
   `}
 `;
 
-type ButtonStyleProps = {
-  buttonColor?: string;
-  buttonVariant?: ButtonVariant;
-  iconName?: IconName;
-  placement?: ButtonPlacement;
-  justifyContent?:
-    | "flex-start"
-    | "flex-end"
-    | "center"
-    | "space-between"
-    | "space-around"
-    | "space-evenly";
-};
-
-export interface ButtonProps
-  extends IButtonProps,
-    ButtonStyleProps,
-    RecaptchaProps {
-  variant?: keyof typeof VariantTypes;
-  boxShadow?: string;
-  borderRadius?: string;
-  tooltip?: string;
-  children?: React.ReactNode;
-  leftIcon?: IconName | MaybeElement;
-  isDisabled?: boolean;
-  isLoading?: boolean;
-}
-
-enum VariantTypes {
-  solid = "solid",
-  outline = "outline",
-  ghost = "ghost",
-  link = "link",
-}
 function Button(props: ButtonProps) {
   const { children, isDisabled, isLoading, leftIcon, ...rest } = props;
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
@@ -7,22 +7,18 @@ import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 
 function FilePickerComponent(props: FilePickerComponentProps) {
-  const label = useMemo(() => {
-    let computedLabel = props.label;
+  let computedLabel = props.label;
 
-    if (props.files && props.files.length) {
-      computedLabel = `${props.files.length} files selected`;
-    }
-
-    return computedLabel;
-  }, [props.label, props.files]);
+  if (props.files && props.files.length) {
+    computedLabel = `${props.files.length} files selected`;
+  }
 
   /**
    * opens modal
    */
-  const openModal = useCallback(() => {
+  const openModal = () => {
     props.uppy.getPlugin("Dashboard").openModal();
-  }, [props.uppy, props.isDisabled]);
+  };
 
   return (
     <BaseButton
@@ -32,7 +28,7 @@ function FilePickerComponent(props: FilePickerComponentProps) {
       disabled={props.isDisabled}
       loading={props.isLoading}
       onClick={openModal}
-      text={label}
+      text={computedLabel}
     />
   );
 }

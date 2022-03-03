@@ -139,3 +139,5 @@ export const boxShadowOptions: Record<string, string> = {
 };
 
 export const colorsPropertyName = "colors";
+
+export const DEFAULT_FONT_SIZE = "1rem";

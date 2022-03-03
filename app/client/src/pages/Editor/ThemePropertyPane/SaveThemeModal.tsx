@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Dialog from "components/ads/DialogComponent";
-import CloseIcon from "remixicon-react/CloseLineIcon";
 import Button, { Category, Size } from "components/ads/Button";
 import { saveSelectedThemeAction } from "actions/appThemingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -44,16 +43,14 @@ function SaveThemeModal(props: SaveThemeModalProps) {
   );
 
   return (
-    <Dialog canOutsideClickClose isOpen={isOpen} onClose={onClose}>
+    <Dialog
+      canOutsideClickClose
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Save Theme"
+    >
       <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl">Save Theme</h2>
-          <button onClick={onClose} type="button">
-            <CloseIcon className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div className="py-6 pb-8 space-y-3">
+        <div className="pb-6 space-y-3">
           <p>
             You can save your custom themes to use across applications and use
             them when you need.

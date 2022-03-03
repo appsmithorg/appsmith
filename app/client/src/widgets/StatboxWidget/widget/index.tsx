@@ -11,8 +11,8 @@ class StatboxWidget extends ContainerWidget {
         sectionName: "General",
         children: [
           {
-            helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -32,8 +32,8 @@ class StatboxWidget extends ContainerWidget {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
+            helpText: "Enables scrolling for content inside the widget",
             label: "Scroll Contents",
             controlType: "SWITCH",
             isBindProperty: false,
@@ -45,9 +45,9 @@ class StatboxWidget extends ContainerWidget {
         sectionName: "Styles",
         children: [
           {
+            propertyName: "backgroundColor",
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "backgroundColor",
             label: "Background Colour",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -56,9 +56,9 @@ class StatboxWidget extends ContainerWidget {
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "borderColor",
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "borderColor",
             label: "Border Colour",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -67,8 +67,8 @@ class StatboxWidget extends ContainerWidget {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Enter value for border width",
             propertyName: "borderWidth",
+            helpText: "Enter value for border width",
             label: "Border Width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",

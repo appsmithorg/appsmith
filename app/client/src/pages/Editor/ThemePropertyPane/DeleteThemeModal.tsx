@@ -1,7 +1,6 @@
 import React from "react";
 
 import Dialog from "components/ads/DialogComponent";
-import CloseIcon from "remixicon-react/CloseLineIcon";
 import Button, { Category, Size } from "components/ads/Button";
 import { Variant } from "components/ads/common";
 import {
@@ -9,7 +8,6 @@ import {
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
 } from "@appsmith/constants/messages";
-import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;
@@ -25,19 +23,10 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
       canOutsideClickClose
       isOpen={isOpen}
       onClose={onClose}
-      width="600px"
+      title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
+      width="500px"
     >
-      <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-xl font-medium">
-          <DeleteIcon className="w-6 h-6 p-1 text-red-600 bg-red-100 rounded-full" />
-          {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
-        </h2>
-        <button onClick={onClose} type="button">
-          <CloseIcon className="w-6 h-6" />
-        </button>
-      </div>
-
-      <div className="py-6 pb-8 space-y-3 ">
+      <div className="pb-8 space-y-3 ">
         <p>{createMessage(DELETE_APP_THEME_WARNING)}</p>
       </div>
 

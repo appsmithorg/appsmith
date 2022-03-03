@@ -33,11 +33,13 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
-import _, { omit } from "lodash";
+import { omit } from "lodash";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
+const clone = require("rfdc/default");
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type GeneratedWidgetPayload = {
@@ -55,12 +57,18 @@ function* getEntityNames() {
   return Object.keys(evalTree);
 }
 
+/**
+ * return stylesheet of widget
+ * NOTE: a stylesheet is an object that contains
+ * which property of widget will use which property of the theme
+ *
+ * @param type
+ * @returns
+ */
 function* getThemeDefaultConfig(type: string) {
   const stylesheet = yield select(getSelectedAppThemeStylesheet);
 
-  const config = stylesheet[type];
-
-  return config || {};
+  return stylesheet[type] || {};
 }
 
 function* getChildWidgetProps(
@@ -137,9 +145,10 @@ function* getChildWidgetProps(
     widget,
     themeDefaultConfig,
   );
-  widget.dynamicBindingPathList = _.cloneDeep(dynamicBindingPathList);
+  widget.dynamicBindingPathList = clone(dynamicBindingPathList);
   return widget;
 }
+
 function* generateChildWidgets(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
