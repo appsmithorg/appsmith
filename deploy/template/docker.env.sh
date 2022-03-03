@@ -40,6 +40,11 @@ APPSMITH_MAIL_ENABLED=false
 # APPSMITH_OAUTH2_OIDC_CLIENT_SECRET=
 # ******************************
 
+# ******** Form Login/Signup ********
+# APPSMITH_FORM_LOGIN_DISABLED=
+# APPSMITH_SIGNUP_DISABLED=
+# ***********************************
+
 # ******** Google Maps ***********
 # APPSMITH_GOOGLE_MAPS_API_KEY=
 # ********************************
