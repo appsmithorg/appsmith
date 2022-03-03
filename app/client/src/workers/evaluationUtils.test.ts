@@ -14,6 +14,8 @@ import {
   isPrivateEntityPath,
   makeParentsDependOnChildren,
 } from "./evaluationUtils";
+import { warn as logWarn } from "loglevel";
+jest.mock("loglevel");
 
 const BASE_WIDGET: DataTreeWidget = {
   logBlackList: {},
@@ -35,6 +37,8 @@ const BASE_WIDGET: DataTreeWidget = {
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   privateWidgets: {},
+  propertyOverrideDependency: {},
+  overridingPropertyPaths: {},
 };
 
 const testDataTree: Record<string, DataTreeWidget> = {
@@ -162,19 +166,19 @@ describe("Correctly handle paths", () => {
       });
     });
 
-    it("doesn't make parent properties depend on child properties when not listed in allKeys", () => {
-      let depMap: DependencyMap = {
+    it("logs warning for child properties not listed in allKeys", () => {
+      const depMap: DependencyMap = {
         Widget1: [],
         "Widget1.defaultText": [],
       };
       const allkeys: Record<string, true> = {
         Widget1: true,
       };
-      depMap = makeParentsDependOnChildren(depMap, allkeys);
-      expect(depMap).toStrictEqual({
-        Widget1: [],
-        "Widget1.defaultText": [],
-      });
+      makeParentsDependOnChildren(depMap, allkeys);
+      expect(logWarn).toBeCalledWith(
+        "makeParentsDependOnChild - Widget1.defaultText is not present in dataTree.",
+        "This might result in a cyclic dependency.",
+      );
     });
   });
 });

@@ -28,6 +28,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
 const clone = require("rfdc/default");
+import { warn as logWarn } from "loglevel";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -305,7 +306,12 @@ export const makeParentsDependOnChild = (
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-  if (!allkeys[curKey]) return depMap;
+  if (!allkeys[curKey]) {
+    logWarn(
+      `makeParentsDependOnChild - ${curKey} is not present in dataTree.`,
+      "This might result in a cyclic dependency.",
+    );
+  }
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null
