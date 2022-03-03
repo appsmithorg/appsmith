@@ -118,7 +118,6 @@ export class HomePage {
     public NavigateToHome() {
         cy.get(this._homeIcon).click({ force: true });
         agHelper.Sleep(3000)
-        cy.wait("@applications");
         cy.get(this._homePageAppCreateBtn).should("be.visible").should("be.enabled");
     }
 
