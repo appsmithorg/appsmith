@@ -1,12 +1,6 @@
 import React, { useEffect, ReactNode, useCallback } from "react";
-import { useRouteMatch } from "react-router";
-import {
-  Switch,
-  withRouter,
-  RouteComponentProps,
-  Route,
-  matchPath,
-} from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
+import { useLocation, useRouteMatch } from "react-router";
 import ApiEditor from "./APIEditor";
 import IntegrationEditor from "./IntegrationEditor";
 import QueryEditor from "./QueryEditor";
@@ -28,8 +22,6 @@ import {
   GENERATE_TEMPLATE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   matchBuilderPath,
-  BUILDER_PATH,
-  BUILDER_PATH_DEPRECATED,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -43,8 +35,8 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PagesEditor from "./PagesEditor";
-import { trimQueryString } from "utils/helpers";
 import { builderURL } from "AppsmithRouteFactory";
+import history from "utils/history";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -59,7 +51,6 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
-  isActionPath: any;
 }>`
   background-color: white;
   width: ${(props) => (!props.isVisible ? "0" : "100%")};
@@ -68,45 +59,29 @@ const DrawerWrapper = styled.div<{
   flex-direction: column;
 `;
 
-function isOnActionPath(pathname: string) {
-  return matchPath(pathname, {
-    path: [
-      trimQueryString(INTEGRATION_EDITOR_PATH),
-      trimQueryString(API_EDITOR_ID_PATH),
-      trimQueryString(QUERIES_EDITOR_ID_PATH),
-    ],
-    exact: true,
-    strict: false,
-  });
-}
-
-function EditorsRouter(props: RouteComponentProps) {
+function EditorsRouter() {
   const { path } = useRouteMatch();
+  const { pathname } = useLocation();
   const [isVisible, setIsVisible] = React.useState(
-    !matchBuilderPath(window.location.pathname),
-  );
-  const [isActionPath, setIsActionPath] = React.useState(
-    isOnActionPath(window.location.pathname),
+    () => !matchBuilderPath(pathname),
   );
 
   useEffect(() => {
-    const isOnBuilder = matchBuilderPath(props.location.pathname);
-    const isActionPath = isOnActionPath(props.location.pathname);
+    const isOnBuilder = matchBuilderPath(pathname);
     setIsVisible(!isOnBuilder);
-    setIsActionPath(isActionPath);
-  }, [props.location.pathname]);
+  }, [pathname]);
 
   const handleClose = useCallback(
     (e: React.MouseEvent) => {
       PerformanceTracker.startTracking(
         PerformanceTransactionName.CLOSE_SIDE_PANE,
-        { path: props.location.pathname },
+        { path: pathname },
       );
       e.stopPropagation();
       setIsVisible(false);
-      props.history.replace(builderURL());
+      history.replace(builderURL());
     },
-    [props.location.pathname],
+    [pathname],
   );
 
   const preventClose = useCallback((e: React.MouseEvent) => {
@@ -115,11 +90,7 @@ function EditorsRouter(props: RouteComponentProps) {
 
   return (
     <Wrapper isVisible={isVisible} onClick={handleClose}>
-      <PaneDrawer
-        isActionPath={isActionPath}
-        isVisible={isVisible}
-        onClick={preventClose}
-      >
+      <PaneDrawer isVisible={isVisible} onClick={preventClose}>
         <Switch key={path}>
           <SentryRoute
             component={IntegrationEditor}
@@ -193,7 +164,6 @@ function EditorsRouter(props: RouteComponentProps) {
 
 type PaneDrawerProps = {
   isVisible: boolean;
-  isActionPath: Record<any, any> | null;
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };
@@ -219,4 +189,4 @@ function PaneDrawer(props: PaneDrawerProps) {
 
 PaneDrawer.displayName = "PaneDrawer";
 
-export default withRouter(EditorsRouter);
+export default EditorsRouter;
