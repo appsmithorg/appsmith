@@ -32,7 +32,7 @@ if ! test -f "$KEY_FILE" || ! test -f "$CERT_FILE"; then
     exit
 fi
 
-ENV_FILE=../../stacks/configuration/docker.env
+ENV_FILE=../../.env
 if ! test -f "$ENV_FILE"; then
     echo "
         Please populate the .env at the root of the project and run again
