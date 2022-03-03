@@ -50,6 +50,8 @@ export enum Kind {
 
 type GitSyncProps = {
   type: Kind;
+  status: GitStatusData;
+  loading: boolean;
 };
 
 const STATUS_MAP = {
@@ -58,27 +60,31 @@ const STATUS_MAP = {
       (status?.modifiedPages || 0) <= 1 ? "page" : "pages"
     } updated`,
     iconName: "widget",
+    hasValue: (status?.modifiedPages || 0) > 0,
   }),
   [Kind.QUERY]: (status: any) => ({
     message: `${status?.modifiedQueries || 0} ${
       (status?.modifiedQueries || 0) <= 1 ? "query" : "queries"
     } modified`,
     iconName: "query",
+    hasValue: (status?.modifiedQueries || 0) > 0,
   }),
   [Kind.COMMIT]: (status: GitStatusData) => ({
     message: commitMessage(status),
     iconName: "git-commit",
+    hasValue: (status?.aheadCount || 0) > 0 || (status?.behindCount || 0) > 0,
   }),
   [Kind.JS_OBJECT]: (status: GitStatusData) => ({
-    message: `${status.modifiedJSObjects || 0} JS ${
-      (status.modifiedJSObjects || 0) <= 1 ? "Object" : "Objects"
+    message: `${status?.modifiedJSObjects || 0} JS ${
+      (status?.modifiedJSObjects || 0) <= 1 ? "Object" : "Objects"
     } modified`,
     iconName: "js",
+    hasValue: (status?.modifiedJSObjects || 0) > 0,
   }),
 };
 
 function commitMessage(status: GitStatusData) {
-  const { aheadCount, behindCount } = status;
+  const { aheadCount = 0, behindCount = 0 } = status;
   const aheadMessage =
     aheadCount > 0
       ? (aheadCount || 0) === 1
@@ -95,44 +101,28 @@ function commitMessage(status: GitStatusData) {
 }
 
 function Status(props: GitSyncProps) {
-  const { type } = props;
-  const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
-  const loading = useSelector(getIsFetchingGitStatus);
-  const { iconName, message } = STATUS_MAP[type](status);
+  const { loading, status, type } = props;
+  const { hasValue, iconName, message } = STATUS_MAP[type](status);
 
   return loading ? (
     <Skeleton />
-  ) : (
+  ) : hasValue ? (
     <Wrapper>
       <Icon fillColor={Colors.GREY_10} name={iconName} size={IconSize.XXL} />
       <Text type={TextType.P3}>{message}</Text>
     </Wrapper>
-  );
-}
-
-function WidgetStatus() {
-  return <Status type={Kind.WIDGET} />;
-}
-
-function QueryStatus() {
-  return <Status type={Kind.QUERY} />;
-}
-
-function CommitStatus() {
-  return <Status type={Kind.COMMIT} />;
-}
-
-function JSObjectStatus() {
-  return <Status type={Kind.JS_OBJECT} />;
+  ) : null;
 }
 
 export default function GitChanged() {
+  const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
+  const loading = useSelector(getIsFetchingGitStatus);
   return (
     <Statuses>
-      <WidgetStatus />
-      <QueryStatus />
-      <CommitStatus />
-      <JSObjectStatus />
+      <Status loading={loading} status={status} type={Kind.WIDGET} />
+      <Status loading={loading} status={status} type={Kind.QUERY} />
+      <Status loading={loading} status={status} type={Kind.COMMIT} />
+      <Status loading={loading} status={status} type={Kind.JS_OBJECT} />
     </Statuses>
   );
 }
