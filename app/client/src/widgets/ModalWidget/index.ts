@@ -57,8 +57,8 @@ export const CONFIG = {
                     cols: 8,
                   },
                   props: {
-                    buttonColor: Colors.BLACK_PEARL,
-                    buttonVariant: ButtonVariantTypes.SECONDARY,
+                    buttonColor: Colors.OXFORD_BLUE,
+                    buttonVariant: ButtonVariantTypes.TERTIARY,
                     borderRadius: ButtonBorderRadiusTypes.SHARP,
                     iconName: IconNames.CROSS,
                     iconSize: 24,
