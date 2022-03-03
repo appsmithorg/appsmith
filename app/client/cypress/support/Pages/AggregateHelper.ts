@@ -103,7 +103,6 @@ export class AggregateHelper {
         });
         cy.get(locator._publishButton).click();
         cy.wait("@publishApp");
-        cy.url().should("include", "/pages");
         cy.log("Pagename: " + localStorage.getItem("PageName"));
     }
 
