@@ -17,14 +17,7 @@ import _, {
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  renderCell,
-  renderDropdown,
-  renderActions,
-  renderMenuButton,
-  RenderMenuButtonProps,
-  renderIconButton,
-} from "../component/TableUtilities";
+import { renderIconButton } from "../component/TableUtilities";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
@@ -68,6 +61,15 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
+import { renderCell } from "../component/renderHelpers/cellRenderer";
+import { renderButton } from "../component/renderHelpers/buttonRenderer";
+import { renderDropdown } from "../component/renderHelpers/dropdownRenderer";
+import {
+  renderMenuButton,
+  RenderMenuButtonProps,
+} from "../component/renderHelpers/menuButtonRenderer";
+import { renderImage } from "../component/renderHelpers/imageRenderer";
+import { renderVideo } from "../component/renderHelpers/videoRenders";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -200,7 +202,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   },
                 ],
               };
-              return renderActions(buttonProps, isHidden, cellProperties);
+              return renderButton(buttonProps, isHidden, cellProperties);
 
             case COLUMN_TYPES.DROPDOWN:
               let options = [];
@@ -224,16 +226,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 ? () => this.onCommandClick(rowIndex, column.onClick, noop)
                 : noop;
 
-              return renderCell(
-                props.cell.value,
-                column.columnType,
-                isHidden,
-                cellProperties,
-                componentWidth,
-                cellProperties.isCellVisible ?? true,
-                onClick,
-                isSelected,
-              );
+              return renderImage({
+                value: props.cell.value,
+                isHidden: isHidden,
+                cellProperties: cellProperties,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                onClick: onClick,
+                isSelected: isSelected,
+              });
 
             case COLUMN_TYPES.MENUBUTTON:
               const menuButtonProps: RenderMenuButtonProps = {
@@ -289,24 +289,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 cellProperties,
               );
 
+            case ColumnTypes.VIDEO:
+              return renderVideo({
+                value: props.cell.value,
+                isHidden: isHidden,
+                cellProperties: cellProperties,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+              });
+
             default:
-              return renderCell(
-                props.cell.value,
-                column.columnType,
-                isHidden,
-                cellProperties,
-                componentWidth,
-                cellProperties.isCellVisible ?? true,
-                undefined,
-                undefined,
-                true,
-                (data: string) => {
+              return renderCell({
+                value: props.cell.value,
+                columnType: column.columnType,
+                isHidden: isHidden,
+                cellProperties: cellProperties,
+                tableWidth: componentWidth,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                isSelected: undefined,
+                cellEditMode: true,
+                onCellChange: (data: string) => {
                   this.updateTransientTableData({
                     __original_index__: props.cell.row.index,
                     [props.cell.column.columnProperties.accessor]: data,
                   });
                 },
-              );
+              });
           }
         },
       };
