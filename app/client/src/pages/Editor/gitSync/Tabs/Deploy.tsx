@@ -155,7 +155,7 @@ function Deploy() {
   const commitButtonText = createMessage(COMMIT_AND_PUSH);
 
   useEffect(() => {
-    dispatch(fetchGitStatusInit());
+    if (!isFetchingGitStatus) dispatch(fetchGitStatusInit());
     return () => {
       dispatch(clearCommitSuccessfulState());
     };
