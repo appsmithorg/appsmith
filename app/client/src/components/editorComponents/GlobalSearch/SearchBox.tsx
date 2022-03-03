@@ -133,7 +133,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
       <InputContainer>
         {isMenu(category) && <SearchIcon style={{ marginRight: "10px" }} />}
         {category.title && (
-          <CategoryDisplay>
+          <CategoryDisplay className="t--global-search-category">
             {category.id}
             <CloseIcon
               onClick={() => setCategory({ id: SEARCH_CATEGORY_ID.INIT })}
