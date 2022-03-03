@@ -19,10 +19,7 @@ describe("Layout OnLoad Actions tests", function() {
     agHelper.SelectEntityByName("WIDGETS");
     agHelper.SelectEntityByName("Page1");
     cy.url().then((url) => {
-      const currentURL = url;
-      const myRegexp = /pages(.*)/;
-      const match = myRegexp.exec(currentURL);
-      const pageid = match![1].split("/")[1];
+      const pageid = url.split("/")[4]?.split("-").pop();
       cy.log(pageid + "page id");
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
@@ -62,10 +59,7 @@ describe("Layout OnLoad Actions tests", function() {
     agHelper.SelectEntityByName("Page1");
 
     cy.url().then((url) => {
-      const currentURL = url;
-      const myRegexp = /pages(.*)/;
-      const match = myRegexp.exec(currentURL);
-      const pageid = match![1].split("/")[1];
+      const pageid = url.split("/")[4]?.split("-").pop();
       cy.log(pageid + "page id");
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
@@ -142,10 +136,7 @@ describe("Layout OnLoad Actions tests", function() {
     agHelper.SelectEntityByName("Page1");
 
     cy.url().then((url) => {
-      const currentURL = url;
-      const myRegexp = /pages(.*)/;
-      const match = myRegexp.exec(currentURL);
-      const pageid = match![1].split("/")[1];
+      const pageid = url.split("/")[4]?.split("-").pop();
       cy.log(pageid + "page id");
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
