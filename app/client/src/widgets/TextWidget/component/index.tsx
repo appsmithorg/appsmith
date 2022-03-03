@@ -10,6 +10,7 @@ import { isEqual, get } from "lodash";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Color, Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
+import { DEFAULT_FONT_SIZE } from "constants/ThemeConstants";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -132,7 +133,7 @@ export const StyledText = styled(Text)<{
     props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
   font-weight: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-size: ${({ fontSize }) => fontSize || "1rem"};
+  font-size: ${({ fontSize }) => fontSize || DEFAULT_FONT_SIZE};
   word-break: break-word;
   span {
     width: 100%;
@@ -199,7 +200,6 @@ export interface TextComponentProps extends ComponentProps {
   disableLink: boolean;
   borderRadius: string;
   boxShadow?: string;
-
   borderColor?: Color;
   borderWidth?: number;
   shouldTruncate: boolean;

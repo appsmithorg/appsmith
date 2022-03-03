@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps, Route } from "react-router";
@@ -119,6 +119,14 @@ function AppViewer(props: Props) {
   }, [pages.length, isInitialized]);
 
   /**
+   * returns the font to be used for the canvas
+   */
+  const appFontFamily =
+    selectedTheme.properties.fontFamily.appFont === DEFAULT_FONT_NAME
+      ? "inherit"
+      : selectedTheme.properties.fontFamily.appFont;
+
+  /**
    * loads font for canvas based on theme
    */
   useEffect(() => {
@@ -132,36 +140,26 @@ function AppViewer(props: Props) {
       });
     }
 
-    document.body.style.fontFamily = getAppFontFamily;
+    document.body.style.fontFamily = appFontFamily;
   }, [selectedTheme.properties.fontFamily.appFont]);
-
-  /**
-   * returns the font to be used for the canvas
-   */
-  const getAppFontFamily = useMemo(() => {
-    if (selectedTheme.properties.fontFamily.appFont === DEFAULT_FONT_NAME) {
-      return "inherit";
-    }
-
-    return selectedTheme.properties.fontFamily.appFont;
-  }, [selectedTheme.properties.fontFamily]);
 
   /**
    * callback for initialize app
    */
-  const initializeAppViewerCallback = useCallback(
-    (branch, applicationId, pageId) => {
-      dispatch({
-        type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-        payload: {
-          branch: branch,
-          applicationId,
-          pageId,
-        },
-      });
-    },
-    [dispatch],
-  );
+  const initializeAppViewerCallback = (
+    branch: string,
+    applicationId: string,
+    pageId: string,
+  ) => {
+    dispatch({
+      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
+      payload: {
+        branch: branch,
+        applicationId,
+        pageId,
+      },
+    });
+  };
 
   /**
    * callback for executing an action

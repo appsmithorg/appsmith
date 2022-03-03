@@ -114,7 +114,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
     debounce((color: string) => {
       props.changeColor(color);
     }, 250),
-    [props.changeColor],
+    [],
   );
 
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {

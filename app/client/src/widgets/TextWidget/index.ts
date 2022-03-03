@@ -1,5 +1,6 @@
-import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import IconSVG from "./icon.svg";
+import { DEFAULT_FONT_SIZE } from "constants/ThemeConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -7,7 +8,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   defaults: {
     text: "Label",
-    fontSize: "1rem",
+    fontSize: DEFAULT_FONT_SIZE,
     fontStyle: "BOLD",
     textAlign: "LEFT",
     textColor: "#231F20",

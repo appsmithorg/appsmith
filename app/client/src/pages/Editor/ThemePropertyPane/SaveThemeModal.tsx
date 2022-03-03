@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Dialog from "components/ads/DialogComponent";
-import CloseIcon from "remixicon-react/CloseLineIcon";
 import Button, { Category, Size } from "components/ads/Button";
 import { saveSelectedThemeAction } from "actions/appThemingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";

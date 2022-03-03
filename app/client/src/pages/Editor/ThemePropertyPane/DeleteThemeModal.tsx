@@ -1,7 +1,6 @@
 import React from "react";
 
 import Dialog from "components/ads/DialogComponent";
-import CloseIcon from "remixicon-react/CloseLineIcon";
 import Button, { Category, Size } from "components/ads/Button";
 import { Variant } from "components/ads/common";
 import {
@@ -9,7 +8,6 @@ import {
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
 } from "@appsmith/constants/messages";
-import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;

@@ -1,6 +1,9 @@
 import React from "react";
 
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import Dropdown, {
+  DropdownOption,
+  RenderOption,
+} from "components/ads/Dropdown";
 import { AppTheme } from "entities/AppTheming";
 
 interface ThemeFontControlProps {
@@ -14,6 +17,40 @@ interface ThemeFontControlProps {
 function ThemeFontControl(props: ThemeFontControlProps) {
   const { options, sectionName, selectedOption, theme, updateTheme } = props;
 
+  /**
+   * renders dropdown option
+   *
+   * @param param0
+   * @returns
+   */
+  const renderOption: RenderOption = ({ isSelectedNode, option }) => (
+    <div
+      className={`flex  space-x-2 w-full ${
+        isSelectedNode ? "" : "px-2 py-2 hover:bg-gray-100 cursor-pointer"
+      }`}
+      onClick={() => {
+        if (!isSelectedNode) {
+          updateTheme({
+            ...theme,
+            properties: {
+              ...theme.properties,
+              fontFamily: {
+                ...theme.properties.fontFamily,
+                [sectionName]:
+                  (option as DropdownOption).value || selectedOption,
+              },
+            },
+          });
+        }
+      }}
+    >
+      <div className="flex items-center justify-center w-6 h-6 bg-white border">
+        Aa
+      </div>
+      <div className="leading-normal">{(option as DropdownOption).label}</div>
+    </div>
+  );
+
   return (
     <section className="space-y-2">
       <Dropdown
@@ -22,35 +59,7 @@ function ThemeFontControl(props: ThemeFontControlProps) {
           value: option,
           label: option,
         }))}
-        renderOption={({ isSelectedNode, option }) => (
-          <div
-            className={`flex  space-x-2 w-full ${
-              isSelectedNode ? "" : "px-2 py-2 hover:bg-gray-100 cursor-pointer"
-            }`}
-            onClick={() => {
-              if (!isSelectedNode) {
-                updateTheme({
-                  ...theme,
-                  properties: {
-                    ...theme.properties,
-                    fontFamily: {
-                      ...theme.properties.fontFamily,
-                      [sectionName]:
-                        (option as DropdownOption).value || selectedOption,
-                    },
-                  },
-                });
-              }
-            }}
-          >
-            <div className="flex items-center justify-center w-6 h-6 bg-white border">
-              Aa
-            </div>
-            <div className="leading-normal">
-              {(option as DropdownOption).label}
-            </div>
-          </div>
-        )}
+        renderOption={renderOption}
         selected={{
           label: selectedOption,
           value: selectedOption,

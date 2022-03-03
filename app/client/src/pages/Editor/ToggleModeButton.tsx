@@ -354,8 +354,8 @@ function ToggleCommentModeButton({
   const proceedToNextTourStep = useProceedToNextTourStep(activeStepConfig);
 
   const isTourStepActive = useIsTourStepActive(activeStepConfig);
-
   const mode = useSelector((state: AppState) => state.entities.app.mode);
+  const isViewMode = mode === APP_MODE.PUBLISHED;
 
   const handleSetCommentModeButton = useCallback(() => {
     AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
@@ -381,7 +381,7 @@ function ToggleCommentModeButton({
     <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
-          {!isExploring && (
+          {!isExploring && !isViewMode && (
             <ModeButton
               active={!isCommentMode && !isPreviewMode}
               className="t--switch-comment-mode-off"

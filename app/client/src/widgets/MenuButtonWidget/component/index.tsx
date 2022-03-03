@@ -436,13 +436,12 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     widgetId,
     width,
   } = props;
-  const id = widgetId;
 
   return (
     <MenuButtonContainer disabled={isDisabled}>
       <PopoverStyles
         borderRadius={borderRadius}
-        id={id}
+        id={widgetId}
         menuDropDownWidth={menuDropDownWidth}
         parentWidth={width - WidgetContainerDiff}
       />
@@ -460,7 +459,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         fill
         minimal
         placement="bottom-end"
-        popoverClassName={`menu-button-popover menu-button-width-${id}`}
+        popoverClassName={`menu-button-popover menu-button-width-${widgetId}`}
       >
         <PopoverTargetButton
           borderRadius={borderRadius}
