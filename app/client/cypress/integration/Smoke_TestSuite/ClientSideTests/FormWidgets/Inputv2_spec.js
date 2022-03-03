@@ -107,6 +107,19 @@ describe("Input widget V2 - ", () => {
     });
   });
 
+  it("8. onSubmit should be triggered with the whole input value", () => {
+    cy.openPropertyPane(widgetName);
+    cy.get(
+      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
+    ).click();
+    cy.selectShowMsg();
+    cy.addSuccessMessage("{{ Input1.text }}");
+    // Input text and hit enter key
+    cy.get(widgetInput).type("test{enter}");
+    // Assert if the toast message contains the whole value, test
+    cy.get(".Toastify__toast-body span").should("have.text", "test");
+  });
+
   function enterAndTest(text, expected) {
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(300);
