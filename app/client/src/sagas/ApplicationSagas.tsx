@@ -84,7 +84,7 @@ import {
 } from "AppsmithRouteFactory";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 
-const getDefaultPageId = (
+export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
   let defaultPage: ApplicationPagePayload | undefined = undefined;

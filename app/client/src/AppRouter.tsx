@@ -23,6 +23,7 @@ import {
   ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
   BUILDER_PATH_DEPRECATED,
   VIEWER_PATH_DEPRECATED,
+  TEMPLATES_PATH,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -53,6 +54,8 @@ import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import { Theme } from "constants/DefaultTheme";
 import { ERROR_CODES } from "ce/constants/ApiConstants";
+import TemplatesListLoader from "pages/Templates/loader";
+import getFeatureFlags from "utils/featureFlags";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -142,6 +145,12 @@ function AppRouter(props: {
                 component={AppViewerLoader}
                 path={VIEWER_PATH_DEPRECATED}
               />
+              {getFeatureFlags().APP_TEMPLATE && (
+                <SentryRoute
+                  component={TemplatesListLoader}
+                  path={TEMPLATES_PATH}
+                />
+              )}
               <Redirect
                 exact
                 from={ADMIN_SETTINGS_PATH}

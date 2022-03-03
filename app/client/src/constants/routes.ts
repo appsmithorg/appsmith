@@ -11,6 +11,10 @@ export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
+
+export const TEMPLATES_PATH = "/templates";
+export const TEMPLATES_ID_PATH = "/templates/:templateId";
+
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
 export const GIT_PROFILE_ROUTE = `${PROFILE}/git`;
@@ -52,6 +56,7 @@ export const ADMIN_SETTINGS_PATH = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:subCategory?";
 
+export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
@@ -63,6 +68,8 @@ export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
   match(VIEWER_PATH)(pathName) || match(VIEWER_PATH_DEPRECATED)(pathName);
 export const matchViewerForkPath = match(VIEWER_FORK_PATH);
+export const matchTemplatesPath = match(TEMPLATES_URL);
+export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
@@ -135,3 +142,6 @@ export function adminSettingsCategoryUrl(
     subCategory ? "/" + subCategory : ""
   }`;
 }
+
+export const TEMPLATE_ID_URL = (templateId = ":templateId"): string =>
+  `${TEMPLATES_PATH}/${templateId}`;
