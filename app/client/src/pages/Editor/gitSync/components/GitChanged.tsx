@@ -73,7 +73,7 @@ const STATUS_MAP = {
     message: `${status.modifiedJSObjects || 0} JS ${
       (status.modifiedJSObjects || 0) <= 1 ? "Object" : "Objects"
     } modified`,
-    iconName: "git-commit",
+    iconName: "js",
   }),
 };
 
