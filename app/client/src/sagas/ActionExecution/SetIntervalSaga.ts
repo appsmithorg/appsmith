@@ -56,7 +56,7 @@ function* executeInIntervals(
       yield call(executeAppAction, {
         dynamicString: `{{${callback}}}`,
         // pass empty object to execute it as a callback function
-        responseData: [{}],
+        callbackData: [{}],
         event: { type: eventType },
         triggerPropertyName: triggerMeta.triggerPropertyName,
         source: triggerMeta.source,
