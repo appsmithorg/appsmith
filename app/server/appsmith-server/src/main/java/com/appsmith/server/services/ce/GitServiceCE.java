@@ -4,7 +4,6 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -64,5 +63,9 @@ public interface GitServiceCE {
     Mono<GitAuth> generateSSHKey();
 
     Mono<Boolean> testConnection(String defaultApplicationId);
+
+    Mono<Application> deleteBranch(String defaultApplicationId, String branchName);
+
+    Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull);
 
 }
