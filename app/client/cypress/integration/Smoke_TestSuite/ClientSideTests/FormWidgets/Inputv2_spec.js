@@ -109,11 +109,17 @@ describe("Input widget V2 - ", () => {
 
   it("8. onSubmit should be triggered with the whole input value", () => {
     cy.openPropertyPane(widgetName);
+    cy.selectDropdownValue(".t--property-control-datatype", "Text");
+    cy.get(".t--property-control-required label")
+      .last()
+      .click({ force: true });
     cy.get(
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
     cy.addSuccessMessage("{{ Input1.text }}");
+    cy.get(widgetInput).clear();
+    cy.wait(300);
     // Input text and hit enter key
     cy.get(widgetInput).type("test{enter}");
     // Assert if the toast message contains the whole value, test
