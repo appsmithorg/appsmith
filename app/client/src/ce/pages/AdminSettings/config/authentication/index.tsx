@@ -2,6 +2,7 @@ import React from "react";
 import {
   GOOGLE_SIGNUP_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
+  SIGNUP_RESTRICTION_DOC,
 } from "constants/ThirdPartyConstants";
 import {
   SettingCategories,
@@ -28,6 +29,7 @@ const Form_Auth: AdminConfigType = {
   title: "Form Login",
   subText: "Enable your organization to sign in with Appsmith Form.",
   canSave: true,
+  isConnected: false,
   settings: [
     {
       id: "APPSMITH_FORM_LOGIN_DISABLED",
@@ -37,9 +39,9 @@ const Form_Auth: AdminConfigType = {
       label: "Form Login Option",
       toggleText: (value: boolean) => {
         if (value) {
-          return "Enable form login/signup";
+          return "Disabled";
         } else {
-          return " Disable form login/signup";
+          return " Enabled";
         }
       },
     },
@@ -51,11 +53,21 @@ const Form_Auth: AdminConfigType = {
       label: "Signup",
       toggleText: (value: boolean) => {
         if (value) {
-          return "Allow invited users to signup";
+          return "Allow only invited users to signup";
         } else {
           return " Allow all users to signup";
         }
       },
+    },
+    {
+      id: "APPSMITH_FORM_CALLOUT_BANNER",
+      category: SettingCategories.FORM_AUTH,
+      subCategory: "form signup",
+      controlType: SettingTypes.LINK,
+      label:
+        "User emails are not verified. This can lead to a breach in your application.",
+      url: SIGNUP_RESTRICTION_DOC,
+      calloutType: "Warning",
     },
   ],
 };
@@ -66,6 +78,7 @@ const Google_Auth: AdminConfigType = {
   title: "Google Authentication",
   subText: "Enable your organization to sign in with Google (OAuth).",
   canSave: true,
+  isConnected: enableGoogleOAuth,
   settings: [
     {
       id: "APPSMITH_OAUTH2_GOOGLE_READ_MORE",
@@ -110,6 +123,7 @@ const Github_Auth: AdminConfigType = {
   subText:
     "Enable your organization to sign in with Github SAML single sign-on (SSO).",
   canSave: true,
+  isConnected: enableGithubOAuth,
   settings: [
     {
       id: "APPSMITH_OAUTH2_GITHUB_READ_MORE",
