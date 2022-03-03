@@ -93,6 +93,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
 
     public static final Integer EVALUATION_VERSION = 2;
+    public static final Integer APPLICATION_VERSION = 1;
 
 
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -308,6 +309,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         // For all new applications being created, set it to use the latest evaluation version.
         application.setEvaluationVersion(EVALUATION_VERSION);
+        application.setApplicationVersion(APPLICATION_VERSION);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
@@ -688,6 +690,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newApplication.setName(newName);
                     newApplication.setLastEditedAt(Instant.now());
                     newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
+                    newApplication.setApplicationVersion(sourceApplication.getApplicationVersion());
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)

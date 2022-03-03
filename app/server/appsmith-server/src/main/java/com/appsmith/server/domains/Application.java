@@ -75,6 +75,9 @@ public class Application extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer evaluationVersion;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Integer applicationVersion;
+
     /*
     Changing name, change in pages, widgets and datasources will set lastEditedAt.
     Other activities e.g. changing policy will not change this property.

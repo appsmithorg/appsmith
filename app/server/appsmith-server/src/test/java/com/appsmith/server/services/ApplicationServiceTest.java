@@ -96,6 +96,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.APPLICATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -271,6 +272,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
+                    assertThat(application.getApplicationVersion()).isEqualTo(APPLICATION_VERSION);
                     assertThat(application.getColor()).isNotEmpty();
                     assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
@@ -1014,6 +1016,8 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
+                    assertThat(clonedApplication.getApplicationVersion()).isNotNull();
+                    assertThat(clonedApplication.getApplicationVersion()).isEqualTo(gitConnectedApp.getApplicationVersion());
 
                     List<ApplicationPage> pages = clonedApplication.getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
