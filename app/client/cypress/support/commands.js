@@ -3071,6 +3071,19 @@ Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   return tabVal;
 });
 
+Cypress.Commands.add(
+  "readTabledataFromSpecificIndex",
+  (rowNum, colNum, index) => {
+    // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+    const tabVal = cy
+      .get(selector)
+      .eq(index)
+      .invoke("text");
+    return tabVal;
+  },
+);
+
 Cypress.Commands.add("tablefirstdataRow", () => {
   let tabVal = cy
     .xpath(
