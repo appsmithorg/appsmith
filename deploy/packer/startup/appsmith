@@ -1,0 +1,1 @@
+@reboot appsmith /home/appsmith/appsmith/scripts/boot.sh
