@@ -18,12 +18,12 @@ const Skeleton = styled.div`
     ${Colors.GREY_2} 0%,
     rgba(240, 240, 240, 0) 100%
   );
-  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Wrapper = styled.div`
   height: ${(props) => props.theme.spaces[9]}px;
-  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
   display: flex;
 
   .${Classes.ICON} {
