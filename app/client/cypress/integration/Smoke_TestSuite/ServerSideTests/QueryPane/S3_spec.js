@@ -644,9 +644,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(1500); //wait for table to load!
 
     cy.get(commonlocators.TableRow).validateWidgetExists();
-    cy.get(".t--entity-name")
-      .contains("WIDGETS")
-      .click();
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
     cy.actionContextMenuByEntityName("Table1");
