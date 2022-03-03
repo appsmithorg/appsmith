@@ -43,7 +43,7 @@ export class AggregateHelper {
     }
 
     public NavigateToDSAdd() {
-        cy.get(locator._addNewDataSource).last()
+        cy.get(locator._addNewDataSource).last().scrollIntoView()
             .should("be.visible")
             .click({ force: true });
     }
@@ -181,11 +181,20 @@ export class AggregateHelper {
     }
 
     public SelectPropertiesDropDown(endp: string, ddOption: string,) {
-        cy.xpath(locator._selectDropdown(endp))
+        cy.xpath(locator._selectPropDropdown(endp))
             .first()
             .scrollIntoView()
             .click()
         cy.get(locator._dropDownValue(ddOption)).click()
+    }
+
+    public SelectDropDown(endp: string, ddOption: string,) {
+        cy.xpath(locator._selectWidgetDropdown(endp))
+            .first()
+            .scrollIntoView()
+            .click()
+        cy.get(locator._dropDownValue(ddOption)).click({ force: true })
+        this.Sleep(2000)
     }
 
     public EnterActionValue(actionName: string, value: string, paste = true) {
@@ -274,7 +283,8 @@ export class AggregateHelper {
     }
 
     public GetObjectName() {
-        cy.get(locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName"));
+        //cy.get(locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName")); or below syntax
+        return cy.get(locator._queryName).invoke("text");
     }
 
     public Sleep(timeout = 1000) {
@@ -288,7 +298,6 @@ export class AggregateHelper {
         cy.get(locator._homePageAppCreateBtn)
             .should("be.visible")
             .should("be.enabled");
-        //cy.get(this._homePageAppCreateBtn);
     }
 
     public CreateNewApplication() {
@@ -363,5 +372,9 @@ export class AggregateHelper {
             .then(($text) => {
                 if ($text.text()) expect($text.text()).to.eq(currentValue);
             });
+    }
+
+    public ReadTableRowColumnData(rowNum: number, colNum: number) {
+        return cy.get(locator._tableRowColumn(rowNum, colNum)).invoke("text");
     }
 }

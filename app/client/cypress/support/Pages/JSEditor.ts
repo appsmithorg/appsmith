@@ -62,8 +62,14 @@ export class JSEditor {
   public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
     if (toToggleOnJS) {
       cy.get(locator._jsToggle(endp))
-        .first()
-        .click({ force: true });
+        .invoke("attr", "class")
+        .then((classes: any) => {
+          if (!classes.includes("is-active")) {
+            cy.get(locator._jsToggle(endp))
+              .first()
+              .click({ force: true });
+          }
+        });
     }
     cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
       .first()
@@ -140,5 +146,5 @@ export class JSEditor {
     });
     cy.get(this._bindingsClose).click({ force: true });
   }
-  
+
 }
