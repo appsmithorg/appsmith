@@ -28,6 +28,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
 const clone = require("rfdc/default");
+import { warn as logWarn } from "loglevel";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -302,13 +303,14 @@ export const removeFunctions = (value: any) => {
 
 export const makeParentsDependOnChildren = (
   depMap: DependencyMap,
+  allkeys: Record<string, true>,
 ): DependencyMap => {
   //return depMap;
   // Make all parents depend on child
   Object.keys(depMap).forEach((key) => {
-    depMap = makeParentsDependOnChild(depMap, key);
+    depMap = makeParentsDependOnChild(depMap, key, allkeys);
     depMap[key].forEach((path) => {
-      depMap = makeParentsDependOnChild(depMap, path);
+      depMap = makeParentsDependOnChild(depMap, path, allkeys);
     });
   });
   return depMap;
@@ -317,10 +319,16 @@ export const makeParentsDependOnChildren = (
 export const makeParentsDependOnChild = (
   depMap: DependencyMap,
   child: string,
+  allkeys: Record<string, true>,
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-
+  if (!allkeys[curKey]) {
+    logWarn(
+      `makeParentsDependOnChild - ${curKey} is not present in dataTree.`,
+      "This might result in a cyclic dependency.",
+    );
+  }
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null
