@@ -607,6 +607,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-dep-
 
+      # Add cypress coverage plugin
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn add -D @cypress/code-coverage
+
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
