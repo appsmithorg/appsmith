@@ -104,7 +104,9 @@ jobs:
 
       - name: Setup cypress scripts
         if: always()
-        run: cp coveragescripts/support/index.js cypress/support/index.js
+        run: |
+          cp coveragescripts/support/index.js cypress/support/index.js
+          cat cypress/support/index.js
           
       - name: Setup cypress scripts
         if: always()
@@ -122,6 +124,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
+      
+      - name: Sleep for 300 seconds
+        run: sleep 300s
+        shell: bash
  
       # Install all the dependencies
       - name: Install dependencies
