@@ -457,6 +457,15 @@ const applicationsReducer = createReducer(initialState, {
       },
     },
   }),
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ApplicationPayload>,
+  ) => {
+    return {
+      ...state,
+      applicationList: [...state.applicationList, action.payload],
+    };
+  },
 });
 
 export type creatingApplicationMap = Record<string, boolean>;

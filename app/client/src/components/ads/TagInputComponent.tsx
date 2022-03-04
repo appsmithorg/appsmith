@@ -8,6 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import { Colors } from "constants/Colors";
+
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
 
@@ -57,7 +58,7 @@ type TagInputProps = {
   /** Intent of the tags, which defines their color */
   intent?: Intent;
   hasError?: boolean;
-  customError: (values: any) => void;
+  customError?: (values: any) => void;
 };
 
 /**
@@ -89,9 +90,9 @@ function TagInputComponent(props: TagInputProps) {
           error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
         }
       });
-      props.customError(error);
+      props.customError?.(error);
     } else {
-      props.customError("");
+      props.customError?.("");
     }
   };
 
@@ -99,7 +100,7 @@ function TagInputComponent(props: TagInputProps) {
     setValues(newValues);
     props.input.onChange &&
       props.input.onChange(newValues.filter(Boolean).join(","));
-    validateEmail(newValues);
+    props.type === "email" && validateEmail(newValues);
   };
 
   const onTagsChange = (values: React.ReactNode[]) => {

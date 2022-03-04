@@ -1,12 +1,13 @@
 import React, { useCallback, useState, useMemo } from "react";
 import { Space } from "./StyledComponents";
 import {
-  createMessage,
-  USER_PROFILE_SETTINGS_TITLE,
-  AUTHOR_NAME,
   AUTHOR_EMAIL,
-  FORM_VALIDATION_INVALID_EMAIL,
+  AUTHOR_NAME,
   AUTHOR_NAME_CANNOT_BE_EMPTY,
+  FORM_VALIDATION_INVALID_EMAIL,
+  USER_PROFILE_SETTINGS_TITLE,
+  USE_DEFAULT_CONFIGURATION,
+  createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
@@ -164,7 +165,7 @@ function UserGitProfileSettings({
             cypressSelector="t--use-global-config-checkbox"
             fill={false}
             isDefaultChecked={useGlobalConfig}
-            label="Use Default Configuration"
+            label={createMessage(USE_DEFAULT_CONFIGURATION)}
             onCheckChange={toggleUseDefaultConfig}
           />
         </DefaultConfigContainer>
