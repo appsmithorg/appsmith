@@ -1295,7 +1295,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     Mono<Application> getApplicationById(String applicationId) {
-        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+        return applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(applicationId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
 
@@ -1519,7 +1519,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         localBranch.removeAll(remoteBranches);
 
                         // Exclude the current checked out branch and the appsmith default application
-                        localBranch.remove(gitApplicationMetadata.getBranchName());
+                        localBranch.remove(gitApplicationMetadata.getDefaultBranchName());
                         localBranch.remove(currentBranch);
 
                         // Remove the branches which are not in remote from the list before sending
@@ -1541,10 +1541,25 @@ public class GitServiceCEImpl implements GitServiceCE {
                         if(defaultBranchRemote.equals(dbDefaultBranch)) {
                             return monoBranchList.zipWith(Mono.just(application));
                         } else {
-                            // update the default branch from remote to db
-                            gitApplicationMetadata.setDefaultBranchName(defaultBranchRemote);
-                            application.setGitApplicationMetadata(gitApplicationMetadata);
-                            return monoBranchList.zipWith(applicationService.save(application));
+                            // Get the application from DB by new defaultBranch name
+                            return applicationService.findByBranchNameAndDefaultApplicationId(defaultBranchRemote, defaultApplicationId, MANAGE_APPLICATIONS)
+                                    // Check if the branch is already present, If not follow checkout remote flow
+                                    .onErrorResume(throwable -> checkoutRemoteBranch(defaultApplicationId, defaultBranchRemote))
+                                    // Copy the gitApplicationMetadata to the app
+                                    .flatMap(application1 -> {
+                                        application1.setGitApplicationMetadata(gitApplicationMetadata);
+                                        application1.getGitApplicationMetadata().setBranchName(defaultBranchRemote);
+                                        application1.getGitApplicationMetadata().setDefaultBranchName(defaultBranchRemote);
+                                        return applicationService.save(application1);
+                                    })
+                                    // Update the default branch name in all the branched applications
+                                    .flatMap(application1 -> applicationService.findAllApplicationsByDefaultApplicationId(defaultApplicationId)
+                                            .flatMap(application2 -> {
+                                                application2.getGitApplicationMetadata().setDefaultBranchName(defaultBranchRemote);
+                                                return applicationService.save(application2);
+                                            }).then(Mono.just(application)))
+                                    // Return the deleted branches
+                                    .then(monoBranchList.zipWith(Mono.just(application)));
                         }
                     } else {
                         gitBranchListDTOS
@@ -2140,6 +2155,35 @@ public class GitServiceCEImpl implements GitServiceCE {
                             application.getGitApplicationMetadata().getIsRepoPrivate()
                     ).thenReturn(objects.getT1());
                 });
+    }
+
+    @Override
+    public Mono<Application> deleteBranch(String defaultApplicationId, String branchName) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, gitApplicationMetadata.getRepoName());
+                    return gitExecutor.deleteBranch(repoPath, branchName)
+                            .flatMap(isBranchDeleted -> {
+                                if(Boolean.FALSE.equals(isBranchDeleted)) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch. Branch does not exists in the repo"));
+                                }
+                                return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                                        .flatMap(applicationPageService::deleteApplicationByResource)
+                                        .onErrorResume(throwable -> {
+                                            log.warn("Unable to find branch with name ", throwable);
+                                            return addAnalyticsForGitOperation(
+                                                    AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(),
+                                                    application,
+                                                    throwable.getClass().getName(),
+                                                    throwable.getMessage(),
+                                                    gitApplicationMetadata.getIsRepoPrivate()
+                                            ).flatMap(application1 -> Mono.just(application1));
+                                        });
+                            });
+                })
+                .flatMap(application -> addAnalyticsForGitOperation(AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(), application, application.getGitApplicationMetadata().getIsRepoPrivate()))
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,

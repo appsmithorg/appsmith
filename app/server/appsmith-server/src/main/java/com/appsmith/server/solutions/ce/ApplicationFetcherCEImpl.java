@@ -113,8 +113,12 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     Flux<Application> applicationFlux = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             .filter(application -> application.getGitApplicationMetadata() == null
-                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId()))
+                                    || (!Optional.ofNullable(application.getGitApplicationMetadata().getDefaultBranchName()).isEmpty()
+                                    && application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName()))
                             )
+                            /*.filter(application -> application.getGitApplicationMetadata() == null
+                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId()))
+                            )*/
                             .map(responseUtils::updateApplicationWithDefaultResources);
 
                     // sort the list of applications if user has recent applications
@@ -236,7 +240,12 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     if(newPageDetails.isPresent()) {
                         NewPage newPage = newPageDetails.get();
-                        defaultPage.setSlug(getPage.apply(newPage).getSlug());
+                        PageDTO pageDTO = getPage.apply(newPage);
+                        if(pageDTO != null) {
+                            defaultPage.setSlug(pageDTO.getSlug());
+                        } else {
+                            log.error("page dto missing for application {} page {}", application.getId(), defaultPage.getId());
+                        }
                     } else {
                         log.error("page not found for application id {}, page id {}", application.getId(), defaultPage.getId());
                     }
