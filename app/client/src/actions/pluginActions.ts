@@ -60,3 +60,7 @@ export const fetchPluginFormConfig = ({
   type: ReduxActionTypes.GET_PLUGIN_FORM_CONFIG_INIT,
   payload: id,
 });
+
+export const fetchDefaultPlugins = (): ReduxActionWithoutPayload => ({
+  type: ReduxActionTypes.GET_DEFAULT_PLUGINS_REQUEST,
+});

@@ -84,7 +84,7 @@ function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
   }
 }
 
-const RESTART_POLL_TIMEOUT = 30000;
+const RESTART_POLL_TIMEOUT = 60000;
 const RESTART_POLL_INTERVAL = 2000;
 
 function* RestartServerPoll() {
