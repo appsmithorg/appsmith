@@ -827,7 +827,7 @@ jobs:
       # Download codecoverageall list for all jobs
       - uses: actions/download-artifact@v2
         if: needs.ui-test.result
-        id: download
+        id: downloadcc
         with:
           name: codecoverageall
           path: ~/codecoverageall
