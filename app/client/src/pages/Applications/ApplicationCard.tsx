@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  useCallback,
+} from "react";
 import styled, { ThemeContext } from "styled-components";
 import {
   getApplicationViewerPageURL,
@@ -714,9 +720,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
-  const LaunchAppInMobile = () => {
-    window.location.href = viewApplicationURL;
-  };
+  const LaunchAppInMobile = useCallback(() => {
+    history.push(viewApplicationURL);
+  }, [viewApplicationURL]);
 
   return (
     <Container
@@ -781,6 +787,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                         history.push(editApplicationURL);
                       }}
                       size={Size.medium}
+                      tag="button"
                       text="Edit"
                     />
                   )}
@@ -796,6 +803,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                         history.push(viewApplicationURL);
                       }}
                       size={Size.medium}
+                      tag="button"
                       text="Launch"
                     />
                   )}
