@@ -11,18 +11,21 @@ export const connectedMethods = [
   !disableLoginForm,
 ].filter(Boolean);
 
+/* settings is the updated & unsaved settings on Admin settings page */
 export const saveAllowed = (settings: any) => {
-  if (
-    connectedMethods.length >= 2 ||
-    (connectedMethods.length === 1 &&
-      ((!("APPSMITH_FORM_LOGIN_DISABLED" in settings) && !disableLoginForm) ||
-        (settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
-          enableGoogleOAuth) ||
-        (settings["APPSMITH_OAUTH2_GITHUB_CLIENT_ID"] !== "" &&
-          enableGithubOAuth)))
-  ) {
-    return true;
+  if (connectedMethods.length === 1) {
+    const checkFormLogin = !(
+        "APPSMITH_FORM_LOGIN_DISABLED" in settings || disableLoginForm
+      ),
+      checkGoogleAuth =
+        settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
+        enableGoogleOAuth,
+      checkGithubAuth =
+        settings["APPSMITH_OAUTH2_GITHUB_CLIENT_ID"] !== "" &&
+        enableGithubOAuth;
+
+    return checkFormLogin || checkGoogleAuth || checkGithubAuth;
   } else {
-    return false;
+    return connectedMethods.length >= 2;
   }
 };
