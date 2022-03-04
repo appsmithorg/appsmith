@@ -125,8 +125,8 @@ jobs:
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
       
-      - name: Sleep for 300 seconds
-        run: sleep 300s
+      - name: Sleep for 30 seconds
+        run: sleep 30s
         shell: bash
  
       # Install all the dependencies
