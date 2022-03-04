@@ -69,7 +69,6 @@ import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
-import { ReactComponent as UserHeartLine } from "assets/icons/ads/user-heart-line.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -148,6 +147,7 @@ import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
 import FileListLineIcon from "remixicon-react/FileListLineIcon";
 import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
+import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -295,7 +295,7 @@ const ICON_LOOKUP = {
   "trending-flat": <TrendingFlat />,
   "unread-pin": <UnreadPin />,
   "user-2": <UserV2Icon />,
-  "user-heart-line": <UserHeartLine />,
+  "user-heart-line": <UserHeartLineIcon />,
   "view-all": <RightArrowIcon />,
   "view-less": <LeftArrowIcon />,
   "warning-line": <WarningLineIcon />,
@@ -335,7 +335,7 @@ const ICON_LOOKUP = {
   loader: <LoaderLineIcon />,
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
-  member: <UserHeartLine />,
+  member: <UserHeartLineIcon />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
   pin: <Pin />,
