@@ -21,7 +21,7 @@ export const SettingCategories = {
   ...EE_SettingCategories,
 };
 export const SettingSubCategories = {
-  ...CE_SettingCategories,
+  ...CE_SettingSubCategories,
   ...EE_SettingSubCategories,
 };
 export type AdminConfigType = CE_AdminConfigType;
