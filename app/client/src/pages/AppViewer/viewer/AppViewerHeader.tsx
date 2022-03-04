@@ -136,6 +136,19 @@ type AppViewerHeaderProps = {
   lightTheme: Theme;
 };
 
+function HtmlTitle({
+  currentApplicationDetails,
+}: {
+  currentApplicationDetails?: CurrentApplicationData;
+}) {
+  if (!currentApplicationDetails?.name) return null;
+  return (
+    <Helmet>
+      <title>{currentApplicationDetails?.name}</title>
+    </Helmet>
+  );
+}
+
 export function AppViewerHeader(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
@@ -152,15 +165,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   );
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
-  function HtmlTitle() {
-    if (!currentApplicationDetails?.name) return null;
-    return (
-      <Helmet>
-        <title>{currentApplicationDetails?.name}</title>
-      </Helmet>
-    );
-  }
-  if (hideHeader) return <HtmlTitle />;
+  if (hideHeader)
+    return <HtmlTitle currentApplicationDetails={currentApplicationDetails} />;
 
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${
     window.location.origin

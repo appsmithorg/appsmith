@@ -1,10 +1,15 @@
 import {
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
   convertToQueryParams,
   GEN_TEMPLATE_FORM_ROUTE,
   GEN_TEMPLATE_URL,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import getQueryParamsObject from "utils/getQueryParamsObject";
+import { matchPath } from "react-router";
 
 export const LEGACY_URL_APP_VERSION = 1;
 export const SLUG_URL_APP_VERSION = 2;
@@ -76,6 +81,22 @@ function baseURLBuilder(
 
   let basePath = "";
   pageId = pageId ?? BASE_URL_BUILDER_PARAMS.pageId;
+  if (!pageId) {
+    const match = matchPath<{ pageId: string }>(window.location.pathname, {
+      path: [
+        BUILDER_PATH,
+        BUILDER_PATH_DEPRECATED,
+        VIEWER_PATH,
+        VIEWER_PATH_DEPRECATED,
+      ],
+      strict: false,
+      exact: false,
+    });
+    pageId = match?.params.pageId;
+  }
+  if (!pageId) {
+    throw Error("Cannot find page id");
+  }
   if (shouldUseLegacyURLs) {
     applicationId = applicationId ?? BASE_URL_BUILDER_PARAMS.applicationId;
     basePath = `/applications/${applicationId}/pages/${pageId}`;
