@@ -29,18 +29,21 @@ const FlexContainer = styled.div`
   flex-direction: row;
   align-items: center;
   flex: 1;
-  padding: 8px;
+  padding: 16px;
   position: relative;
   max-width: 486px;
   width: 100%;
   height: 56px;
 
   &.error {
-    background-color: red;
+    background-color: ${Colors.ERROR_50};
   }
 
   &.enterprise {
     background-color: #e8f5fa;
+  }
+
+  &.warning {
   }
 `;
 
@@ -51,41 +54,36 @@ const LinkText = styled.a`
   margin-left: 0;
 `;
 
-type NotificationIconProps = {
-  variant: NotificationVariant;
+const NOTIFICATION_VARIANT_MAP = {
+  [NotificationVariant.error]: {
+    icon: <Icon fillColor={Colors.RED} name="danger" size={IconSize.XXL} />,
+    closeButtonColor: Colors.ERROR_600,
+  },
+  [NotificationVariant.info]: {
+    icon: <Icon fillColor={Colors.BLACK} name="info" size={IconSize.XXL} />,
+    closeButtonColor: Colors.GREY_900,
+  },
+  [NotificationVariant.warning]: {
+    icon: (
+      <Icon
+        fillColor={Colors.BURNING_ORANGE}
+        name="warning"
+        size={IconSize.XXL}
+      />
+    ),
+    closeButtonColor: Colors.WARNING_600,
+  },
+  [NotificationVariant.enterprise]: {
+    icon: (
+      <Icon
+        fillColor={Colors.CURIOUS_BLUE}
+        name="enterprise"
+        size={IconSize.XXL}
+      />
+    ),
+    closeButtonColor: Colors.CURIOUS_BLUE,
+  },
 };
-
-function NotificationIcon(props: NotificationIconProps) {
-  const { variant } = props;
-  let icon = null;
-  switch (variant) {
-    case NotificationVariant.error:
-      icon = <Icon fillColor={Colors.RED} name="danger" size={IconSize.XXL} />;
-      break;
-    case NotificationVariant.warning:
-      icon = (
-        <Icon
-          fillColor={Colors.BURNING_ORANGE}
-          name="warning"
-          size={IconSize.XXL}
-        />
-      );
-      break;
-    case NotificationVariant.enterprise:
-      icon = (
-        <Icon
-          fillColor={Colors.BLUE_BAYOUX}
-          name="enterprise"
-          size={IconSize.XXL}
-        />
-      );
-      break;
-    case NotificationVariant.info:
-      icon = <Icon fillColor={Colors.BLACK} name="info" size={IconSize.XXL} />;
-      break;
-  }
-  return icon;
-}
 
 const TextContainer = styled.div`
   flex-grow: 1;
@@ -94,16 +92,19 @@ const TextContainer = styled.div`
 const CloseButtonContainer = styled.div`
   display: flex;
   justify-items: center;
+  & button {
+    color: ${(props) => props.color};
+  }
 `;
 const IconContainer = styled.div``;
 const LearnMoreContainer = styled.div``;
 
 export function NotificationBanner(props: NotificationBannerProps) {
+  const { variant } = props;
+  const { closeButtonColor, icon } = NOTIFICATION_VARIANT_MAP[variant];
   return (
     <FlexContainer className={props.className} style={props.style}>
-      <IconContainer>
-        {props.hasIcon && <NotificationIcon variant={props.variant} />}
-      </IconContainer>
+      <IconContainer>{props.hasIcon && icon}</IconContainer>
       <TextContainer>
         {props.children}
         <LearnMoreContainer>
@@ -114,7 +115,12 @@ export function NotificationBanner(props: NotificationBannerProps) {
       </TextContainer>
       <CloseButtonContainer>
         {props.canClose && (
-          <CloseButton color={Colors.BLACK} onClick={props.onClose} size={12} />
+          <CloseButton
+            color={closeButtonColor}
+            onClick={props.onClose}
+            onHoverBackgroundColor={Colors.TRANSPARENT}
+            size={16}
+          />
         )}
       </CloseButtonContainer>
     </FlexContainer>

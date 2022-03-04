@@ -84,7 +84,8 @@ const STATUS_MAP = {
 };
 
 function commitMessage(status: GitStatusData) {
-  const { aheadCount = 0, behindCount = 0 } = status;
+  const aheadCount = status?.aheadCount || 0;
+  const behindCount = status?.behindCount || 0;
   const aheadMessage =
     aheadCount > 0
       ? (aheadCount || 0) === 1

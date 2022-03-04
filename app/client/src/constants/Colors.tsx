@@ -154,6 +154,7 @@ export const Colors = {
   GREY_9: "#4B4848",
   GREY_10: "#090707",
   GREY_11: "#9F9F9F",
+  GREY_900: "#191919",
 
   PRIMARY_ORANGE: "#F86A2B",
 
@@ -177,6 +178,27 @@ export const Colors = {
   SCORPION: "#575757",
 
   COD_GRAY: "#191919",
+
   MINE_SHAFT_2: "#333333",
+
+  /* Primary Error */
+  ERROR_600: "#E32525",
+  /* Secondary Error */
+  ERROR_50: "#FFE9E9",
+  /* RED colors */
+  RED_50: "#FFEAEC",
+  RED_100: "#FFCACE",
+  RED_200: "#F09493",
+  RED_300: "#E56A69",
+  RED_400: "#EE4643",
+  RED_500: "#F13125",
+  RED_600: "#E32525",
+  RED_700: "#D11820",
+  RED_800: "#C50B18",
+  RED_900: "#B60009",
+
+  WARNING_600: "#DFA211",
+
+  TRANSPARENT: "transparent",
 };
 export type Color = typeof Colors[keyof typeof Colors];

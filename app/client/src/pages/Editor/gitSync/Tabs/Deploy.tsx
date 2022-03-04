@@ -15,7 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
-import Button, { Size } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
 import { LabelContainer } from "components/ads/Checkbox";
 
 import {
@@ -58,6 +58,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import useAutoGrow from "utils/hooks/useAutoGrow";
+import {
+  NotificationBanner,
+  NotificationVariant,
+} from "../../../../components/ads/NotificationBanner";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -115,6 +119,17 @@ const SubTitle = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   ${(props) => getTypographyByKey(props, "p1")};
   color: ${Colors.BLACK};
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: ${(props) => props.theme.spaces[7]}px;
+
+  & a.discard-changes-link {
+    border: none;
+  }
 `;
 
 function Deploy() {
@@ -279,24 +294,33 @@ function Deploy() {
           learnMoreLink={gitConflictDocumentUrl}
         />
         {showCommitButton && (
-          <Tooltip
-            autoFocus={false}
-            content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
-            disabled={showCommitButton && !commitButtonLoading}
-            donotUsePortal
-            position="top"
-          >
+          <ButtonContainer>
+            <Tooltip
+              autoFocus={false}
+              content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
+              disabled={showCommitButton && !commitButtonLoading}
+              donotUsePortal
+              position="top"
+            >
+              <Button
+                className="t--commit-button"
+                disabled={commitButtonDisabled}
+                isLoading={commitButtonLoading}
+                onClick={() => handleCommit(true)}
+                size={Size.large}
+                tag="button"
+                text={commitButtonText}
+                width="max-content"
+              />
+            </Tooltip>
             <Button
-              className="t--commit-button"
+              category={Category.secondary}
+              className="t--discard-button discard-changes-link"
               disabled={commitButtonDisabled}
               isLoading={commitButtonLoading}
-              onClick={() => handleCommit(true)}
-              size={Size.large}
-              tag="button"
-              text={commitButtonText}
-              width="max-content"
+              text="discard changes"
             />
-          </Tooltip>
+          </ButtonContainer>
         )}
         {isProgressing && (
           <StatusbarWrapper>
@@ -311,6 +335,14 @@ function Deploy() {
       {!pullRequired && !isConflicting && (
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />
       )}
+
+      <NotificationBanner
+        canClose
+        className="error"
+        variant={NotificationVariant.error}
+      >
+        <div>Discarding</div>
+      </NotificationBanner>
     </Container>
   );
 }
