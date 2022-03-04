@@ -39,6 +39,7 @@ import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
 import {
   commitToRepoInit,
+  discardChanges,
   fetchGitStatusInit,
   gitPullInit,
 } from "actions/gitSyncActions";
@@ -152,11 +153,11 @@ const YesButtonContainer = styled.div`
   }
 `;
 
-function DiscardWarningActions() {
+function DiscardWarningActions(onClick: any) {
   const yesButtonOptions = {
     category: Category.secondary,
     className: "t--discard-pull-button discard-pull-changes-link",
-    onClick: () => true,
+    onClick: () => onClick(),
     text: createMessage(YES),
   };
   return (
@@ -176,23 +177,28 @@ function DiscardWarningMessage() {
   );
 }
 
-function DiscardChangesWarning(
-  setShowDiscardWarning: (
-    value: ((prevState: boolean) => boolean) | boolean,
-  ) => void,
-) {
+const DiscardChangesWarningContainer = styled.div`
+  margin: 16px 0;
+`;
+
+function DiscardChangesWarning({
+  onCloseDiscardChangesWarning,
+  onYesClick,
+}: any) {
   const notificationBannerOptions = {
     canClose: true,
     className: "error",
     icon: "warning-line",
-    onClose: () => setShowDiscardWarning(false),
+    onClose: () => onCloseDiscardChangesWarning(),
     variant: NotificationVariant.error,
   };
   return (
-    <NotificationBanner {...notificationBannerOptions}>
-      {DiscardWarningMessage()}
-      {DiscardWarningActions()}
-    </NotificationBanner>
+    <DiscardChangesWarningContainer>
+      <NotificationBanner {...notificationBannerOptions}>
+        {DiscardWarningMessage()}
+        {DiscardWarningActions(onYesClick)}
+      </NotificationBanner>
+    </DiscardChangesWarningContainer>
   );
 }
 
@@ -219,6 +225,7 @@ function Deploy() {
   const dispatch = useDispatch();
 
   const handleCommit = (doPush: boolean) => {
+    setShowDiscardWarning(false);
     AnalyticsUtil.logEvent("GS_COMMIT_AND_PUSH_BUTTON_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
@@ -264,6 +271,8 @@ function Deploy() {
     !pullRequired &&
     !isFetchingGitStatus &&
     !isCommittingInProgress;
+  const showDiscardChangesButton =
+    !isFetchingGitStatus && !isCommittingInProgress;
   const isProgressing =
     commitButtonLoading && (commitRequired || showCommitButton);
   const commitMessageDisplay = hasChangesToCommit
@@ -282,6 +291,13 @@ function Deploy() {
 
   const autogrowHeight = useAutoGrow(commitMessageDisplay, 37);
 
+  const onDiscardChanges = () => {
+    dispatch(discardChanges());
+    dispatch(fetchGitStatusInit());
+  };
+  const onCloseDiscardChangesWarning = () => {
+    setShowDiscardWarning(false);
+  };
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
@@ -359,8 +375,9 @@ function Deploy() {
           isConflicting={isConflicting}
           learnMoreLink={gitConflictDocumentUrl}
         />
-        {showCommitButton && (
-          <ActionsContainer>
+
+        <ActionsContainer>
+          {showCommitButton && (
             <Tooltip
               autoFocus={false}
               content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
@@ -379,6 +396,8 @@ function Deploy() {
                 width="max-content"
               />
             </Tooltip>
+          )}
+          {showDiscardChangesButton && (
             <Button
               category={Category.secondary}
               className="t--discard-button discard-changes-link"
@@ -387,8 +406,9 @@ function Deploy() {
               onClick={() => setShowDiscardWarning(true)}
               text="discard changes"
             />
-          </ActionsContainer>
-        )}
+          )}
+        </ActionsContainer>
+
         {isProgressing && (
           <StatusbarWrapper>
             <Statusbar
@@ -399,11 +419,17 @@ function Deploy() {
           </StatusbarWrapper>
         )}
       </Section>
+
+      {showDiscardWarning && (
+        <DiscardChangesWarning
+          onCloseDiscardChangesWarning={onCloseDiscardChangesWarning}
+          onDiscardChanges={onDiscardChanges}
+        />
+      )}
+
       {!pullRequired && !isConflicting && (
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />
       )}
-
-      {showDiscardWarning && DiscardChangesWarning(setShowDiscardWarning)}
     </Container>
   );
 }

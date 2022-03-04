@@ -11,6 +11,8 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  GIT_DISCARD_CHANGES: "GIT_DISCARD_CHANGES",
+  GIT_DISCARD_CHANGES_SUCCESS: "GIT_DISCARD_CHANGES_SUCCESS",
   SET_ENTITY_INFO: "SET_ENTITY_INFO",
   UPDATE_META_STATE: "UPDATE_META_STATE",
   DISCONNECT_GIT: "DISCONNECT_GIT",
@@ -665,6 +667,7 @@ export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTy
 
 export const ReduxActionErrorTypes = {
   GIT_PULL_ERROR: "GIT_PULL_ERROR",
+  GIT_DISCARD_CHANGES_ERROR: "GIT_DISCARD_CHANGES_ERROR",
   FETCH_MERGE_STATUS_ERROR: "FETCH_MERGE_STATUS_ERROR",
   MERGE_BRANCH_ERROR: "MERGE_BRANCH_ERROR",
   FETCH_GIT_STATUS_ERROR: "FETCH_GIT_STATUS_ERROR",
@@ -890,6 +893,7 @@ export interface PromisePayload {
   reject: any;
   resolve: any;
 }
+
 export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
   payload: T & PromisePayload;
 }

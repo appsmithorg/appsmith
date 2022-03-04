@@ -5,9 +5,12 @@ import {
   ReduxActionTypes,
   ReduxActionWithCallbacks,
 } from "constants/ReduxActionConstants";
-import { all, put, select, takeLatest, call } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
-import GitSyncAPI from "api/GitSyncAPI";
+import GitSyncAPI, {
+  MergeBranchPayload,
+  MergeStatusPayload,
+} from "api/GitSyncAPI";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -15,26 +18,29 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import {
   commitToRepoSuccess,
+  discardChangesSuccess,
   fetchBranchesInit,
   fetchBranchesSuccess,
-  fetchGlobalGitConfigSuccess,
-  fetchLocalGitConfigSuccess,
-  updateLocalGitConfigSuccess,
-  fetchLocalGitConfigInit,
-  switchGitBranchInit,
-  gitPullSuccess,
-  fetchMergeStatusSuccess,
-  fetchMergeStatusFailure,
   fetchGitStatusInit,
-  setIsGitSyncModalOpen,
-  setIsGitErrorPopupVisible,
-  setIsDisconnectGitModalOpen,
-  setShowRepoLimitErrorModal,
+  fetchGitStatusSuccess,
   fetchGlobalGitConfigInit,
+  fetchGlobalGitConfigSuccess,
+  fetchLocalGitConfigInit,
+  fetchLocalGitConfigSuccess,
+  fetchMergeStatusFailure,
+  fetchMergeStatusSuccess,
+  gitPullSuccess,
+  setIsDisconnectGitModalOpen,
+  setIsGitErrorPopupVisible,
+  setIsGitSyncModalOpen,
+  setShowRepoLimitErrorModal,
+  switchGitBranchInit,
+  updateLocalGitConfigSuccess,
 } from "actions/gitSyncActions";
 import {
-  connectToGitSuccess,
   ConnectToGitReduxAction,
+  connectToGitSuccess,
+  mergeBranchSuccess,
 } from "../actions/gitSyncActions";
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
@@ -44,7 +50,6 @@ import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { fetchGitStatusSuccess } from "actions/gitSyncActions";
 import {
   createMessage,
   GIT_USER_UPDATED_SUCCESSFULLY,
@@ -53,12 +58,6 @@ import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
 import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
-import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
-
-import {
-  mergeBranchSuccess,
-  // mergeBranchFailure,
-} from "../actions/gitSyncActions";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
@@ -602,6 +601,28 @@ function* disconnectGitSaga() {
   }
 }
 
+function* discardChanges() {
+  let response: ApiResponse | undefined;
+  try {
+    const appId: string = yield select(getCurrentApplicationId);
+    const doPull = true;
+    response = yield GitSyncAPI.discardChanges(appId, doPull);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put(discardChangesSuccess(response?.data));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_DISCARD_CHANGES_ERROR,
+      payload: { error, show: false },
+    });
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -631,5 +652,6 @@ export default function* gitSyncSagas() {
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
     takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
     takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),
+    takeLatest(ReduxActionTypes.GIT_DISCARD_CHANGES, discardChanges),
   ]);
 }

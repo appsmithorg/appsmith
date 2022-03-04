@@ -131,6 +131,12 @@ class GitSyncAPI extends Api {
   static disconnectGit({ applicationId }: { applicationId: string }) {
     return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
+
+  static discardChanges(applicationId: string, doPull: boolean) {
+    return Api.put(
+      `${GitSyncAPI.baseURL}/discard/${applicationId}?doPull=${doPull}`,
+    );
+  }
 }
 
 export default GitSyncAPI;
