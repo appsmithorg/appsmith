@@ -42,7 +42,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params1.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('8');
         });
@@ -51,7 +51,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('7');
         });
@@ -72,7 +72,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params2.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('7');
         });
@@ -81,7 +81,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('9');
         });
@@ -102,7 +102,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params3.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('9');
         });
@@ -111,7 +111,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('8');
         });
@@ -132,7 +132,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params4.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('8');
         });
@@ -141,7 +141,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('7');
         });
@@ -162,7 +162,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params5.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('7');
         });
@@ -171,7 +171,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('9');
         });
@@ -192,7 +192,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params6.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('9');
         });
@@ -201,7 +201,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('8');
         });
@@ -222,7 +222,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params7.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('8');
         });
@@ -231,7 +231,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('7');
         });
@@ -252,7 +252,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params8.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('7');
         });
@@ -261,7 +261,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('9');
         });
@@ -282,7 +282,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params9.data}}");
 
         agHelper.ClickButton("Submit")
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('9');
         });
@@ -291,7 +291,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         agHelper.Sleep(2000)
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('8');
         });
@@ -312,10 +312,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         jsEditor.EnterJSContext('tabledata', "{{Params10.data}}");
 
         //When No selected option passed
-        cy.xpath(locator._selectWidgetDropdown("selectwidget")).children(locator._crossBtn).click()
+        cy.xpath(locator._selectWidgetDropdown("selectwidget")).within(() => cy.get(locator._crossBtn).click())
         agHelper.ClickButton("Submit")
         agHelper.Sleep(2000)
-        agHelper.ValidateNetworkCallRespPost("@postExecute")
+        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
         agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
             expect(cellData).to.be.equal('7');
         });

@@ -21,13 +21,6 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext("defaulttext", "{{" + jsObjName + ".myFun1()}}")
     });
-    
-    agHelper.ValidateNetworkCallRespPost("@updateLayout")
-    // cy.wait("@updateLayout").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
     cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success');
     // cy.get(locator._inputWidget)
     //   .last()

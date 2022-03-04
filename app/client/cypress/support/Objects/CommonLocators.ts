@@ -52,4 +52,6 @@ export class CommonLocators {
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
     _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`
     _crossBtn = "span.cancel-icon"
+    _createNew = ".t--entity-add-btn.group.files"
+
 }

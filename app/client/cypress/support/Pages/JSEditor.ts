@@ -6,17 +6,15 @@ const agHelper = new AggregateHelper();
 const locator = new CommonLocators();
 
 export class JSEditor {
-  private _runButton =
-    "//li//*[local-name() = 'svg' and @class='run-button']/parent::li";
-  private _outputConsole = ".CodeEditorTarget";
-  private _jsObjName = ".t--js-action-name-edit-field span";
-  private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _addEntityJSEditor = ".t--entity-add-btn.group.files"
+  private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']/parent::li"
+  private _outputConsole = ".CodeEditorTarget"
+  private _jsObjName = ".t--js-action-name-edit-field span"
+  private _jsObjTxt = ".t--js-action-name-edit-field input"
   private _newJSobj = "span:contains('New JS Object')"
   private _bindingsClose = ".t--entity-property-close"
 
   public NavigateToJSEditor() {
-    cy.get(this._addEntityJSEditor)
+    cy.get(locator._createNew)
       .last()
       .click({ force: true });
     cy.get(this._newJSobj).click({ force: true });

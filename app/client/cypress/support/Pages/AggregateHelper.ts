@@ -71,7 +71,8 @@ export class AggregateHelper {
     }
 
     public SelectEntityByName(entityNameinLeftSidebar: string) {
-        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
+        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar), {timeout: 30000})
+            .should('be.visible')
             .last()
             .click({ multiple: true })
         this.Sleep()
@@ -164,10 +165,18 @@ export class AggregateHelper {
             }).then(() => this.Sleep(timeout))
     }
 
-    public ValidateNetworkCallRespPost(aliasName: string, expectedRes = true) {
+    public ValidateNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
         cy.wait(aliasName).should(
             "have.nested.property",
             "response.body.data.isExecutionSuccess",
+            expectedRes,
+        )
+    }
+
+    public ValidateNetworkStatus(aliasName: string, expectedRes = 200) {
+        cy.wait(aliasName).should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
             expectedRes,
         )
     }
