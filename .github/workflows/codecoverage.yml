@@ -104,7 +104,6 @@ jobs:
 
       - name: Setup cypress scripts
         if: steps.run_result.outputs.run_result != 'success'
-        id: vars
         run: |
           cp coveragescripts/support/index.js cypress/support/index.js
           cp coveragescripts/plugin/index.js cypress/plugins/index.js
