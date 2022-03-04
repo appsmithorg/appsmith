@@ -94,9 +94,6 @@ function baseURLBuilder(
     });
     pageId = match?.params.pageId;
   }
-  if (!pageId) {
-    throw Error("Cannot find page id");
-  }
   if (shouldUseLegacyURLs) {
     applicationId = applicationId ?? BASE_URL_BUILDER_PARAMS.applicationId;
     basePath = `/applications/${applicationId}/pages/${pageId}`;
