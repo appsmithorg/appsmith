@@ -946,6 +946,7 @@ function* updateEntitySavingStatus() {
   yield race([
     take(ReduxActionTypes.UPDATE_ACTION_SUCCESS),
     take(ReduxActionTypes.SAVE_PAGE_SUCCESS),
+    take(ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS),
   ]);
 
   yield put({
