@@ -40,7 +40,7 @@ import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ShareButtonComponent } from "../../Editor/EditorHeader";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
-import { viewerURL } from "AppsmithRouteFactory";
+import { builderURL, viewerURL } from "AppsmithRouteFactory";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -129,7 +129,6 @@ const PrimaryLogoLink = styled(Link)`
 `;
 
 type AppViewerHeaderProps = {
-  url?: string;
   currentApplicationDetails?: CurrentApplicationData;
   pages: PageListPayload;
   currentOrgId: string;
@@ -169,12 +168,18 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     applicationSlug,
     pageSlug,
     pageId,
+    applicationVersion: currentApplicationDetails?.applicationVersion,
     suffix: "fork",
   })}`;
   const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
   const CTA = GetAppViewerHeaderCTA({
-    url: props.url,
+    url: builderURL({
+      applicationSlug,
+      pageSlug,
+      pageId,
+      applicationVersion: currentApplicationDetails?.applicationVersion,
+    }),
     canEdit,
     currentApplicationDetails,
     currentUser,
@@ -254,7 +259,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
 const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   pages: getViewModePageList(state),
-  url: getEditorURL(state),
   currentApplicationDetails: state.ui.applications.currentApplication,
   currentOrgId: getCurrentOrgId(state),
   currentUser: getCurrentUser(state),
