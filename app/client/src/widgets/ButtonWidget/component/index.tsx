@@ -44,6 +44,7 @@ import {
   getCustomJustifyContent,
   getAlignText,
 } from "widgets/WidgetUtils";
+import { RenderMode, RenderModes } from "constants/WidgetConstants";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -75,7 +76,11 @@ const TooltipStyles = createGlobalStyle`
 `;
 
 type ButtonContainerProps = {
+  buttonColor?: string;
+  buttonVariant?: ButtonVariant;
   disabled?: boolean;
+  loading?: boolean;
+  renderMode: RenderMode;
 };
 
 const ButtonContainer = styled.div<ButtonContainerProps>`
@@ -83,11 +88,39 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
   align-items: center;
   justify-content: center;
   height: 100%;
-  ${({ disabled }) => disabled && "cursor: not-allowed;"}
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 
-  & > button {
-    height: 100%;
-  }
+  ${({ renderMode }) =>
+    renderMode === RenderModes.CANVAS &&
+    `
+    position: relative;
+    &:after {
+      content: "";
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      position: absolute;
+    }
+  `}
+
+  ${({ buttonColor, buttonVariant, disabled, loading, renderMode, theme }) => {
+    if (renderMode === RenderModes.CANVAS && !disabled && !loading) {
+      return ` 
+      &:hover > button, &:active > button {
+        background: ${
+          getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
+            ? getCustomHoverColor(theme, buttonVariant, buttonColor)
+            : buttonVariant === ButtonVariantTypes.SECONDARY
+            ? theme.colors.button.primary.secondary.hoverColor
+            : buttonVariant === ButtonVariantTypes.TERTIARY
+            ? theme.colors.button.primary.tertiary.hoverColor
+            : theme.colors.button.primary.primary.hoverColor
+        } !important;
+      }
+      `;
+    }
+  }}
 `;
 
 const StyledButton = styled((props) => (
@@ -108,7 +141,6 @@ const StyledButton = styled((props) => (
   padding: 0px 10px;
 
   ${({ buttonColor, buttonVariant, theme }) => `
-    &:enabled {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
@@ -116,9 +148,8 @@ const StyledButton = styled((props) => (
           ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
-    }
-
-    &:hover:enabled, &:active:enabled {
+    
+    &:hover, &:active {
       background: ${
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
@@ -280,6 +311,7 @@ interface ButtonComponentProps extends ComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
   isLoading: boolean;
+  renderMode: RenderMode;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
   buttonColor?: string;
@@ -431,7 +463,13 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       onClick={props.onClick}
       recaptchaType={props.recaptchaType}
     >
-      <ButtonContainer disabled={props.isDisabled}>
+      <ButtonContainer
+        buttonColor={props.buttonColor}
+        buttonVariant={props.buttonVariant}
+        disabled={props.isDisabled}
+        loading={props.isLoading}
+        renderMode={props.renderMode}
+      >
         <BaseButton
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}

@@ -32,6 +32,7 @@ import {
   getCustomJustifyContent,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
+import { RenderMode, RenderModes } from "constants/WidgetConstants";
 
 interface WrapperStyleProps {
   isHorizontal: boolean;
@@ -48,7 +49,6 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   justify-content: stretch;
   align-items: stretch;
   overflow: hidden;
-  cursor: not-allowed;
 
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
@@ -119,13 +119,55 @@ interface ButtonStyleProps {
   buttonColor?: string;
   iconAlign?: string;
   placement?: ButtonPlacement;
-  isDisabled?: boolean;
 }
+
+const ButtonContainer = styled.div<{
+  disabled?: boolean;
+  buttonVariant?: ButtonVariant;
+  buttonColor?: string;
+  renderMode: RenderMode;
+}>`
+  flex: 1 1 auto;
+  height: 100%;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+
+  ${({ renderMode }) =>
+    renderMode === RenderModes.CANVAS &&
+    `
+    position: relative;
+    &:after {
+      content: "";
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      position: absolute;
+    }
+  `}
+
+  ${({ buttonColor, buttonVariant, disabled, renderMode, theme }) => {
+    if (renderMode === RenderModes.CANVAS && !disabled) {
+      return `
+      &:hover > button, &:active > button {
+        background: ${
+          getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
+            ? getCustomHoverColor(theme, buttonVariant, buttonColor)
+            : buttonVariant === ButtonVariantTypes.SECONDARY
+            ? theme.colors.button.primary.secondary.hoverColor
+            : buttonVariant === ButtonVariantTypes.TERTIARY
+            ? theme.colors.button.primary.tertiary.hoverColor
+            : theme.colors.button.primary.primary.hoverColor
+        } !important;
+      }`;
+    }
+  }}
+`;
 
 const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   flex: 1 1 auto;
   display: flex;
-  cursor: pointer;
+  width: 100%;
+  height: 100%;
   justify-content: stretch;
   align-items: center;
   padding: 0px 10px;
@@ -137,7 +179,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     buttonColor,
     buttonVariant,
     iconAlign,
-    isDisabled,
     isHorizontal,
     theme,
   }) => `
@@ -225,17 +266,15 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
       } !important;
     }
 
-    ${isDisabled &&
-      `
-      & {
-        pointer-events: none;
-        border: 1px solid ${Colors.ALTO2} !important;
-        background: ${theme.colors.button.disabled.bgColor} !important;
-        span {
-          color: ${theme.colors.button.disabled.textColor} !important;
-        }
+    &:disabled {
+      pointer-events: none;
+      border: 1px solid ${Colors.ALTO2} !important;
+      background: ${theme.colors.button.disabled.bgColor} !important;
+      span {
+        color: ${theme.colors.button.disabled.textColor} !important;
       }
-    `}
+    }
+    
   `}
 `;
 
@@ -380,7 +419,7 @@ function PopoverContent(props: PopoverContentProps) {
 }
 
 class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
-  onButtonClick = (onClick: string | undefined) => () => {
+  onButtonClick = (onClick?: string) => {
     this.props.buttonClickHandler(onClick);
   };
 
@@ -429,7 +468,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   content={
                     <PopoverContent
                       menuItems={menuItems || {}}
-                      onItemClicked={this.onButtonClick}
+                      onItemClicked={() => () => this.onButtonClick()}
                     />
                   }
                   disabled={button.isDisabled}
@@ -438,56 +477,76 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   placement="bottom-end"
                   popoverClassName={`menu-button-popover menu-button-width-${id}`}
                 >
-                  <StyledButton
-                    borderRadOnEnd={borderRadOnEnd}
-                    borderRadOnStart={borderRadOnStart}
-                    borderRadius={this.props.borderRadius}
+                  <ButtonContainer
                     buttonColor={button.buttonColor}
                     buttonVariant={buttonVariant}
-                    iconAlign={button.iconAlign}
-                    isDisabled={isButtonDisabled}
-                    isHorizontal={isHorizontal}
-                    style={{ height: "100%", width: "100%" }}
+                    disabled={isButtonDisabled}
+                    renderMode={this.props.renderMode}
                   >
-                    <StyledButtonContent
-                      iconAlign={button.iconAlign || "left"}
-                      placement={button.placement}
+                    <StyledButton
+                      borderRadOnEnd={borderRadOnEnd}
+                      borderRadOnStart={borderRadOnStart}
+                      borderRadius={this.props.borderRadius}
+                      buttonColor={button.buttonColor}
+                      buttonVariant={buttonVariant}
+                      disabled={isButtonDisabled}
+                      iconAlign={button.iconAlign}
+                      isHorizontal={isHorizontal}
                     >
-                      {button.iconName && <Icon icon={button.iconName} />}
-                      {!!button.label && (
-                        <span className={CoreClass.BUTTON_TEXT}>
-                          {button.label}
-                        </span>
-                      )}
-                    </StyledButtonContent>
-                  </StyledButton>
+                      <StyledButtonContent
+                        iconAlign={button.iconAlign || "left"}
+                        placement={button.placement}
+                      >
+                        {button.iconName && <Icon icon={button.iconName} />}
+                        {!!button.label && (
+                          <span className={CoreClass.BUTTON_TEXT}>
+                            {button.label}
+                          </span>
+                        )}
+                      </StyledButtonContent>
+                    </StyledButton>
+                  </ButtonContainer>
                 </Popover2>
               </MenuButtonWrapper>
             );
           }
           return (
-            <StyledButton
-              borderRadOnEnd={borderRadOnEnd}
-              borderRadOnStart={borderRadOnStart}
-              borderRadius={this.props.borderRadius}
+            <ButtonContainer
               buttonColor={button.buttonColor}
               buttonVariant={buttonVariant}
-              iconAlign={button.iconAlign}
-              isDisabled={isButtonDisabled}
-              isHorizontal={isHorizontal}
+              disabled={isButtonDisabled}
               key={button.id}
-              onClick={this.onButtonClick(button.onClick)}
+              onClick={() => {
+                if (isButtonDisabled) return;
+                this.onButtonClick(button.onClick);
+              }}
+              renderMode={this.props.renderMode}
             >
-              <StyledButtonContent
-                iconAlign={button.iconAlign || "left"}
-                placement={button.placement}
+              <StyledButton
+                borderRadOnEnd={borderRadOnEnd}
+                borderRadOnStart={borderRadOnStart}
+                borderRadius={this.props.borderRadius}
+                buttonColor={button.buttonColor}
+                buttonVariant={buttonVariant}
+                disabled={isButtonDisabled}
+                iconAlign={button.iconAlign}
+                isHorizontal={isHorizontal}
+                key={button.id}
+                onClick={() => this.onButtonClick(button.onClick)}
               >
-                {button.iconName && <Icon icon={button.iconName} />}
-                {!!button.label && (
-                  <span className={CoreClass.BUTTON_TEXT}>{button.label}</span>
-                )}
-              </StyledButtonContent>
-            </StyledButton>
+                <StyledButtonContent
+                  iconAlign={button.iconAlign || "left"}
+                  placement={button.placement}
+                >
+                  {button.iconName && <Icon icon={button.iconName} />}
+                  {!!button.label && (
+                    <span className={CoreClass.BUTTON_TEXT}>
+                      {button.label}
+                    </span>
+                  )}
+                </StyledButtonContent>
+              </StyledButton>
+            </ButtonContainer>
           );
         })}
       </ButtonGroupWrapper>
@@ -528,16 +587,17 @@ interface GroupButtonProps {
 }
 
 export interface ButtonGroupComponentProps {
-  orientation: string;
-  isDisabled: boolean;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   buttonVariant: ButtonVariant;
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;
-  width: number;
+  isDisabled: boolean;
   menuDropDownWidth: number;
+  orientation: string;
+  renderMode: RenderMode;
+  width: number;
 }
 
 export default ButtonGroupComponent;
