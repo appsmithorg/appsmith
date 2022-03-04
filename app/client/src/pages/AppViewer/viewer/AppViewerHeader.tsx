@@ -16,7 +16,6 @@ import {
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getEditorURL } from "selectors/editorSelectors";
 import { getViewModePageList, selectURLSlugs } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
