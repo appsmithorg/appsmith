@@ -31,11 +31,9 @@ import { Colors } from "constants/Colors";
 import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
 
 export interface TreeSelectProps
-  extends Required<
-    Pick<
-      SelectProps,
-      "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
-    >
+  extends Pick<
+    SelectProps,
+    "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
   > {
   value?: DefaultValueType;
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
@@ -176,7 +174,7 @@ function MultiTreeSelectComponent({
   const onClear = useCallback(() => onChange([], []), []);
   return (
     <TreeSelectContainer
-      allowClear={allowClear}
+      allowClear={allowClear as boolean}
       compactMode={compactMode}
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
@@ -190,7 +188,7 @@ function MultiTreeSelectComponent({
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
             $compactMode={compactMode}
-            $disabled={disabled}
+            $disabled={disabled as boolean}
             $labelStyle={labelStyle}
             $labelText={labelText}
             $labelTextColor={labelTextColor}

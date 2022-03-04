@@ -460,7 +460,7 @@ export interface SelectWidgetProps extends WidgetProps {
   label?: any;
   isRequired: boolean;
   isFilterable: boolean;
-  defaultValue: string;
+  defaultValue: string | { value: string; label: string };
   selectedOptionLabel: string;
   serverSideFiltering: boolean;
   onFilterUpdate: string;

@@ -510,7 +510,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
-  defaultOptionValue: string | string[];
+  defaultOptionValue: string | string[] | { value: string; label: string }[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelValueType[];
