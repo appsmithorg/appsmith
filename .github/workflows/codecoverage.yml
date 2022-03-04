@@ -740,10 +740,12 @@ jobs:
           env: "NODE_ENV=development"
 
       - uses: actions/checkout@v2
+        if: always()
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
       
       - name: Sleep for 30 seconds
+        if: always()
         run: sleep 30s
         shell: bash
 
