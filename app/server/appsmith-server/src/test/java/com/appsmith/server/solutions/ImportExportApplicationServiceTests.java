@@ -4,7 +4,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;

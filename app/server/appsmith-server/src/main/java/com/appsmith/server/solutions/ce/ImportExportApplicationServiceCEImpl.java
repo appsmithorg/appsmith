@@ -2,16 +2,11 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.Stopwatch;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BasicAuth;
-import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
@@ -71,7 +66,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -1417,78 +1411,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .then(datasourceService.create(datasource));
                 }));
-    }
-
-    /**
-     * Here we will be rehydrating the sensitive fields like password, secrets etc. in datasource while importing the application
-     *
-     * @param datasource      for which sensitive fields should be rehydrated
-     * @param decryptedFields sensitive fields
-     * @return updated datasource with rehydrated sensitive fields
-     */
-    private Datasource updateAuthenticationDTO(Datasource datasource, DecryptedSensitiveFields decryptedFields) {
-
-        final DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
-        String authType = decryptedFields.getAuthType();
-        if (dsConfig == null || authType == null) {
-            return datasource;
-        }
-
-        if (StringUtils.equals(authType, DBAuth.class.getName())) {
-            final DBAuth dbAuth = decryptedFields.getDbAuth();
-            dbAuth.setPassword(decryptedFields.getPassword());
-            datasource.getDatasourceConfiguration().setAuthentication(dbAuth);
-        } else if (StringUtils.equals(authType, BasicAuth.class.getName())) {
-            final BasicAuth basicAuth = decryptedFields.getBasicAuth();
-            basicAuth.setPassword(decryptedFields.getPassword());
-            datasource.getDatasourceConfiguration().setAuthentication(basicAuth);
-        } else if (StringUtils.equals(authType, OAuth2.class.getName())) {
-            OAuth2 auth2 = decryptedFields.getOpenAuth2();
-            AuthenticationResponse authResponse = new AuthenticationResponse();
-            auth2.setClientSecret(decryptedFields.getPassword());
-            authResponse.setToken(decryptedFields.getToken());
-            authResponse.setRefreshToken(decryptedFields.getRefreshToken());
-            authResponse.setTokenResponse(decryptedFields.getTokenResponse());
-            authResponse.setExpiresAt(Instant.now());
-            auth2.setAuthenticationResponse(authResponse);
-            datasource.getDatasourceConfiguration().setAuthentication(auth2);
-        }
-        return datasource;
-    }
-
-    /**
-     * This will be used to dehydrate sensitive fields from the datasource while exporting the application
-     *
-     * @param datasource entity from which sensitive fields need to be dehydrated
-     * @return sensitive fields which then will be deserialized and exported in JSON file
-     */
-    private DecryptedSensitiveFields getDecryptedFields(Datasource datasource) {
-        final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
-                ? null : datasource.getDatasourceConfiguration().getAuthentication();
-
-        if (authentication != null) {
-            DecryptedSensitiveFields dsDecryptedFields =
-                    authentication.getAuthenticationResponse() == null
-                            ? new DecryptedSensitiveFields()
-                            : new DecryptedSensitiveFields(authentication.getAuthenticationResponse());
-
-            if (authentication instanceof DBAuth) {
-                DBAuth auth = (DBAuth) authentication;
-                dsDecryptedFields.setPassword(auth.getPassword());
-                dsDecryptedFields.setDbAuth(auth);
-            } else if (authentication instanceof OAuth2) {
-                OAuth2 auth = (OAuth2) authentication;
-                dsDecryptedFields.setPassword(auth.getClientSecret());
-                dsDecryptedFields.setOpenAuth2(auth);
-            } else if (authentication instanceof BasicAuth) {
-                BasicAuth auth = (BasicAuth) authentication;
-                dsDecryptedFields.setPassword(auth.getPassword());
-                dsDecryptedFields.setBasicAuth(auth);
-            }
-            dsDecryptedFields.setAuthType(authentication.getClass().getName());
-            return dsDecryptedFields;
-        }
-        return null;
     }
 
     /**
