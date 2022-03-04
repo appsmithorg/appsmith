@@ -179,207 +179,207 @@ describe("Table Widget property pane feature validation", function() {
     */
   });
 
-  // it("7. Table widget add new menu button column", function() {
-  //   cy.openPropertyPane("tablewidget");
-  //   // click on Add new Column.
-  //   cy.get(".t--add-column-btn").click();
-  //   //Open New Custom Column
-  //   cy.editColumn("customColumn1");
-  //   // Change Column type to icon Button
-  //   cy.changeColumnType("Menu Button");
-  //   //Changing the text on the Menu Button
-  //   cy.testJsontext("label", "Menu button");
-  //   // Select Icon from Icon Control
-  //   cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
-  //     force: true,
-  //   });
-  //   cy.get(".bp3-icon-airplane")
-  //     .first()
-  //     .click({
-  //       force: true,
-  //     });
-  //   // validate icon
-  //   cy.get(".t--widget-tablewidget .tbody .bp3-icon-airplane").should("exist");
-  //   // validate label
-  //   cy.contains("Menu button").should("exist");
+  it("7. Table widget add new menu button column", function() {
+    cy.openPropertyPane("tablewidget");
+    // click on Add new Column.
+    cy.get(".t--add-column-btn").click();
+    //Open New Custom Column
+    cy.editColumn("customColumn1");
+    // Change Column type to icon Button
+    cy.changeColumnType("Menu Button");
+    //Changing the text on the Menu Button
+    cy.testJsontext("label", "Menu button");
+    // Select Icon from Icon Control
+    cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+      force: true,
+    });
+    cy.get(".bp3-icon-airplane")
+      .first()
+      .click({
+        force: true,
+      });
+    // validate icon
+    cy.get(".t--widget-tablewidget .tbody .bp3-icon-airplane").should("exist");
+    // validate label
+    cy.contains("Menu button").should("exist");
 
-  //   const color1 = "rgb(255, 255, 0)";
-  //   cy.get(widgetsPage.menuColor)
-  //     .click({ force: true })
-  //     .clear()
-  //     .type(color1);
-  //   cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
+    const color1 = "rgb(255, 255, 0)";
+    cy.get(widgetsPage.menuColor)
+      .click({ force: true })
+      .clear()
+      .type(color1);
+    cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
 
-  //   // Changing the color again to reproduce issue #9526
-  //   const color2 = "rgb(255, 0, 0)";
-  //   cy.get(widgetsPage.menuColor)
-  //     .click({ force: true })
-  //     .clear()
-  //     // following wait is required to reproduce #9526
-  //     .wait(500)
-  //     .type(color2);
-  //   cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
+    // Changing the color again to reproduce issue #9526
+    const color2 = "rgb(255, 0, 0)";
+    cy.get(widgetsPage.menuColor)
+      .click({ force: true })
+      .clear()
+      // following wait is required to reproduce #9526
+      .wait(500)
+      .type(color2);
+    cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
 
-  //   // Add a Menu item 1
-  //   cy.get(".t--add-menu-item-btn").click({
-  //     force: true,
-  //   });
-  //   // Edit a Menu item
-  //   cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
-  //     .first()
-  //     .click({
-  //       force: true,
-  //     });
-  //   // update menu item background color
-  //   cy.get(widgetsPage.backgroundcolorPickerNew)
-  //     .type("#03b365", {
-  //       force: true,
-  //     })
-  //     .wait(500);
-  //   //  Add action to the menu Item
-  //   cy.get(widgetsPage.actionSelect).click();
-  //   cy.get(commonlocators.chooseAction)
-  //     .children()
-  //     .contains("Show message")
-  //     .click();
-  //   cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
-  //   // Go back to table property pane
-  //   cy.get(".t--property-pane-back-btn").click({ force: true });
+    // Add a Menu item 1
+    cy.get(".t--add-menu-item-btn").click({
+      force: true,
+    });
+    // Edit a Menu item
+    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+      .first()
+      .click({
+        force: true,
+      });
+    // update menu item background color
+    cy.get(widgetsPage.backgroundcolorPickerNew)
+      .type("#03b365", {
+        force: true,
+      })
+      .wait(500);
+    //  Add action to the menu Item
+    cy.get(widgetsPage.actionSelect).click();
+    cy.get(commonlocators.chooseAction)
+      .children()
+      .contains("Show message")
+      .click();
+    cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
+    // Go back to table property pane
+    cy.get(".t--property-pane-back-btn").click({ force: true });
 
-  //   // Add a Menu item 2
-  //   cy.get(".t--add-menu-item-btn").click({
-  //     force: true,
-  //   });
-  //   // Edit a Menu item
-  //   cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
-  //     .last()
-  //     .click({
-  //       force: true,
-  //     });
-  //   // update menu item background color
-  //   cy.get(widgetsPage.backgroundcolorPickerNew)
-  //     .clear()
-  //     .type("#FFC13D", {
-  //       force: true,
-  //     })
-  //     .wait(500);
-  //   // Go back to table property pane
-  //   cy.get(".t--property-pane-back-btn").click({ force: true });
+    // Add a Menu item 2
+    cy.get(".t--add-menu-item-btn").click({
+      force: true,
+    });
+    // Edit a Menu item
+    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+      .last()
+      .click({
+        force: true,
+      });
+    // update menu item background color
+    cy.get(widgetsPage.backgroundcolorPickerNew)
+      .clear()
+      .type("#FFC13D", {
+        force: true,
+      })
+      .wait(500);
+    // Go back to table property pane
+    cy.get(".t--property-pane-back-btn").click({ force: true });
 
-  //   // Add a Menu item 3
-  //   cy.get(".t--add-menu-item-btn").click({
-  //     force: true,
-  //   });
-  //   // Edit a Menu item
-  //   cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
-  //     .last()
-  //     .click({
-  //       force: true,
-  //     });
-  //   // update menu item background color
-  //   cy.get(widgetsPage.backgroundcolorPickerNew)
-  //     .clear()
-  //     .type("#3366FF", {
-  //       force: true,
-  //     })
-  //     .wait(500);
-  //   // Go back to table property pane
-  //   cy.get(".t--property-pane-back-btn").click({ force: true });
+    // Add a Menu item 3
+    cy.get(".t--add-menu-item-btn").click({
+      force: true,
+    });
+    // Edit a Menu item
+    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+      .last()
+      .click({
+        force: true,
+      });
+    // update menu item background color
+    cy.get(widgetsPage.backgroundcolorPickerNew)
+      .clear()
+      .type("#3366FF", {
+        force: true,
+      })
+      .wait(500);
+    // Go back to table property pane
+    cy.get(".t--property-pane-back-btn").click({ force: true });
 
-  //   // Close Property pane
-  //   cy.openPropertyPane("tablewidget");
-  //   // Click on the Menu Button
-  //   cy.contains("Menu button").click({
-  //     force: true,
-  //   });
-  //   cy.wait(1000);
+    // Close Property pane
+    cy.openPropertyPane("tablewidget");
+    // Click on the Menu Button
+    cy.contains("Menu button").click({
+      force: true,
+    });
+    cy.wait(1000);
 
-  //   //Commenting below verification until fixed to overide flakiness
-  //   // // verify menu items background color
-  //   // cy.get(".bp3-menu-item")
-  //   //   .eq(0)
-  //   //   .should("have.css", "background-color", "rgb(3, 179, 101)");
-  //   // cy.get(".bp3-menu-item")
-  //   //   .eq(1)
-  //   //   .should("have.css", "background-color", "rgb(51, 102, 255)"); //"rgb(255, 193, 61)");
-  //   // cy.get(".bp3-menu-item")
-  //   //   .eq(2)
-  //   //   .should("have.css", "background-color", "rgb(255, 255, 255)");//"rgb(51, 102, 255)");
+    //Commenting below verification until fixed to overide flakiness
+    // // verify menu items background color
+    // cy.get(".bp3-menu-item")
+    //   .eq(0)
+    //   .should("have.css", "background-color", "rgb(3, 179, 101)");
+    // cy.get(".bp3-menu-item")
+    //   .eq(1)
+    //   .should("have.css", "background-color", "rgb(51, 102, 255)"); //"rgb(255, 193, 61)");
+    // cy.get(".bp3-menu-item")
+    //   .eq(2)
+    //   .should("have.css", "background-color", "rgb(255, 255, 255)");//"rgb(51, 102, 255)");
 
-  //   //cy.closePropertyPane();
+    //cy.closePropertyPane();
 
-  //   // disable menu item 3
-  //   //cy.openPropertyPane("tablewidget");
+    // disable menu item 3
+    //cy.openPropertyPane("tablewidget");
 
-  //   //cy.editColumn("customColumn1");
-  //   // Edit a Menu item
-  //   cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
-  //     .last()
-  //     .click({
-  //       force: true,
-  //     });
-  //   cy.wait(1000);
-  //   cy.get(".t--property-control-disabled label.bp3-switch.unchecked").click({
-  //     force: true,
-  //   });
-  //   //cy.closePropertyPane();
+    //cy.editColumn("customColumn1");
+    // Edit a Menu item
+    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+      .last()
+      .click({
+        force: true,
+      });
+    cy.wait(1000);
+    cy.get(".t--property-control-disabled label.bp3-switch.unchecked").click({
+      force: true,
+    });
+    //cy.closePropertyPane();
 
-  //   // Click on the Menu Button
-  //   cy.clickButton("Menu button").wait(1000);
-  //   // check Menu Item 3 is disable
-  //   cy.get(".bp3-menu-item")
-  //     .eq(2)
-  //     .should("have.css", "background-color", "rgb(250, 250, 250)");
-  //   cy.get(".bp3-menu-item")
-  //     .eq(2)
-  //     .should("have.class", "bp3-disabled");
+    // Click on the Menu Button
+    cy.clickButton("Menu button").wait(1000);
+    // check Menu Item 3 is disable
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .should("have.css", "background-color", "rgb(250, 250, 250)");
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .should("have.class", "bp3-disabled");
 
-  //   // Click on the Menu Item
-  //   cy.get(".bp3-menu-item")
-  //     .eq(0)
-  //     .click({
-  //       force: true,
-  //     });
-  //   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  //   cy.wait(3000);
-  //   // Validating the toast message
-  //   cy.get(widgetsPage.toastAction).should("be.visible");
-  //   cy.get(widgetsPage.toastActionText)
-  //     .last()
-  //     .invoke("text")
-  //     .then((text) => {
-  //       const someText = text;
-  //       expect(someText).to.equal("Successful tobias.funke@reqres.in");
-  //     });
-  // });
+    // Click on the Menu Item
+    cy.get(".bp3-menu-item")
+      .eq(0)
+      .click({
+        force: true,
+      });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(3000);
+    // Validating the toast message
+    cy.get(widgetsPage.toastAction).should("be.visible");
+    cy.get(widgetsPage.toastActionText)
+      .last()
+      .invoke("text")
+      .then((text) => {
+        const someText = text;
+        expect(someText).to.equal("Successful tobias.funke@reqres.in");
+      });
+  });
 
-  // it("8. Table widget test on button icon click, row should not get deselected", () => {
-  //   cy.get(widgetsPage.tableIconBtn)
-  //     .last()
-  //     .click({ force: true });
-  //   cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
-  //   //click icon button again
-  //   cy.get(widgetsPage.tableIconBtn)
-  //     .last()
-  //     .click({ force: true });
-  //   cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
-  //   cy.get(".t--property-pane-back-btn").click({ force: true });
-  //   cy.wait(500);
-  //   cy.get(".t--property-pane-back-btn").click({ force: true });
-  // });
+  it("8. Table widget test on button icon click, row should not get deselected", () => {
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+    //click icon button again
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.wait(500);
+    cy.get(".t--property-pane-back-btn").click({ force: true });
+  });
 
-  // it("9. Table widget test on button when transparent", () => {
-  //   cy.openPropertyPane("tablewidget");
-  //   // Open column details of "id".
-  //   cy.editColumn("id");
-  //   // Changing column "Button" color to transparent
+  it("9. Table widget test on button when transparent", () => {
+    cy.openPropertyPane("tablewidget");
+    // Open column details of "id".
+    cy.editColumn("id");
+    // Changing column "Button" color to transparent
 
-  //   cy.get(widgetsPage.buttonColor).click({ force: true });
-  //   cy.xpath(widgetsPage.transparent).click();
-  //   cy.get(".td[data-colindex=5][data-rowindex=0] .bp3-button").should(
-  //     "have.css",
-  //     "background-color",
-  //     "rgba(0, 0, 0, 0)",
-  //   );
-  // });
+    cy.get(widgetsPage.buttonColor).click({ force: true });
+    cy.xpath(widgetsPage.transparent).click();
+    cy.get(".td[data-colindex=5][data-rowindex=0] .bp3-button").should(
+      "have.css",
+      "background-color",
+      "rgba(0, 0, 0, 0)",
+    );
+  });
 });
