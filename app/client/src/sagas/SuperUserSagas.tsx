@@ -133,7 +133,7 @@ function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
     });
   } catch (e) {
     Toaster.show({
-      text: createMessage(TEST_EMAIL_FAILURE),
+      text: e?.message || createMessage(TEST_EMAIL_FAILURE),
       hideProgressBar: true,
       variant: Variant.danger,
     });
