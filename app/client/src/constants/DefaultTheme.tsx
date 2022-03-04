@@ -2910,7 +2910,7 @@ export const theme: Theme = {
       marginLeft: 112,
     },
     search: {
-      height: 68,
+      height: 81,
       paddingTop: 30,
     },
     sidebar: 256,

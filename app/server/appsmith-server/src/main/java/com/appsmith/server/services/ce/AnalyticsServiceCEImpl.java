@@ -206,12 +206,4 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
         return sendDeleteEvent(object, null);
     }
-
-    public <T extends BaseDomain> Mono<T> sendArchiveEvent(T object) {
-        return sendArchiveEvent(object, null);
-    }
-
-    private <T extends BaseDomain> Mono<T> sendArchiveEvent(T object, Map<String, Object> extraProperties) {
-        return sendObjectEvent(AnalyticsEvents.ARCHIVE, object, extraProperties);
-    }
 }
