@@ -2,9 +2,7 @@
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Table Widget property pane feature validation", function() {
@@ -185,6 +183,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".draggable-header:contains('Email Address')").should("be.visible");
     cy.get(commonlocators.editPropBackButton).click({ force: true });
   });
+
   it("Edit Row height and test table for changes", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.rowHeight)
@@ -194,8 +193,9 @@ describe("Table Widget property pane feature validation", function() {
       .contains("Short")
       .click({ force: true });
     cy.wait(1000);
-    cy.readTabledataValidateCSS("0", "1", "height", "19px", true);
+    cy.readTabledataValidateCSS("0", "1", "height", "28px", true);
   });
+
   it("Test to validate text color and text background", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
