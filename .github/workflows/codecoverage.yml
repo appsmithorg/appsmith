@@ -103,19 +103,19 @@ jobs:
         run: yarn add -D @cypress/code-coverage
 
       - name: Setup cypress scripts
-        if: steps.run_result.outputs.run_result != 'success'
+        if: always()
         run: cp coveragescripts/support/index.js cypress/support/index.js
           
       - name: Setup cypress scripts
-        if: steps.run_result.outputs.run_result != 'success'
+        if: always()
         run: cp coveragescripts/plugin/index.js cypress/plugins/index.js
          
       - name: Setup cypress scripts
-        if: steps.run_result.outputs.run_result != 'success'
+        if: always()
         run: cp coveragescripts/craco.dev.config.js craco.dev.config.js
           
       - name: Setup cypress scripts
-        if: steps.run_result.outputs.run_result != 'success'
+        if: always()
         run: cp coveragescripts/.babelrc .babelrc
           
           
