@@ -11,7 +11,6 @@ import {
 const EE_SettingCategories = {
   OIDC_AUTH: "oidc-auth",
 };
-
 const EE_SettingSubCategories = {
   OIDC: "oidc signup",
 };
