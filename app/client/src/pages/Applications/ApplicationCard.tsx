@@ -776,7 +776,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       fill
                       icon={"edit"}
                       iconPosition={IconPositions.left}
-                      onClick={(e) => history.push(editApplicationURL)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        history.push(editApplicationURL);
+                      }}
                       size={Size.medium}
                       text="Edit"
                     />
@@ -788,7 +791,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       fill
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
-                      onClick={(e) => history.push(viewApplicationURL)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        history.push(viewApplicationURL);
+                      }}
                       size={Size.medium}
                       text="Launch"
                     />
