@@ -194,7 +194,7 @@ describe("Table Widget property pane feature validation", function() {
       .contains("Short")
       .click({ force: true });
     cy.wait(1000);
-    cy.readTabledataValidateCSS("0", "1", "height", "28px", true);
+    cy.readTabledataValidateCSS("0", "1", "height", "19px", true);
   });
   it("Test to validate text color and text background", function() {
     // Open property pane
@@ -212,6 +212,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
     // Change the text color and enter purple in input field
     cy.get(widgetsPage.textColor)
+      .scrollIntoView()
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");
@@ -220,6 +221,7 @@ describe("Table Widget property pane feature validation", function() {
     // Click on cell background color
     cy.get(`${widgetsPage.cellBackground} input`)
       .first()
+      .scrollIntoView()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
