@@ -195,8 +195,8 @@ function DiscardChangesWarning({
   return (
     <DiscardChangesWarningContainer>
       <NotificationBanner {...notificationBannerOptions}>
-        {DiscardWarningMessage()}
-        {DiscardWarningActions(onYesClick)}
+        <DiscardWarningMessage />
+        <DiscardWarningActions onClick={onYesClick} />
       </NotificationBanner>
     </DiscardChangesWarningContainer>
   );
