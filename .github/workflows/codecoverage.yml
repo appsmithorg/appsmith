@@ -739,6 +739,14 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
+      - uses: actions/checkout@v2
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+      
+      - name: Sleep for 30 seconds
+        run: sleep 30s
+        shell: bash
+
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
