@@ -28,12 +28,15 @@ const {
  */
 module.exports = (on, config) => {
   // Todo: maybe raise a PR instead of overwriting `on("before:browser:launch", ...)` twice.
+
+
   cypressLogToOutput.install(on, (type, event) => {
     if (event.level === "error" || event.type === "error") {
       return true;
     }
     return false;
   });
+
 };
 
 module.exports = (on, config) => {
@@ -131,5 +134,9 @@ module.exports = (on, config) => {
   return config;
 };
 module.exports = (on, config) => {
+
   addMatchImageSnapshotPlugin(on, config);
+  require('@cypress/code-coverage/task')(on, config);
+  return config;
+
 };
