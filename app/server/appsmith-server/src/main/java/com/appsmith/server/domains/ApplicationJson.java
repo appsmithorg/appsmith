@@ -47,8 +47,6 @@ public class ApplicationJson {
 
     List<ActionCollection> actionCollectionList;
 
-    Map<String, DecryptedSensitiveFields> decryptedFields;
-
     Theme editModeTheme;
     Theme publishedTheme;
 

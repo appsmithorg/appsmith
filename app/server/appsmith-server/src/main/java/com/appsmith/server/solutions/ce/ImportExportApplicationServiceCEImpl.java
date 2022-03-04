@@ -368,9 +368,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     datasource.setDatasourceConfiguration(null);
                                 });
 
-                                // Caution : Please don't serialise the credentials if we are serialising for git version control
-                                applicationJson.setDecryptedFields(null);
-
                                 // Update ids for layoutOnLoadAction
                                 for (NewPage newPage : applicationJson.getPageList()) {
                                     if (!CollectionUtils.isEmpty(newPage.getUnpublishedPage().getLayouts())) {
@@ -627,15 +624,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                 datasource.setOrganizationId(organizationId);
 
-                                // Check if any decrypted fields are present for datasource
-                                if (importedDoc.getDecryptedFields()!= null
-                                        && importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
-
-                                    DecryptedSensitiveFields decryptedFields =
-                                            importedDoc.getDecryptedFields().get(datasource.getName());
-
-                                    updateAuthenticationDTO(datasource, decryptedFields);
-                                }
                                 return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId, applicationId);
                             })
                             .map(datasource -> {

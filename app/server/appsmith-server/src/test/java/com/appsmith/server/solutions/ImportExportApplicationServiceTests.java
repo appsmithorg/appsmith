@@ -330,7 +330,6 @@ public class ImportExportApplicationServiceTests {
                     assertThat(applicationJson.getPageList()).hasSize(1);
                     assertThat(applicationJson.getActionList()).isEmpty();
                     assertThat(applicationJson.getDatasourceList()).isEmpty();
-                    assertThat(applicationJson.getDecryptedFields()).isNull();
                 })
                 .verifyComplete();
     }
@@ -742,20 +741,13 @@ public class ImportExportApplicationServiceTests {
                 assertThat(application.getUpdatedAt()).isNotNull();
                 assertThat(application.getEditModeThemeId()).isNotNull();
                 assertThat(application.getPublishedModeThemeId()).isNotNull();
-                assertThat(isPartialImport).isEqualTo(Boolean.FALSE);
-                assertThat(unConfiguredDatasourceList).isNull();
+                assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
+                assertThat(unConfiguredDatasourceList).isNotNull();
 
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {
                     assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
-                    if (datasource.getName().contains("wo-auth")) {
-                        assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
-                    } else if (datasource.getName().contains("db")) {
-                        DBAuth auth = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
-                        assertThat(auth).isNotNull();
-                        assertThat(auth.getPassword()).isNotNull();
-                        assertThat(auth.getUsername()).isNotNull();
-                    }
+                    assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
                 });
 
                 List<String> collectionIdInAction = new ArrayList<>();
@@ -927,14 +919,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
-                        if (datasource.getName().contains("wo-auth")) {
-                            assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
-                        } else if (datasource.getName().contains("db")) {
-                            DBAuth auth = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
-                            assertThat(auth).isNotNull();
-                            assertThat(auth.getPassword()).isNotNull();
-                            assertThat(auth.getUsername()).isNotNull();
-                        }
+                        assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
                     });
 
                     assertThat(actionDTOS).isNotEmpty();
