@@ -652,7 +652,7 @@ public class ThemeServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void delete_WhenSystemTheme_NotAllowed() {
-        StepVerifier.create(themeService.getDefaultThemeId().flatMap(themeService::delete))
+        StepVerifier.create(themeService.getDefaultThemeId().flatMap(themeService::archiveById))
                 .expectError(AppsmithException.class)
                 .verify();
     }
@@ -671,7 +671,7 @@ public class ThemeServiceTest {
                     Theme themeCustomization = new Theme();
                     themeCustomization.setName("Updated name");
                     return themeService.updateTheme(savedApplication.getId(), themeCustomization);
-                }).flatMap(customizedTheme -> themeService.delete(customizedTheme.getId()));
+                }).flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId()));
 
         StepVerifier.create(deleteThemeMono)
                 .expectErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage())
@@ -693,7 +693,7 @@ public class ThemeServiceTest {
                     themeCustomization.setName("Updated name");
                     return themeService.persistCurrentTheme(savedApplication.getId(), themeCustomization);
                 })
-                .flatMap(customizedTheme -> themeService.delete(customizedTheme.getId())
+                .flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId())
                         .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES)));
 
         StepVerifier.create(deleteThemeMono).verifyComplete();
