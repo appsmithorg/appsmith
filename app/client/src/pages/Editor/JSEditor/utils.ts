@@ -83,13 +83,16 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
 export const getJSFunctionsLineGutters = (
   jsActions: JSAction[],
   runFuction: (jsAction: JSAction) => void,
+  shouldShowGutters: boolean,
 ): CodeEditorGutter[] => {
   return jsActions.map((jsAction) => {
     return {
       element: createGutterMarker(() => runFuction(jsAction)),
       gutterId: RUN_GUTTER_ID,
       line: (code: string) =>
-        getJSFunctionStartLineFromCode(code, jsAction.name),
+        !shouldShowGutters
+          ? null
+          : getJSFunctionStartLineFromCode(code, jsAction.name),
     };
   });
 };

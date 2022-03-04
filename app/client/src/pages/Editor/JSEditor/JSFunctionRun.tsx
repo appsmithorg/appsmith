@@ -7,7 +7,6 @@ import { JSCollection } from "entities/JSCollection";
 import Tooltip from "components/ads/Tooltip";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ce/constants/messages";
 import { StyledButton } from "components/ads/Button";
-import { DropdownContainer } from "components/ads/Dropdown";
 import { JSActionDropdownOption } from "./utils";
 import { DEFAULTS } from "./constants";
 
@@ -29,25 +28,16 @@ export type DropdownWithCTAWrapperProps = {
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
 
+  ${(props) =>
+    props.isDisabled &&
+    `
+    opacity: 0.5;
+    pointer-events:none;
+    `}
+
   ${StyledButton} {
     margin-left: ${DEFAULTS.GAP_SIZE};
-    padding: 10px 20px;
-    ${(props) =>
-      props.isDisabled &&
-      `
-    opacity: 0.5;
-    pointer-events:none;
-    `}
-  }
-
-  ${DropdownContainer} {
-    ${(props) =>
-      props.isDisabled &&
-      `
-    opacity: 0.5;
-    pointer-events:none;
-    
-    `}
+    padding: 0px 20px;
   }
 `;
 
@@ -62,21 +52,22 @@ export function JSFunctionRun({
   showTooltip,
 }: Props) {
   return (
-    <DropdownWithCTAWrapper isDisabled={disabled}>
-      <Dropdown
-        customBadge={<FlagBadge name="Aysnc" />}
-        height={DEFAULTS.HEIGHT}
-        onSelect={onSelect}
-        options={options}
-        selected={selected}
-        showLabelOnly
-        truncateOption
-      />
-      <Tooltip
-        content={createMessage(NO_JS_FUNCTION_TO_RUN, jsCollection.name)}
-        disabled={!showTooltip}
-        hoverOpenDelay={50}
-      >
+    <Tooltip
+      content={createMessage(NO_JS_FUNCTION_TO_RUN, jsCollection.name)}
+      disabled={!showTooltip}
+      hoverOpenDelay={50}
+    >
+      <DropdownWithCTAWrapper isDisabled={disabled}>
+        <Dropdown
+          customBadge={<FlagBadge name="Aysnc" />}
+          height={DEFAULTS.HEIGHT}
+          onSelect={onSelect}
+          options={options}
+          selected={selected}
+          showLabelOnly
+          truncateOption
+        />
+
         <Button
           height={DEFAULTS.HEIGHT}
           isLoading={isLoading}
@@ -84,7 +75,7 @@ export function JSFunctionRun({
           tag="button"
           text={DEFAULTS.CTA_TEXT}
         />
-      </Tooltip>
-    </DropdownWithCTAWrapper>
+      </DropdownWithCTAWrapper>
+    </Tooltip>
   );
 }

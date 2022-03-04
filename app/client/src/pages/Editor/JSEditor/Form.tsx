@@ -45,6 +45,7 @@ import {
 import { NO_FUNCTION_DROPDOWN_OPTION } from "./constants";
 import { DropdownOnSelect } from "components/ads";
 import { isMac } from "utils/helpers";
+import { Severity } from "entities/AppsmithConsole";
 
 const Form = styled.form`
   display: flex;
@@ -148,6 +149,10 @@ function JSEditorForm(props: Props) {
     [],
   ) as EvaluationError[];
 
+  const errors = getErrors.filter((er) => {
+    return er.severity === Severity.ERROR;
+  });
+
   const jsActions = useSelector(
     (state: AppState) => getJSActions(state, currentJSAction.id),
     isEqual,
@@ -164,7 +169,7 @@ function JSEditorForm(props: Props) {
       getActionFromJsCollection(activeJSActionId, currentJSAction);
     return (
       (activeJsAction && convertJSActionToDropdownOption(activeJsAction)) ||
-      convertJSActionToDropdownOption(jsActions[0]) ||
+      (jsActions.length && convertJSActionToDropdownOption(jsActions[0])) ||
       NO_FUNCTION_DROPDOWN_OPTION
     );
   });
@@ -197,8 +202,8 @@ function JSEditorForm(props: Props) {
   };
 
   const JSGutters = useMemo(
-    () => getJSFunctionsLineGutters(jsActions, runJSAction),
-    [jsActions],
+    () => getJSFunctionsLineGutters(jsActions, runJSAction, !errors.length),
+    [jsActions, errors],
   );
 
   const customKeyMap = {
@@ -251,6 +256,12 @@ function JSEditorForm(props: Props) {
       disableRunFunctionality && setDisableRunFunctionality(false);
     }
   }, [jsActions]);
+
+  useEffect(() => {
+    if (errors && errors.length) {
+      setDisableRunFunctionality(true);
+    }
+  }, [errors]);
 
   return (
     <>
@@ -322,7 +333,7 @@ function JSEditorForm(props: Props) {
           </TabbedViewContainer>
           <JSResponseView
             currentFunction={selectedJSActionOption.data}
-            errors={getErrors}
+            errors={errors}
             jsObject={currentJSAction}
             showResponse={showResponse}
             theme={theme}
