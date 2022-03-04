@@ -1,5 +1,6 @@
 import {
   SettingCategories as CE_SettingCategories,
+  SettingSubCategories as CE_SettingSubCategories,
   AdminConfigType as CE_AdminConfigType,
   Category as CE_Category,
   Setting as CE_Setting,
@@ -11,9 +12,17 @@ const EE_SettingCategories = {
   OIDC_AUTH: "oidc-auth",
 };
 
+const EE_SettingSubCategories = {
+  OIDC: "oidc signup",
+};
+
 export const SettingCategories = {
   ...CE_SettingCategories,
   ...EE_SettingCategories,
+};
+export const SettingSubCategories = {
+  ...CE_SettingCategories,
+  ...EE_SettingSubCategories,
 };
 export type AdminConfigType = CE_AdminConfigType;
 export type Category = CE_Category;
