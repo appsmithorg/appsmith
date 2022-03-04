@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.time.Instant;
-import java.util.List;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -197,24 +196,25 @@ public class DatabaseChangelog2 {
          * on unpublished actions data and copied over for the view mode.
          */
         List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-        dynamicBindingPathList
-                .stream()
-                .forEach(dynamicBindingPath -> {
-                    if (dynamicBindingPath.getKey().contains("formData")) {
-                        final String oldKey = dynamicBindingPath.getKey();
-                        final Pattern pattern = Pattern.compile("formData\\.([^.]*)(\\..*)?");
+        if (dynamicBindingPathList != null && !dynamicBindingPathList.isEmpty()) {
+            dynamicBindingPathList
+                    .stream()
+                    .forEach(dynamicBindingPath -> {
+                        if (dynamicBindingPath.getKey().contains("formData")) {
+                            final String oldKey = dynamicBindingPath.getKey();
+                            final Pattern pattern = Pattern.compile("formData\\.([^.]*)(\\..*)?");
 
-                        Matcher matcher = pattern.matcher(oldKey);
+                            Matcher matcher = pattern.matcher(oldKey);
 
-                        while (matcher.find()) {
-                            final String fieldName = matcher.group(1);
-                            final String remainderPath = matcher.group(2) == null ? "" : matcher.group(2);
+                            while (matcher.find()) {
+                                final String fieldName = matcher.group(1);
+                                final String remainderPath = matcher.group(2) == null ? "" : matcher.group(2);
 
-                            dynamicBindingPath.setKey("formData." + fieldName + ".data" + remainderPath);
+                                dynamicBindingPath.setKey("formData." + fieldName + ".data" + remainderPath);
+                            }
                         }
-                    }
-                });
-
+                    });
+        }
     }
 
     private static void convertToFormDataObject(Map<String, Object> formDataMap, String key, Object value) {
@@ -298,30 +298,31 @@ public class DatabaseChangelog2 {
          * on unpublished actions data and copied over for the view mode.
          */
         List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-        Map<String, String> dynamicBindingMapper = new HashMap<>();
-        dynamicBindingMapper.put("formData.command", "formData.command.data");
-        dynamicBindingMapper.put("formData.bucket", "formData.bucket.data");
-        dynamicBindingMapper.put("formData.create.dataType", "formData.dataType.data");
-        dynamicBindingMapper.put("formData.create.expiry", "formData.expiry.data");
-        dynamicBindingMapper.put("formData.delete.expiry", "formData.expiry.data");
-        dynamicBindingMapper.put("formData.list.prefix", "formData.prefix.data");
-        dynamicBindingMapper.put("formData.list.where", "formData.where.data");
-        dynamicBindingMapper.put("formData.list.signedUrl", "formData.signedUrl.data");
-        dynamicBindingMapper.put("formData.list.expiry", "formData.expiry.data");
-        dynamicBindingMapper.put("formData.list.unSignedUrl", "formData.unSignedUrl.data");
-        dynamicBindingMapper.put("formData.list.sortBy", "formData.sortBy.data");
-        dynamicBindingMapper.put("formData.list.pagination", "formData.pagination.data");
-        dynamicBindingMapper.put("formData.read.dataType", "formData.dataType.data");
-        dynamicBindingMapper.put("formData.read.expiry", "formData.expiry.data");
-        dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
-        dynamicBindingPathList
-                .stream()
-                .forEach(dynamicBindingPath -> {
-                    if (dynamicBindingMapper.containsKey(dynamicBindingPath.getKey())) {
-                        dynamicBindingPath.setKey(dynamicBindingMapper.get(dynamicBindingPath.getKey()));
-                    }
-                });
-
+        if (dynamicBindingPathList != null && !dynamicBindingPathList.isEmpty()) {
+            Map<String, String> dynamicBindingMapper = new HashMap<>();
+            dynamicBindingMapper.put("formData.command", "formData.command.data");
+            dynamicBindingMapper.put("formData.bucket", "formData.bucket.data");
+            dynamicBindingMapper.put("formData.create.dataType", "formData.dataType.data");
+            dynamicBindingMapper.put("formData.create.expiry", "formData.expiry.data");
+            dynamicBindingMapper.put("formData.delete.expiry", "formData.expiry.data");
+            dynamicBindingMapper.put("formData.list.prefix", "formData.prefix.data");
+            dynamicBindingMapper.put("formData.list.where", "formData.where.data");
+            dynamicBindingMapper.put("formData.list.signedUrl", "formData.signedUrl.data");
+            dynamicBindingMapper.put("formData.list.expiry", "formData.expiry.data");
+            dynamicBindingMapper.put("formData.list.unSignedUrl", "formData.unSignedUrl.data");
+            dynamicBindingMapper.put("formData.list.sortBy", "formData.sortBy.data");
+            dynamicBindingMapper.put("formData.list.pagination", "formData.pagination.data");
+            dynamicBindingMapper.put("formData.read.dataType", "formData.dataType.data");
+            dynamicBindingMapper.put("formData.read.expiry", "formData.expiry.data");
+            dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
+            dynamicBindingPathList
+                    .stream()
+                    .forEach(dynamicBindingPath -> {
+                        if (dynamicBindingMapper.containsKey(dynamicBindingPath.getKey())) {
+                            dynamicBindingPath.setKey(dynamicBindingMapper.get(dynamicBindingPath.getKey()));
+                        }
+                    });
+        }
     }
 
     private static void mapMongoToNewFormData(ActionDTO action, Map<String, Object> f) {
@@ -422,34 +423,35 @@ public class DatabaseChangelog2 {
          * on unpublished actions data and copied over for the view mode.
          */
         List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-        Map<String, String> dynamicBindingMapper = new HashMap<>();
-        dynamicBindingMapper.put("formData.command", "formData.command.data");
-        dynamicBindingMapper.put("formData.collection", "formData.collection.data");
-        dynamicBindingMapper.put("formData.aggregate.arrayPipelines", "formData.arrayPipelines.data");
-        dynamicBindingMapper.put("formData.aggregate.limit", "formData.limit.data");
-        dynamicBindingMapper.put("formData.count.query", "formData.query.data");
-        dynamicBindingMapper.put("formData.delete.query", "formData.query.data");
-        dynamicBindingMapper.put("formData.delete.limit", "formData.limit.data");
-        dynamicBindingMapper.put("formData.distinct.query", "formData.query.data");
-        dynamicBindingMapper.put("formData.distinct.key", "formData.key.data");
-        dynamicBindingMapper.put("formData.find.query", "formData.query.data");
-        dynamicBindingMapper.put("formData.find.sort", "formData.sort.data");
-        dynamicBindingMapper.put("formData.find.projection", "formData.projection.data");
-        dynamicBindingMapper.put("formData.find.limit", "formData.limit.data");
-        dynamicBindingMapper.put("formData.find.skip", "formData.skip.data");
-        dynamicBindingMapper.put("formData.insert.documents", "formData.documents.data");
-        dynamicBindingMapper.put("formData.updateMany.query", "formData.query.data");
-        dynamicBindingMapper.put("formData.updateMany.update", "formData.update.data");
-        dynamicBindingMapper.put("formData.updateMany.limit", "formData.limit.data");
-        dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
-        dynamicBindingPathList
-                .stream()
-                .forEach(dynamicBindingPath -> {
-                    if (dynamicBindingMapper.containsKey(dynamicBindingPath.getKey())) {
-                        dynamicBindingPath.setKey(dynamicBindingMapper.get(dynamicBindingPath.getKey()));
-                    }
-                });
-
+        if (dynamicBindingPathList != null && !dynamicBindingPathList.isEmpty()) {
+            Map<String, String> dynamicBindingMapper = new HashMap<>();
+            dynamicBindingMapper.put("formData.command", "formData.command.data");
+            dynamicBindingMapper.put("formData.collection", "formData.collection.data");
+            dynamicBindingMapper.put("formData.aggregate.arrayPipelines", "formData.arrayPipelines.data");
+            dynamicBindingMapper.put("formData.aggregate.limit", "formData.limit.data");
+            dynamicBindingMapper.put("formData.count.query", "formData.query.data");
+            dynamicBindingMapper.put("formData.delete.query", "formData.query.data");
+            dynamicBindingMapper.put("formData.delete.limit", "formData.limit.data");
+            dynamicBindingMapper.put("formData.distinct.query", "formData.query.data");
+            dynamicBindingMapper.put("formData.distinct.key", "formData.key.data");
+            dynamicBindingMapper.put("formData.find.query", "formData.query.data");
+            dynamicBindingMapper.put("formData.find.sort", "formData.sort.data");
+            dynamicBindingMapper.put("formData.find.projection", "formData.projection.data");
+            dynamicBindingMapper.put("formData.find.limit", "formData.limit.data");
+            dynamicBindingMapper.put("formData.find.skip", "formData.skip.data");
+            dynamicBindingMapper.put("formData.insert.documents", "formData.documents.data");
+            dynamicBindingMapper.put("formData.updateMany.query", "formData.query.data");
+            dynamicBindingMapper.put("formData.updateMany.update", "formData.update.data");
+            dynamicBindingMapper.put("formData.updateMany.limit", "formData.limit.data");
+            dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
+            dynamicBindingPathList
+                    .stream()
+                    .forEach(dynamicBindingPath -> {
+                        if (dynamicBindingMapper.containsKey(dynamicBindingPath.getKey())) {
+                            dynamicBindingPath.setKey(dynamicBindingMapper.get(dynamicBindingPath.getKey()));
+                        }
+                    });
+        }
     }
 
 

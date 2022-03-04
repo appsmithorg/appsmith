@@ -2144,9 +2144,9 @@ public class MongoPluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "FIND");
-        setValueSafelyInFormData(configMap, FIND_QUERY, "\"{{Input1.text}}\"");
-        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
-        setValueSafelyInFormData(configMap, FIND_LIMIT, "{{Input3.text}}");
+        setValueSafelyInFormData(configMap, QUERY, "\"{{Input1.text}}\"");
+        setValueSafelyInFormData(configMap, SORT, "{ id: {{Input2.text}} }");
+        setValueSafelyInFormData(configMap, LIMIT, "{{Input3.text}}");
         setValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
 
         actionConfiguration.setFormData(configMap);
