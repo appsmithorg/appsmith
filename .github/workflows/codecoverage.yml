@@ -109,6 +109,10 @@ jobs:
           cp coveragescripts/plugin/index.js cypress/plugins/index.js
           cp coveragescripts/craco.dev.config.js craco.dev.config.js
           cp coveragescripts/.babelrc .babelrc
+          
+      - uses: actions/checkout@v2
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
  
       # Install all the dependencies
       - name: Install dependencies
