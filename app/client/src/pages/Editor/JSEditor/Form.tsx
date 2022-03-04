@@ -138,20 +138,15 @@ function JSEditorForm(props: Props) {
   const dispatch = useDispatch();
   const currentJSAction = props.jsAction;
   const dataTree = useSelector(getDataTree);
-  const handleOnChange = (event: string) => {
-    if (currentJSAction) {
-      dispatch(updateJSCollectionBody(event, currentJSAction.id));
-    }
-  };
   const { pageId } = useParams<ExplorerURLParams>();
+  const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
+  const [showResponse, setshowResponse] = useState(false);
+
   const getErrors = get(
     dataTree,
     `${currentJSAction.name}.${EVAL_ERROR_PATH}.body`,
     [],
   ) as EvaluationError[];
-
-  const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
-  const [showResponse, setshowResponse] = useState(false);
 
   const jsActions = useSelector(
     (state: AppState) => getJSActions(state, currentJSAction.id),
@@ -173,6 +168,13 @@ function JSEditorForm(props: Props) {
       NO_FUNCTION_DROPDOWN_OPTION
     );
   });
+
+  const handleOnChange = (event: string) => {
+    showResponse && setshowResponse(false);
+    if (currentJSAction) {
+      dispatch(updateJSCollectionBody(event, currentJSAction.id));
+    }
+  };
 
   const isExecutingCurrentJSAction = useSelector((state: AppState) =>
     getIsExecutingJSAction(
