@@ -1417,6 +1417,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
                     }
                     // No matching existing datasource found, so create a new one.
+                    datasource.setIsConfigured(false);
                     return datasourceService
                             .findByNameAndOrganizationId(datasource.getName(), organizationId, AclPermission.MANAGE_DATASOURCES)
                             .flatMap(duplicateNameDatasource ->
