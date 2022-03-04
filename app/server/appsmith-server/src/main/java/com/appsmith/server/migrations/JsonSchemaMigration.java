@@ -38,6 +38,10 @@ public class JsonSchemaMigration {
             case 0:
 
             case 1:
+                // Migration for deprecating archivedAt field in ActionDTO
+                HelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
+
+            case 2:
                 migrateActionFormDataToObject(applicationJson);
             default:
                 // Unable to detect the serverSchema

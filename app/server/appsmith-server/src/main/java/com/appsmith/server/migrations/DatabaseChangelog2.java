@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.time.Instant;
+import java.util.List;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -50,7 +52,40 @@ public class DatabaseChangelog2 {
         );
     }
 
-    /**
+    @ChangeSet(order = "002", id = "deprecate-archivedAt-in-action", author = "")
+    public void deprecateArchivedAtForNewAction(MongockTemplate mongockTemplate) {
+        // Update actions
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.applicationId)).exists(true))
+                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.archivedAt)).exists(true));
+
+        actionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id))
+                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.archivedAt));
+
+        List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
+
+        for (NewAction action : actions) {
+
+            final Update update = new Update();
+
+            ActionDTO unpublishedAction = action.getUnpublishedAction();
+            if (unpublishedAction != null) {
+                final Instant archivedAt = unpublishedAction.getArchivedAt();
+                update.set(
+                        fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt),
+                        archivedAt
+                );
+                update.unset(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.archivedAt));
+            }
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
+                    update,
+                    NewAction.class
+            );
+        }
+    }
+
+/**
      * To be able to support form and raw mode in the UQI compatible plugins,
      * we need to be migrating all existing data to the data and formData path.
      * Anything that was already raw would not be within formData,
@@ -59,7 +94,7 @@ public class DatabaseChangelog2 {
      *
      * @param mongockTemplate
      */
-    @ChangeSet(order = "112", id = "update-form-data-for-uqi-mode", author = "")
+    @ChangeSet(order = "003", id = "update-form-data-for-uqi-mode", author = "")
     public void updateActionFormDataPath(MongockTemplate mongockTemplate) {
 
         // Get all plugin references to Mongo, S3 and Firestore actions
