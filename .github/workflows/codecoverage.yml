@@ -110,15 +110,21 @@ jobs:
           
       - name: Setup cypress scripts
         if: always()
-        run: cp coveragescripts/plugin/index.js cypress/plugins/index.js
+        run: |
+          cp coveragescripts/plugin/index.js cypress/plugins/index.js
+          cat cypress/plugins/index.js
          
       - name: Setup cypress scripts
         if: always()
-        run: cp coveragescripts/craco.dev.config.js craco.dev.config.js
+        run: |
+          cp coveragescripts/craco.dev.config.js craco.dev.config.js
+          cat craco.dev.config.js
           
       - name: Setup cypress scripts
         if: always()
-        run: cp coveragescripts/.babelrc .babelrc
+        run: |
+          cp coveragescripts/.babelrc .babelrc
+          cat .babelrc
           
           
       - uses: actions/checkout@v2
