@@ -123,7 +123,7 @@ const SubTitle = styled.div`
   color: ${Colors.BLACK};
 `;
 
-const ButtonContainer = styled.div`
+const ActionsContainer = styled.div`
   display: flex;
   flex: 1;
   align-items: center;
@@ -134,18 +134,36 @@ const ButtonContainer = styled.div`
   }
 `;
 
+const YesButtonContainer = styled.div`
+  & a.t--discard-pull-button {
+    color: #c91818;
+    font-weight: 600;
+    margin-top: 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    border: none;
+    display: inline-block;
+    padding: 0;
+
+    &:hover {
+      background-color: ${Colors.ERROR_50};
+      border: none;
+    }
+  }
+`;
+
 function DiscardWarningActions() {
+  const yesButtonOptions = {
+    category: Category.secondary,
+    className: "t--discard-pull-button discard-pull-changes-link",
+    onClick: () => true,
+    text: createMessage(YES),
+  };
   return (
-    <div
-      style={{
-        color: "#C91818",
-        fontWeight: 600,
-        marginTop: "16px",
-        cursor: "pointer",
-        textTransform: "uppercase",
-      }}
-    >
-      {createMessage(YES)}
+    <div>
+      <YesButtonContainer>
+        <Button {...yesButtonOptions} />
+      </YesButtonContainer>
     </div>
   );
 }
@@ -342,7 +360,7 @@ function Deploy() {
           learnMoreLink={gitConflictDocumentUrl}
         />
         {showCommitButton && (
-          <ButtonContainer>
+          <ActionsContainer>
             <Tooltip
               autoFocus={false}
               content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
@@ -369,7 +387,7 @@ function Deploy() {
               onClick={() => setShowDiscardWarning(true)}
               text="discard changes"
             />
-          </ButtonContainer>
+          </ActionsContainer>
         )}
         {isProgressing && (
           <StatusbarWrapper>

@@ -105,11 +105,16 @@ const CloseButtonContainer = styled.div`
   justify-items: center;
   & button {
     color: ${(props) => props.color};
-    top: 6px;
-    right: 6px;
+    top: 8px;
+    right: 8px;
 
     &.bp3-button.bp3-minimal:hover {
       background-color: transparent;
+    }
+
+    & svg {
+      //height: 24px;
+      //width: 24px;
     }
   }
 `;
@@ -118,8 +123,8 @@ const IconContainer = styled.div`
   align-self: start;
 
   & svg {
-    height: 24px;
-    width: 24px;
+    //height: 24px;
+    //width: 24px;
     cursor: unset;
 
     &:hover {
