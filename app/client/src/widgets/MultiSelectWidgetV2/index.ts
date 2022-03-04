@@ -10,7 +10,7 @@ export const CONFIG = {
     rows: 7,
     columns: 20,
     animateLoading: true,
-    labelText: "Label",
+    labelText: "",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },

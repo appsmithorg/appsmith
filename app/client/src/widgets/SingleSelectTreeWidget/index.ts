@@ -37,7 +37,7 @@ export const CONFIG = {
     allowClear: false,
     expandAll: false,
     placeholderText: "Select option",
-    labelText: "Label",
+    labelText: "",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

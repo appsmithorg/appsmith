@@ -27,13 +27,16 @@ import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
-import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
-
 export interface TreeSelectProps
   extends Required<
     Pick<
       SelectProps,
-      "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
+      | "disabled"
+      | "placeholder"
+      | "loading"
+      | "dropdownStyle"
+      | "allowClear"
+      | "options"
     >
   > {
   value?: DefaultValueType;
@@ -50,7 +53,6 @@ export interface TreeSelectProps
   filterText?: string;
   widgetId: string;
   isFilterable: boolean;
-  options?: DefaultOptionType[];
 }
 
 const getSvg = (expanded: boolean) => (

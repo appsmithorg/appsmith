@@ -28,12 +28,18 @@ import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
-import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
 
 export interface TreeSelectProps
-  extends Pick<
-    SelectProps,
-    "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
+  extends Required<
+    Pick<
+      SelectProps,
+      | "disabled"
+      | "placeholder"
+      | "loading"
+      | "dropdownStyle"
+      | "allowClear"
+      | "options"
+    >
   > {
   value?: DefaultValueType;
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
@@ -50,7 +56,6 @@ export interface TreeSelectProps
   filterText?: string;
   widgetId: string;
   isFilterable: boolean;
-  options?: DefaultOptionType[];
 }
 
 const getSvg = (expanded: boolean) => (
@@ -174,7 +179,7 @@ function MultiTreeSelectComponent({
   const onClear = useCallback(() => onChange([], []), []);
   return (
     <TreeSelectContainer
-      allowClear={allowClear as boolean}
+      allowClear={allowClear}
       compactMode={compactMode}
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
@@ -188,7 +193,7 @@ function MultiTreeSelectComponent({
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
             $compactMode={compactMode}
-            $disabled={disabled as boolean}
+            $disabled={disabled}
             $labelStyle={labelStyle}
             $labelText={labelText}
             $labelTextColor={labelTextColor}
