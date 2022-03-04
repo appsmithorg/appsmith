@@ -60,7 +60,7 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> archive(NewPage page);
 
-    Mono<Boolean> archiveById(String id);
+    Mono<NewPage> archiveById(String id);
 
     Flux<NewPage> saveAll(List<NewPage> pages);
 

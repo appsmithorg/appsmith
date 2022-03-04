@@ -71,8 +71,12 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     enableGithubOAuth: process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID
       ? process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID.length > 0
       : false,
-    disableLoginForm: !!process.env.APPSMITH_FORM_LOGIN_DISABLED,
-    disableSignup: !!process.env.APPSMITH_SIGNUP_DISABLED,
+    disableLoginForm: process.env.APPSMITH_FORM_LOGIN_DISABLED
+      ? process.env.APPSMITH_FORM_LOGIN_DISABLED.length > 0
+      : false,
+    disableSignup: process.env.APPSMITH_SIGNUP_DISABLED
+      ? process.env.APPSMITH_SIGNUP_DISABLED.length > 0
+      : false,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
       ceKey: process.env.REACT_APP_SEGMENT_CE_KEY || "",

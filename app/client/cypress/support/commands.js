@@ -20,7 +20,7 @@ const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
 const LayoutPage = require("../locators/Layout.json");
 const formWidgetsPage = require("../locators/FormWidgets.json");
-const ApiEditor = require("../locators/ApiEditor.json");
+import ApiEditor from "../locators/ApiEditor";
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
@@ -29,7 +29,7 @@ const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const commonLocators = require("../locators/commonlocators.json");
-const commentsLocators = require("../locators/commentsLocators.json");
+import commentsLocators from "../locators/CommentsLocators";
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
@@ -466,6 +466,7 @@ Cypress.Commands.add("DeleteApp", (appName) => {
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
+  cy.wait(1000); //waiting for window to load
   cy.window()
     .its("store")
     .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
@@ -563,7 +564,6 @@ Cypress.Commands.add("NavigateToHome", () => {
   cy.get(commonlocators.homeIcon).click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(3000);
-  cy.wait("@applications");
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
 });
@@ -2636,7 +2636,7 @@ Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
     const selector = `.t--widget-card-draggable-${widgetType}`;
-    cy.wait(500);
+    cy.wait(800);
     cy.get(selector)
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
@@ -2935,6 +2935,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   cy.server();
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("GET", "/api/v1/applications/new").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
@@ -3068,6 +3069,19 @@ Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
+
+Cypress.Commands.add(
+  "readTabledataFromSpecificIndex",
+  (rowNum, colNum, index) => {
+    // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+    const tabVal = cy
+      .get(selector)
+      .eq(index)
+      .invoke("text");
+    return tabVal;
+  },
+);
 
 Cypress.Commands.add("tablefirstdataRow", () => {
   let tabVal = cy
