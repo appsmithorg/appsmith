@@ -113,7 +113,7 @@ export const getDifferenceInJSCollection = (
         actionConfiguration: {
           body: action.body,
           isAsync: action.isAsync,
-          timeoutInMilliseconds: 0,
+          timeoutInMillisecond: 0,
           jsArguments: [],
         },
       };
@@ -209,7 +209,7 @@ export const createDummyJSCollectionActions = (
       actionConfiguration: {
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
         isAsync: true,
-        timeoutInMilliseconds: 0,
+        timeoutInMillisecond: 0,
         jsArguments: [],
       },
       clientSideExecution: true,
