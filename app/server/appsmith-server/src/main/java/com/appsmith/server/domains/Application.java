@@ -34,6 +34,9 @@ public class Application extends BaseDomain {
 
     String organizationId;
 
+    /*
+    TODO: remove default values from application.
+     */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Boolean isPublic = false;
 
@@ -75,6 +78,13 @@ public class Application extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer evaluationVersion;
 
+    /**
+     * applicationVersion will be used when we've a breaking change in application, and it's not possible to write a
+     * migration. User need to update the application manually.
+     * In such cases, we can use this field to determine whether we need to notify user about that breaking change
+     * so that they can update their application.
+     * Once updated, we should set applicationVersion to latest version as well.
+     */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer applicationVersion;
 

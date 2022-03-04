@@ -2506,4 +2506,27 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void upgradeToLatestVersion_WhenApplicationHasEarlierVersion_VersionUpgraded() {
+        Application testApplication = new Application();
+        testApplication.setName("VersionUpgradeTestApp");
+        testApplication.setIsPublic(true);
+
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> {
+                    // set applicationVersion to a different value other than LATEST_VERSION
+                    application.setApplicationVersion(ApplicationVersion.LATEST_VERSION-1);
+                    return applicationRepository.save(application);
+                }).flatMap(application ->
+                    applicationService.upgradeToLatestVersion(application.getId())
+                );
+
+        StepVerifier.create(applicationMono).assertNext(application -> {
+            assertThat(application.getApplicationVersion()).isEqualTo(ApplicationVersion.LATEST_VERSION);
+            assertThat(application.getName()).isEqualTo(testApplication.getName());
+            assertThat(application.getIsPublic()).isEqualTo(testApplication.getIsPublic());
+        }).verifyComplete();
+    }
 }

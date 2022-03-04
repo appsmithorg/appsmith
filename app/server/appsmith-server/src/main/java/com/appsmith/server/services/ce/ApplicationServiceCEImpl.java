@@ -23,6 +23,7 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -557,5 +558,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> upgradeToLatestVersion(String applicationId) {
+        Application updateDto = new Application();
+        updateDto.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
+        updateDto.setIsPublic(null);
+        return repository.updateById(applicationId, updateDto, MANAGE_APPLICATIONS);
     }
 }
