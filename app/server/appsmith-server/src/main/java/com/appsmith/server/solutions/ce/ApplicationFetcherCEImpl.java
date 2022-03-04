@@ -113,8 +113,12 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     Flux<Application> applicationFlux = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             .filter(application -> application.getGitApplicationMetadata() == null
-                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId()))
+                                    || (!Optional.ofNullable(application.getGitApplicationMetadata().getDefaultBranchName()).isEmpty()
+                                    && application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName()))
                             )
+                            /*.filter(application -> application.getGitApplicationMetadata() == null
+                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId()))
+                            )*/
                             .map(responseUtils::updateApplicationWithDefaultResources);
 
                     // sort the list of applications if user has recent applications
