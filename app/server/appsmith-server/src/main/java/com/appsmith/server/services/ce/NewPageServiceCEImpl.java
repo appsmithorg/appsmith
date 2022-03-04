@@ -470,8 +470,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<Boolean> archiveById(String id) {
-        return repository.archiveById(id);
+    public Mono<NewPage> archiveById(String id) {
+        Mono<NewPage> pageMono = this.findById(id, MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
+                .cache();
+
+        return pageMono
+                .flatMap(newPage -> repository.archiveById(id))
+                .then(pageMono);
     }
 
     @Override
