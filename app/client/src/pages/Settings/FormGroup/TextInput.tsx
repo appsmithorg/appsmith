@@ -6,7 +6,8 @@ import { FormGroup, SettingComponentProps } from "./Common";
 export default function TextInput({ setting }: SettingComponentProps) {
   return (
     <FormGroup
-      className={`t--admin-settings-text-input t--admin-settings-${setting.name}`}
+      className={`t--admin-settings-text-input t--admin-settings-${setting.name ||
+        setting.id}`}
       setting={setting}
     >
       <FormTextField
