@@ -72,7 +72,6 @@ export class AggregateHelper {
 
     public SelectEntityByName(entityNameinLeftSidebar: string) {
         cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar), {timeout: 30000})
-            .should('be.visible')
             .last()
             .click({ multiple: true })
         this.Sleep()
