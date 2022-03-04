@@ -104,11 +104,20 @@ jobs:
 
       - name: Setup cypress scripts
         if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          cp coveragescripts/support/index.js cypress/support/index.js
-          cp coveragescripts/plugin/index.js cypress/plugins/index.js
-          cp coveragescripts/craco.dev.config.js craco.dev.config.js
-          cp coveragescripts/.babelrc .babelrc
+        run: cp coveragescripts/support/index.js cypress/support/index.js
+          
+      - name: Setup cypress scripts
+        if: steps.run_result.outputs.run_result != 'success'
+        run: cp coveragescripts/plugin/index.js cypress/plugins/index.js
+         
+      - name: Setup cypress scripts
+        if: steps.run_result.outputs.run_result != 'success'
+        run: cp coveragescripts/craco.dev.config.js craco.dev.config.js
+          
+      - name: Setup cypress scripts
+        if: steps.run_result.outputs.run_result != 'success'
+        run: cp coveragescripts/.babelrc .babelrc
+          
           
       - uses: actions/checkout@v2
       - name: Setup upterm session
