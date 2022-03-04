@@ -114,7 +114,7 @@ function SingleSelectTreeComponent({
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
-
+  const labelRef = useRef<HTMLInputElement>(null);
   const _menu = useRef<HTMLElement | null>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
@@ -150,6 +150,18 @@ function SingleSelectTreeComponent({
     setFilter(event.target.value);
   };
 
+  const memoDropDownWidth = useMemo(() => {
+    const parentWidth = width - WidgetContainerDiff;
+    const nonCompactDropDownWidth =
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
+    if (compactMode && labelRef.current) {
+      const labelWidth = labelRef.current.clientWidth;
+      const widthDiff = dropDownWidth - labelWidth;
+      return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
+    }
+    return nonCompactDropDownWidth;
+  }, [compactMode, dropDownWidth, width, labelRef.current]);
+
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
@@ -180,13 +192,9 @@ function SingleSelectTreeComponent({
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles
-        dropDownWidth={dropDownWidth}
-        id={widgetId}
-        parentWidth={width - WidgetContainerDiff}
-      />
+      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
       {labelText && (
-        <TextLabelWrapper compactMode={compactMode}>
+        <TextLabelWrapper compactMode={compactMode} ref={labelRef}>
           <StyledLabel
             $compactMode={compactMode}
             $disabled={disabled}

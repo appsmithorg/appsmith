@@ -77,15 +77,12 @@ const rcSelectDropdownSlideUpOut = keyframes`
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .treeselect-popover-width-${id} {
-    min-width: ${
-      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
-    }px !important;
+    min-width: ${dropDownWidth}px !important;
   }
 `}
 .rc-tree-select-dropdown-hidden {

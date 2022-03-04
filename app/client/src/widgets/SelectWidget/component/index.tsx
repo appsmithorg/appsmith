@@ -44,11 +44,14 @@ class SelectComponent extends React.Component<
   SelectComponentProps,
   SelectComponentState
 > {
+  labelRef = React.createRef<HTMLDivElement>();
+
   state = {
     // used to show focused item for keyboard up down key interection
     activeItemIndex: 0,
     query: "",
   };
+
   componentDidMount = () => {
     // set default selectedIndex as focused index
     this.setState({ activeItemIndex: this.props.selectedIndex ?? 0 });
@@ -70,6 +73,23 @@ class SelectComponent extends React.Component<
     ]);
     this.setState({ activeItemIndex });
   };
+
+  getDropdownWidth = () => {
+    const parentWidth = this.props.width - WidgetContainerDiff;
+    const dropDownWidth =
+      parentWidth > this.props.dropDownWidth
+        ? parentWidth
+        : this.props.dropDownWidth;
+    if (this.props.compactMode && this.labelRef.current) {
+      const labelWidth = this.labelRef.current.clientWidth;
+      const widthDiff = dropDownWidth - labelWidth;
+      return widthDiff > this.props.dropDownWidth
+        ? widthDiff
+        : this.props.dropDownWidth;
+    }
+    return dropDownWidth;
+  };
+
   render() {
     const {
       compactMode,
@@ -100,13 +120,9 @@ class SelectComponent extends React.Component<
 
     return (
       <DropdownContainer compactMode={compactMode}>
-        <DropdownStyles
-          dropDownWidth={this.props.dropDownWidth}
-          id={widgetId}
-          parentWidth={this.props.width - WidgetContainerDiff}
-        />
+        <DropdownStyles dropDownWidth={this.getDropdownWidth()} id={widgetId} />
         {labelText && (
-          <TextLabelWrapper compactMode={compactMode}>
+          <TextLabelWrapper compactMode={compactMode} ref={this.labelRef}>
             <StyledLabel
               $compactMode={compactMode}
               $disabled={!!disabled}

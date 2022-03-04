@@ -7,7 +7,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 7,
+    rows: 4,
     columns: 20,
     animateLoading: true,
     labelText: "",

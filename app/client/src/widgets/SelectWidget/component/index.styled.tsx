@@ -158,16 +158,15 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .select-popover-width-${id} {
-    width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    width: ${dropDownWidth}px;
 
     & .${Classes.INPUT_GROUP} {
-       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+      width: ${dropDownWidth}px;
     }
   }
 `}

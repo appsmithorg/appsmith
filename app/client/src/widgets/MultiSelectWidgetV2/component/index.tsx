@@ -89,6 +89,7 @@ function MultiSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const _menu = useRef<HTMLElement | null>(null);
+  const labelRef = useRef<HTMLInputElement>(null);
 
   const clearButton = useMemo(
     () => (
@@ -184,6 +185,17 @@ function MultiSelectComponent({
     },
     serverSideFiltering ? [options] : [filter, options],
   );
+  const memoDropDownWidth = useMemo(() => {
+    const parentWidth = width - WidgetContainerDiff;
+    const nonCompactDropDownWidth =
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
+    if (compactMode && labelRef.current) {
+      const labelWidth = labelRef.current.clientWidth;
+      const widthDiff = dropDownWidth - labelWidth;
+      return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
+    }
+    return nonCompactDropDownWidth;
+  }, [compactMode, dropDownWidth, width, labelRef.current]);
 
   const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -237,13 +249,9 @@ function MultiSelectComponent({
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles
-        dropDownWidth={dropDownWidth}
-        id={widgetId}
-        parentWidth={width - WidgetContainerDiff}
-      />
+      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
       {labelText && (
-        <TextLabelWrapper compactMode={compactMode}>
+        <TextLabelWrapper compactMode={compactMode} ref={labelRef}>
           <StyledLabel
             $compactMode={compactMode}
             $disabled={disabled}
