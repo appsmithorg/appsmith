@@ -13,7 +13,6 @@ export enum NotificationVariant {
 }
 
 type NotificationBannerProps = {
-  hasIcon?: boolean;
   icon?: string;
   variant: NotificationVariant;
   canClose?: boolean;
@@ -33,7 +32,7 @@ const FlexContainer = styled.div`
   position: relative;
   max-width: 486px;
   width: 100%;
-  height: 56px;
+  min-height: 56px;
 
   &.error {
     background-color: ${Colors.ERROR_50};
@@ -55,38 +54,50 @@ const LinkText = styled.a`
 `;
 
 const NOTIFICATION_VARIANT_MAP = {
-  [NotificationVariant.error]: {
-    icon: <Icon fillColor={Colors.RED} name="danger" size={IconSize.XXL} />,
+  [NotificationVariant.error]: (icon?: string) => ({
+    icon: (
+      <Icon
+        fillColor={Colors.ERROR_600}
+        name={icon || "danger"}
+        size={IconSize.XXL}
+      />
+    ),
     closeButtonColor: Colors.ERROR_600,
-  },
-  [NotificationVariant.info]: {
-    icon: <Icon fillColor={Colors.BLACK} name="info" size={IconSize.XXL} />,
+  }),
+  [NotificationVariant.info]: (icon?: string) => ({
+    icon: (
+      <Icon
+        fillColor={Colors.BLACK}
+        name={icon || "info"}
+        size={IconSize.XXL}
+      />
+    ),
     closeButtonColor: Colors.GREY_900,
-  },
-  [NotificationVariant.warning]: {
+  }),
+  [NotificationVariant.warning]: (icon?: string) => ({
     icon: (
       <Icon
         fillColor={Colors.BURNING_ORANGE}
-        name="warning"
+        name={icon || "warning-line"}
         size={IconSize.XXL}
       />
     ),
     closeButtonColor: Colors.WARNING_600,
-  },
-  [NotificationVariant.enterprise]: {
+  }),
+  [NotificationVariant.enterprise]: (icon?: string) => ({
     icon: (
       <Icon
         fillColor={Colors.CURIOUS_BLUE}
-        name="enterprise"
+        name={icon || "enterprise"}
         size={IconSize.XXL}
       />
     ),
     closeButtonColor: Colors.CURIOUS_BLUE,
-  },
+  }),
 };
 
 const TextContainer = styled.div`
-  flex-grow: 1;
+  width: calc(100% - 64px);
 `;
 
 const CloseButtonContainer = styled.div`
@@ -94,31 +105,54 @@ const CloseButtonContainer = styled.div`
   justify-items: center;
   & button {
     color: ${(props) => props.color};
+    top: 6px;
+    right: 6px;
+
+    &.bp3-button.bp3-minimal:hover {
+      background-color: transparent;
+    }
   }
 `;
-const IconContainer = styled.div``;
+const IconContainer = styled.div`
+  margin-right: 16px;
+  align-self: start;
+
+  & svg {
+    height: 24px;
+    width: 24px;
+    cursor: unset;
+
+    &:hover {
+      cursor: unset;
+    }
+  }
+`;
 const LearnMoreContainer = styled.div``;
 
 export function NotificationBanner(props: NotificationBannerProps) {
-  const { variant } = props;
-  const { closeButtonColor, icon } = NOTIFICATION_VARIANT_MAP[variant];
+  const variant = props?.variant;
+  const propIcon = props?.icon;
+  const { closeButtonColor, icon } = NOTIFICATION_VARIANT_MAP[variant](
+    propIcon,
+  );
   return (
     <FlexContainer className={props.className} style={props.style}>
-      <IconContainer>{props.hasIcon && icon}</IconContainer>
+      {props?.icon && <IconContainer>{icon}</IconContainer>}
       <TextContainer>
         {props.children}
-        <LearnMoreContainer>
-          <LinkText onClick={props.learnMoreClickHandler}>
-            {createMessage(LEARN_MORE)}
-          </LinkText>
-        </LearnMoreContainer>
+        {props?.learnMoreClickHandler && (
+          <LearnMoreContainer>
+            <LinkText onClick={props?.learnMoreClickHandler}>
+              {createMessage(LEARN_MORE)}
+            </LinkText>
+          </LearnMoreContainer>
+        )}
       </TextContainer>
       <CloseButtonContainer>
         {props.canClose && (
           <CloseButton
             color={closeButtonColor}
             onClick={props.onClose}
-            onHoverBackgroundColor={Colors.TRANSPARENT}
             size={16}
           />
         )}

@@ -7,11 +7,13 @@ import {
   COMMITTING_AND_PUSHING_CHANGES,
   createMessage,
   DEPLOY_YOUR_APPLICATION,
+  DISCARD_CHANGES_WARNING,
   FETCH_GIT_STATUS,
   GIT_NO_UPDATED_TOOLTIP,
   GIT_UPSTREAM_CHANGES,
   PULL_CHANGES,
   READ_DOCUMENTATION,
+  YES,
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -132,6 +134,50 @@ const ButtonContainer = styled.div`
   }
 `;
 
+function DiscardWarningActions() {
+  return (
+    <div
+      style={{
+        color: "#C91818",
+        fontWeight: 600,
+        marginTop: "16px",
+        cursor: "pointer",
+        textTransform: "uppercase",
+      }}
+    >
+      {createMessage(YES)}
+    </div>
+  );
+}
+
+function DiscardWarningMessage() {
+  return (
+    <div style={{ color: "#C91818", fontSize: "12px" }}>
+      {createMessage(DISCARD_CHANGES_WARNING)}
+    </div>
+  );
+}
+
+function DiscardChangesWarning(
+  setShowDiscardWarning: (
+    value: ((prevState: boolean) => boolean) | boolean,
+  ) => void,
+) {
+  const notificationBannerOptions = {
+    canClose: true,
+    className: "error",
+    icon: "warning-line",
+    onClose: () => setShowDiscardWarning(false),
+    variant: NotificationVariant.error,
+  };
+  return (
+    <NotificationBanner {...notificationBannerOptions}>
+      {DiscardWarningMessage()}
+      {DiscardWarningActions()}
+    </NotificationBanner>
+  );
+}
+
 function Deploy() {
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
@@ -148,6 +194,8 @@ function Deploy() {
   const [commitMessage, setCommitMessage] = useState(
     gitMetaData?.remoteUrl && lastDeployedAt ? "" : INITIAL_COMMIT,
   );
+
+  const [showDiscardWarning, setShowDiscardWarning] = useState(false);
 
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
@@ -318,6 +366,7 @@ function Deploy() {
               className="t--discard-button discard-changes-link"
               disabled={commitButtonDisabled}
               isLoading={commitButtonLoading}
+              onClick={() => setShowDiscardWarning(true)}
               text="discard changes"
             />
           </ButtonContainer>
@@ -336,13 +385,7 @@ function Deploy() {
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />
       )}
 
-      <NotificationBanner
-        canClose
-        className="error"
-        variant={NotificationVariant.error}
-      >
-        <div>Discarding</div>
-      </NotificationBanner>
+      {showDiscardWarning && DiscardChangesWarning(setShowDiscardWarning)}
     </Container>
   );
 }

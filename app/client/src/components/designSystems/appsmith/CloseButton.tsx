@@ -8,7 +8,6 @@ type CloseButtonProps = {
   size: number;
   onClick: React.MouseEventHandler;
   className?: string;
-  onHoverBackgroundColor?: Color;
 };
 
 const StyledButton = styled(Button)<CloseButtonProps>`
@@ -18,10 +17,6 @@ const StyledButton = styled(Button)<CloseButtonProps>`
   justify-content: center;
   padding: 0;
   color: ${(props) => props.color};
-
-  &:hover {
-    background-color: ${(props) => props?.onHoverBackgroundColor};
-  }
 
   & svg {
     width: ${(props) => props.size};

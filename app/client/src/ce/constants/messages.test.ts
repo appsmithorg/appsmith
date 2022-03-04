@@ -20,6 +20,7 @@ import {
   DEPLOY,
   DEPLOY_KEY_TITLE,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  DISCARD_CHANGES_WARNING,
   DISCONNECT,
   DISCONNECT_CAUSE_APPLICATION_BREAK,
   DISCONNECT_EXISTING_REPOSITORIES,
@@ -214,6 +215,10 @@ describe("git-sync messages", () => {
       key: "CHANGES_MADE_SINCE_LAST_COMMIT",
       value: "Changes made since last commit",
     },
+    {
+      key: "DISCARD_CHANGES_WARNING",
+      value: "Discarding these changes will pull previous changes from Git.",
+    },
   ];
   const functions = [
     CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
@@ -236,6 +241,7 @@ describe("git-sync messages", () => {
     DEPLOY,
     DEPLOY_KEY_TITLE,
     DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+    DISCARD_CHANGES_WARNING,
     DISCONNECT,
     DISCONNECT_CAUSE_APPLICATION_BREAK,
     DISCONNECT_EXISTING_REPOSITORIES,
