@@ -43,7 +43,7 @@ describe("Migration Validate", function() {
 
       //Validating Latitude & Longitude are hidden columns:
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='latitude']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='latitude']/parent::div/parent::div",
       )
         .invoke("attr", "class")
         .then((classes) => {
@@ -52,7 +52,7 @@ describe("Migration Validate", function() {
         });
 
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='longitude']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='longitude']/parent::div/parent::div",
       )
         .invoke("attr", "class")
         .then((classes) => {
@@ -74,7 +74,7 @@ describe("Migration Validate", function() {
 
       //Validating Id column sorting happens as Datatype is Number in app!
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='id']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
       )
         .click()
         .wait(2000);
@@ -93,7 +93,7 @@ describe("Migration Validate", function() {
 
       //Revert the Id column sorting!
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='id']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
       )
         .click()
         .wait(2000);
@@ -112,7 +112,7 @@ describe("Migration Validate", function() {
 
       //Validating image column is present:
       cy.getTableDataSelector("0", "10").then((selector) => {
-        cy.get(selector + " div div")
+        cy.get(selector + " div")
           .invoke("attr", "class")
           .then((classes) => {
             cy.log("classes are:" + classes);
