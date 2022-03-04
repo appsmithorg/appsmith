@@ -1721,8 +1721,10 @@ Cypress.Commands.add("editColumn", (colId) => {
 
 Cypress.Commands.add(
   "readTabledataValidateCSS",
-  (rowNum, colNum, cssProperty, cssValue) => {
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  (rowNum, colNum, cssProperty, cssValue, shouldNotGotOneLeveDeeper) => {
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
+      !shouldNotGotOneLeveDeeper ? "div" : ""
+    }`;
     cy.get(selector).should("have.css", cssProperty, cssValue);
   },
 );
@@ -2862,7 +2864,7 @@ Cypress.Commands.add("isSelectRow", (index) => {
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div`;
+  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
@@ -3059,16 +3061,21 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
 });
 
 Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`;
   return selector;
 });
 
-Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
-  // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
-  const tabVal = cy.get(selector).invoke("text");
-  return tabVal;
-});
+Cypress.Commands.add(
+  "readTabledataPublish",
+  (rowNum, colNum, shouldNotGotOneLeveDeeper) => {
+    // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
+      !shouldNotGotOneLeveDeeper ? "div" : ""
+    }`;
+    const tabVal = cy.get(selector).invoke("text");
+    return tabVal;
+  },
+);
 
 Cypress.Commands.add(
   "readTabledataFromSpecificIndex",
@@ -3095,7 +3102,7 @@ Cypress.Commands.add("tablefirstdataRow", () => {
 });
 
 Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`;
   const tabVal = cy
     .get(selector)
     .scrollIntoView()
