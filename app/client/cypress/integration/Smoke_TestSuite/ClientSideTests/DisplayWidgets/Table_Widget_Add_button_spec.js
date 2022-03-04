@@ -72,6 +72,7 @@ describe("Table Widget property pane feature validation", function() {
         expect(text).to.equal("second alert");
       });
   });
+
   it("2. Table Button color validation", function() {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
@@ -325,7 +326,6 @@ describe("Table Widget property pane feature validation", function() {
 
     // Click on the Menu Button
     cy.clickButton("Menu button").wait(1000);
-
     // check Menu Item 3 is disable
     cy.get(".bp3-menu-item")
       .eq(2)
