@@ -100,7 +100,7 @@ jobs:
       # Add cypress coverage plugin
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install -D @cypress/code-coverage
+        run: yarn add -D @cypress/code-coverage
 
       - name: Setup cypress scripts
         if: steps.run_result.outputs.run_result != 'success'
