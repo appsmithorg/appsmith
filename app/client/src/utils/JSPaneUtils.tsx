@@ -112,7 +112,7 @@ export const getDifferenceInJSCollection = (
         organizationId: jsAction.organizationId,
         actionConfiguration: {
           body: action.body,
-          isAsync: false,
+          isAsync: action.isAsync,
           timeoutInMilliseconds: 0,
           jsArguments: [],
         },
@@ -206,8 +206,8 @@ export const createDummyJSCollectionActions = (
       organizationId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "() => {\n\t\t//write code here\n\t}",
-        isAsync: false,
+        body: "async () => {\n\t\t//write code here\n\t}",
+        isAsync: true,
         timeoutInMilliseconds: 0,
         jsArguments: [],
       },

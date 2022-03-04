@@ -1,0 +1,257 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1056,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 690,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 52,
+        "minHeight": 780,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "animateLoading": true,
+                "defaultSelectedRow": "2",
+                "label": "Data",
+                "widgetName": "Table1",
+                "searchKey": "",
+                "textSize": "PARAGRAPH",
+                "horizontalAlignment": "LEFT",
+                "verticalAlignment": "CENTER",
+                "totalRecordsCount": 0,
+                "defaultPageSize": 0,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "primaryColumns.step.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.task.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.status.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.action.computedValue"
+                    }
+                ],
+                "primaryColumns": {
+                    "step": {
+                        "index": 0,
+                        "width": 150,
+                        "id": "step",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "step",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step))}}",
+                        "buttonColor": "#03B365",
+                        "menuColor": "#03B365",
+                        "labelColor": "#FFFFFF"
+                    },
+                    "task": {
+                        "index": 1,
+                        "width": 150,
+                        "id": "task",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "task",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.task))}}",
+                        "buttonColor": "#03B365",
+                        "menuColor": "#03B365",
+                        "labelColor": "#FFFFFF"
+                    },
+                    "status": {
+                        "index": 2,
+                        "width": 150,
+                        "id": "status",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "status",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}",
+                        "buttonColor": "#03B365",
+                        "menuColor": "#03B365",
+                        "labelColor": "#FFFFFF"
+                    },
+                    "action": {
+                        "index": 3,
+                        "width": 150,
+                        "id": "action",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "button",
+                        "textSize": "PARAGRAPH",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isCellVisible": true,
+                        "isDisabled": false,
+                        "isDerived": false,
+                        "label": "action",
+                        "onClick": "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
+                        "buttonColor": "#03B365",
+                        "menuColor": "#03B365",
+                        "labelColor": "#FFFFFF"
+                    }
+                },
+                "derivedColumns": {},
+                "tableData": [
+                    {
+                        "step": "#1",
+                        "task": "Drop a table",
+                        "status": "✅",
+                        "action": ""
+                    },
+                    {
+                        "step": "#2",
+                        "task": "Create a query fetch_users with the Mock DB",
+                        "status": "--",
+                        "action": ""
+                    },
+                    {
+                        "step": "#3",
+                        "task": "Bind the query using => fetch_users.data",
+                        "status": "--",
+                        "action": ""
+                    }
+                ],
+                "columnSizeMap": {
+                    "task": 245,
+                    "step": 62,
+                    "status": 75
+                },
+                "columnOrder": [
+                    "step",
+                    "task",
+                    "status",
+                    "action"
+                ],
+                "enableClientSideSearch": true,
+                "isVisibleSearch": true,
+                "isVisibleFilters": true,
+                "isVisibleDownload": true,
+                "isVisiblePagination": true,
+                "isSortable": true,
+                "delimiter": ",",
+                "version": 3,
+                "type": "TABLE_WIDGET",
+                "hideCard": false,
+                "displayName": "Table",
+                "key": "m5ptuxm6pv",
+                "iconSVG": "/static/media/icon.db8a9cbd.svg",
+                "widgetId": "9hnavkofss",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.3125,
+                "parentRowSpace": 10,
+                "leftColumn": 38,
+                "rightColumn": 64,
+                "topRow": 44,
+                "bottomRow": 67,
+                "parentId": "0",
+                "dynamicTriggerPathList": []
+            },
+            {
+                "isVisible": true,
+                "text": "{{Table1.selectedRow.step}}",
+                "fontSize": "PARAGRAPH",
+                "fontStyle": "BOLD",
+                "textAlign": "LEFT",
+                "textColor": "#231F20",
+                "truncateButtonColor": "#FFC13D",
+                "widgetName": "Text1",
+                "shouldScroll": false,
+                "shouldTruncate": false,
+                "version": 1,
+                "animateLoading": true,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "displayName": "Text",
+                "key": "gvei7gmvpl",
+                "iconSVG": "/static/media/icon.97c59b52.svg",
+                "widgetId": "arjbkecam3",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.3125,
+                "parentRowSpace": 10,
+                "leftColumn": 6,
+                "rightColumn": 22,
+                "topRow": 50,
+                "bottomRow": 54,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "text"
+                    }
+                ],
+                "dynamicTriggerPathList": []
+            },
+            {
+                "isVisible": true,
+                "text": "{{Table2.selectedRow.step}}",
+                "fontSize": "PARAGRAPH",
+                "fontStyle": "BOLD",
+                "textAlign": "LEFT",
+                "textColor": "#231F20",
+                "truncateButtonColor": "#FFC13D",
+                "widgetName": "Text2",
+                "shouldScroll": false,
+                "shouldTruncate": false,
+                "version": 1,
+                "animateLoading": true,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "displayName": "Text",
+                "key": "gvei7gmvpl",
+                "iconSVG": "/static/media/icon.97c59b52.svg",
+                "widgetId": "4df2uuem24",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.3125,
+                "parentRowSpace": 10,
+                "leftColumn": 8,
+                "rightColumn": 24,
+                "topRow": 58,
+                "bottomRow": 62,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "text"
+                    }
+                ],
+                "dynamicTriggerPathList": []
+            }
+        ]
+    }
+}
