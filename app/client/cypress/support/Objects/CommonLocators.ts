@@ -50,7 +50,7 @@ export class CommonLocators {
     _createNewPlgin = (pluginName: string) => ".t--plugin-name:contains('" + pluginName + "')"
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
-    _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`
+    _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
     _crossBtn = "span.cancel-icon"
     _createNew = ".t--entity-add-btn.group.files"
 
