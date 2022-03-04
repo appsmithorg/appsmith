@@ -102,7 +102,7 @@ init_replica_set() {
       break
     fi
   done
-  
+
   if [[ $shouldPerformInitdb -gt 0 && $isUriLocal -eq 0 ]]; then
     echo "Initializing Replica Set for local database"
     # Start installed MongoDB service - Dependencies Layer
@@ -126,10 +126,9 @@ init_replica_set() {
   if [[ $isUriLocal -gt 0 ]]; then
     # Check mongodb cloud Replica Set
     echo "Checking Replica Set of external MongoDB"
-    responseStatus=$(mongo "$APPSMITH_MONGODB_URI" --eval "rs.status()" | grep ok | xargs)
-    okString="ok : 1"
+    cmd="appsmithctl check-replica-set"
 
-    if [[ $responseStatus == *$okString* ]]; then
+    if $cmd; then
       echo "Mongodb cloud Replica Set is enabled"
       mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     else
