@@ -12,6 +12,10 @@ import {
 import Fuse from "fuse.js";
 import { Organization } from "constants/orgConstants";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "organization.name"],
@@ -159,3 +163,16 @@ export const getIsSavingOrgInfo = (state: AppState) =>
 
 export const showAppInviteUsersDialogSelector = (state: AppState) =>
   state.ui.applications.showAppInviteUsersDialog;
+
+// Get organization list where user can create applications
+export const getOrganizationCreateApplication = createSelector(
+  getUserApplicationsOrgs,
+  (userOrgs) => {
+    return userOrgs.filter((userOrg) =>
+      isPermitted(
+        userOrg.organization.userPermissions || [],
+        PERMISSION_TYPE.CREATE_APPLICATION,
+      ),
+    );
+  },
+);
