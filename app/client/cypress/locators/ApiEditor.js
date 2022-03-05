@@ -13,7 +13,7 @@ export default {
   ApiHomePage: ".t--apiHomePage",
   formActionButtons: ".t--formActionButtons",
   dataSourceField: ".t--dataSourceField",
-  responseBody: ".CodeMirror-code  span.cm-string.cm-property",
+  responseBody: ".highlighter span.hljs-attr",
   ApiVerb: ".t--apiFormHttpMethod",
   apiPaginationNextText: ".t--apiFormPaginationNext",
   apiPaginationPrevText: ".t--apiFormPaginationPrev",
