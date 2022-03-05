@@ -774,7 +774,7 @@ function ApplicationsSection(props: any) {
                             </div>
                             <MenuItem
                               cypressSelector="t--org-setting"
-                              icon="general"
+                              icon="settings-2-line"
                               onSelect={() =>
                                 getOnSelectAction(
                                   DropdownOnSelectActions.REDIRECT,
@@ -783,7 +783,7 @@ function ApplicationsSection(props: any) {
                                   },
                                 )
                               }
-                              text="Organization Settings"
+                              text="Settings"
                             />
                             {enableImportExport && (
                               <MenuItem
@@ -816,12 +816,12 @@ function ApplicationsSection(props: any) {
                               />
                             )}
                             <MenuItem
-                              icon="share"
+                              icon="share-line"
                               onSelect={() => setSelectedOrgId(organization.id)}
                               text="Share"
                             />
                             <MenuItem
-                              icon="user"
+                              icon="member"
                               onSelect={() =>
                                 getOnSelectAction(
                                   DropdownOnSelectActions.REDIRECT,
