@@ -308,7 +308,7 @@ function JSEditorForm(props: Props) {
                   panelComponent: (
                     <CodeEditor
                       className={"js-editor"}
-                      customGutters={JSGutters}
+                      customGutter={JSGutters}
                       customKeyMap={customKeyMap}
                       dataTreePath={`${currentJSAction.name}.body`}
                       folding

@@ -1,6 +1,9 @@
 import { parse, Node } from "acorn";
 import { ancestor } from "acorn-walk";
-import { CodeEditorGutter } from "components/editorComponents/CodeEditor";
+import {
+  CodeEditorGutter,
+  GutterConfig,
+} from "components/editorComponents/CodeEditor";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import {
   ECMA_VERSION,
@@ -83,18 +86,29 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
 export const getJSFunctionsLineGutters = (
   jsActions: JSAction[],
   runFuction: (jsAction: JSAction) => void,
-  shouldShowGutters: boolean,
-): CodeEditorGutter[] => {
-  return jsActions.map((jsAction) => {
-    return {
-      element: createGutterMarker(() => runFuction(jsAction)),
-      gutterId: RUN_GUTTER_ID,
+  showGutters: boolean,
+): CodeEditorGutter => {
+  const initialValue: CodeEditorGutter = {
+    gutterId: RUN_GUTTER_ID,
+    gutterConfig: null,
+  };
+
+  if (!showGutters || !jsActions.length) return initialValue;
+
+  return jsActions.reduce((prevCodeEditorGutter, jsAction) => {
+    const currentGutterConfig: GutterConfig = {
       line: (code: string) =>
-        !shouldShowGutters
-          ? null
-          : getJSFunctionStartLineFromCode(code, jsAction.name),
+        getJSFunctionStartLineFromCode(code, jsAction.name),
+      element: createGutterMarker(() => runFuction(jsAction)),
     };
-  });
+
+    return {
+      ...prevCodeEditorGutter,
+      gutterConfig: prevCodeEditorGutter.gutterConfig
+        ? [...prevCodeEditorGutter.gutterConfig, currentGutterConfig]
+        : [currentGutterConfig],
+    };
+  }, initialValue);
 };
 
 export const convertJSActionsToDropdownOptions = (

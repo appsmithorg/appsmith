@@ -136,9 +136,13 @@ export type EditorStyleProps = {
   popperZIndex?: Indices;
 };
 
-export type CodeEditorGutter = {
+export type GutterConfig = {
   line: (editorValue: string) => number | null;
   element: HTMLElement;
+};
+
+export type CodeEditorGutter = {
+  gutterConfig: GutterConfig[] | null;
   gutterId: string;
 };
 
@@ -166,7 +170,7 @@ export type EditorProps = EditorStyleProps &
     isReadOnly?: boolean;
     isRawView?: boolean;
     // Custom gutter
-    customGutters?: CodeEditorGutter[];
+    customGutter?: CodeEditorGutter;
     // custom key map
     customKeyMap?: CustomKeyMap;
   };
@@ -262,10 +266,8 @@ class CodeEditor extends Component<Props, State> {
         };
       }
 
-      if (this.props.customGutters) {
-        this.props.customGutters.map((gutter) => {
-          gutters.add(gutter.gutterId);
-        });
+      if (this.props.customGutter) {
+        gutters.add(this.props.customGutter.gutterId);
       }
       options.gutters = Array.from(gutters);
 
@@ -451,14 +453,13 @@ class CodeEditor extends Component<Props, State> {
   }
 
   handleCustomGutters = (editor: CodeMirror.Editor) => {
-    if (!this.props.customGutters || !editor) return;
-    this.props.customGutters.forEach((gutter) => {
-      editor.clearGutter(gutter.gutterId);
-    });
-    this.props.customGutters.forEach((gutter) => {
+    const { customGutter } = this.props;
+    if (!customGutter || !editor) return;
+    editor.clearGutter(customGutter.gutterId);
+    customGutter.gutterConfig?.forEach((gutter) => {
       const lineNumber = gutter.line(editor.getValue());
       if (isNil(lineNumber)) return;
-      editor.setGutterMarker(lineNumber, gutter.gutterId, gutter.element);
+      editor.setGutterMarker(lineNumber, customGutter.gutterId, gutter.element);
     });
   };
 
