@@ -44,7 +44,6 @@ class RequestConfirmationModal extends React.Component<Props> {
   };
 
   onKeyUp = (event: KeyboardEvent) => {
-    event.preventDefault();
     // Sometimes calling the shortcut keys "Cmd + Enter" also triggers the onConfirm function below
     // so We check if no multiple keys are being pressed currently before executing this block of code.
     if (!(event.metaKey || event.ctrlKey) && event.keyCode === Keys.ENTER) {
