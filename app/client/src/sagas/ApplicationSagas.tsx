@@ -81,7 +81,7 @@ import {
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
-const getDefaultPageId = (
+export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
   let defaultPage: ApplicationPagePayload | undefined = undefined;
