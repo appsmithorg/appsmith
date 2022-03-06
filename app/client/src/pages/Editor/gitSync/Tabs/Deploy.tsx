@@ -153,11 +153,11 @@ const YesButtonContainer = styled.div`
   }
 `;
 
-function DiscardWarningActions(onClick: any) {
+function DiscardWarningActions(props: any) {
   const yesButtonOptions = {
     category: Category.secondary,
     className: "t--discard-pull-button discard-pull-changes-link",
-    onClick: () => onClick(),
+    onClick: props.onClick,
     text: createMessage(YES),
   };
   return (
@@ -183,7 +183,7 @@ const DiscardChangesWarningContainer = styled.div`
 
 function DiscardChangesWarning({
   onCloseDiscardChangesWarning,
-  onYesClick,
+  onDiscardChanges,
 }: any) {
   const notificationBannerOptions = {
     canClose: true,
@@ -196,7 +196,7 @@ function DiscardChangesWarning({
     <DiscardChangesWarningContainer>
       <NotificationBanner {...notificationBannerOptions}>
         <DiscardWarningMessage />
-        <DiscardWarningActions onClick={onYesClick} />
+        <DiscardWarningActions onClick={onDiscardChanges} />
       </NotificationBanner>
     </DiscardChangesWarningContainer>
   );
@@ -272,7 +272,7 @@ function Deploy() {
     !isFetchingGitStatus &&
     !isCommittingInProgress;
   const showDiscardChangesButton =
-    !isFetchingGitStatus && !isCommittingInProgress;
+    !isFetchingGitStatus && !isCommittingInProgress && hasChangesToCommit;
   const isProgressing =
     commitButtonLoading && (commitRequired || showCommitButton);
   const commitMessageDisplay = hasChangesToCommit
@@ -401,8 +401,12 @@ function Deploy() {
             <Button
               category={Category.secondary}
               className="t--discard-button discard-changes-link"
-              disabled={commitButtonDisabled}
-              isLoading={commitButtonLoading}
+              disabled={!showDiscardChangesButton}
+              isLoading={
+                isPullingProgress ||
+                isFetchingGitStatus ||
+                isCommittingInProgress
+              }
               onClick={() => setShowDiscardWarning(true)}
               text="discard changes"
             />
@@ -423,7 +427,7 @@ function Deploy() {
       {showDiscardWarning && (
         <DiscardChangesWarning
           onCloseDiscardChangesWarning={onCloseDiscardChangesWarning}
-          onDiscardChanges={onDiscardChanges}
+          onDiscardChanges={() => onDiscardChanges()}
         />
       )}
 
