@@ -86,6 +86,7 @@ function VirtualizedJsonViewer(props: Props) {
             language="json"
             style={customJsonViewerStyles}
             wrapLines
+            wrapLongLines
           >
             {itemData}
           </SyntaxHighlighter>
@@ -117,6 +118,7 @@ function VirtualizedJsonViewer(props: Props) {
           language="json"
           style={customJsonViewerStyles}
           wrapLines
+          wrapLongLines
         >
           {`${JSON.stringify(src, null, 2)}`}
         </SyntaxHighlighter>
