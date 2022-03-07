@@ -193,7 +193,7 @@ describe("Table Widget property pane feature validation", function() {
       .contains("Short")
       .click({ force: true });
     cy.wait(2000);
-    cy.readTabledataValidateCSS("0", "1", "height", "28px", true);
+    cy.readTabledataValidateCSS("0", "1", "height", "28px");
   });
 
   it("11. Test to validate text color and text background", function() {
@@ -209,7 +209,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(500);
     cy.wait("@updateLayout");
     // Verify the text color is green
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)", true);
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
     // Change the text color and enter purple in input field
     cy.get(widgetsPage.textColor)
       .scrollIntoView()
@@ -217,7 +217,7 @@ describe("Table Widget property pane feature validation", function() {
       .type("purple", { force: true });
     cy.wait("@updateLayout");
     // Verify the text color is purple
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)", true);
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     // Click on cell background color
     cy.get(`${widgetsPage.cellBackground} input`)
       .first()
@@ -237,7 +237,6 @@ describe("Table Widget property pane feature validation", function() {
       "0",
       "background",
       "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
-      true,
     );
     // Change the cell background color and enter purple in input field
     cy.get(`${widgetsPage.cellBackground} input`)
@@ -250,7 +249,6 @@ describe("Table Widget property pane feature validation", function() {
       "0",
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
-      true,
     );
   });
 });

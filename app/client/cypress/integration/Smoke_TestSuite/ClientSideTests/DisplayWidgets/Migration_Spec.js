@@ -168,8 +168,8 @@ describe("Migration Validate", function() {
                 timeout: 50000,
               })
               .eq(0)
-              .contains("State:")
-              .should("be.visible"),
+              .contains("State:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -245,8 +245,8 @@ describe("Migration Validate", function() {
                 timeout: 50000,
               })
               .eq(0)
-              .contains("CreditLimit:")
-              .should("be.visible"),
+              .contains("CreditLimit:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -283,8 +283,8 @@ describe("Migration Validate", function() {
                 timeout: 50000,
               })
               .eq(0)
-              .contains("CreditLimit:")
-              .should("be.visible"),
+              .contains("CreditLimit:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -349,8 +349,8 @@ describe("Migration Validate", function() {
                 timeout: 50000,
               })
               .eq(0)
-              .contains("State:")
-              .should("be.visible"),
+              .contains("State:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -427,8 +427,8 @@ describe("Migration Validate", function() {
                 timeout: 50000,
               })
               .eq(0)
-              .contains("CreditLimit:")
-              .should("be.visible"),
+              .contains("CreditLimit:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -465,8 +465,8 @@ describe("Migration Validate", function() {
                 timeout: 50000,
               })
               .eq(0)
-              .contains("CreditLimit:")
-              .should("be.visible"),
+              .contains("CreditLimit:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,

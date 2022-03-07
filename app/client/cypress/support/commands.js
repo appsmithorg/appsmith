@@ -1719,16 +1719,6 @@ Cypress.Commands.add("editColumn", (colId) => {
   cy.wait(1500);
 });
 
-Cypress.Commands.add(
-  "readTabledataValidateCSS",
-  (rowNum, colNum, cssProperty, cssValue, shouldGoOneLeveDeeper = true) => {
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      shouldGoOneLeveDeeper ? "div" : ""
-    }`;
-    cy.get(selector).should("have.css", cssProperty, cssValue);
-  },
-);
-
 Cypress.Commands.add("readTextDataValidateCSS", (cssProperty, cssValue) => {
   cy.get(commonlocators.headingTextStyle).should(
     "have.css",
@@ -2862,13 +2852,6 @@ Cypress.Commands.add("isSelectRow", (index) => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
-  // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div div`;
-  const tabVal = cy.get(selector).invoke("text");
-  return tabVal;
-});
-
 Cypress.Commands.add("getDate", (date, dateFormate) => {
   const eDate = dayjs()
     .add(date, "days")
@@ -3065,15 +3048,32 @@ Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
   return selector;
 });
 
+Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
+  // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div div`;
+  const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
+});
+
 Cypress.Commands.add(
   "readTabledataPublish",
-  (rowNum, colNum, shouldGoOneLeveDeeper = true) => {
+  (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
     const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      shouldGoOneLeveDeeper ? "div" : ""
+      !shouldNotGoOneLeveDeeper ? "div" : ""
     }`;
     const tabVal = cy.get(selector).invoke("text");
     return tabVal;
+  },
+);
+
+Cypress.Commands.add(
+  "readTabledataValidateCSS",
+  (rowNum, colNum, cssProperty, cssValue, shouldNotGotOneLeveDeeper) => {
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
+      !shouldNotGotOneLeveDeeper ? "div" : ""
+    }`;
+    cy.get(selector).should("have.css", cssProperty, cssValue);
   },
 );
 
