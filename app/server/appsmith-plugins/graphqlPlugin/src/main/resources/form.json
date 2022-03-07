@@ -1,0 +1,235 @@
+{
+  "form": [
+    {
+      "sectionName": "General",
+      "children": [
+        {
+          "label": "URL",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "placeholderText": "https://example.com"
+        },
+        {
+          "label": "Headers",
+          "configProperty": "datasourceConfiguration.headers",
+          "controlType": "KEY_VAL_INPUT"
+        },
+        {
+          "label": "Query Params",
+          "configProperty": "datasourceConfiguration.queryParameters",
+          "controlType": "KEY_VAL_INPUT"
+        },
+        {
+          "label": "Send Authentication Information Key (Do not edit)",
+          "configProperty": "datasourceConfiguration.properties[0].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "isSendSessionEnabled"
+        },
+        {
+          "label": "Send Appsmith signature header (X-APPSMITH-SIGNATURE)",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "N",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "Y"
+            },
+            {
+              "label": "No",
+              "value": "N"
+            }
+          ]
+        },
+        {
+          "label": "Session Details Signature Key Key (Do not edit)",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "sessionSignatureKey"
+        },
+        {
+          "label": "Session Details Signature Key",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "N"
+          }
+        },
+        {
+          "label": "Authentication Type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "DROP_DOWN",
+          "options": [
+            {
+              "label": "None",
+              "value": "dbAuth"
+            },
+            {
+              "label": "Basic",
+              "value": "basic"
+            },
+            {
+              "label": "OAuth 2.0",
+              "value": "oAuth2"
+            },
+            {
+              "label": "API Key",
+              "value": "apiKey"
+            },
+            {
+              "label": "Bearer Token",
+              "value": "bearerToken"
+            }
+          ]
+        },
+        {
+          "label": "Grant Type",
+          "configProperty": "datasourceConfiguration.authentication.grantType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true
+        },
+        {
+          "label": "Access Token URL",
+          "configProperty": "datasourceConfiguration.authentication.accessTokenUrl",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Client Id",
+          "configProperty": "datasourceConfiguration.authentication.clientId",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Client Secret",
+          "configProperty": "datasourceConfiguration.authentication.clientSecret",
+          "dataType": "PASSWORD",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Scope(s)",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Header Prefix",
+          "configProperty": "datasourceConfiguration.authentication.headerPrefix",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Bearer (default)",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Add token to",
+          "configProperty": "datasourceConfiguration.authentication.isTokenHeader",
+          "controlType": "DROP_DOWN",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          },
+          "options": [
+            {
+              "label": "Header",
+              "value": true
+            },
+            {
+              "label": "Query parameters",
+              "value": false
+            }
+          ]
+        },
+        {
+          "label": "Audience(s)",
+          "configProperty": "datasourceConfiguration.authentication.audience",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Resource(s)",
+          "configProperty": "datasourceConfiguration.authentication.resource",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Send scope with refresh token",
+          "configProperty": "datasourceConfiguration.authentication.sendScopeWithRefreshToken",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": false,
+          "options": [
+            {
+              "label": "Yes",
+              "value": true
+            },
+            {
+              "label": "No",
+              "value": false
+            }
+          ]
+        },
+        {
+          "label": "Send client credentials with (on refresh token)",
+          "configProperty": "datasourceConfiguration.authentication.refreshTokenClientCredentialsLocation",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "BODY",
+          "options": [
+            {
+              "label": "Body",
+              "value": "BODY"
+            },
+            {
+              "label": "Header",
+              "value": "HEADER"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
