@@ -43,6 +43,8 @@ import Icon from "components/ads/Icon";
 import { ReactComponent as FunctionSettings } from "assets/icons/menu/settings.svg";
 import JSFunctionSettings from "pages/Editor/JSEditor/JSFunctionSettings";
 import FlagBadge from "components/utils/FlagBadge";
+import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
+import { theme } from "constants/DefaultTheme";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -50,7 +52,7 @@ const ResponseContainer = styled.div`
   height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
-  min-height: 36px;
+  min-height: ${() => TAB_MIN_HEIGHT};
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
 
   .react-tabs__tab-panel {
@@ -328,7 +330,13 @@ function JSResponseView(props: Props) {
     <ResponseContainer ref={panelRef}>
       <Resizer panelRef={panelRef} />
       <TabbedViewWrapper>
-        <EntityBottomTabs defaultIndex={0} tabs={tabs} />
+        <EntityBottomTabs
+          canCollapse
+          containerRef={panelRef}
+          defaultIndex={0}
+          expandedHeight={theme.actionsBottomTabInitialHeight}
+          tabs={tabs}
+        />
       </TabbedViewWrapper>
     </ResponseContainer>
   );
