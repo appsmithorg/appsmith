@@ -1,8 +1,6 @@
 import { get } from "lodash";
 
-import SchemaParser, {
-  sanitizeSchemaItemKey,
-} from "widgets/JSONFormWidget/schemaParser";
+import SchemaParser from "widgets/JSONFormWidget/schemaParser";
 import {
   FieldType,
   SchemaItem,
@@ -52,7 +50,7 @@ export const hiddenIfArrayItemIsObject = (
   const schemaItem: SchemaItem = get(props, path, {});
 
   return (
-    schemaItem.name === ARRAY_ITEM_KEY &&
+    schemaItem.identifier === ARRAY_ITEM_KEY &&
     (schemaItem.fieldType === FieldType.OBJECT ||
       schemaItem.fieldType === FieldType.ARRAY)
   );
@@ -134,31 +132,6 @@ export const updateChildrenDisabledStateHook = (
       {
         propertyPath: `${schemaItemPath}.children`,
         propertyValue: newChildrenSchema,
-      },
-    ];
-  }
-
-  return;
-};
-
-// This hook updates the name property based on the "accessor" property value
-// The "accessor" property acts like a staging area for the value to be validated
-// and if the "accessor" value is deemed a valid key then it is used in the "name"
-// property.
-export const accessorUpdateHook = (
-  props: JSONFormWidgetProps,
-  propertyPath: string,
-  accessor: string,
-): HookResponse => {
-  const schemaItemPath = getParentPropertyPath(propertyPath);
-  const schemaPath = getGrandParentPropertyPath(propertyPath);
-  const schema: Schema = get(props, schemaPath, {});
-
-  if (sanitizeSchemaItemKey(accessor, schema) === accessor) {
-    return [
-      {
-        propertyPath: `${schemaItemPath}.name`,
-        propertyValue: accessor,
       },
     ];
   }

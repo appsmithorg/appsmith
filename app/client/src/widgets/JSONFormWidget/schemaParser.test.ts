@@ -14,7 +14,13 @@ import SchemaParser, {
   subDataTypeFor,
 } from "./schemaParser";
 import testData from "./schemaTestData";
-import { DataType, FieldType, Schema, SchemaItem } from "./constants";
+import {
+  ARRAY_ITEM_KEY,
+  DataType,
+  FieldType,
+  Schema,
+  SchemaItem,
+} from "./constants";
 
 const widgetName = "JSONForm1";
 
@@ -130,7 +136,6 @@ describe("#getSchemaItemByFieldType", () => {
       fieldType: FieldType.SELECT,
       sourceData: "1",
       isCustomField: false,
-      name: "city",
       accessor: "city",
       identifier: "city",
       originalIdentifier: "city",
@@ -174,7 +179,6 @@ describe("#getSchemaItemByFieldType", () => {
       fieldType: FieldType.SELECT,
       sourceData: "",
       isCustomField: true,
-      name: "newCityName",
       accessor: "newCityName",
       identifier: "city",
       originalIdentifier: "city",
@@ -217,10 +221,9 @@ describe("#getSchemaItemByFieldType", () => {
           iconAlign: "left",
           sourceData: "travelling",
           isCustomField: false,
-          name: "__array_item__",
-          accessor: "__array_item__",
-          identifier: "__array_item__",
-          originalIdentifier: "__array_item__",
+          accessor: ARRAY_ITEM_KEY,
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
           position: -1,
           isSpellCheck: false,
         },
@@ -231,7 +234,6 @@ describe("#getSchemaItemByFieldType", () => {
       fieldType: FieldType.ARRAY,
       sourceData: ["travelling", "skating", "off-roading"],
       isCustomField: false,
-      name: "hobbies",
       accessor: "hobbies",
       identifier: "hobbies",
       originalIdentifier: "hobbies",
@@ -272,10 +274,9 @@ describe("#getSchemaItemByFieldType", () => {
           fieldType: FieldType.OBJECT,
           sourceData: {},
           isCustomField: false,
-          name: "__array_item__",
-          accessor: "__array_item__",
-          identifier: "__array_item__",
-          originalIdentifier: "__array_item__",
+          accessor: ARRAY_ITEM_KEY,
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
           position: -1,
         },
       },
@@ -285,7 +286,6 @@ describe("#getSchemaItemByFieldType", () => {
       fieldType: FieldType.ARRAY,
       sourceData: "Test name",
       isCustomField: false,
-      name: "name",
       accessor: "name",
       identifier: "name",
       originalIdentifier: "name",
@@ -321,7 +321,6 @@ describe("#getSchemaItemFor", () => {
       iconAlign: "left",
       sourceData: "John",
       isCustomField: false,
-      name: "firstName",
       accessor: "firstName",
       identifier: "firstName",
       originalIdentifier: "firstName",
@@ -334,7 +333,7 @@ describe("#getSchemaItemFor", () => {
       currSourceData: "John",
       sourceDataPath: "sourceData.firstName",
       skipDefaultValueProcessing: false,
-      sanitizedKey: key,
+      identifier: key,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -355,7 +354,6 @@ describe("#getSchemaItemFor", () => {
       iconAlign: "left",
       sourceData: "John",
       isCustomField: true,
-      name: "firstName",
       accessor: "firstName",
       identifier: "firstName",
       originalIdentifier: "firstName",
@@ -369,7 +367,7 @@ describe("#getSchemaItemFor", () => {
       sourceDataPath: "sourceData.firstName",
       isCustomField: true,
       skipDefaultValueProcessing: false,
-      sanitizedKey: key,
+      identifier: key,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -389,7 +387,6 @@ describe("#getSchemaItemFor", () => {
       fieldType: FieldType.SWITCH,
       sourceData: "John",
       isCustomField: true,
-      name: "firstName",
       accessor: "firstName",
       identifier: "firstName",
       originalIdentifier: "firstName",
@@ -404,7 +401,7 @@ describe("#getSchemaItemFor", () => {
       isCustomField: true,
       fieldType: FieldType.SWITCH,
       skipDefaultValueProcessing: false,
-      sanitizedKey: key,
+      identifier: key,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -426,7 +423,6 @@ describe("#getSchemaItemFor", () => {
       sourceData: ["one", "two"],
       isFilterable: false,
       isCustomField: false,
-      name: "hobbies",
       accessor: "hobbies",
       identifier: "hobbies",
       originalIdentifier: "hobbies",
@@ -444,7 +440,7 @@ describe("#getSchemaItemFor", () => {
       currSourceData: ["one", "two"],
       sourceDataPath: "sourceData.hobbies",
       skipDefaultValueProcessing: false,
-      sanitizedKey: key,
+      identifier: key,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -466,7 +462,6 @@ describe("#getUnModifiedSchemaItemFor", () => {
       iconAlign: "left",
       sourceData: "John",
       isCustomField: false,
-      name: "firstName",
       accessor: "firstName",
       identifier: "firstName",
       originalIdentifier: "firstName",
@@ -482,7 +477,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       sourceDataPath,
       widgetName,
       skipDefaultValueProcessing: false,
-      sanitizedKey: schemaItem.identifier,
+      identifier: schemaItem.identifier,
     });
 
     expect(result).toEqual(schemaItem);
@@ -501,7 +496,6 @@ describe("#getUnModifiedSchemaItemFor", () => {
       fieldType: FieldType.MULTISELECT,
       sourceData: "John",
       isCustomField: false,
-      name: "hobbies",
       accessor: "hobbies",
       identifier: "hobbies",
       originalIdentifier: "hobbies",
@@ -523,7 +517,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       sourceDataPath,
       widgetName,
       skipDefaultValueProcessing: false,
-      sanitizedKey: schemaItem.identifier,
+      identifier: schemaItem.identifier,
     });
 
     expect(result).toEqual(schemaItem);
@@ -557,7 +551,6 @@ describe("#convertArrayToSchema", () => {
             iconAlign: "left",
             sourceData: "John",
             isCustomField: false,
-            name: "firstName",
             accessor: "firstName",
             identifier: "firstName",
             originalIdentifier: "firstName",
@@ -572,10 +565,9 @@ describe("#convertArrayToSchema", () => {
           firstName: "John",
         },
         isCustomField: false,
-        name: "__array_item__",
-        accessor: "__array_item__",
-        identifier: "__array_item__",
-        originalIdentifier: "__array_item__",
+        accessor: ARRAY_ITEM_KEY,
+        identifier: ARRAY_ITEM_KEY,
+        originalIdentifier: ARRAY_ITEM_KEY,
         position: -1,
       },
     };
@@ -585,7 +577,6 @@ describe("#convertArrayToSchema", () => {
       widgetName,
       sourceDataPath: "sourceData.entries",
       skipDefaultValueProcessing: false,
-      sanitizedKey: "__array_item__",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -617,7 +608,6 @@ describe("#convertArrayToSchema", () => {
             iconAlign: "left",
             sourceData: "John",
             isCustomField: false,
-            name: "name",
             accessor: "name",
             identifier: "firstName",
             originalIdentifier: "firstName",
@@ -634,10 +624,9 @@ describe("#convertArrayToSchema", () => {
           firstName: "John",
         },
         isCustomField: false,
-        name: "__array_item__",
-        accessor: "__array_item__",
-        identifier: "__array_item__",
-        originalIdentifier: "__array_item__",
+        accessor: ARRAY_ITEM_KEY,
+        identifier: ARRAY_ITEM_KEY,
+        originalIdentifier: ARRAY_ITEM_KEY,
         position: -1,
       },
     };
@@ -660,7 +649,6 @@ describe("#convertArrayToSchema", () => {
             iconAlign: "left",
             sourceData: "John",
             isCustomField: false,
-            name: "name",
             accessor: "name",
             identifier: "firstName",
             originalIdentifier: "firstName",
@@ -680,7 +668,6 @@ describe("#convertArrayToSchema", () => {
             iconAlign: "left",
             sourceData: "Doe",
             isCustomField: false,
-            name: "lastName",
             accessor: "lastName",
             identifier: "lastName",
             originalIdentifier: "lastName",
@@ -697,10 +684,9 @@ describe("#convertArrayToSchema", () => {
           lastName: "Doe",
         },
         isCustomField: false,
-        name: "__array_item__",
-        accessor: "__array_item__",
-        identifier: "__array_item__",
-        originalIdentifier: "__array_item__",
+        accessor: ARRAY_ITEM_KEY,
+        identifier: ARRAY_ITEM_KEY,
+        originalIdentifier: ARRAY_ITEM_KEY,
         position: -1,
       },
     };
@@ -711,7 +697,6 @@ describe("#convertArrayToSchema", () => {
       sourceDataPath: "sourceData.entries",
       prevSchema,
       skipDefaultValueProcessing: false,
-      sanitizedKey: "__array_item__",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -738,7 +723,6 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "John",
         isCustomField: false,
-        name: "firstName",
         accessor: "firstName",
         identifier: "firstName",
         originalIdentifier: "firstName",
@@ -752,7 +736,6 @@ describe("#convertObjectToSchema", () => {
       widgetName,
       sourceDataPath: "sourceData.entry",
       skipDefaultValueProcessing: false,
-      sanitizedKey: "firstName",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -776,7 +759,6 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "John",
         isCustomField: false,
-        name: "name",
         accessor: "name",
         identifier: "firstName",
         originalIdentifier: "firstName",
@@ -798,7 +780,6 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "John",
         isCustomField: false,
-        name: "name",
         accessor: "name",
         identifier: "firstName",
         originalIdentifier: "firstName",
@@ -819,7 +800,6 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "Doe",
         isCustomField: false,
-        name: "lastName",
         accessor: "lastName",
         identifier: "lastName",
         originalIdentifier: "lastName",
@@ -834,7 +814,6 @@ describe("#convertObjectToSchema", () => {
       sourceDataPath: "sourceData.entries",
       prevSchema,
       skipDefaultValueProcessing: false,
-      sanitizedKey: "lastName",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -859,7 +838,6 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "John",
         isCustomField: false,
-        name: "name",
         accessor: "name",
         identifier: "firstName",
         originalIdentifier: "firstName",
@@ -880,8 +858,7 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "Doe",
         isCustomField: false,
-        name: "__",
-        accessor: "__",
+        accessor: "##",
         identifier: "__",
         originalIdentifier: "##",
         position: 1,
@@ -901,7 +878,6 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "John",
         isCustomField: false,
-        name: "name",
         accessor: "name",
         identifier: "firstName",
         originalIdentifier: "firstName",
@@ -922,8 +898,7 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "Doe",
         isCustomField: false,
-        name: "__",
-        accessor: "__",
+        accessor: "##",
         identifier: "__",
         originalIdentifier: "##",
         position: 1,
@@ -942,8 +917,7 @@ describe("#convertObjectToSchema", () => {
         iconAlign: "left",
         sourceData: "Some other value",
         isCustomField: false,
-        name: "__1",
-        accessor: "__1",
+        accessor: "%%",
         identifier: "__1",
         originalIdentifier: "%%",
         position: 2,
@@ -957,7 +931,6 @@ describe("#convertObjectToSchema", () => {
       sourceDataPath: "sourceData.entries",
       prevSchema,
       skipDefaultValueProcessing: false,
-      sanitizedKey: "lastName",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -1197,6 +1170,7 @@ describe(".getKeysFromSchema", () => {
       "boolean",
       "hobbies",
       "%%",
+      "हिन्दि",
       "education",
       "address",
     ];
@@ -1228,6 +1202,7 @@ describe(".getKeysFromSchema", () => {
       "boolean",
       "hobbies",
       "%%",
+      "हिन्दि",
       "education",
       "address",
     ];
@@ -1253,6 +1228,7 @@ describe(".getKeysFromSchema", () => {
       "boolean",
       "hobbies",
       "%%",
+      "हिन्दि",
       "education",
       "address",
     ];
@@ -1302,10 +1278,11 @@ describe("#applyPositions", () => {
     expect(schema.boolean.position).toEqual(3);
     expect(schema.hobbies.position).toEqual(4);
     expect(schema.__.position).toEqual(5);
-    expect(schema.education.position).toEqual(6);
-    expect(schema.address.position).toEqual(7);
-    expect(schema.firstNewField.position).toEqual(8);
-    expect(schema.secondNewField.position).toEqual(9);
+    expect(schema.xn__j2bd4cyac6f.position).toEqual(6);
+    expect(schema.education.position).toEqual(7);
+    expect(schema.address.position).toEqual(8);
+    expect(schema.firstNewField.position).toEqual(9);
+    expect(schema.secondNewField.position).toEqual(10);
   });
 
   it("repositions any when keys are deleted only when new keys added to the schema ", () => {
@@ -1332,9 +1309,10 @@ describe("#applyPositions", () => {
     expect(schema.boolean.position).toEqual(2);
     expect(schema.hobbies.position).toEqual(3);
     expect(schema.__.position).toEqual(4);
-    expect(schema.address.position).toEqual(5);
-    expect(schema.firstNewField.position).toEqual(6);
-    expect(schema.secondNewField.position).toEqual(7);
+    expect(schema.xn__j2bd4cyac6f.position).toEqual(5);
+    expect(schema.address.position).toEqual(6);
+    expect(schema.firstNewField.position).toEqual(7);
+    expect(schema.secondNewField.position).toEqual(8);
 
     expect(schema.dob).toBeUndefined();
     expect(schema.education).toBeUndefined();

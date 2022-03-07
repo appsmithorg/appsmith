@@ -4,7 +4,7 @@ import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionC
 import { RenderMode } from "constants/WidgetConstants";
 import { JSONFormWidgetState } from "./widget";
 
-type FormContextProps = React.PropsWithChildren<{
+type FormContextProps<TValues = any> = React.PropsWithChildren<{
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   renderMode: RenderMode;
   setMetaInternalFieldState: (
@@ -12,15 +12,21 @@ type FormContextProps = React.PropsWithChildren<{
   ) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValues: any) => void;
+  updateFormData: (values: TValues) => void;
 }>;
 
-const FormContext = createContext<FormContextProps>({} as FormContextProps);
+type FormContextValueProps = Omit<FormContextProps, "children">;
+
+const FormContext = createContext<FormContextValueProps>(
+  {} as FormContextValueProps,
+);
 
 export function FormContextProvider({
   children,
   executeAction,
   renderMode,
   setMetaInternalFieldState,
+  updateFormData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
 }: FormContextProps) {
@@ -29,6 +35,7 @@ export function FormContextProvider({
       executeAction,
       renderMode,
       setMetaInternalFieldState,
+      updateFormData,
       updateWidgetMetaProperty,
       updateWidgetProperty,
     }),

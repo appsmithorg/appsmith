@@ -106,7 +106,6 @@ export type SchemaItem = FieldComponentBaseProps & {
   fieldType: FieldType;
   identifier: string;
   isCustomField: boolean;
-  name: string;
   originalIdentifier: string;
   position: number;
   sourceData: any;

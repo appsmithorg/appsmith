@@ -39,7 +39,7 @@ type ParserOptions = {
   skipDefaultValueProcessing: boolean;
   sourceDataPath?: string;
   widgetName: string;
-  sanitizedKey: string;
+  identifier: string;
 };
 
 type SchemaItemsByFieldOptions = {
@@ -118,7 +118,7 @@ export const getSourceDataPathFromSchemaItemPath = (
   schema: Schema,
   schemaItemPath: string,
 ) => {
-  const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", "__root_schema__", "children", "name"]
+  const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", ROOT_SCHEMA_KEY, "children", "name"]
   let clonedSchema = cloneDeep(schema);
   let sourceDataPath = "sourceData";
   let schemaItem: SchemaItem;
@@ -133,7 +133,7 @@ export const getSourceDataPathFromSchemaItemPath = (
       if (!schemaItem) return;
 
       if (index !== 1) {
-        if (schemaItem.identifier === "__array_item__") {
+        if (schemaItem.identifier === ARRAY_ITEM_KEY) {
           sourceDataPath = sourceDataPath.concat("[0]");
         } else if (hasObjectParent) {
           const identifier =
@@ -331,7 +331,7 @@ export const hasNullOrUndefined = (items: any[]) =>
  */
 export const sanitizeSchemaItemKey = (key: string, schema: Schema) => {
   const existingKeys = [
-    ...getKeysFromSchema(schema, ["identifier", "name"]),
+    ...getKeysFromSchema(schema, ["identifier"]),
     ...RESTRICTED_KEYS,
   ];
 
@@ -367,11 +367,9 @@ class SchemaParser {
       sourceDataPath: "sourceData",
       widgetName,
       skipDefaultValueProcessing: false,
-      sanitizedKey: "",
+      identifier: ROOT_SCHEMA_KEY,
     });
 
-    rootSchemaItem.identifier = ROOT_SCHEMA_KEY;
-    rootSchemaItem.name = ROOT_SCHEMA_KEY;
     rootSchemaItem.originalIdentifier = ROOT_SCHEMA_KEY;
     rootSchemaItem.accessor = ROOT_SCHEMA_KEY;
 
@@ -425,16 +423,14 @@ class SchemaParser {
       widgetName,
       sourceDataPath,
       skipDefaultValueProcessing: false,
-      sanitizedKey: schemaItem.identifier,
+      identifier: schemaItem.identifier,
     });
 
     // We try to salvage some of the properties that we do not want to get modified by the
     // new generated schemaItem that we got from the getSchemaItem
     const oldSchemaItemProperties = pick(schemaItem, [
       "accessor",
-      "identifier",
       "label",
-      "name",
       "originalIdentifier",
       "position",
     ]);
@@ -464,8 +460,8 @@ class SchemaParser {
   ): SchemaItem => {
     const {
       currSourceData,
+      identifier,
       isCustomField = false,
-      sanitizedKey,
       skipDefaultValueProcessing,
       sourceDataPath,
       widgetName,
@@ -543,9 +539,8 @@ class SchemaParser {
       fieldType,
       sourceData: currSourceData,
       isCustomField,
-      name: sanitizedKey,
-      accessor: sanitizedKey,
-      identifier: sanitizedKey,
+      accessor: key,
+      identifier,
       position: -1,
       originalIdentifier: key,
       ...componentDefaultValues,
@@ -592,7 +587,7 @@ class SchemaParser {
     sourceDataPath,
     widgetName,
     ...rest
-  }: ParserOptions): Schema => {
+  }: Omit<ParserOptions, "identifier">): Schema => {
     const schema = cloneDeep(prevSchema);
     const currData = normalizeArrayValue(currSourceData as any[]);
 
@@ -606,7 +601,7 @@ class SchemaParser {
         currSourceData: currData,
         sourceDataPath: getSourcePath(0, sourceDataPath),
         skipDefaultValueProcessing: true,
-        sanitizedKey: ARRAY_ITEM_KEY,
+        identifier: ARRAY_ITEM_KEY,
       });
     } else {
       schema[ARRAY_ITEM_KEY] = SchemaParser.getUnModifiedSchemaItemFor({
@@ -615,7 +610,7 @@ class SchemaParser {
         sourceDataPath: getSourcePath(0, sourceDataPath),
         widgetName,
         skipDefaultValueProcessing: true,
-        sanitizedKey: ARRAY_ITEM_KEY,
+        identifier: ARRAY_ITEM_KEY,
       });
     }
 
@@ -629,7 +624,7 @@ class SchemaParser {
     sourceDataPath,
     widgetName,
     ...rest
-  }: ParserOptions): Schema => {
+  }: Omit<ParserOptions, "identifier">): Schema => {
     const schema = cloneDeep(prevSchema);
     const origIdentifierToIdentifierMap = mapOriginalIdentifierToSanitizedIdentifier(
       schema,
@@ -698,7 +693,7 @@ class SchemaParser {
           prevSchema: prevSchemaItem.children,
           sourceDataPath: getSourcePath(modifiedKey, sourceDataPath),
           widgetName,
-          sanitizedKey: identifier,
+          identifier,
         });
 
         schema[identifier].position = prevSchemaItem.position;
@@ -708,7 +703,7 @@ class SchemaParser {
           currSourceData: currData,
           schemaItem: prevSchemaItem,
           sourceDataPath: getSourcePath(modifiedKey, sourceDataPath),
-          sanitizedKey: identifier,
+          identifier,
           widgetName,
         });
       }
@@ -719,21 +714,21 @@ class SchemaParser {
       delete schema[identifier];
     });
 
-    const newSanitizedKeys: string[] = [];
+    const newAddedKeys: string[] = [];
     newKeys.forEach((newKey) => {
       const schemaItem = SchemaParser.getSchemaItemFor(newKey, {
         ...rest,
         currSourceData: currObj[newKey],
         sourceDataPath: getSourcePath(newKey, sourceDataPath),
-        sanitizedKey: sanitizeSchemaItemKey(newKey, schema),
+        identifier: sanitizeSchemaItemKey(newKey, schema),
         widgetName,
       });
 
       schema[schemaItem.identifier] = schemaItem;
-      newSanitizedKeys.push(schemaItem.identifier);
+      newAddedKeys.push(schemaItem.identifier);
     });
 
-    applyPositions(schema, newSanitizedKeys);
+    applyPositions(schema, newAddedKeys);
 
     return schema;
   };

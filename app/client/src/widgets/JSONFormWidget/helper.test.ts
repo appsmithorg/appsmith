@@ -1,4 +1,4 @@
-import { DataType, FieldType, SchemaItem } from "./constants";
+import { ARRAY_ITEM_KEY, DataType, FieldType, SchemaItem } from "./constants";
 import {
   countFields,
   mergeAllObjectsInAnArray,
@@ -9,7 +9,6 @@ import {
 describe(".schemaItemDefaultValue", () => {
   it("returns array default value when sub array fields don't have default value", () => {
     const schemaItem = ({
-      name: "education",
       accessor: "education",
       identifier: "education",
       originalIdentifier: "education",
@@ -23,10 +22,8 @@ describe(".schemaItemDefaultValue", () => {
       ],
       children: {
         __array_item__: {
-          name: "__array_item__",
-          accessor: "__array_item__",
-          identifier: "__array_item__",
-          originalIdentifier: "__array_item__",
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
           dataType: DataType.OBJECT,
           fieldType: FieldType.OBJECT,
           defaultValue: undefined,
@@ -37,7 +34,6 @@ describe(".schemaItemDefaultValue", () => {
               dataType: DataType.STRING,
               defaultValue: undefined,
               fieldType: FieldType.TEXT_INPUT,
-              name: "college",
               accessor: "college",
               identifier: "college",
               originalIdentifier: "college",
@@ -47,7 +43,6 @@ describe(".schemaItemDefaultValue", () => {
               dataType: DataType.STRING,
               defaultValue: undefined,
               fieldType: FieldType.DATEPICKER,
-              name: "graduationDate",
               accessor: "graduationDate",
               identifier: "graduationDate",
               originalIdentifier: "graduationDate",
@@ -85,10 +80,9 @@ describe(".schemaItemDefaultValue", () => {
       ],
       children: {
         __array_item__: {
-          name: "__array_item__",
-          accessor: "__array_item__",
-          identifier: "__array_item__",
-          originalIdentifier: "__array_item__",
+          accessor: ARRAY_ITEM_KEY,
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
           dataType: DataType.OBJECT,
           fieldType: FieldType.OBJECT,
           defaultValue: {
@@ -102,7 +96,6 @@ describe(".schemaItemDefaultValue", () => {
               dataType: DataType.STRING,
               defaultValue: "Some college name",
               fieldType: FieldType.TEXT_INPUT,
-              name: "college",
               accessor: "college",
               identifier: "college",
               originalIdentifier: "college",
@@ -112,7 +105,6 @@ describe(".schemaItemDefaultValue", () => {
               dataType: DataType.STRING,
               defaultValue: undefined,
               fieldType: FieldType.DATEPICKER,
-              name: "graduationDate",
               accessor: "graduationDate",
               identifier: "graduationDate",
               originalIdentifier: "graduationDate",
@@ -136,7 +128,6 @@ describe(".schemaItemDefaultValue", () => {
 
   it("returns only sub array fields default value, when array level default value is empty", () => {
     const schemaItem = ({
-      name: "education",
       accessor: "education",
       identifier: "education",
       originalIdentifier: "education",
@@ -145,10 +136,9 @@ describe(".schemaItemDefaultValue", () => {
       defaultValue: undefined,
       children: {
         __array_item__: {
-          name: "__array_item__",
-          accessor: "__array_item__",
-          identifier: "__array_item__",
-          originalIdentifier: "__array_item__",
+          accessor: ARRAY_ITEM_KEY,
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
           dataType: DataType.OBJECT,
           fieldType: FieldType.OBJECT,
           defaultValue: undefined,
@@ -159,7 +149,6 @@ describe(".schemaItemDefaultValue", () => {
               dataType: DataType.STRING,
               defaultValue: "Some college name",
               fieldType: FieldType.TEXT_INPUT,
-              name: "college",
               accessor: "college",
               identifier: "college",
               originalIdentifier: "college",
@@ -169,7 +158,6 @@ describe(".schemaItemDefaultValue", () => {
               dataType: DataType.STRING,
               defaultValue: "10/10/2001",
               fieldType: FieldType.DATEPICKER,
-              name: "graduationDate",
               accessor: "graduationDate",
               identifier: "graduationDate",
               originalIdentifier: "graduationDate",
@@ -193,7 +181,6 @@ describe(".schemaItemDefaultValue", () => {
 
   it("returns valid default value when non compliant keys in default value is present", () => {
     const schemaItem = ({
-      name: "education",
       accessor: "education",
       identifier: "education",
       originalIdentifier: "education",
@@ -207,10 +194,9 @@ describe(".schemaItemDefaultValue", () => {
       ],
       children: {
         __array_item__: {
-          name: "__array_item__",
-          accessor: "__array_item__",
-          identifier: "__array_item__",
-          originalIdentifier: "__array_item__",
+          accessor: ARRAY_ITEM_KEY,
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
           dataType: DataType.OBJECT,
           fieldType: FieldType.OBJECT,
           defaultValue: undefined,
@@ -221,7 +207,6 @@ describe(".schemaItemDefaultValue", () => {
               dataType: DataType.STRING,
               defaultValue: undefined,
               fieldType: FieldType.TEXT_INPUT,
-              name: "college",
               accessor: "college",
               identifier: "graduating_college",
               originalIdentifier: "graduating college",
@@ -231,7 +216,6 @@ describe(".schemaItemDefaultValue", () => {
               dataType: DataType.STRING,
               defaultValue: undefined,
               fieldType: FieldType.DATEPICKER,
-              name: "newDate",
               accessor: "newDate",
               identifier: "graduation_date",
               originalIdentifier: "graduation date",

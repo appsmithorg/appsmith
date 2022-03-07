@@ -59,8 +59,8 @@ describe("JSON Form Widget Custom Field", () => {
     cy.get(`${fieldPrefix}-dob label`).contains("Dob");
     cy.get(`${fieldPrefix}-dob input`).should("have.value", "10/12/1992");
 
-    cy.get(`${fieldPrefix}-gender label`).contains("Gender");
-    cy.get(`${fieldPrefix}-gender .bp3-popover-wrapper`).should("exist");
+    cy.get(`${fieldPrefix}-customField1 label`).contains("Gender");
+    cy.get(`${fieldPrefix}-customField1 .bp3-popover-wrapper`).should("exist");
 
     cy.get(`${fieldPrefix}-migrant label`).contains("Migrant");
     cy.get(`${fieldPrefix}-migrant .t--switch-widget-inactive`).should("exist");

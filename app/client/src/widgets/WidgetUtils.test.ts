@@ -197,6 +197,8 @@ describe(".sanitizeKey", () => {
       ["%&restricted*(", "__restricted__1"],
       ["poll130", "poll130"],
       ["poll124", "poll126"],
+      ["हिन्दि", "xn__j2bd4cyac6f"],
+      ["😃", "xn__h28h"],
     ];
 
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {

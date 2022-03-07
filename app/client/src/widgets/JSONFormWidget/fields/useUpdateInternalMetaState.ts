@@ -1,7 +1,9 @@
-import { cloneDeep, set } from "lodash";
+import { set } from "lodash";
 import { useContext, useEffect } from "react";
 
 import FormContext from "../FormContext";
+
+const clone = require("rfdc/default");
 
 export type UseUpdateInternalMetaStateProps = {
   propertyName?: string;
@@ -17,9 +19,7 @@ function useUpdateInternalMetaState({
   useEffect(() => {
     if (propertyName) {
       setMetaInternalFieldState((prevState) => {
-        const metaInternalFieldState = cloneDeep(
-          prevState.metaInternalFieldState,
-        );
+        const metaInternalFieldState = clone(prevState.metaInternalFieldState);
         set(metaInternalFieldState, propertyName, propertyValue);
 
         return {

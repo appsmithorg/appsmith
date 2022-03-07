@@ -20,6 +20,8 @@ import {
 } from "components/constants";
 import tinycolor from "tinycolor2";
 
+const punycode = require("punycode/");
+
 type SanitizeOptions = {
   existingKeys?: string[];
 };
@@ -212,17 +214,20 @@ const generateKeyToIndexMap = (keys: string[]) => {
 };
 
 export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
-  // Step 1 Replaces all spl. characters/spaces with _
-  let sanitizedKey = key.replace(/[^\w]/gi, "_");
+  // Step1 convert to ASCII characters
+  let sanitizedKey = punycode.toASCII(key);
 
-  // Step 2 Check if empty key
+  // Step 2 Replaces all spl. characters/spaces with _
+  sanitizedKey = sanitizedKey.replace(/[^\w]/gi, "_");
+
+  // Step 3 Check if empty key
   if (sanitizedKey.length === 0) sanitizedKey = "_";
 
-  // Step 3 Check if key starts with number
+  // Step 4 Check if key starts with number
   const [firstCharacter] = sanitizedKey;
   if (/\d/.test(firstCharacter)) sanitizedKey = `_${sanitizedKey}`;
 
-  // Step 4 handle checking with existing keys if present
+  // Step 5 handle checking with existing keys if present
   const { existingKeys = [] } = options || {};
   if (existingKeys.length) {
     const keyToIndexMap = generateKeyToIndexMap(existingKeys);

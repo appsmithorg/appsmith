@@ -228,7 +228,7 @@ function ArrayField({
         metaInternalFieldState,
       };
     });
-  }, [keys]);
+  }, [keys, name]);
 
   const fields = useMemo(() => {
     const arrayItemSchema = schemaItem.children[ARRAY_ITEM_KEY];

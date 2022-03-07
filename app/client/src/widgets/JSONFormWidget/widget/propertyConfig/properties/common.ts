@@ -15,7 +15,6 @@ import {
 import { JSONFormWidgetProps } from "../..";
 import { getParentPropertyPath } from "../../helper";
 import {
-  accessorUpdateHook,
   fieldTypeUpdateHook,
   getSchemaItem,
   HiddenFnParams,
@@ -34,42 +33,16 @@ function accessorValidation(
   const grandParentPath = propertyPathChunks.slice(0, -2).join(".");
   const schemaItemIdentifier = propertyPathChunks.slice(-2)[0]; // ['schema', '__root_field__', 'children', 'age', 'name'] -> age
   const schema = lodash.cloneDeep(lodash.get(props, grandParentPath));
-  const RESTRICTED_KEYS = ["__array_item__", "__root_schema__"];
+  const RESTRICTED_KEYS = ["__array_item__", "__root_schema__", "_id"];
   // Remove the current edited schemaItem from schema so it doesn't
   // get picked in the existing keys list
   delete schema[schemaItemIdentifier];
-
-  if (typeof value !== "string") {
-    return {
-      isValid: false,
-      parsed: value,
-      messages: ["Accessor must be a string"],
-    };
-  }
 
   if (value === "") {
     return {
       isValid: false,
       parsed: value,
       messages: ["Accessor cannot be empty"],
-    };
-  }
-
-  if (value !== value.replace(/[^\w]/gi, "_")) {
-    return {
-      isValid: false,
-      parsed: value,
-      messages: [
-        "Accessor cannot have special characters, except underscore (_)",
-      ],
-    };
-  }
-
-  if (/\d/.test(value[0])) {
-    return {
-      isValid: false,
-      parsed: value,
-      messages: ["Accessor cannot start with a number"],
     };
   }
 
@@ -82,7 +55,7 @@ function accessorValidation(
   if (existingKeys.includes(value)) {
     return {
       isValid: false,
-      parsed: value,
+      parsed: "",
       messages: ["Accessor with same name is already present."],
     };
   }
@@ -90,7 +63,7 @@ function accessorValidation(
   if (RESTRICTED_KEYS.includes(value)) {
     return {
       isValid: false,
-      parsed: value,
+      parsed: "",
       messages: ["Accessor cannot be a restricted name"],
     };
   }
@@ -174,14 +147,12 @@ const COMMON_PROPERTIES = {
       placeholderText: "name",
       isBindProperty: true,
       isTriggerProperty: false,
-      updateHook: accessorUpdateHook,
       validation: {
         type: ValidationTypes.FUNCTION,
         params: {
           fn: accessorValidation,
           expected: {
-            type:
-              "unique string with no special characters except(_) and should not start with number(s)",
+            type: "unique string",
             example: `firstName | last_name | age14`,
             autocompleteDataType: AutocompleteDataType.STRING,
           },

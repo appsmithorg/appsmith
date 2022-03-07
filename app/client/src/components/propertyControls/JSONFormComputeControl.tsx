@@ -45,7 +45,7 @@ function processObject(schema: Schema, defaultValue?: any) {
   const obj: Record<string, any> = {};
 
   Object.values(schema).forEach((schemaItem) => {
-    obj[schemaItem.name] = processSchemaItem(schemaItem, defaultValue);
+    obj[schemaItem.accessor] = processSchemaItem(schemaItem, defaultValue);
   });
 
   return obj;
@@ -81,10 +81,12 @@ function processSchemaItem(schemaItem: SchemaItem, defaultValue?: any) {
  *    fieldType: object,
  *    children: {
  *      name: {
- *        fieldType: string
+ *         accessor: "name"
+ *        fieldType: "string"
  *      },
  *      age: {
- *        fieldType: number
+ *         accessor: "आयु"
+ *        fieldType: "number"
  *      }
  *    }
  *  }
@@ -93,7 +95,7 @@ function processSchemaItem(schemaItem: SchemaItem, defaultValue?: any) {
  * @returns
  * {
  *  name: "",
- *  age: 0
+ *  आयु: 0
  * }
  *
  * @param schema

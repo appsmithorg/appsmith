@@ -11,7 +11,6 @@ import { useController } from "react-hook-form";
 import Field from "../component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
@@ -30,6 +29,7 @@ import {
 import BaseInputComponent, {
   InputHTMLType,
 } from "widgets/BaseInputWidget/component";
+import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {

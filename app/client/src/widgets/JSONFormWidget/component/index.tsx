@@ -91,6 +91,7 @@ function JSONFormComponent<TValues>({
   renderMode,
   schema,
   setMetaInternalFieldState,
+  updateFormData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
   ...rest
@@ -148,6 +149,7 @@ function JSONFormComponent<TValues>({
       executeAction={executeAction}
       renderMode={renderMode}
       setMetaInternalFieldState={setMetaInternalFieldState}
+      updateFormData={updateFormData}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >
@@ -165,7 +167,7 @@ function JSONFormComponent<TValues>({
           stretchBodyVertically={isSchemaEmpty}
           submitButtonStyles={rest.submitButtonStyles}
           title={rest.title}
-          updateFormData={rest.updateFormData}
+          updateFormData={updateFormData}
         >
           {renderComponent}
         </Form>

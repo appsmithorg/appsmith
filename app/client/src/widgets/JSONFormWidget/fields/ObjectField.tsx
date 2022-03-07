@@ -83,14 +83,16 @@ function ObjectField({
     const sortedChildren = sortBy(children, ({ position }) => position);
 
     return sortedChildren.map((schemaItem) => {
-      const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
+      const fieldName = name
+        ? `${name}.${schemaItem.identifier}`
+        : schemaItem.identifier;
       const fieldPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
 
       return (
         <FieldRenderer
           fieldName={fieldName as ControllerRenderProps["name"]}
           key={schemaItem.identifier}
-          passedDefaultValue={objectPassedDefaultValue[schemaItem.name]}
+          passedDefaultValue={objectPassedDefaultValue[schemaItem.accessor]}
           propertyPath={fieldPropertyPath}
           schemaItem={schemaItem}
         />

@@ -12,10 +12,11 @@ import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { FieldState, Schema } from "../constants";
+import { FieldState, ROOT_SCHEMA_KEY, Schema } from "../constants";
 import {
   ComputedSchemaStatus,
   computeSchema,
+  convertSchemaItemToFormData,
   dynamicPropertyPathListFromSchema,
   generateFieldState,
 } from "./helper";
@@ -159,7 +160,10 @@ class JSONFormWidget extends BaseWidget<
   };
 
   updateFormData = (values: any) => {
-    this.props.updateWidgetMetaProperty("formData", values);
+    const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
+    const formData = convertSchemaItemToFormData(rootSchemaItem, values);
+
+    this.props.updateWidgetMetaProperty("formData", formData);
   };
 
   parseAndSaveFieldState = () => {

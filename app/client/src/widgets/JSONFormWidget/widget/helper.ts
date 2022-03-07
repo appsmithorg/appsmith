@@ -73,10 +73,10 @@ const processFieldObject = (
   const obj: Record<string, FieldStateItem> = {};
 
   Object.values(schema).forEach((schemaItem) => {
-    const { name } = schemaItem;
-    obj[name] = processFieldSchemaItem(
+    const { accessor, identifier } = schemaItem;
+    obj[accessor] = processFieldSchemaItem(
       schemaItem,
-      metaInternalFieldState[name],
+      metaInternalFieldState[identifier],
     ) as FieldStateItem;
   });
 
@@ -288,4 +288,57 @@ export const computeSchema = ({
     dynamicPropertyPathList,
     schema,
   };
+};
+
+const convertObjectTypeToFormData = (schema: Schema, formValue: unknown) => {
+  if (formValue && typeof formValue === "object") {
+    const formData: Record<string, unknown> = {};
+
+    Object.values(schema).forEach((schemaItem) => {
+      formData[schemaItem.accessor] = convertSchemaItemToFormData(
+        schemaItem,
+        (formValue as Record<string, unknown>)[schemaItem.identifier],
+      );
+    });
+
+    return formData;
+  }
+
+  return;
+};
+
+const convertArrayTypeToFormData = (schema: Schema, formValues: unknown) => {
+  if (formValues && Array.isArray(formValues)) {
+    const formData: unknown[] = [];
+    const arraySchemaItem = schema[ARRAY_ITEM_KEY];
+
+    formValues.forEach((formValue, index) => {
+      formData[index] = convertSchemaItemToFormData(arraySchemaItem, formValue);
+    });
+
+    return formData.filter((d) => d !== undefined);
+  }
+
+  return;
+};
+
+export const convertSchemaItemToFormData = <TValue>(
+  schemaItem: SchemaItem,
+  formValue: TValue,
+) => {
+  if (schemaItem.fieldType === FieldType.OBJECT) {
+    return convertObjectTypeToFormData(
+      schemaItem.children,
+      formValue,
+    ) as TValue;
+  }
+
+  if (schemaItem.fieldType === FieldType.ARRAY) {
+    return (convertArrayTypeToFormData(
+      schemaItem.children,
+      formValue,
+    ) as unknown) as TValue;
+  }
+
+  return formValue as TValue;
 };

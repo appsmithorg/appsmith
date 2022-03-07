@@ -3,27 +3,67 @@ import { LabelValueType } from "rc-select/lib/interface/generator";
 
 import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
 
+// Auxiliary function to evalValue to iterate over Object
 const evalObjectValue = (value: any, schema: Schema) => {
   const obj: Record<string, any> = {};
   Object.values(schema).forEach((schemaItem) => {
-    const val = value[schemaItem.originalIdentifier] ?? value[schemaItem.name];
-    obj[schemaItem.name] = sanitizeValue(val, schemaItem);
+    const val =
+      value[schemaItem.originalIdentifier] ?? value[schemaItem.accessor];
+    obj[schemaItem.accessor] = evalValue(val, schemaItem);
   });
 
   return obj;
 };
 
+// Auxiliary function to evalValue to iterate over Array
 const evalArrayValue = (value: any, schema: Schema): any[] => {
   if (schema[ARRAY_ITEM_KEY]) {
     return value.map((valueItem: any) =>
-      sanitizeValue(valueItem, schema[ARRAY_ITEM_KEY]),
+      evalValue(valueItem, schema[ARRAY_ITEM_KEY]),
     );
   }
 
   return [];
 };
 
-const sanitizeValue = (value: any, schemaItem: SchemaItem) => {
+/**
+ * This function iterates through the schemaItem and returns a value
+ * that matches with the the value param passed but the keys are transformed
+ * to what the accessor is set for the particular schemaItem.
+ *
+ * If schemaItem
+ * {
+ *  accessor: "address",
+ *    fieldType: "object",
+ *    children: {
+ *      "line1": {
+ *         accessor: "line1",
+ *         originalIdentifier: "line1"
+ *      },
+ *      "pincode": {
+ *         accessor: "zipcode"
+ *         originalIdentifier: "pincode"
+ *      }
+ *    }
+ * }
+ *
+ * value
+ * {
+ *  address: {
+ *    line1: "24th main",
+ *    pincode: "230123",
+ *  }
+ * }
+ *
+ * @returns
+ * {
+ *  address: {
+ *    line1: "24th main",
+ *    zipcode: "230123"
+ *  }
+ * }
+ */
+export const evalValue = (value: any, schemaItem: SchemaItem) => {
   if (schemaItem.fieldType === FieldType.ARRAY) {
     return Array.isArray(value)
       ? evalArrayValue(value, schemaItem.children)
@@ -42,7 +82,7 @@ const sanitizeValue = (value: any, schemaItem: SchemaItem) => {
 const processObject = (schema: Schema) => {
   const obj: Record<string, any> = {};
   Object.values(schema).forEach((schemaItem) => {
-    obj[schemaItem.name] = schemaItemDefaultValue(schemaItem);
+    obj[schemaItem.accessor] = schemaItemDefaultValue(schemaItem);
   });
 
   return obj;
@@ -63,7 +103,7 @@ export const schemaItemDefaultValue = (schemaItem: SchemaItem) => {
 
   if (schemaItem.fieldType === FieldType.ARRAY) {
     const defaultArrayValue = processArray(schemaItem.children);
-    const sanitizedDefaultValue = sanitizeValue(
+    const sanitizedDefaultValue = evalValue(
       schemaItem.defaultValue,
       schemaItem,
     );
