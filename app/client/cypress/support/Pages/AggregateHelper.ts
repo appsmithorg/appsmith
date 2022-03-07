@@ -156,7 +156,7 @@ export class AggregateHelper {
     }
 
     public WaitUntilEleAppear(selector: string, timeout = 500) {
-        cy.waitUntil(() => cy.get(selector, { timeout: 30000 }).should("have.length.greaterThan", 0),
+        cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
             {
                 errorMsg: "Element did not appear",
                 timeout: 5000,
