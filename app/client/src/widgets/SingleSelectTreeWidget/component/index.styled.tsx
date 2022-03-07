@@ -782,7 +782,6 @@ export const TreeSelectContainer = styled.div<{
       }
     }
     .rc-tree-select-selection-item {
-      pointer-events: none;
       position: absolute;
       top: 50%;
       right: 11px;
@@ -794,7 +793,6 @@ export const TreeSelectContainer = styled.div<{
       color: #231f20;
       white-space: nowrap;
       text-overflow: ellipsis;
-      pointer-events: none;
       font-size: 14px;
       width: calc(100% - 40px);
     }

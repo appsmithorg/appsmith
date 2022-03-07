@@ -45,6 +45,7 @@ class SelectComponent extends React.Component<
   SelectComponentState
 > {
   labelRef = React.createRef<HTMLDivElement>();
+  spanRef = React.createRef<HTMLSpanElement>();
 
   state = {
     // used to show focused item for keyboard up down key interection
@@ -117,6 +118,16 @@ class SelectComponent extends React.Component<
       !isNil(selectedOption) && selectedOption !== ""
         ? selectedOption
         : this.props.placeholder || "-- Select --";
+
+    // Check if text overflows
+    const tooltipText =
+      this.spanRef.current?.parentElement &&
+      (this.spanRef.current.parentElement.offsetHeight <
+        this.spanRef.current.parentElement.scrollHeight ||
+        this.spanRef.current.parentElement.offsetWidth <
+          this.spanRef.current.parentElement.scrollWidth)
+        ? value
+        : undefined;
 
     return (
       <DropdownContainer compactMode={compactMode}>
@@ -205,8 +216,11 @@ class SelectComponent extends React.Component<
                   />
                 </StyledDiv>
               }
-              text={value}
-            />
+            >
+              <span ref={this.spanRef} title={tooltipText}>
+                {value}
+              </span>
+            </Button>
           </StyledSingleDropDown>
         </StyledControlGroup>
       </DropdownContainer>
