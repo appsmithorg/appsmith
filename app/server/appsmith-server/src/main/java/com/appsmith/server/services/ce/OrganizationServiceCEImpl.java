@@ -352,7 +352,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     }
 
     @Override
-    public Mono<Organization> delete(String organizationId) {
+    public Mono<Organization> archiveById(String organizationId) {
         return applicationRepository.countByOrganizationId(organizationId).flatMap(appCount -> {
             if(appCount == 0) { // no application found under this organization
                 // fetching the org first to make sure user has permission to archive

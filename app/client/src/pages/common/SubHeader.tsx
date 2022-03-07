@@ -16,13 +16,13 @@ const SubHeaderWrapper = styled.div<{
   width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
   display: flex;
   justify-content: space-between;
-  position: ${({ isMobile }) => (isMobile ? `relative` : `fixed`)};
+
   background: ${(props) => props.theme.colors.homepageBackground};
-  top: 2px;
-  left: ${(props) =>
-    props.isMobile ? 0 : props.theme.homePage.sidebar + 24}px;
+  z-index: ${Indices.Layer9};
+  margin-left: ${(props) => props.theme.spaces[4]}px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
-  ${({ isMobile }) => isMobile && `padding: 12px 16px;`}
+  ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;

@@ -886,14 +886,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     onComplete?: () => void,
   ) => {
     try {
-      const rowData = [this.props.filteredTableData[rowIndex]];
+      const rowData = this.props.filteredTableData[rowIndex];
       this.props.updateWidgetMetaProperty(
         "triggeredRowIndex",
         this.props.filteredTableData[rowIndex].__originalIndex__,
       );
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{(currentRow) => { return (${next}) }}} `;
+        return prev + `{{ ${next} }} `;
       }, "");
       if (modifiedAction) {
         super.executeAction({
@@ -903,7 +903,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_CLICK,
             callback: onComplete,
           },
-          responseData: rowData,
+          globalContext: { currentRow: rowData },
         });
       } else {
         onComplete?.();
