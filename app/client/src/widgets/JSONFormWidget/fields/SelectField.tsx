@@ -11,7 +11,7 @@ import { useController } from "react-hook-form";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import SelectComponent from "widgets/SelectWidget/component";
-import useRegisterFieldValidity from "./useRegisterFieldInvalid";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

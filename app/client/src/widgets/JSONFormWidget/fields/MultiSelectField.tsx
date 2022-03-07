@@ -12,7 +12,7 @@ import FormContext from "../FormContext";
 import MultiSelect from "widgets/MultiSelectWidgetV2/component";
 import useDeepEffect from "utils/hooks/useDeepEffect";
 import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldInvalid";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import { Layers } from "constants/Layers";
 import {

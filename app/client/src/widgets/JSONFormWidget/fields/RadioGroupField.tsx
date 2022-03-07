@@ -4,7 +4,7 @@ import { useController } from "react-hook-form";
 import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
-import useRegisterFieldValidity from "./useRegisterFieldInvalid";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

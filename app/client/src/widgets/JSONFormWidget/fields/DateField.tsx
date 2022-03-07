@@ -6,7 +6,7 @@ import DateComponent from "widgets/DatePickerWidget2/component";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldInvalid";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import {
   FieldComponentBaseProps,
   BaseFieldComponentProps,

@@ -29,7 +29,7 @@ import {
 import BaseInputComponent, {
   InputHTMLType,
 } from "widgets/BaseInputWidget/component";
-import useRegisterFieldValidity from "./useRegisterFieldInvalid";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {

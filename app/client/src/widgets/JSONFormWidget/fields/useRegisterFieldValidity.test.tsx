@@ -5,7 +5,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { FormContextProvider } from "../FormContext";
 import useRegisterFieldValidity, {
   UseRegisterFieldValidityProps,
-} from "./useRegisterFieldInvalid";
+} from "./useRegisterFieldValidity";
 import { FieldType } from "../constants";
 
 const initialFieldState = {
@@ -37,6 +37,7 @@ describe("useRegisterFieldInvalid", () => {
           executeAction={jest.fn}
           renderMode="CANVAS"
           setMetaInternalFieldState={mocksetMetaInternalFieldState}
+          updateFormData={jest.fn}
           updateWidgetMetaProperty={jest.fn}
           updateWidgetProperty={jest.fn}
         >
@@ -107,6 +108,7 @@ describe("useRegisterFieldInvalid", () => {
           executeAction={jest.fn}
           renderMode="CANVAS"
           setMetaInternalFieldState={mocksetMetaInternalFieldState}
+          updateFormData={jest.fn}
           updateWidgetMetaProperty={jest.fn}
           updateWidgetProperty={jest.fn}
         >

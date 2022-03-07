@@ -6,7 +6,7 @@ import CheckboxComponent from "widgets/CheckboxWidget/component";
 import FormContext from "../FormContext";
 import Field from "../component/Field";
 import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldInvalid";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { AlignWidget } from "widgets/constants";
 import {
   BaseFieldComponentProps,
