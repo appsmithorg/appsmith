@@ -31,8 +31,10 @@ const ErrorContainer = styled.div`
 const VideoWrapper = styled.div<{
   borderRadius?: string;
   boxShadow?: string;
+  backgroundColor?: string;
 }>`
   & video {
+    background-color: ${({ backgroundColor }) => backgroundColor};
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   }
@@ -56,7 +58,11 @@ export default function VideoComponent(props: VideoComponentProps) {
     url,
   } = props;
   return url ? (
-    <VideoWrapper borderRadius={props.borderRadius} boxShadow={props.boxShadow}>
+    <VideoWrapper
+      backgroundColor={props.backgroundColor}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+    >
       <ReactPlayer
         controls={controls || true}
         height="100%"

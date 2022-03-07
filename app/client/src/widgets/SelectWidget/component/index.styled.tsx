@@ -189,7 +189,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
     width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     background: white;
-    border-radius: ${({ borderRadius }) => borderRadius} !important;
+    border-radius: ${({ borderRadius }) =>
+      borderRadius === `1.5rem` ? `0.375rem` : borderRadius} !important;
     font-family: ${({ fontFamily }) =>
       fontFamily === DEFAULT_FONT_NAME ? "inherit" : fontFamily} !important;
     overflow: hidden;
@@ -247,6 +248,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
         border-radius: ${({ borderRadius }) => borderRadius} !important;
         &:focus {
           border: ${({ primaryColor }) => `1px solid ${primaryColor}`};
+          box-shadow: 0px 0px 0px 3px ${({ primaryColor }) =>
+            lightenColor(primaryColor)} !important;
           box-shadow: none;
         }
       }

@@ -268,7 +268,8 @@ cursor: not-allowed;
   position: absolute;
   background: #fff;
   width: 100%;
-  border-radius: ${({ borderRadius }) => borderRadius};
+  border-radius: ${({ borderRadius }) =>
+    borderRadius === `1.5rem` ? `0.375rem` : borderRadius};
   overflow: hidden;
   margin-top: 5px;
   background: white;
