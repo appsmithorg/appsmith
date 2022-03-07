@@ -122,6 +122,9 @@ const themeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.CLOSE_BETA_CARD_SHOWN]: (state: AppThemingState) => {
     state.isBetaCardShown = true;
   },
+  [ReduxActionTypes.FOCUS_WIDGET]: (state: AppThemingState) => {
+    state.stack = [];
+  },
 });
 
 export default themeReducer;
