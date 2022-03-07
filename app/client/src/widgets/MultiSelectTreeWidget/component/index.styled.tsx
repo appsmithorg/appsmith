@@ -815,7 +815,6 @@ export const TreeSelectContainer = styled.div<{
       }
       .rc-tree-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }
