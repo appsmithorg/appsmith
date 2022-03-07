@@ -245,6 +245,7 @@ function SingleSelectTreeComponent({
         onChange={onChange}
         onClear={onClear}
         placeholder={placeholder}
+        searchValue={filter}
         showArrow
         showSearch={false}
         style={{ width: "100%" }}

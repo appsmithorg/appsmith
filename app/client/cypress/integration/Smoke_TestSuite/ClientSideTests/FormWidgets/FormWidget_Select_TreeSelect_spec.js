@@ -13,8 +13,8 @@ describe("Form Widget Functionality", function() {
     cy.get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true });
-    cy.get(formWidgetsPage.treeSelectInput)
-      .last()
+    cy.get(".tree-select-dropdown .bp3-input")
+      .click()
       .type("Blue");
     cy.treeSelectDropdown("Blue");
 
