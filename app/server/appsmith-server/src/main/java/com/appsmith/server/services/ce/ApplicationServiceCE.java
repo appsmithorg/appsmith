@@ -64,6 +64,4 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     String getRandomAppCardColor();
 
     Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
-
-    Mono<Application> upgradeToLatestVersion(String applicationId);
 }

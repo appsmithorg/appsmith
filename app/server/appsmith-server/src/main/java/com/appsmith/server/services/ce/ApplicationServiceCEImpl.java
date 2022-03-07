@@ -13,6 +13,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
@@ -168,6 +169,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
+
+        if(application.getApplicationVersion() != null) {
+            int appVersion = application.getApplicationVersion();
+            if(appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER,
+                        QApplication.application.applicationVersion.getMetadata().getName()
+                ));
+            }
+        }
         return repository.save(application)
                 .flatMap(this::setTransientFields);
     }
@@ -194,6 +205,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
+
+        if(application.getApplicationVersion() != null) {
+            int appVersion = application.getApplicationVersion();
+            if(appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER,
+                        QApplication.application.applicationVersion.getMetadata().getName()
+                ));
+            }
+        }
+
         Mono<String> applicationIdMono;
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         if (gitData != null && !StringUtils.isEmpty(gitData.getBranchName()) && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
@@ -558,13 +580,5 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
-    }
-
-    @Override
-    public Mono<Application> upgradeToLatestVersion(String applicationId) {
-        Application updateDto = new Application();
-        updateDto.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
-        updateDto.setIsPublic(null);
-        return repository.updateById(applicationId, updateDto, MANAGE_APPLICATIONS);
     }
 }

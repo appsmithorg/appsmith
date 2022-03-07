@@ -85,7 +85,6 @@ public class Application extends BaseDomain {
      * so that they can update their application.
      * Once updated, we should set applicationVersion to latest version as well.
      */
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer applicationVersion;
 
     /*
@@ -128,6 +127,7 @@ public class Application extends BaseDomain {
     // between 2 commits if the application is connected to git
     @JsonIgnore
     Integer clientSchemaVersion;
+
     @JsonIgnore
     Integer serverSchemaVersion;
 

@@ -217,11 +217,4 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         return themeService.changeCurrentTheme(themeId, applicationId)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
-
-    @PatchMapping("{applicationId}/application-version/upgrade")
-    public Mono<ResponseDTO<Application>> upgradeApplicationVersionToLatest(@PathVariable String applicationId) {
-        log.debug("Going to update application version to latest for the id: {}", applicationId);
-        return service.upgradeToLatestVersion(applicationId)
-                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
-    }
 }
