@@ -298,7 +298,6 @@ border: 1px solid #E8E8E8;
     }
     & .${Classes.INPUT_GROUP} {
       padding: 12px 12px 8px 12px;
-      min-width: 180px;
 
       & > .${Classes.ICON} {
         &:first-child {
