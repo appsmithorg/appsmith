@@ -2,11 +2,17 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import TextInput from "components/ads/TextInput";
 import Dialog from "components/ads/DialogComponent";
 import Button, { Category, Size } from "components/ads/Button";
 import { saveSelectedThemeAction } from "actions/appThemingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import TextInput, { notEmptyValidator } from "components/ads/TextInput";
+import { getAppThemes } from "selectors/appThemingSelectors";
+import {
+  createMessage,
+  ERROR_MESSAGE_NAME_EMPTY,
+  UNIQUE_NAME_ERROR,
+} from "ce/constants/messages";
 
 interface SaveThemeModalProps {
   isOpen: boolean;
@@ -17,7 +23,12 @@ function SaveThemeModal(props: SaveThemeModalProps) {
   const { isOpen, onClose } = props;
   const dispatch = useDispatch();
   const [name, setName] = useState("");
+  const [inputValidator, setInputValidator] = useState({
+    isValid: true,
+    message: "",
+  });
   const applicationId = useSelector(getCurrentApplicationId);
+  const themes = useSelector(getAppThemes);
 
   /**
    * dispatches action to save selected theme
@@ -26,8 +37,8 @@ function SaveThemeModal(props: SaveThemeModalProps) {
   const onSubmit = (event: any) => {
     event.preventDefault();
 
-    // if name is empty, don't do anything
-    if (!name) return;
+    // if input validations fails, don't do anything
+    if (!inputValidator.isValid) return;
 
     AnalyticsUtil.logEvent("APP_THEMING_SAVE_THEME_SUCCESS", {
       themeName: name,
@@ -37,6 +48,43 @@ function SaveThemeModal(props: SaveThemeModalProps) {
 
     // close the modal after submit
     onClose();
+  };
+
+  /**
+   * theme creation validator
+   *
+   * @param value
+   * @returns
+   */
+  const createThemeValidator = (value: string) => {
+    let isValid = !!value;
+
+    let errorMessage = !isValid ? createMessage(ERROR_MESSAGE_NAME_EMPTY) : "";
+
+    if (
+      isValid &&
+      themes.find((theme) => value.toLowerCase() === theme.name.toLowerCase())
+    ) {
+      isValid = false;
+      errorMessage = createMessage(UNIQUE_NAME_ERROR);
+    }
+
+    return {
+      isValid: isValid,
+      message: errorMessage,
+    };
+  };
+
+  /**
+   * on input change
+   *
+   * @param value
+   */
+  const onChangeName = (value: string) => {
+    const validator = createThemeValidator(value);
+
+    setInputValidator(validator);
+    setName(value);
   };
 
   return (
@@ -56,11 +104,11 @@ function SaveThemeModal(props: SaveThemeModalProps) {
             <h3 className="text-gray-700">Your theme name</h3>
             <TextInput
               autoFocus
+              errorMsg={!inputValidator.isValid ? inputValidator.message : ""}
               fill
               name="name"
-              onChange={setName}
+              onChange={onChangeName}
               placeholder="My theme"
-              validator={notEmptyValidator}
             />
           </div>
         </div>
@@ -79,6 +127,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
           <div className="flex items-center space-x-3">
             <Button
               category={Category.tertiary}
+              onClick={onClose}
               size={Size.medium}
               text="Cancel"
             />

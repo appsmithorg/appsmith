@@ -33,6 +33,7 @@ interface WrapperStyleProps {
   isHorizontal: boolean;
   borderRadius?: string;
   boxShadow?: string;
+  buttonVariant: ButtonVariant;
 }
 
 const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
@@ -44,6 +45,8 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   align-items: stretch;
   overflow: hidden;
   cursor: not-allowed;
+  gap: ${({ buttonVariant }) =>
+    `${buttonVariant === ButtonVariantTypes.PRIMARY ? "1px" : "0px"}`};
 
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
@@ -349,6 +352,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
       <ButtonGroupWrapper
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        buttonVariant={this.props.buttonVariant}
         className="t--buttongroup-widget"
         isHorizontal={isHorizontal}
       >

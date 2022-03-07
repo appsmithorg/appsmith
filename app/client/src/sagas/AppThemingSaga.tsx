@@ -185,7 +185,7 @@ export function* changeSelectedTheme(
 }
 
 /**
- * save and create new theme from  selcted theme
+ * save and create new theme from  selected theme
  *
  * @param action
  */
@@ -204,9 +204,6 @@ export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
     Toaster.show({
       text: createMessage(CHANGE_APP_THEME, name),
       variant: Variant.success,
-      actionElement: (
-        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
-      ),
     });
   } catch (error) {
     yield put({
