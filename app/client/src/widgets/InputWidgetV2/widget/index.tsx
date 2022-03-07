@@ -16,7 +16,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import _, { isNil, omit, merge } from "lodash";
+import { isNil, omit, merge } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
