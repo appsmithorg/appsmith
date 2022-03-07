@@ -116,7 +116,23 @@ export const generateDataTreeWidget = (
     ...overridingPropertyPaths,
   });
 
-  // Use _.merge here to merge all the deeply nested object properties.
+  /**
+   * Spread operator does not merge deep objects properly.
+   * Eg a = {
+   *   foo: { bar: 100 }
+   * }
+   * b = {
+   *  foo: { baz: 200 }
+   * }
+   *
+   * { ...a, ...b }
+   *
+   * {
+   *  foo: { baz: 200 } // bar in "a" object got overridden by baz in "b"
+   * }
+   *
+   * Therefore spread is replaced with "merge" which merges objects recursively.
+   */
   return _.merge(
     {},
     defaultMetaProps,
@@ -131,10 +147,7 @@ export const generateDataTreeWidget = (
         ...widget.logBlackList,
         ...blockedDerivedProps,
       },
-      meta: {
-        ...overridingMetaProps,
-        ...widgetMetaProps,
-      },
+      meta: _.merge(overridingMetaProps, widgetMetaProps),
       propertyOverrideDependency,
       overridingPropertyPaths,
       bindingPaths,

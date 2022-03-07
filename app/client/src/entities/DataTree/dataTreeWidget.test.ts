@@ -216,6 +216,11 @@ describe("generateDataTreeWidget", () => {
       meta: {
         text: "Tester",
         isDirty: true,
+        deepObj: {
+          level1: {
+            metaValue: 10,
+          },
+        },
       },
       triggerPaths: {
         onSubmit: true,
