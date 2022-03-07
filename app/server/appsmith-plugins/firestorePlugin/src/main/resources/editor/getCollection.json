@@ -18,7 +18,7 @@
       "configProperty": "actionConfiguration.formData.orderBy",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
+      "isRequired": false,
       "initialValue": "",
       "placeholderText": "[\"ascendingField\", \"-descendingField\", \"nestedObj.field\"]"
     },
@@ -27,7 +27,7 @@
       "configProperty": "actionConfiguration.next",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
+      "isRequired": false,
       "initialValue": ""
     },
     {
@@ -35,7 +35,7 @@
       "configProperty": "actionConfiguration.prev",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
+      "isRequired": false,
       "initialValue": ""
     },
     {
@@ -43,7 +43,7 @@
       "configProperty": "actionConfiguration.formData.limitDocuments",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
+      "isRequired": false,
       "initialValue": "10"
     },
     {
