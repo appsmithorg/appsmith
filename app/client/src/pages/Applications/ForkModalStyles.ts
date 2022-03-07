@@ -38,6 +38,8 @@ const OrganizationList = styled.div`
 
 const ButtonWrapper = styled.div`
   display: flex;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+  gap: ${(props) => props.theme.spaces[4]}px;
   justify-content: flex-end;
 `;
 
