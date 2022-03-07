@@ -293,7 +293,7 @@ function Deploy() {
 
   const onDiscardChanges = () => {
     dispatch(discardChanges());
-    dispatch(fetchGitStatusInit());
+    setShowDiscardWarning(false);
   };
   const onCloseDiscardChangesWarning = () => {
     setShowDiscardWarning(false);
@@ -301,7 +301,9 @@ function Deploy() {
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
-      <SubTitle>{createMessage(CHANGES_MADE_SINCE_LAST_COMMIT)}</SubTitle>
+      {hasChangesToCommit && (
+        <SubTitle>{createMessage(CHANGES_MADE_SINCE_LAST_COMMIT)}</SubTitle>
+      )}
       <Section>
         <GitChanged />
         <Row>
@@ -360,23 +362,22 @@ function Deploy() {
             </div>
           </InfoWrapper>
         )}
-        {pullRequired && !isConflicting && (
-          <Button
-            className="t--pull-button"
-            isLoading={isPullingProgress}
-            onClick={handlePull}
-            size={Size.large}
-            tag="button"
-            text={createMessage(PULL_CHANGES)}
-            width="max-content"
-          />
-        )}
-        <ConflictInfo
-          isConflicting={isConflicting}
-          learnMoreLink={gitConflictDocumentUrl}
-        />
-
         <ActionsContainer>
+          {pullRequired && !isConflicting && (
+            <Button
+              className="t--pull-button"
+              isLoading={isPullingProgress}
+              onClick={handlePull}
+              size={Size.large}
+              tag="button"
+              text={createMessage(PULL_CHANGES)}
+              width="max-content"
+            />
+          )}
+          {isConflicting && (
+            <ConflictInfo learnMoreLink={gitConflictDocumentUrl} />
+          )}
+
           {showCommitButton && (
             <Tooltip
               autoFocus={false}

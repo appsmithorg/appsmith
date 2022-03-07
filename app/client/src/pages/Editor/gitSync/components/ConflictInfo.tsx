@@ -31,10 +31,9 @@ type CIPropType = {
 };
 
 export default function ConflictInfo(props: CIPropType) {
-  const { isConflicting } = props;
   const theme = useTheme() as Theme;
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  return isConflicting ? (
+  return (
     <>
       <InfoWrapper isError>
         <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
@@ -66,5 +65,5 @@ export default function ConflictInfo(props: CIPropType) {
         />
       </Row>
     </>
-  ) : null;
+  );
 }
