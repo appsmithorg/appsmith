@@ -80,6 +80,11 @@ const StyledButton = styled(Button)`
   }
   height: 31px;
   width: 31px;
+
+  svg {
+    height: 15px;
+    width: 15px;
+  }
 `;
 
 export interface TemplateProps {

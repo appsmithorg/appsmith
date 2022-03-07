@@ -42,8 +42,8 @@ const LargeTemplate = styled(TemplateLayout)`
     width: 38px;
 
     svg {
-      height: 17px;
-      width: 17px;
+      height: 18px;
+      width: 18px;
     }
   }
 `;
