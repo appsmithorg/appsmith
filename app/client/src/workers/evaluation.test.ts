@@ -229,6 +229,7 @@ const BASE_WIDGET: DataTreeWidget = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
+  bindingPaths: {},
   reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
@@ -254,6 +255,7 @@ const BASE_ACTION: DataTreeAction = {
   data: {},
   responseMeta: { isExecutionSuccess: false },
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  bindingPaths: {},
   reactivePaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
     data: EvaluationSubstitutionType.TEMPLATE,

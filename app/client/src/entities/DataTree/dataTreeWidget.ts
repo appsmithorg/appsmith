@@ -105,6 +105,7 @@ export const generateDataTreeWidget = (
   });
 
   const {
+    bindingPaths,
     reactivePaths,
     triggerPaths,
     validationPaths,
@@ -136,6 +137,7 @@ export const generateDataTreeWidget = (
     propertyOverrideDependency,
     overridingPropertyPaths,
     reactivePaths,
+    bindingPaths,
     triggerPaths,
     validationPaths,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,

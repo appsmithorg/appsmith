@@ -187,6 +187,13 @@ describe("generateDataTreeWidget", () => {
     });
 
     const expected: DataTreeWidget = {
+      bindingPaths: {
+        defaultText: EvaluationSubstitutionType.TEMPLATE,
+        placeholderText: EvaluationSubstitutionType.TEMPLATE,
+        regex: EvaluationSubstitutionType.TEMPLATE,
+        resetOnSubmit: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+      },
       reactivePaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
         errorMessage: EvaluationSubstitutionType.TEMPLATE,

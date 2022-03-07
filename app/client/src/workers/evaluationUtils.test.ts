@@ -35,6 +35,7 @@ const BASE_WIDGET: DataTreeWidget = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
+  bindingPaths: {},
   reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},

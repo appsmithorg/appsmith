@@ -2,7 +2,7 @@ import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { DataTreeAction, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
-  getReactivePathsOfAction,
+  getBindingAndReactivePathsOfAction,
   getDataTreeActionConfigPath,
 } from "entities/Action/actionProperties";
 
@@ -38,6 +38,11 @@ export const generateDataTreeAction = (
       getDataTreeActionConfigPath,
     );
   });
+
+  const { bindingPaths, reactivePaths } = getBindingAndReactivePathsOfAction(
+    action.config,
+    editorConfig,
+  );
   return {
     run: {},
     clear: {},
@@ -55,7 +60,8 @@ export const generateDataTreeAction = (
     },
     ENTITY_TYPE: ENTITY_TYPE.ACTION,
     isLoading: action.isLoading,
-    reactivePaths: getReactivePathsOfAction(action.config, editorConfig),
+    bindingPaths,
+    reactivePaths,
     dependencyMap,
     logBlackList: {},
     datasourceUrl,

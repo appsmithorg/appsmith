@@ -7,19 +7,21 @@ import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
+const reg = /this\./g;
+
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
 ): DataTreeJSAction => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
-  const reactivePaths: Record<string, EvaluationSubstitutionType> = {};
+  const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
   const variableList: Record<string, any> = {};
   const variables = js.config.variables;
   const listVariables: Array<string> = [];
   dynamicBindingPathList.push({ key: "body" });
-  const reg = /this\./g;
+
   const removeThisReference = js.config.body.replace(reg, `${js.config.name}.`);
-  reactivePaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+  bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
@@ -37,7 +39,7 @@ export const generateDataTreeJSAction = (
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
       };
-      reactivePaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
     }
@@ -50,7 +52,8 @@ export const generateDataTreeJSAction = (
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
     body: removeThisReference,
     meta: meta,
-    reactivePaths: reactivePaths,
+    bindingPaths: bindingPaths,
+    reactivePaths: bindingPaths,
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
     dependencyMap: dependencyMap,

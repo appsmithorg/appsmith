@@ -3,7 +3,7 @@ import { ControlProps } from "components/formControls/BaseControl";
 import { isHidden } from "components/formControls/utils";
 import { useSelector, shallowEqual } from "react-redux";
 import { getFormValues } from "redux-form";
-import FormControlFactory from "utils/FormControlFactory";
+import FormControlFactory from "utils/formControl/FormControlFactory";
 import Tooltip from "components/ads/Tooltip";
 import {
   FormLabel,

@@ -95,7 +95,7 @@ export function getEntityNameAndPropertyPath(
 
 //these paths are not required to go through evaluate tree as these are internal properties
 const ignorePathsForEvalRegex =
-  ".(reactivePaths|triggerPaths|validationPaths|dynamicBindingPathList)";
+  ".(reactivePaths|bindingPaths|triggerPaths|validationPaths|dynamicBindingPathList)";
 
 //match if paths are part of ignorePathsForEvalRegex
 const isUninterestingChangeForDependencyUpdate = (path: string) => {
