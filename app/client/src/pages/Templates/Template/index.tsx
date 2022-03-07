@@ -17,6 +17,7 @@ const TemplateWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[12]}px;
   transition: all 1s ease-out;
   cursor: pointer;
+  background-color: ${Colors.WHITE};
 
   &:hover {
     box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
@@ -47,14 +48,14 @@ const TemplateContent = styled.div`
     color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${(props) => getTypographyByKey(props, "p1")}
     color: var(--appsmith-color-black-800);
     margin-top: ${(props) => props.theme.spaces[1]}px;
   }
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${(props) => getTypographyByKey(props, "p2")}
   }
 `;
 
