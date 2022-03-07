@@ -234,7 +234,7 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the cell background color is green
     cy.readTabledataValidateCSS(
       "1",
-      "0",
+      "1",
       "background",
       "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
     );
@@ -247,7 +247,7 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the cell background color is purple
     cy.readTabledataValidateCSS(
       "1",
-      "0",
+      "1",
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
