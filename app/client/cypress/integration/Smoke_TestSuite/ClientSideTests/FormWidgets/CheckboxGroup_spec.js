@@ -137,9 +137,12 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
-      `{{CheckboxGroup1.isDirty}}`,
+      `{{checkboxgrouptest.isDirty}}`,
     );
-    // Check if initial value of isDirty is false
+    // Change defaultSelectedValues
+    cy.openPropertyPane("checkboxgroupwidget");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalues", "GREEN");
+    // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
     cy.get(formWidgetsPage.labelCheckboxGroup)
@@ -147,11 +150,6 @@ describe("Checkbox Group Widget Functionality", function() {
       .click();
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
-    // Change defaultSelectedValues
-    cy.openPropertyPane("checkboxgroupwidget");
-    cy.updateCodeInput(".t--property-control-defaultselectedvalues", "GREEN");
-    // Check if isDirty is reset to false
-    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 });
 afterEach(() => {
