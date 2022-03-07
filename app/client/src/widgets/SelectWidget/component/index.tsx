@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import { MenuItem, Button, Classes } from "@blueprintjs/core";
+import { Button, Classes } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { IItemRendererProps } from "@blueprintjs/select";
 import { debounce, findIndex, isEmpty, isNil } from "lodash";
@@ -14,6 +14,7 @@ import {
   StyledSingleDropDown,
   DropdownStyles,
   DropdownContainer,
+  MenuItem,
   StyledDiv,
 } from "./index.styled";
 import Fuse from "fuse.js";
@@ -173,17 +174,17 @@ class SelectComponent extends React.Component<
     const isSelected: boolean = this.isOptionSelected(option);
     // For tabbable menuItems
     const isFocused = itemProps.modifiers.active;
-    const className = `single-select ${isFocused && "is-focused"}`;
+    const focusClassName = `${isFocused && "has-focus"}`;
+    const selectedClassName = `${isSelected} && "menu-item-active"`;
     return (
-      <MenuItem
-        active={isSelected}
-        className={className}
-        key={option.value}
-        multiline
-        onClick={itemProps.handleClick}
-        tabIndex={0}
-        text={option.label}
-      />
+      <MenuItem key={option.value} onClick={itemProps.handleClick}>
+        <a
+          className={`menu-item-link ${selectedClassName} ${focusClassName}`}
+          tabIndex={0}
+        >
+          <div className="menu-item-text">{option.label}</div>
+        </a>
+      </MenuItem>
     );
   };
   handleCancelClick = (event: React.MouseEvent<Element, MouseEvent>) => {
@@ -199,7 +200,13 @@ class SelectComponent extends React.Component<
       );
     }
   };
-  noResultsUI = (<MenuItem disabled text="No Results Found" />);
+  noResultsUI = (
+    <MenuItem>
+      <a className="menu-item-link">
+        <div className="menu-item-text">No Results Found</div>
+      </a>
+    </MenuItem>
+  );
 
   render() {
     const {
