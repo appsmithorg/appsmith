@@ -105,6 +105,7 @@ public class ActionDTO {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant deletedAt = null;
 
+    @Deprecated
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant archivedAt = null;
 
