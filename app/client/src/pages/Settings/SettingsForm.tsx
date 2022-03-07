@@ -193,9 +193,9 @@ export function SettingsForm(
 const validate = (values: Record<string, any>) => {
   const errors: any = {};
   _.filter(values, (value, name) => {
-    const message = AdminConfig.validate(name, value);
-    if (message) {
-      errors[name] = message;
+    const err_message = AdminConfig.validate(name, value);
+    if (err_message) {
+      errors[name] = err_message;
     }
   });
   return errors;
