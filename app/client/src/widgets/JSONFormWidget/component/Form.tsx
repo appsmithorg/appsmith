@@ -5,6 +5,7 @@ import { cloneDeep, debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
+import useFixedFooter from "./useFixedFooter";
 import {
   BaseButton as Button,
   ButtonStyleProps,
@@ -107,22 +108,6 @@ const StyledResetButtonWrapper = styled.div`
   background: #fff;
 `;
 
-const scrolledToBottom = (element: HTMLElement) => {
-  const { clientHeight, scrollHeight, scrollTop } = element;
-  return scrollHeight - scrollTop === clientHeight;
-};
-
-const hasOverflowingContent = (element: HTMLElement) => {
-  const { clientHeight, scrollHeight } = element;
-  return scrollHeight > clientHeight;
-};
-
-const applyScrollClass = (element: HTMLElement, shouldApply: boolean) => {
-  shouldApply
-    ? element.classList.add(FOOTER_SCROLL_ACTIVE_CLASS_NAME)
-    : element.classList.remove(FOOTER_SCROLL_ACTIVE_CLASS_NAME);
-};
-
 function Form<TValues = any>({
   backgroundColor,
   children,
@@ -140,13 +125,19 @@ function Form<TValues = any>({
   title,
   updateFormData,
 }: FormProps<TValues>) {
-  const formRef = useRef<HTMLFormElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef({});
   const methods = useForm();
   const { formState, reset, watch } = methods;
   const { errors } = formState;
   const isFormInValid = !isEmpty(errors);
+
+  const { bodyRef, footerRef } = useFixedFooter<
+    HTMLFormElement,
+    HTMLDivElement
+  >({
+    activeClassName: FOOTER_SCROLL_ACTIVE_CLASS_NAME,
+    fixedFooter,
+  });
 
   useEffect(() => {
     const debouncedUpdateFormData = debounce(updateFormData, 300);
@@ -167,28 +158,6 @@ function Form<TValues = any>({
     return () => subscription.unsubscribe();
   }, []);
 
-  const isOverflowing = formRef.current
-    ? hasOverflowingContent(formRef.current)
-    : false;
-  /**
-   * If fixedFooter changes from false to true and not scrolled to the bottom
-   * then we add the active class to the footer.
-   */
-  useEffect(() => {
-    if (fixedFooter && footerRef.current && formRef.current) {
-      const hasScrolledToBottom = scrolledToBottom(formRef.current);
-      const shouldApplyClass = !hasScrolledToBottom && isOverflowing;
-      applyScrollClass(footerRef.current, shouldApplyClass);
-    }
-  }, [fixedFooter, isOverflowing]);
-
-  const onScroll = (event: React.UIEvent<HTMLFormElement, UIEvent>) => {
-    if (fixedFooter && footerRef.current) {
-      const hasScrolledToBottom = scrolledToBottom(event.currentTarget);
-      applyScrollClass(footerRef.current, !hasScrolledToBottom);
-    }
-  };
-
   const onReset = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault();
     const defaultValues = schema
@@ -202,11 +171,7 @@ function Form<TValues = any>({
 
   return (
     <FormProvider {...methods}>
-      <StyledForm
-        onScroll={onScroll}
-        ref={formRef}
-        scrollContents={scrollContents}
-      >
+      <StyledForm ref={bodyRef} scrollContents={scrollContents}>
         <StyledFormBody stretchBodyVertically={stretchBodyVertically}>
           <StyledTitle>{title}</StyledTitle>
           {children}
