@@ -2,6 +2,7 @@
     "NavHomePage": "[data-icon='home']",
     "containerWidget": ".t--draggable-containerwidget",
     "inputWidget": ".t--draggable-inputwidgetv2",
+    "multiSelectWidget": ".t--draggable-multiselectwidgetv2",
     "togglebutton": "input[type='checkbox']",
     "inputPropsDataType": ".t--property-control-datatype",
     "inputdatatypeplaceholder": ".t--property-control-placeholder",
@@ -11,6 +12,8 @@
     "buttonStyleDropdown": ".t--property-control-buttonstyle [name='downArrow']",
     "buttonBackground": ".sc-ecQjpJ > div > .bp3-button",
     "copyWidget": ".t--copy-widget svg",
+    "currencyInputWidget": ".t--draggable-currencyinputwidget",
+    "phoneInputWidget": ".t--draggable-phoneinputwidget",
     "removeWidget": ".t--delete-widget svg",
     "propertypaneText": ".t--propertypane .t--property-pane-view",
     "formButtonWidget": ".t--widget-formbuttonwidget",
@@ -99,6 +102,7 @@
     "greenColorHex": "#03b365",
     "yellowColorHex": "#FFC13D",
     "greenColor": "//div[@color='#03b365']",
+    "transparent": "//div[@color='transparent']",
     "yellowColor": "//div[@color='#FFC13D']",
     "blueColor": "//div[@color='#3366FF']",
     "toggleJsColor": ".t--property-control-textcolor .t--js-toggle",
@@ -170,6 +174,7 @@
     "cellBackground": ".t--property-control-cellbackgroundcolor",
     "cellBackgroundToggle": ".t--property-control-cellbackgroundcolor .t--js-toggle",
     "borderColorPickerNew": ".t--property-control-bordercolor input",
+    "selectedTextSize": ".t--property-control-textsize .bp3-popover-target .sub-text",
     "colorPickerV2Popover": ".t--colorpicker-v2-popover",
     "colorPickerV2Color": ".t--colorpicker-v2-color"
 }

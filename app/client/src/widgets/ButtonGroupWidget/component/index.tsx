@@ -1,5 +1,5 @@
 import React from "react";
-import { sortBy } from "lodash";
+import { sortBy, uniqueId } from "lodash";
 import {
   Alignment,
   Icon,
@@ -26,12 +26,14 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
   getCustomJustifyContent,
+  WidgetContainerDiff,
 } from "widgets/WidgetUtils";
 
 interface WrapperStyleProps {
   isHorizontal: boolean;
   borderRadius?: string;
   boxShadow?: string;
+  buttonVariant: ButtonVariant;
 }
 
 const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
@@ -43,6 +45,8 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   align-items: stretch;
   overflow: hidden;
   cursor: not-allowed;
+  gap: ${({ buttonVariant }) =>
+    `${buttonVariant === ButtonVariantTypes.PRIMARY ? "1px" : "0px"}`};
 
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
@@ -75,6 +79,9 @@ const MenuButtonWrapper = styled.div`
 `;
 
 const PopoverStyles = createGlobalStyle<{
+  parentWidth: number;
+  menuDropDownWidth: number;
+  id: string;
   borderRadius?: string;
 }>`
   .button-group-menu-popover, .button-group-menu-popover.${Classes.POPOVER2} {
@@ -87,9 +94,22 @@ const PopoverStyles = createGlobalStyle<{
       overflow: hidden;
     }
 
-  .button-group-menu-popover > .${Classes.POPOVER2_CONTENT} {
+.button-group-menu-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
+  ${({ id, menuDropDownWidth, parentWidth }) => `
+  .menu-button-width-${id} {
+
+    max-width: ${
+      menuDropDownWidth > parentWidth
+        ? `${menuDropDownWidth}px`
+        : `${parentWidth}px`
+    } !important;
+    min-width: ${
+      parentWidth > menuDropDownWidth ? parentWidth : menuDropDownWidth
+    }px !important;
+  }
+`}
 `;
 
 interface ButtonStyleProps {
@@ -233,6 +253,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
 
 const StyledMenu = styled(Menu)`
   padding: 0;
+  min-width: 0px;
 `;
 
 interface PopoverContentProps {
@@ -312,7 +333,14 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
   };
 
   render = () => {
-    const { buttonVariant, groupButtons, isDisabled, orientation } = this.props;
+    const {
+      buttonVariant,
+      groupButtons,
+      isDisabled,
+      menuDropDownWidth,
+      orientation,
+      width,
+    } = this.props;
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -325,6 +353,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
       <ButtonGroupWrapper
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        buttonVariant={this.props.buttonVariant}
         className="t--buttongroup-widget"
         isHorizontal={isHorizontal}
       >
@@ -333,10 +362,16 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
+            const id = uniqueId();
 
             return (
               <MenuButtonWrapper key={button.id}>
-                <PopoverStyles borderRadius={this.props.borderRadius} />
+                <PopoverStyles
+                  borderRadius={this.props.borderRadius}
+                  id={id}
+                  menuDropDownWidth={menuDropDownWidth}
+                  parentWidth={width - WidgetContainerDiff}
+                />
                 <Popover2
                   content={
                     <PopoverContent
@@ -348,7 +383,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   fill
                   minimal
                   placement="bottom-end"
-                  popoverClassName="button-group-menu-popover"
+                  popoverClassName={`menu-button-popover menu-button-width-${id} button-group-menu-popover`}
                 >
                   <StyledButton
                     borderRadius={this.props.borderRadius}
@@ -443,6 +478,8 @@ export interface ButtonGroupComponentProps {
   buttonVariant: ButtonVariant;
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;
+  width: number;
+  menuDropDownWidth: number;
   primaryColor?: string;
 }
 

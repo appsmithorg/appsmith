@@ -1,7 +1,8 @@
+import styled, { createGlobalStyle } from "styled-components";
 import { get, startCase } from "lodash";
 import MoreIcon from "remixicon-react/MoreFillIcon";
-import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useRef, useState } from "react";
 import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 
 import ThemeCard from "./ThemeCard";
@@ -14,12 +15,14 @@ import {
 import {
   AppThemingMode,
   getAppThemingStack,
+  getIsBetaCardShown,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import {
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import { Tooltip } from "components/ads";
 import SettingSection from "./SettingSection";
 import SaveThemeModal from "./SaveThemeModal";
 import { AppTheme } from "entities/AppTheming";
@@ -31,13 +34,43 @@ import Button, { Category, Size } from "components/ads/Button";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
+import BetaCard from "components/editorComponents/BetaCard";
+import { Classes as CsClasses } from "components/ads/common";
+import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
+
+const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
+
+const PopoverStyles = createGlobalStyle`
+.${THEMING_BETA_CARD_POPOVER_CLASSNAME} .bp3-popover-content {
+  padding: 10px 12px;
+  border-radius: 0px;
+  background-color: #FFF !important;
+  color:   #090707 !important;
+  box-shadow: none !important;
+}
+
+.${THEMING_BETA_CARD_POPOVER_CLASSNAME} .${CsClasses.BP3_POPOVER_ARROW_BORDER},
+.${CsClasses.BP3_POPOVER_ARROW_FILL} {
+  fill: #FFF !important;
+  stroke: #FFF !important;
+  box-shadow: 0px 0px 2px rgb(0 0 0 / 20%), 0px 2px 10px rgb(0 0 0 / 10%);
+}
+`;
 
 function ThemeEditor() {
   const dispatch = useDispatch();
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const themeBetaCardRef = useRef<HTMLDivElement>(null);
   const applicationId = useSelector(getCurrentApplicationId);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const themingStack = useSelector(getAppThemingStack);
   const [isSaveModalOpen, setSaveModalOpen] = useState(false);
+  const [isBetaPopupActive, setBetaPopoverActive] = useState(true);
+  const showBetaPopoverCard = () => setBetaPopoverActive(true);
+  const hideBetaPopoverCard = () => setBetaPopoverActive(false);
+  const isBetaCardShown = useSelector(getIsBetaCardShown);
+
+  useOnClickOutside([popoverRef, themeBetaCardRef], hideBetaPopoverCard);
 
   /**
    * customizes the current theme
@@ -86,9 +119,7 @@ function ThemeEditor() {
               <h3 className="text-sm font-normal capitalize">
                 Theme Properties
               </h3>
-              <div className="py-0.5 px-1 text-xs font-semibold text-gray-700 uppercase border border-gray-700">
-                beta
-              </div>
+              <BetaCard />
             </div>
             <div>
               <Dropdown position="bottom-right">
@@ -108,8 +139,21 @@ function ThemeEditor() {
               </Dropdown>
             </div>
           </div>
-          <ThemeBetaCard />
-          <ThemeCard theme={selectedTheme} />
+
+          <Tooltip
+            content={
+              <div ref={themeBetaCardRef}>
+                <ThemeBetaCard />
+              </div>
+            }
+            isOpen={isBetaPopupActive && !isBetaCardShown}
+            popoverClassName={THEMING_BETA_CARD_POPOVER_CLASSNAME}
+            position="right"
+          >
+            <div onMouseOver={showBetaPopoverCard} ref={popoverRef}>
+              <ThemeCard theme={selectedTheme} />
+            </div>
+          </Tooltip>
         </header>
         <div className="px-3 mt-4">
           <Button
@@ -148,7 +192,7 @@ function ThemeEditor() {
             )}
           </SettingSection>
           {/* COLORS */}
-          <SettingSection className="px-3 py-3 border-t" title="Colour">
+          <SettingSection className="px-3 py-3 border-t" title="Color">
             <section className="space-y-2">
               <ThemeColorControl
                 theme={selectedTheme}
@@ -218,6 +262,7 @@ function ThemeEditor() {
           setSaveModalOpen(false);
         }}
       />
+      <PopoverStyles />
     </>
   );
 }

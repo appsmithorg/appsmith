@@ -2,7 +2,7 @@ import { last } from "lodash";
 import classNames from "classnames";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
@@ -100,7 +100,7 @@ export function ThemeCard(props: ThemeCard) {
    * NOTE: since we are same card in theme edit and theme selection,
    * we don't need to fire the action in theme edit mode on click on the card
    */
-  const changeSelectedTheme = useCallback(() => {
+  const changeSelectedTheme = () => {
     AnalyticsUtil.logEvent("APP_THEMING_APPLY_THEME", {
       themeId: theme.id,
       themeName: theme.name,
@@ -114,15 +114,15 @@ export function ThemeCard(props: ThemeCard) {
         }),
       );
     }
-  }, [changeSelectedAppThemeAction, theme]);
+  };
 
-  const openDeleteModalFn = useCallback(() => toggleDeleteModal(true), []);
-  const closeDeleteModalFn = useCallback(() => toggleDeleteModal(false), []);
+  const openDeleteModalFn = () => toggleDeleteModal(true);
+  const closeDeleteModalFn = () => toggleDeleteModal(false);
 
   /**
    * dispatch delete app theme action
    */
-  const onDeleteTheme = useCallback(() => {
+  const onDeleteTheme = () => {
     AnalyticsUtil.logEvent("APP_THEMING_DELETE_THEME", {
       themeId: theme.id,
       themeName: theme.name,
@@ -131,7 +131,7 @@ export function ThemeCard(props: ThemeCard) {
     dispatch(deleteAppThemeAction({ themeId: theme.id, name: theme.name }));
 
     closeDeleteModalFn();
-  }, [theme.id]);
+  };
 
   return (
     <>

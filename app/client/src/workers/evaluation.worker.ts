@@ -214,7 +214,12 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { callbackData, dataTree, dynamicTrigger } = requestData;
+        const {
+          callbackData,
+          dataTree,
+          dynamicTrigger,
+          globalContext,
+        } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -228,6 +233,9 @@ ctx.addEventListener(
           requestId,
           resolvedFunctions,
           callbackData,
+          {
+            globalContext,
+          },
         );
 
         break;

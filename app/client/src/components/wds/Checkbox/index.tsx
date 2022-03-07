@@ -22,7 +22,7 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
   ${({ backgroundColor, borderRadius, checked, hasError }) => `
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: auto;
     display: flex;
     align-items: center;
     gap: 10px;

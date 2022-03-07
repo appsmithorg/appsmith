@@ -79,7 +79,7 @@ const PropertyControl = memo((props: Props) => {
   );
 
   /**
-   * checks if property value is deviated or not
+   * checks if property value is deviated or not.
    * by deviation, we mean if value of property is same as
    * the one defined in the theme stylesheet. if values are different,
    * that means the property value is deviated from the theme stylesheet.
@@ -102,9 +102,9 @@ const PropertyControl = memo((props: Props) => {
    * resets the value of property to theme stylesheet value
    * which is a binding to theme object defined in the stylesheet
    */
-  const resetPropertyValueToTheme = useCallback(() => {
+  const resetPropertyValueToTheme = () => {
     onPropertyChange(props.propertyName, stylesheetValue);
-  }, []);
+  };
 
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,

@@ -11,59 +11,52 @@ import {
 } from "@appsmith/constants/messages";
 
 import { getIsBetaCardShown } from "selectors/appThemingSelectors";
+import { Button, Size, Category, Variant } from "components/ads";
+import { Colors } from "constants/Colors";
 
-const ReflowBetaInfoCard = styled.div`
-  display: flex;
-  padding: 8px;
-  flex-direction: row;
-  color: #00407D;
-  background: #E8F5FA;
-  }
-`;
+const StyledButton = styled(Button)`
+  background-color: ${Colors.BLACK};
+  color: ${Colors.WHITE};
+  border: 2px solid ${Colors.BLACK};
 
-const StyledCloseIcon = styled(CloseIcon)`
-  width: 65px;
-  fill: #1d9bd1;
-  cursor: pointer;
-  transition: transform 200ms;
-  path {
-    fill: #1d9bd1;
-  }
-  :hover {
-    transform: scale(1.1);
-    fill: #00407d;
-    path {
-      fill: #00407d;
+  &:hover {
+    background-color: transparent;
+    border: 2px solid ${Colors.BLACK};
+    color: ${Colors.BLACK};
+
+    svg {
+      path {
+        fill: ${Colors.BLACK};
+      }
     }
   }
 `;
 
-const BoldHeading = styled.h3`
-  font-weight: 600;
-  padding: 5px 0;
-`;
-
 export function ThemeBetaCard() {
   const dispatch = useDispatch();
-  const shouldShowBetaCard = useSelector(getIsBetaCardShown);
 
   const closeThemeBetaCard = () => {
     dispatch(closeAppThemingBetaCard());
   };
 
   return (
-    <div>
-      {!shouldShowBetaCard && (
-        <ReflowBetaInfoCard>
-          <div>
-            <BoldHeading>
-              {createMessage(APP_THEME_BETA_CARD_HEADING)}
-            </BoldHeading>
-            <div>{createMessage(APP_THEME_BETA_CARD_CONTENT)}</div>
-          </div>
-          <StyledCloseIcon onClick={closeThemeBetaCard} />
-        </ReflowBetaInfoCard>
-      )}
+    <div className="space-y-2">
+      <b>{createMessage(APP_THEME_BETA_CARD_HEADING)}</b>
+      <div>{createMessage(APP_THEME_BETA_CARD_CONTENT)}</div>
+      <div className="flex items-center space-x-2">
+        <Button
+          category={Category.tertiary}
+          size={Size.small}
+          text="Learn more"
+        />
+        <StyledButton
+          category={Category.primary}
+          onClick={closeThemeBetaCard}
+          size={Size.small}
+          text="Got it"
+          variant={Variant.success}
+        />
+      </div>
     </div>
   );
 }

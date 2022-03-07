@@ -93,17 +93,66 @@ const InputComponentWrapper = styled((props) => (
         fill: ${(props) => props.theme.colors.icon?.hover};
       }
     }
-  }
-
-  &&&& .bp3-input-group {
-    display: flex;
-    > {
-      &:first-child:not(input) {
-        position: static;
-        background: ${(props) =>
-          props.disabled ? Colors.GREY_1 : Colors.WHITE};
-        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
-        border-right: 0;
+    .${Classes.INPUT} {
+      min-height: 36px;
+      ${(props) =>
+        props.inputType === InputTypes.CURRENCY &&
+        props.allowCurrencyChange &&
+        `
+      padding-left: 45px;`};
+      ${(props) =>
+        props.inputType === InputTypes.CURRENCY &&
+        !props.allowCurrencyChange &&
+        `
+      padding-left: 35px;`};
+      ${(props) =>
+        props.inputType === InputTypes.PHONE_NUMBER &&
+        `padding-left: 85px;
+        `};
+      box-shadow: none;
+      border: 1px solid;
+      border-radius: 0;
+      height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
+      width: 100%;
+      border-color: ${({ hasError }) => {
+        return hasError
+          ? `${Colors.DANGER_SOLID} !important;`
+          : `${Colors.GREY_3};`;
+      }}
+      ${(props) =>
+        props.numeric &&
+        `
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        ${props.hasError ? "" : "border-right-width: 0px;"}
+      `}
+      ${(props) =>
+        props.inputType === "PASSWORD" &&
+        `
+        & + .bp3-input-action {
+          height: 36px;
+          width: 36px;
+          cursor: pointer;
+          padding: 1px;
+          .password-input {
+            color: ${Colors.GREY_6};
+            justify-content: center;
+            height: 100%;
+            svg {
+              width: 20px;
+              height: 20px;
+            }
+            &:hover {
+              background-color: ${Colors.GREY_2};
+              color: ${Colors.GREY_10};
+            }
+          }
+        }
+      `}
+      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+      &:active {
+        border-color: ${({ hasError }) =>
+          hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
       }
       input:not(:first-child) {
         padding-left: 0px;
@@ -251,9 +300,9 @@ const StyledNumericInput = styled(NumericInput)`
         border-right: 0;
       }
       input:not(:first-child) {
-        padding-left: 0px;
+        <<<<<<<headpadding-left: 0px;
         z-index: 16;
-        line-height: 16px;
+        =======>>>>>>>af5483c7c460a99c00d0152ec39d0a6071395926line-height: 16px;
       }
     }
   }
