@@ -170,11 +170,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             <HeaderSection className="justify-end space-x-2">
               {currentApplicationDetails && (
                 <div className="hidden space-x-2 md:flex">
-                  {!shouldHideComments && (
-                    <div>
-                      <ToggleCommentModeButton />
-                    </div>
-                  )}
+                  {!shouldHideComments && <ToggleCommentModeButton />}
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
                     applicationId={currentApplicationDetails.id}

@@ -236,9 +236,6 @@ export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
     Toaster.show({
       text: createMessage(DELETE_APP_THEME, name),
       variant: Variant.success,
-      actionElement: (
-        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
-      ),
     });
   } catch (error) {
     yield put({

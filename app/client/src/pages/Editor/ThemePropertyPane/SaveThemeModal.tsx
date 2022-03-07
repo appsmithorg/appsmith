@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -23,24 +23,21 @@ function SaveThemeModal(props: SaveThemeModalProps) {
    * dispatches action to save selected theme
    *
    */
-  const onSubmit = useCallback(
-    (event: any) => {
-      event.preventDefault();
+  const onSubmit = (event: any) => {
+    event.preventDefault();
 
-      // if name is empty, don't do anything
-      if (!name) return;
+    // if name is empty, don't do anything
+    if (!name) return;
 
-      AnalyticsUtil.logEvent("APP_THEMING_SAVE_THEME_SUCCESS", {
-        themeName: name,
-      });
+    AnalyticsUtil.logEvent("APP_THEMING_SAVE_THEME_SUCCESS", {
+      themeName: name,
+    });
 
-      dispatch(saveSelectedThemeAction({ applicationId, name }));
+    dispatch(saveSelectedThemeAction({ applicationId, name }));
 
-      // close the modal after submit
-      onClose();
-    },
-    [name],
-  );
+    // close the modal after submit
+    onClose();
+  };
 
   return (
     <Dialog

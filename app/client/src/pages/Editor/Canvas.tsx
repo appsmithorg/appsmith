@@ -84,11 +84,13 @@ const Canvas = memo((props: CanvasProps) => {
   /**
    * background for canvas
    */
-  const backgroundForCanvas = useMemo(() => {
-    if (isPreviewMode) return "initial";
+  let backgroundForCanvas;
 
-    return selectedTheme.properties.colors.backgroundColor;
-  }, [selectedTheme]);
+  if (isPreviewMode) {
+    backgroundForCanvas = "initial";
+  } else {
+    backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
+  }
 
   try {
     return (

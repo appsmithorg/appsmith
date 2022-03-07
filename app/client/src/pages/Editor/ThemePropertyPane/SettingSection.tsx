@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
+import React, { useState } from "react";
 import { Collapse } from "@blueprintjs/core";
-import React, { useCallback, useState } from "react";
 import ArrowRight from "remixicon-react/ArrowRightSLineIcon";
 
 interface SettingSectionProps {
@@ -15,18 +15,11 @@ export function SettingSection(props: SettingSectionProps) {
   const { className = "", collapsible = true } = props;
   const [isOpen, setOpen] = useState(props.isOpen);
 
-  /**
-   * toggles the collapsible section
-   */
-  const toggleCollapse = useCallback(() => {
-    setOpen(!isOpen);
-  }, [setOpen, isOpen]);
-
   return (
-    <div className={`${className}`}>
+    <div className={className}>
       <div
         className={` cursor-pointer flex items-center justify-between capitalize text-base text-gray-800 `}
-        onClick={toggleCollapse}
+        onClick={() => setOpen((isOpen) => !isOpen)}
       >
         <div className="font-normal">{props.title}</div>
         {collapsible && (

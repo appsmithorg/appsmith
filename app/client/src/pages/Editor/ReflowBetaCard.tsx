@@ -26,6 +26,7 @@ import {
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import BetaCard from "components/editorComponents/BetaCard";
 
 const ReflowBetaWrapper = styled.div`
   display: inline-flex;
@@ -122,9 +123,7 @@ export function ReflowBetaCard() {
           label={createMessage(REFLOW_BETA_CHECKBOX_LABEL)}
           onCheckChange={reflowBetaToggle}
         />
-        <div className="py-0.5 px-1 text-xs font-semibold text-gray-700 uppercase border border-gray-700">
-          beta
-        </div>
+        <BetaCard />
       </ReflowBetaWrapper>
       {shouldShowReflowCard && (
         <ReflowBetaInfoCard>

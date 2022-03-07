@@ -8,6 +8,7 @@ import {
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
 } from "@appsmith/constants/messages";
+import DeleteBinLineIcon from "remixicon-react/DeleteBinLineIcon";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;
