@@ -215,6 +215,7 @@ describe("generateDataTreeWidget", () => {
       },
       meta: {
         text: "Tester",
+        isDirty: true,
       },
       triggerPaths: {
         onSubmit: true,

@@ -38,6 +38,7 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -1766,10 +1767,14 @@ public class GitServiceTest {
         Mono<String> commitAndPushMono = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
 
         StepVerifier
-                .create(commitAndPushMono)
-                .assertNext(commitMsg -> {
+                .create(commitAndPushMono.zipWhen(status -> applicationService.findByIdAndBranchName(gitConnectedApplication.getId(), DEFAULT_BRANCH)))
+                .assertNext(tuple -> {
+                    String commitMsg = tuple.getT1();
+                    Application application = tuple.getT2();
                     assertThat(commitMsg).contains("sample response for commit");
                     assertThat(commitMsg).contains("pushed successfully");
+                    assertThat(application.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                    assertThat(application.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
                 })
                 .verifyComplete();
     }
@@ -2513,4 +2518,80 @@ public class GitServiceTest {
     }
 
     // TODO TCs for merge is pending
+    
+    @Test
+    @WithUserDetails(value ="api_user")
+    public void deleteBranch_staleBranchNotInDB_Success() throws IOException {
+        Application application = createApplicationConnectedToGit("deleteBranch_staleBranchNotInDB_Success", "master");
+        application.getGitApplicationMetadata().setDefaultBranchName("master");
+        applicationService.save(application).block();
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "test");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getId()).isEqualTo(application.getId());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value ="api_user")
+    public void deleteBranch_existsInDB_Success() throws IOException {
+        Application application = createApplicationConnectedToGit("deleteBranch_existsInDB_Success", "master");
+        application.getGitApplicationMetadata().setDefaultBranchName("test");
+        applicationService.save(application).block();
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getId()).isEqualTo(application.getId());
+                    assertThat(application1.getDeleted()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteBranch_branchDoesNotExist_ThrowError() throws IOException {
+        Application application = createApplicationConnectedToGit("deleteBranch_branchDoesNotExist_ThrowError", "master");
+        application.getGitApplicationMetadata().setDefaultBranchName("test");
+        applicationService.save(application).block();
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(false));
+
+        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable ->  throwable instanceof AppsmithException &&
+                        throwable.getMessage().contains("delete branch. Branch does not exists in the repo"))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteBranch_defaultBranch_ThrowError() throws IOException {
+        Application application = createApplicationConnectedToGit("deleteBranch_defaultBranch_ThrowError", "master");
+        application.getGitApplicationMetadata().setDefaultBranchName("master");
+        applicationService.save(application).block();
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(false));
+
+        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().contains("Cannot delete default branch"))
+                .verify();
+    }
 }

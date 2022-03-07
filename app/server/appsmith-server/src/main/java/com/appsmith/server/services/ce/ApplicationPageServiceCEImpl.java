@@ -412,9 +412,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {
-        log.debug("Archiving pages for applicationId: {}", application.getId());
-        return Mono.when(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES),
-                        newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+        log.debug("Archiving pages, actions and actionCollections for applicationId: {}", application.getId());
+        return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
+                .then(actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS))
+                .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
                 .thenReturn(application)
                 .flatMap(applicationService::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
@@ -697,16 +698,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
                                 return applicationService.createDefault(application1);
                             })
-                            // duplicate the source application's themes if required i.e. if they were customized
-                            .flatMap(application ->
-                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application.getId())
-                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application.getId()))
-                                            .map(themesZip -> {
-                                                application.setEditModeThemeId(themesZip.getT1().getId());
-                                                application.setPublishedModeThemeId(themesZip.getT2().getId());
-                                                return application;
-                                            })
-                            )
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {
@@ -728,6 +719,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         savedApplication.setPages(clonedPages);
                                         return applicationService.save(savedApplication);
                                     })
+                            )
+                            // duplicate the source application's themes if required i.e. if they were customized
+                            .flatMap(application ->
+                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application)
+                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application))
+                                            .flatMap(themesZip -> {
+                                                String editModeThemeId = themesZip.getT1().getId();
+                                                String publishedModeThemeId = themesZip.getT2().getId();
+                                                application.setEditModeThemeId(editModeThemeId);
+                                                application.setPublishedModeThemeId(publishedModeThemeId);
+                                                return applicationService.setAppTheme(
+                                                        application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
+                                                ).thenReturn(application);
+                                            })
                             );
                 });
 
@@ -842,9 +847,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
 
-        Mono<Theme> publishThemeMono = applicationMono.flatMap(application ->  themeService.publishTheme(
-                application.getEditModeThemeId(), application.getPublishedModeThemeId(), application.getId()
-        ));
+        Mono<Theme> publishThemeMono = applicationMono.flatMap(
+                application ->  themeService.publishTheme(application.getId())
+        );
 
         Flux<NewPage> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
@@ -875,7 +880,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     publishedPageIds.addAll(editedPageIds);
                     publishedPageIds.removeAll(editedPageIds);
 
-                    Mono<List<Boolean>> archivePageListMono;
+                    Mono<List<NewPage>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
                                 .flatMap(id -> commentThreadRepository.archiveByPageId(id, ApplicationMode.PUBLISHED)
@@ -912,9 +917,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Flux<NewAction> publishedActionsFlux = newActionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
                 .flatMap(newAction -> {
-                    // If the action was deleted in edit mode, now this can be safely deleted from the repository
+                    // If the action was deleted in edit mode, now this document can be safely archived
                     if (newAction.getUnpublishedAction().getDeletedAt() != null) {
-                        return newActionService.delete(newAction.getId())
+                        return newActionService.archive(newAction)
                                 .then(Mono.empty());
                     }
                     // Publish the action by copying the unpublished actionDTO to published actionDTO
@@ -929,7 +934,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(collection -> {
                     // If the collection was deleted in edit mode, now this can be safely deleted from the repository
                     if (collection.getUnpublishedCollection().getDeletedAt() != null) {
-                        return actionCollectionService.delete(collection.getId())
+                        return actionCollectionService.archiveById(collection.getId())
                                 .then(Mono.empty());
                     }
                     // Publish the collection by copying the unpublished collectionDTO to published collectionDTO

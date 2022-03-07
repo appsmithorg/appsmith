@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 
 describe("Org name validation spec", function() {
   let orgid;
