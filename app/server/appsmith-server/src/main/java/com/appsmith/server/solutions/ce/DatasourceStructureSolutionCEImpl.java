@@ -131,6 +131,39 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     }
 
     /**
+     * @param datasourceId
+     * @param pluginSpecifiedTemplates
+     * @param ignoreCache
+     * @return
+     */
+    public Mono<DatasourceStructure> getStructure(String datasourceId, List<Property> pluginSpecifiedTemplates, boolean ignoreCache) {
+        return datasourceService.getById(datasourceId)
+                .flatMap(datasource -> getStructure(datasource, ignoreCache))
+                .defaultIfEmpty(new DatasourceStructure())
+                .onErrorMap(
+                        IllegalArgumentException.class,
+                        error ->
+                                new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                        error.getMessage()
+                                )
+                )
+                .onErrorMap(e -> {
+                    if (!(e instanceof AppsmithPluginException)) {
+                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
+                    }
+
+                    return e;
+                })
+                .onErrorResume(error -> {
+                    DatasourceStructure dsStructure = new DatasourceStructure();
+                    dsStructure.setErrorInfo(error);
+                    return Mono.just(dsStructure);
+                });
+    }
+
+
+    /**
      * This function will be used to execute queries on datasource without creating the new action
      * e.g. get all spreadsheets from google drive, fetch 1st row from the table etc
      *
@@ -174,6 +207,4 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                     .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS));
         });
     }
-
-
 }
