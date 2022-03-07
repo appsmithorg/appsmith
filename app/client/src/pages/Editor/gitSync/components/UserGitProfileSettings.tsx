@@ -1,27 +1,23 @@
 import React, { useCallback, useState, useMemo } from "react";
 import { Space } from "./StyledComponents";
 import {
-  createMessage,
-  USER_PROFILE_SETTINGS_TITLE,
-  AUTHOR_NAME,
   AUTHOR_EMAIL,
-  FORM_VALIDATION_INVALID_EMAIL,
+  AUTHOR_NAME,
   AUTHOR_NAME_CANNOT_BE_EMPTY,
+  FORM_VALIDATION_INVALID_EMAIL,
+  USER_PROFILE_SETTINGS_TITLE,
   USE_DEFAULT_CONFIGURATION,
+  createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
 import Checkbox from "components/ads/Checkbox";
-import { GIT_PROFILE_ROUTE } from "constants/routes";
-import history from "utils/history";
 import { Colors } from "constants/Colors";
-import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
 import { useSelector } from "react-redux";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 const LabelContainer = styled.div`
@@ -46,24 +42,6 @@ const InputContainer = styled.div<{ isValid: boolean }>`
 
 const MainContainer = styled.div`
   width: calc(100% - 30px);
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  padding-top: 2px;
-  margin-left: ${(props) => props.theme.spaces[6]}px;
-  cursor: pointer;
-
-  .edit-config-link {
-    font-size: 12px;
-    display: flex;
-    color: ${Colors.GRAY};
-  }
-`;
-
-const IconWrapper = styled.div`
-  margin-left: 2px;
 `;
 
 const DefaultConfigContainer = styled.div`
@@ -124,11 +102,6 @@ type UserGitProfileSettingsProps = {
   useGlobalConfig: boolean;
   toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
   triedSubmit: boolean;
-};
-
-const goToGitProfile = () => {
-  AnalyticsUtil.logEvent("GS_DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK");
-  history.push(GIT_PROFILE_ROUTE);
 };
 
 function UserGitProfileSettings({
@@ -195,12 +168,6 @@ function UserGitProfileSettings({
             label={createMessage(USE_DEFAULT_CONFIGURATION)}
             onCheckChange={toggleUseDefaultConfig}
           />
-          <ButtonWrapper onClick={goToGitProfile}>
-            <span className="edit-config-link">EDIT</span>
-            <IconWrapper>
-              <RightArrow width={14} />
-            </IconWrapper>
-          </ButtonWrapper>
         </DefaultConfigContainer>
       ) : null}
 
