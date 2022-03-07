@@ -5,10 +5,12 @@ import { ControllerProps, useFormContext } from "react-hook-form";
 import { cloneDeep } from "lodash";
 
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
+import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 
 type FieldProps<TValue> = React.PropsWithChildren<
   {
+    accessor: string;
     defaultValue: TValue;
     fieldClassName: string;
     hideLabel?: boolean;
@@ -31,6 +33,7 @@ const StyledWrapper = styled.div<StyledWrapperProps>`
 `;
 
 function Field<TValue>({
+  accessor,
   alignField,
   children,
   defaultValue,
@@ -47,6 +50,8 @@ function Field<TValue>({
 }: FieldProps<TValue>) {
   const refDefaultValue = useRef<TValue>();
   const { setValue } = useFormContext();
+
+  useUpdateAccessor({ accessor });
 
   useEffect(() => {
     if (!equal(refDefaultValue.current, defaultValue)) {

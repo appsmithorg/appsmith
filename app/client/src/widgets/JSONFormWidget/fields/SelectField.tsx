@@ -203,6 +203,7 @@ function SelectField({
 
   return (
     <Field
+      accessor={schemaItem.accessor}
       defaultValue={defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}

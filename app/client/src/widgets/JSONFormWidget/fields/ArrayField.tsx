@@ -10,6 +10,7 @@ import FieldRenderer from "./FieldRenderer";
 import FormContext from "../FormContext";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import useDeepEffect from "utils/hooks/useDeepEffect";
+import useUpdateAccessor from "./useObserveAccessor";
 import {
   ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
@@ -115,6 +116,8 @@ function ArrayField({
   const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
     defaultValue,
   );
+
+  useUpdateAccessor({ accessor: schemaItem.accessor });
 
   const { setMetaInternalFieldState } = useContext(FormContext);
 

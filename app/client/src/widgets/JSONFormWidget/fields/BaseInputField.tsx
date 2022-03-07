@@ -11,6 +11,7 @@ import { useController } from "react-hook-form";
 import Field from "../component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useBlurAndFocusEvents";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
@@ -29,7 +30,6 @@ import {
 import BaseInputComponent, {
   InputHTMLType,
 } from "widgets/BaseInputWidget/component";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -307,6 +307,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
 
   return (
     <Field
+      accessor={schemaItem.accessor}
       defaultValue={inputDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}

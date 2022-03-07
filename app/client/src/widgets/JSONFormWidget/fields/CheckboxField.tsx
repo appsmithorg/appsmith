@@ -117,6 +117,7 @@ function CheckboxField({
 
   return (
     <Field
+      accessor={schemaItem.accessor}
       alignField={schemaItem.alignWidget}
       defaultValue={schemaItem.defaultValue ?? passedDefaultValue}
       fieldClassName={fieldClassName}

@@ -7,6 +7,7 @@ import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
 import FieldRenderer from "./FieldRenderer";
 import NestedFormWrapper from "../component/NestedFormWrapper";
+import useUpdateAccessor from "./useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import {
   BaseFieldComponentProps,
@@ -61,6 +62,7 @@ function ObjectField({
   schemaItem,
 }: ObjectFieldProps) {
   const {
+    accessor,
     backgroundColor,
     cellBackgroundColor,
     cellBorderColor,
@@ -68,6 +70,8 @@ function ObjectField({
     label,
     tooltip,
   } = schemaItem;
+
+  useUpdateAccessor({ accessor });
 
   const objectPassedDefaultValue = useMemo(() => {
     let defaultValue: Record<string, unknown> = {};

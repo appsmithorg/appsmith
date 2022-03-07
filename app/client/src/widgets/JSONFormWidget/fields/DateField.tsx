@@ -211,6 +211,7 @@ function DateField({
 
   return (
     <Field
+      accessor={schemaItem.accessor}
       defaultValue={defaultDateValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}

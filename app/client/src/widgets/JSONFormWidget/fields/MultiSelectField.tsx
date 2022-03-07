@@ -243,6 +243,7 @@ function MultiSelectField({
 
   return (
     <Field
+      accessor={schemaItem.accessor}
       defaultValue={fieldDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={isRequired}

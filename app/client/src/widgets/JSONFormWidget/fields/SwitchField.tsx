@@ -101,6 +101,7 @@ function SwitchField({
 
   return (
     <Field
+      accessor={schemaItem.accessor}
       defaultValue={schemaItem.defaultValue ?? passedDefaultValue}
       fieldClassName={fieldClassName}
       inlineLabel

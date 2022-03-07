@@ -163,7 +163,19 @@ describe("JSON Form Widget Unicode keys", () => {
 
     const expectedInitialFormData = sourceData;
 
-    const updatedFormData = {
+    const formDataBeforeArrayAccessorChange = {
+      "नाम नाम": "John",
+      суроға: {
+        "شارع1 شارع": "Koramangala",
+      },
+      การศึกษา: [
+        {
+          କଲେଜ: "MIT",
+        },
+      ],
+    };
+
+    const formDataAfterArrayAccessorChange = {
       "नाम नाम": "John",
       суроға: {
         "شارع1 شارع": "Koramangala",
@@ -206,6 +218,12 @@ describe("JSON Form Widget Unicode keys", () => {
       .click({ force: true })
       .wait(500);
 
+    // Validate initial form data
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
+      const formData = JSON.parse($el.text());
+      cy.wrap(formData).should("deep.equal", formDataBeforeArrayAccessorChange);
+    });
+
     // open field การศึกษา -> array item -> କଲେଜ
     cy.openFieldConfiguration("xn__12ca5huag4ce3a");
     cy.openFieldConfiguration("__array_item__");
@@ -217,7 +235,7 @@ describe("JSON Form Widget Unicode keys", () => {
     // Validate initial form data
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
       const formData = JSON.parse($el.text());
-      cy.wrap(formData).should("deep.equal", updatedFormData);
+      cy.wrap(formData).should("deep.equal", formDataAfterArrayAccessorChange);
     });
   });
 });
