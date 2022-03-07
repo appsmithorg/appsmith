@@ -1426,6 +1426,8 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(gitStatusDTO));
         Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
                 .thenReturn(Mono.just("fetched"));
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
 
         Mono<GitPullDTO> applicationMono = gitService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
@@ -1486,6 +1488,8 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatusDTO));
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
 
         Mono<GitPullDTO> applicationMono = gitService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
