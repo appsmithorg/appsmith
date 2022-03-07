@@ -8,9 +8,6 @@ import { Classes } from "@blueprintjs/core";
 const TriggerButton = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
   height: 100%;
-  svg {
-    transform: rotate(-90deg);
-  }
 `;
 
 const StyledDialog = styled(Dialog)`
