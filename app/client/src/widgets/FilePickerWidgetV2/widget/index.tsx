@@ -213,8 +213,8 @@ class FilePickerWidget extends BaseWidget<
         children: [
           {
             propertyName: "buttonColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background",
+            helpText: "Changes the color of the button",
+            label: "Button Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
