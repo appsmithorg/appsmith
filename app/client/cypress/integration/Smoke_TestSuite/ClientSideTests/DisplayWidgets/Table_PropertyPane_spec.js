@@ -209,12 +209,14 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     // Changing Column data type from "Date" to "URl"
-    cy.readTabledataPublish("1", "1").then(() => {
+    cy.readTabledataPublish("1", "1").then((actualEmail) => {
       cy.changeColumnType("URL");
       // "Image" to "url"
       cy.updateComputedValue(testdata.currentRowEmail);
       cy.readTabledataPublish("1", "0").then((tabData2) => {
-        expect(tabData2).not.to.equal("lindsay.ferguson@reqres.in");
+        expect(tabData2)
+          .to.equal("lindsay.ferguson@reqres.in")
+          .to.eq(actualEmail);
         cy.log("computed value of URL is " + tabData2);
       });
     });

@@ -202,7 +202,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("ListingAndReviews");
+    //cy.actionContextMenuByEntityName("listingAndReviews");
   });
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
@@ -213,7 +213,9 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .find(explorer.collapse)
       .first()
       .click();
+    cy.wait(2000); //for Mongo DB to expand!
     cy.xpath(queryLocators.listingAndReviewContext).click({ force: true });
+
     cy.xpath("//div[text()='Find']")
       .click()
       .wait(100); //wait for Find form to open

@@ -230,7 +230,7 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click();
     cy.wait("@updateLayout");
-    cy.wait(2000);
+    cy.wait(4000);
     // Verify the cell background color is green
     cy.readTabledataValidateCSS(
       "1",
@@ -243,6 +243,7 @@ describe("Table Widget property pane feature validation", function() {
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");
+    cy.wait(4000);
     // Verify the cell background color is purple
     cy.readTabledataValidateCSS(
       "1",
