@@ -2061,6 +2061,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, gitApplicationMetadata.getRepoName());
+                    if(branchName.equals(gitApplicationMetadata.getDefaultBranchName())) {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch", "Cannot delete default branch"));
+                    }
                     return gitExecutor.deleteBranch(repoPath, branchName)
                             .flatMap(isBranchDeleted -> {
                                 if(Boolean.FALSE.equals(isBranchDeleted)) {
