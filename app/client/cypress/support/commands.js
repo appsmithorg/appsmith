@@ -1721,9 +1721,9 @@ Cypress.Commands.add("editColumn", (colId) => {
 
 Cypress.Commands.add(
   "readTabledataValidateCSS",
-  (rowNum, colNum, cssProperty, cssValue, shouldNotGotOneLeveDeeper) => {
+  (rowNum, colNum, cssProperty, cssValue, shouldGoOneLeveDeeper) => {
     const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      !shouldNotGotOneLeveDeeper ? "div" : ""
+      shouldGoOneLeveDeeper ? "div" : ""
     }`;
     cy.get(selector).should("have.css", cssProperty, cssValue);
   },
@@ -3067,10 +3067,10 @@ Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
 
 Cypress.Commands.add(
   "readTabledataPublish",
-  (rowNum, colNum, shouldNotGotOneLeveDeeper) => {
+  (rowNum, colNum, shouldGotOneLeveDeeper) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
     const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      !shouldNotGotOneLeveDeeper ? "div" : ""
+      shouldGotOneLeveDeeper ? "div" : ""
     }`;
     const tabVal = cy.get(selector).invoke("text");
     return tabVal;
