@@ -93,13 +93,13 @@ beforeEach(function() {
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
+  //-- Delete local storage data of entity explorer
+  cy.DeleteEntityStateLocalStorage();
 });
 
 after(function() {
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   //-- LogOut Application---//
-  //-- Delete local storage data of entity explorer
-  cy.DeleteEntityStateLocalStorage();
   cy.LogOut();
 });
