@@ -1,0 +1,5 @@
+{
+    "templatesTab": ".t--templates-tab",
+    "templateForkButton": ".t--fork-template",
+    "dialogForkButton": ".t--fork-template-button"
+}
