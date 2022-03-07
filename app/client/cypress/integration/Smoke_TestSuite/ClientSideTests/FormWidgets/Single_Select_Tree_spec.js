@@ -41,6 +41,28 @@ describe("MultiSelectTree Widget Functionality", function() {
     ).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
+
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{SingleSelectTree1.isDirty}}`,
+    );
+    // Change defaultText
+    cy.openPropertyPane("singleselecttreewidget");
+    cy.updateCodeInput(".t--property-control-defaultvalue", "GREEN");
+    cy.closePropertyPane();
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(
+      `${formWidgetsPage.singleselecttreeWidget} ${formWidgetsPage.treeSelectInput}`,
+    )
+      .clear()
+      .type("BLUE{downArrow}{enter}");
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+  });
 });
 afterEach(() => {
   // put your clean up code if any

@@ -179,6 +179,7 @@ class SwitchGroupWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedValuesArray: undefined,
+      isDirty: false,
     };
   }
 

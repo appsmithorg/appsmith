@@ -100,4 +100,26 @@ describe("Switch Group Widget Functionality", function() {
       this.data.ModalName,
     );
   });
+
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{switchgrouptest.isDirty}}`,
+    );
+    // Change defaultSelectedValues
+    cy.openPropertyPane("switchgroupwidget");
+    cy.updateCodeInput(
+      ".t--property-control-defaultselectedvalues",
+      `[\n"BLUE"\n]`,
+    );
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(formWidgetsPage.labelSwitchGroup)
+      .first()
+      .click();
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+  });
 });

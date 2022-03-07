@@ -29,5 +29,13 @@
 	"retries": {
 		"runMode": 2,
 		"openMode": 0
+	},
+	"env": {
+		"USERNAME": "paul@appsmith.com",
+		"PASSWORD": "paul1234",
+		"TESTUSERNAME1": "paul@appsmith.com",
+		"TESTPASSWORD1": "paul1234",
+		"TESTUSERNAME2": "paul@appsmith.com",
+		"TESTPASSWORD2": "paul1234"
 	}
 }

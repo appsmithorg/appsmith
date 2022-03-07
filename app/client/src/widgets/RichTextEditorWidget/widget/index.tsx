@@ -130,9 +130,7 @@ class RichTextEditorWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
-      defaultTextHtml: undefined,
-      defaultTextMarkdown: undefined,
-      isDefaultTextChanged: false,
+      shouldReset: true,
       isDirty: false,
     };
   }
@@ -155,27 +153,15 @@ class RichTextEditorWidget extends BaseWidget<
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
       }
-      this.props.updateWidgetMetaProperty("isDefaultTextChanged", true);
+      this.props.updateWidgetMetaProperty("shouldReset", true);
     }
   }
 
   onValueChange = (text: string) => {
-    if (!(this.props.isDefaultTextChanged || this.props.isDirty)) {
+    if (this.props.shouldReset) {
+      this.props.updateWidgetMetaProperty("shouldReset", false);
+    } else if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-    if (
-      this.props.inputType === RTEFormats.HTML &&
-      (!this.props.defaultTextHtml || this.props.isDefaultTextChanged)
-    ) {
-      this.props.updateWidgetMetaProperty("defaultTextHtml", text);
-      this.props.updateWidgetMetaProperty("isDefaultTextChanged", false);
-    }
-    if (
-      this.props.inputType === RTEFormats.MARKDOWN &&
-      (!this.props.defaultTextMarkdown || this.props.isDefaultTextChanged)
-    ) {
-      this.props.updateWidgetMetaProperty("defaultTextMarkdown", text);
-      this.props.updateWidgetMetaProperty("isDefaultTextChanged", false);
     }
 
     this.props.updateWidgetMetaProperty("text", text, {

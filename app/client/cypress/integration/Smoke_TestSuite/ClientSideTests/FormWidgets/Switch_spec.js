@@ -86,6 +86,24 @@ describe("Switch Widget Functionality", function() {
     cy.get(publish.switchwidget + " " + ".bp3-align-left").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
+
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{Toggler.isDirty}}`);
+    // Change defaultSwitchState property
+    cy.openPropertyPane("switchwidget");
+    cy.get(".t--property-control-defaultselected label")
+      .last()
+      .click();
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(`${formWidgetsPage.switchWidget} label`)
+      .first()
+      .click();
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+  });
 });
 afterEach(() => {
   // put your clean up code if any
