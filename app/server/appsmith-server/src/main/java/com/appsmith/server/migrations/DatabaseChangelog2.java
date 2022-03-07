@@ -110,12 +110,12 @@ public class DatabaseChangelog2 {
     public void addArangoDBPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("GraphQL");
-        plugin.setType(PluginType.DB); // TODO: make it API
+        plugin.setType(PluginType.API);
         plugin.setPackageName("graphql-plugin");
-        plugin.setUiComponent("DbEditorForm"); // TODO: make it ApiEditorForm
-        plugin.setDatasourceComponent("AutoForm"); // TODO: make it GraphQLDatasourceFOrm
+        plugin.setUiComponent("ApiEditorForm"); // TODO: make it ApiEditorForm -> GraphQLEditorForm
+        plugin.setDatasourceComponent("AutoForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg"); // TODO: upload
+        plugin.setIconLocation("https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg"); // TODO: update
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-graphql-db");
         plugin.setDefaultInstall(true);
         try {
