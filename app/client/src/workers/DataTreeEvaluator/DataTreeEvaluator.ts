@@ -547,8 +547,8 @@ export default class DataTreeEvaluator {
     }
     if (isJSAction(entity)) {
       // making functions dependent on their function body entities
-      if (entity.bindingPaths) {
-        Object.keys(entity.bindingPaths).forEach((propertyPath) => {
+      if (entity.reactivePaths) {
+        Object.keys(entity.reactivePaths).forEach((propertyPath) => {
           const existingDeps =
             dependencies[`${entityName}.${propertyPath}`] || [];
           const jsSnippets = [_.get(entity, propertyPath)];
@@ -614,7 +614,7 @@ export default class DataTreeEvaluator {
           }
           if (requiresEval) {
             const evaluationSubstitutionType =
-              entity.bindingPaths[propertyPath] ||
+              entity.reactivePaths[propertyPath] ||
               EvaluationSubstitutionType.TEMPLATE;
 
             const contextData: EvaluateContext = {};
@@ -1470,7 +1470,7 @@ export default class DataTreeEvaluator {
           continue;
         }
         const parentPropertyPath = convertPathToString(d.path);
-        Object.keys(entity.bindingPaths).forEach((relativePath) => {
+        Object.keys(entity.reactivePaths).forEach((relativePath) => {
           const childPropertyPath = `${entityName}.${relativePath}`;
           if (isChildPropertyPath(parentPropertyPath, childPropertyPath)) {
             changePaths.add(childPropertyPath);

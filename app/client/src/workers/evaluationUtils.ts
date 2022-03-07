@@ -95,7 +95,7 @@ export function getEntityNameAndPropertyPath(
 
 //these paths are not required to go through evaluate tree as these are internal properties
 const ignorePathsForEvalRegex =
-  ".(bindingPaths|triggerPaths|validationPaths|dynamicBindingPathList)";
+  ".(reactivePaths|triggerPaths|validationPaths|dynamicBindingPathList)";
 
 //match if paths are part of ignorePathsForEvalRegex
 const isUninterestingChangeForDependencyUpdate = (path: string) => {
@@ -569,7 +569,7 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
-    relativePropertyPath in entity.bindingPaths ||
+    relativePropertyPath in entity.reactivePaths ||
     (isWidget(entity) && relativePropertyPath in entity.triggerPaths)
   );
 };
@@ -598,9 +598,10 @@ export const updateJSCollectionInDataTree = (
           );
         }
       } else {
-        const bindingPaths = jsCollection.bindingPaths;
-        bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
-        _.set(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
+        const reactivePaths = jsCollection.reactivePaths;
+        reactivePaths[action.name] =
+          EvaluationSubstitutionType.SMART_SUBSTITUTE;
+        _.set(modifiedDataTree, `${jsCollection}.reactivePaths`, reactivePaths);
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
         _.set(
@@ -629,12 +630,12 @@ export const updateJSCollectionInDataTree = (
         (js: ParsedJSSubAction) => js.name === preAction,
       );
       if (!existed) {
-        const bindingPaths = jsCollection.bindingPaths;
-        delete bindingPaths[preAction];
+        const reactivePaths = jsCollection.reactivePaths;
+        delete reactivePaths[preAction];
         _.set(
           modifiedDataTree,
-          `${jsCollection.name}.bindingPaths`,
-          bindingPaths,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
         );
         let dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList = dynamicBindingPathList.filter(
@@ -727,12 +728,12 @@ export const removeFunctionsAndVariableJSCollection = (
   }
   //remove functions
   let dynamicBindingPathList = entity.dynamicBindingPathList;
-  const bindingPaths = entity.bindingPaths;
+  const reactivePaths = entity.reactivePaths;
   const meta = entity.meta;
   let dependencyMap = entity.dependencyMap["body"];
   for (let i = 0; i < functionsList.length; i++) {
     const actionName = functionsList[i];
-    delete bindingPaths[actionName];
+    delete reactivePaths[actionName];
     delete meta[actionName];
     delete modifiedDataTree[`${entity.name}`][`${actionName}`];
     dynamicBindingPathList = dynamicBindingPathList.filter(
@@ -740,7 +741,7 @@ export const removeFunctionsAndVariableJSCollection = (
     );
     dependencyMap = dependencyMap.filter((item: any) => item !== actionName);
   }
-  _.set(modifiedDataTree, `${entity.name}.bindingPaths`, bindingPaths);
+  _.set(modifiedDataTree, `${entity.name}.reactivePaths`, reactivePaths);
   _.set(
     modifiedDataTree,
     `${entity.name}.dynamicBindingPathList`,

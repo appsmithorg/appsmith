@@ -12,14 +12,14 @@ export const generateDataTreeJSAction = (
 ): DataTreeJSAction => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
-  const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
+  const reactivePaths: Record<string, EvaluationSubstitutionType> = {};
   const variableList: Record<string, any> = {};
   const variables = js.config.variables;
   const listVariables: Array<string> = [];
   dynamicBindingPathList.push({ key: "body" });
   const reg = /this\./g;
   const removeThisReference = js.config.body.replace(reg, `${js.config.name}.`);
-  bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+  reactivePaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
@@ -37,7 +37,7 @@ export const generateDataTreeJSAction = (
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
       };
-      bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      reactivePaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
     }
@@ -50,7 +50,7 @@ export const generateDataTreeJSAction = (
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
     body: removeThisReference,
     meta: meta,
-    bindingPaths: bindingPaths,
+    reactivePaths: reactivePaths,
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
     dependencyMap: dependencyMap,

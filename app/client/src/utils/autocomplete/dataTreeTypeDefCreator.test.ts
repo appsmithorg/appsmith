@@ -28,7 +28,7 @@ describe("dataTreeTypeDefCreator", () => {
       bottomRow: 2,
       isLoading: false,
       version: 1,
-      bindingPaths: {
+      reactivePaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {

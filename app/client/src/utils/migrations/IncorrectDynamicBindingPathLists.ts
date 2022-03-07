@@ -14,13 +14,13 @@ export const migrateIncorrectDynamicBindingPathLists = (
   const propertyPaneConfig = WidgetFactory.getWidgetPropertyPaneConfig(
     currentDSL.type,
   );
-  const { bindingPaths } = getAllPathsFromPropertyConfig(
+  const { reactivePaths } = getAllPathsFromPropertyConfig(
     currentDSL,
     propertyPaneConfig,
     {},
   );
 
-  Object.keys(bindingPaths).forEach((bindingPath) => {
+  Object.keys(reactivePaths).forEach((bindingPath) => {
     const pathValue = _.get(migratedDsl, bindingPath);
     if (pathValue && _.isString(pathValue)) {
       if (isDynamicValue(pathValue)) {

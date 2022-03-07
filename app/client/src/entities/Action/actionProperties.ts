@@ -22,29 +22,29 @@ const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
   return EvaluationSubstitutionType.TEMPLATE;
 };
 
-export const getBindingPathsOfAction = (
+export const getReactivePathsOfAction = (
   action: Action,
   formConfig?: any[],
 ): Record<string, EvaluationSubstitutionType> => {
-  const bindingPaths: Record<string, EvaluationSubstitutionType> = {
+  const reactivePaths: Record<string, EvaluationSubstitutionType> = {
     data: EvaluationSubstitutionType.TEMPLATE,
     isLoading: EvaluationSubstitutionType.TEMPLATE,
     datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
   };
   if (!formConfig) {
     return {
-      ...bindingPaths,
+      ...reactivePaths,
       config: EvaluationSubstitutionType.TEMPLATE,
     };
   }
-  const recursiveFindBindingPaths = (formConfig: any) => {
+  const recursiveFindReactivePaths = (formConfig: any) => {
     if (formConfig.children) {
-      formConfig.children.forEach(recursiveFindBindingPaths);
+      formConfig.children.forEach(recursiveFindReactivePaths);
     } else {
       const configPath = getDataTreeActionConfigPath(formConfig.configProperty);
       if (dynamicFields.includes(formConfig.controlType)) {
         if (!isHidden(action, formConfig.hidden)) {
-          bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
+          reactivePaths[configPath] = getCorrectEvaluationSubstitutionType(
             formConfig.evaluationSubstitutionType,
           );
         }
@@ -59,7 +59,7 @@ export const getBindingPathsOfAction = (
                 dynamicFields.includes(schemaField.controlType)
               ) {
                 const arrayConfigPath = `${configPath}[${i}].${schemaField.key}`;
-                bindingPaths[
+                reactivePaths[
                   arrayConfigPath
                 ] = getCorrectEvaluationSubstitutionType(
                   formConfig.evaluationSubstitutionType,
@@ -69,7 +69,7 @@ export const getBindingPathsOfAction = (
           }
         }
       } else if (formConfig.controlType === "WHERE_CLAUSE") {
-        const recursiveFindBindingPathsForWhereClause = (
+        const recursiveFindReactivePathsForWhereClause = (
           newConfigPath: string,
           actionValue: any,
         ) => {
@@ -84,7 +84,7 @@ export const getBindingPathsOfAction = (
                 WhereClauseSubComponent.Children,
                 index,
               );
-              recursiveFindBindingPathsForWhereClause(childrenPath, value);
+              recursiveFindReactivePathsForWhereClause(childrenPath, value);
             });
           } else {
             if (actionValue.hasOwnProperty("key")) {
@@ -93,7 +93,7 @@ export const getBindingPathsOfAction = (
                 WhereClauseSubComponent.Key,
                 undefined,
               );
-              bindingPaths[keyPath] = getCorrectEvaluationSubstitutionType(
+              reactivePaths[keyPath] = getCorrectEvaluationSubstitutionType(
                 formConfig.evaluationSubstitutionType,
               );
             }
@@ -103,7 +103,7 @@ export const getBindingPathsOfAction = (
                 WhereClauseSubComponent.Value,
                 undefined,
               );
-              bindingPaths[valuePath] = getCorrectEvaluationSubstitutionType(
+              reactivePaths[valuePath] = getCorrectEvaluationSubstitutionType(
                 formConfig.evaluationSubstitutionType,
               );
             }
@@ -122,7 +122,7 @@ export const getBindingPathsOfAction = (
               WhereClauseSubComponent.Children,
               index,
             );
-            recursiveFindBindingPathsForWhereClause(childrenPath, value);
+            recursiveFindReactivePathsForWhereClause(childrenPath, value);
           });
         }
       } else if (formConfig.controlType === "PAGINATION") {
@@ -134,10 +134,10 @@ export const getBindingPathsOfAction = (
           PaginationSubComponent.Limit,
           configPath,
         );
-        bindingPaths[limitPath] = getCorrectEvaluationSubstitutionType(
+        reactivePaths[limitPath] = getCorrectEvaluationSubstitutionType(
           formConfig.evaluationSubstitutionType,
         );
-        bindingPaths[offsetPath] = getCorrectEvaluationSubstitutionType(
+        reactivePaths[offsetPath] = getCorrectEvaluationSubstitutionType(
           formConfig.evaluationSubstitutionType,
         );
       } else if (formConfig.controlType === "SORTING") {
@@ -149,7 +149,7 @@ export const getBindingPathsOfAction = (
               configPath,
               index,
             );
-            bindingPaths[columnPath] = getCorrectEvaluationSubstitutionType(
+            reactivePaths[columnPath] = getCorrectEvaluationSubstitutionType(
               formConfig.evaluationSubstitutionType,
             );
             const OrderPath = getBindingOrConfigPathsForSortingControl(
@@ -157,7 +157,7 @@ export const getBindingPathsOfAction = (
               configPath,
               index,
             );
-            bindingPaths[OrderPath] = getCorrectEvaluationSubstitutionType(
+            reactivePaths[OrderPath] = getCorrectEvaluationSubstitutionType(
               formConfig.evaluationSubstitutionType,
             );
           });
@@ -170,7 +170,7 @@ export const getBindingPathsOfAction = (
                 configPath,
                 index,
               );
-              bindingPaths[columnPath] = getCorrectEvaluationSubstitutionType(
+              reactivePaths[columnPath] = getCorrectEvaluationSubstitutionType(
                 formConfig.evaluationSubstitutionType,
               );
             }
@@ -179,8 +179,8 @@ export const getBindingPathsOfAction = (
       }
     }
   };
-  formConfig.forEach(recursiveFindBindingPaths);
-  return bindingPaths;
+  formConfig.forEach(recursiveFindReactivePaths);
+  return reactivePaths;
 };
 
 export const getBindingOrConfigPathsForSortingControl = (

@@ -229,7 +229,7 @@ const BASE_WIDGET: DataTreeWidget = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  bindingPaths: {},
+  reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
@@ -254,7 +254,7 @@ const BASE_ACTION: DataTreeAction = {
   data: {},
   responseMeta: { isExecutionSuccess: false },
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
-  bindingPaths: {
+  reactivePaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
     data: EvaluationSubstitutionType.TEMPLATE,
   },
@@ -334,7 +334,7 @@ describe("DataTreeEvaluator", () => {
       defaultText: "Default value",
       widgetName: "Input1",
       type: "INPUT_WIDGET_V2",
-      bindingPaths: {
+      reactivePaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
         isValid: EvaluationSubstitutionType.TEMPLATE,
         value: EvaluationSubstitutionType.TEMPLATE,
@@ -406,7 +406,7 @@ describe("DataTreeEvaluator", () => {
         text: "{{Table1.selectedRow.test}}",
         dynamicBindingPathList: [{ key: "text" }],
         type: "TEXT_WIDGET",
-        bindingPaths: {
+        reactivePaths: {
           text: EvaluationSubstitutionType.TEMPLATE,
         },
         validationPaths: {
@@ -485,7 +485,7 @@ describe("DataTreeEvaluator", () => {
           },
         ],
         type: "SELECT_WIDGET",
-        bindingPaths: {
+        reactivePaths: {
           options: EvaluationSubstitutionType.TEMPLATE,
           defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
           isRequired: EvaluationSubstitutionType.TEMPLATE,
@@ -599,8 +599,8 @@ describe("DataTreeEvaluator", () => {
         dependencyMap: {
           "config.body": ["config.pluginSpecifiedTemplates[0].value"],
         },
-        bindingPaths: {
-          ...BASE_ACTION.bindingPaths,
+        reactivePaths: {
+          ...BASE_ACTION.reactivePaths,
           "config.body": EvaluationSubstitutionType.TEMPLATE,
         },
         config: {
@@ -646,8 +646,8 @@ describe("DataTreeEvaluator", () => {
       ...updatedTree2,
       Api2: {
         ...updatedTree2.Api2,
-        bindingPaths: {
-          ...updatedTree2.Api2.bindingPaths,
+        reactivePaths: {
+          ...updatedTree2.Api2.reactivePaths,
           "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
         },
         config: {

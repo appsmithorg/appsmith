@@ -884,7 +884,7 @@ export function purgeOrphanedDynamicPaths(widget: WidgetProps) {
     );
   }
   if (widget.dynamicBindingPathList && widget.dynamicBindingPathList.length) {
-    // Filter out all the paths from the dynamicBindingPaths which don't exist in the widget
+    // Filter out all the paths from the dynamicReactivePaths which don't exist in the widget
     widget.dynamicBindingPathList = widget.dynamicBindingPathList.filter(
       (path: DynamicPath) => {
         // Use lodash _.has to check if the path exists in the widget

@@ -15,7 +15,7 @@ describe("Add functions", () => {
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
       name: "action1",
-      bindingPaths: {},
+      reactivePaths: {},
       isLoading: false,
       run: {},
       clear: {},

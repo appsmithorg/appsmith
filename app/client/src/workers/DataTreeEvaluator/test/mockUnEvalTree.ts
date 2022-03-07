@@ -25,7 +25,7 @@ export const unEvalTree = {
     meta: {},
     propertyOverrideDependency: {},
     overridingPropertyPaths: {},
-    bindingPaths: {},
+    reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
     ENTITY_TYPE: "WIDGET",
@@ -66,7 +66,7 @@ export const unEvalTree = {
     meta: {},
     propertyOverrideDependency: {},
     overridingPropertyPaths: {},
-    bindingPaths: {
+    reactivePaths: {
       recaptchaToken: "TEMPLATE",
       text: "TEMPLATE",
       tooltip: "TEMPLATE",
@@ -164,7 +164,7 @@ export const unEvalTree = {
     meta: {},
     propertyOverrideDependency: {},
     overridingPropertyPaths: {},
-    bindingPaths: {
+    reactivePaths: {
       recaptchaToken: "TEMPLATE",
       text: "TEMPLATE",
       tooltip: "TEMPLATE",

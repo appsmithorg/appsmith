@@ -117,7 +117,7 @@ describe("getAllPathsFromPropertyConfig", () => {
     const config = tablePropertyPaneConfig;
 
     const expected = {
-      bindingPaths: {
+      reactivePaths: {
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
         tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -503,7 +503,7 @@ describe("getAllPathsFromPropertyConfig", () => {
     const config = chartPorpertyConfig;
 
     const expected = {
-      bindingPaths: {
+      reactivePaths: {
         chartType: EvaluationSubstitutionType.TEMPLATE,
         chartName: EvaluationSubstitutionType.TEMPLATE,
         "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,

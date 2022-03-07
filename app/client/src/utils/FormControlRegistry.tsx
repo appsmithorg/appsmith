@@ -48,7 +48,7 @@ import EntitySelectorControl, {
 
 /**
  * NOTE: If you are adding a component that uses FormControl
- * then add logic for creating bindingPaths in recursiveFindBindingPaths() at entities/Action/actionProperties.ts
+ * then add logic for creating reactivePaths in recursiveFindReactivePaths() at entities/Action/actionProperties.ts
  */
 class FormControlRegistry {
   static registerFormControlBuilders() {

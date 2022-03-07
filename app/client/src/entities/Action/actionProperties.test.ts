@@ -1,5 +1,5 @@
 import { Action, PluginType } from "entities/Action/index";
-import { getBindingPathsOfAction } from "entities/Action/actionProperties";
+import { getReactivePathsOfAction } from "entities/Action/actionProperties";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const DEFAULT_ACTION: Action = {
@@ -21,9 +21,9 @@ const DEFAULT_ACTION: Action = {
   pluginType: PluginType.DB,
 };
 
-describe("getBindingPathsOfAction", () => {
+describe("getReactivePathsOfAction", () => {
   it("returns default list of no config is sent", () => {
-    const response = getBindingPathsOfAction(DEFAULT_ACTION, undefined);
+    const response = getReactivePathsOfAction(DEFAULT_ACTION, undefined);
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -73,7 +73,7 @@ describe("getBindingPathsOfAction", () => {
       },
     };
 
-    const response = getBindingPathsOfAction(basicAction, config);
+    const response = getReactivePathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -139,7 +139,7 @@ describe("getBindingPathsOfAction", () => {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const response = getBindingPathsOfAction(basicAction, config);
+    const response = getReactivePathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -195,7 +195,7 @@ describe("getBindingPathsOfAction", () => {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const response = getBindingPathsOfAction(basicAction, config);
+    const response = getReactivePathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -205,7 +205,7 @@ describe("getBindingPathsOfAction", () => {
     });
   });
 
-  it("checks for hidden field and returns bindingPaths accordingly", () => {
+  it("checks for hidden field and returns reactivePaths accordingly", () => {
     const config = [
       {
         sectionName: "",
@@ -252,7 +252,7 @@ describe("getBindingPathsOfAction", () => {
       },
     };
 
-    const response = getBindingPathsOfAction(basicAction, config);
+    const response = getReactivePathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -263,7 +263,7 @@ describe("getBindingPathsOfAction", () => {
 
     basicAction.actionConfiguration.template.setting = true;
 
-    const response2 = getBindingPathsOfAction(basicAction, config);
+    const response2 = getReactivePathsOfAction(basicAction, config);
     expect(response2).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
