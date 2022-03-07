@@ -113,17 +113,27 @@ describe("Input widget V2 - ", () => {
     cy.get(".t--property-control-required label")
       .last()
       .click({ force: true });
-    cy.get(
-      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
-    ).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("{{ Input1.text }}");
+    // Set onSubmit action, storing value
+    cy.get(".t--property-control-onsubmit")
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(
+      ".t--property-control-onsubmit",
+      "{{storeValue('textPayloadOnSubmit',Input1.text)}}",
+    );
+    // Bind to stored value above
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      "{{appsmith.store.textPayloadOnSubmit}}",
+    );
+    cy.closePropertyPane();
     cy.get(widgetInput).clear();
     cy.wait(300);
     // Input text and hit enter key
     cy.get(widgetInput).type("test{enter}");
-    // Assert if the toast message contains the whole value, test
-    cy.get(".Toastify__toast-body span").should("have.text", "test");
+    // Assert if the Text widget contains the whole value, test
+    cy.get(".t--widget-textwidget").should("have.text", "test");
   });
 
   function enterAndTest(text, expected) {

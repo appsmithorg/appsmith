@@ -334,8 +334,18 @@ class BaseInputWidget<
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
     if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
-      // In case users quickly type input text followed by hitting enter and using super.executeAction to trigger ON_SUBMIT action, they encounters an issue which they only get part of the input because the action is triggered before text meta property is updated.
-      // That's why we need to use updateWidgetMetaProperty to trigger the action with the up-to-date payload.
+      /**
+       * Originally super.executeAction was used to trigger the ON_SUBMIT action and
+       * updateMetaProperty to update the text.
+       * Since executeAction is not queued and updateMetaProperty is,
+       * the user would observe that the data tree only gets partially updated with text
+       * before the ON_SUBMIT would get triggered,
+       * if they type {enter} really fast after typing some input text.
+       * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
+       * before we actually execute the action.
+       * Since updateMetaProperty expects a meta property to be updated,
+       * we are redundantly updating the text here. But the main part is the action execution payload.
+       */
       this.props.updateWidgetMetaProperty("text", this.props.text, {
         triggerPropertyName: "onSubmit",
         dynamicString: onSubmit,
