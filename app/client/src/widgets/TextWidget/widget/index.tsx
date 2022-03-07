@@ -292,25 +292,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
         ],
       },
     ];
@@ -321,10 +302,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       <TextComponent
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
-        borderRadius={this.props.borderRadius}
         borderWidth={this.props.borderWidth}
         bottomRow={this.props.bottomRow}
-        boxShadow={this.props.boxShadow}
         disableLink={this.props.disableLink || false}
         fontFamily={this.props.fontFamily}
         fontSize={this.props.fontSize}
@@ -372,14 +351,12 @@ export interface TextWidgetProps extends WidgetProps, TextStyles {
   shouldScroll: boolean;
   shouldTruncate: boolean;
   disableLink: boolean;
-  boxShadow?: string;
 
   widgetId: string;
   containerStyle?: ContainerStyle;
   children?: ReactNode;
   borderColor?: Color;
   borderWidth?: number;
-  borderRadius: string;
 }
 
 export default TextWidget;

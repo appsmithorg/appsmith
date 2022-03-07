@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";

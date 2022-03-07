@@ -1,6 +1,6 @@
 import { ButtonVariantTypes } from "components/constants";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import { escapeSpecialChars } from "./WidgetUtils";
+import { escapeSpecialChars, lightenColor } from "./WidgetUtils";
 import {
   getCustomTextColor,
   getCustomBackgroundColor,
@@ -133,5 +133,29 @@ hello! how are you?
     const result = escapeSpecialChars(testString);
     const expectedResult = "a\nb\nc\nhello! how are you?\n";
     expect(result).toStrictEqual(expectedResult);
+  });
+
+  it("Check if the color is lightened with lightenColor utility", () => {
+    /**
+     * Colors with :
+     *   0% brightness = #000000,
+     * > 40% brightness = #696969
+     * > 50% brightness = #8a8a8a
+     * > 60% brightness = #b0b0b0
+     * > 70% brightness = #d6d4d4
+     */
+
+    const actualColors = [
+      "#000000",
+      "#696969",
+      "#8a8a8a",
+      "#b0b0b0",
+      "#d6d4d4",
+    ];
+    const lightColors = ["#a6a6a6", "#dcdcdc", "#e3e3e3", "#f0f0f0", "#bdbaba"];
+
+    actualColors.forEach((color, idx) => {
+      expect(lightenColor(color)).toEqual(lightColors[idx]);
+    });
   });
 });

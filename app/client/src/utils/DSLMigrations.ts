@@ -1535,6 +1535,20 @@ export const migrateFilterValueForDropDownWidget = (
 export const migrateStylingPropertiesForTheming = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
+  const widgetsWithPrimaryColorProp = [
+    "DATE_PICKER_WIDGET2",
+    "INPUT_WIDGET",
+    "LIST_WIDGET",
+    "MULTI_SELECT_TREE_WIDGET",
+    "DROP_DOWN_WIDGET",
+    "TABS_WIDGET",
+    "SINGLE_SELECT_TREE_WIDGET",
+    "TABLE_WIDGET",
+    "BUTTON_GROUP_WIDGET",
+    "PHONE_INPUT_WIDGET",
+    "CURRENCY_INPUT_WIDGET",
+  ];
+
   currentDSL.children = currentDSL.children?.map((child) => {
     // migrate border radius
     switch (child.borderRadius) {
@@ -1579,50 +1593,42 @@ export const migrateStylingPropertiesForTheming = (
     }
 
     // migrate font size
-    switch (child.fontSize) {
-      case TextSizes.PARAGRAPH2:
-        child.fontSize = "0.75rem";
-        break;
-      case TextSizes.PARAGRAPH:
-        child.fontSize = "0.875rem";
-        break;
-      case TextSizes.HEADING3:
-        child.fontSize = "1rem";
-        break;
-      case TextSizes.HEADING2:
-        child.fontSize = "1.125rem";
-        break;
-      case TextSizes.HEADING1:
-        child.fontSize = "1.5rem";
-        break;
+    if (child.type === "TEXT_WIDGET") {
+      switch (child.fontSize) {
+        case TextSizes.PARAGRAPH2:
+          child.fontSize = "0.75rem";
+          break;
+        case TextSizes.PARAGRAPH:
+          child.fontSize = "0.875rem";
+          break;
+        case TextSizes.HEADING3:
+          child.fontSize = "1rem";
+          break;
+        case TextSizes.HEADING2:
+          child.fontSize = "1.125rem";
+          break;
+        case TextSizes.HEADING1:
+          child.fontSize = "1.5rem";
+          break;
 
-      default:
-        child.boxShadow = "none";
+        default:
+          child.fontSize = "1rem";
+      }
     }
 
-    // add primaryColor color to missing widgets
-    if (
-      [
-        "DATE_PICKER_WIDGET2",
-        "INPUT_WIDGET",
-        "LIST_WIDGET",
-        "MULTI_SELECT_TREE_WIDGET",
-        "DROP_DOWN_WIDGET",
-        "TABS_WIDGET",
-        "SINGLE_SELECT_TREE_WIDGET",
-        "TABLE_WIDGET",
-        "BUTTON_GROUP_WIDGET",
-      ].indexOf(child.type) > -1
-    ) {
+    /**
+     * Add primaryColor color to missing widgets
+     */
+    if (widgetsWithPrimaryColorProp.includes(child.type)) {
       child.primaryColor = "{{appsmith.theme.colors.primaryColor}}";
 
-      const findIndex = (child.dynamicBindingPathList || []).findIndex(
+      const resultantElement = (child.dynamicBindingPathList || []).find(
         (bindingPath) => {
           return bindingPath.key === "primaryColor";
         },
       );
 
-      if (findIndex > -1 === false) {
+      if (!resultantElement) {
         child.dynamicBindingPathList = [
           ...(child.dynamicBindingPathList || []),
           {
@@ -1643,7 +1649,9 @@ export const migrateStylingPropertiesForTheming = (
 
     if (
       child.type === "CHECKBOX_WIDGET" ||
-      child.type === "CHECKBOX_GROUP_WIDGET"
+      child.type === "CHECKBOX_GROUP_WIDGET" ||
+      child.type === "SWITCH_WIDGET" ||
+      child.type === "SWITCH_GROUP_WIDGET"
     ) {
       child.backgroundColor = Colors.GREEN;
     }
