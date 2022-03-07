@@ -1721,7 +1721,7 @@ Cypress.Commands.add("editColumn", (colId) => {
 
 Cypress.Commands.add(
   "readTabledataValidateCSS",
-  (rowNum, colNum, cssProperty, cssValue, shouldGoOneLeveDeeper) => {
+  (rowNum, colNum, cssProperty, cssValue, shouldGoOneLeveDeeper = false) => {
     const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
       shouldGoOneLeveDeeper ? "div" : ""
     }`;
@@ -3067,7 +3067,7 @@ Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
 
 Cypress.Commands.add(
   "readTabledataPublish",
-  (rowNum, colNum, shouldGotOneLeveDeeper) => {
+  (rowNum, colNum, shouldGotOneLeveDeeper = false) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
     const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
       shouldGotOneLeveDeeper ? "div" : ""
