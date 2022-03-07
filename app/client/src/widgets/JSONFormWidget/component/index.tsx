@@ -133,7 +133,7 @@ function JSONFormComponent<TValues>({
         </InfoMessage>
       );
     }
-    if (isEmpty(schema)) {
+    if (isSchemaEmpty) {
       return (
         <InfoMessage>
           Connect data or paste JSON to add items to this form.
@@ -143,6 +143,8 @@ function JSONFormComponent<TValues>({
 
     return renderRootField();
   })();
+
+  const hideFooter = fieldLimitExceeded || isSchemaEmpty;
 
   return (
     <FormContextProvider
@@ -158,6 +160,7 @@ function JSONFormComponent<TValues>({
           backgroundColor={backgroundColor}
           disabledWhenInvalid={rest.disabledWhenInvalid}
           fixedFooter={rest.fixedFooter}
+          hideFooter={hideFooter}
           isSubmitting={isSubmitting}
           onSubmit={rest.onSubmit}
           resetButtonStyles={rest.resetButtonStyles}

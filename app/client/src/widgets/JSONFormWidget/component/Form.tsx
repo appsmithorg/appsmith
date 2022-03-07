@@ -19,10 +19,11 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
   disabledWhenInvalid?: boolean;
   fixedFooter: boolean;
+  hideFooter: boolean;
   isSubmitting: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   resetButtonStyles: ButtonStyleProps;
-  schema: Schema;
+  schema?: Schema;
   scrollContents: boolean;
   showReset: boolean;
   stretchBodyVertically: boolean;
@@ -127,6 +128,7 @@ function Form<TValues = any>({
   children,
   disabledWhenInvalid,
   fixedFooter,
+  hideFooter,
   isSubmitting,
   onSubmit,
   resetButtonStyles,
@@ -148,7 +150,8 @@ function Form<TValues = any>({
 
   useEffect(() => {
     const debouncedUpdateFormData = debounce(updateFormData, 300);
-    if (schema[ROOT_SCHEMA_KEY]) {
+
+    if (schema && schema[ROOT_SCHEMA_KEY]) {
       const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
 
       debouncedUpdateFormData(defaultValues as TValues);
@@ -188,7 +191,9 @@ function Form<TValues = any>({
 
   const onReset = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault();
-    const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
+    const defaultValues = schema
+      ? schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY])
+      : {};
 
     if (typeof defaultValues === "object") {
       reset(defaultValues);
@@ -206,30 +211,32 @@ function Form<TValues = any>({
           <StyledTitle>{title}</StyledTitle>
           {children}
         </StyledFormBody>
-        <StyledFormFooter
-          backgroundColor={backgroundColor}
-          fixedFooter={fixedFooter}
-          ref={footerRef}
-        >
-          {showReset && (
-            <StyledResetButtonWrapper>
-              <Button
-                {...resetButtonStyles}
-                onClick={onReset}
-                text="Reset"
-                type="reset"
-              />
-            </StyledResetButtonWrapper>
-          )}
-          <Button
-            {...submitButtonStyles}
-            disabled={disabledWhenInvalid && isFormInValid}
-            loading={isSubmitting}
-            onClick={onSubmit}
-            text="Submit"
-            type="submit"
-          />
-        </StyledFormFooter>
+        {!hideFooter && (
+          <StyledFormFooter
+            backgroundColor={backgroundColor}
+            fixedFooter={fixedFooter}
+            ref={footerRef}
+          >
+            {showReset && (
+              <StyledResetButtonWrapper>
+                <Button
+                  {...resetButtonStyles}
+                  onClick={onReset}
+                  text="Reset"
+                  type="reset"
+                />
+              </StyledResetButtonWrapper>
+            )}
+            <Button
+              {...submitButtonStyles}
+              disabled={disabledWhenInvalid && isFormInValid}
+              loading={isSubmitting}
+              onClick={onSubmit}
+              text="Submit"
+              type="submit"
+            />
+          </StyledFormFooter>
+        )}
       </StyledForm>
     </FormProvider>
   );
