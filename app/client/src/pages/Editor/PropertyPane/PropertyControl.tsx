@@ -50,6 +50,7 @@ const PropertyControl = memo((props: Props) => {
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
     props.dependencies,
+    props.evaluatedDependencies,
   );
 
   const widgetProperties: WidgetProperties = useSelector(

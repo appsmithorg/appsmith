@@ -139,9 +139,9 @@ const COMMON_PROPERTIES = {
   ],
   customField: [
     {
+      propertyName: "accessor",
       helpText:
         "Sets the key which can be used to access the particular field.",
-      propertyName: "accessor",
       label: "Accessor",
       controlType: "INPUT_TEXT",
       placeholderText: "name",
@@ -170,8 +170,8 @@ const COMMON_PROPERTIES = {
   ],
   accessibility: [
     {
-      helpText: "Sets the label text of the field",
       propertyName: "label",
+      helpText: "Sets the label text of the field",
       label: "Label",
       controlType: "INPUT_TEXT",
       placeholderText: "Name:",
@@ -182,8 +182,8 @@ const COMMON_PROPERTIES = {
       dependencies: ["schema", "sourceData"],
     },
     {
-      propertyName: "isRequired",
       label: "Required",
+      propertyName: "isRequired",
       helpText: "Makes input to the widget mandatory",
       controlType: "SWITCH",
       isJSConvertible: true,
@@ -204,8 +204,8 @@ const COMMON_PROPERTIES = {
       dependencies: ["schema", "sourceData"],
     },
     {
-      helpText: "Controls the visibility of the field",
       propertyName: "isVisible",
+      helpText: "Controls the visibility of the field",
       label: "Visible",
       controlType: "SWITCH",
       defaultValue: true,
@@ -218,8 +218,8 @@ const COMMON_PROPERTIES = {
       dependencies: ["schema", "sourceData"],
     },
     {
-      helpText: "Disables the field",
       propertyName: "isDisabled",
+      helpText: "Disables the field",
       label: "Disabled",
       controlType: "SWITCH",
       isJSConvertible: true,
@@ -232,8 +232,8 @@ const COMMON_PROPERTIES = {
       updateHook: updateChildrenDisabledStateHook,
     },
     {
-      helpText: "Show help text or details about current field",
       propertyName: "tooltip",
+      helpText: "Show help text or details about current field",
       label: "Tooltip",
       controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "Passwords must be at-least 6 chars",

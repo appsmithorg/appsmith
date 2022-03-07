@@ -303,9 +303,9 @@ export default [
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
+        propertyName: "autoGenerateForm",
         helpText:
           "CAUTION!!! When auto generate form is enabled, the form fields would regenerate if there is any change of source data (keys change or value type changes eg from string to number). If disabled then the fields and their configuration won't change with the change of source data.",
-        propertyName: "autoGenerateForm",
         label: "Auto Generate Form",
         controlType: "SWITCH",
         isJSConvertible: true,
@@ -324,12 +324,8 @@ export default [
         onClick: onGenerateFormClick,
         disabled: generateFormCTADisabled,
         isTriggerProperty: false,
-        dependencies: [
-          "autoGenerateForm",
-          "schema",
-          "sourceData",
-          "fieldLimitExceeded",
-        ],
+        dependencies: ["autoGenerateForm", "schema", "fieldLimitExceeded"],
+        evaluatedDependencies: ["sourceData"],
       },
       {
         propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,
@@ -342,9 +338,9 @@ export default [
         dependencies: ["schema"],
       },
       {
+        propertyName: "disabledWhenInvalid",
         helpText:
           "Disables the submit button when the parent form has a required widget that is not filled",
-        propertyName: "disabledWhenInvalid",
         label: "Disabled Invalid Forms",
         controlType: "SWITCH",
         isJSConvertible: true,
@@ -393,8 +389,8 @@ export default [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {
-        helpText: "Show/Hide reset form button",
         propertyName: "showReset",
+        helpText: "Show/Hide reset form button",
         label: "Show Reset",
         controlType: "SWITCH",
         isJSConvertible: true,
@@ -408,8 +404,8 @@ export default [
     sectionName: "Actions",
     children: [
       {
-        helpText: "Triggers an action when the submit button is clicked",
         propertyName: "onSubmit",
+        helpText: "Triggers an action when the submit button is clicked",
         label: "onSubmit",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
@@ -423,9 +419,9 @@ export default [
     isDefaultOpen: false,
     children: [
       {
+        propertyName: "backgroundColor",
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        propertyName: "backgroundColor",
         label: "Background Colour",
         controlType: "COLOR_PICKER",
         isBindProperty: true,
@@ -433,9 +429,9 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
+        propertyName: "borderColor",
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        propertyName: "borderColor",
         label: "Border Colour",
         controlType: "COLOR_PICKER",
         isBindProperty: true,
@@ -443,8 +439,8 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
-        helpText: "Enter value for border width",
         propertyName: "borderWidth",
+        helpText: "Enter value for border width",
         label: "Border Width",
         placeholderText: "Enter value in px",
         controlType: "INPUT_TEXT",
@@ -453,8 +449,8 @@ export default [
         validation: { type: ValidationTypes.NUMBER },
       },
       {
-        helpText: "Enter value for border radius",
         propertyName: "borderRadius",
+        helpText: "Enter value for border radius",
         label: "Border Radius",
         placeholderText: "Enter value in px",
         controlType: "INPUT_TEXT",

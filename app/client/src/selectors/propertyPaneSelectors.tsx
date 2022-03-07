@@ -95,7 +95,7 @@ const getAndSetPath = (from: any, to: any, path: string) => {
 const populateEvaluatedWidgetProperties = (
   evaluatedWidget: DataTreeWidget,
   propertyPath: string,
-  dependencies: string[] = [],
+  evaluatedDependencies: string[] = [],
 ) => {
   if (!evaluatedWidget || !evaluatedWidget[EVALUATION_PATH]) return;
 
@@ -106,7 +106,7 @@ const populateEvaluatedWidgetProperties = (
     evaluatedValues: {},
   };
 
-  [propertyPath, ...dependencies].forEach((path) => {
+  [propertyPath, ...evaluatedDependencies].forEach((path) => {
     getAndSetPath(
       evaluatedWidgetPath?.errors,
       evaluatedProperties.errors,
@@ -125,6 +125,7 @@ const populateEvaluatedWidgetProperties = (
 export const getWidgetPropsForPropertyName = (
   propertyName: string,
   dependencies: string[] = [],
+  evaluatedDependencies: string[] = [],
 ) => {
   return createSelector(
     getCurrentWidgetProperties,
@@ -146,7 +147,7 @@ export const getWidgetPropsForPropertyName = (
       widgetProperties[EVALUATION_PATH] = populateEvaluatedWidgetProperties(
         evaluatedWidget,
         propertyName,
-        dependencies,
+        evaluatedDependencies,
       );
 
       return widgetProperties;

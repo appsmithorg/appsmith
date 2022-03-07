@@ -63,6 +63,7 @@ export type PropertyPaneControlConfig = {
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
+  evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
 };
 
