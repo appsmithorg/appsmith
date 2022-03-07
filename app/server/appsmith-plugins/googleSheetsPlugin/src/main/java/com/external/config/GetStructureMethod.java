@@ -74,7 +74,11 @@ public class GetStructureMethod implements Method {
     }
 
     private List<String> validateInputs(MethodConfig methodConfig) {
+        // Setting default values
+        int rowOffset = 0;
+        int rowLimit = 1; //Get header and next row for types
         int tableHeaderIndex = 1;
+
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
@@ -85,31 +89,10 @@ public class GetStructureMethod implements Method {
                 // Should have already been caught
             }
         }
-        if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            int rowOffset = 0;
-            try {
-                rowOffset = Integer.parseInt(methodConfig.getRowOffset());
-            } catch (NumberFormatException e) {
-                // Should have already been caught
-            }
-            int rowLimit = 1;
-            try {
-                rowLimit = Integer.parseInt(methodConfig.getRowLimit());
-                return List.of(
-                        "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
-                        "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset + 1) + ":" + (tableHeaderIndex + rowOffset + rowLimit));
 
-            } catch (NumberFormatException e) {
-                // Should have already been caught
-            }
-        } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            Matcher matcher = findAllRowsPattern.matcher(methodConfig.getSpreadsheetRange());
-            matcher.find();
-            return List.of(
-                    "'" + methodConfig.getSheetName() + "'!" + matcher.group(1) + tableHeaderIndex + ":" + matcher.group(2) + tableHeaderIndex,
-                    "'" + methodConfig.getSheetName() + "'!" + methodConfig.getSpreadsheetRange());
-        }
-        return List.of();
+        return List.of(
+                "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
+                "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset + 1) + ":" + (tableHeaderIndex + rowOffset + rowLimit));
     }
 
     @Override

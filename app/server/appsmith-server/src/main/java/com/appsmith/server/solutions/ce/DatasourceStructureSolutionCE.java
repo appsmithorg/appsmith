@@ -14,8 +14,6 @@ public interface DatasourceStructureSolutionCE {
 
     Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache);
 
-    Mono<DatasourceStructure> getStructure(String datasourceId, List<Property> pluginSpecifiedTemplates, boolean ignoreCache);
-
     Mono<ActionExecutionResult> getDatasourceMetadata(String datasourceId, List<Property> pluginSpecifiedTemplates);
 
 }
