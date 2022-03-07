@@ -9,7 +9,7 @@ import { Icon, IconSize } from "components/ads";
 
 const AccordionWrapper = styled.div`
   margin-top: 40px;
-  max-width: 634px;
+  max-width: 40rem;
 `;
 
 const AccordionHeader = styled(StyledLabel)`
