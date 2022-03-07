@@ -17,7 +17,6 @@ import _, {
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { renderIconButton } from "../component/TableUtilities";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
@@ -61,15 +60,16 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
-import { renderCell } from "../component/renderHelpers/cellRenderer";
-import { renderButton } from "../component/renderHelpers/buttonRenderer";
-import { renderDropdown } from "../component/renderHelpers/dropdownRenderer";
+import { renderDefault } from "../component/renderHelpers/DefaultRenderer";
+import { renderButton } from "../component/renderHelpers/ButtonRenderer";
+import { renderDropdown } from "../component/renderHelpers/DropdownRenderer";
 import {
   renderMenuButton,
   RenderMenuButtonProps,
-} from "../component/renderHelpers/menuButtonRenderer";
-import { renderImage } from "../component/renderHelpers/imageRenderer";
-import { renderVideo } from "../component/renderHelpers/videoRenders";
+} from "../component/renderHelpers/MenuButtonRenderer";
+import { renderImage } from "../component/renderHelpers/ImageRenderer";
+import { renderVideo } from "../component/renderHelpers/VideoRenders";
+import { renderIconButton } from "../component/renderHelpers/IconButtonRenderer";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -298,7 +298,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               });
 
             default:
-              return renderCell({
+              return renderDefault({
                 value: props.cell.value,
                 columnType: column.columnType,
                 isHidden: isHidden,
