@@ -135,15 +135,16 @@ function SingleSelectTreeComponent({
   const onClear = useCallback(() => onChange([], []), []);
 
   const clearButton = useMemo(
-    () => (
-      <Button
-        disabled={disabled}
-        icon="cross"
-        minimal
-        onClick={() => setFilter("")}
-      />
-    ),
-    [],
+    () =>
+      filter ? (
+        <Button
+          disabled={disabled}
+          icon="cross"
+          minimal
+          onClick={() => setFilter("")}
+        />
+      ) : null,
+    [filter],
   );
   const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -174,7 +175,7 @@ function SingleSelectTreeComponent({
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
             placeholder="Filter..."
-            rightElement={clearButton}
+            rightElement={clearButton as JSX.Element}
             small
             type="text"
             value={filter}

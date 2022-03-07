@@ -92,15 +92,16 @@ function MultiSelectComponent({
   const labelRef = useRef<HTMLInputElement>(null);
 
   const clearButton = useMemo(
-    () => (
-      <Button
-        disabled={disabled}
-        icon="cross"
-        minimal
-        onClick={() => setFilter("")}
-      />
-    ),
-    [],
+    () =>
+      filter ? (
+        <Button
+          disabled={disabled}
+          icon="cross"
+          minimal
+          onClick={() => setFilter("")}
+        />
+      ) : null,
+    [filter],
   );
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -213,7 +214,7 @@ function MultiSelectComponent({
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
             placeholder="Filter..."
-            rightElement={clearButton}
+            rightElement={clearButton as JSX.Element}
             small
             type="text"
             value={filter}

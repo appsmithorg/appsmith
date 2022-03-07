@@ -128,15 +128,16 @@ function MultiTreeSelectComponent({
   }, [expandAll]);
 
   const clearButton = useMemo(
-    () => (
-      <Button
-        disabled={disabled}
-        icon="cross"
-        minimal
-        onClick={() => setFilter("")}
-      />
-    ),
-    [],
+    () =>
+      filter ? (
+        <Button
+          disabled={disabled}
+          icon="cross"
+          minimal
+          onClick={() => setFilter("")}
+        />
+      ) : null,
+    [filter],
   );
 
   const getDropdownPosition = useCallback(() => {
@@ -176,7 +177,7 @@ function MultiTreeSelectComponent({
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
             placeholder="Filter..."
-            rightElement={clearButton}
+            rightElement={clearButton as JSX.Element}
             small
             type="text"
             value={filter}
