@@ -66,7 +66,7 @@ export const config: AdminConfigType = {
         if (value) {
           return "Don't share any data";
         } else {
-          return "Share Anonymous Telemetry";
+          return " Share Anonymous Telemetry";
         }
       },
     },

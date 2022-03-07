@@ -26,15 +26,18 @@ function FieldToggleWithToggleText(toggleText?: (value: boolean) => string) {
     },
   ) {
     function onToggle(value?: boolean) {
-      ComponentProps.input.onChange && ComponentProps.input.onChange(value);
-      ComponentProps.input.onBlur && ComponentProps.input.onBlur(value);
+      ComponentProps.input.onChange && ComponentProps.input.onChange(!value);
+      ComponentProps.input.onBlur && ComponentProps.input.onBlur(!value);
     }
+    /* Value = !ENV_VARIABLE
+    This has been done intentionally as naming convention used contains the word disabled but the UI should show the button enabled by default.
+    */
     return (
       <ToggleWrapper>
-        <Toggle onToggle={onToggle} value={ComponentProps.input.value} />
+        <Toggle onToggle={onToggle} value={!ComponentProps.input.value} />
         <ToggleStatus>
           {typeof toggleText == "function"
-            ? createMessage(() => toggleText(ComponentProps.input.value))
+            ? createMessage(() => toggleText(!ComponentProps.input.value))
             : ComponentProps.input.value
             ? createMessage(() => "Enabled")
             : createMessage(() => "Disabled")}
