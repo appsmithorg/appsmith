@@ -228,15 +228,25 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
             if(defaultPageOptional.isPresent()) {
                 ApplicationPage defaultPage = defaultPageOptional.get();
-                Optional<NewPage> newPageDetails = applicationPageMap.get(application.getId()).stream()
-                        .filter(newPage -> newPage.getId().equals(defaultPage.getId()))
-                        .findFirst();
+                Collection<NewPage> pages = applicationPageMap.get(application.getId());
+                if(!CollectionUtils.isEmpty(pages)) {
+                    Optional<NewPage> newPageDetails = pages.stream()
+                            .filter(newPage -> newPage.getId().equals(defaultPage.getId()))
+                            .findFirst();
 
-                if(newPageDetails.isPresent()) {
-                    NewPage newPage = newPageDetails.get();
-                    defaultPage.setSlug(getPage.apply(newPage).getSlug());
+                    if(newPageDetails.isPresent()) {
+                        NewPage newPage = newPageDetails.get();
+                        PageDTO pageDTO = getPage.apply(newPage);
+                        if(pageDTO != null) {
+                            defaultPage.setSlug(pageDTO.getSlug());
+                        } else {
+                            log.error("page dto missing for application {} page {}", application.getId(), defaultPage.getId());
+                        }
+                    } else {
+                        log.error("page not found for application id {}, page id {}", application.getId(), defaultPage.getId());
+                    }
                 } else {
-                    log.error("page not found for application id {}, page id {}", application.getId(), defaultPage.getId());
+                    log.error("no page found for application {}", application.getId());
                 }
             }
         }

@@ -96,6 +96,7 @@ import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -215,8 +216,22 @@ export function* deleteDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
   try {
+    const datasource = shouldBeDefined<Datasource>(
+      yield select(getDatasource, actionPayload.payload.id),
+      `Action Payload id ${actionPayload.payload.id} is missing from Datasource`,
+    );
+
+    const modalPayload = {
+      name: datasource?.name,
+      modalOpen: true,
+      modalType: ModalType.DELETE_DATASOURCE,
+    };
+
     // request confirmation from user before deleting datasource.
-    const confirmed: boolean = yield call(requestModalConfirmationSaga);
+    const confirmed: boolean = yield call(
+      requestModalConfirmationSaga,
+      modalPayload,
+    );
 
     if (!confirmed) {
       const actionRepsonse: unknown = yield put({

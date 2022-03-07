@@ -34,7 +34,7 @@ export const WidgetTypeFactories: Record<string, any> = {
   DATE_PICKER_WIDGET: OldDatepickerFactory,
   DATE_PICKER_WIDGET2: DatepickerFactory,
   TABLE_WIDGET: TableFactory,
-  DROP_DOWN_WIDGET: DropdownFactory,
+  SELECT_WIDGET: DropdownFactory,
   CHECKBOX_WIDGET: CheckboxFactory,
   RADIO_GROUP_WIDGET: RadiogroupFactory,
   TABS_WIDGET: TabsFactory,

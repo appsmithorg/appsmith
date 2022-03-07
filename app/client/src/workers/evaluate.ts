@@ -23,6 +23,7 @@ export type EvalResult = {
 export enum EvaluationScriptType {
   EXPRESSION = "EXPRESSION",
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
+  ASYNC_ANONYMOUS_FUNCTION = "ASYNC_ANONYMOUS_FUNCTION",
   TRIGGERS = "TRIGGERS",
 }
 
@@ -44,6 +45,14 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   }
   callback(${ScriptTemplate})
   `,
+  [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
+  async function callback (script) {
+    const userFunction = script;
+    const result = await userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return result;
+  }
+  callback(${ScriptTemplate})
+  `,
   [EvaluationScriptType.TRIGGERS]: `
   async function closedFunction () {
     const result = await ${ScriptTemplate};
@@ -58,9 +67,11 @@ const getScriptType = (
   isTriggerBased = false,
 ): EvaluationScriptType => {
   let scriptType = EvaluationScriptType.EXPRESSION;
-  if (evalArgumentsExist) {
+  if (evalArgumentsExist && isTriggerBased) {
+    scriptType = EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION;
+  } else if (evalArgumentsExist && !isTriggerBased) {
     scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
-  } else if (isTriggerBased) {
+  } else if (isTriggerBased && !evalArgumentsExist) {
     scriptType = EvaluationScriptType.TRIGGERS;
   }
   return scriptType;

@@ -39,7 +39,10 @@ import {
   setCurrentStep,
   toggleLoader,
 } from "actions/onboardingActions";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
 import WidgetFactory from "utils/WidgetFactory";
@@ -69,6 +72,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { User } from "constants/userConstants";
+import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
+import { shouldBeDefined } from "utils/helpers";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -263,6 +269,7 @@ function* updateWidgetTextSaga() {
               text: "Click to Update",
               rightColumn: buttonWidget.leftColumn + 24,
               bottomRow: buttonWidget.topRow + 5,
+              widgetName: GuidedTourEntityNames.BUTTON_WIDGET,
             },
           },
         },
@@ -290,11 +297,18 @@ function* selectWidgetSaga(
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId = shouldBeDefined<string>(
+    yield select(getCurrentPageId),
+    "Page not found in state.entities.pageList.currentPageId",
+  );
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
   });
 
   if (widget) {
+    // Navigate to the widget as well, usefull especially when we are not on the canvas
+    navigateToCanvas({ applicationId, pageId, widgetId: widget.widgetId });
     yield put(selectWidgetInitAction(widget.widgetId));
     // Delay to wait for the fields to render
     yield delay(1000);

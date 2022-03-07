@@ -239,6 +239,7 @@ export default function Merge() {
       <Row>
         <Dropdown
           className={Classes.MERGE_DROPDOWN}
+          containerClassName={"t--merge-branch-dropdown-destination"}
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
@@ -279,6 +280,7 @@ export default function Merge() {
       ) : (
         showMergeButton && (
           <Button
+            className="t--git-merge-button"
             disabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}

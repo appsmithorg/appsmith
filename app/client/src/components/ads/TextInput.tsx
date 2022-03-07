@@ -74,6 +74,7 @@ export type TextInputProps = CommonComponentProps & {
   trimValue?: boolean;
   $padding?: string;
   useTextArea?: boolean;
+  isCopy?: boolean;
 };
 
 type boxReturnType = {
@@ -300,7 +301,7 @@ const TextInput = forwardRef(
     const [isFocused, setIsFocused] = useState(false);
     const [inputValue, setInputValue] = useState(props.defaultValue);
 
-    const { trimValue = true } = props;
+    const { trimValue = false } = props;
 
     const setRightSideRef = useCallback((ref: HTMLDivElement) => {
       if (ref) {

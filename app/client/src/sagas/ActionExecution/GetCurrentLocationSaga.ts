@@ -73,7 +73,7 @@ function* successCallbackHandler() {
       if (callback) {
         yield call(executeAppAction, {
           dynamicString: callback,
-          responseData: [currentLocation],
+          callbackData: [currentLocation],
           event: { type: eventType },
           triggerPropertyName: triggerMeta.triggerPropertyName,
           source: triggerMeta.source,
@@ -92,7 +92,7 @@ function* errorCallbackHandler() {
       if (callback) {
         yield call(executeAppAction, {
           dynamicString: callback,
-          responseData: [error],
+          callbackData: [error],
           event: { type: eventType },
           triggerPropertyName: triggerMeta.triggerPropertyName,
           source: triggerMeta.source,

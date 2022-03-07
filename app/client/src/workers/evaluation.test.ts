@@ -66,27 +66,20 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     metaProperties: {},
   },
-  DROP_DOWN_WIDGET: {
+  SELECT_WIDGET: {
     defaultProperties: {
-      selectedOptionValue: "defaultOptionValue",
-      selectedOptionValueArr: "defaultOptionValue",
+      selectedOption: "defaultOptionValue",
+      filterText: "",
     },
     derivedProperties: {
-      isValid:
-        "{{this.isRequired ? this.selectionType === 'SINGLE_SELECT' ? !!this.selectedOption : !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}",
-      selectedOption:
-        "{{ this.selectionType === 'SINGLE_SELECT' ? _.find(this.options, { value:  this.selectedOptionValue }) : undefined}}",
-      selectedOptionArr:
-        '{{this.selectionType === "MULTI_SELECT" ? this.options.filter(opt => _.includes(this.selectedOptionValueArr, opt.value)) : undefined}}',
-      selectedIndex:
-        "{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}",
-      selectedIndexArr:
-        "{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}",
-      value:
-        "{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}",
-      selectedOptionValues: "{{ this.selectedOptionValueArr }}",
+      selectedOptionLabel: `{{_.isPlainObject(this.selectedOption) ? this.selectedOption?.label : this.selectedOption}}`,
+      selectedOptionValue: `{{_.isPlainObject(this.selectedOption) ? this.selectedOption?.value : this.selectedOption}}`,
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
     },
-    metaProperties: {},
+    metaProperties: {
+      selectedOption: undefined,
+      filterText: "",
+    },
   },
   RADIO_GROUP_WIDGET: {
     defaultProperties: {
@@ -278,25 +271,25 @@ const mockDerived = jest.spyOn(WidgetFactory, "getWidgetDerivedPropertiesMap");
 const dependencyMap = {
   Dropdown1: [
     "Dropdown1.defaultOptionValue",
+    "Dropdown1.filterText",
     "Dropdown1.isValid",
-    "Dropdown1.selectedIndex",
-    "Dropdown1.selectedIndexArr",
+    "Dropdown1.meta",
     "Dropdown1.selectedOption",
-    "Dropdown1.selectedOptionArr",
+    "Dropdown1.selectedOptionLabel",
     "Dropdown1.selectedOptionValue",
-    "Dropdown1.selectedOptionValueArr",
-    "Dropdown1.selectedOptionValues",
-    "Dropdown1.value",
   ],
   "Dropdown1.isValid": [],
-  "Dropdown1.selectedIndex": [],
-  "Dropdown1.selectedIndexArr": [],
-  "Dropdown1.selectedOption": [],
-  "Dropdown1.selectedOptionArr": [],
-  "Dropdown1.selectedOptionValue": ["Dropdown1.defaultOptionValue"],
-  "Dropdown1.selectedOptionValueArr": ["Dropdown1.defaultOptionValue"],
-  "Dropdown1.selectedOptionValues": [],
-  "Dropdown1.value": [],
+  "Dropdown1.filterText": ["Dropdown1.meta.filterText"],
+  "Dropdown1.meta": [
+    "Dropdown1.meta.filterText",
+    "Dropdown1.meta.selectedOption",
+  ],
+  "Dropdown1.selectedOption": [
+    "Dropdown1.defaultOptionValue",
+    "Dropdown1.meta.selectedOption",
+  ],
+  "Dropdown1.selectedOptionLabel": [],
+  "Dropdown1.selectedOptionValue": [],
   Table1: [
     "Table1.defaultSearchText",
     "Table1.defaultSelectedRow",
@@ -394,7 +387,7 @@ describe("DataTreeEvaluator", () => {
             value: "valueTest2",
           },
         ],
-        type: "DROP_DOWN_WIDGET",
+        type: "SELECT_WIDGET",
       },
       {},
     ),
@@ -492,7 +485,7 @@ describe("DataTreeEvaluator", () => {
             value: "valueTest2",
           },
         ],
-        type: "DROP_DOWN_WIDGET",
+        type: "SELECT_WIDGET",
         bindingPaths: {
           options: EvaluationSubstitutionType.TEMPLATE,
           defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
@@ -501,11 +494,8 @@ describe("DataTreeEvaluator", () => {
           isDisabled: EvaluationSubstitutionType.TEMPLATE,
           isValid: EvaluationSubstitutionType.TEMPLATE,
           selectedOption: EvaluationSubstitutionType.TEMPLATE,
-          selectedOptionArr: EvaluationSubstitutionType.TEMPLATE,
-          selectedIndex: EvaluationSubstitutionType.TEMPLATE,
-          selectedIndexArr: EvaluationSubstitutionType.TEMPLATE,
-          value: EvaluationSubstitutionType.TEMPLATE,
-          selectedOptionValues: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionValue: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionLabel: EvaluationSubstitutionType.TEMPLATE,
         },
       },
     };

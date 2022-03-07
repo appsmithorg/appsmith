@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import PluginsApi, { PluginFormPayload } from "api/PluginApi";
+import PluginsApi, { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import {
@@ -37,6 +37,7 @@ import {
 function* fetchPluginsSaga() {
   try {
     const orgId: string = yield select(getCurrentOrgId);
+
     if (!orgId) {
       throw Error("Org id does not exist");
     }
@@ -192,6 +193,28 @@ function* getPluginFormConfig({ id }: GetPluginFormConfigParams) {
   yield call(checkAndGetPluginFormConfigsSaga, id);
 }
 
+function* getDefaultPluginsSaga() {
+  try {
+    const response: ApiResponse<DefaultPlugin> = yield call(
+      PluginsApi.fetchDefaultPlugins,
+    );
+    const isValid: boolean = yield validateResponse(response);
+    if (isValid) {
+      yield put({
+        type: ReduxActionTypes.GET_DEFAULT_PLUGINS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GET_DEFAULT_PLUGINS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 function* root() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_PLUGINS_REQUEST, fetchPluginsSaga),
@@ -202,6 +225,10 @@ function* root() {
     takeEvery(
       ReduxActionTypes.GET_PLUGIN_FORM_CONFIG_INIT,
       getPluginFormConfig,
+    ),
+    takeEvery(
+      ReduxActionTypes.GET_DEFAULT_PLUGINS_REQUEST,
+      getDefaultPluginsSaga,
     ),
   ]);
 }
