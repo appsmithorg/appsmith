@@ -13,6 +13,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -26,7 +27,9 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -94,6 +97,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -2333,7 +2337,7 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void exportAndImportApplication_withMultiplePages_PagesOrderIsMaintained() {
@@ -2397,5 +2401,57 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
 
     }
-    
+
+    private ApplicationJson createApplicationJSON(List<String> pageNames) {
+        ApplicationJson applicationJson = new ApplicationJson();
+        List<NewPage> newPageList = new ArrayList<>(pageNames.size());
+        for(String pageName : pageNames) {
+            NewPage newPage = new NewPage();
+            newPage.setUnpublishedPage(new PageDTO());
+            newPage.getUnpublishedPage().setName(pageName);
+            newPage.getUnpublishedPage().setLayouts(List.of());
+            newPageList.add(newPage);
+        }
+        applicationJson.setPageList(newPageList);
+        applicationJson.setActionList(List.of());
+        applicationJson.setDatasourceList(List.of());
+        applicationJson.setActionCollectionList(List.of());
+        return applicationJson;
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void mergeApplicationJsonWithApplication_WhenPageNameConflicts_PageNamesRenamed() {
+        String uniqueString = UUID.randomUUID().toString();
+
+        Application destApplication = new Application();
+        destApplication.setName("App_" + uniqueString);
+        Mono<Application> createAppAndPageMono = applicationPageService.createApplication(destApplication, orgId)
+                .flatMap(application -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("Home");
+                    pageDTO.setApplicationId(application.getId());
+                    return applicationPageService.createPage(pageDTO).thenReturn(application);
+                });
+
+        // let's create an ApplicationJSON which we'll merge with application created by createAppAndPageMono
+        ApplicationJson applicationJson = createApplicationJSON(List.of("Home", "About"));
+
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = createAppAndPageMono.flatMap(application ->
+                // merge the application json with the application we've created
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getId(), null, applicationJson)
+                        .thenReturn(application)
+        ).flatMap(application ->
+                // fetch the application pages, this should contain pages from application json
+                newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT)
+        );
+
+        StepVerifier.create(applicationPagesDTOMono).assertNext(applicationPagesDTO -> {
+            assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+            List<String> pageNames = applicationPagesDTO.getPages().stream()
+                    .map(PageNameIdDTO::getName)
+                    .collect(Collectors.toList());
+            assertThat(pageNames).contains("Home", "Home2", "About");
+        }).verifyComplete();
+    }
 }

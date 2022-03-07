@@ -34,6 +34,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -949,34 +950,34 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 publishedCollectionIdToActionIdsMap,
                                 applicationJson.getInvisibleActionFields()
                         )
-                        .map(NewAction::getId)
-                        .collectList()
-                        .flatMap(savedActionIds -> {
-                            // Updating the existing application for git-sync
-                            if (!StringUtils.isEmpty(applicationId)) {
-                                // Remove unwanted actions
-                                Set<String> invalidActionIds = new HashSet<>();
-                                for (NewAction action : existingActions) {
-                                    if (!savedActionIds.contains(action.getId())) {
-                                        invalidActionIds.add(action.getId());
+                                .map(NewAction::getId)
+                                .collectList()
+                                .flatMap(savedActionIds -> {
+                                    // Updating the existing application for git-sync
+                                    if (!StringUtils.isEmpty(applicationId)) {
+                                        // Remove unwanted actions
+                                        Set<String> invalidActionIds = new HashSet<>();
+                                        for (NewAction action : existingActions) {
+                                            if (!savedActionIds.contains(action.getId())) {
+                                                invalidActionIds.add(action.getId());
+                                            }
+                                        }
+                                        return Flux.fromIterable(invalidActionIds)
+                                                .flatMap(actionId -> newActionService.deleteUnpublishedAction(actionId)
+                                                        // return an empty action so that the filter can remove it from the list
+                                                        .onErrorResume(throwable -> {
+                                                            log.debug("Failed to delete action with id {} during import", actionId);
+                                                            log.error(throwable.getMessage());
+                                                            return Mono.empty();
+                                                        })
+                                                )
+                                                .then()
+                                                .thenReturn(savedActionIds);
                                     }
-                                }
-                                return Flux.fromIterable(invalidActionIds)
-                                        .flatMap(actionId -> newActionService.deleteUnpublishedAction(actionId)
-                                            // return an empty action so that the filter can remove it from the list
-                                            .onErrorResume(throwable -> {
-                                                log.debug("Failed to delete action with id {} during import", actionId);
-                                                log.error(throwable.getMessage());
-                                                return Mono.empty();
-                                            })
-                                        )
-                                        .then()
-                                        .thenReturn(savedActionIds);
-                            }
-                            return Mono.just(savedActionIds);
-                        })
-                        .thenMany(actionCollectionRepository.findByApplicationId(importedApplication.getId()))
-                        .collectList()
+                                    return Mono.just(savedActionIds);
+                                })
+                                .thenMany(actionCollectionRepository.findByApplicationId(importedApplication.getId()))
+                                .collectList()
                 )
                 .flatMap(existingActionCollections -> {
                     if (importedActionCollectionList == null) {
@@ -991,46 +992,46 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             pageNameMap, pluginMap,
                             unpublishedCollectionIdToActionIdsMap,
                             publishedCollectionIdToActionIdsMap
-                        )
-                        .flatMap(tuple -> {
-                            final String importedActionCollectionId = tuple.getT1();
-                            ActionCollection savedActionCollection = tuple.getT2();
-                            savedCollectionIds.add(savedActionCollection.getId());
-                            return updateActionsWithImportedCollectionIds(
-                                    importedActionCollectionId,
-                                    savedActionCollection,
-                                    unpublishedCollectionIdToActionIdsMap,
-                                    publishedCollectionIdToActionIdsMap,
-                                    unpublishedActionIdToCollectionIdMap,
-                                    publishedActionIdToCollectionIdMap
-                            );
-                        })
-                        .collectList()
-                        .flatMap(ignore -> {
-                            // Updating the existing application for git-sync
-                            if (!StringUtils.isEmpty(applicationId)) {
-                                // Remove unwanted actions
-                                Set<String> invalidCollectionIds = new HashSet<>();
-                                for (ActionCollection collection : existingActionCollections) {
-                                    if (!savedCollectionIds.contains(collection.getId())) {
-                                        invalidCollectionIds.add(collection.getId());
+                    )
+                            .flatMap(tuple -> {
+                                final String importedActionCollectionId = tuple.getT1();
+                                ActionCollection savedActionCollection = tuple.getT2();
+                                savedCollectionIds.add(savedActionCollection.getId());
+                                return updateActionsWithImportedCollectionIds(
+                                        importedActionCollectionId,
+                                        savedActionCollection,
+                                        unpublishedCollectionIdToActionIdsMap,
+                                        publishedCollectionIdToActionIdsMap,
+                                        unpublishedActionIdToCollectionIdMap,
+                                        publishedActionIdToCollectionIdMap
+                                );
+                            })
+                            .collectList()
+                            .flatMap(ignore -> {
+                                // Updating the existing application for git-sync
+                                if (!StringUtils.isEmpty(applicationId)) {
+                                    // Remove unwanted actions
+                                    Set<String> invalidCollectionIds = new HashSet<>();
+                                    for (ActionCollection collection : existingActionCollections) {
+                                        if (!savedCollectionIds.contains(collection.getId())) {
+                                            invalidCollectionIds.add(collection.getId());
+                                        }
                                     }
+                                    return Flux.fromIterable(invalidCollectionIds)
+                                            .flatMap(collectionId -> actionCollectionService.deleteUnpublishedActionCollection(collectionId)
+                                                    // return an empty collection so that the filter can remove it from the list
+                                                    .onErrorResume(throwable -> {
+                                                        log.debug("Failed to delete collection with id {} during import", collectionId);
+                                                        log.error(throwable.getMessage());
+                                                        return Mono.empty();
+                                                    })
+                                            )
+                                            .then()
+                                            .thenReturn(savedCollectionIds);
                                 }
-                                return Flux.fromIterable(invalidCollectionIds)
-                                        .flatMap(collectionId -> actionCollectionService.deleteUnpublishedActionCollection(collectionId)
-                                                // return an empty collection so that the filter can remove it from the list
-                                                .onErrorResume(throwable -> {
-                                                    log.debug("Failed to delete collection with id {} during import", collectionId);
-                                                    log.error(throwable.getMessage());
-                                                    return Mono.empty();
-                                                })
-                                        )
-                                        .then()
-                                        .thenReturn(savedCollectionIds);
-                            }
-                            return Mono.just(savedCollectionIds);
-                        })
-                        .thenReturn(true);
+                                return Mono.just(savedCollectionIds);
+                            })
+                            .thenReturn(true);
                 })
                 .flatMap(ignored -> {
                     // Don't update gitAuth as we are using @Encrypted for private key
@@ -1044,7 +1045,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return mapActionAndCollectionIdWithPageLayout(
                                         newPage, actionIdMap, unpublishedActionIdToCollectionIdMap, publishedActionIdToCollectionIdMap
                                 )
-                                .flatMap(newPageService::save);
+                                        .flatMap(newPageService::save);
                             })
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
                             .map(application -> {
@@ -1940,5 +1941,260 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             application.setClientSchemaVersion(null);
             application.setServerSchemaVersion(null);
             application.setIsManualUpdate(false);
+    }
+
+    @Override
+    public Mono<Application> mergeApplicationJsonWithApplication(String applicationId, String branchName, ApplicationJson applicationJson) {
+        // Start the stopwatch to log the execution time
+        Stopwatch processStopwatch = new Stopwatch("Merge application with application");
+
+        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
+
+        Map<String, String> pluginMap = new HashMap<>();
+        Map<String, String> datasourceMap = new HashMap<>();
+        Map<String, NewPage> pageNameMap = new HashMap<>();
+        Map<String, String> actionIdMap = new HashMap<>();
+        // Datastructures to create a link between collectionId to embedded action ids
+        Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap = new HashMap<>();
+        Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap = new HashMap<>();
+        // Datastructures to create a link between actionIds to collectionIds
+        // <actionId, [collectionId, defaultCollectionId]>
+        Map<String, List<String>> unpublishedActionIdToCollectionIdMap = new HashMap<>();
+        Map<String, List<String>> publishedActionIdToCollectionIdMap = new HashMap<>();
+
+        List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
+
+        // we'll merge unpublished pages only to filtering out pages that has no unpublished version
+        List<NewPage> importedNewPageList = importedDoc.getPageList().stream()
+                .filter(newPage -> newPage.getUnpublishedPage()!=null).collect(Collectors.toList());
+
+        List<NewAction> importedNewActionList = importedDoc.getActionList();
+        if(importedNewActionList != null) {
+            importedNewActionList.forEach(newAction -> newAction.setGitSyncId(null));
+        }
+
+        List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
+        if(importedActionCollectionList != null) {
+            importedActionCollectionList.forEach(newActionCollection -> newActionCollection.setGitSyncId(null));
+        }
+        Mono<Application> applicationMono;
+        if(StringUtils.isNotEmpty(branchName)) {
+            applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS);
+        } else {
+            applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS);
+        }
+
+        applicationMono = applicationMono
+                .flatMap(application -> {
+                    final String srcAppBranchName;
+                    if (application.getGitApplicationMetadata() != null) {
+                        srcAppBranchName = application.getGitApplicationMetadata().getBranchName();
+                    } else {
+                        srcAppBranchName = null;
+                    }
+
+                    final Flux<Datasource> existingDatasourceFlux = datasourceRepository
+                            .findAllByOrganizationId(application.getOrganizationId(), AclPermission.MANAGE_DATASOURCES)
+                            .cache();
+
+                    return pluginRepository.findAll()
+                            .map(plugin -> {
+                                final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
+                                pluginMap.put(pluginReference, plugin.getId());
+                                return plugin;
+                            })
+                            .then(
+                                    Flux.fromIterable(importedDatasourceList)
+                                            // Check for duplicate datasources to avoid duplicates in target organization
+                                            .flatMap(datasource -> {
+
+                                                // This is explicitly copied over from the map we created before
+                                                datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                                                datasource.setOrganizationId(application.getOrganizationId());
+
+                                                // Check if any decrypted fields are present for datasource
+                                                if (importedDoc.getDecryptedFields() != null
+                                                        && importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+
+                                                    DecryptedSensitiveFields decryptedFields =
+                                                            importedDoc.getDecryptedFields().get(datasource.getName());
+
+                                                    updateAuthenticationDTO(datasource, decryptedFields);
+                                                }
+                                                return createUniqueDatasourceIfNotPresent(
+                                                        existingDatasourceFlux, datasource, application.getOrganizationId(), applicationId
+                                                );
+                                            })
+                                            .map(datasource -> {
+                                                datasourceMap.put(datasource.getName(), datasource.getId());
+                                                return datasource;
+                                            })
+                                            .collectList()
+                            )
+                            .flatMap(datasourceList -> {
+                                // page deleted from edit mode but present in published mode needs to be filtered out
+                                List<String> unpublishedPageIds = application.getPages().stream()
+                                        .map(ApplicationPage::getId)
+                                        .collect(Collectors.toList());
+
+                                // Import and save pages, also update the pages related fields in saved application
+                                assert importedNewPageList != null;
+
+                                // For git-sync this will not be empty
+                                Mono<List<NewPage>> existingPagesMono = newPageService
+                                        .findNewPagesByApplicationId(application.getId(), MANAGE_PAGES)
+                                        .filter(newPage -> unpublishedPageIds.contains(newPage.getId()))
+                                        .collectList()
+                                        .cache();
+
+                                return updateNewPagesBeforeMerge(existingPagesMono, importedNewPageList)
+                                        .flatMap(newToOldNameMap ->
+                                                importAndSavePages(
+                                                        importedNewPageList,
+                                                        application,
+                                                        null,
+                                                        importedDoc.getUnpublishedLayoutmongoEscapedWidgets(),
+                                                        srcAppBranchName,
+                                                        existingPagesMono
+                                                )
+                                                        .map(newPage -> {
+                                                            ApplicationPage unpublishedAppPage = new ApplicationPage();
+                                                            unpublishedAppPage.setId(newPage.getId());
+                                                            if (newPage.getDefaultResources() != null) {
+                                                                unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                                            }
+
+                                                            // we need to map the newly created page with old name
+                                                            // because other related resources e.g. actions will refer the page with old name
+                                                            String oldPageName = newToOldNameMap.get(newPage.getUnpublishedPage().getName());
+                                                            pageNameMap.put(oldPageName, newPage);
+
+                                                            if (application.getPages() == null) {
+                                                                application.setPages(new ArrayList<>());
+                                                            }
+                                                            application.getPages().add(unpublishedAppPage);
+                                                            return newPage;
+                                                        }).collectList()
+                                        );
+                            })
+                            .then(newActionRepository.findByApplicationId(application.getId()).collectList())
+                            .flatMap(existingActions ->
+                                    importAndSaveAction(
+                                            importedNewActionList,
+                                            existingActions,
+                                            application,
+                                            srcAppBranchName,
+                                            pageNameMap,
+                                            actionIdMap,
+                                            pluginMap,
+                                            datasourceMap,
+                                            unpublishedCollectionIdToActionIdsMap,
+                                            publishedCollectionIdToActionIdsMap,
+                                            null
+                                    )
+                                            .map(NewAction::getId)
+                                            .collectList()
+                                            .thenMany(actionCollectionRepository.findByApplicationId(application.getId()))
+                                            .collectList()
+                            )
+                            .flatMap(existingActionCollections -> {
+                                if (importedActionCollectionList == null) {
+                                    return Mono.just(true);
+                                }
+                                Set<String> savedCollectionIds = new HashSet<>();
+                                return importAndSaveActionCollection(
+                                        importedActionCollectionList,
+                                        existingActionCollections,
+                                        application,
+                                        srcAppBranchName,
+                                        pageNameMap,
+                                        pluginMap,
+                                        unpublishedCollectionIdToActionIdsMap,
+                                        publishedCollectionIdToActionIdsMap
+                                )
+                                        .flatMap(tuple -> {
+                                            final String importedActionCollectionId = tuple.getT1();
+                                            ActionCollection savedActionCollection = tuple.getT2();
+                                            savedCollectionIds.add(savedActionCollection.getId());
+                                            return updateActionsWithImportedCollectionIds(
+                                                    importedActionCollectionId,
+                                                    savedActionCollection,
+                                                    unpublishedCollectionIdToActionIdsMap,
+                                                    publishedCollectionIdToActionIdsMap,
+                                                    unpublishedActionIdToCollectionIdMap,
+                                                    publishedActionIdToCollectionIdMap
+                                            );
+                                        })
+                                        .collectList()
+                                        .thenReturn(true);
+                            })
+                            .flatMap(ignored -> {
+                                // Map layoutOnLoadActions ids with relevant actions
+                                return newPageService.findNewPagesByApplicationId(application.getId(), MANAGE_PAGES)
+                                        .flatMap(newPage -> {
+                                            if (newPage.getDefaultResources() != null) {
+                                                newPage.getDefaultResources().setBranchName(srcAppBranchName);
+                                            }
+                                            return mapActionAndCollectionIdWithPageLayout(
+                                                    newPage, actionIdMap, unpublishedActionIdToCollectionIdMap, publishedActionIdToCollectionIdMap
+                                            )
+                                                    .flatMap(newPageService::save);
+                                        })
+                                        .then(applicationService.save(application))
+                                        .map(savedApplication -> {
+                                            processStopwatch.stopAndLogTimeInMillis();
+                                            return savedApplication;
+                                        });
+                            });
+
+                    // Import Application is currently a slow API because it needs to import and create application, pages, actions
+                    // and action collection. This process may take time and the client may cancel the request. This leads to the flow
+                    // getting stopped mid way producing corrupted objects in DB. The following ensures that even though the client may have
+                    // cancelled the flow, the importing the application should proceed uninterrupted and whenever the user refreshes
+                    // the page, the imported application is available and is in sane state.
+                    // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
+                    // means that even if the subscriber has cancelled its subscription, the create method still generates its event.
+                });
+
+        Mono<Application> finalApplicationMono = applicationMono;
+        return Mono.create(sink -> finalApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
+    }
+
+    private Mono<Map<String, String>> updateNewPagesBeforeMerge(Mono<List<NewPage>> existingPagesMono, List<NewPage> newPagesList) {
+        return existingPagesMono.map(newPages -> {
+            Map<String, String> newToOldToPageNameMap = new HashMap<>(); // maps new names with old names
+
+            // get a list of unpublished page names that already exists
+            List<String> unpublishedPageNames = newPages.stream()
+                    .filter(newPage -> newPage.getUnpublishedPage() != null)
+                    .map(newPage -> newPage.getUnpublishedPage().getName())
+                    .collect(Collectors.toList());
+
+            // modify each new page
+            for (NewPage newPage : newPagesList) {
+                newPage.setPublishedPage(null); // we'll not merge published pages so removing this
+                /* Need to remove gitSyncId from imported new pages.
+                 * Same template or page can be merged with same application multiple times.
+                 * As gitSyncId will be same for each import, new page will not be created
+                 */
+                newPage.setGitSyncId(null);
+
+                // let's check if page name conflicts, rename in that case
+                String oldPageName = newPage.getUnpublishedPage().getName(),
+                        newPageName = newPage.getUnpublishedPage().getName();
+
+                int i = 1;
+                while (unpublishedPageNames.contains(newPageName)) {
+                    i++;
+                    newPageName = oldPageName + i;
+                }
+                newPage.getUnpublishedPage().setName(newPageName); // set new name. may be same as before or not
+                newPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(newPageName)); // set the slug also
+                newToOldToPageNameMap.put(newPageName, oldPageName); // map: new name -> old name
+            }
+            return newToOldToPageNameMap;
+        });
     }
 }

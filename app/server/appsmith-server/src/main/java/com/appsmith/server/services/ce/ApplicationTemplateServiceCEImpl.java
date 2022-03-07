@@ -143,4 +143,11 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             super.setEncodingMode(EncodingMode.NONE);
         }
     }
+
+    @Override
+    public Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String branchName) {
+        return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
+            importExportApplicationService.mergeApplicationJsonWithApplication(applicationId, branchName, applicationJson)
+        );
+    }
 }
