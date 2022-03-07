@@ -99,5 +99,7 @@ after(function() {
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   //-- LogOut Application---//
+  //-- Delete local storage data of entity explorer
+  cy.DeleteEntityStateLocalStorage();
   cy.LogOut();
 });
