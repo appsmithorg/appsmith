@@ -613,19 +613,19 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(1000);
     cy.get(".t--draggable-dropdownwidget").validateWidgetExists();
 
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    cy.get("@entity").then((entityN) => cy.CheckAndUnfoldEntityItem(entityN));
     cy.get(queryLocators.suggestedTableWidget)
       .click()
       .wait(1000);
     cy.get(commonlocators.TableRow).validateWidgetExists();
 
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    cy.get("@entity").then((entityN) => cy.CheckAndUnfoldEntityItem(entityN));
     cy.xpath(queryLocators.suggestedWidgetText)
       .click()
       .wait(1000);
     cy.get(commonlocators.textWidget).validateWidgetExists();
 
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    cy.get("@entity").then((entityN) => cy.CheckAndUnfoldEntityItem(entityN));
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
@@ -645,7 +645,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     cy.get(commonlocators.TableRow).validateWidgetExists();
     cy.CheckAndUnfoldEntityItem("WIDGETS");
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    cy.get("@entity").then((entityN) => cy.CheckAndUnfoldEntityItem(entityN));
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
     cy.actionContextMenuByEntityName("Table1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails
