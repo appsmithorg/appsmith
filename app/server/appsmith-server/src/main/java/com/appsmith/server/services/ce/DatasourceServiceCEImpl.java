@@ -389,7 +389,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> delete(String id) {
+    public Mono<Datasource> archiveById(String id) {
         return repository
                 .findById(id, MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
@@ -406,9 +406,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> deleteByIdAndBranchName(String id, String branchName) {
+    public Mono<Datasource> archiveByIdAndBranchName(String id, String branchName) {
         // Ignore branchName as datasources are branch independent entity
-        return this.delete(id);
+        return this.archiveById(id);
     }
 
 }

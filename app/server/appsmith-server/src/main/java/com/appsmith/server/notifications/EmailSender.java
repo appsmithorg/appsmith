@@ -7,6 +7,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -37,11 +38,11 @@ public class EmailSender {
         REPLY_TO = makeReplyTo();
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text) {
-        return sendMail(to, subject, text, null);
+    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
+        return sendMail(to, subject, text, params, null);
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
+    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params, String replyTo) {
 
         /**
          * Creating a publisher which sends email in a blocking fashion, subscribing on the bounded elastic
@@ -58,7 +59,7 @@ public class EmailSender {
                     }
                 })
                 .doOnNext(emailBody -> {
-                    sendMailSync(to, subject, emailBody);
+                    sendMailSync(to, subject, emailBody, replyTo);
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
@@ -74,7 +75,7 @@ public class EmailSender {
      * @param subject Subject string.
      * @param text    HTML Body of the message. This method assumes UTF-8.
      */
-    private void sendMailSync(String to, String subject, String text) {
+    private void sendMailSync(String to, String subject, String text, String replyTo) {
         log.debug("Got request to send email to: {} with subject: {}", to, subject);
         // Don't send an email for local, dev or test environments
         if (!emailConfig.isEmailEnabled()) {
@@ -96,7 +97,9 @@ public class EmailSender {
             if (emailConfig.getMailFrom() != null) {
                 helper.setFrom(emailConfig.getMailFrom());
             }
-            if (REPLY_TO != null) {
+            if(StringUtils.hasLength(replyTo)) {
+                helper.setReplyTo(replyTo);
+            } else if (REPLY_TO != null) {
                 helper.setReplyTo(REPLY_TO);
             }
             helper.setSubject(subject);

@@ -8,13 +8,17 @@ export enum TextType {
   P1 = "p1",
   P2 = "p2",
   P3 = "p3",
+  P4 = "p4",
   H1 = "h1",
   H2 = "h2",
   H3 = "h3",
   H4 = "h4",
   H5 = "h5",
   H6 = "h6",
+  BUTTON_MEDIUM = "btnMedium",
+  BUTTON_SMALL = "btnSmall",
   SIDE_HEAD = "sideHeading",
+  DANGER_HEADING = "dangerHeading",
 }
 
 export enum Case {
@@ -33,7 +37,6 @@ export type TextProps = CommonComponentProps & {
   underline?: boolean;
   italic?: boolean;
   case?: Case;
-  className?: string;
   weight?: FontWeight | string;
   highlight?: boolean;
   textAlign?: string;

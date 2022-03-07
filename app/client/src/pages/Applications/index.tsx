@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
+import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
@@ -38,7 +39,6 @@ import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import Dialog from "components/ads/DialogComponent";
-// import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
@@ -54,7 +54,6 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
-import { onboardingCreateApplication } from "actions/onboardingActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -75,30 +74,25 @@ import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWra
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { AppIconCollection } from "components/ads/AppIcon";
-import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
   createMessage,
-  DOCUMENTATION,
   NO_APPS_FOUND,
   ORGANIZATIONS_HEADING,
   SEARCH_APPS,
-  WELCOME_TOUR,
 } from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
-import { howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
 import getFeatureFlags from "utils/featureFlags";
 import SharedUserList from "pages/common/SharedUserList";
-import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 
 const OrgDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -214,22 +208,8 @@ const LeftPaneWrapper = styled.div`
   box-shadow: 1px 0px 0px #ededed;
 `;
 const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
-  height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
-  overflow: auto;
   padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   padding-top: 16px;
-  margin-left: ${(props) =>
-    props.theme.homePage.leftPane.width +
-    props.theme.homePage.leftPane.rightMargin +
-    props.theme.homePage.leftPane.leftPadding}px;
-  width: calc(
-    100% -
-      ${(props) =>
-        props.theme.homePage.leftPane.width +
-        props.theme.homePage.leftPane.rightMargin +
-        props.theme.homePage.leftPane.leftPadding}px
-  );
-  scroll-behavior: smooth;
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -338,34 +318,6 @@ const WorkpsacesNavigator = styled.div`
   /* padding-bottom: 160px; */
 `;
 
-const LeftPaneBottomSection = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding-bottom: 8px;
-  background-color: #fff;
-
-  & .ads-dialog-trigger {
-    margin-top: 4px;
-  }
-
-  & .ads-dialog-trigger > div {
-    position: initial;
-    width: 92%;
-    padding: 0 14px;
-  }
-`;
-
-const LeftPaneVersionData = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: #121826;
-  font-size: 8px;
-  width: 92%;
-  margin-top: 8px;
-`;
-
 const textIconStyles = (props: { color: string; hover: string }) => {
   return `
     &&&&&& {
@@ -420,10 +372,7 @@ const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
 function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
-  const onboardingOrgs = useSelector(getOnboardingOrganisations);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const { appVersion } = getAppsmithConfigs();
-  const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const isMobile = useIsMobileDevice();
   let userOrgs;
   if (!isFetchingApplications) {
@@ -472,48 +421,7 @@ function LeftPane() {
               />
             ))}
         </WorkpsacesNavigator>
-        <LeftPaneBottomSection>
-          <MenuItem
-            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-            icon="discord"
-            onSelect={() => {
-              window.open("https://discord.gg/rBTTVJp", "_blank");
-            }}
-            text={"Join our Discord"}
-          />
-          <MenuItem
-            containerClassName={
-              isFetchingApplications ? BlueprintClasses.SKELETON : ""
-            }
-            icon="book"
-            onSelect={() => {
-              window.open("https://docs.appsmith.com/", "_blank");
-            }}
-            text={createMessage(DOCUMENTATION)}
-          />
-          {!!onboardingOrgs.length && (
-            <MenuItem
-              containerClassName={
-                isFetchingApplications
-                  ? BlueprintClasses.SKELETON
-                  : "t--welcome-tour"
-              }
-              icon="guide"
-              onSelect={() => {
-                AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-                dispatch(onboardingCreateApplication());
-              }}
-              text={createMessage(WELCOME_TOUR)}
-            />
-          )}
-          <ProductUpdatesModal />
-          <LeftPaneVersionData>
-            <span>Appsmith {appVersion.id}</span>
-            {howMuchTimeBefore !== "" && (
-              <span>Released {howMuchTimeBefore} ago</span>
-            )}
-          </LeftPaneVersionData>
-        </LeftPaneBottomSection>
+        <LeftPaneBottomSection />
       </LeftPaneSection>
     </LeftPaneWrapper>
   );
@@ -555,6 +463,30 @@ const OrgRename = styled(EditableText)`
 
 const NoSearchResultImg = styled.img`
   margin: 1em;
+`;
+
+const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
+  height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
+  overflow: auto;
+  margin-left: ${(props) =>
+    props.theme.homePage.leftPane.width +
+    props.theme.homePage.leftPane.rightMargin +
+    props.theme.homePage.leftPane.leftPadding}px;
+  width: calc(
+    100% -
+      ${(props) =>
+        props.theme.homePage.leftPane.width +
+        props.theme.homePage.leftPane.rightMargin +
+        props.theme.homePage.leftPane.leftPadding}px
+  );
+  scroll-behavior: smooth;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    margin-left: 0;
+    width: 100%;
+    padding: 0;
+  `}
 `;
 
 function ApplicationsSection(props: any) {
@@ -844,7 +776,7 @@ function ApplicationsSection(props: any) {
                             </div>
                             <MenuItem
                               cypressSelector="t--org-setting"
-                              icon="general"
+                              icon="settings-2-line"
                               onSelect={() =>
                                 getOnSelectAction(
                                   DropdownOnSelectActions.REDIRECT,
@@ -853,7 +785,7 @@ function ApplicationsSection(props: any) {
                                   },
                                 )
                               }
-                              text="Organization Settings"
+                              text="Settings"
                             />
                             {enableImportExport && (
                               <MenuItem
@@ -868,12 +800,12 @@ function ApplicationsSection(props: any) {
                               />
                             )}
                             <MenuItem
-                              icon="share"
+                              icon="share-line"
                               onSelect={() => setSelectedOrgId(organization.id)}
                               text="Share"
                             />
                             <MenuItem
-                              icon="user"
+                              icon="member"
                               onSelect={() =>
                                 getOnSelectAction(
                                   DropdownOnSelectActions.REDIRECT,
@@ -1030,7 +962,9 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllApplication();
+    if (!this.props.userOrgs.length) {
+      this.props.getAllApplication();
+    }
     this.props.setHeaderMetaData(true, true);
   }
 
@@ -1042,14 +976,20 @@ class Applications extends Component<
     return (
       <PageWrapper displayName="Applications">
         <LeftPane />
-        <SubHeader
-          search={{
-            placeholder: createMessage(SEARCH_APPS),
-            queryFn: this.props.searchApplications,
-            defaultValue: this.props.searchKeyword,
-          }}
-        />
-        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+        <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
+          {(matches: boolean) => (
+            <ApplicationsWrapper isMobile={matches}>
+              <SubHeader
+                search={{
+                  placeholder: createMessage(SEARCH_APPS),
+                  queryFn: this.props.searchApplications,
+                  defaultValue: this.props.searchKeyword,
+                }}
+              />
+              <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+            </ApplicationsWrapper>
+          )}
+        </MediaQuery>
       </PageWrapper>
     );
   }
