@@ -10,11 +10,6 @@ const ERROR_MARGIN = 2;
 
 const scrolledToBottom = (element: HTMLElement) => {
   const { clientHeight, scrollHeight, scrollTop } = element;
-  console.log("USE FIXED FOOTER scrolledToBottom", {
-    clientHeight,
-    scrollHeight,
-    scrollTop,
-  });
   return scrollHeight - scrollTop - clientHeight < ERROR_MARGIN;
 };
 
