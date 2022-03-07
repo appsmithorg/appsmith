@@ -80,7 +80,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       : false,
     disableTelemetry: process.env.APPSMITH_DISABLE_TELEMETRY
       ? process.env.APPSMITH_DISABLE_TELEMETRY.length > 0
-      : true,
+      : false,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
       ceKey: process.env.REACT_APP_SEGMENT_CE_KEY || "",
