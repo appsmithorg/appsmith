@@ -20,7 +20,6 @@ import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon, { IconSize } from "components/ads/Icon";
 import { isString } from "../../../utils/helpers";
-import { IPopoverProps } from "@blueprintjs/select/node_modules/@blueprintjs/core";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -40,21 +39,30 @@ const DEBOUNCE_TIMEOUT = 800;
 interface SelectComponentState {
   activeItemIndex: number | undefined;
   query?: string;
+  isOpen?: boolean;
 }
 
 interface SelectButtonProps {
   disabled?: boolean;
   displayText?: string;
   handleCancelClick?: (event: React.MouseEvent<Element, MouseEvent>) => void;
+  togglePopoverVisibility: () => void;
   value?: string;
 }
 
 function SelectButton(props: SelectButtonProps) {
-  const { disabled, displayText, handleCancelClick, value } = props;
+  const {
+    disabled,
+    displayText,
+    handleCancelClick,
+    togglePopoverVisibility,
+    value,
+  } = props;
   return useMemo(
     () => (
       <Button
         disabled={disabled}
+        onClick={togglePopoverVisibility}
         rightIcon={
           <StyledDiv>
             {!isEmptyOrNill(value) ? (
@@ -88,6 +96,7 @@ class SelectComponent extends React.Component<
     // used to show focused item for keyboard up down key interection
     activeItemIndex: 0,
     query: "",
+    isOpen: false,
   };
   componentDidMount = () => {
     // set default selectedIndex as focused index
@@ -103,6 +112,10 @@ class SelectComponent extends React.Component<
       // update focus index if selectedIndex changed by property pane
       this.setState({ activeItemIndex: this.props.selectedIndex });
     }
+  };
+
+  togglePopoverVisibility = () => {
+    this.setState({ isOpen: !this.state.isOpen });
   };
 
   handleActiveItemChange = (activeItem: DropdownOption | null) => {
@@ -128,6 +141,9 @@ class SelectComponent extends React.Component<
 
   onItemSelect = (item: DropdownOption): void => {
     this.props.onOptionSelected(item);
+    // If Popover is open, then toggle visibility.
+    // Required when item selection is made via keyboard input.
+    if (this.state.isOpen) this.togglePopoverVisibility();
   };
 
   isOptionSelected = (selectedOption: DropdownOption) => {
@@ -150,6 +166,7 @@ class SelectComponent extends React.Component<
     option: DropdownOption,
     itemProps: IItemRendererProps,
   ) => {
+    if (!this.state.isOpen) return null;
     if (!itemProps.modifiers.matchesPredicate) {
       return null;
     }
@@ -162,6 +179,7 @@ class SelectComponent extends React.Component<
         active={isSelected}
         className={className}
         key={option.value}
+        multiline
         onClick={itemProps.handleClick}
         tabIndex={0}
         text={option.label}
@@ -173,28 +191,15 @@ class SelectComponent extends React.Component<
     this.onItemSelect({});
   };
   handleCloseList = () => {
-    if (!this.props.selectedIndex) return;
-    return this.handleActiveItemChange(
-      this.props.options[this.props.selectedIndex],
-    );
+    if (this.state.isOpen) {
+      this.togglePopoverVisibility();
+      if (!this.props.selectedIndex) return;
+      return this.handleActiveItemChange(
+        this.props.options[this.props.selectedIndex],
+      );
+    }
   };
   noResultsUI = (<MenuItem disabled text="No Results Found" />);
-  popOverProps: Partial<IPopoverProps> = {
-    boundary: "window",
-    minimal: true,
-    usePortal: true,
-    onClose: this.handleCloseList,
-    modifiers: {
-      preventOverflow: {
-        enabled: false,
-      },
-    },
-    popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
-  };
-  // active focused item
-  activeItem = !isEmpty(this.props.options)
-    ? this.props.options[this.state.activeItemIndex]
-    : undefined;
 
   render() {
     const {
@@ -207,6 +212,10 @@ class SelectComponent extends React.Component<
       labelTextSize,
       widgetId,
     } = this.props;
+    // active focused item
+    const activeItem = !isEmpty(this.props.options)
+      ? this.props.options[this.state.activeItemIndex]
+      : undefined;
     // get selected option label from selectedIndex
     const selectedOption =
       !isEmpty(this.props.options) &&
@@ -244,40 +253,51 @@ class SelectComponent extends React.Component<
             </StyledLabel>
           </TextLabelWrapper>
         )}
-        {!isLoading && (
-          <StyledControlGroup fill>
-            <StyledSingleDropDown
-              activeItem={this.activeItem}
-              className={isLoading ? Classes.SKELETON : ""}
+        <StyledControlGroup fill>
+          <StyledSingleDropDown
+            activeItem={activeItem}
+            className={isLoading ? Classes.SKELETON : ""}
+            disabled={disabled}
+            filterable={this.props.isFilterable}
+            hasError={this.props.hasError}
+            isValid={this.props.isValid}
+            itemListPredicate={
+              !this.props.serverSideFiltering
+                ? this.itemListPredicate
+                : undefined
+            }
+            itemRenderer={this.renderSingleSelectItem}
+            items={this.props.options}
+            noResults={this.noResultsUI}
+            onActiveItemChange={this.handleActiveItemChange}
+            onItemSelect={this.onItemSelect}
+            onQueryChange={this.onQueryChange}
+            popoverProps={{
+              boundary: "window",
+              isOpen: this.state.isOpen,
+              minimal: true,
+              usePortal: true,
+              onClose: this.handleCloseList,
+              modifiers: {
+                preventOverflow: {
+                  enabled: false,
+                },
+              },
+              popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
+            }}
+            query={this.state.query}
+            scrollToActiveItem
+            value={this.props.value as string}
+          >
+            <SelectButton
               disabled={disabled}
-              filterable={this.props.isFilterable}
-              hasError={this.props.hasError}
-              isValid={this.props.isValid}
-              itemListPredicate={
-                !this.props.serverSideFiltering
-                  ? this.itemListPredicate
-                  : undefined
-              }
-              itemRenderer={this.renderSingleSelectItem}
-              items={this.props.options}
-              noResults={this.noResultsUI}
-              onActiveItemChange={this.handleActiveItemChange}
-              onItemSelect={this.onItemSelect}
-              onQueryChange={this.onQueryChange}
-              popoverProps={this.popOverProps}
-              query={this.state.query}
-              scrollToActiveItem
-              value={this.props.value as string}
-            >
-              <SelectButton
-                disabled={disabled}
-                displayText={value}
-                handleCancelClick={this.handleCancelClick}
-                value={this.props.value}
-              />
-            </StyledSingleDropDown>
-          </StyledControlGroup>
-        )}
+              displayText={value}
+              handleCancelClick={this.handleCancelClick}
+              togglePopoverVisibility={this.togglePopoverVisibility}
+              value={this.props.value}
+            />
+          </StyledSingleDropDown>
+        </StyledControlGroup>
       </DropdownContainer>
     );
   }
