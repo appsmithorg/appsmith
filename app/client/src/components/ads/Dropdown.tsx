@@ -101,6 +101,7 @@ export type DropdownProps = CommonComponentProps &
     removeSelectedOption?: DropdownOnSelect;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
+    allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
     portalClassName?: string;
   };
@@ -647,6 +648,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   optionWidth: string;
   wrapperBgColor?: string;
   isMultiSelect?: boolean;
+  allowDeselection?: boolean;
   isOpen: boolean; // dropdown popover options flashes when closed, this prop helps to make sure it never happens again.
 }
 
@@ -693,14 +695,6 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
         maxHeight={props.dropdownMaxHeight || "auto"}
       >
         {options.map((option: DropdownOption, index: number) => {
-          if (renderOption) {
-            return renderOption({
-              option,
-              index,
-              optionClickHandler,
-              optionWidth,
-            });
-          }
           let isSelected = false;
           if (
             props.isMultiSelect &&
@@ -714,6 +708,15 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             isSelected =
               (props.selected as DropdownOption).value === option.value;
           }
+          if (renderOption) {
+            return renderOption({
+              option,
+              index,
+              optionClickHandler,
+              optionWidth,
+              isSelectedNode: isSelected,
+            });
+          }
           return !option.isSectionHeader ? (
             <OptionWrapper
               aria-selected={isSelected}
@@ -721,7 +724,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               key={index}
               onClick={
                 // users should be able to unselect a selected option by clicking the option again.
-                isSelected
+                isSelected && props.allowDeselection
                   ? () => props.selectedOptionClickHandler(option)
                   : () => props.optionClickHandler(option)
               }
@@ -843,13 +846,20 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
-  //Removes selected option
+  //Removes selected option, should be called when allowDeselection=true
   const selectedOptionClickHandler = useCallback(
     (optionToBeRemoved: DropdownOption) => {
+      let selectedOptions: DropdownOption | DropdownOption[] = [];
       setIsOpen(false);
-      const selectedOptions = (selected as DropdownOption[]).filter(
-        (option: DropdownOption) => option.value !== optionToBeRemoved.value,
-      );
+      if (!Array.isArray(selected)) {
+        if (optionToBeRemoved.value === selected.value) {
+          selectedOptions = optionToBeRemoved;
+        }
+      } else {
+        selectedOptions = selected.filter(
+          (option: DropdownOption) => option.value !== optionToBeRemoved.value,
+        );
+      }
       setSelected(selectedOptions);
       removeSelectedOption &&
         removeSelectedOption(optionToBeRemoved.value, optionToBeRemoved);
@@ -938,6 +948,11 @@ export default function Dropdown(props: DropdownProps) {
     "100%",
   );
 
+  let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
+  if (props.height) {
+    dropdownHeight = props.height;
+  }
+
   const dropdownWrapperRef = useCallback(
     (ref: HTMLDivElement) => {
       if (ref) {
@@ -968,7 +983,7 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={errorFlag}
-        height={props.height || "38px"}
+        height={dropdownHeight}
         isMultiSelect={props.isMultiSelect}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
@@ -1012,7 +1027,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={"38px"}
+      height={dropdownHeight}
       onKeyDown={handleKeydown}
       role="listbox"
       tabIndex={0}
@@ -1032,6 +1047,7 @@ export default function Dropdown(props: DropdownProps) {
         {dropdownTrigger}
         <RenderDropdownOptions
           {...props}
+          allowDeselection={props.allowDeselection}
           isMultiSelect={props.isMultiSelect}
           isOpen={isOpen}
           optionClickHandler={optionClickHandler}

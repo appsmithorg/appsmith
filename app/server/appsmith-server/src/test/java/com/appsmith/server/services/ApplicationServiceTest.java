@@ -21,6 +21,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -55,6 +56,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -66,6 +69,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -74,6 +78,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -89,8 +94,11 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -161,6 +169,9 @@ public class ApplicationServiceTest {
     @MockBean
     PluginExecutor pluginExecutor;
 
+    @Autowired
+    ReactiveMongoOperations mongoOperations;
+
     String orgId;
 
     static Plugin testPlugin = new Plugin();
@@ -206,6 +217,15 @@ public class ApplicationServiceTest {
             datasource.setOrganizationId(orgId);
             testDatasource = datasourceService.create(datasource).block();
         }
+    }
+
+    private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
+        Query query = new Query(where("id").is(id));
+
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.applicationId)).exists(true))
+                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.archivedAt)).exists(true));
+
+        return mongoOperations.findOne(query, domainClass);
     }
 
     @Test
@@ -1207,6 +1227,14 @@ public class ApplicationServiceTest {
                     testWidget.put("testField", "{{ cloneActionTest.data }}");
                     children.add(testWidget);
 
+                    JSONObject secondWidget = new JSONObject();
+                    secondWidget.put("widgetName", "secondWidget");
+                    temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField1"))));
+                    secondWidget.put("dynamicBindingPathList", temp);
+                    secondWidget.put("testField1", "{{ testCollection1.cloneActionCollection1.data }}");
+                    children.add(secondWidget);
+
                     Layout layout = testPage.getLayouts().get(0);
                     layout.setDsl(parentDsl);
 
@@ -1218,11 +1246,20 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setOrganizationId(application.getOrganizationId());
                     actionCollectionDTO.setPluginId(testPlugin.getId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-                    actionCollectionDTO.setBody("collectionBody");
+                    actionCollectionDTO.setBody("export default {\n" +
+                            "\tgetData: async () => {\n" +
+                            "\t\tconst data = await cloneActionTest.run();\n" +
+                            "\t\treturn data;\n" +
+                            "\t}\n" +
+                            "}");
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("cloneActionCollection1");
                     action1.setActionConfiguration(new ActionConfiguration());
-                    action1.getActionConfiguration().setBody("mockBody");
+                    action1.getActionConfiguration().setBody(
+                            "async () => {\n" +
+                                    "\t\tconst data = await cloneActionTest.run();\n" +
+                                    "\t\treturn data;\n" +
+                                    "\t}");
                     actionCollectionDTO.setActions(List.of(action1));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
@@ -1304,13 +1341,18 @@ public class ApplicationServiceTest {
 
                         newPage.getUnpublishedPage()
                                 .getLayouts()
-                                .forEach(layout ->
-                                        layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                            dslActionDTOS.forEach(actionDTO -> {
-                                                assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
-                                            });
-                                        })
-                                );
+                                .forEach(layout -> {
+                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
+                                        assertThat(dslActionDTOS).hasSize(2);
+                                        dslActionDTOS.forEach(actionDTO -> {
+                                            assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
+                                            if (StringUtils.hasLength(actionDTO.getCollectionId())) {
+                                                assertThat(actionDTO.getDefaultCollectionId()).isEqualTo(actionDTO.getCollectionId());
+                                            }
+                                        });
+                                    });
+                                });
                     });
 
                     assertThat(actionList).hasSize(2);
@@ -1464,6 +1506,120 @@ public class ApplicationServiceTest {
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Method to test if the action, pages and actionCollection are archived after the application is published
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void publishApplication_withArchivedUnpublishedResources_resourcesArchived() {
+
+        /*
+        1. Create application
+        2. Add action and actionCollection
+        3. Publish application
+        4. Delete page in edit mode
+        5. Publish application
+        6. Page, action and actionCollection should be soft deleted
+        */
+        Application testApplication = new Application();
+        String appName = "Publish Application With Archived Page";
+        testApplication.setName(appName);
+        testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> {
+                    PageDTO page = new PageDTO();
+                    page.setName("New Page");
+                    page.setApplicationId(application.getId());
+                    Layout defaultLayout = newPageService.createDefaultLayout();
+                    List<Layout> layouts = new ArrayList<>();
+                    layouts.add(defaultLayout);
+                    page.setLayouts(layouts);
+                    return Mono.zip(
+                            applicationPageService.createPage(page),
+                            pluginRepository.findByPackageName("installed-plugin")
+                    );
+                })
+                .flatMap(tuple -> {
+                    final PageDTO page = tuple.getT1();
+                    final Plugin installedPlugin = tuple.getT2();
+                    final Datasource datasource = new Datasource();
+                    datasource.setName("Default Database");
+                    datasource.setOrganizationId(orgId);
+                    datasource.setPluginId(installedPlugin.getId());
+                    datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("publishActionTest");
+                    action.setPageId(page.getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasource);
+
+                    // Save actionCollection
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("publishCollectionTest");
+                    actionCollectionDTO.setPageId(page.getId());
+                    actionCollectionDTO.setPluginId(datasource.getPluginId());
+                    actionCollectionDTO.setApplicationId(testApplication.getId());
+                    actionCollectionDTO.setOrganizationId(testApplication.getOrganizationId());
+                    actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("publishApplicationTest");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    actionCollectionDTO.setActions(List.of(action1));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+
+                    return layoutActionService.createSingleAction(action)
+                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
+                            .flatMap(tuple1 -> {
+                                ActionDTO savedAction = tuple1.getT1();
+                                ActionCollectionDTO savedActionCollection = tuple1.getT2();
+                                return applicationPageService.publish(testApplication.getId(), true)
+                                        .then(applicationPageService.deleteUnpublishedPage(page.getId()))
+                                        .then(applicationPageService.publish(testApplication.getId(), true))
+                                        .then(
+                                                Mono.zip(
+                                                        (Mono<NewAction>) this.getArchivedResource(savedAction.getId(), NewAction.class),
+                                                        (Mono<ActionCollection>) this.getArchivedResource(savedActionCollection.getId(), ActionCollection.class),
+                                                        (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)
+                                                ));
+                            });
+                })
+                .cache();
+
+        Mono<NewAction> archivedActionFromActionCollectionMono = resultMono
+                .flatMap(tuple -> {
+                    final Optional<String> actionId = tuple.getT2().getUnpublishedCollection().getDefaultToBranchedActionIdsMap().values()
+                            .stream()
+                            .findFirst();
+                    return (Mono<NewAction>) this.getArchivedResource(actionId.get(), NewAction.class);
+                });
+
+        StepVerifier
+                .create(resultMono.zipWith(archivedActionFromActionCollectionMono))
+                .assertNext(tuple -> {
+                    NewAction archivedAction = tuple.getT1().getT1();
+                    ActionCollection archivedActionCollection = tuple.getT1().getT2();
+                    NewPage archivedPage = tuple.getT1().getT3();
+                    NewAction archivedActionFromActionCollection = tuple.getT2();
+
+                    assertThat(archivedAction.getDeletedAt()).isNotNull();
+                    assertThat(archivedAction.getDeleted()).isTrue();
+
+                    assertThat(archivedActionCollection.getDeletedAt()).isNotNull();
+                    assertThat(archivedActionCollection.getDeleted()).isTrue();
+
+                    assertThat(archivedPage.getDeletedAt()).isNotNull();
+                    assertThat(archivedPage.getDeleted()).isTrue();
+
+                    assertThat(archivedActionFromActionCollection.getDeletedAt()).isNotNull();
+                    assertThat(archivedActionFromActionCollection.getDeleted()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -2159,13 +2315,19 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void deleteApplicationWithPagesAndActions() {
+    public void deleteApplication_withPagesActionsAndActionCollections_resourcesArchived() {
 
+        /*
+        1. Create application
+        2. Add page, action and actionCollection
+        5. Delete application
+        6. Page, action and actionCollection should be soft deleted
+        */
         Application testApplication = new Application();
         String appName = "deleteApplicationWithPagesAndActions";
         testApplication.setName(appName);
 
-        Mono<NewAction> resultMono = applicationPageService.createApplication(testApplication, orgId)
+        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -2198,17 +2360,65 @@ public class ApplicationServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
+                    // Save actionCollection
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("testCollection1");
+                    actionCollectionDTO.setPageId(page.getId());
+                    actionCollectionDTO.setPluginId(datasource.getPluginId());
+                    actionCollectionDTO.setApplicationId(testApplication.getId());
+                    actionCollectionDTO.setOrganizationId(testApplication.getOrganizationId());
+                    actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("archivePageTest");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    actionCollectionDTO.setActions(List.of(action1));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+
                     return layoutActionService.createSingleAction(action)
-                            .flatMap(action1 -> {
+                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
+                            .flatMap(tuple1 -> {
+                                ActionDTO savedAction = tuple1.getT1();
+                                ActionCollectionDTO savedActionCollection = tuple1.getT2();
                                 return applicationService.findById(page.getApplicationId(), MANAGE_APPLICATIONS)
                                         .flatMap(application -> applicationPageService.deleteApplication(application.getId()))
-                                        .flatMap(ignored -> newActionService.findById(action1.getId()));
+                                        .flatMap(ignored ->
+                                                Mono.zip(
+                                                    (Mono<NewAction>) this.getArchivedResource(savedAction.getId(), NewAction.class),
+                                                    (Mono<ActionCollection>) this.getArchivedResource(savedActionCollection.getId(), ActionCollection.class),
+                                                    (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)
+                                                ));
                             });
+                })
+                .cache();
+
+        Mono<NewAction> archivedActionFromActionCollectionMono = resultMono
+                .flatMap(tuple -> {
+                    final Optional<String> actionId = tuple.getT2().getUnpublishedCollection().getDefaultToBranchedActionIdsMap().values()
+                            .stream()
+                            .findFirst();
+                    return (Mono<NewAction>) this.getArchivedResource(actionId.get(), NewAction.class);
                 });
 
         StepVerifier
-                .create(resultMono)
-                // Since the action should be deleted, we exmpty the Mono to complete empty.
+                .create(resultMono.zipWith(archivedActionFromActionCollectionMono))
+                .assertNext(tuple -> {
+                    NewAction archivedAction = tuple.getT1().getT1();
+                    ActionCollection archivedActionCollection = tuple.getT1().getT2();
+                    NewPage archivedPage = tuple.getT1().getT3();
+                    NewAction archivedActionFromActionCollection = tuple.getT2();
+
+                    assertThat(archivedAction.getDeletedAt()).isNotNull();
+                    assertThat(archivedAction.getDeleted()).isTrue();
+
+                    assertThat(archivedActionCollection.getDeletedAt()).isNotNull();
+                    assertThat(archivedActionCollection.getDeleted()).isTrue();
+
+                    assertThat(archivedPage.getDeletedAt()).isNotNull();
+                    assertThat(archivedPage.getDeleted()).isTrue();
+
+                    assertThat(archivedActionFromActionCollection.getDeletedAt()).isNotNull();
+                    assertThat(archivedActionFromActionCollection.getDeleted()).isTrue();
+                })
                 .verifyComplete();
     }
 

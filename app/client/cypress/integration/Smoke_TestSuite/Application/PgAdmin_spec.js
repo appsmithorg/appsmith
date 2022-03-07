@@ -1,4 +1,4 @@
-const homePage = require("../../../locators/HomePage.json");
+import homePage from "../../../locators/HomePage";
 const dsl = require("../../../fixtures/PgAdmindsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");

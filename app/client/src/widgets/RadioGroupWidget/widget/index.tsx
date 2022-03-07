@@ -161,7 +161,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
                 expected: {
                   type:
                     'Array<{ "label": "string", "value": "string" | number}>',
-                  example: `[{"label": "abc", "value": "abc" | 1}]`,
+                  example: `[{"label": "One", "value": "one"}]`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
