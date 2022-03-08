@@ -84,11 +84,13 @@ type ButtonContainerProps = {
 };
 
 const ButtonContainer = styled.div<ButtonContainerProps>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  height: 100%;
+
+  & > button {
+    width: 100%;
+    height: 100%;
+  }
 
   ${({ renderMode }) =>
     renderMode === RenderModes.CANVAS &&
@@ -163,8 +165,8 @@ const StyledButton = styled((props) => (
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
+      cursor: not-allowed;
       color: ${theme.colors.button.disabled.textColor} !important;
-      pointer-events: none;
       border-color: ${theme.colors.button.disabled.bgColor} !important;
       > span {
         color: ${theme.colors.button.disabled.textColor} !important;
@@ -237,6 +239,7 @@ type ButtonStyleProps = {
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
+  renderMode?: RenderMode;
 };
 
 // To be used in any other part of the app
@@ -255,32 +258,51 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     loading,
     onClick,
     placement,
+    renderMode,
     rightIcon,
     text,
   } = props;
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
 
-  return (
-    <StyledButton
-      alignText={getAlignText(isRightAlign, iconName)}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
-      buttonColor={buttonColor}
-      buttonVariant={buttonVariant}
-      className={className}
-      data-test-variant={buttonVariant}
-      disabled={disabled}
-      fill
-      icon={isRightAlign ? icon : iconName || icon}
-      loading={loading}
-      onClick={onClick}
-      placement={placement}
-      rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
-      text={text}
-    />
-  );
+  function renderStyledButton() {
+    return (
+      <StyledButton
+        alignText={getAlignText(isRightAlign, iconName)}
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        boxShadowColor={boxShadowColor}
+        buttonColor={buttonColor}
+        buttonVariant={buttonVariant}
+        className={className}
+        data-test-variant={buttonVariant}
+        disabled={disabled}
+        fill
+        icon={isRightAlign ? icon : iconName || icon}
+        loading={loading}
+        onClick={onClick}
+        placement={placement}
+        rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
+        text={text}
+      />
+    );
+  }
+
+  if (renderMode === RenderModes.CANVAS) {
+    return (
+      <ButtonContainer
+        buttonColor={buttonColor}
+        buttonVariant={buttonVariant}
+        disabled={disabled}
+        loading={loading}
+        renderMode={renderMode}
+      >
+        {renderStyledButton()}
+      </ButtonContainer>
+    );
+  }
+
+  return renderStyledButton();
 }
 
 BaseButton.defaultProps = {
@@ -463,30 +485,23 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       onClick={props.onClick}
       recaptchaType={props.recaptchaType}
     >
-      <ButtonContainer
+      <BaseButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.isDisabled}
+        icon={props.icon}
+        iconAlign={props.iconAlign}
+        iconName={props.iconName}
         loading={props.isLoading}
+        placement={props.placement}
         renderMode={props.renderMode}
-      >
-        <BaseButton
-          borderRadius={props.borderRadius}
-          boxShadow={props.boxShadow}
-          boxShadowColor={props.boxShadowColor}
-          buttonColor={props.buttonColor}
-          buttonVariant={props.buttonVariant}
-          disabled={props.isDisabled}
-          icon={props.icon}
-          iconAlign={props.iconAlign}
-          iconName={props.iconName}
-          loading={props.isLoading}
-          placement={props.placement}
-          rightIcon={props.rightIcon}
-          text={props.text}
-          type={props.type}
-        />
-      </ButtonContainer>
+        rightIcon={props.rightIcon}
+        text={props.text}
+        type={props.type}
+      />
     </BtnWrapper>
   );
   if (props.tooltip) {
