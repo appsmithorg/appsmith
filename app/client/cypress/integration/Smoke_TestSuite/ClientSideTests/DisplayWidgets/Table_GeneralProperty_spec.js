@@ -204,7 +204,9 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click({ force: true });
     // Select green color
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.get(widgetsPage.greenColor)
+      .last()
+      .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
@@ -226,8 +228,8 @@ describe("Table Widget property pane feature validation", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     // select the green color
-    cy.xpath(widgetsPage.greenColor)
-      .first()
+    cy.get(widgetsPage.greenColor)
+      .last()
       .click();
     cy.wait("@updateLayout");
     cy.wait(4000);
