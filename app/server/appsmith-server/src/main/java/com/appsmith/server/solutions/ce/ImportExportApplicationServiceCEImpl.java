@@ -627,6 +627,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     datasource.setPluginId(null);
                                     AppsmithBeanUtils.copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
+                                    // Don't update the datasource configuration for already available datasources
+                                    existingDatasource.setDatasourceConfiguration(null);
                                     return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
 
