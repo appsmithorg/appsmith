@@ -111,7 +111,7 @@ export class AggregateHelper {
     }
 
     public expandCollapseEntity(entityName: string) {
-        cy.xpath(locator._expandCollapseArrow(entityName))
+        cy.xpath(locator._expandCollapseArrow(entityName)).last()
             .click({ multiple: true }).wait(500);
     }
 
