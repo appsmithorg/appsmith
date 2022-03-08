@@ -71,6 +71,12 @@ export const SettingCategories = {
   GITHUB_AUTH: "github-auth",
 };
 
+export const SettingSubCategories = {
+  GOOGLE: "google signup",
+  GITHUB: "github signup",
+  FORMLOGIN: "form login",
+};
+
 export type AdminConfigType = {
   type: string;
   controlType: SettingTypes;

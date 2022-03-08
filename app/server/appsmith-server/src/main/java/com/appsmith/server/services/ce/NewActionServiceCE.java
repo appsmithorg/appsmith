@@ -79,7 +79,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId);
 
-    Mono<NewAction> archive(String id);
+    Mono<NewAction> archive(NewAction newAction);
+
+    Mono<NewAction> archiveById(String id);
 
     Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
 
