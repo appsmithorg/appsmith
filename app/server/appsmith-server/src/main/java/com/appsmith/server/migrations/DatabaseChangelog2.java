@@ -1,7 +1,9 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.dtos.ActionDTO;
@@ -76,6 +78,15 @@ public class DatabaseChangelog2 {
                     NewAction.class
             );
         }
+    }
+
+    @ChangeSet(order = "003", id = "set-application-version", author = "")
+    public void setDefaultApplicationVersion(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                Query.query(Criteria.where(fieldName(QApplication.application.deleted)).is(false)),
+                Update.update(fieldName(QApplication.application.applicationVersion), ApplicationVersion.EARLIEST_VERSION),
+                Application.class
+        );
     }
 
 }
