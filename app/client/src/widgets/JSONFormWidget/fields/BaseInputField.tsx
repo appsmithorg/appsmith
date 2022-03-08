@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
+import { isNil } from "lodash";
 import { useController } from "react-hook-form";
 
 import Field from "../component/Field";
@@ -161,12 +162,11 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   });
 
   useEffect(() => {
-    const stringifiedValue: string = value?.toString();
-
-    if (stringifiedValue !== textValue) {
-      setTextValue(stringifiedValue);
-    }
-  }, [value]);
+    const stringifiedValue = isNil(inputDefaultValue)
+      ? inputDefaultValue
+      : `${inputDefaultValue}`;
+    setTextValue(stringifiedValue);
+  }, [inputDefaultValue]);
 
   const { inputRef } = useEvents<HTMLInputElement | HTMLTextAreaElement>({
     fieldBlurHandler: onBlur,

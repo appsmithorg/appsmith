@@ -135,17 +135,13 @@ function InputField({
       switch (schemaItem.fieldType) {
         case FieldType.NUMBER_INPUT:
           try {
-            if (inputValue === "") {
+            if (isNil(inputValue) || inputValue === "") {
               value = null;
-            } else if (inputValue === "-") {
-              value = "-";
-            } else if (/\.$/.test(inputValue)) {
-              value = inputValue;
             } else {
               value = Number(inputValue);
 
               if (isNaN(value)) {
-                value = undefined;
+                value = null;
               }
             }
             break;

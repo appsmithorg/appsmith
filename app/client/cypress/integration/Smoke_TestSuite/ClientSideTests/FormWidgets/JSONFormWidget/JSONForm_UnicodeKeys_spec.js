@@ -202,7 +202,7 @@ describe("JSON Form Widget Unicode keys", () => {
 
     // नाम field
     cy.openFieldConfiguration("xn__l2bm1c");
-    cy.testJsontext("accessor", "नाम नाम");
+    cy.testJsontext("propertyname", "नाम नाम");
     cy.get(backBtn)
       .click({ force: true })
       .wait(500);
@@ -210,7 +210,7 @@ describe("JSON Form Widget Unicode keys", () => {
     // open field суроға -> شارع
     cy.openFieldConfiguration("xn__80a1afdk69b");
     cy.openFieldConfiguration("xn__mgbuhw");
-    cy.testJsontext("accessor", "شارع1 شارع");
+    cy.testJsontext("propertyname", "شارع1 شارع");
     cy.get(backBtn)
       .click({ force: true })
       .wait(500);
@@ -228,7 +228,7 @@ describe("JSON Form Widget Unicode keys", () => {
     cy.openFieldConfiguration("xn__12ca5huag4ce3a");
     cy.openFieldConfiguration("__array_item__");
     cy.openFieldConfiguration("xn__ohco9d4d");
-    cy.testJsontext("accessor", "ସ୍ନାତକ କଲେଜ");
+    cy.testJsontext("propertyname", "ସ୍ନାତକ କଲେଜ");
 
     cy.wait(5000);
 

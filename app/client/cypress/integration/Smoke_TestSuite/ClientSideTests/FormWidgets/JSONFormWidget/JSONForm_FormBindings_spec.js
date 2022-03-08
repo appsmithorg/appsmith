@@ -357,7 +357,7 @@ describe("JSON Form Widget Form Bindings", () => {
 
     // Change accessor name -> firstName
     cy.openFieldConfiguration("name");
-    cy.testJsontext("accessor", "firstName");
+    cy.testJsontext("propertyname", "firstName");
     cy.wait(1000);
 
     cy.get(backBtn)
@@ -368,7 +368,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.openFieldConfiguration("education");
     cy.openFieldConfiguration("__array_item__");
     cy.openFieldConfiguration("college");
-    cy.testJsontext("accessor", "graduatingCollege");
+    cy.testJsontext("propertyname", "graduatingCollege");
 
     cy.wait(5000);
 
@@ -394,7 +394,7 @@ describe("JSON Form Widget Form Bindings", () => {
 
     // Change accessor name -> firstName
     cy.openFieldConfiguration("name");
-    cy.testJsontext("accessor", "firstName");
+    cy.testJsontext("propertyname", "firstName");
     cy.wait(1000);
 
     cy.get(backBtn)
@@ -405,7 +405,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.openFieldConfiguration("education");
     cy.openFieldConfiguration("__array_item__");
     cy.openFieldConfiguration("college");
-    cy.testJsontext("accessor", "graduatingCollege");
+    cy.testJsontext("propertyname", "graduatingCollege");
 
     cy.wait(5000);
 

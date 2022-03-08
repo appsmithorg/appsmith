@@ -206,7 +206,7 @@ const generateButtonStyleControlsFor = (prefix: string) => [
       const propertiesToUpdate = [{ propertyPath, propertyValue }];
       if (!props.iconAlign) {
         propertiesToUpdate.push({
-          propertyPath: "iconAlign",
+          propertyPath: `${prefix}.iconAlign`,
           propertyValue: Alignment.LEFT,
         });
       }

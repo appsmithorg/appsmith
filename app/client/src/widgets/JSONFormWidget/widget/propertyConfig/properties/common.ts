@@ -141,8 +141,8 @@ const COMMON_PROPERTIES = {
     {
       propertyName: "accessor",
       helpText:
-        "Sets the key which can be used to access the particular field.",
-      label: "Accessor",
+        "Sets the property name of the field which can be used to access the value in formData and fieldState.",
+      label: "Property Name",
       controlType: "INPUT_TEXT",
       placeholderText: "name",
       isBindProperty: true,

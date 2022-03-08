@@ -20,7 +20,7 @@ describe("JSON Form Widget Custom Field", () => {
 
     cy.openFieldConfiguration("customField1");
 
-    cy.testJsontext("accessor", "gender");
+    cy.testJsontext("propertyname", "gender");
     cy.testJsontext("label", "Gender");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Select");
     cy.closePropertyPane();
