@@ -222,7 +222,9 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         } else {
             templateParams.put("Replied", true);
         }
-        return emailSender.sendMail(receiverEmail, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
+        return emailSender.sendMail(
+                receiverEmail, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams, comment.getAuthorUsername()
+        );
     }
 
     private Mono<Boolean> geBotEmailSenderMono(Comment comment, String originHeader, Organization organization, Application application) {
