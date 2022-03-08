@@ -170,11 +170,12 @@ describe("Undo/Redo functionality", function() {
 
   it("checks undo/redo for color picker", function() {
     cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
-
     cy.get(widgetsPage.textColor)
       .first()
       .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.get(widgetsPage.greenColor)
+      .last()
+      .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
