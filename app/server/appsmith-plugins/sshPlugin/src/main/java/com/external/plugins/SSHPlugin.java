@@ -128,7 +128,6 @@ public class SSHPlugin extends BasePlugin {
                 System.out.println("Created SSH datasource connection");
                 return Mono.just(session);
             } catch (JSchException e) {
-                e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Error while creating the datasource. Cause: " + e.getMessage()
