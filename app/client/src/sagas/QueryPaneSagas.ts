@@ -288,6 +288,7 @@ function* createNewQueryForDatasourceSaga(
   const createActionPayload = {
     name: newQueryName,
     pageId,
+    pluginId: datasource?.pluginId,
     datasource: {
       id: datasourceId,
     },
