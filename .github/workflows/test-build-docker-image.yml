@@ -551,10 +551,10 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
-        with:
-          path: app/client
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install
+        run: |
+          cd app/client
+          yarn install
 
       - name: Setting up the cypress tests
         with:
