@@ -122,7 +122,9 @@ public class SSHPlugin extends BasePlugin {
                         );
                 }
 
-                session.connect();
+                // with 60 sec timeout
+                session.connect(60_000);
+                // todo remove all prints
                 System.out.println("Created SSH datasource connection");
                 return Mono.just(session);
             } catch (JSchException e) {
