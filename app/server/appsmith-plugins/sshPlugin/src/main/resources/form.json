@@ -95,7 +95,7 @@
               "hidden": {
                 "path": "datasourceConfiguration.authentication.authType",
                 "comparison": "NOT_EQUALS",
-                "value": "PASSWORD"
+                "value": "IDENTITY_FILE"
               }
             }
           ]
