@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import { MarkerProps } from "../constants";
@@ -38,21 +38,21 @@ interface MapComponentProps {
   boxShadow?: string;
 }
 
-const MapWrapper = styled.div<{
-  borderRadius: string;
-  boxShadow?: string;
-}>`
+const MapWrapper = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 `;
 
-const MapContainerWrapper = styled.div`
+const MapContainerWrapper = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+}>`
   width: 100%;
   height: 100%;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 `;
 
 const StyledInput = styled.input`
@@ -201,17 +201,23 @@ function MapComponent(props: MapComponentProps) {
     `https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
     AddScriptTo.HEAD,
   );
+  const MapContainerWrapperMemoized = useMemo(
+    () => (
+      <MapContainerWrapper
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+      />
+    ),
+    [props.borderRadius, props.boxShadow],
+  );
+
   return (
-    <MapWrapper
-      borderRadius={props.borderRadius}
-      boxShadow={props.boxShadow}
-      onMouseLeave={props.enableDrag}
-    >
+    <MapWrapper onMouseLeave={props.enableDrag}>
       {status === ScriptStatus.READY && (
         <MyMapComponent
-          containerElement={<MapContainerWrapper />}
-          loadingElement={<MapContainerWrapper />}
-          mapElement={<MapContainerWrapper />}
+          containerElement={MapContainerWrapperMemoized}
+          loadingElement={MapContainerWrapperMemoized}
+          mapElement={MapContainerWrapperMemoized}
           {...props}
           zoom={zoom}
         />

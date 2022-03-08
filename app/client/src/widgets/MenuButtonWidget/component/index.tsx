@@ -58,7 +58,8 @@ const PopoverStyles = createGlobalStyle<{
     background: none;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     margin-top: 8px !important;
-    border-radius: ${({ borderRadius }) => borderRadius};
+    border-radius: ${({ borderRadius }) =>
+      borderRadius === `1.5rem` ? `0.375rem` : borderRadius};
     box-shadow: none;
     overflow: hidden;
   }
@@ -223,12 +224,10 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
 `;
 
 const StyledMenu = styled(Menu)<{
-  borderRadius?: string;
   backgroundColor?: string;
 }>`
   padding: 0;
   min-width: 0px;
-  border-radius: ${({ borderRadius }) => borderRadius};
   overflow: hidden;
 
   .${BClasses.MENU_ITEM}:hover {
@@ -313,12 +312,7 @@ function PopoverContent(props: PopoverContentProps) {
       />
     );
   });
-
-  return (
-    <StyledMenu backgroundColor={backgroundColor} borderRadius={borderRadius}>
-      {listItems}
-    </StyledMenu>
-  );
+  return <StyledMenu backgroundColor={backgroundColor}>{listItems}</StyledMenu>;
 }
 
 export interface PopoverTargetButtonProps {

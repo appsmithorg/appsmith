@@ -261,8 +261,8 @@ class CheckboxGroupWidget extends BaseWidget<
         children: [
           {
             propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
+            helpText: "Sets the checked state color of the checkbox",
+            label: "Checked Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
