@@ -281,7 +281,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         </Text>
       </TextWrapper>
       <Row>
-        <FileImportCard>
+        <FileImportCard className="t--import-json-card">
           <FilePickerV2
             containerClickable
             description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}

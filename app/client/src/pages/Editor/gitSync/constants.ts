@@ -36,6 +36,7 @@ export const Classes = {
   OPTION_SELECTOR_WRAPPER: "option-wrapper",
   MERGE_DROPDOWN: "merge-dropdown",
   GIT_IMPORT_MODAL: "git-import-modal",
+  RECONNECT_DATASOURCE_MODAL: "reconnect-datasource-modal",
 };
 
 export const DEFAULT_REMOTE = "origin";
