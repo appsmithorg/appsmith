@@ -5,5 +5,5 @@ public class ApplicationVersion {
     public static final int EARLIEST_VERSION = 1;
 
     // increment the LATEST_VERSION when there is a breaking change and user need to upgrade manually
-    public static final int LATEST_VERSION = 1;
+    public static final int LATEST_VERSION = 2;
 }
