@@ -557,8 +557,6 @@ jobs:
           yarn install
 
       - name: Setting up the cypress tests
-        with:
-          path: app/client
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
         env:
@@ -577,6 +575,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
         run: |
+          cd app/client
           ./cypress/setup-test-fat.sh
 
       - name: Run the cypress test
