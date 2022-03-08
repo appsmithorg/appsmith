@@ -1,9 +1,7 @@
 import React from "react";
-import { noop, isString, isNil } from "lodash";
+import { isNil } from "lodash";
 
 import { ColumnTypes, CellLayoutProperties } from "../Constants";
-import { CellWrapper } from "../TableStyledWrappers";
-import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { renderInlineEditor } from "./InlineEditorRenderer";
 

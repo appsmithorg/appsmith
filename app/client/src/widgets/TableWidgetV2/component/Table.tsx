@@ -13,12 +13,6 @@ import {
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
-import {
-  TableHeaderCell,
-  renderEmptyRows,
-  renderCheckBoxCell,
-  renderCheckBoxHeaderCell,
-} from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import {
@@ -33,6 +27,12 @@ import { Colors } from "constants/Colors";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
+import { renderEmptyRows } from "./renderHelpers/EmptyCellRenderer";
+import {
+  renderBodyCheckBoxCell,
+  renderHeaderCheckBoxCell,
+} from "./renderHelpers/CheckboxCellRenderer";
+import { HeaderCell } from "./components/HeaderCell";
 
 interface TableProps {
   width: number;
@@ -299,14 +299,14 @@ export function Table(props: TableProps) {
                 return (
                   <div {...headerRowProps} className="tr" key={index}>
                     {props.multiRowSelection &&
-                      renderCheckBoxHeaderCell(
+                      renderHeaderCheckBoxCell(
                         handleAllRowSelectClick,
                         rowSelectionState,
                       )}
                     {headerGroup.headers.map(
                       (column: any, columnIndex: number) => {
                         return (
-                          <TableHeaderCell
+                          <HeaderCell
                             column={column}
                             columnIndex={columnIndex}
                             columnName={column.Header}
@@ -362,7 +362,7 @@ export function Table(props: TableProps) {
                     }}
                   >
                     {props.multiRowSelection &&
-                      renderCheckBoxCell(isRowSelected)}
+                      renderBodyCheckBoxCell(isRowSelected)}
                     {row.cells.map((cell, cellIndex) => {
                       return (
                         <div

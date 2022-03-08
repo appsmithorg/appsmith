@@ -1,4 +1,7 @@
+import { noop } from "lodash";
 import React from "react";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
+import InputComponent from "widgets/InputWidgetV2/component";
 import { renderDefaultPropsType } from "./DefaultRenderer";
 
 type renderInlineEditorPropsType = Pick<
@@ -8,18 +11,23 @@ type renderInlineEditorPropsType = Pick<
 
 export function renderInlineEditor({
   onCellChange,
-  onCellUpdate,
   value,
 }: renderInlineEditorPropsType) {
   return (
-    <input
-      defaultValue={value.toString()}
-      onChange={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        onCellChange && onCellChange(e.target.value);
-      }}
-      type="text"
+    <InputComponent
+      autoFocus
+      compactMode
+      disableNewLineOnPressEnterKey={false}
+      inputType={InputTypes.TEXT}
+      isInvalid={false}
+      isLoading={false}
+      label=""
+      multiline
+      onFocusChange={noop}
+      onValueChange={() => onCellChange}
+      showError
+      value={value}
+      widgetId=""
     />
   );
 }

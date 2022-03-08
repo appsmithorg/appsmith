@@ -2,7 +2,7 @@ import { findIndex, isEmpty } from "lodash";
 import React from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-import { IconName, IconNames } from "@blueprintjs/icons";
+import { IconNames } from "@blueprintjs/icons";
 
 import { DropdownOption } from "widgets/DropdownWidget/constants";
 import { stopClickEventPropagation } from "utils/helpers";

@@ -31,7 +31,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   }
 `;
 
-export function TableHeaderCell(props: {
+export function HeaderCell(props: {
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
