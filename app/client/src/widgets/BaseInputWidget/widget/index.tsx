@@ -309,25 +309,15 @@ class BaseInputWidget<
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   }
 
+  resetWidgetText() {
+    this.props.updateWidgetMetaProperty("text", "");
+  }
+
   onSubmitSuccess = (result: ExecutionResult) => {
     if (result.success && this.props.resetOnSubmit) {
       //Resets isDirty
       super.resetChildrenMetaProperty(this.props.widgetId);
-
-      if (this.props.type === "INPUT_WIDGET_V2") {
-        this.props.updateWidgetMetaProperty("inputText", "");
-      } else {
-        this.props.updateWidgetMetaProperty("text", "");
-      }
-
-      /*
-       *  Value is a derived property in CURRENCY_INPUT_WIDGET &
-       *  INPUT_WIDGET_V2, so only reset value in
-       *  PHONE_INPUT_WIDGET, where its not derived value.
-       */
-      if (this.props.type === "PHONE_INPUT_WIDGET") {
-        this.props.updateWidgetMetaProperty("value", undefined);
-      }
+      this.resetWidgetText();
     }
   };
 

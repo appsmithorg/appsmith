@@ -372,6 +372,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     }
   };
 
+  resetWidgetText = () => {
+    this.props.updateWidgetMetaProperty("inputText", "");
+  };
+
   getPageView() {
     const value = this.props.inputText ?? "";
     let isInvalid = false;

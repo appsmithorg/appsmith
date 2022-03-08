@@ -32,13 +32,31 @@ describe("Input widget V2 - ", () => {
 
   it("3. Validate DataType - TEXT can be entered into Input widget", () => {
     [
-      "test:test:true",
-      "test123:test123:true",
-      "123:123:true",
-      "::true",
-      "$100.22:$100.22:true",
-      "test@appsmith.com:test@appsmith.com:true",
-    ].forEach((text) => enterAndTest(text.split(":")[0], text));
+      {
+        input: "test",
+        expected: "test:test:true",
+      },
+      {
+        input: "test123",
+        expected: "test123:test123:true",
+      },
+      {
+        input: "123",
+        expected: "123:123:true",
+      },
+      {
+        input: "",
+        expected: "::true",
+      },
+      {
+        input: "$100.22",
+        expected: "$100.22:$100.22:true",
+      },
+      {
+        input: "test@appsmith.com",
+        expected: "test@appsmith.com:test@appsmith.com:true",
+      },
+    ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     cy.openPropertyPane(widgetName);
 
@@ -48,34 +66,82 @@ describe("Input widget V2 - ", () => {
       .click({ force: true });
 
     [
-      "test:test:true",
-      "test123:test123:true",
-      "123:123:true",
-      "-:-:true",
-      "::false",
-      "$100.22:$100.22:true",
-      "test@appsmith.com:test@appsmith.com:true",
-      "::false",
-    ].forEach((text) => enterAndTest(text.split(":")[0], text));
+      {
+        input: "test",
+        expected: "test:test:true",
+      },
+      {
+        input: "test123",
+        expected: "test123:test123:true",
+      },
+      {
+        input: "123",
+        expected: "123:123:true",
+      },
+      {
+        input: "-",
+        expected: "-:-:true",
+      },
+      {
+        input: "",
+        expected: "::false",
+      },
+      {
+        input: "$100.22",
+        expected: "$100.22:$100.22:true",
+      },
+      {
+        input: "test@appsmith.com",
+        expected: "test@appsmith.com:test@appsmith.com:true",
+      },
+      {
+        input: "",
+        expected: "::false",
+      },
+    ].forEach(({ expected, input }) => enterAndTest(input, expected));
   });
 
   it("4. Validate DataType - NUMBER can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Number");
     [
-      "invalid:null:null:false",
-      "invalid123:123:123:true",
-      "123:123:123:true",
-      "-:null:null:false",
-      ":null:null:false",
-      "$100.22:100.22:100.22:true",
-      "invalid@appsmith.com:null:null:false",
-      "1.001:1.001:1.001:true",
-      "1.1.:null:null:false",
-    ].forEach((text) => {
-      const split = text.split(":");
-      enterAndTest(split.shift(), split.join(":"));
-    });
+      {
+        input: "invalid",
+        expected: "null:null:false",
+      },
+      {
+        input: "invalid123",
+        expected: "123:123:true",
+      },
+      {
+        input: "123",
+        expected: "123:123:true",
+      },
+      {
+        input: "-",
+        expected: "null:null:false",
+      },
+      {
+        input: "",
+        expected: "null:null:false",
+      },
+      {
+        input: "$100.22",
+        expected: "100.22:100.22:true",
+      },
+      {
+        input: "invalid@appsmith.com",
+        expected: "null:null:false",
+      },
+      {
+        input: "1.001",
+        expected: "1.001:1.001:true",
+      },
+      {
+        input: "1.1.",
+        expected: "null:null:false",
+      },
+    ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: off
     cy.get(".t--property-control-required label")
@@ -84,33 +150,78 @@ describe("Input widget V2 - ", () => {
 
     cy.selectDropdownValue(".t--property-control-datatype", "Number");
     [
-      "invalid:null:null:true",
-      "invalid123:123:123:true",
-      "123:123:123:true",
-      "-:null:null:false",
-      ":null:null:true",
-      "$100.22:100.22:100.22:true",
-      "invalid@appsmith.com:null:null:false",
-      "1.001:1.001:1.001:true",
-      "1.1.:null:null:false",
-    ].forEach((text) => {
-      const split = text.split(":");
-      enterAndTest(split.shift(), split.join(":"));
-    });
+      {
+        input: "invalid",
+        expected: "null:null:true",
+      },
+      {
+        input: "invalid123",
+        expected: "123:123:true",
+      },
+      {
+        input: "123",
+        expected: "123:123:true",
+      },
+      {
+        input: "-",
+        expected: "null:null:false",
+      },
+      {
+        input: "",
+        expected: "null:null:true",
+      },
+      {
+        input: "$100.22",
+        expected: "100.22:100.22:true",
+      },
+      {
+        input: "invalid@appsmith.com",
+        expected: "null:null:false",
+      },
+      {
+        input: "1.001",
+        expected: "1.001:1.001:true",
+      },
+      {
+        input: "1.1.",
+        expected: "null:null:false",
+      },
+    ].forEach(({ expected, input }) => enterAndTest(input, expected));
   });
 
   it("5. Validate DataType - PASSWORD can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Password");
     [
-      "test:test:true",
-      "test123:test123:true",
-      "123:123:true",
-      "-:-:true",
-      "::true",
-      "$100.22:$100.22:true",
-      "test@appsmith.com:test@appsmith.com:true",
-    ].forEach((text) => enterAndTest(text.split(":")[0], text));
+      {
+        input: "test",
+        expected: "test:test:true",
+      },
+      {
+        input: "test123",
+        expected: "test123:test123:true",
+      },
+      {
+        input: "123",
+        expected: "123:123:true",
+      },
+      {
+        input: "-",
+        expected: "-:-:true",
+      },
+      {
+        input: "",
+        expected: "::true",
+      },
+      {
+        input: "$100.22",
+        expected: "$100.22:$100.22:true",
+      },
+      {
+        input: "test@appsmith.com",
+        expected: "test@appsmith.com:test@appsmith.com:true",
+      },
+    ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: on
     cy.get(".t--property-control-required label")
@@ -118,28 +229,70 @@ describe("Input widget V2 - ", () => {
       .click({ force: true });
 
     [
-      "test:test:true",
-      "test123:test123:true",
-      "123:123:true",
-      "-:-:true",
-      "::false",
-      "$100.22:$100.22:true",
-      "test@appsmith.com:test@appsmith.com:true",
-    ].forEach((text) => enterAndTest(text.split(":")[0], text));
+      {
+        input: "test",
+        expected: "test:test:true",
+      },
+      {
+        input: "test123",
+        expected: "test123:test123:true",
+      },
+      {
+        input: "123",
+        expected: "123:123:true",
+      },
+      {
+        input: "-",
+        expected: "-:-:true",
+      },
+      {
+        input: "",
+        expected: "::false",
+      },
+      {
+        input: "$100.22",
+        expected: "$100.22:$100.22:true",
+      },
+      {
+        input: "test@appsmith.com",
+        expected: "test@appsmith.com:test@appsmith.com:true",
+      },
+    ].forEach(({ expected, input }) => enterAndTest(input, expected));
   });
 
   it("6. Validate DataType - EMAIL can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Email");
     [
-      "test:test:false",
-      "test123:test123:false",
-      "123:123:false",
-      "-:-:false",
-      "::false",
-      "$100.22:$100.22:false",
-      "test@appsmith.com:test@appsmith.com:true",
-    ].forEach((text) => enterAndTest(text.split(":")[0], text));
+      {
+        input: "test",
+        expected: "test:test:false",
+      },
+      {
+        input: "test123",
+        expected: "test123:test123:false",
+      },
+      {
+        input: "123",
+        expected: "123:123:false",
+      },
+      {
+        input: "-",
+        expected: "-:-:false",
+      },
+      {
+        input: "",
+        expected: "::false",
+      },
+      {
+        input: "$100.22",
+        expected: "$100.22:$100.22:false",
+      },
+      {
+        input: "test@appsmith.com",
+        expected: "test@appsmith.com:test@appsmith.com:true",
+      },
+    ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: off
     cy.get(".t--property-control-required label")
@@ -147,14 +300,35 @@ describe("Input widget V2 - ", () => {
       .click({ force: true });
 
     [
-      "test:test:false",
-      "test123:test123:false",
-      "123:123:false",
-      "-:-:false",
-      "::true",
-      "$100.22:$100.22:false",
-      "test@appsmith.com:test@appsmith.com:true",
-    ].forEach((text) => enterAndTest(text.split(":")[0], text));
+      {
+        input: "test",
+        expected: "test:test:false",
+      },
+      {
+        input: "test123",
+        expected: "test123:test123:false",
+      },
+      {
+        input: "123",
+        expected: "123:123:false",
+      },
+      {
+        input: "-",
+        expected: "-:-:false",
+      },
+      {
+        input: "",
+        expected: "::true",
+      },
+      {
+        input: "$100.22",
+        expected: "$100.22:$100.22:false",
+      },
+      {
+        input: "test@appsmith.com",
+        expected: "test@appsmith.com:test@appsmith.com:true",
+      },
+    ].forEach(({ expected, input }) => enterAndTest(input, expected));
   });
 
   it("7. Validating other properties - Input validity with #valid", () => {
