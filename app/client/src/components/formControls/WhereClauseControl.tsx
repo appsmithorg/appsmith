@@ -11,6 +11,8 @@ import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
 
+const DropdownWidth = "108";
+
 // Type of the value for each condition
 export type whereClauseValueType = {
   condition?: string;
@@ -43,12 +45,11 @@ const conditionFieldConfig: any = {
 
 // Form config for the operator field
 const logicalFieldConfig: any = {
-  label: "Condition",
   key: "condition",
   controlType: "DROP_DOWN",
   initialValue: "EQ",
   options: [],
-  customStyles: { width: "5vw" },
+  customStyles: { width: `${DropdownWidth}px` },
 };
 
 // Component for the delete Icon
@@ -71,7 +72,7 @@ const PrimaryBox = styled.div`
   display: flex;
   width: min-content;
   flex-direction: column;
-  border: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border: 1.2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding: 10px;
 `;
 
@@ -95,6 +96,10 @@ const ConditionBox = styled.div`
   flex-direction: row;
   width: min-content;
   justify-content: space-between;
+  margin: 4px 0px;
+  :first-child {
+    margin-top: 0px;
+  }
 `;
 
 // Box containing the action buttons to add more filters
@@ -123,14 +128,14 @@ function ConditionComponent(props: any, index: number) {
   const unitWidth = (props.maxWidth - 5) / 5;
 
   // Labels are only displayed if the condition is the first one
-  let keyLabel = "";
-  let valueLabel = "";
-  let conditionLabel = "";
-  if (index === 0) {
-    keyLabel = "Key";
-    valueLabel = "Value";
-    conditionLabel = "Operator";
-  }
+  // let keyLabel = "";
+  // let valueLabel = "";
+  // let conditionLabel = "";
+  // if (index === 0) {
+  //   keyLabel = "Key";
+  //   valueLabel = "Value";
+  //   conditionLabel = "Operator";
+  // }
 
   const keyPath = getBindingOrConfigPathsForWhereClauseControl(
     props.field,
@@ -151,8 +156,7 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...keyFieldConfig,
-          label: keyLabel,
-          customStyles: { width: `${unitWidth * 2}vw` },
+          customStyles: { width: `${unitWidth * 2}vw`, margin: "0 8px" },
           configProperty: keyPath,
         }}
         formName={props.formName}
@@ -161,8 +165,7 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...conditionFieldConfig,
-          label: conditionLabel,
-          customStyles: { width: `${unitWidth * 1}vw` },
+          customStyles: { width: `${DropdownWidth}px`, margin: "0 8px" },
           configProperty: conditionPath,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0].value,
@@ -173,8 +176,7 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...valueFieldConfig,
-          label: valueLabel,
-          customStyles: { width: `${unitWidth * 2}vw` },
+          customStyles: { width: `${unitWidth * 2}vw`, margin: "0 8px" },
           configProperty: valuePath,
         }}
         formName={props.formName}
@@ -238,7 +240,7 @@ function ConditionBlock(props: any) {
   );
 
   return (
-    <PrimaryBox style={{ marginTop }}>
+    <>
       <SecondaryBox>
         {/* Component to render the joining operator between multiple conditions */}
         <FormControl
@@ -334,7 +336,7 @@ function ConditionBlock(props: any) {
           </AddMoreAction>
         )}
       </ActionBox>
-    </PrimaryBox>
+    </>
   );
 }
 
