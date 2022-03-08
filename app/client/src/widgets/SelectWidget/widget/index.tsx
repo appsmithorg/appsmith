@@ -414,9 +414,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           type: EventType.ON_OPTION_CHANGE,
         },
       });
-    }
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
     }
   };
 
