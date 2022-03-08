@@ -7,6 +7,7 @@ import {
   ApplicationPagePayload,
   GitApplicationMetadata,
 } from "api/ApplicationApi";
+import { ApplicationVersion } from "actions/applicationActions";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -957,7 +958,7 @@ export interface ApplicationPayload {
   modifiedBy?: string;
   modifiedAt?: string;
   pages: ApplicationPagePayload[];
-  applicationVersion: number;
+  applicationVersion: ApplicationVersion;
 }
 
 export interface CurrentApplicationData extends ApplicationPayload {

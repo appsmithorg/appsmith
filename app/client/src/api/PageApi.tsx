@@ -7,6 +7,7 @@ import {
   ClonePageActionPayload,
   CreatePageActionPayload,
 } from "actions/pageActions";
+import { FetchApplicationResponse } from "./ApplicationApi";
 
 export type FetchPageRequest = {
   id: string;
@@ -248,7 +249,7 @@ class PageApi extends Api {
     );
   }
 
-  static fetchAppAndPages(params: any): any {
+  static fetchAppAndPages(params: any): AxiosPromise<FetchApplicationResponse> {
     return Api.get(PageApi.url, params);
   }
 }

@@ -148,6 +148,7 @@ import FileListLineIcon from "remixicon-react/FileListLineIcon";
 import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
 import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
+import DvdLineIcon from "remixicon-react/DvdLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -365,6 +366,7 @@ const ICON_LOOKUP = {
   workspace: <WorkspaceIcon />,
   "file-list-line": <FileListLineIcon />,
   hamburger: <HamburgerIcon />,
+  upgrade: <DvdLineIcon />,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);

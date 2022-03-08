@@ -10,9 +10,7 @@ import {
 import { APP_MODE } from "entities/App";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { matchPath } from "react-router";
-
-export const LEGACY_URL_APP_VERSION = 1;
-export const SLUG_URL_APP_VERSION = 2;
+import { ApplicationVersion } from "actions/applicationActions";
 
 const fetchParamsToPersist = () => {
   const existingParams = getQueryParamsObject() || {};
@@ -38,7 +36,7 @@ type BaseURLBuilderParams = {
   applicationSlug: string;
   pageId: string;
   pageSlug: string;
-  applicationVersion?: number;
+  applicationVersion?: ApplicationVersion;
 };
 
 type URLBuilderParams = BaseURLBuilderParams & {
@@ -77,7 +75,8 @@ function baseURLBuilder(
   applicationVersion =
     applicationVersion ?? BASE_URL_BUILDER_PARAMS.applicationVersion;
   const shouldUseLegacyURLs =
-    typeof applicationVersion !== "undefined" && applicationVersion <= 1;
+    typeof applicationVersion !== "undefined" &&
+    applicationVersion < ApplicationVersion.SLUG_URL;
 
   let basePath = "";
   pageId = pageId ?? BASE_URL_BUILDER_PARAMS.pageId;

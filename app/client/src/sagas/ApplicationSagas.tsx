@@ -54,6 +54,7 @@ import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  selectCurrentPageSlug,
   selectURLSlugs,
 } from "selectors/editorSelectors";
 
@@ -331,20 +332,34 @@ export function* updateApplicationSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     // as the redux store updates the app only on success.
     // we have to run this
-    if (isValidResponse && request) {
-      yield put({
-        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-        payload: action.payload,
-      });
-    }
-    if (isValidResponse && request.currentApp) {
-      yield put({
-        type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
-        payload: response.data,
-      });
-      updateSlugNamesInURL({
-        applicationSlug: response.data.slug,
-      });
+    if (isValidResponse) {
+      if (request) {
+        yield put({
+          type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+          payload: action.payload,
+        });
+      }
+      if (request.currentApp) {
+        yield put({
+          type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
+          payload: response.data,
+        });
+        updateSlugNamesInURL({
+          applicationSlug: response.data.slug,
+        });
+      }
+      if (request.applicationVersion) {
+        const pageSlug: string = yield select(selectCurrentPageSlug);
+        const pageId: string = yield select(getCurrentPageId);
+        const newURL = builderURL({
+          applicationVersion: response.data.applicationVersion,
+          applicationSlug: response.data.slug,
+          pageSlug,
+          pageId,
+        });
+        history.replace(newURL);
+        request.callback?.();
+      }
     }
   } catch (error) {
     yield put({

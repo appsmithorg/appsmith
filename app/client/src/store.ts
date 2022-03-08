@@ -50,6 +50,10 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
       updateURLFactory({ pageId: id, pageSlug: slug });
       break;
     }
+    case ReduxActionTypes.UPDATE_APPLICATION_SUCCESS:
+      const { applicationVersion } = action.payload;
+      updateURLFactory({ applicationVersion });
+      break;
     default:
       break;
   }

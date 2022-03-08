@@ -10,6 +10,11 @@ import {
   FetchApplicationPayload,
 } from "api/ApplicationApi";
 
+export enum ApplicationVersion {
+  DEFAULT = 1,
+  SLUG_URL = 2,
+}
+
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
   applicationId: string,
@@ -46,12 +51,14 @@ export const updateApplicationLayout = (
 export const updateApplication = (
   id: string,
   data: UpdateApplicationPayload,
+  callback?: () => void,
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_APPLICATION,
     payload: {
       id,
       ...data,
+      callback,
     },
   };
 };

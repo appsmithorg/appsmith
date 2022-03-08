@@ -5,6 +5,7 @@ import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { APP_MODE } from "entities/App";
+import { ApplicationVersion } from "actions/applicationActions";
 
 export type EvaluationVersion = number;
 
@@ -51,7 +52,7 @@ export interface ApplicationResponsePayload {
   unreadCommentThreads?: number;
   gitApplicationMetadata: GitApplicationMetadata;
   slug: string;
-  applicationVersion: number;
+  applicationVersion: ApplicationVersion;
 }
 
 export interface FetchApplicationPayload {
@@ -107,10 +108,12 @@ export type UpdateApplicationPayload = {
   name?: string;
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
+  applicationVersion?: number;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
   id: string;
+  callback?: () => void;
 };
 
 export interface ApplicationObject {

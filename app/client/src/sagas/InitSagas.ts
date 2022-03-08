@@ -35,7 +35,10 @@ import {
   fetchActions,
   fetchActionsForView,
 } from "actions/pluginActionActions";
-import { fetchApplication } from "actions/applicationActions";
+import {
+  ApplicationVersion,
+  fetchApplication,
+} from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -125,7 +128,8 @@ function* initiateURLUpdate(
   const currentApplication: CurrentApplicationData = yield select(
     getCurrentApplication,
   );
-  if (currentApplication.applicationVersion < 1) return;
+  if (currentApplication.applicationVersion < ApplicationVersion.SLUG_URL)
+    return;
   const applicationSlug = currentApplication.slug as string;
   const currentPage: Page = yield select(getPageById(pageId));
   const pageSlug = currentPage?.slug as string;

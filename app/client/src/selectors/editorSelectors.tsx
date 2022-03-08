@@ -34,6 +34,7 @@ import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "AppsmithRouteFactory";
+import { ApplicationVersion } from "actions/applicationActions";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -132,6 +133,10 @@ export const getCurrentApplicationId = (state: AppState) =>
 
 export const selectCurrentApplicationSlug = (state: AppState) =>
   state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
+
+export const selectApplicationVersion = (state: AppState) =>
+  state.ui.applications.currentApplication?.applicationVersion ||
+  ApplicationVersion.DEFAULT;
 
 export const selectPageSlugById = (pageId: string) =>
   createSelector(getPageList, (pages) => {
