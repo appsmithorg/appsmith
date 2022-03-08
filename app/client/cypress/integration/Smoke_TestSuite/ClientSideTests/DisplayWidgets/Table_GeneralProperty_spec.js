@@ -4,6 +4,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Table Widget property pane feature validation", function() {
   before(() => {
@@ -193,7 +194,10 @@ describe("Table Widget property pane feature validation", function() {
       .contains("Short")
       .click({ force: true });
     cy.wait(2000);
-    cy.readTabledataValidateCSS("0", "1", "height", "28px");
+    cy.PublishtheApp();
+    cy.readTabledataValidateCSS("0", "1", "height", "19px", true);
+    cy.get(publish.backToEditor).click();
+    cy.wait(2000);
   });
 
   it("11. Test to validate text color and text background", function() {
@@ -233,6 +237,8 @@ describe("Table Widget property pane feature validation", function() {
       .click();
     cy.wait("@updateLayout");
     cy.wait(4000);
+
+    cy.PublishtheApp();
     // Verify the cell background color is green
     cy.readTabledataValidateCSS(
       "1",
@@ -240,12 +246,17 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
     );
+    cy.get(publish.backToEditor).click();
+    cy.openPropertyPane("tablewidget");
+
     // Change the cell background color and enter purple in input field
     cy.get(`${widgetsPage.cellBackground} input`)
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");
     cy.wait(4000);
+    cy.PublishtheApp();
+
     // Verify the cell background color is purple
     cy.readTabledataValidateCSS(
       "1",
@@ -253,5 +264,6 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
+    cy.get(publish.backToEditor).click();
   });
 });
