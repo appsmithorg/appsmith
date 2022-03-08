@@ -339,7 +339,7 @@ function OrgInviteUsersForm(props: any) {
                 {allUsers.length === 0 && <NoEmailConfigImage />}
                 <span>You haven’t setup any email service yet</span>
                 <a
-                  href="https://docs.appsmith.com/v/v1.2.1/setup/docker/email"
+                  href="https://docs.appsmith.com/setup/instance-configuration/email"
                   rel="noopener noreferrer"
                   target="_blank"
                 >

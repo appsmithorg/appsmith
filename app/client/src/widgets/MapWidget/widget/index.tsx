@@ -344,15 +344,15 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             <h1>{"Map Widget disabled"}</h1>
             <p>{"Map widget requires a Google Maps API Key"}</p>
             <p>
-              {"See our"}
+              {"See our "}
               <a
-                href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
+                href="https://docs.appsmith.com/setup/instance-configuration/google-maps"
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                {" documentation "}
+                {"documentation"}
               </a>
-              {"to configure API Keys"}
+              {" to configure API Keys"}
             </p>
           </DisabledContainer>
         )}

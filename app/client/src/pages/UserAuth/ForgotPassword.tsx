@@ -90,7 +90,7 @@ export const ForgotPassword = withTheme(
             <FormMessage
               actions={[
                 {
-                  url: "https://docs.appsmith.com/v/v1.2.1/setup/docker/email",
+                  url: "https://docs.appsmith.com/setup/instance-configuration/email",
                   text: "Configure Email service",
                   intent: "primary",
                 },
