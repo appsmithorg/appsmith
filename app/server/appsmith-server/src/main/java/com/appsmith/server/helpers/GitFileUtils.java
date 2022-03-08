@@ -171,10 +171,6 @@ public class GitFileUtils {
 
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
-
-                    if (!isVersionCompatible(metadata)) {
-                        migrateToLatestVersion(applicationReference);
-                    }
                     ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
                     copyNestedNonNullProperties(metadata, applicationJson);
 
@@ -369,17 +365,5 @@ public class GitFileUtils {
         applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
 
         return applicationJson;
-    }
-
-    private ApplicationGitReference migrateToLatestVersion(ApplicationGitReference applicationReference) {
-        // Implement the incremental version upgrade for JSON files here
-        return applicationReference;
-    }
-
-    private boolean isVersionCompatible(ApplicationJson metadata) {
-        Integer importedFileFormatVersion = metadata == null ? null : metadata.getFileFormatVersion();
-        Integer currentFileFormatVersion = new ApplicationJson().getFileFormatVersion();
-
-        return (importedFileFormatVersion == null || importedFileFormatVersion.equals(currentFileFormatVersion));
     }
 }
