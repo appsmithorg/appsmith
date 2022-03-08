@@ -22,6 +22,10 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
   return (
     <Dialog
       canOutsideClickClose
+      headerIcon={{
+        name: "delete",
+        fillColor: "#f22c2b",
+      }}
       isOpen={isOpen}
       onClose={onClose}
       title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
