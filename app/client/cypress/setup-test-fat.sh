@@ -49,6 +49,7 @@ sudo docker exec -i Cypress-mongodb /usr/bin/mongorestore --db sample_airbnb /sa
 
 sleep 10
 
+
 echo "Checking if the containers have started"
 sudo docker ps -a
 for fcid in $(sudo docker ps -a | awk '/Exited/ { print $1 }'); do
