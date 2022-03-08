@@ -19,7 +19,7 @@ describe("Single Select Widget Functionality", function() {
     cy.get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true });
-    cy.get(".tree-select-dropdown .bp3-input")
+    cy.get(formWidgetsPage.treeSelectFilterInput)
       .click()
       .type("light");
     cy.treeSelectDropdown("Light Blue");

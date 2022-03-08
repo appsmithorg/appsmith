@@ -495,10 +495,11 @@ class MultiSelectWidget extends BaseWidget<
     return "MULTI_SELECT_WIDGET_V2";
   }
 }
-
-export interface DropdownOption {
+export interface OptionValue {
   label: string;
   value: string;
+}
+export interface DropdownOption extends OptionValue {
   disabled?: boolean;
 }
 
@@ -510,7 +511,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
-  defaultOptionValue: string | string[] | { value: string; label: string }[];
+  defaultOptionValue: string | string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelValueType[];

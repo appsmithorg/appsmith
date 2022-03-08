@@ -94,12 +94,7 @@ function MultiSelectComponent({
   const clearButton = useMemo(
     () =>
       filter ? (
-        <Button
-          disabled={disabled}
-          icon="cross"
-          minimal
-          onClick={() => setFilter("")}
-        />
+        <Button icon="cross" minimal onClick={() => setFilter("")} />
       ) : null,
     [filter],
   );
@@ -187,21 +182,20 @@ function MultiSelectComponent({
     serverSideFiltering ? [options] : [filter, options],
   );
   const memoDropDownWidth = useMemo(() => {
-    const parentWidth = width - WidgetContainerDiff;
-    const nonCompactDropDownWidth =
-      parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
     if (compactMode && labelRef.current) {
       const labelWidth = labelRef.current.clientWidth;
       const widthDiff = dropDownWidth - labelWidth;
       return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
     }
-    return nonCompactDropDownWidth;
+    const parentWidth = width - WidgetContainerDiff;
+    return parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
   }, [compactMode, dropDownWidth, width, labelRef.current]);
 
-  const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setFilter(event.target.value);
-  };
+  }, []);
+
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
@@ -241,6 +235,7 @@ function MultiSelectComponent({
       allowSelectAll,
       isFilterable,
       filter,
+      onQueryChange,
     ],
   );
 

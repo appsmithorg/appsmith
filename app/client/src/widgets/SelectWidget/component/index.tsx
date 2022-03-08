@@ -127,7 +127,7 @@ class SelectComponent extends React.Component<
         this.spanRef.current.parentElement.offsetWidth <
           this.spanRef.current.parentElement.scrollWidth)
         ? value
-        : undefined;
+        : "";
 
     return (
       <DropdownContainer compactMode={compactMode}>

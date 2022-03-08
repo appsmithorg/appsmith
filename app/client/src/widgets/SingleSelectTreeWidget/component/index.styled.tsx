@@ -9,6 +9,7 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
+import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -235,80 +236,7 @@ ${({ dropDownWidth, id }) => `
   margin-top: 5px;
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-  &&&& .${Classes.ALIGN_LEFT} {
-    font-size: 14px;
-    padding-bottom: 10px;
-    margin-left: 16px ;
-    .${Classes.CONTROL_INDICATOR} {
-      margin-right: 20px;
-    }
-  }
-  &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-    background: white;
-    box-shadow: none;
-    border-width: 2px;
-    border-style: solid;
-    border-color: ${Colors.GEYSER};
-    &::before {
-      width: auto;
-      height: 1em;
-    }
-  }
-  .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: rgb(3, 179, 101) !important;
-    color: rgb(255, 255, 255);
-    border-color: rgb(3, 179, 101) !important;
-    box-shadow: none;
-    outline: none !important;
-  }
-  & .${Classes.INPUT_GROUP} {
-      padding: 12px 12px 8px 12px;
-
-      & > .${Classes.ICON} {
-        &:first-child {
-          left: 12px;
-          top: 14px;
-          margin: 9px;
-          color: ${Colors.GREY_7};
-
-          & > svg {
-            width: 14px;
-            height: 14px;
-          }
-        }
-      }
-      & > .${Classes.INPUT_ACTION} {
-        &:last-child {
-          right: 13px;
-          top: 13px;
-
-          .${Classes.BUTTON} {
-            min-height: 34px;
-            min-width: 35px;
-            margin: 0px;
-            color: ${Colors.GREY_6} !important;
-
-            &:hover {
-              color: ${Colors.GREY_10} !important;
-              background: ${Colors.GREY_2};
-              border-radius: 0;
-            }
-          }
-        }
-      }
-      .${Classes.INPUT} {
-        height: 36px;
-        padding-left: 29px !important;
-        font-size: 14px;
-        border: 1px solid ${Colors.GREY_3};
-        color: ${Colors.GREY_10};
-        box-shadow: 0px 0px 0px 0px;
-        &:focus {
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
-        }
-      }
-    }
+  ${CommonSelectFilterStyle}
   .rc-tree-select-item {
     font-size: 16px;
     line-height: 1.5;
