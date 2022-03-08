@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import {
   Popover,
   Menu,
@@ -8,10 +9,37 @@ import {
   IPopoverProps,
 } from "@blueprintjs/core";
 
+/**
+ * ----------------------------------------------------------------------------
+ * TYPES
+ *-----------------------------------------------------------------------------
+ */
+
 type Props = {
   children: React.ReactElement[] | React.ReactElement;
 };
 
+/**
+ * ----------------------------------------------------------------------------
+ * STYLED
+ *-----------------------------------------------------------------------------
+ */
+
+const StyledMenuItem = styled(MenuItem)`
+  margin: 0;
+  padding: 8px;
+`;
+
+const StyledMenu = styled(Menu)`
+  margin: 0;
+  padding: 0;
+`;
+
+/**
+ * ----------------------------------------------------------------------------
+ * COMPONENTS
+ *-----------------------------------------------------------------------------
+ */
 function Dropdown(props: IPopoverProps & Props) {
   const { children, ...rest } = props;
 
@@ -39,7 +67,7 @@ function Dropdown(props: IPopoverProps & Props) {
 }
 
 function DropdownList(props: IMenuProps) {
-  return <Menu {...props} />;
+  return <StyledMenu {...props} />;
 }
 
 DropdownList.displayName = "DropdownList";
@@ -51,7 +79,7 @@ function DropdownTrigger(props: any) {
 DropdownTrigger.displayName = "DropdownTrigger";
 
 function DropdownItem(props: IMenuItemProps) {
-  return <MenuItem {...props} />;
+  return <StyledMenuItem {...props} />;
 }
 
 DropdownItem.displayName = "DropdownItem";

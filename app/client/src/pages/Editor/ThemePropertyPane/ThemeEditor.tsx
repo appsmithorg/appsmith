@@ -3,7 +3,7 @@ import { get, startCase } from "lodash";
 import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
-import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
+import Save2LineIcon from "remixicon-react/Save2LineIcon";
 
 import ThemeCard from "./ThemeCard";
 import {
@@ -131,7 +131,7 @@ function ThemeEditor() {
                 <DropdownList>
                   <DropdownItem
                     className="flex items-center"
-                    icon={<DownloadLineIcon className="w-4 h-4" />}
+                    icon={<Save2LineIcon className="w-4 h-4" />}
                     onClick={onOpenSaveModal}
                     text="Save theme"
                   />

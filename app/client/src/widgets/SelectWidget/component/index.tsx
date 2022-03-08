@@ -72,6 +72,8 @@ class SelectComponent extends React.Component<
   };
   render() {
     const {
+      borderRadius,
+      boxShadow,
       compactMode,
       disabled,
       isLoading,
@@ -79,6 +81,7 @@ class SelectComponent extends React.Component<
       labelText,
       labelTextColor,
       labelTextSize,
+      primaryColor,
       widgetId,
     } = this.props;
     // active focused item
@@ -101,11 +104,11 @@ class SelectComponent extends React.Component<
     return (
       <DropdownContainer compactMode={compactMode}>
         <DropdownStyles
-          borderRadius={this.props.borderRadius}
+          borderRadius={borderRadius}
           dropDownWidth={this.props.dropDownWidth}
           id={widgetId}
           parentWidth={this.props.width - WidgetContainerDiff}
-          primaryColor={this.props.primaryColor}
+          primaryColor={primaryColor}
         />
         {labelText && (
           <TextLabelWrapper compactMode={compactMode}>
@@ -127,9 +130,8 @@ class SelectComponent extends React.Component<
         <StyledControlGroup fill>
           <StyledSingleDropDown
             activeItem={activeItem}
-            backgroundColor={this.props.backgroundColor}
-            borderRadius={this.props.borderRadius}
-            boxShadow={this.props.boxShadow}
+            borderRadius={borderRadius}
+            boxShadow={boxShadow}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -163,7 +165,7 @@ class SelectComponent extends React.Component<
               },
               popoverClassName: `select-popover-wrapper select-popover-width-${widgetId}`,
             }}
-            primaryColor={this.props.primaryColor}
+            primaryColor={primaryColor}
             query={this.state.query}
             scrollToActiveItem
             value={this.props.value as string}
@@ -273,11 +275,9 @@ export interface SelectComponentProps extends ComponentProps {
   value?: string;
   label?: string;
   filterText?: string;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   primaryColor?: string;
-  fontFamily?: string;
 }
 
 export default SelectComponent;

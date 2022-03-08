@@ -58,12 +58,17 @@ export interface MultiSelectProps
   filterText?: string;
   widgetId: string;
   isFilterable: boolean;
+  borderRadius: string;
+  boxShadow?: string;
+  primaryColor?: string;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
 
 function MultiSelectComponent({
   allowSelectAll,
+  borderRadius,
+  boxShadow,
   compactMode,
   disabled,
   dropdownStyle,
@@ -80,6 +85,7 @@ function MultiSelectComponent({
   onFilterChange,
   options,
   placeholder,
+  primaryColor,
   serverSideFiltering,
   value,
   widgetId,
@@ -215,6 +221,7 @@ function MultiSelectComponent({
               className={`all-options ${isSelectAll ? "selected" : ""}`}
               label="Select all"
               onChange={handleSelectAll}
+              primaryColor={primaryColor}
             />
           ) : null}
           {menu}
@@ -233,14 +240,19 @@ function MultiSelectComponent({
 
   return (
     <MultiSelectContainer
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
       compactMode={compactMode}
       isValid={isValid}
+      primaryColor={primaryColor}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
+        borderRadius={borderRadius}
         dropDownWidth={dropDownWidth}
         id={widgetId}
         parentWidth={width - WidgetContainerDiff}
+        primaryColor={primaryColor}
       />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>

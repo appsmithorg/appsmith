@@ -363,6 +363,30 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isBindProperty: true,
+            isJSConvertible: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
       {
@@ -417,6 +441,7 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   getPageView() {
+    console.log({ props: this.props });
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
@@ -430,6 +455,8 @@ class MultiSelectWidget extends BaseWidget<
     return (
       <MultiSelectComponent
         allowSelectAll={this.props.allowSelectAll}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -454,6 +481,7 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        primaryColor={this.props.primaryColor}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}

@@ -1,14 +1,14 @@
 import React from "react";
 
-import Dialog from "components/ads/DialogComponent";
-import Button, { Category, Size } from "components/ads/Button";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
 } from "@appsmith/constants/messages";
-import DeleteBinLineIcon from "remixicon-react/DeleteBinLineIcon";
+import { Colors } from "constants/Colors";
+import Dialog from "components/ads/DialogComponent";
+import Button, { Category, Size } from "components/ads/Button";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;
@@ -22,10 +22,14 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
   return (
     <Dialog
       canOutsideClickClose
+      headerIcon={{
+        name: "delete",
+        fillColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
+      }}
       isOpen={isOpen}
       onClose={onClose}
       title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
-      width="500px"
     >
       <div className="pb-8 space-y-3 ">
         <p>{createMessage(DELETE_APP_THEME_WARNING)}</p>

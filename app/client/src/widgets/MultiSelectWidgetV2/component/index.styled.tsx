@@ -8,6 +8,7 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
+import { lightenColor } from "widgets/WidgetUtils";
 
 const Input = styled.input`
   height: 0;
@@ -72,6 +73,8 @@ export const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
   dropDownWidth: number;
   id: string;
+  primaryColor?: string;
+  borderRadius: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .multiselect-popover-width-${id} {
@@ -81,7 +84,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `}
 .rc-select-dropdown-hidden {
-	display: none !important;
+	display: none;
 }
 .rc-select-item-group {
 	color: #999;
@@ -110,15 +113,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
   color: ${Colors.GREY_8};
   font-weight: 400;
 }
-.rc-select-item-option-active {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+.rc-select-item-option:hover {
+	background: ${({ primaryColor }) => lightenColor(primaryColor)};
   & .rc-select-item-option-content {
     color: ${Colors.GREY_9};
   }
 }
 .rc-select-item-option-selected {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
-
   & .rc-select-item-option-content {
     color: ${Colors.GREY_10};
   }
@@ -131,13 +132,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	color: #999;
 }
 .rc-select-item-empty {
-	text-align: left;
+	text-align: center;
+  padding: 10px;
   color: rgba(92, 112, 128, 0.6) !important
 }
 .multi-select-dropdown.rc-select-dropdown-empty {
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
-  border: 1px solid #E7E7E7;
-  border-color: rgba(0,0,0,0.2);
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+  border: 0px solid #E7E7E7;
   min-height: fit-content;
 }
 .rc-select-selection__choice-zoom {
@@ -188,15 +189,15 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-bottomLeft {
-	animation-name: ${rcSelectDropdownSlideUpOut}; 
+	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-enter.rc-select-dropdown-slide-up-enter-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-appear.rc-select-dropdown-slide-up-appear-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-topLeft {
@@ -212,8 +213,10 @@ ${({ dropDownWidth, id, parentWidth }) => `
   border-radius: 0px;
   margin-top: 5px;
   background: white;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-   overflow-x: scroll;
+   overflow-x: auto;
   > div {
       min-width: ${({ dropDownWidth }) => dropDownWidth}px;
     }
@@ -225,7 +228,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      background: ${({ primaryColor }) => lightenColor(primaryColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
@@ -242,62 +245,63 @@ ${({ dropDownWidth, id, parentWidth }) => `
     }
   }
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${Colors.GREEN_SOLID} !important;
+    background: ${({ primaryColor }) => primaryColor} !important;
     color: rgb(255, 255, 255);
-    border-color: ${Colors.GREEN_SOLID} !important;
+    border-color: ${({ primaryColor }) => primaryColor} !important;
     box-shadow: none;
     outline: none !important;
   }
-
   & .${Classes.INPUT_GROUP} {
-      padding: 12px 12px 8px 12px;
-      min-width: 180px;
+    padding: 12px 12px 8px 12px;
+    min-width: 180px;
 
-      & > .${Classes.ICON} {
-        &:first-child {
-          left: 12px;
-          top: 14px;
-          margin: 9px;
-          color: ${Colors.GREY_7};
+    & > .${Classes.ICON} {
+      &:first-child {
+        left: 12px;
+        top: 14px;
+        margin: 9px;
+        color: ${Colors.GREY_7};
 
-          & > svg {
-            width: 14px;
-            height: 14px;
-          }
-        }
-      }
-      & > .${Classes.INPUT_ACTION} {
-        &:last-child {
-          right: 13px;
-          top: 13px;
-
-          .${Classes.BUTTON} {
-            min-height: 34px;
-            min-width: 35px;
-            margin: 0px;
-            color: ${Colors.GREY_6} !important;
-
-            &:hover {
-              color: ${Colors.GREY_10} !important;
-              background: ${Colors.GREY_2};
-              border-radius: 0;
-            }
-          }
-        }
-      }
-      .${Classes.INPUT} {
-        height: 36px;
-        padding-left: 29px !important;
-        font-size: 14px;
-        border: 1px solid ${Colors.GREY_3};
-        color: ${Colors.GREY_10};
-        box-shadow: 0px 0px 0px 0px;
-        &:focus {
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
+        & > svg {
+          width: 14px;
+          height: 14px;
         }
       }
     }
+    & > .${Classes.INPUT_ACTION} {
+      &:last-child {
+        right: 13px;
+        top: 13px;
+
+        .${Classes.BUTTON} {
+          min-height: 34px;
+          min-width: 35px;
+          margin: 0px;
+          color: ${Colors.GREY_6} !important;
+
+          &:hover {
+            color: ${Colors.GREY_10} !important;
+            background: transparent;
+            border-radius: 0;
+          }
+        }
+      }
+    }
+    .${Classes.INPUT} {
+      height: 36px;
+      padding-left: 29px !important;
+      font-size: 14px;
+      border: 1px solid ${Colors.GREY_3};
+      color: ${Colors.GREY_10};
+      box-shadow: 0px 0px 0px 0px;
+      border-radius: ${(props) => props.borderRadius};
+      &:focus {
+        border: 1px solid  ${(props) => props.primaryColor};
+          box-shadow: 0px 0px 0px 3px ${(props) =>
+            lightenColor(props.primaryColor)};
+      }
+    }
+  }
   .rc-select-item {
     font-size: 14px;
     padding: 5px 16px;
@@ -317,14 +321,19 @@ ${({ dropDownWidth, id, parentWidth }) => `
 export const MultiSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
+  borderRadius: string;
+  boxShadow?: string;
+  primaryColor?: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
+  justify-content: flex-end;
 
   label.tree-multiselect-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+    margin-bottom: 0px;
+    margin-right: 0px;
   }
   .rc-select {
     display: inline-block;
@@ -333,6 +342,7 @@ export const MultiSelectContainer = styled.div<{
     height: 100%;
     position: relative;
     cursor: pointer;
+
     .rc-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
@@ -351,6 +361,7 @@ export const MultiSelectContainer = styled.div<{
     }
     .rc-select-selection-search-input {
       appearance: none;
+      display: none;
       &::-webkit-search-cancel-button {
         display: none;
         appearance: none;
@@ -364,7 +375,7 @@ export const MultiSelectContainer = styled.div<{
     }
     & .rc-select-selector {
       background-color: ${Colors.GREY_1} !important;
-      border: 1.2px solid ${Colors.GREY_3};
+      border: 1px solid ${Colors.GREY_3};
       .rc-select-selection-item-content {
         color: ${Colors.GREY_7};
       }
@@ -394,8 +405,9 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
-      box-shadow: none;
-      border-radius: 0px;
+      background: ${Colors.WHITE};
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
@@ -505,17 +517,18 @@ export const MultiSelectContainer = styled.div<{
   .rc-select-show-arrow.rc-select-multiple {
     .rc-select-selector {
       padding-right: 36px;
-      padding-left: 12px;
-      box-shadow: none;
-      border-radius: 0px;
+      padding-left: 10px;
+      background: ${Colors.WHITE};
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
-      border: 1.2px solid
+      border: 1px solid
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {
-        border: 1.2px solid
+        border: 1px solid
           ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       }
     }
@@ -545,13 +558,24 @@ export const MultiSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+          border: 1px solid  ${props.primaryColor};
+          box-shadow: 0px 0px 0px 3px ${lightenColor(props.primaryColor)};`
+          : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;
-export const StyledCheckbox = styled(Checkbox)`
+
+export const SelectAllMenuItem = styled.div<{
+  primaryColor?: string;
+}>`
+  &:hover {
+    background: ${({ primaryColor }) => lightenColor(primaryColor)};
+  }
+`;
+
+export const StyledCheckbox = styled(Checkbox)<{
+  primaryColor?: string;
+}>`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     white-space: nowrap;
     overflow: hidden;
@@ -561,13 +585,12 @@ export const StyledCheckbox = styled(Checkbox)`
     color: ${Colors.GREY_8} !important;
     display: flex;
     align-items: center;
+    background: transparent;
     &:hover {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       color: ${Colors.GREY_9} !important;
     }
   }
 `;
-
 export const inputIcon = (): JSX.Element => (
   <svg data-icon="chevron-down" height="16" viewBox="0 0 16 16" width="16">
     <desc>chevron-down</desc>

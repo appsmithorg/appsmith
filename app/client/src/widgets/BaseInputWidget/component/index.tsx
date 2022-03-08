@@ -300,9 +300,9 @@ const StyledNumericInput = styled(NumericInput)`
         border-right: 0;
       }
       input:not(:first-child) {
-        <<<<<<<headpadding-left: 0px;
+        padding-left: 0px;
         z-index: 16;
-        =======>>>>>>>af5483c7c460a99c00d0152ec39d0a6071395926line-height: 16px;
+        line-height: 16px;
       }
     }
   }

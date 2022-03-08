@@ -68,7 +68,13 @@ function* getEntityNames() {
 function* getThemeDefaultConfig(type: string) {
   const stylesheet = yield select(getSelectedAppThemeStylesheet);
 
-  return stylesheet[type] || {};
+  return (
+    stylesheet[type] || {
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      primaryColor: "none",
+    }
+  );
 }
 
 function* getChildWidgetProps(

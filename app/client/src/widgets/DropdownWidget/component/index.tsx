@@ -208,6 +208,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
         border: 1px solid ${Colors.GREY_3};
         color: ${Colors.GREY_10};
         border-radius: ${({ borderRadius }) => borderRadius} !important;
+
         &:focus {
           border: ${({ primaryColor }) => `1px solid ${primaryColor}`};
           box-shadow: none;
