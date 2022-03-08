@@ -6,13 +6,13 @@ import {
   COMMITTING_AND_PUSHING_CHANGES,
   createMessage,
   DEPLOY_YOUR_APPLICATION,
+  DISCARD_CHANGES,
   DISCARD_CHANGES_WARNING,
   FETCH_GIT_STATUS,
   GIT_NO_UPDATED_TOOLTIP,
   GIT_UPSTREAM_CHANGES,
   PULL_CHANGES,
   READ_DOCUMENTATION,
-  YES,
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -135,11 +135,11 @@ const ActionsContainer = styled.div`
   }
 `;
 
-const YesButtonContainer = styled.div`
+const DiscardChangesConfirmationButtonContainer = styled.div`
   & a.t--discard-pull-button {
     color: #c91818;
     font-weight: 600;
-    margin-top: 16px;
+    margin-top: 8px;
     cursor: pointer;
     text-transform: uppercase;
     border: none;
@@ -154,17 +154,17 @@ const YesButtonContainer = styled.div`
 `;
 
 function DiscardWarningActions(props: any) {
-  const yesButtonOptions = {
+  const confirmationButtonOptions = {
     category: Category.secondary,
     className: "t--discard-pull-button discard-pull-changes-link",
     onClick: props.onClick,
-    text: createMessage(YES),
+    text: createMessage(DISCARD_CHANGES),
   };
   return (
     <div>
-      <YesButtonContainer>
-        <Button {...yesButtonOptions} />
-      </YesButtonContainer>
+      <DiscardChangesConfirmationButtonContainer>
+        <Button {...confirmationButtonOptions} />
+      </DiscardChangesConfirmationButtonContainer>
     </div>
   );
 }

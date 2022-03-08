@@ -28,7 +28,7 @@ const FlexContainer = styled.div`
   flex-direction: row;
   align-items: center;
   flex: 1;
-  padding: 16px;
+  padding: 8px;
   position: relative;
   max-width: 486px;
   width: 100%;
@@ -105,26 +105,21 @@ const CloseButtonContainer = styled.div`
   justify-items: center;
   & button {
     color: ${(props) => props.color};
-    top: 8px;
-    right: 8px;
+
+    &.notification-banner-close-button {
+      right: 0;
+    }
 
     &.bp3-button.bp3-minimal:hover {
       background-color: transparent;
     }
-
-    & svg {
-      //height: 24px;
-      //width: 24px;
-    }
   }
 `;
 const IconContainer = styled.div`
-  margin-right: 16px;
+  margin-right: 8px;
   align-self: start;
 
   & svg {
-    //height: 24px;
-    //width: 24px;
     cursor: unset;
 
     &:hover {
@@ -156,6 +151,7 @@ export function NotificationBanner(props: NotificationBannerProps) {
       <CloseButtonContainer>
         {props.canClose && (
           <CloseButton
+            className={"notification-banner-close-button"}
             color={closeButtonColor}
             onClick={props.onClose}
             size={16}

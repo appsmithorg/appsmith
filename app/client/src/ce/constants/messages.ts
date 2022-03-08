@@ -694,6 +694,7 @@ export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 export const DISCARD_CHANGES_WARNING = () =>
   "Discarding these changes will pull previous changes from Git.";
+export const DISCARD_CHANGES = () => "Discard changes";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
