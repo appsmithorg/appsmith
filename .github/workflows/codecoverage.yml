@@ -107,34 +107,33 @@ jobs:
         run: |
           cp coveragescripts/support/index.js cypress/support/index.js
           cat cypress/support/index.js
-          
+
       - name: Setup cypress scripts
         if: always()
         run: |
           cp coveragescripts/plugin/index.js cypress/plugins/index.js
           cat cypress/plugins/index.js
-         
+
       - name: Setup cypress scripts
         if: always()
         run: |
           cp coveragescripts/craco.dev.config.js craco.dev.config.js
           cat craco.dev.config.js
-          
+
       - name: Setup cypress scripts
         if: always()
         run: |
           cp coveragescripts/.babelrc .babelrc
           cat .babelrc
-          
-          
-      - uses: actions/checkout@v2
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-      
-      - name: Sleep for 30 seconds
-        run: sleep 30s
-        shell: bash
- 
+
+      #- uses: actions/checkout@v2
+      #- name: Setup upterm session
+      #  uses: lhotari/action-upterm@v1
+
+      #- name: Sleep for 30 seconds
+      #  run: sleep 30s
+      #  shell: bash
+
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
@@ -743,7 +742,7 @@ jobs:
       #  if: always()
       #- name: Setup upterm session
       #  uses: lhotari/action-upterm@v1
-      
+
       #- name: Sleep for 30 seconds
       #  if: always()
       #  run: sleep 30s
@@ -761,7 +760,7 @@ jobs:
         run: |
           mkdir -p  ~/codecoverageall
           cp .nyc_output/out.json ~/codecoverageall/out-${{ matrix.job }}.json
-      
+
       # Upload Code coverage
       - name: Upload codecoverage artifact
         if: always()
@@ -871,7 +870,7 @@ jobs:
           name: codecoverageall
           path: ~/codecoverageall
 
-      # Upload combined codecoverageall 
+      # Upload combined codecoverageall
       - name: upload combined codecoverageall spec
         if: needs.ui-test.result
         uses: actions/upload-artifact@v2
