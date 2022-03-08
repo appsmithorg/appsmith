@@ -126,13 +126,13 @@ jobs:
           cp coveragescripts/.babelrc .babelrc
           cat .babelrc
 
-      #- uses: actions/checkout@v2
-      #- name: Setup upterm session
-      #  uses: lhotari/action-upterm@v1
+      - uses: actions/checkout@v2
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
 
-      #- name: Sleep for 30 seconds
-      #  run: sleep 30s
-      #  shell: bash
+      - name: Sleep for 30 seconds
+        run: sleep 30s
+        shell: bash
 
       # Install all the dependencies
       - name: Install dependencies
