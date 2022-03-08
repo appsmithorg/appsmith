@@ -101,6 +101,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         order: null,
       },
       transientTableData: {},
+      editableCell: undefined,
     };
   }
 
@@ -305,13 +306,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 cellProperties: cellProperties,
                 tableWidth: componentWidth,
                 isCellVisible: cellProperties.isCellVisible ?? true,
-                isSelected: undefined,
-                cellEditMode: true,
+                isCellEditMode:
+                  props.cell.column.alias === this.props.editableCell.column &&
+                  props.cell.row.index === this.props.editableCell.index,
                 onCellChange: (data: string) => {
                   this.updateTransientTableData({
                     __original_index__: props.cell.row.index,
                     [props.cell.column.columnProperties.accessor]: data,
                   });
+                },
+                toggleCellEditMode: (editMode: boolean) => {
+                  if (editMode) {
+                    this.props.updateWidgetMetaProperty("editableCell", {
+                      column: props.cell.column.alias,
+                      index: props.cell.row.index,
+                    });
+                  } else {
+                    this.props.updateWidgetMetaProperty(
+                      "editableCell",
+                      undefined,
+                    );
+                  }
                 },
               });
           }

@@ -22,7 +22,6 @@ export function renderInlineEditor({
       isInvalid={false}
       isLoading={false}
       label=""
-      multiline
       onFocusChange={noop}
       onValueChange={() => onCellChange}
       showError
