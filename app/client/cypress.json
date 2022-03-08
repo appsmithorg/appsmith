@@ -1,5 +1,5 @@
 {
-	"baseUrl": "https://dev.appsmith.com/",
+	"baseUrl": "http://localhost/",
 	"defaultCommandTimeout": 20000,
 	"requestTimeout": 21000,
 	"pageLoadTimeout": 20000,
