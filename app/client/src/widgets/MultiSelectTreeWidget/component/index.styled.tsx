@@ -848,6 +848,17 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
+  && .rc-tree-select-show-arrow.rc-tree-select-focused {
+    .rc-tree-select-selector {
+      outline: 0px;
+      ${(props) =>
+        props.isValid
+          ? `
+          border: 1.2px solid ${Colors.GREEN_SOLID} ;
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+    }
+  }
   .rc-tree-select-show-arrow {
     .rc-tree-select-clear {
       top: 0;
@@ -890,17 +901,7 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
-  .rc-tree-select-show-arrow.rc-tree-select-focused {
-    .rc-tree-select-selector {
-      outline: 0px;
-      ${(props) =>
-        props.isValid
-          ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID} !important;
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
-    }
-  }
+  
 `;
 
 export const StyledCheckbox = styled(Checkbox)`
