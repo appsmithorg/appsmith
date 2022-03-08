@@ -110,9 +110,15 @@ export class AggregateHelper {
         cy.log("Pagename: " + localStorage.getItem("PageName"));
     }
 
-    public expandCollapseEntity(entityName: string, index = 0) {
-        cy.xpath(locator._expandCollapseArrow(entityName)).eq(index)
-            .click({ multiple: true }).wait(500);
+    public expandCollapseEntity(entityName: string, expand = true) {
+        cy.xpath(locator._expandCollapseArrow(entityName)).invoke('attr', 'name').then((arrow) => {
+            if (expand && arrow == 'arrow-right')
+                cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
+            else if (!expand && arrow == 'arrow-down')
+                cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
+            else
+                cy.wait(500)
+        })
     }
 
     public AddNewPage() {

@@ -209,11 +209,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.validateNSelectDropdown("Commands", "Find Document(s)");
-
     agHelper.expandCollapseEntity(`${datasourceName}`);
-    cy.wait(2000); //for Mongo DB to expand!
     cy.xpath(queryLocators.listingAndReviewContext)
       .invoke("show")
       .click({ force: true });
@@ -285,7 +281,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
     cy.actionContextMenuByEntityName("Query1");
-    cy.actionContextMenuByEntityName("Query2");
   });
 
   it("10. Delete the datasource after NewPage deletion is success", () => {
