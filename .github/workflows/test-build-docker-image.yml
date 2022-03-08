@@ -594,8 +594,8 @@ jobs:
           headless: true
           record: true
           install: false
-          parallel: false
-          group: "Electrons on Github Action"
+          parallel: true
+          group: "Electrons on Github Action Fat Container"
           spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
