@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Space, Title } from "../components/StyledComponents";
 import {
   CHANGES_MADE_SINCE_LAST_COMMIT,
   COMMIT_AND_PUSH,
@@ -58,17 +57,14 @@ import Icon, { IconSize } from "components/ads/Icon";
 
 import { isMac } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  getApplicationLastDeployedAt,
-  getCurrentApplicationId,
-} from "selectors/editorSelectors";
+import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import useAutoGrow from "utils/hooks/useAutoGrow";
 import {
   NotificationBanner,
   NotificationVariant,
 } from "../../../../components/ads/NotificationBanner";
-import { ReduxActionTypes } from "../../../../constants/ReduxActionConstants";
+import { Space, Title } from "../components/StyledComponents";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -294,15 +290,10 @@ function Deploy() {
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
 
   const autogrowHeight = useAutoGrow(commitMessageDisplay, 37);
-  const applicationId = useSelector(getCurrentApplicationId);
 
   const onDiscardChanges = () => {
     dispatch(discardChanges());
     setShowDiscardWarning(false);
-    dispatch({
-      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: { applicationId: applicationId },
-    });
   };
   const onCloseDiscardChangesWarning = () => {
     setShowDiscardWarning(false);

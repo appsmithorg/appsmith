@@ -57,7 +57,11 @@ import {
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
-import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import {
+  addBranchParam,
+  BUILDER_PAGE_URL,
+  GIT_BRANCH_QUERY_KEY,
+} from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
@@ -614,6 +618,13 @@ function* discardChanges() {
     );
     if (isValidResponse) {
       yield put(discardChangesSuccess(response?.data));
+      // yield fetchGitStatusSaga();
+      const applicationId: string = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+      window.open(
+        BUILDER_PAGE_URL({ applicationId: applicationId, pageId: pageId }),
+        "_self",
+      );
     }
   } catch (error) {
     yield put({
