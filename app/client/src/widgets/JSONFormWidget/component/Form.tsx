@@ -158,6 +158,12 @@ function Form<TValues = any>({
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!scrollContents && bodyRef.current) {
+      bodyRef.current.scrollTo({ top: 0 });
+    }
+  }, [scrollContents]);
+
   const onReset = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault();
     const defaultValues = schema

@@ -151,7 +151,7 @@ function DateField({
   );
 
   const valueInISOFormat = useMemo(() => {
-    if (!isValueValid) return value;
+    if (!isValueValid || typeof value !== "string") return "";
 
     if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
       return value;
