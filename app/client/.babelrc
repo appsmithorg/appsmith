@@ -1,6 +1,5 @@
 {
-  "presets": ["env", "react"],
-  "plugins": ["istanbul",
+  "plugins": [
     ["module-resolver", {
       "root": ["./src"],
       "alias": {
