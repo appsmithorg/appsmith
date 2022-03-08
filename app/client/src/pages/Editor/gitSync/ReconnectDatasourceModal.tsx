@@ -442,7 +442,7 @@ function ReconnectDatasourceModal() {
       <Dialog
         canEscapeKeyClose
         canOutsideClickClose
-        className={Classes.GIT_IMPORT_MODAL}
+        className={Classes.RECONNECT_DATASOURCE_MODAL}
         isOpen={isModalOpen}
         maxWidth={"1300px"}
         onClose={handleClose}
@@ -491,7 +491,7 @@ function ReconnectDatasourceModal() {
             >
               <Button
                 category={Category.tertiary}
-                className="t--application-edit-link"
+                className="t--skip-to-application-btn"
                 href={appURL}
                 onClick={() => {
                   AnalyticsUtil.logEvent(
@@ -504,7 +504,10 @@ function ReconnectDatasourceModal() {
               />
             </TooltipComponent>
           </SkipToAppButtonWrapper>
-          <CloseBtnContainer onClick={handleClose}>
+          <CloseBtnContainer
+            className="t--reconnect-close-btn"
+            onClick={handleClose}
+          >
             <Icon
               fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
               name="close-modal"

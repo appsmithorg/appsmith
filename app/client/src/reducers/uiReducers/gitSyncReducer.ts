@@ -374,6 +374,24 @@ const gitSyncReducer = createReducer(initialState, {
       deployKeyDocUrl: action.payload.docUrl,
     };
   },
+  [ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR]: (
+    state: GitSyncReducerState,
+  ) => {
+    return {
+      ...state,
+      SSHKeyPair: null,
+      deployKeyDocUrl: "",
+    };
+  },
+  [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (
+    state: GitSyncReducerState,
+  ) => {
+    return {
+      ...state,
+      SSHKeyPair: null,
+      deployKeyDocUrl: "",
+    };
+  },
   [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS]: (
     state: GitSyncReducerState,
     action: ReduxAction<GetSSHKeyResponseData>,
