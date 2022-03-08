@@ -252,7 +252,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { handleResponseLater, id, isFirstLoad } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -261,18 +261,11 @@ export function* fetchPageSaga(
       id,
     });
 
-    if (!handleResponseLater) {
-      yield handleFetchedPage({
-        fetchPageResponse,
-        pageId: id,
-        isFirstLoad,
-      });
-    } else {
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_HANDLE_LATER,
-        payload: fetchPageResponse,
-      });
-    }
+    yield handleFetchedPage({
+      fetchPageResponse,
+      pageId: id,
+      isFirstLoad,
+    });
 
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
@@ -1027,7 +1020,6 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLeading(ReduxActionTypes.CLONE_PAGE_INIT, clonePageSaga),
-    takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
     debounce(500, ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),

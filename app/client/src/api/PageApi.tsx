@@ -247,6 +247,10 @@ class PageApi extends Api {
       ),
     );
   }
+
+  static fetchAppAndPages(params: any): any {
+    return Api.get(PageApi.url, params);
+  }
 }
 
 export default PageApi;

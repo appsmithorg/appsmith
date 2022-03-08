@@ -4,6 +4,7 @@ import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { APP_MODE } from "entities/App";
 
 export type EvaluationVersion = number;
 
@@ -23,6 +24,7 @@ export interface ApplicationPagePayload {
   name: string;
   isDefault: boolean;
   slug?: string;
+  isHidden?: boolean;
 }
 
 export type GitApplicationMetadata =
@@ -52,9 +54,17 @@ export interface ApplicationResponsePayload {
   applicationVersion: number;
 }
 
-type FetchApplicationResponseData = ApplicationResponsePayload & {
+export interface FetchApplicationPayload {
+  applicationId?: string;
+  pageId?: string;
+  mode: APP_MODE;
+}
+
+export interface FetchApplicationResponseData {
+  application: Omit<ApplicationResponsePayload, "pages">;
   pages: ApplicationPagePayload[];
-};
+  organizationId: string;
+}
 
 export type FetchApplicationResponse = ApiResponse<
   FetchApplicationResponseData

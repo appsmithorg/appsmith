@@ -20,7 +20,6 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 import {
   fetchPage,
-  fetchPageList,
   fetchPublishedPage,
   setAppMode,
   updateAppPersistentStore,
@@ -42,7 +41,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getPersistentAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
-import { handleFetchedPage, populatePageDSLsSaga } from "./PageSagas";
+import { populatePageDSLsSaga } from "./PageSagas";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import {
@@ -56,7 +55,11 @@ import {
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getIsEditorInitialized, getPageById } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+  getPageById,
+} from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
@@ -69,7 +72,6 @@ import {
   updateBranchLocally,
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import PageApi, { FetchPageResponse } from "api/PageApi";
 import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { builderURL, viewerURL } from "AppsmithRouteFactory";
 
@@ -123,7 +125,7 @@ function* initiateURLUpdate(
   const currentApplication: CurrentApplicationData = yield select(
     getCurrentApplication,
   );
-  if (!currentApplication.applicationVersion) return;
+  if (currentApplication.applicationVersion < 1) return;
   const applicationSlug = currentApplication.slug as string;
   const currentPage: Page = yield select(getPageById(pageId));
   const pageSlug = currentPage?.slug as string;
@@ -151,90 +153,35 @@ function* initiateURLUpdate(
 
 function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
   const pageId = payload.pageId;
-  let applicationId = payload.applicationId;
-  let fetchPageResponse;
+  const applicationId = payload.applicationId;
 
-  // Figure out applicationId if it is not present in the URL.
-  // Delay fetch page effect to not disrupt the eval flow.
-  if (!applicationId && pageId) {
-    yield put(fetchPage(pageId as string, true, true));
-    const raceResult: {
-      success: { payload: FetchPageResponse };
-      failure: any;
-    } = yield race({
-      success: take(ReduxActionTypes.FETCH_PAGE_HANDLE_LATER),
-      failure: take(ReduxActionErrorTypes.FETCH_PAGE_ERROR),
-    });
-
-    if (raceResult.failure) return;
-
-    const { payload } = raceResult.success;
-    fetchPageResponse = payload;
-    applicationId = fetchPageResponse.data.applicationId;
-  }
-
-  if (!applicationId) return;
-
-  const initCalls = [
-    fetchApplication({
-      payload: {
-        applicationId,
-        mode: APP_MODE.EDIT,
-      },
-    }),
-    fetchPageList({ applicationId }, APP_MODE.EDIT),
-  ];
-  const successEffects = [
-    ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-    ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-  ];
-
-  const failureEffects = [
-    ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-    ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-  ];
-
-  const applicationAndLayoutCalls: boolean = yield failFastApiCalls(
-    initCalls,
-    successEffects,
-    failureEffects,
+  const applicationCall: boolean = yield failFastApiCalls(
+    [fetchApplication({ pageId, applicationId, mode: APP_MODE.EDIT })],
+    [
+      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+    ],
+    [
+      ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      ReduxActionErrorTypes.FETCH_PAGE_ERROR,
+    ],
   );
 
-  if (!applicationAndLayoutCalls) return;
+  if (!applicationCall) return;
 
-  if (pageId && fetchPageResponse) {
-    //Initiate URL update before first FETCH_PAGE_SUCCESS call
-    yield call(initiateURLUpdate, pageId, APP_MODE.EDIT, payload.pageId);
-
-    yield* handleFetchedPage({
-      fetchPageResponse: fetchPageResponse,
-      isFirstLoad: true,
-      pageId,
-    });
-  }
-
-  // This code is executed for all the old URLs.
-  // * /applications/62133d17392872226a06a187/pages/62133d17392872226a06a187/edit
-  // * /applications/62133d17392872226a06a187/edit
-  // We will use defaultPageId if pageId is not in the URL.
   let toLoadPageId = pageId;
-  if (!fetchPageResponse) {
-    const defaultPageId: string = yield select(getDefaultPageId);
-    toLoadPageId = toLoadPageId || defaultPageId;
+  const defaultPageId: string = yield select(getDefaultPageId);
+  toLoadPageId = toLoadPageId || defaultPageId;
 
-    //Initiate URL update before first FETCH_PAGE_SUCCESS call
-    yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
+  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
 
-    const fetchPageCallResult: boolean = yield failFastApiCalls(
-      [fetchPage(toLoadPageId, true)],
-      [ReduxActionTypes.FETCH_PAGE_SUCCESS],
-      [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
-    );
+  const fetchPageCallResult: boolean = yield failFastApiCalls(
+    [fetchPage(toLoadPageId, true)],
+    [ReduxActionTypes.FETCH_PAGE_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
+  );
 
-    if (!fetchPageCallResult) return;
-  }
-
-  return { applicationId, pageId: toLoadPageId };
+  if (!fetchPageCallResult) return;
 }
 
 function* initiateEditorActions(applicationId: string) {
@@ -327,7 +274,11 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    const { applicationId } = yield call(initiateApplicationAndPages, payload);
+    yield call(initiateApplicationAndPages, payload);
+
+    const { id: applicationId, name }: CurrentApplicationData = yield select(
+      getCurrentApplication,
+    );
 
     yield put(
       updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
@@ -336,10 +287,6 @@ function* initializeEditorSaga(
     yield call(initiateEditorActions, applicationId);
 
     yield call(initiatePluginsAndDatasources);
-
-    const { name }: CurrentApplicationData = yield select(
-      getCurrentApplication,
-    );
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
       appId: applicationId,
@@ -383,77 +330,49 @@ export function* initializeAppViewerSaga(
 
   let { applicationId } = action.payload;
 
-  if (!applicationId) {
-    const currentPageInfo: FetchPageResponse = yield call(
-      PageApi.fetchPublishedPage,
-      {
-        pageId,
-        bustCache: true,
-      },
-    );
-    applicationId = currentPageInfo.data.applicationId;
-  }
+  const applicationCall: boolean = yield failFastApiCalls(
+    [fetchApplication({ applicationId, pageId, mode: APP_MODE.PUBLISHED })],
+    [
+      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+    ],
+    [
+      ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+    ],
+  );
+
+  if (!applicationCall) return;
 
   if (branch) yield put(updateBranchLocally(branch));
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
+
   yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
+
+  // We should have applicationId in the store by the time code reaches here.
+  applicationId = applicationId || (yield select(getCurrentApplicationId));
+
   const jsActionsCall: boolean = yield failFastApiCalls(
     [fetchJSCollectionsForView({ applicationId })],
     [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
     [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
   );
   if (!jsActionsCall) return;
-  const initCalls = [
-    put(fetchActionsForView({ applicationId })),
-    put(fetchPageList({ applicationId }, APP_MODE.PUBLISHED)),
-    put(
-      fetchApplication({
-        payload: {
-          applicationId,
-          mode: APP_MODE.PUBLISHED,
-        },
-      }),
-    ),
-  ];
 
-  const initSuccessEffects = [
-    take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
-    take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
-    take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
-  ];
-  const initFailureEffects = [
-    ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
-    ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-    ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-  ];
+  const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
+    [fetchActionsForView({ applicationId })],
+    [ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR],
+  );
 
-  yield all(initCalls);
-
-  const resultOfPrimaryCalls = yield race({
-    success: all(initSuccessEffects),
-    failure: take(initFailureEffects),
-  });
-
-  if (resultOfPrimaryCalls.failure) {
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: get(
-          resultOfPrimaryCalls,
-          "failure.payload.error.code",
-          ERROR_CODES.SERVER_ERROR,
-        ),
-      },
-    });
-    return;
-  }
+  if (resultOfPrimaryCalls) return;
 
   const defaultPageId: string = yield select(getDefaultPageId);
   const toLoadPageId: string = pageId || defaultPageId;

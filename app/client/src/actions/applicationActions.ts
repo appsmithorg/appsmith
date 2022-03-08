@@ -1,14 +1,13 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APP_MODE } from "entities/App";
 import {
   ReduxActionErrorTypes,
   ReduxActionWithCallbacks,
 } from "../constants/ReduxActionConstants";
-import { FetchApplicationResponse } from "../api/ApplicationApi";
 import { ResponseMeta } from "../api/ApiResponses";
 import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
+  FetchApplicationPayload,
 } from "api/ApplicationApi";
 
 export const setDefaultApplicationPageSuccess = (
@@ -24,31 +23,10 @@ export const setDefaultApplicationPageSuccess = (
   };
 };
 
-export interface FetchApplicationPayload {
-  applicationId: string;
-  mode: APP_MODE;
-}
-
-export type FetchApplicationReduxAction = ReduxActionWithCallbacks<
-  FetchApplicationPayload,
-  FetchApplicationResponse,
-  string
->;
-
-export const fetchApplication = ({
-  onErrorCallback,
-  onSuccessCallback,
-  payload,
-}: {
-  payload: FetchApplicationPayload;
-  onSuccessCallback?: (payload: FetchApplicationResponse) => void;
-  onErrorCallback?: (error: string) => void;
-}): FetchApplicationReduxAction => {
+export const fetchApplication = (payload: FetchApplicationPayload) => {
   return {
     type: ReduxActionTypes.FETCH_APPLICATION_INIT,
     payload,
-    onSuccessCallback,
-    onErrorCallback,
   };
 };
 

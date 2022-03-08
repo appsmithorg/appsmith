@@ -26,11 +26,16 @@ export const fetchApplicationMockResponse: FetchApplicationResponse = {
     success: true,
   },
   data: {
-    id: "605c435a91dea93f0eaf91b8",
-    name: "My Application",
-    slug: "my-application",
-    organizationId: "",
-    evaluationVersion: 1,
+    application: {
+      id: "605c435a91dea93f0eaf91b8",
+      name: "My Application",
+      slug: "my-application",
+      organizationId: "",
+      evaluationVersion: 1,
+      appIsExample: false,
+      gitApplicationMetadata: undefined,
+      applicationVersion: 2,
+    },
     pages: [
       {
         id: "605c435a91dea93f0eaf91ba",
@@ -39,9 +44,7 @@ export const fetchApplicationMockResponse: FetchApplicationResponse = {
         slug: "page-1",
       },
     ],
-    appIsExample: false,
-    gitApplicationMetadata: undefined,
-    applicationVersion: 2,
+    organizationId: "",
   },
 };
 

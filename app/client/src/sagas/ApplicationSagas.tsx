@@ -21,6 +21,7 @@ import ApplicationApi, {
   UpdateApplicationRequest,
   ImportApplicationRequest,
   FetchApplicationResponse,
+  FetchApplicationPayload,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -36,7 +37,7 @@ import {
   getSSHKeyPairError,
   GenerateSSHKeyPairReduxAction,
   GetSSHKeyPairReduxAction,
-  FetchApplicationReduxAction,
+  fetchApplication,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -83,6 +84,8 @@ import {
   viewerURL,
 } from "AppsmithRouteFactory";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
+import PageApi from "api/PageApi";
+import { identity, pickBy } from "lodash";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -130,13 +133,13 @@ export function* publishApplicationSaga(
         yield call(setPostWelcomeTourState, true);
       }
 
-      yield put({
-        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
-        payload: {
-          applicationId: applicationId,
+      yield put(
+        fetchApplication({
+          applicationId,
+          pageId: currentPageId,
           mode: APP_MODE.EDIT,
-        },
-      });
+        }),
+      );
       // If the tab is opened focus and reload else open in new tab
       if (!windowReference || windowReference.closed) {
         windowReference = window.open(appicationViewPageUrl, "_blank");
@@ -197,32 +200,61 @@ export function* getAllApplicationSaga() {
   }
 }
 
-export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
+export function* fetchAppAndPagesSaga(
+  action: ReduxAction<FetchApplicationPayload>,
+) {
   try {
-    const { applicationId, mode } = action.payload;
-    // Get endpoint based on app mode
-    const apiEndpoint =
-      mode === APP_MODE.EDIT
-        ? ApplicationApi.fetchApplication
-        : ApplicationApi.fetchApplicationForViewMode;
+    const params = pickBy(action.payload, identity);
 
     const response: FetchApplicationResponse = yield call(
-      apiEndpoint,
-      applicationId,
+      PageApi.fetchAppAndPages,
+      params,
     );
+    const isValidResponse: boolean = yield call(validateResponse, response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+        payload: { ...response.data.application, pages: response.data.pages },
+      });
 
-    yield put({
-      type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-      payload: response.data,
-    });
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+        payload: {
+          pages: response.data.pages.map((page) => ({
+            pageName: page.name,
+            pageId: page.id,
+            isDefault: page.isDefault,
+            isHidden: !!page.isHidden,
+            slug: page.slug,
+          })),
+          applicationId: response.data.application?.id,
+        },
+      });
 
-    yield put({
-      type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
-      payload: response.data?.evaluationVersion,
-    });
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
+        payload: {
+          orgId: response.data.organizationId,
+        },
+      });
 
-    if (action.onSuccessCallback) {
-      action.onSuccessCallback(response);
+      yield put({
+        type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
+        payload: response.data.application?.evaluationVersion,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
     }
   } catch (error) {
     yield put({
@@ -231,9 +263,12 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
         error,
       },
     });
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
 
@@ -333,7 +368,7 @@ export function* deleteApplicationSaga(
       ApplicationApi.deleteApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
@@ -401,7 +436,7 @@ export function* changeAppViewAccessSaga(
       ApplicationApi.changeAppViewAccess,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
@@ -731,7 +766,7 @@ export default function* applicationSagas() {
       ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       getAllApplicationSaga,
     ),
-    takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchApplicationSaga),
+    takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchAppAndPagesSaga),
     takeLatest(ReduxActionTypes.FORK_APPLICATION_INIT, forkApplicationSaga),
     takeLatest(ReduxActionTypes.CREATE_APPLICATION_INIT, createApplicationSaga),
     takeLatest(

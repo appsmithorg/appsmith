@@ -38,34 +38,15 @@ export interface CreatePageActionPayload {
   blockNavigation?: boolean;
 }
 
-export const fetchPageList = (
-  {
-    applicationId,
-  }: {
-    applicationId: string;
-  },
-  mode: APP_MODE,
-): ReduxAction<FetchPageListPayload> => {
-  return {
-    type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
-    payload: {
-      applicationId,
-      mode,
-    },
-  };
-};
-
 export const fetchPage = (
   pageId: string,
   isFirstLoad = false,
-  handleResponseLater = false,
 ): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       id: pageId,
       isFirstLoad,
-      handleResponseLater,
     },
   };
 };
