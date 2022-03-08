@@ -18,7 +18,8 @@ public class GetStructureMethodTest {
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
         try {
-            getStructureMethod.transformResponse(null, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+            JsonNode result = getStructureMethod.transformResponse(null, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+            Assert.assertFalse(result == null);
         } catch (AppsmithPluginException e) {
             Assert.assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
         }
@@ -141,4 +142,32 @@ public class GetStructureMethodTest {
         Assert.assertTrue(result.isArray());
         Assert.assertEquals(3, result.size());
     }
+
+
+    @Test
+    public void testTransformResponse_VerifyEndResult() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final String jsonString = "{\"valueRanges\":[" +
+                "{\"range\":\"Sheet1!A1:D1\"," +
+                "\"majorDimension\":\"ROWS\"," +
+                "\"values\":[[\"Name\",\"Actor\",\"Music\",\"Director\"]]}," +
+                "{\"range\":\"Sheet1!A3:D7\"," +
+                "\"majorDimension\":\"ROWS\"," +
+                "\"values\":[[\"Bean\",\"Sean\",\"Dean\",\"Mean\"],[\"Cow\",\"Dow\",\"Sow\",\"Bow\"],[\"Luke\",\"Make\",\"Duke\",\"Cake\"]]}" +
+                "]}";
+
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+
+        Assert.assertNotNull(jsonNode);
+
+        GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
+        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.toString(), "[{\"Name\":\"Bean\",\"Actor\":\"Sean\",\"Music\":\"Dean\",\"Director\":\"Mean\",\"rowIndex\":\"1\"},{\"Name\":\"Cow\",\"Actor\":\"Dow\",\"Music\":\"Sow\",\"Director\":\"Bow\",\"rowIndex\":\"2\"},{\"Name\":\"Luke\",\"Actor\":\"Make\",\"Music\":\"Duke\",\"Director\":\"Cake\",\"rowIndex\":\"3\"}]");
+
+    }
+
+
 }
