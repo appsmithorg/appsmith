@@ -34,7 +34,7 @@ export default {
       ],
       defaultValue: "LEFT",
       isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
@@ -53,7 +53,7 @@ export default {
       label: "Text Size",
       controlType: "DROP_DOWN",
       isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       options: [
         {
           label: "Heading 1",
@@ -124,7 +124,7 @@ export default {
         },
       ],
       isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       isTriggerProperty: false,
@@ -155,7 +155,7 @@ export default {
       ],
       defaultValue: "LEFT",
       isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
@@ -174,7 +174,7 @@ export default {
       label: "Text Color",
       controlType: "COLOR_PICKER",
       isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
@@ -193,7 +193,7 @@ export default {
       label: "Cell Background",
       controlType: "COLOR_PICKER",
       isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
