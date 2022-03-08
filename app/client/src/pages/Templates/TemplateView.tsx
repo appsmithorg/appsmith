@@ -65,7 +65,7 @@ const TemplateViewWrapper = styled.div`
 `;
 
 const Title = styled(Text)`
-  margin-top: ${(props) => props.theme.spaces[11]}px;
+  margin-top: ${(props) => props.theme.spaces[5]}px;
   display: inline-block;
 `;
 
@@ -117,7 +117,7 @@ const StyledDatasourceChip = styled(DatasourceChip)`
     width: 25px;
   }
   span {
-    ${(props) => getTypographyByKey(props, "h2")}
+    ${(props) => getTypographyByKey(props, "h4")}
     color: ${Colors.EBONY_CLAY};
   }
 `;
@@ -299,7 +299,7 @@ function TemplateView() {
                 <Section>
                   <Text type={TextType.H1}>{createMessage(FUNCTION)}</Text>
                   <div className="section-content">
-                    <Text type={TextType.H1} weight={FontWeight.NORMAL}>
+                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
                       {currentTemplate.functions.join(" • ")}
                     </Text>
                   </div>
@@ -307,7 +307,7 @@ function TemplateView() {
                 <Section>
                   <Text type={TextType.H1}>{createMessage(INDUSTRY)}</Text>
                   <div className="section-content">
-                    <Text type={TextType.H1} weight={FontWeight.NORMAL}>
+                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
                       {currentTemplate.useCases.join(" • ")}
                     </Text>
                   </div>
