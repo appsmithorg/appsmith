@@ -1960,7 +1960,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> importExportApplicationService.findNonConfiguredDatasourceByApplicationId(application.getId(), application.getOrganizationId())
+                .flatMap(application -> importExportApplicationService.findDatasourceByApplicationId(application.getId(), application.getOrganizationId())
                         .map(datasources -> {
                             ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                             applicationImportDTO.setApplication(application);

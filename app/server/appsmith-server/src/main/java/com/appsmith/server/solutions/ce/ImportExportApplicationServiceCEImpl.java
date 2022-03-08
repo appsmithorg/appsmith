@@ -480,7 +480,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> findNonConfiguredDatasourceByApplicationId(application.getId(), orgId)
+                .flatMap(application -> findDatasourceByApplicationId(application.getId(), orgId)
                         .map(datasources -> {
                             ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                             applicationImportDTO.setApplication(application);
@@ -1693,7 +1693,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         });
     }
 
-    public Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId, String orgId) {
+    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId) {
         Mono<List<Datasource>> listMono = datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()

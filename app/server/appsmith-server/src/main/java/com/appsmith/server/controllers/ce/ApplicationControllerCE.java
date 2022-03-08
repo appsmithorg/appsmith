@@ -223,7 +223,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @GetMapping("/import/{orgId}/datasources")
     public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String orgId, @RequestParam String defaultApplicationId) {
-        return importExportApplicationService.findNonConfiguredDatasourceByApplicationId(defaultApplicationId, orgId)
+        return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, orgId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }
