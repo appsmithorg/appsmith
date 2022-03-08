@@ -80,7 +80,6 @@ type ButtonContainerProps = {
   buttonVariant?: ButtonVariant;
   disabled?: boolean;
   loading?: boolean;
-  renderMode: RenderMode;
 };
 
 const ButtonContainer = styled.div<ButtonContainerProps>`
@@ -92,22 +91,18 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
     height: 100%;
   }
 
-  ${({ renderMode }) =>
-    renderMode === RenderModes.CANVAS &&
-    `
-    position: relative;
-    &:after {
-      content: "";
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      position: absolute;
-    }
-  `}
+  position: relative;
+  &:after {
+    content: "";
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+  }
 
-  ${({ buttonColor, buttonVariant, disabled, loading, renderMode, theme }) => {
-    if (renderMode === RenderModes.CANVAS && !disabled && !loading) {
+  ${({ buttonColor, buttonVariant, disabled, loading, theme }) => {
+    if (!disabled && !loading) {
       return ` 
       &:hover > button, &:active > button {
         background: ${
@@ -295,7 +290,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         buttonVariant={buttonVariant}
         disabled={disabled}
         loading={loading}
-        renderMode={renderMode}
       >
         {renderStyledButton()}
       </ButtonContainer>
