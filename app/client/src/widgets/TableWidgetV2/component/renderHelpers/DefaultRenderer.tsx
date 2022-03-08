@@ -3,7 +3,7 @@ import { isNumber, isNil } from "lodash";
 
 import { ColumnTypes, CellLayoutProperties } from "../Constants";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
-import { renderInlineEditor } from "./InlineEditorRenderer";
+import { InlineCellEditor } from "../components/InlineCellEditor";
 
 export type renderDefaultPropsType = {
   value: any;
@@ -13,9 +13,8 @@ export type renderDefaultPropsType = {
   tableWidth: number;
   isCellVisible: boolean;
   isCellEditMode?: boolean;
-  onCellChange?: (data: string) => void;
-  onCellUpdate?: (data: string) => void;
-  toggleCellEditMode?: (editMode: boolean) => void;
+  onCellChange: (data: string) => void;
+  toggleCellEditMode: (editMode: boolean) => void;
 };
 
 export function getCellText(
@@ -52,10 +51,13 @@ export const renderDefault = (props: renderDefaultPropsType) => {
   let cell;
 
   if (isCellEditMode) {
-    cell = renderInlineEditor({
-      value,
-      onCellChange,
-    });
+    cell = (
+      <InlineCellEditor
+        onBlur={() => toggleCellEditMode(false)}
+        onChange={(text: string) => onCellChange(text)}
+        value={value}
+      />
+    );
   } else {
     cell = (
       <AutoToolTipComponent
@@ -66,7 +68,7 @@ export const renderDefault = (props: renderDefaultPropsType) => {
         tableWidth={tableWidth}
         title={!!value ? value.toString() : ""}
       >
-        <div onClick={() => toggleCellEditMode && toggleCellEditMode(true)}>
+        <div onClick={() => toggleCellEditMode(true)}>
           {getCellText(value, cellProperties, columnType)}
         </div>
       </AutoToolTipComponent>

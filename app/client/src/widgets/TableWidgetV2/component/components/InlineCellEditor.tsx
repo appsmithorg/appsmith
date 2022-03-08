@@ -1,18 +1,24 @@
 import { noop } from "lodash";
-import React from "react";
+import React, { useCallback } from "react";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import InputComponent from "widgets/InputWidgetV2/component";
-import { renderDefaultPropsType } from "./DefaultRenderer";
+import { renderDefaultPropsType } from "../renderHelpers/DefaultRenderer";
 
-type renderInlineEditorPropsType = Pick<
-  renderDefaultPropsType,
-  "value" | "onCellChange" | "onCellUpdate"
->;
+type renderInlineEditorPropsType = {
+  onChange: (text: string) => void;
+  onBlur: () => void;
+  value: any;
+};
 
-export function renderInlineEditor({
-  onCellChange,
+export function InlineCellEditor({
+  onBlur,
+  onChange,
   value,
 }: renderInlineEditorPropsType) {
+  const onFocusChange = useCallback((focus: boolean) => !focus && onBlur(), [
+    onBlur,
+  ]);
+
   return (
     <InputComponent
       autoFocus
@@ -22,8 +28,8 @@ export function renderInlineEditor({
       isInvalid={false}
       isLoading={false}
       label=""
-      onFocusChange={noop}
-      onValueChange={() => onCellChange}
+      onFocusChange={onFocusChange}
+      onValueChange={onChange}
       showError
       value={value}
       widgetId=""

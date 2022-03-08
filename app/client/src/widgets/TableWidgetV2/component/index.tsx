@@ -48,7 +48,6 @@ interface ReactTableComponentProps {
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
-  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;

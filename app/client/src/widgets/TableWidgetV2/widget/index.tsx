@@ -31,6 +31,7 @@ import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
+  OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
   TransientDataPayload,
@@ -101,7 +102,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         order: null,
       },
       transientTableData: {},
-      editableCell: undefined,
+      editableCell: {},
     };
   }
 
@@ -188,7 +189,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               const buttonProps = {
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete: () => void) =>
-                  this.onCommandClick(rowIndex, action, onComplete),
+                  this.onColumnEvent({
+                    rowIndex,
+                    action,
+                    onComplete,
+                    triggerPropertyName: "onClick",
+                    eventType: EventType.ON_CLICK,
+                  }),
                 backgroundColor:
                   cellProperties.buttonColor || DEFAULT_BUTTON_COLOR,
                 buttonLabelColor:
@@ -224,7 +231,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
             case COLUMN_TYPES.IMAGE:
               const onClick = column.onClick
-                ? () => this.onCommandClick(rowIndex, column.onClick, noop)
+                ? () =>
+                    this.onColumnEvent({
+                      rowIndex,
+                      action: column.onClick,
+                      triggerPropertyName: "onClick",
+                      eventType: EventType.ON_CLICK,
+                    })
                 : noop;
 
               return renderImage({
@@ -240,7 +253,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               const menuButtonProps: RenderMenuButtonProps = {
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete?: () => void) =>
-                  this.onCommandClick(rowIndex, action, onComplete),
+                  this.onColumnEvent({
+                    rowIndex,
+                    action,
+                    onComplete,
+                    triggerPropertyName: "onClick",
+                    eventType: EventType.ON_CLICK,
+                  }),
                 isDisabled: !!cellProperties.isDisabled,
                 menuItems: cellProperties.menuItems,
                 isCompact: !!cellProperties.isCompact,
@@ -266,7 +285,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               const iconButtonProps = {
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete: () => void) =>
-                  this.onCommandClick(rowIndex, action, onComplete),
+                  this.onColumnEvent({
+                    rowIndex,
+                    action,
+                    onComplete,
+                    triggerPropertyName: "onClick",
+                    eventType: EventType.ON_CLICK,
+                  }),
                 columnActions: [
                   {
                     id: column.id,
@@ -307,12 +332,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 tableWidth: componentWidth,
                 isCellVisible: cellProperties.isCellVisible ?? true,
                 isCellEditMode:
-                  props.cell.column.alias === this.props.editableCell.column &&
-                  props.cell.row.index === this.props.editableCell.index,
+                  props.cell.column.alias === this.props.editableCell?.column &&
+                  props.cell.row.index === this.props.editableCell?.index,
                 onCellChange: (data: string) => {
                   this.updateTransientTableData({
                     __original_index__: props.cell.row.index,
-                    [props.cell.column.columnProperties.accessor]: data,
+                    [props.cell.column.columnProperties.alias]: data,
                   });
                 },
                 toggleCellEditMode: (editMode: boolean) => {
@@ -322,10 +347,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       index: props.cell.row.index,
                     });
                   } else {
-                    this.props.updateWidgetMetaProperty(
-                      "editableCell",
-                      undefined,
-                    );
+                    this.props.updateWidgetMetaProperty("editableCell", {});
+                    if (props.cell.column.columnProperties.onTextChange) {
+                      this.onColumnEvent({
+                        rowIndex: props.cell.row.index,
+                        action: props.cell.column.columnProperties.onTextChange,
+                        triggerPropertyName: "onTextChange",
+                        eventType: EventType.ON_TEXT_CHANGE,
+                      });
+                    }
                   }
                 },
               });
@@ -908,7 +938,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleSearch={isVisibleSearch}
           multiRowSelection={this.props.multiRowSelection}
           nextPageClick={this.handleNextPageClick}
-          onCommandClick={this.onCommandClick}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
           pageSize={
@@ -1001,19 +1030,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   /*
    * Function to handle customColumn button type click interactions
    */
-  onCommandClick = (
-    rowIndex: number,
-    action: string,
-    onComplete?: () => void,
-  ) => {
+  onColumnEvent = ({
+    rowIndex,
+    action,
+    onComplete = noop,
+    triggerPropertyName,
+    eventType,
+  }: OnColumnEventArgs) => {
     const { filteredTableData = [] } = this.props;
 
     try {
       const row = filteredTableData[rowIndex];
-      this.props.updateWidgetMetaProperty(
-        "triggeredRowIndex",
-        row[ORIGINAL_INDEX_KEY],
-      );
 
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
@@ -1021,17 +1048,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }, "");
 
       if (modifiedAction) {
-        super.executeAction({
-          triggerPropertyName: "onClick",
-          dynamicString: modifiedAction,
-          event: {
-            type: EventType.ON_CLICK,
-            callback: onComplete,
+        this.props.updateWidgetMetaProperty(
+          "triggeredRowIndex",
+          row[ORIGINAL_INDEX_KEY],
+          {
+            triggerPropertyName: triggerPropertyName,
+            dynamicString: modifiedAction,
+            event: {
+              type: eventType,
+              callback: onComplete,
+            },
+            globalContext: { currentRow: row },
           },
-          globalContext: { currentRow: row },
-        });
+        );
       } else {
-        onComplete?.();
+        onComplete();
       }
     } catch (error) {
       log.debug("Error parsing row action", error);

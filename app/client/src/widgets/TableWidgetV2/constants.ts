@@ -7,6 +7,7 @@ import {
 } from "./component/Constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WithMeta } from "widgets/MetaHOC";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   nextPageKey?: string;
@@ -89,4 +90,12 @@ export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
 export type TransientDataPayload = {
   [key: string]: string | number;
   __original_index__: number;
+};
+
+export type OnColumnEventArgs = {
+  rowIndex: number;
+  action: string;
+  onComplete?: () => void;
+  triggerPropertyName: string;
+  eventType: EventType;
 };
