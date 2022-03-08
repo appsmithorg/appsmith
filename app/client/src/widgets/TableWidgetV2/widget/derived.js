@@ -59,7 +59,7 @@ export default {
     }
 
     const rows = props.filteredTableData || props.processedTableData || [];
-    const triggeredRow;
+    let triggeredRow;
 
     /*
      * Note(Balaji): Need to include customColumn values in the triggeredRow (select, rating)
