@@ -413,8 +413,6 @@ jobs:
         shell: bash
     strategy:
       fail-fast: false
-      matrix:
-        job: [0, 1, 2]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -526,12 +524,9 @@ jobs:
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
         run: |
-          docker buildx build -t fatcontainer\
-            --platform linux/arm64,linux/amd64 \
-            --load \
-            .
+          docker build -t fatcontainer --load  .
 
-      - name: Build  docker image
+      - name: Load docker image
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
         run: |
