@@ -46,6 +46,7 @@ import { NO_FUNCTION_DROPDOWN_OPTION } from "./constants";
 import { DropdownOnSelect } from "components/ads";
 import { isMac } from "utils/helpers";
 import { Severity } from "entities/AppsmithConsole";
+import JSFunctionSettingsView from "./JSFunctionSettingsView";
 
 const Form = styled.form`
   display: flex;
@@ -326,6 +327,13 @@ function JSEditorForm(props: Props) {
                       tabBehaviour={TabBehaviour.INDENT}
                       theme={theme}
                     />
+                  ),
+                },
+                {
+                  key: "settings",
+                  title: "Settings",
+                  panelComponent: (
+                    <JSFunctionSettingsView actions={jsActions} />
                   ),
                 },
               ]}
