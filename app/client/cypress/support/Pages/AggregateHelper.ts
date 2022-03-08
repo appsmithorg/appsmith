@@ -71,7 +71,7 @@ export class AggregateHelper {
     }
 
     public SelectEntityByName(entityNameinLeftSidebar: string) {
-        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar), {timeout: 30000})
+        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar), { timeout: 30000 })
             .last()
             .click({ multiple: true })
         this.Sleep()
@@ -110,8 +110,8 @@ export class AggregateHelper {
         cy.log("Pagename: " + localStorage.getItem("PageName"));
     }
 
-    public expandCollapseEntity(entityName: string) {
-        cy.xpath(locator._expandCollapseArrow(entityName)).last()
+    public expandCollapseEntity(entityName: string, index = 0) {
+        cy.xpath(locator._expandCollapseArrow(entityName)).eq(index)
             .click({ multiple: true }).wait(500);
     }
 
