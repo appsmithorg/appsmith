@@ -120,8 +120,21 @@ export default {
     const WIDGET_PADDING = DEFAULT_GRID_ROW_HEIGHT * 0.4;
     const itemsCount = (props.listData || []).length;
 
+    let gridGap = 0;
+    try {
+      gridGap = parseInt(props.gridGap);
+
+      if (!_.isNumber(props.gridGap) || _.isNaN(props.gridGap)) {
+        gridGap = 0;
+      }
+    } catch {
+      gridGap = 0;
+    }
+
+    gridGap = gridGap >= -8 ? gridGap : 0;
+
     const averageGridGap = itemsCount
-      ? (props.gridGap * itemsCount - 1) / itemsCount
+      ? gridGap * (itemsCount - 1 / itemsCount)
       : 0;
 
     const templateBottomRow = props.templateBottomRow;
@@ -144,9 +157,9 @@ export default {
       ? spaceAvailableWithPaginationControls
       : spaceAvailableWithoutPaginationControls;
 
-    const perPage = totalAvailableSpace / spaceTakenByOneContainer;
+    const pageSize = totalAvailableSpace / spaceTakenByOneContainer;
 
-    return _.isNaN(perPage) ? 0 : _.floor(perPage);
+    return _.isNaN(pageSize) ? 0 : _.floor(pageSize);
   },
   //
   // this is just a patch for #7520
