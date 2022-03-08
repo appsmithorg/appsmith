@@ -568,6 +568,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
         run: |
           cd app/client
+          chmod a+x ./cypress/setup-test-fat.sh
           ./cypress/setup-test-fat.sh
 
       - name: Run the cypress test
