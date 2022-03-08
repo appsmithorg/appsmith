@@ -1631,14 +1631,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         return existingDatasourceFlux
-                .map(ds -> {
-                    final DatasourceConfiguration dsAuthConfig = ds.getDatasourceConfiguration();
-                    if (dsAuthConfig != null && dsAuthConfig.getAuthentication() != null) {
-                        dsAuthConfig.getAuthentication().setAuthenticationResponse(null);
-                        dsAuthConfig.getAuthentication().setAuthenticationType(null);
-                    }
-                    return ds;
-                })
                 // For git import exclude datasource configuration
                 .filter(ds -> ds.getName().equals(datasource.getName()))
                 .next()  // Get the first matching datasource, we don't need more than one here.
