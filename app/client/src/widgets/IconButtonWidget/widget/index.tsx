@@ -14,7 +14,11 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
+import { IconNames } from "@blueprintjs/icons";
 
+const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
   buttonColor?: string;
@@ -38,10 +42,17 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             label: "Icon",
             helpText: "Sets the icon to be used for the icon button",
             controlType: "ICON_SELECT",
+            defaultIconName: "plus",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ICON_NAMES,
+                default: IconNames.PLUS,
+              },
+            },
           },
           {
             propertyName: "isDisabled",
