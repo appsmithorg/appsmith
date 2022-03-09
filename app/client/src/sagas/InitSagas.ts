@@ -139,21 +139,27 @@ function* initiateURLUpdate(
   // Check if the the current route is a deprecated URL or if pageId is missing,
   // generate a new route with the v2 structure.
   let originalUrl = "";
-  if (isURLDeprecated(window.location.pathname) || !pageIdInUrl) {
-    originalUrl =
-      appMode === APP_MODE.EDIT
-        ? builderURL({ applicationSlug, pageSlug, pageId })
-        : viewerURL({ applicationSlug, pageSlug, pageId });
+  const { pathname, search } = window.location;
+  if (isURLDeprecated(pathname) || !pageIdInUrl) {
+    if (appMode === APP_MODE.EDIT) {
+      const childRoutePath = pathname.split("/edit").pop();
+      originalUrl =
+        builderURL({ applicationSlug, pageSlug, pageId }) +
+        (childRoutePath ?? "") +
+        search;
+    } else {
+      originalUrl = viewerURL({ applicationSlug, pageSlug, pageId }) + search;
+    }
   } else {
     // For urls which has pageId in it,
     // replace the placeholder values of application slug and page slug with real slug names.
-    originalUrl = getUpdatedRoute(window.location.pathname, {
-      applicationSlug,
-      pageSlug,
-      pageId,
-    });
+    originalUrl =
+      getUpdatedRoute(pathname, {
+        applicationSlug,
+        pageSlug,
+        pageId,
+      }) + search;
   }
-
   history.replace(originalUrl);
 }
 
