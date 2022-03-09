@@ -38,7 +38,9 @@ describe("Container Widget Functionality", function() {
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.get(widgetsPage.greenColor)
+      .last()
+      .click();
     cy.get(widgetsPage.containerD)
       .should("have.css", "background-color")
       .and("eq", "rgb(3, 179, 101)");
