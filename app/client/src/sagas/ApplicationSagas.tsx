@@ -244,10 +244,10 @@ export function* fetchAppAndPagesSaga(
         payload: response.data.application?.evaluationVersion,
       });
     } else {
-      yield* handleFetchApplicationError(response.responseMeta.error);
+      yield call(handleFetchApplicationError, response.responseMeta?.error);
     }
   } catch (error) {
-    yield* handleFetchApplicationError(error);
+    yield call(handleFetchApplicationError, error);
   }
 }
 
