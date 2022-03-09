@@ -1095,7 +1095,7 @@ public class OrganizationServiceTest {
                     application.setName("Test app to test delete org");
                     return applicationPageService.createApplication(application);
                 }).flatMap(application ->
-                        organizationService.delete(application.getOrganizationId())
+                        organizationService.archiveById(application.getOrganizationId())
                 );
 
         StepVerifier
@@ -1123,7 +1123,7 @@ public class OrganizationServiceTest {
 
         Mono<Organization> deleteOrgMono = organizationRepository.save(organization)
                 .flatMap(savedOrg ->
-                        organizationService.delete(savedOrg.getId())
+                        organizationService.archiveById(savedOrg.getId())
                 );
 
         StepVerifier
@@ -1140,7 +1140,7 @@ public class OrganizationServiceTest {
 
         Mono<Organization> deleteOrgMono = organizationService.create(organization)
                 .flatMap(savedOrg ->
-                    organizationService.delete(savedOrg.getId())
+                    organizationService.archiveById(savedOrg.getId())
                             .then(organizationRepository.findById(savedOrg.getId()))
                 );
 
