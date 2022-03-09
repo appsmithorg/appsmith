@@ -695,7 +695,6 @@ function ApiEditorForm(props: Props) {
                           label="Params"
                           name="actionConfiguration.queryParameters"
                           pushFields
-                          removeTopPadding
                           theme={theme}
                         />
                       </TabSection>

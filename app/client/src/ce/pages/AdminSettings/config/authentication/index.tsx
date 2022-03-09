@@ -6,6 +6,7 @@ import {
 } from "constants/ThirdPartyConstants";
 import {
   SettingCategories,
+  SettingSubCategories,
   SettingTypes,
   SettingSubtype,
   AdminConfigType,
@@ -34,7 +35,7 @@ const Form_Auth: AdminConfigType = {
     {
       id: "APPSMITH_FORM_LOGIN_DISABLED",
       category: SettingCategories.FORM_AUTH,
-      subCategory: "form login",
+      subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
       label: "Form Login Option",
       toggleText: (value: boolean) => {
@@ -48,12 +49,12 @@ const Form_Auth: AdminConfigType = {
     {
       id: "APPSMITH_SIGNUP_DISABLED",
       category: SettingCategories.FORM_AUTH,
-      subCategory: "form signup",
+      subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
       label: "Signup",
       toggleText: (value: boolean) => {
         if (value) {
-          return "Allow only invited users to signup";
+          return "Restrict Signups";
         } else {
           return " Allow all users to signup";
         }
@@ -62,7 +63,7 @@ const Form_Auth: AdminConfigType = {
     {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
       category: SettingCategories.FORM_AUTH,
-      subCategory: "form signup",
+      subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.LINK,
       label:
         "User emails are not verified. This can lead to a breach in your application.",
@@ -83,7 +84,7 @@ const Google_Auth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GOOGLE_READ_MORE",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: "google signup",
+      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: GOOGLE_SIGNUP_SETUP_DOC,
@@ -91,7 +92,7 @@ const Google_Auth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: "google signup",
+      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
@@ -99,7 +100,7 @@ const Google_Auth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: "google signup",
+      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client Secret",
@@ -107,7 +108,7 @@ const Google_Auth: AdminConfigType = {
     {
       id: "APPSMITH_SIGNUP_ALLOWED_DOMAINS",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: "google signup",
+      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Allowed Domains",
@@ -128,7 +129,7 @@ const Github_Auth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GITHUB_READ_MORE",
       category: SettingCategories.GITHUB_AUTH,
-      subCategory: "github signup",
+      subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: GITHUB_SIGNUP_SETUP_DOC,
@@ -136,7 +137,7 @@ const Github_Auth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
       category: SettingCategories.GITHUB_AUTH,
-      subCategory: "github signup",
+      subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
@@ -144,7 +145,7 @@ const Github_Auth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET",
       category: SettingCategories.GITHUB_AUTH,
-      subCategory: "github signup",
+      subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client Secret",
