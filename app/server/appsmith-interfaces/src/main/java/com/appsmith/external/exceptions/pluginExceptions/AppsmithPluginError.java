@@ -38,6 +38,8 @@ public enum AppsmithPluginError {
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN(500, 5011, "{0} is not a known conditional operator. Please reach out to Appsmith customer support to report this",
             AppsmithErrorAction.LOG_EXTERNALLY, "Where condition could not be parsed", ErrorType.INTERNAL_ERROR),
     UNSUPPORTED_PLUGIN_OPERATION(500, 5012, "Unsupported operation", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
+    INCOMPATIBLE_FILE_FORMAT(400, 4001, "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
+            AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     ;
 
     private final Integer httpErrorCode;

@@ -1,5 +1,7 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.Stopwatch;
@@ -405,6 +407,10 @@ public class FileUtilsImpl implements FileInterface {
         // Extract application metadata from the json
         Object metadata = readFile(baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
         Integer fileFormatVersion = getFileFormatVersion(metadata);
+        // Check if fileFormat of the saved files in repo is compatible
+        if(!isFileFormatCompatible(fileFormatVersion)) {
+            throw new AppsmithPluginException(AppsmithPluginError.INCOMPATIBLE_FILE_FORMAT);
+        }
         // Extract application data from the json
         applicationGitReference.setApplication(readFile(baseRepoPath.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION), gson));
 
@@ -459,5 +465,9 @@ public class FileUtilsImpl implements FileInterface {
         JsonObject json = gson.fromJson(gson.toJson(metadata), JsonObject.class);
         JsonElement fileFormatVersion = json.get(CommonConstants.FILE_FORMAT_VERSION);
         return fileFormatVersion.getAsInt();
+    }
+
+    private boolean isFileFormatCompatible(int savedFileFormat) {
+        return savedFileFormat <= CommonConstants.fileFormatVersion;
     }
 }
