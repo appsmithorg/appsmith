@@ -196,7 +196,7 @@ hello! how are you?
 
     const expected = [false, false, false, false, true, true];
 
-    const result = input.map((input) => isGradient(input));
+    const result = input.map(isGradient);
 
     expect(result).toStrictEqual(expected);
   });
