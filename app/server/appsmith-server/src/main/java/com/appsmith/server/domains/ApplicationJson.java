@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.models.InvisibleActionFields;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
@@ -43,6 +44,8 @@ public class ApplicationJson {
     List<ActionCollection> actionCollectionList;
 
     Map<String, DecryptedSensitiveFields> decryptedFields;
+
+    Map<String, InvisibleActionFields> invisibleActionFields;
 
     Theme editModeTheme;
     Theme publishedTheme;
