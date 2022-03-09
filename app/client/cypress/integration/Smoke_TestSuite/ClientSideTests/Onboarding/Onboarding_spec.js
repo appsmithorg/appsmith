@@ -10,13 +10,16 @@ describe("Onboarding", function() {
     cy.get(".t--welcome-tour").click();
     cy.get(".t--onboarding-action").click();
     cy.get(".t--close--button").should("not.exist");
-
+    cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    /*
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-
+    */
     cy.window()
       .its("store")
       .invoke("getState")

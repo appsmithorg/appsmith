@@ -309,11 +309,16 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get(homePage.createNew)
       .first()
       .click({ force: true });
+    cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    /*  
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
+    */
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click({ force: true });
     cy.fillMongoDatasourceForm();

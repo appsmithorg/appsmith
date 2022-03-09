@@ -207,15 +207,17 @@ describe("Git sync:", function() {
     cy.get(homePage.createNew)
       .first()
       .click({ force: true });
-    cy.wait("@createNewApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
     cy.get("#loading").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
+    /*
+  cy.wait("@createNewApplication").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+  */
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.AppSetupForRename();
     cy.get(homePage.applicationName).type(repoName + "{enter}");
     cy.wait("@updateApplication").should(

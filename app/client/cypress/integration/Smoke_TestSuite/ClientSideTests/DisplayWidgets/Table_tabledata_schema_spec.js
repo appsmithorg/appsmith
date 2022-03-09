@@ -9,11 +9,16 @@ describe("Table Widget", function() {
     cy.get(homePage.createNew)
       .first()
       .click({ force: true });
+    cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    /*
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
+    */
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("tablewidget", { x: 200, y: 300 });
