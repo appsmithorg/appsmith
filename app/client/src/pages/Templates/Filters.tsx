@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
@@ -6,15 +6,13 @@ import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { filterTemplates } from "actions/templateActions";
-import { getWidgetCards } from "selectors/editorSelectors";
 import { createMessage, MORE, SHOW_LESS } from "@appsmith/constants/messages";
 import {
+  getFilterListSelector,
   getTemplateFilterSelector,
-  templatesDatasourceFiltersSelector,
 } from "selectors/templatesSelectors";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { functions, useCases } from "./constants";
 import { Colors } from "constants/Colors";
 
 const FilterWrapper = styled.div`
@@ -92,7 +90,7 @@ const FilterCategoryWrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[13] - 2}px;
 `;
 
-type Filter = {
+export type Filter = {
   label: string;
   value?: string;
 };
@@ -108,28 +106,6 @@ interface FilterCategoryProps {
   filterList: Filter[];
   selectedFilters: string[];
 }
-
-const useGetFilterList = (): Record<string, Filter[]> => {
-  const widgetConfigs = useSelector(getWidgetCards);
-  const widgets = useMemo(() => {
-    return widgetConfigs.map((widget) => {
-      return {
-        label: widget.displayName,
-        value: widget.type,
-      };
-    });
-  }, [widgetConfigs]);
-  const datasources = useSelector(templatesDatasourceFiltersSelector);
-
-  const filters = {
-    functions,
-    useCases,
-    widgets,
-    datasources,
-  };
-
-  return filters;
-};
 
 function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   const onClick = () => {
@@ -220,7 +196,7 @@ function FilterCategory({
 }
 
 function Filters() {
-  const filters = useGetFilterList();
+  const filters = useSelector(getFilterListSelector);
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   return (
