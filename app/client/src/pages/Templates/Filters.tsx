@@ -130,6 +130,9 @@ function FilterCategory({
 }: FilterCategoryProps) {
   const [expand, setExpand] = useState(false);
   const dispatch = useDispatch();
+  // This indicates how many filter items do we want to show, the rest are hidden
+  // behind show more.
+  const FILTERS_TO_SHOW = 3;
   const onSelect = (item: string, type: string) => {
     if (type === "add") {
       dispatch(filterTemplates(label, [...selectedFilters, item]));
@@ -158,7 +161,7 @@ function FilterCategory({
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
       <ListWrapper>
-        {filterList.slice(0, 3).map((filter) => {
+        {filterList.slice(0, FILTERS_TO_SHOW).map((filter) => {
           return (
             <FilterItem
               item={filter}
@@ -169,7 +172,7 @@ function FilterCategory({
           );
         })}
         <Collapse isOpen={expand}>
-          {filterList.slice(3).map((filter) => {
+          {filterList.slice(FILTERS_TO_SHOW).map((filter) => {
             return (
               <FilterItem
                 item={filter}
@@ -180,7 +183,7 @@ function FilterCategory({
             );
           })}
         </Collapse>
-        {!!filterList.slice(3).length && (
+        {!!filterList.slice(FILTERS_TO_SHOW).length && (
           <Text
             className={`more ${selectedFilters.length && expand && "hide"}`}
             onClick={toggleExpand}
