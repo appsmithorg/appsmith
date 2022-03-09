@@ -594,4 +594,5 @@ export const MenuStyledOptionHeader = styled.div`
 export const ColumnWrapper = styled.div`
   display: flex;
   align-items: center;
+  height: 100%;
 `;

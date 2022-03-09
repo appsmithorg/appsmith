@@ -200,6 +200,9 @@ describe("Table Widget property pane feature validation", function() {
       });
     // validate icon
     cy.get(".t--widget-tablewidget .tbody .bp3-icon-airplane").should("exist");
+    cy.get(".editable-text-container")
+      .eq(1)
+      .click();
     // validate label
     cy.contains("Menu button").should("exist");
 

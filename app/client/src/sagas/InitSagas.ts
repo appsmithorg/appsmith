@@ -69,6 +69,8 @@ import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
 } from "actions/appThemingActions";
+import { enableGuidedTour } from "actions/onboardingActions";
+import { setPreviewModeAction } from "actions/editorActions";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -434,6 +436,13 @@ export function* initializeAppViewerSaga(
 function* resetEditorSaga() {
   yield put(resetEditorSuccess());
   yield put(resetRecentEntities());
+  // End guided tour once user exits editor
+  yield put(enableGuidedTour(false));
+  // Reset to edit mode once user exits editor
+  // Without doing this if the user creates a new app they
+  // might end up in preview mode if they were in preview mode
+  // previously
+  yield put(setPreviewModeAction(false));
 }
 
 export function* waitForInit() {
