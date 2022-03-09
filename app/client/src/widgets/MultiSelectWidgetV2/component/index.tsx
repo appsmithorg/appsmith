@@ -61,6 +61,7 @@ export interface MultiSelectProps
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
+const FOCUS_TIMEOUT = 500;
 
 function MultiSelectComponent({
   allowSelectAll,
@@ -89,7 +90,8 @@ function MultiSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const _menu = useRef<HTMLElement | null>(null);
-  const labelRef = useRef<HTMLInputElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const clearButton = useMemo(
     () =>
@@ -129,6 +131,12 @@ function MultiSelectComponent({
     }
     return onChange([]);
   };
+
+  const onOpen = useCallback((open: boolean) => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+    }
+  }, []);
 
   const checkOptionsAndValue = () => {
     const emptyFalseArr = [false];
@@ -189,7 +197,7 @@ function MultiSelectComponent({
     }
     const parentWidth = width - WidgetContainerDiff;
     return parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
-  }, [compactMode, dropDownWidth, width, labelRef.current]);
+  }, [compactMode, dropDownWidth, width]);
 
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -203,11 +211,12 @@ function MultiSelectComponent({
       <>
         {isFilterable ? (
           <InputGroup
-            autoFocus
+            inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
             placeholder="Filter..."
+            // ref={inputRef}
             rightElement={clearButton as JSX.Element}
             small
             type="text"
@@ -267,7 +276,7 @@ function MultiSelectComponent({
         // TODO: Make Autofocus a variable in the property pane
         // autoFocus
         className="rc-select"
-        defaultActiveFirstOption
+        defaultActiveFirstOption={false}
         disabled={disabled}
         dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
         dropdownRender={dropdownRender}
@@ -289,6 +298,7 @@ function MultiSelectComponent({
         mode="multiple"
         notFoundContent="No Results Found"
         onChange={onChange}
+        onDropdownVisibleChange={onOpen}
         options={filteredOptions}
         placeholder={placeholder || "select option(s)"}
         removeIcon={

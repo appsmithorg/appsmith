@@ -92,6 +92,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   }
   return getSvg(treeNode.expanded);
 };
+const FOCUS_TIMEOUT = 500;
 
 function MultiTreeSelectComponent({
   allowClear,
@@ -119,7 +120,8 @@ function MultiTreeSelectComponent({
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
   const _menu = useRef<HTMLElement | null>(null);
-  const labelRef = useRef<HTMLInputElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
@@ -166,6 +168,7 @@ function MultiTreeSelectComponent({
         {isFilterable ? (
           <InputGroup
             autoFocus
+            inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
@@ -181,6 +184,12 @@ function MultiTreeSelectComponent({
     ),
     [loading, isFilterable, filter, onQueryChange],
   );
+
+  const onOpen = useCallback((open: boolean) => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+    }
+  }, []);
 
   const onClear = useCallback(() => onChange([], []), []);
   return (
@@ -242,6 +251,7 @@ function MultiTreeSelectComponent({
         notFoundContent="No Results Found"
         onChange={onChange}
         onClear={onClear}
+        onDropdownVisibleChange={onOpen}
         placeholder={placeholder}
         removeIcon={
           <Icon

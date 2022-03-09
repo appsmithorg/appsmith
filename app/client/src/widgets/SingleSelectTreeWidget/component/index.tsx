@@ -89,6 +89,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   }
   return getSvg(treeNode.expanded);
 };
+const FOCUS_TIMEOUT = 500;
 
 function SingleSelectTreeComponent({
   allowClear,
@@ -114,8 +115,9 @@ function SingleSelectTreeComponent({
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
-  const labelRef = useRef<HTMLInputElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
   const _menu = useRef<HTMLElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
@@ -133,7 +135,11 @@ function SingleSelectTreeComponent({
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
   const onClear = useCallback(() => onChange([], []), []);
-
+  const onOpen = useCallback((open: boolean) => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+    }
+  }, []);
   const clearButton = useMemo(
     () =>
       filter ? (
@@ -164,6 +170,7 @@ function SingleSelectTreeComponent({
         {isFilterable ? (
           <InputGroup
             autoFocus
+            inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
@@ -237,6 +244,7 @@ function SingleSelectTreeComponent({
         notFoundContent="No Results Found"
         onChange={onChange}
         onClear={onClear}
+        onDropdownVisibleChange={onOpen}
         placeholder={placeholder}
         searchValue={filter}
         showArrow

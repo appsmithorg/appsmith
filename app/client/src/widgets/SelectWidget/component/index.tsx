@@ -49,13 +49,13 @@ class SelectComponent extends React.Component<
 
   state = {
     // used to show focused item for keyboard up down key interection
-    activeItemIndex: 0,
+    activeItemIndex: -1,
     query: "",
   };
 
   componentDidMount = () => {
     // set default selectedIndex as focused index
-    this.setState({ activeItemIndex: this.props.selectedIndex ?? 0 });
+    this.setState({ activeItemIndex: this.props.selectedIndex });
     this.setState({ query: this.props.filterText });
   };
 
@@ -103,9 +103,15 @@ class SelectComponent extends React.Component<
       widgetId,
     } = this.props;
     // active focused item
-    const activeItem = !isEmpty(this.props.options)
-      ? this.props.options[this.state.activeItemIndex]
-      : undefined;
+    const activeItem = () => {
+      if (
+        this.state.activeItemIndex === -1 ||
+        isNil(this.state.activeItemIndex)
+      )
+        return undefined;
+      if (!isEmpty(this.props.options))
+        return this.props.options[this.state.activeItemIndex];
+    };
     // get selected option label from selectedIndex
     const selectedOption =
       !isEmpty(this.props.options) &&
@@ -151,7 +157,7 @@ class SelectComponent extends React.Component<
         )}
         <StyledControlGroup fill>
           <StyledSingleDropDown
-            activeItem={activeItem}
+            activeItem={activeItem()}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -264,7 +270,10 @@ class SelectComponent extends React.Component<
     return (
       <MenuItem
         active={isSelected}
-        className={`single-select ${isFocused && "is-focused"}`}
+        className={`single-select ${isFocused &&
+          !isNil(this.state.activeItemIndex) &&
+          this.state.activeItemIndex !== -1 &&
+          "is-focused"}`}
         key={option.value}
         onClick={itemProps.handleClick}
         tabIndex={0}
