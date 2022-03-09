@@ -44,20 +44,11 @@ body:
     placeholder: "https://app.appsmith.com/applications/61e022f1eb0501052b9fa205/pages/61e02308eb0501052b9fa20c"
   validations:
     required: false
-- type: dropdown
-  id: hosting
-  attributes:
-    label: Version
-    options:
-      - Cloud
-      - Self-Hosted
-  validations:
-    required: true
 - type: input
   id: version
   attributes:
     label: Version
     description: "The version of your Appsmith Instance"
-    placeholder: "1.6.6"
+    placeholder: "Cloud / Self Hosted - 1.6.6"
   validations:
     required: true
