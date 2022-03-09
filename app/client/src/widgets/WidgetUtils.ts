@@ -185,19 +185,33 @@ export const escapeSpecialChars = (stringifiedJSONObject: string) => {
     .replace(/\\r/g, "\\\\r"); //
 };
 
-export const getHoverColor = (baseColor?: string) => {
+export const getHoverColor = (
+  buttonVariant: ButtonVariant,
+  baseColor?: string,
+) => {
   const colorInstance = tinycolor(baseColor);
   // 1. Check if baseColor is valid
   const isValid = colorInstance.isValid();
   if (!isValid) {
     return;
   }
-  // 3. get the lightness
-  const lightness: number = colorInstance.toHsl().l * 100;
-  if (lightness > 35) {
-    colorInstance.darken(5);
-  } else {
-    colorInstance.lighten(5);
+
+  switch (buttonVariant) {
+    case ButtonVariantTypes.SECONDARY:
+    case ButtonVariantTypes.TERTIARY:
+      // Set the alpha value for the color
+      colorInstance.setAlpha(0.1);
+      break;
+    default:
+      // If button variant is PRIMARY, get the lightness and then adjust it
+      const lightness: number = colorInstance.toHsl().l * 100;
+      if (lightness > 35) {
+        colorInstance.darken(5);
+      } else {
+        colorInstance.lighten(5);
+      }
+
+      break;
   }
 
   return colorInstance.toString();
