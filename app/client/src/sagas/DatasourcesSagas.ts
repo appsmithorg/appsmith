@@ -768,7 +768,17 @@ function* storeAsDatasourceSaga() {
       value: actionHeaders,
     }),
   );
-  _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
+
+  // Empty Headers getting created so filtering out the empty headers before setting it to datasource
+  const filteredDatasourceHeaders = datasourceHeaders.filter(
+    (d) => !(d.key === "" && d.key === ""),
+  );
+
+  _.set(
+    datasource,
+    "datasourceConfiguration.headers",
+    filteredDatasourceHeaders,
+  );
 
   yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction = yield take(
