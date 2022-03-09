@@ -1380,6 +1380,8 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(gitStatusDTO));
         Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
                 .thenReturn(Mono.just("fetched"));
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
 
         Mono<GitPullDTO> applicationMono = gitService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
@@ -1440,6 +1442,8 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatusDTO));
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
 
         Mono<GitPullDTO> applicationMono = gitService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
@@ -2593,5 +2597,105 @@ public class GitServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().contains("Cannot delete default branch"))
                 .verify();
+    }
+
+    // We are only testing git level operations from this testcase. For testcases related to scenarios like
+    // 1. Resource is added
+    // 2. Resource is deleted
+    // and then discard is called will be covered in ImportExportApplicationServiceTests.java
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChanges_upstreamChangesAvailable_discardSuccess() throws IOException, GitAPIException {
+        Application application = createApplicationConnectedToGit("discard-changes", "discard-change-branch");
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("2 commits pulled");
+        mergeStatusDTO.setMergeAble(true);
+
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+        applicationJson.getExportedApplication().setName("discardChangesAvailable");
+
+
+        GitStatusDTO gitStatusDTO = new GitStatusDTO();
+        gitStatusDTO.setAheadCount(2);
+        gitStatusDTO.setBehindCount(0);
+        gitStatusDTO.setIsClean(true);
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("path")));
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitExecutor.pullApplication(
+                        Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(mergeStatusDTO));
+        Mockito.when(gitExecutor.getStatus(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(gitStatusDTO));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
+                .thenReturn(Mono.just("fetched"));
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true);
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getPages()).isNotEqualTo(application.getPages());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChanges_cancelledMidway_discardSuccess() throws IOException, GitAPIException {
+        Application application = createApplicationConnectedToGit("discard-changes-midway", "discard-change-midway-branch");
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("Nothing to fetch from remote. All changes are upto date.");
+        mergeStatusDTO.setMergeAble(true);
+
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+        applicationJson.getExportedApplication().setName("discard-changes-midway");
+
+
+        GitStatusDTO gitStatusDTO = new GitStatusDTO();
+        gitStatusDTO.setAheadCount(0);
+        gitStatusDTO.setBehindCount(0);
+        gitStatusDTO.setIsClean(true);
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("path")));
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitExecutor.pullApplication(
+                        Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(mergeStatusDTO));
+        Mockito.when(gitExecutor.getStatus(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(gitStatusDTO));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
+                .thenReturn(Mono.just("fetched"));
+
+        gitService
+                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true)
+                .timeout(Duration.ofNanos(100))
+                .subscribe();
+
+        // Wait for git clone to complete
+        Mono<Application> applicationFromDbMono = Mono.just(application)
+                .flatMap(application1 -> {
+                    try {
+                        // Before fetching the git connected application, sleep for 5 seconds to ensure that the clone
+                        // completes
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationService.getById(application1.getId());
+                });
+
+        StepVerifier
+                .create(applicationFromDbMono)
+                .assertNext(application1 -> {
+                    assertThat(application1).isNotEqualTo(application);
+                })
+                .verifyComplete();
     }
 }
