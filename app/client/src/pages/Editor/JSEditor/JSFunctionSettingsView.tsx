@@ -182,9 +182,11 @@ function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
           />
         ))}
       </SettingRow>
-      {actions.map((action) => (
-        <SettingsItem action={action} key={action.id} />
-      ))}
+      {actions
+        .filter((action) => action.actionConfiguration.isAsync)
+        .map((action) => (
+          <SettingsItem action={action} key={action.id} />
+        ))}
     </JSFunctionSettingsWrapper>
   );
 }
