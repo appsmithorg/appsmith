@@ -22,6 +22,7 @@ import {
   saasEditorApiIdURL,
   saasEditorDatasourceIdURL,
 } from "AppsmithRouteFactory";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
@@ -75,6 +76,8 @@ function* formValueChangeSaga(
 
     // Update the datasource of the form as well
     yield put(autofill(SAAS_EDITOR_FORM, "datasource", datasource));
+
+    AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
 
     return;
   }
