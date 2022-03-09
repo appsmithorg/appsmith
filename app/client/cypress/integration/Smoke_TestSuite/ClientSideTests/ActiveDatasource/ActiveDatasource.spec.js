@@ -5,10 +5,11 @@ let datasourceName, actionName;
 describe("Google Sheet datasource test cases", function() {
   before(() => {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasourceEditor.googleSheets).click();
+    cy.get(datasourceEditor.MongoDB).click();
     cy.getPluginFormsAndCreateDatasource();
-    cy.fillGoogleSheetsDatasourceForm();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.fillMongoDatasourceForm();
+    cy.get(datasourceEditor.saveBtn).click({ force: true });
+    cy.wait("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
       cy.NavigateToActiveDSQueryPane(datasourceName);
     });
@@ -21,7 +22,7 @@ describe("Google Sheet datasource test cases", function() {
   it("Create a new query from the datasource editor", function() {
     cy.NavigateToActiveTab();
     cy.get(
-      `.t--datasource-name:contains('${datasourceName}') .t--queries-for-SAAS`,
+      `.t--datasource-name:contains('${datasourceName}') .t--queries-for-DB`,
     ).should("have.text", "1 query on this page");
   });
 

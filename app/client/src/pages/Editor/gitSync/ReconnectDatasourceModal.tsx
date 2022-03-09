@@ -400,23 +400,25 @@ function ReconnectDatasourceModal() {
 
   // checking of full configured
   useEffect(() => {
-    const id = selectedDatasourceId;
-    const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
-    if (pending.length > 0) {
-      let next: Datasource | undefined = undefined;
-      if (id) {
-        const index = datasources.findIndex((ds: Datasource) => ds.id === id);
-        next = datasources
-          .slice(index + 1)
-          .find((ds: Datasource) => !ds.isConfigured);
+    if (isModalOpen) {
+      const id = selectedDatasourceId;
+      const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
+      if (pending.length > 0) {
+        let next: Datasource | undefined = undefined;
+        if (id) {
+          const index = datasources.findIndex((ds: Datasource) => ds.id === id);
+          next = datasources
+            .slice(index + 1)
+            .find((ds: Datasource) => !ds.isConfigured);
+        }
+        next = next || pending[0];
+        setSelectedDatasourceId(next.id);
+        setDatasource(next);
+      } else if (appURL) {
+        window.open(appURL, "_self");
       }
-      next = next || pending[0];
-      setSelectedDatasourceId(next.id);
-      setDatasource(next);
-    } else if (appURL) {
-      window.open(appURL, "_self");
     }
-  }, [datasources, appURL]);
+  }, [datasources, appURL, isModalOpen]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (

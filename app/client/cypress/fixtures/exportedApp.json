@@ -1,14 +1,14 @@
 {
   "clientSchemaVersion": 1,
-  "serverSchemaVersion": 1,
+  "serverSchemaVersion": 2,
   "exportedApplication": {
-    "name": "app1629",
+    "name": "app2896",
     "isPublic": false,
     "appIsExample": false,
     "unreadCommentThreads": 0,
     "color": "#F4FFDE",
     "icon": "single-person",
-    "slug": "app1629",
+    "slug": "app2896",
     "evaluationVersion": 2,
     "new": true
   },
@@ -20,12 +20,14 @@
         "read:datasources"
       ],
       "gitSyncId": "61c2d94747cda83965fe72b5_61c5822385c0bd4ccf7d171c",
-      "name": "mockdata (1)",
+      "name": "mockdata",
       "pluginId": "postgres-plugin",
-      "invalids": [],
+      "invalids": [
+        "Missing authentication details."
+      ],
       "messages": [],
       "isConfigured": false,
-      "isValid": true,
+      "isValid": false,
       "new": true
     }
   ],
@@ -35,7 +37,7 @@
         "read:pages",
         "manage:pages"
       ],
-      "gitSyncId": "62270c27a904cd31e1c9c2a1_62270c27a904cd31e1c9c2a3",
+      "gitSyncId": "61c580d685c0bd4ccf7d1716_61c580d685c0bd4ccf7d1718",
       "unpublishedPage": {
         "name": "Page1",
         "slug": "page1",
@@ -351,296 +353,24 @@
             "dsl": {
               "widgetName": "MainContainer",
               "backgroundColor": "none",
-              "rightColumn": 816,
-              "snapColumns": 64,
+              "rightColumn": 1224,
+              "snapColumns": 16,
               "detachFromLayout": true,
               "widgetId": "0",
               "topRow": 0,
-              "bottomRow": 590,
+              "bottomRow": 1254,
               "containerStyle": "none",
-              "snapRows": 125,
+              "snapRows": 33,
               "parentRowSpace": 1,
               "type": "CANVAS_WIDGET",
               "canExtend": true,
-              "version": 52,
-              "minHeight": 600,
+              "version": 4,
+              "minHeight": 1292,
               "parentColumnSpace": 1,
               "dynamicBindingPathList": [],
               "leftColumn": 0,
-              "children": [
-                {
-                  "widgetName": "Table1",
-                  "defaultPageSize": 0,
-                  "columnOrder": [
-                    "schema_name"
-                  ],
-                  "isVisibleDownload": true,
-                  "dynamicPropertyPathList": [],
-                  "displayName": "Table",
-                  "iconSVG": "/static/media/icon.db8a9cbd.svg",
-                  "topRow": 14,
-                  "bottomRow": 38,
-                  "isSortable": true,
-                  "parentRowSpace": 10,
-                  "type": "TABLE_WIDGET",
-                  "defaultSelectedRow": "0",
-                  "hideCard": false,
-                  "animateLoading": true,
-                  "parentColumnSpace": 12.5625,
-                  "dynamicTriggerPathList": [],
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "tableData"
-                    },
-                    {
-                      "key": "primaryColumns.schema_name.computedValue"
-                    }
-                  ],
-                  "leftColumn": 4,
-                  "primaryColumns": {
-                    "schema_name": {
-                      "index": 0,
-                      "width": 150,
-                      "id": "schema_name",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "PARAGRAPH",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": true,
-                      "isDisabled": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "schema_name",
-                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.schema_name))}}"
-                    }
-                  },
-                  "delimiter": ",",
-                  "key": "5ejs55im17",
-                  "derivedColumns": {},
-                  "rightColumn": 25,
-                  "textSize": "PARAGRAPH",
-                  "widgetId": "uyyp0qxfdq",
-                  "isVisibleFilters": true,
-                  "tableData": "{{get_schema.data}}",
-                  "isVisible": true,
-                  "label": "Data",
-                  "searchKey": "",
-                  "enableClientSideSearch": true,
-                  "version": 3,
-                  "totalRecordsCount": 0,
-                  "parentId": "0",
-                  "renderMode": "CANVAS",
-                  "isLoading": false,
-                  "horizontalAlignment": "LEFT",
-                  "isVisibleSearch": true,
-                  "isVisiblePagination": true,
-                  "verticalAlignment": "CENTER",
-                  "columnSizeMap": {
-                    "task": 245,
-                    "step": 62,
-                    "status": 75
-                  }
-                },
-                {
-                  "widgetName": "Table2",
-                  "defaultPageSize": 0,
-                  "columnOrder": [
-                    "id",
-                    "title",
-                    "due",
-                    "assignee"
-                  ],
-                  "isVisibleDownload": true,
-                  "dynamicPropertyPathList": [],
-                  "displayName": "Table",
-                  "iconSVG": "/static/media/icon.db8a9cbd.svg",
-                  "topRow": 14,
-                  "bottomRow": 38,
-                  "isSortable": true,
-                  "parentRowSpace": 10,
-                  "type": "TABLE_WIDGET",
-                  "defaultSelectedRow": "0",
-                  "hideCard": false,
-                  "animateLoading": true,
-                  "parentColumnSpace": 12.5625,
-                  "dynamicTriggerPathList": [],
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "tableData"
-                    },
-                    {
-                      "key": "primaryColumns.due.computedValue"
-                    },
-                    {
-                      "key": "primaryColumns.assignee.computedValue"
-                    },
-                    {
-                      "key": "primaryColumns.title.computedValue"
-                    },
-                    {
-                      "key": "primaryColumns.id.computedValue"
-                    }
-                  ],
-                  "leftColumn": 30,
-                  "primaryColumns": {
-                    "due": {
-                      "index": 0,
-                      "width": 150,
-                      "id": "due",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "PARAGRAPH",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": true,
-                      "isDisabled": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "due",
-                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.due))}}"
-                    },
-                    "assignee": {
-                      "index": 1,
-                      "width": 150,
-                      "id": "assignee",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "PARAGRAPH",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": true,
-                      "isDisabled": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "assignee",
-                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.assignee))}}"
-                    },
-                    "title": {
-                      "index": 2,
-                      "width": 150,
-                      "id": "title",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "PARAGRAPH",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": true,
-                      "isDisabled": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "title",
-                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.title))}}"
-                    },
-                    "id": {
-                      "index": 4,
-                      "width": 150,
-                      "id": "id",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "PARAGRAPH",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": true,
-                      "isDisabled": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "id",
-                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.id))}}"
-                    }
-                  },
-                  "delimiter": ",",
-                  "key": "5ejs55im17",
-                  "derivedColumns": {},
-                  "rightColumn": 61,
-                  "textSize": "PARAGRAPH",
-                  "widgetId": "r1m4lkt7at",
-                  "isVisibleFilters": true,
-                  "tableData": "{{mockApi.data.headers.info}}",
-                  "isVisible": true,
-                  "label": "Data",
-                  "searchKey": "",
-                  "enableClientSideSearch": true,
-                  "version": 3,
-                  "totalRecordsCount": 0,
-                  "parentId": "0",
-                  "renderMode": "CANVAS",
-                  "isLoading": false,
-                  "horizontalAlignment": "LEFT",
-                  "isVisibleSearch": true,
-                  "isVisiblePagination": true,
-                  "verticalAlignment": "CENTER",
-                  "columnSizeMap": {
-                    "task": 245,
-                    "step": 62,
-                    "status": 75,
-                    "id": 60
-                  }
-                },
-                {
-                  "widgetName": "Input1",
-                  "displayName": "Input",
-                  "iconSVG": "/static/media/icon.9f505595.svg",
-                  "topRow": 43,
-                  "bottomRow": 47,
-                  "parentRowSpace": 10,
-                  "autoFocus": false,
-                  "type": "INPUT_WIDGET_V2",
-                  "hideCard": false,
-                  "animateLoading": true,
-                  "parentColumnSpace": 12.5625,
-                  "dynamicTriggerPathList": [],
-                  "resetOnSubmit": true,
-                  "leftColumn": 18,
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "defaultText"
-                    }
-                  ],
-                  "labelStyle": "",
-                  "inputType": "TEXT",
-                  "isDisabled": false,
-                  "key": "t02w4ix9o5",
-                  "isRequired": false,
-                  "rightColumn": 38,
-                  "widgetId": "9timcor5m5",
-                  "isVisible": true,
-                  "label": "",
-                  "allowCurrencyChange": false,
-                  "version": 1,
-                  "parentId": "0",
-                  "renderMode": "CANVAS",
-                  "isLoading": false,
-                  "iconAlign": "left",
-                  "defaultText": "{{JSObject1.myVar1}}"
-                }
-              ]
+              "children": []
             },
-            "layoutOnLoadActions": [
-              [
-                {
-                  "id": "Page1_get_schema",
-                  "name": "get_schema",
-                  "pluginType": "DB",
-                  "jsonPathKeys": [],
-                  "timeoutInMillisecond": 10000
-                }
-              ],
-              [
-                {
-                  "id": "Page1_mockApi",
-                  "name": "mockApi",
-                  "pluginType": "API",
-                  "jsonPathKeys": [],
-                  "timeoutInMillisecond": 10000
-                }
-              ]
-            ],
             "new": false
           }
         ],
@@ -653,101 +383,13 @@
   "unpublishedDefaultPageName": "Page1",
   "actionList": [
     {
-      "id": "Page1_myFun1",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
-      "gitSyncId": "62270c27a904cd31e1c9c2a1_62270c27a904cd31e1c9c2a5",
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "myFun1",
-        "fullyQualifiedName": "JSObject1.myFun1",
-        "datasource": {
-          "userPermissions": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "invalids": [
-            "No datasource configuration found. Please configure it and try again."
-          ],
-          "messages": [],
-          "isValid": false,
-          "new": true
-        },
-        "pageId": "Page1",
-        "collectionId": "Page1_JSObject1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n\t\t//write code here\n\t\treturn JSObject1.myVar1;\n\t}",
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "JSObject1.myFun1"
-      },
-      "publishedAction": {
-        "name": "myFun1",
-        "fullyQualifiedName": "JSObject1.myFun1",
-        "datasource": {
-          "userPermissions": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "invalids": [
-            "No datasource configuration found. Please configure it and try again."
-          ],
-          "messages": [],
-          "isValid": false,
-          "new": true
-        },
-        "pageId": "Page1",
-        "collectionId": "Page1_JSObject1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n\t\t//write code here\n\t\treturn JSObject1.myVar1;\n\t}",
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "JSObject1.myFun1"
-      },
-      "new": false
-    },
-    {
       "id": "Page1_mockApi",
       "userPermissions": [
         "read:actions",
         "execute:actions",
         "manage:actions"
       ],
-      "gitSyncId": "62270c27a904cd31e1c9c2a1_62270c27a904cd31e1c9c2a6",
+      "gitSyncId": "61c580d685c0bd4ccf7d1716_61c580e385c0bd4ccf7d171a",
       "pluginType": "API",
       "pluginId": "restapi-plugin",
       "unpublishedAction": {
@@ -796,74 +438,37 @@
         "validName": "mockApi"
       },
       "publishedAction": {
-        "name": "mockApi",
         "datasource": {
           "userPermissions": [],
-          "name": "DEFAULT_REST_DATASOURCE",
-          "pluginId": "restapi-plugin",
-          "datasourceConfiguration": {
-            "url": "https://mock-api.appsmith.com"
-          },
-          "invalids": [],
           "messages": [],
           "isValid": true,
           "new": true
         },
-        "pageId": "Page1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "path": "/echo/get",
-          "headers": [
-            {
-              "key": "info",
-              "value": "[{\"due\":\"2021-11-23\",\"assignee\":\"Dan.Wyman@hotmail.com\",\"title\":\"Recusan\",\"id\":\"1\"},{\"due\":\"2021-11-23\",\"assignee\":\"Dashawn_Maggio30@gmail.com\",\"title\":\"Dignissimos eaque\",\"id\":\"2\"},{\"due\":\"2021-11-24\",\"assignee\":\"Curt50@gmail.com\",\"title\":\"Voluptas explicabo\",\"id\":\"3\"},{\"due\":\"2021-11-23\",\"assignee\":\"Shanna63@hotmail.com\",\"title\":\"Aut omnis.\",\"id\":\"4\"}]"
-            }
-          ],
-          "encodeParamsToggle": true,
-          "queryParameters": [],
-          "body": "",
-          "httpMethod": "GET",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": true
-            }
-          ]
-        },
-        "executeOnLoad": true,
-        "dynamicBindingPathList": [],
-        "isValid": true,
-        "invalids": [],
         "messages": [],
-        "jsonPathKeys": [],
         "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "mockApi"
+        "userPermissions": []
       },
       "new": false
     },
     {
-      "id": "Page1_myFun2",
+      "id": "Page1_myFun1",
       "userPermissions": [
         "read:actions",
         "execute:actions",
         "manage:actions"
       ],
-      "gitSyncId": "62270c27a904cd31e1c9c2a1_62270c27a904cd31e1c9c2aa",
+      "gitSyncId": "61c580d685c0bd4ccf7d1716_61c58ced85c0bd4ccf7d1722",
       "pluginType": "JS",
       "pluginId": "js-plugin",
       "unpublishedAction": {
-        "name": "myFun2",
-        "fullyQualifiedName": "JSObject1.myFun2",
+        "name": "myFun1",
+        "fullyQualifiedName": "JSObject1.myFun1",
         "datasource": {
           "userPermissions": [],
           "name": "UNUSED_DATASOURCE",
           "pluginId": "js-plugin",
-          "invalids": [
-            "No datasource configuration found. Please configure it and try again."
-          ],
           "messages": [],
-          "isValid": false,
+          "isValid": true,
           "new": true
         },
         "pageId": "Page1",
@@ -872,7 +477,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "() => {\n\t\t//write code here\n\t}",
+          "body": "() => {\n\t\t//write code here\n\t\treturn JSObject1.myVar1;\n\t}",
           "jsArguments": [],
           "isAsync": false
         },
@@ -885,48 +490,23 @@
         "isValid": true,
         "invalids": [],
         "messages": [],
-        "jsonPathKeys": [],
+        "jsonPathKeys": [
+          "() => {\n\t\t//write code here\n\t\treturn JSObject1.myVar1;\n\t}"
+        ],
         "confirmBeforeExecute": false,
         "userPermissions": [],
-        "validName": "JSObject1.myFun2"
+        "validName": "JSObject1.myFun1"
       },
       "publishedAction": {
-        "name": "myFun2",
-        "fullyQualifiedName": "JSObject1.myFun2",
         "datasource": {
           "userPermissions": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "invalids": [
-            "No datasource configuration found. Please configure it and try again."
-          ],
           "messages": [],
-          "isValid": false,
+          "isValid": true,
           "new": true
         },
-        "pageId": "Page1",
-        "collectionId": "Page1_JSObject1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n\t\t//write code here\n\t}",
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "isValid": true,
-        "invalids": [],
         "messages": [],
-        "jsonPathKeys": [],
         "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "JSObject1.myFun2"
+        "userPermissions": []
       },
       "new": false
     },
@@ -937,13 +517,13 @@
         "execute:actions",
         "manage:actions"
       ],
-      "gitSyncId": "62270c27a904cd31e1c9c2a1_62270c27a904cd31e1c9c2ad",
+      "gitSyncId": "61c580d685c0bd4ccf7d1716_61c5832685c0bd4ccf7d171e",
       "pluginType": "DB",
       "pluginId": "postgres-plugin",
       "unpublishedAction": {
         "name": "get_schema",
         "datasource": {
-          "id": "mockdata (1)",
+          "id": "mockdata",
           "userPermissions": [],
           "pluginId": "postgres-plugin",
           "messages": [],
@@ -973,36 +553,75 @@
         "validName": "get_schema"
       },
       "publishedAction": {
-        "name": "get_schema",
         "datasource": {
-          "id": "mockdata (1)",
           "userPermissions": [],
-          "pluginId": "postgres-plugin",
           "messages": [],
           "isValid": true,
-          "new": false
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "Page1_myFun2",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "gitSyncId": "61c580d685c0bd4ccf7d1716_61c58ced85c0bd4ccf7d1724",
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "myFun2",
+        "fullyQualifiedName": "JSObject1.myFun2",
+        "datasource": {
+          "userPermissions": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
         },
         "pageId": "Page1",
+        "collectionId": "Page1_JSObject1",
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT schema_name FROM information_schema.schemata;",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": true
-            }
-          ]
+          "body": "() => {\n\t\t//write code here\n\t}",
+          "jsArguments": [],
+          "isAsync": false
         },
-        "executeOnLoad": true,
-        "dynamicBindingPathList": [],
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
         "isValid": true,
         "invalids": [],
         "messages": [],
-        "jsonPathKeys": [],
+        "jsonPathKeys": [
+          "() => {\n\t\t//write code here\n\t}"
+        ],
         "confirmBeforeExecute": false,
         "userPermissions": [],
-        "validName": "get_schema"
+        "validName": "JSObject1.myFun2"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
       },
       "new": false
     }
@@ -1017,27 +636,6 @@
       ],
       "gitSyncId": "61c580d685c0bd4ccf7d1716_61c58ced85c0bd4ccf7d1726",
       "unpublishedCollection": {
-        "name": "JSObject1",
-        "pageId": "Page1",
-        "pluginId": "js-plugin",
-        "pluginType": "JS",
-        "actionIds": [],
-        "archivedActionIds": [],
-        "actions": [],
-        "archivedActions": [],
-        "body": "export default {\n\tmyVar1: \"Submit\",\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\treturn this.myVar1;\n\t},\n\tmyFun2: () => {\n\t\t//write code here\n\t}\n}",
-        "variables": [
-          {
-            "name": "myVar1",
-            "value": "Submit"
-          },
-          {
-            "name": "myVar2",
-            "value": {}
-          }
-        ]
-      },
-      "publishedCollection": {
         "name": "JSObject1",
         "pageId": "Page1",
         "pluginId": "js-plugin",
