@@ -51,6 +51,11 @@
             <artifactId>jsch</artifactId>
             <version>0.1.72</version>
         </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.70</version>
+        </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
