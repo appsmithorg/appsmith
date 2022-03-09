@@ -6,6 +6,7 @@ export function createMessage(
 }
 
 export const YES = () => `Yes`;
+export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;

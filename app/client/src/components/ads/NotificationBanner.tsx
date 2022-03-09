@@ -12,7 +12,7 @@ export enum NotificationVariant {
   info,
 }
 
-type NotificationBannerProps = {
+export type NotificationBannerProps = {
   icon?: string;
   variant: NotificationVariant;
   canClose?: boolean;

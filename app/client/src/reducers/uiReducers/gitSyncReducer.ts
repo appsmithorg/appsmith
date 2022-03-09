@@ -439,6 +439,7 @@ export type GitSyncReducerState = {
   };
 
   useGlobalProfile?: boolean;
+  isChangeDiscarding?: boolean;
 };
 
 export default gitSyncReducer;

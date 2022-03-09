@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ARE_YOU_SURE,
   CHANGES_MADE_SINCE_LAST_COMMIT,
   COMMIT_AND_PUSH,
   COMMIT_TO,
@@ -23,6 +24,7 @@ import {
   getConflictFoundDocUrlDeploy,
   getGitCommitAndPushError,
   getGitStatus,
+  getIsChangeDiscardInProgress,
   getIsCommitSuccessful,
   getIsCommittingInProgress,
   getIsFetchingGitStatus,
@@ -62,6 +64,7 @@ import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import useAutoGrow from "utils/hooks/useAutoGrow";
 import {
   NotificationBanner,
+  NotificationBannerProps,
   NotificationVariant,
 } from "../../../../components/ads/NotificationBanner";
 import { Space, Title } from "../components/StyledComponents";
@@ -131,7 +134,6 @@ const ActionsContainer = styled.div`
   gap: ${(props) => props.theme.spaces[7]}px;
 
   & a.discard-changes-link {
-    border: none;
   }
 `;
 
@@ -185,18 +187,19 @@ function DiscardChangesWarning({
   onCloseDiscardChangesWarning,
   onDiscardChanges,
 }: any) {
-  const notificationBannerOptions = {
+  const notificationBannerOptions: NotificationBannerProps = {
     canClose: true,
     className: "error",
     icon: "warning-line",
     onClose: () => onCloseDiscardChangesWarning(),
     variant: NotificationVariant.error,
+    learnMoreClickHandler: () => false,
   };
   return (
     <DiscardChangesWarningContainer>
       <NotificationBanner {...notificationBannerOptions}>
         <DiscardWarningMessage />
-        <DiscardWarningActions onClick={onDiscardChanges} />
+        {/*<DiscardWarningActions onClick={onDiscardChanges} />*/}
       </NotificationBanner>
     </DiscardChangesWarningContainer>
   );
@@ -205,6 +208,7 @@ function DiscardChangesWarning({
 function Deploy() {
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
+  const isChangeDiscardInProgress = useSelector(getIsChangeDiscardInProgress);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
@@ -409,7 +413,12 @@ function Deploy() {
                 isCommittingInProgress
               }
               onClick={() => setShowDiscardWarning(true)}
-              text="discard changes"
+              size={Size.large}
+              text={
+                showDiscardWarning
+                  ? createMessage(ARE_YOU_SURE)
+                  : createMessage(DISCARD_CHANGES)
+              }
             />
           )}
         </ActionsContainer>
@@ -418,6 +427,15 @@ function Deploy() {
           <StatusbarWrapper>
             <Statusbar
               completed={!commitButtonLoading}
+              message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
+              period={2}
+            />
+          </StatusbarWrapper>
+        )}
+        {isDiscardProgressing && (
+          <StatusbarWrapper>
+            <Statusbar
+              completed={}
               message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
               period={2}
             />
