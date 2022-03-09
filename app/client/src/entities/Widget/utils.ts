@@ -30,13 +30,12 @@ const checkPathsInConfig = (
   configTriggerPaths: Record<string, true>;
   configValidationPaths: Record<string, ValidationConfig>;
 } => {
-  const configReactivePaths: Record<string, EvaluationSubstitutionType> = {};
+  const configBindingPaths: Record<string, EvaluationSubstitutionType> = {};
   const configTriggerPaths: Record<string, true> = {};
   const configValidationPaths: Record<any, ValidationConfig> = {};
-
   // Purely a Binding Path
   if (config.isBindProperty && !config.isTriggerProperty) {
-    configReactivePaths[path] =
+    configBindingPaths[path] =
       config.evaluationSubstitutionType || EvaluationSubstitutionType.TEMPLATE;
     if (config.validation) {
       configValidationPaths[path] = config.validation;
@@ -45,8 +44,8 @@ const checkPathsInConfig = (
     configTriggerPaths[path] = true;
   }
   return {
-    configBindingPaths: configReactivePaths,
-    configReactivePaths,
+    configBindingPaths,
+    configReactivePaths: configBindingPaths,
     configTriggerPaths,
     configValidationPaths,
   };
@@ -98,6 +97,7 @@ const childHasPanelConfig = (
                   );
                   bindingPaths = {
                     ...configBindingPaths,
+                    ...bindingPaths,
                   };
                   reactivePaths = {
                     ...configReactivePaths,
@@ -160,7 +160,6 @@ export const getAllPathsFromPropertyConfig = (
   let reactivePaths: Record<string, EvaluationSubstitutionType> = {};
   Object.keys(defaultProperties).forEach((property) => {
     reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
-    bindingPaths[property] = EvaluationSubstitutionType.TEMPLATE;
   });
   let triggerPaths: Record<string, true> = {};
   let validationPaths: Record<any, ValidationConfig> = {};

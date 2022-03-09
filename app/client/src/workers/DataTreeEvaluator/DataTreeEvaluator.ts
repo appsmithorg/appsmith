@@ -1315,7 +1315,7 @@ export default class DataTreeEvaluator {
                 entity,
                 entityPropertyPath,
               );
-              this.logs.push({ bindingPaths: entity.bindingPaths });
+
               if (isADynamicBindingPath) {
                 didUpdateDependencyMap = true;
 
