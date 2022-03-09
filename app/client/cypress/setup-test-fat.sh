@@ -5,7 +5,7 @@
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "Starting the setup the test framework"
-sudo echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
+sudo echo "127.0.0.1	localhost" | sudo tee -a /etc/hosts
 serve -s build -p 3000 &
 
 # Substitute all the env variables in nginx
@@ -14,9 +14,9 @@ cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PRO
 cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
-touch ./docker/dev.appsmith.com.pem ./docker/dev.appsmith.com-key.pem
-echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/dev.appsmith.com.pem
-echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
+touch ./docker/localhost ./docker/localhost.pem
+echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
+echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
 
 echo "Going to run the nginx server"
 #sudo docker pull nginx:latest
