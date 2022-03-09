@@ -10,7 +10,7 @@ import {
   createMessage,
   EDIT_COMMENT,
   MORE_OPTIONS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { noop } from "lodash";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";

@@ -49,7 +49,7 @@ import {
   createMessage,
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
 import { Organization } from "constants/orgConstants";
@@ -81,7 +81,7 @@ import {
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
-const getDefaultPageId = (
+export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
   let defaultPage: ApplicationPagePayload | undefined = undefined;

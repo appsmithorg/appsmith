@@ -25,7 +25,7 @@ import {
   DEFAULT_PAGE_TOOLTIP,
   DELETE_TOOLTIP,
   HIDDEN_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 

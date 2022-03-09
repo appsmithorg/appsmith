@@ -19,7 +19,10 @@ import {
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
 import { Toaster } from "components/ads/Toast";
-import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
+import {
+  createMessage,
+  SELECT_ALL_WIDGETS_MSG,
+} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import {

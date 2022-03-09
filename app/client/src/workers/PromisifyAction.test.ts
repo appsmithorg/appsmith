@@ -12,7 +12,7 @@ jest.mock("./evaluation.worker.ts", () => {
 describe("promise execution", () => {
   const postMessageMock = jest.fn();
   const requestId = _.uniqueId("TEST_REQUEST");
-  const dataTreeWithFunctions = createGlobalData({}, {}, { requestId });
+  const dataTreeWithFunctions = createGlobalData({}, {}, true, { requestId });
 
   beforeEach(() => {
     self.ALLOW_ASYNC = true;

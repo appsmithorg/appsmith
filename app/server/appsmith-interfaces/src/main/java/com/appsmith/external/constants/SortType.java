@@ -5,7 +5,7 @@ package com.appsmith.external.constants;
  * `FilterDataServiceCE.java`
  */
 public enum SortType {
-    ASCENDING{
+    ASCENDING {
         @Override
         public String toString() {
             return "ASC";

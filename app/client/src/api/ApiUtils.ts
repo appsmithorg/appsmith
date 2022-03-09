@@ -3,7 +3,7 @@ import {
   ERROR_0,
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import {
   API_STATUS_CODES,

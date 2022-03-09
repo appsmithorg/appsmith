@@ -20,7 +20,7 @@ import {
   ACCOUNT_TOOLTIP,
   createMessage,
   ADMIN_SETTINGS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";

@@ -11,6 +11,7 @@ import {
   Basic,
   ApiKey,
   BearerToken,
+  SSLType,
 } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
@@ -22,6 +23,11 @@ export const datasourceToFormValues = (
     "datasourceConfiguration.authentication.authenticationType",
     AuthType.NONE,
   );
+  const connection = _.get(datasource, "datasourceConfiguration.connection", {
+    ssl: {
+      authType: SSLType.DEFAULT,
+    },
+  });
   const authentication = datasourceToFormAuthentication(authType, datasource);
   const isSendSessionEnabled =
     _.get(datasource, "datasourceConfiguration.properties[0].value", "N") ===
@@ -43,6 +49,7 @@ export const datasourceToFormValues = (
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
     authentication: authentication,
+    connection: connection,
   };
 };
 
@@ -69,6 +76,7 @@ export const formValuesToDatasource = (
         { key: "sessionSignatureKey", value: form.sessionSignatureKey },
       ],
       authentication: authentication,
+      connection: form.connection,
     },
   } as Datasource;
 };
@@ -92,6 +100,9 @@ const formToDatasourceAuthentication = (
       isTokenHeader: authentication.isTokenHeader,
       audience: authentication.audience,
       resource: authentication.resource,
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -176,6 +187,9 @@ const datasourceToFormAuthentication = (
       isTokenHeader: !!authentication.isTokenHeader,
       audience: authentication.audience || "",
       resource: authentication.resource || "",
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation || "",
     };
     if (isClientCredentials(authType, authentication)) {
       return {

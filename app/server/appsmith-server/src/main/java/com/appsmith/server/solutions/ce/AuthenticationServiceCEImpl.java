@@ -231,6 +231,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
                                 } else if (expiresInResponse != null) {
                                     expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
+
                                 }
                                 authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead

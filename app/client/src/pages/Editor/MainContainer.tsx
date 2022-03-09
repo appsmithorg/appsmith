@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useCallback } from "react";
 import { Route, Switch } from "react-router";
 
@@ -12,6 +12,8 @@ import { updateExplorerWidthAction } from "actions/explorerActions";
 import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
+import classNames from "classnames";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -47,6 +49,8 @@ function MainContainer() {
     dispatch(updateExplorerWidthAction(sidebarWidth));
   }, [sidebarWidth]);
 
+  const isPreviewMode = useSelector(previewModeSelector);
+
   return (
     <>
       <Container className="w-full overflow-x-hidden">
@@ -70,7 +74,13 @@ function MainContainer() {
           </Switch>
         </div>
       </Container>
-      <BottomBar />
+      <BottomBar
+        className={classNames({
+          "translate-y-full fixed bottom-0": isPreviewMode,
+          "translate-y-0 relative opacity-100": !isPreviewMode,
+          "transition-all transform duration-400": true,
+        })}
+      />
     </>
   );
 }

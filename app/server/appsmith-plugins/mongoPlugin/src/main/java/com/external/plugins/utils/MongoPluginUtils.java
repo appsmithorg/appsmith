@@ -185,6 +185,19 @@ public class MongoPluginUtils {
         templates.addAll(
                 new Delete().generateTemplate(templateConfiguration)
         );
+
+        templates.addAll(
+                new Count().generateTemplate(templateConfiguration)
+        );
+
+        templates.addAll(
+                new Distinct().generateTemplate(templateConfiguration)
+        );
+
+        templates.addAll(
+                new Aggregate().generateTemplate(templateConfiguration)
+        );
+
     }
 
     public static String urlEncode(String text) {

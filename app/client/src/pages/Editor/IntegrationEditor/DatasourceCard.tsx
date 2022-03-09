@@ -254,7 +254,7 @@ function DatasourceCard(props: DatasourceCardProps) {
             <Queries className={`t--queries-for-${plugin.type}`}>
               {queriesWithThisDatasource
                 ? `${queriesWithThisDatasource} ${QUERY} on this page`
-                : "No query is using this datasource"}
+                : "No query in this application is using this datasource"}
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
@@ -298,18 +298,18 @@ function DatasourceCard(props: DatasourceCardProps) {
                   </MoreOptionsContainer>
                 }
               >
+                <MenuItem
+                  className="t--datasource-option-edit"
+                  icon="edit"
+                  onSelect={editDatasource}
+                  text="Edit"
+                />
                 <RedMenuItem
                   className="t--datasource-option-delete"
                   icon="delete"
                   isLoading={isDeletingDatasource}
                   onSelect={deleteAction}
                   text="Delete"
-                />
-                <MenuItem
-                  className="t--datasource-option-edit"
-                  icon="edit"
-                  onSelect={editDatasource}
-                  text="Edit"
                 />
               </MenuComponent>
             </MenuWrapper>

@@ -11,7 +11,7 @@ import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
 import TooltipComponent from "components/ads/Tooltip";
-import { COPY_ELEMENT, createMessage } from "constants/messages";
+import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import CollapseToggle from "./CollapseToggle";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";

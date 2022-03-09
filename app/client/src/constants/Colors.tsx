@@ -1,5 +1,9 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
 export const Colors = {
+  EBONY_CLAY: "#2A2F3D",
+  EBONY_CLAY_2: "#22223B",
+  MOUNTAIN_MEADOW: "#27CA40",
+  PERSIMMON: "#FF6058",
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
@@ -13,6 +17,7 @@ export const Colors = {
   DARK_GRAY: "#A9A7A7",
   LIGHT_GREYISH_BLUE: "#B0BFCB",
   SUNGLOW: "#FFCB33",
+  SUNGLOW_2: "#FFC130",
   SOFT_ORANGE: "#f7c75b",
   BINDING_COLOR: "#ffcc99",
   BINDING_COLOR_LT: "#063289",
@@ -37,11 +42,13 @@ export const Colors = {
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
   MERCURY_1: "#E3E3E3",
+  MERCURY_2: "#E7E7E7",
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
   FOAM: "#D9FDED",
   GREEN: "#03B365",
+  LIGHT_GREEN_CYAN: "#e5f6ec",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
   FERN_GREEN: "#50AF6C",
@@ -85,6 +92,7 @@ export const Colors = {
   LIGHT_GREY2: "#C4C4C4",
   Gallery: "#F0F0F0",
   GALLERY_1: "#EBEBEB",
+  GALLERY_2: "#EDEDED",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
   ALTO2: "#E0DEDE",
@@ -92,6 +100,8 @@ export const Colors = {
   DANUBE: "#6A86CE",
   FAIR_PINK: "#FFE9E9",
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
+  PALE_BLUE: "#E8F5FA",
+  CURIOUS_BLUE: "#1D9BD1",
   RATE_ACTIVE: "#FFCB45",
   MALIBU: "#7DBCFF",
   ALABASTER_ALT: "#FAFAFA",
@@ -149,6 +159,7 @@ export const Colors = {
 
   GREEN_SOLID: "#50AF6C",
   MIRAGE: "#182026",
+  MIRAGE_2: "#121826",
 
   GREEN_SOLID_HOVER: "#D5EFE3",
   GREEN_SOLID_LIGHT_HOVER: "#ECF9F3",

@@ -20,7 +20,7 @@ import {
   TEST_EMAIL_FAILURE,
   TEST_EMAIL_SUCCESS,
   TEST_EMAIL_SUCCESS_TROUBLESHOOT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
@@ -84,7 +84,7 @@ function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
   }
 }
 
-const RESTART_POLL_TIMEOUT = 30000;
+const RESTART_POLL_TIMEOUT = 60000;
 const RESTART_POLL_INTERVAL = 2000;
 
 function* RestartServerPoll() {
@@ -133,7 +133,7 @@ function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
     });
   } catch (e) {
     Toaster.show({
-      text: createMessage(TEST_EMAIL_FAILURE),
+      text: e?.message || createMessage(TEST_EMAIL_FAILURE),
       hideProgressBar: true,
       variant: Variant.danger,
     });

@@ -31,7 +31,7 @@ import {
   PROCEED,
   PROCEED_TO_NEXT_STEP,
   TITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const GuideWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[4]}px;

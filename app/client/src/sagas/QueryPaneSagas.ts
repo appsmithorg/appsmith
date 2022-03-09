@@ -43,7 +43,10 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
 import _ from "lodash";
-import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import {
+  createMessage,
+  ERROR_ACTION_RENAME_FAIL,
+} from "@appsmith/constants/messages";
 import get from "lodash/get";
 import {
   initFormEvaluations,
@@ -51,7 +54,7 @@ import {
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { EventLocation } from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import {
   ActionData,
   ActionDataState,
@@ -107,7 +110,14 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
   // Once the initial values are set, we can run the evaluations based on them.
-  yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
+  yield put(
+    startFormEvaluations(
+      id,
+      formInitialValues.actionConfiguration,
+      action.datasource.id,
+      pluginId,
+    ),
+  );
 
   yield put(
     updateReplayEntity(
@@ -140,6 +150,8 @@ function* formValueChangeSaga(
 
     // Update the datasource of the form as well
     yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
+
+    AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
 
     return;
   }
@@ -278,6 +290,7 @@ function* createNewQueryForDatasourceSaga(
   const createActionPayload = {
     name: newQueryName,
     pageId,
+    pluginId: datasource?.pluginId,
     datasource: {
       id: datasourceId,
     },

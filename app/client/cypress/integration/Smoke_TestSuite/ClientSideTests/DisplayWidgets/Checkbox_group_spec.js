@@ -12,8 +12,9 @@ describe("checkboxgroupwidget Widget Functionality", function() {
     cy.get(".t--widget-checkboxgroupwidget").should("exist");
   });
 
-  it("should check that empty value is allowed in options", () => {
+  it("should check that prefilled option is added and empty value is allowed in options", () => {
     cy.openPropertyPane("checkboxgroupwidget");
+    cy.get(".t--property-control-options-add").click({ force: true });
     cy.get(".t--property-control-options")
       .find(".t--js-toggle")
       .click({ force: true });

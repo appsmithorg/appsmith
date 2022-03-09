@@ -1,5 +1,5 @@
 import React from "react";
-import { sortBy } from "lodash";
+import { sortBy, uniqueId } from "lodash";
 import {
   Alignment,
   Icon,
@@ -30,6 +30,7 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
   getCustomJustifyContent,
+  WidgetContainerDiff,
 } from "widgets/WidgetUtils";
 
 interface WrapperStyleProps {
@@ -86,10 +87,27 @@ const MenuButtonWrapper = styled.div`
   }
 `;
 
-const PopoverStyles = createGlobalStyle`
+const PopoverStyles = createGlobalStyle<{
+  parentWidth: number;
+  menuDropDownWidth: number;
+  id: string;
+}>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
+  ${({ id, menuDropDownWidth, parentWidth }) => `
+  .menu-button-width-${id} {
+
+    max-width: ${
+      menuDropDownWidth > parentWidth
+        ? `${menuDropDownWidth}px`
+        : `${parentWidth}px`
+    } !important;
+    min-width: ${
+      parentWidth > menuDropDownWidth ? parentWidth : menuDropDownWidth
+    }px !important;
+  }
+`}
 `;
 
 interface ButtonStyleProps {
@@ -287,6 +305,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
 
 const StyledMenu = styled(Menu)`
   padding: 0;
+  min-width: 0px;
 `;
 
 interface PopoverContentProps {
@@ -366,7 +385,14 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
   };
 
   render = () => {
-    const { buttonVariant, groupButtons, isDisabled, orientation } = this.props;
+    const {
+      buttonVariant,
+      groupButtons,
+      isDisabled,
+      menuDropDownWidth,
+      orientation,
+      width,
+    } = this.props;
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -390,10 +416,15 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
+            const id = uniqueId();
 
             return (
               <MenuButtonWrapper key={button.id}>
-                <PopoverStyles />
+                <PopoverStyles
+                  id={id}
+                  menuDropDownWidth={menuDropDownWidth}
+                  parentWidth={width - WidgetContainerDiff}
+                />
                 <Popover2
                   content={
                     <PopoverContent
@@ -405,7 +436,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   fill
                   minimal
                   placement="bottom-end"
-                  popoverClassName="menu-button-popover"
+                  popoverClassName={`menu-button-popover menu-button-width-${id}`}
                 >
                   <StyledButton
                     borderRadOnEnd={borderRadOnEnd}
@@ -505,6 +536,8 @@ export interface ButtonGroupComponentProps {
   buttonVariant: ButtonVariant;
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;
+  width: number;
+  menuDropDownWidth: number;
 }
 
 export default ButtonGroupComponent;

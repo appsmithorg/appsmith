@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
@@ -302,7 +302,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 datasource.getDatasourceConfiguration().getAuthentication() != null) {
             datasourceMono = getById(datasource.getId())
                     .map(datasource1 -> {
-                        BeanCopyUtils.copyNestedNonNullProperties(datasource, datasource1);
+                        AppsmithBeanUtils.copyNestedNonNullProperties(datasource, datasource1);
                         return datasource1;
                     })
                     .switchIfEmpty(Mono.just(datasource));
@@ -393,7 +393,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> delete(String id) {
+    public Mono<Datasource> archiveById(String id) {
         return repository
                 .findById(id, MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
@@ -410,9 +410,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> deleteByIdAndBranchName(String id, String branchName) {
+    public Mono<Datasource> archiveByIdAndBranchName(String id, String branchName) {
         // Ignore branchName as datasources are branch independent entity
-        return this.delete(id);
+        return this.archiveById(id);
     }
 
 }

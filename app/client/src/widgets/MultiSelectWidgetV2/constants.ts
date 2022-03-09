@@ -1,0 +1,1 @@
+export const MY_MULTISELECT_WIDGET_CONSTANT = "";

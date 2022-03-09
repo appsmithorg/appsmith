@@ -1,4 +1,4 @@
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 const HelpLocators = require("../../../../locators/HelpLocators.json");
 const pages = require("../../../../locators/Pages.json");
 

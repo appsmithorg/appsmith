@@ -11,24 +11,26 @@ init_env_file() {
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
     echo "Generating default configuration file"
     mkdir -p "$CONF_PATH"
-    AUTO_GEN_MONGO_PASSWORD=$(
+    APPSMITH_MONGODB_USER="appsmith"
+    APPSMITH_MONGODB_PASSWORD=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ''
+      echo ""
     )
-    AUTO_GEN_ENCRYPTION_PASSWORD=$(
+    APPSMITH_ENCRYPTION_PASSWORD=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ''
+      echo ""
     )
-    AUTO_GEN_ENCRYPTION_SALT=$(
+    APPSMITH_ENCRYPTION_SALT=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ''
+      echo ""
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$APPSMITH_ENCRYPTION_PASSWORD" "$APPSMITH_ENCRYPTION_SALT" > "$ENV_PATH"
   fi
 
   printenv | grep -E '^APPSMITH_|^MONGO_' > "$TEMPLATES_PATH/pre-define.env"
- 
-  echo 'Load environment configuration'
+
+
+  echo "Load environment configuration"
   set -o allexport
   . "$ENV_PATH"
   . "$TEMPLATES_PATH/pre-define.env"
@@ -37,7 +39,7 @@ init_env_file() {
 
 unset_unused_variables() {
   # Check for enviroment vairalbes
-  echo 'Checking environment configuration'
+  echo "Checking environment configuration"
   if [[ -z "${APPSMITH_MAIL_ENABLED}" ]]; then
     unset APPSMITH_MAIL_ENABLED # If this field is empty is might cause application crash
   fi
@@ -63,8 +65,32 @@ unset_unused_variables() {
   fi
 }
 
-check_initialized_db() {
-  echo 'Check initialized database'
+check_mongodb_uri() {
+  echo "Checking APPSMITH_MONGODB_URI"
+  isUriLocal=1
+  if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
+    echo "Detected local MongoDB"
+    isUriLocal=0
+  fi
+}
+
+init_mongodb() {
+  if [[ $isUriLocal -eq 0 ]]; then
+    echo "Initializing local database"
+    MONGO_DB_PATH="/appsmith-stacks/data/mongodb"
+    MONGO_LOG_PATH="$MONGO_DB_PATH/log"
+    MONGO_DB_KEY="$MONGO_DB_PATH/key"
+    mkdir -p "$MONGO_DB_PATH"
+    touch "$MONGO_LOG_PATH"
+
+    if [[ -f "$MONGO_DB_KEY" ]]; then
+      chmod-mongodb-key "$MONGO_DB_KEY"
+    fi
+  fi
+}
+
+init_replica_set() {
+  echo "Checking initialized database"
   shouldPerformInitdb=1
   for path in \
     "$MONGO_DB_PATH/WiredTiger" \
@@ -73,45 +99,45 @@ check_initialized_db() {
     "$MONGO_DB_PATH/storage.bson"; do
     if [ -e "$path" ]; then
       shouldPerformInitdb=0
-      return
+      break
     fi
   done
-  echo "Should initialize database"
-}
-
-init_mongodb() {
-  echo "Init database"
-  MONGO_DB_PATH="/appsmith-stacks/data/mongodb"
-  MONGO_LOG_PATH="$MONGO_DB_PATH/log"
-  MONGO_DB_KEY="$MONGO_DB_PATH/key"
-  mkdir -p "$MONGO_DB_PATH"
-  touch "$MONGO_LOG_PATH"
-
-  check_initialized_db
-
-  if [[ -f "$MONGO_DB_KEY" ]]; then
-    chmod-mongodb-key "$MONGO_DB_KEY"
-  fi
-
-  if [[ $shouldPerformInitdb -gt 0 ]]; then
+  
+  if [[ $shouldPerformInitdb -gt 0 && $isUriLocal -eq 0 ]]; then
+    echo "Initializing Replica Set for local database"
     # Start installed MongoDB service - Dependencies Layer
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
-    echo "Waiting 10s for mongodb init"
+    echo "Waiting 10s for MongoDB to start"
     sleep 10
-    bash "/opt/appsmith/templates/mongo-init.js.sh" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" >"/appsmith-stacks/configuration/mongo-init.js"
-    mongo "127.0.0.1/${MONGO_INITDB_DATABASE}" /appsmith-stacks/configuration/mongo-init.js
-    echo "Seeding db done"
-
-    echo "Enable replica set"
+    echo "Creating MongoDB user"
+    bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" > "/appsmith-stacks/configuration/mongo-init.js"
+    mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
+    echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    echo "Fork process"
-    openssl rand -base64 756 >"$MONGO_DB_KEY"
+    openssl rand -base64 756 > "$MONGO_DB_KEY"
     chmod-mongodb-key "$MONGO_DB_KEY"
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGO_DB_KEY" --bind_ip localhost
-    echo "Waiting 10s for mongodb init with replica set"
+    echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
     mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
+  fi
+
+  if [[ $isUriLocal -gt 0 ]]; then
+    # Check mongodb cloud Replica Set
+    echo "Checking Replica Set of external MongoDB"
+    responseStatus=$(mongo "$APPSMITH_MONGODB_URI" --eval "rs.status()" | grep ok | xargs)
+    okString="ok : 1"
+
+    if [[ $responseStatus == *$okString* ]]; then
+      echo "Mongodb cloud Replica Set is enabled"
+      mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
+    else
+      echo -e "\033[0;31m********************************************************************\033[0m"
+      echo -e "\033[0;31m*          MongoDB Replica Set is not enabled                      *\033[0m"
+      echo -e "\033[0;31m********************************************************************\033[0m"
+      exit 1
+    fi
   fi
 }
 
@@ -136,7 +162,7 @@ configure_supervisord() {
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
-  if [[ "$APPSMITH_MONGODB_URI" = "mongodb://appsmith:$MONGO_INITDB_ROOT_PASSWORD@localhost/appsmith" ]]; then
+  if [[ $isUriLocal -eq 0 ]]; then
     cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
   fi
   if [[ "$APPSMITH_REDIS_URL" = "redis://127.0.0.1:6379" ]]; then
@@ -152,7 +178,9 @@ configure_supervisord() {
 # Main Section
 init_env_file
 unset_unused_variables
+check_mongodb_uri
 init_mongodb
+init_replica_set
 mount_letsencrypt_directory
 configure_supervisord
 

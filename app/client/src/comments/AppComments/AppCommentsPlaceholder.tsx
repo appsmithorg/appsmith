@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {
   NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Icon, { IconSize } from "components/ads/Icon";
 
 const Container = styled.div`

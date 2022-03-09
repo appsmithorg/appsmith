@@ -1,32 +1,21 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  StyledPropertyPaneButton,
-  StyledDragIcon,
-  StyledDeleteIcon,
-  StyledEditIcon,
-  StyledOptionControlInputGroup,
-} from "./StyledControls";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import _, { debounce } from "lodash";
+import _ from "lodash";
 import { Category, Size } from "components/ads/Button";
 import { Colors } from "constants/Colors";
 import { ButtonPlacementTypes } from "components/constants";
+import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
   width: 100%;
   justify-content: center;
   margin-top: 10px;
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
 `;
 
 const ButtonListWrapper = styled.div`
@@ -40,76 +29,28 @@ const AddNewButton = styled(StyledPropertyPaneButton)`
   flex-grow: 1;
 `;
 
-type RenderComponentProps = {
-  index: number;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
+type State = {
+  focusedIndex: number | null;
 };
 
-function GroupButtonComponent(props: RenderComponentProps) {
-  const { deleteOption, index, item, updateOption } = props;
+class ButtonListControl extends BaseControl<ControlProps, State> {
+  constructor(props: ControlProps) {
+    super(props);
 
-  const [value, setValue] = useState(item.label);
-  const [isEditing, setEditing] = useState(false);
+    this.state = {
+      focusedIndex: null,
+    };
+  }
 
-  useEffect(() => {
-    if (!isEditing && item && item.label) setValue(item.label);
-  }, [item?.label, isEditing]);
-
-  const debouncedUpdate = debounce(updateOption, 1000);
-  const onChange = useCallback(
-    (index: number, value: string) => {
-      setValue(value);
-      debouncedUpdate(index, value);
-    },
-    [updateOption],
-  );
-  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
-    index,
-  ]);
-
-  const onFocus = () => setEditing(true);
-  const onBlur = () => setEditing(false);
-
-  return (
-    <ButtonWrapper>
-      <StyledDragIcon height={20} width={20} />
-      <StyledOptionControlInputGroup
-        dataType="text"
-        onBlur={onBlur}
-        onChange={(value: string) => {
-          onChange(index, value);
-        }}
-        onFocus={onFocus}
-        placeholder="Button label"
-        value={value}
-      />
-      <StyledDeleteIcon
-        className="t--delete-tab-btn"
-        height={20}
-        marginRight={12}
-        onClick={() => {
-          deleteOption(index);
-        }}
-        width={20}
-      />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={handleChange}
-        width={20}
-      />
-    </ButtonWrapper>
-  );
-}
-
-class ButtonListControl extends BaseControl<ControlProps> {
+  componentDidUpdate(prevProps: ControlProps): void {
+    //on adding a new column last column should get focused
+    if (
+      Object.keys(prevProps.propertyValue).length + 1 ===
+      Object.keys(this.props.propertyValue).length
+    ) {
+      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+    }
+  }
   updateItems = (items: Array<Record<string, any>>) => {
     const menuItems = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
@@ -145,11 +86,20 @@ class ButtonListControl extends BaseControl<ControlProps> {
       <ButtonListWrapper>
         <DroppableComponent
           deleteOption={this.deleteOption}
+          fixedHeight={370}
+          focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={menuItems}
           onEdit={this.onEdit}
-          renderComponent={GroupButtonComponent}
+          renderComponent={(props) =>
+            DraggableListCard({
+              ...props,
+              isDelete: true,
+              placeholder: "Button label",
+            })
+          }
           toggleVisibility={this.toggleVisibility}
+          updateFocus={this.updateFocus}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
@@ -243,6 +193,10 @@ class ButtonListControl extends BaseControl<ControlProps> {
     };
 
     this.updateProperty(this.props.propertyName, groupButtons);
+  };
+
+  updateFocus = (index: number, isFocused: boolean) => {
+    this.setState({ focusedIndex: isFocused ? index : null });
   };
 
   static getControlType() {

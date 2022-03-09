@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Dialog from "components/ads/DialogComponent";
 import {
-  getRepoLimitedDocUrl,
+  getDisconnectDocUrl,
   getShowRepoLimitErrorModal,
 } from "selectors/gitSyncSelectors";
 import {
@@ -16,7 +16,7 @@ import { MENU_HEIGHT } from "./constants";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import {
-  CONTACT_SALES,
+  CONTACT_SUPPORT,
   CONTACT_SUPPORT_TO_UPGRADE,
   createMessage,
   DISCONNECT_CAUSE_APPLICATION_BREAK,
@@ -27,7 +27,7 @@ import {
   DISCONNECT_EXISTING_REPOSITORIES,
   DISCONNECT_EXISTING_REPOSITORIES_INFO,
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
 import { get } from "lodash";
@@ -87,7 +87,7 @@ function RepoLimitExceededErrorModal() {
   const dispatch = useDispatch();
   const application = useSelector(getCurrentApplication);
   const userOrgs = useSelector(getUserApplicationsOrgs);
-  const repoLimitDocumentUrl = useSelector(getRepoLimitedDocUrl);
+  const docURL = useSelector(getDisconnectDocUrl);
   const [orgName, setOrgName] = useState("");
   const applications = useMemo(() => {
     if (userOrgs) {
@@ -201,7 +201,7 @@ function RepoLimitExceededErrorModal() {
               }}
               size={Size.large}
               tag="button"
-              text={createMessage(CONTACT_SALES)}
+              text={createMessage(CONTACT_SUPPORT)}
             />
           </ButtonContainer>
           <Text
@@ -229,8 +229,9 @@ function RepoLimitExceededErrorModal() {
                 {createMessage(DISCONNECT_CAUSE_APPLICATION_BREAK)}
               </Text>
               <Link
+                className="t--learn-more-repo-limit-modal"
                 color={Colors.CRIMSON}
-                link={repoLimitDocumentUrl}
+                link={docURL}
                 text={createMessage(LEARN_MORE)}
               />
             </div>
@@ -238,7 +239,10 @@ function RepoLimitExceededErrorModal() {
           {applications.map((application: ApplicationPayload) => {
             const { gitApplicationMetadata } = application;
             return (
-              <ApplicationWrapper key={application.id}>
+              <ApplicationWrapper
+                className="t--connected-app-wrapper"
+                key={application.id}
+              >
                 <div>
                   <TextWrapper>
                     <Text color={Colors.OXFORD_BLUE} type={TextType.H4}>
@@ -252,6 +256,7 @@ function RepoLimitExceededErrorModal() {
                   </TextWrapper>
                 </div>
                 <Link
+                  className="t--disconnect-link"
                   color={Colors.CRIMSON}
                   hasIcon
                   link=""

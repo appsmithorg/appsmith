@@ -11,21 +11,17 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { set } from "lodash";
+import { get, set } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { sha256 } from "js-sha256";
 import moment from "moment";
-import log from "loglevel";
-import { extraLibrariesNames } from "./DynamicBindingUtils";
+import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
-
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
+import { DSLWidget } from "widgets/constants";
+import * as Sentry from "@sentry/react";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -259,13 +255,13 @@ export const trimTrailingSlash = (path: string) => {
  * this function is meant for checking the existence of ellipsis by CSS.
  * Since ellipsis by CSS are not part of DOM, we are checking with scroll width\height and offsetidth\height.
  * ScrollWidth\ScrollHeight is always greater than the offsetWidth\OffsetHeight when ellipsis made by CSS is active.
- *
+ * Using clientWidth to fix this https://stackoverflow.com/a/21064102/8692954
  * @param element
  */
 export const isEllipsisActive = (element: HTMLElement | null) => {
   return (
     element &&
-    (element.offsetWidth < element.scrollWidth ||
+    (element.clientWidth < element.scrollWidth ||
       element.offsetHeight < element.scrollHeight)
   );
 };
@@ -482,28 +478,6 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
   }
 };
 
-export function bootIntercom(user?: User) {
-  if (intercomAppID && window.Intercom) {
-    let { email, username } = user || {};
-    let name;
-    if (!cloudHosting) {
-      username = sha256(username || "");
-      // keep email undefined so that users are prompted to enter it when they reach out on intercom
-      email = undefined;
-    } else {
-      name = user?.name;
-    }
-
-    window.Intercom("boot", {
-      app_id: intercomAppID,
-      user_id: username,
-      email,
-      // keep name undefined instead of an empty string so that intercom auto assigns a name
-      name,
-    });
-  }
-}
-
 export const stopClickEventPropagation = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
 ) => {
@@ -592,28 +566,6 @@ export const getSearchQuery = (search = "", key: string) => {
   return decodeURIComponent(params.get(key) || "");
 };
 
-/**
- * get query params object
- * ref: https://stackoverflow.com/a/8649003/1543567
- */
-export const getQueryParamsObject = () => {
-  const search = window.location.search.substring(1);
-  if (!search) return {};
-  try {
-    return JSON.parse(
-      '{"' +
-        decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"') +
-        '"}',
-    );
-  } catch (e) {
-    log.error(e, "error parsing search string");
-    return {};
-  }
-};
-
 /*
  * unfocus all window selection
  *
@@ -661,4 +613,35 @@ export const mergeWidgetConfig = (target: any, source: any) => {
 
 export const getLocale = () => {
   return navigator.languages?.[0] || "en-US";
+};
+
+/**
+ * Function to check if the DynamicBindingPathList is valid
+ * @param currentDSL
+ * @returns
+ */
+export const captureInvalidDynamicBindingPath = (
+  currentDSL: Readonly<DSLWidget>,
+) => {
+  //Get the dynamicBindingPathList of the current DSL
+  const dynamicBindingPathList = get(currentDSL, "dynamicBindingPathList");
+  dynamicBindingPathList?.forEach((dBindingPath) => {
+    const pathValue = get(currentDSL, dBindingPath.key); //Gets the value for the given dynamic binding path
+    /**
+     * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
+     */
+    if (!isDynamicValue(pathValue)) {
+      Sentry.captureException(
+        new Error(
+          `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
+        ),
+      );
+      return;
+    }
+  });
+
+  if (currentDSL.children) {
+    currentDSL.children.map(captureInvalidDynamicBindingPath);
+  }
+  return currentDSL;
 };

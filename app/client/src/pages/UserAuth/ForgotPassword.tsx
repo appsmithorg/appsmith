@@ -21,7 +21,7 @@ import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   FORGOT_PASSWORD_PAGE_LOGIN_LINK,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import FormMessage from "components/ads/formFields/FormMessage";
 import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";

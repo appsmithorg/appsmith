@@ -28,7 +28,7 @@ import {
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   ALREADY_HAVE_AN_ACCOUNT,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
@@ -61,7 +61,7 @@ declare global {
     grecaptcha: any;
   }
 }
-const { disableLoginForm, googleRecaptchaSiteKey } = getAppsmithConfigs();
+const { disableSignup, googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -87,7 +87,7 @@ type SignUpFormProps = InjectedFormProps<
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   useEffect(() => {
-    if (disableLoginForm) {
+    if (disableSignup) {
       history.replace(AUTH_LOGIN_URL);
     }
   }, []);

@@ -1,5 +1,5 @@
 {
-  "input": ".CodeEditorTarget",
+  "input": ".CodeEditorTarget .CodeMirror",
   "hints": "ul.CodeMirror-hints",
   "evaluatedValue": ".t--CodeEditor-evaluatedValue",
   "bindingPrompt": ".t--no-binding-prompt"

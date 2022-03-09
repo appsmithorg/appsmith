@@ -42,7 +42,7 @@ import {
   RESET_PASSWORD_RESET_SUCCESS,
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};

@@ -13,7 +13,7 @@ import {
   OMNIBAR_PLACEHOLDER_DOC,
   OMNIBAR_PLACEHOLDER_NAV,
   OMNIBAR_PLACEHOLDER_SNIPPETS,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { isMenu, SearchCategory, SEARCH_CATEGORY_ID } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";

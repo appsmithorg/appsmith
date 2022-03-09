@@ -5,6 +5,8 @@ import FormControl from "pages/Editor/FormControl";
 import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
+import { PaginationSubComponent } from "components/formControls/utils";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
@@ -17,7 +19,8 @@ export const StyledFormLabel = styled(FormLabel)`
 export const FormControlContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  width: 20vw;
+  margin-right: 1rem;
 `;
 
 // using query dynamic input text for both so user can dynamically change these values.
@@ -48,11 +51,26 @@ export function Pagination(props: {
   customStyles?: any;
   configProperty: string;
   formName: string;
+  initialValue?: Record<string, string>;
 }) {
-  const { configProperty, customStyles, formName, name } = props;
+  const { configProperty, customStyles, formName, initialValue, name } = props;
+
+  const offsetPath = getBindingOrConfigPathsForPaginationControl(
+    PaginationSubComponent.Offset,
+    configProperty,
+  );
+  const limitPath = getBindingOrConfigPathsForPaginationControl(
+    PaginationSubComponent.Limit,
+    configProperty,
+  );
 
   return (
-    <div data-cy={name} style={{ width: "20vw" }}>
+    <div
+      data-cy={name}
+      style={{
+        display: "flex",
+      }}
+    >
       {/*  form control for Limit field */}
       <FormControlContainer>
         <FormControl
@@ -60,7 +78,9 @@ export function Pagination(props: {
             ...limitFieldConfig,
             label: "Limit",
             customStyles,
-            configProperty: `${configProperty}.limit`,
+            configProperty: limitPath,
+            initialValue:
+              typeof initialValue === "object" ? initialValue.limit : null,
           }}
           formName={formName}
         />
@@ -74,7 +94,9 @@ export function Pagination(props: {
             ...offsetFieldConfig,
             label: "Offset",
             customStyles,
-            configProperty: `${configProperty}.offset`,
+            configProperty: offsetPath,
+            initialValue:
+              typeof initialValue === "object" ? initialValue.offset : null,
           }}
           formName={formName}
         />

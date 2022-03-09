@@ -3,9 +3,9 @@ import {
   EvaluationReduxAction,
   ReduxAction,
   ReduxActionTypes,
-  ReduxActionWithoutPayload,
   UpdateCanvasPayload,
   ReduxActionErrorTypes,
+  AnyReduxAction,
 } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
@@ -17,7 +17,7 @@ import { GenerateTemplatePageRequest } from "../api/PageApi";
 import {
   WidgetReduxActionTypes,
   ReplayReduxActionTypes,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 
@@ -77,7 +77,7 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
 });
 
 export const fetchPageSuccess = (
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  postEvalActions: Array<AnyReduxAction>,
 ): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
@@ -87,7 +87,7 @@ export const fetchPageSuccess = (
 };
 
 export const fetchPublishedPageSuccess = (
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  postEvalActions: Array<AnyReduxAction>,
 ): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   postEvalActions,
@@ -321,17 +321,27 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
 
 export const updateAppTransientStore = (
   payload: Record<string, unknown>,
-): ReduxAction<Record<string, unknown>> => ({
+): EvaluationReduxAction<Record<string, unknown>> => ({
   type: ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
   payload,
+  postEvalActions: [
+    {
+      type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
+    },
+  ],
 });
 
 export const updateAppPersistentStore = (
   payload: Record<string, unknown>,
-): ReduxAction<Record<string, unknown>> => {
+): EvaluationReduxAction<Record<string, unknown>> => {
   return {
     type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
+    postEvalActions: [
+      {
+        type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
+      },
+    ],
   };
 };
 

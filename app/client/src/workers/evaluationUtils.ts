@@ -27,7 +27,9 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
-import { cloneDeep } from "lodash";
+import { PluginType } from "entities/Action";
+const clone = require("rfdc/default");
+import { warn as logWarn } from "loglevel";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -92,6 +94,15 @@ export function getEntityNameAndPropertyPath(
   return { entityName, propertyPath };
 }
 
+//these paths are not required to go through evaluate tree as these are internal properties
+const ignorePathsForEvalRegex =
+  ".(bindingPaths|triggerPaths|validationPaths|dynamicBindingPathList)";
+
+//match if paths are part of ignorePathsForEvalRegex
+const isUninterestingChangeForDependencyUpdate = (path: string) => {
+  return path.match(ignorePathsForEvalRegex);
+};
+
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
@@ -106,7 +117,15 @@ export const translateDiffEventToDataTreeDiffEvent = (
   if (!difference.path) {
     return result;
   }
+
   const propertyPath = convertPathToString(difference.path);
+  //we do not need evaluate these paths coz these are internal paths
+  const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
+    propertyPath,
+  );
+  if (!!isUninterestingPathForUpdateTree) {
+    return result;
+  }
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
   const entity = unEvalDataTree[entityName];
   const isJsAction = isJSAction(entity);
@@ -267,6 +286,16 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
+export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
+    "pluginType" in entity &&
+    entity.pluginType === PluginType.JS
+  );
+}
+
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
 export const removeFunctions = (value: any) => {
@@ -285,13 +314,14 @@ export const removeFunctions = (value: any) => {
 
 export const makeParentsDependOnChildren = (
   depMap: DependencyMap,
+  allkeys: Record<string, true>,
 ): DependencyMap => {
   //return depMap;
   // Make all parents depend on child
   Object.keys(depMap).forEach((key) => {
-    depMap = makeParentsDependOnChild(depMap, key);
+    depMap = makeParentsDependOnChild(depMap, key, allkeys);
     depMap[key].forEach((path) => {
-      depMap = makeParentsDependOnChild(depMap, path);
+      depMap = makeParentsDependOnChild(depMap, path, allkeys);
     });
   });
   return depMap;
@@ -300,10 +330,16 @@ export const makeParentsDependOnChildren = (
 export const makeParentsDependOnChild = (
   depMap: DependencyMap,
   child: string,
+  allkeys: Record<string, true>,
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-
+  if (!allkeys[curKey]) {
+    logWarn(
+      `makeParentsDependOnChild - ${curKey} is not present in dataTree.`,
+      "This might result in a cyclic dependency.",
+    );
+  }
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null
@@ -361,7 +397,7 @@ export function validateActionProperty(
       parsed: value,
     };
   }
-  return validate(config, value, undefined);
+  return validate(config, value, {});
 }
 
 export function getValidatedTree(tree: DataTree) {
@@ -800,15 +836,16 @@ export const overrideWidgetProperties = (
   value: unknown,
   currentTree: DataTree,
 ) => {
-  const clonedValue = cloneDeep(value);
+  const clonedValue = clone(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
 
-    overridingPropertyPaths.forEach((overriddenPropertyKey) => {
+    overridingPropertyPaths.forEach((overriddenPropertyPath) => {
+      const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
       _.set(
         currentTree,
-        `${entity.widgetName}.${overriddenPropertyKey}`,
+        [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
     });
@@ -822,11 +859,12 @@ export const overrideWidgetProperties = (
       entity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
-      const clonedDefaultValue = cloneDeep(defaultValue);
+      const clonedDefaultValue = clone(defaultValue);
       if (defaultValue !== undefined) {
+        const propertyPathArray = propertyPath.split(".");
         _.set(
           currentTree,
-          `${entity.widgetName}.${propertyPath}`,
+          [entity.widgetName, ...propertyPathArray],
           clonedDefaultValue,
         );
         return {

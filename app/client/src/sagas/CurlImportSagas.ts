@@ -8,7 +8,10 @@ import { validateResponse } from "sagas/ErrorSagas";
 import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
 import { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage, CURL_IMPORT_SUCCESS } from "constants/messages";
+import {
+  createMessage,
+  CURL_IMPORT_SUCCESS,
+} from "@appsmith/constants/messages";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import { API_EDITOR_ID_URL } from "constants/routes";
