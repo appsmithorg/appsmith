@@ -236,8 +236,7 @@ describe("Table Widget property pane feature validation", function() {
       .last()
       .click();
     cy.wait("@updateLayout");
-    cy.wait(2000);
-
+    cy.assertPageSave();
     cy.PublishtheApp();
     cy.wait(4000);
 
@@ -247,6 +246,7 @@ describe("Table Widget property pane feature validation", function() {
       "1",
       "background-color",
       "rgb(3, 179, 101)",
+      true,
     );
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
@@ -256,7 +256,7 @@ describe("Table Widget property pane feature validation", function() {
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");
-    cy.wait(2000);
+    cy.assertPageSave();
     cy.PublishtheApp();
     cy.wait(4000);
 
@@ -266,6 +266,7 @@ describe("Table Widget property pane feature validation", function() {
       "1",
       "background-color",
       "rgb(128, 0, 128)",
+      true,
     );
     cy.get(publish.backToEditor).click();
   });
