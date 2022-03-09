@@ -61,16 +61,16 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
-import { renderDefault } from "../component/renderHelpers/DefaultRenderer";
-import { renderButton } from "../component/renderHelpers/ButtonRenderer";
-import { renderDropdown } from "../component/renderHelpers/DropdownRenderer";
+import { renderDefault } from "../component/renderHelpers1/DefaultRenderer";
+import { renderButton } from "../component/renderHelpers1/ButtonRenderer";
+import { renderDropdown } from "../component/renderHelpers1/DropdownRenderer";
 import {
   renderMenuButton,
   RenderMenuButtonProps,
-} from "../component/renderHelpers/MenuButtonRenderer";
-import { renderImage } from "../component/renderHelpers/ImageRenderer";
-import { renderVideo } from "../component/renderHelpers/VideoRenders";
-import { renderIconButton } from "../component/renderHelpers/IconButtonRenderer";
+} from "../component/renderHelpers1/MenuButtonRenderer";
+import { renderImage } from "../component/renderHelpers1/ImageRenderer";
+import { renderVideo } from "../component/renderHelpers1/VideoRenders";
+import { renderIconButton } from "../component/renderHelpers1/IconButtonRenderer";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),

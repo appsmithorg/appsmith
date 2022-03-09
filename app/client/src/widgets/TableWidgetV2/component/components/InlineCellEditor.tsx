@@ -2,7 +2,7 @@ import { noop } from "lodash";
 import React, { useCallback } from "react";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import InputComponent from "widgets/InputWidgetV2/component";
-import { renderDefaultPropsType } from "../renderHelpers/DefaultRenderer";
+import { renderDefaultPropsType } from "../renderHelpers1/DefaultRenderer";
 
 type renderInlineEditorPropsType = {
   onChange: (text: string) => void;
