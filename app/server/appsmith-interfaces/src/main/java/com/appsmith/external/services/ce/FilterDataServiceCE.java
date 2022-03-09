@@ -432,10 +432,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     private String generateWhereClauseOldFormat(List<Condition> conditions, LinkedList<PreparedStatementValueDTO> values, Map<String, DataType> schema) {
 
         StringBuilder sb = new StringBuilder();
-
         Boolean firstCondition = true;
-        for (Condition condition : conditions) {
 
+        for (Condition condition : conditions) {
             if (firstCondition) {
                 // Append the WHERE keyword before adding the conditions
                 sb.append(" WHERE ");
@@ -448,8 +447,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             String path = condition.getPath();
             ConditionalOperator operator = condition.getOperator();
             String value = (String) condition.getValue();
-
+            Boolean isEmptyConditionValue = false;
             String sqlOp = SQL_OPERATOR_MAP.get(operator);
+
             if (sqlOp == null) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         operator.toString() + " is not supported currently for filtering.");
@@ -457,11 +457,22 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
             sb.append("\"" + path + "\"");
             sb.append(" ");
-            sb.append(sqlOp);
+
+            if (value == null || value.equals(StringUtils.EMPTY)) {
+                if (operator == ConditionalOperator.EQ || operator == ConditionalOperator.IN) {
+                    sb.append("IS NULL");
+                } else if (operator == ConditionalOperator.NOT_IN) {
+                    sb.append("IS NOT NULL");
+                }
+                isEmptyConditionValue = true;
+            } else {
+                sb.append(sqlOp);
+            }
             sb.append(" ");
 
             // These are array operations. Convert value into appropriate format and then append
-            if (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN) {
+            if (!(value == null || StringUtils.EMPTY.equals(value)) &&    //value should not be EMPTY or null
+                    (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN)) {
 
                 StringBuilder valueBuilder = new StringBuilder("(");
 
@@ -485,7 +496,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 value = valueBuilder.toString();
                 sb.append(value);
 
-            } else {
+            } else if (!isEmptyConditionValue) {
                 // Not an array. Simply add a placeholder
                 sb.append("?");
                 values.add(new PreparedStatementValueDTO(value, schema.get(path)));
