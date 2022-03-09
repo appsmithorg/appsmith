@@ -21,6 +21,8 @@ import {
   getModifiedOccupiedSpacesMap,
   checkReCollisionWithOtherNewSpacePositions,
   getCalculatedDirection,
+  getBottomMostRow,
+  initializeMovementLimitMap,
 } from "../reflowUtils";
 import { HORIZONTAL_RESIZE_LIMIT, VERTICAL_RESIZE_LIMIT } from "../reflowTypes";
 
@@ -1713,6 +1715,58 @@ describe("Test reflow util methods", () => {
           ReflowDirection.BOTTOM,
         ),
       ).toEqual([ReflowDirection.BOTTOM, ReflowDirection.LEFT]);
+    });
+  });
+
+  describe("test getBottomMostRow", () => {
+    const occupiedSpaces = [
+      { bottom: 10 },
+      { bottom: 15 },
+      { bottom: 90 },
+      { bottom: 5 },
+      { bottom: 67 },
+      { bottom: 48 },
+      { bottom: 36 },
+    ];
+    it("should return bottom most row from the array", () => {
+      expect(getBottomMostRow(occupiedSpaces)).toBe(90);
+    });
+  });
+
+  describe("test initializeMovementLimitMap", () => {
+    const occupiedSpaces = [
+      { id: "12" },
+      { id: "13" },
+      { id: "14" },
+      { id: "15" },
+      { id: "16" },
+    ];
+    const initialMovementLimitMap = {
+      "12": {
+        canHorizontalMove: true,
+        canVerticalMove: true,
+      },
+      "13": {
+        canHorizontalMove: true,
+        canVerticalMove: true,
+      },
+      "14": {
+        canHorizontalMove: true,
+        canVerticalMove: true,
+      },
+      "15": {
+        canHorizontalMove: true,
+        canVerticalMove: true,
+      },
+      "16": {
+        canHorizontalMove: true,
+        canVerticalMove: true,
+      },
+    };
+    it("should return a map with all the spaces with canHorizontalMove and canVerticalMove set as true", () => {
+      expect(initializeMovementLimitMap(occupiedSpaces)).toEqual(
+        initialMovementLimitMap,
+      );
     });
   });
 });

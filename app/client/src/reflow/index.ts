@@ -30,12 +30,14 @@ import {
   getSortedCollidingSpaces,
   getCalculatedDirection,
   getOrientationAccessor,
+  initializeMovementLimitMap,
 } from "./reflowUtils";
 
 /**
  * Reflow method that returns the displacement metrics of all other colliding spaces
+ * This is the entry point for the reflow algorithm, It is all pure javascript methods from this point onwards
  *
- * @param newSpacePositions new/current positions array of the space/block
+ * @param newSpacePositions new/current positions array of the dragging/resizing space/block
  * @param OGSpacePositions original positions array of the space before movement
  * @param occupiedSpaces array of all the occupied spaces on the canvas
  * @param direction direction of movement of the moving space
@@ -67,13 +69,21 @@ export function reflow(
     direction,
   );
 
-  const movementLimitMap: MovementLimitMap = {};
+  //initializing variables
+  const movementLimitMap: MovementLimitMap = initializeMovementLimitMap(
+    newSpacePositions,
+  );
   const globalCollidingSpaces: CollidingSpaceMap = {
     horizontal: {},
     vertical: {},
   };
 
-  if (!OGSpacePositionsMap || direction === ReflowDirection.UNSET) {
+  // Reflow is split into two orientation, current direction's orientation is done first
+  //and based on that reflowed values, opposite orientation is taken up next.
+  //for example, if primary direction is LEFT or RIGHT, then the horizontal orientation of reflow is calculated first
+  let currentDirection = forceDirection ? direction : primaryDirection;
+
+  if (!OGSpacePositionsMap || currentDirection === ReflowDirection.UNSET) {
     return {
       movementMap: prevReflowState.prevMovementMap,
       movementLimit: {
@@ -83,26 +93,23 @@ export function reflow(
     };
   }
 
-  let currentDirection = forceDirection ? direction : primaryDirection;
-
   const currentAccessor = getAccessor(currentDirection);
   const { isHorizontal } = currentAccessor;
 
-  //filter out the newSpacePositions from the occupiedSpacesMap
+  // This Mutates occupiedSpacesMap to filter out the common spaces with newSpacePositionsMap
   filterCommonSpaces(newSpacePositionsMap, occupiedSpacesMap);
 
+  //The primary and secondary accessors for maximum and minium dimensions of a space
   const maxSpaceAttributes = getMaxSpaceAttributes(currentAccessor);
 
+  //The primary and secondary Orientations
   const orientation: OrientationAccessors = getOrientationAccessors(
     isHorizontal,
   );
 
   const delta = getDelta(newSpacePositionsMap, OGSpacePositionsMap, direction);
 
-  // Reflow is split into two orientation, current direction's orientation is done first
-  //and based on that reflowed values, opposite orientation is taken up next.
-
-  //Reflow in the current orientation
+  //Reflow in the primary orientation
   const {
     collidingSpaces: primaryCollidingSpaces,
     isColliding: primaryIsColliding,
@@ -128,9 +135,10 @@ export function reflow(
   );
   getShouldReflow(movementLimitMap, primaryMovementVariablesMap, delta);
 
-  //Reflow in the opposite orientation
+  //Reflow in the opposite/secondary orientation
   if (!forceDirection && secondaryDirection)
     currentDirection = secondaryDirection;
+
   const {
     collidingSpaces: secondaryCollidingSpaces,
     isColliding: secondaryIsColliding,
@@ -162,12 +170,7 @@ export function reflow(
   }
 
   if (!primaryIsColliding && !secondaryIsColliding) {
-    return {
-      movementLimit: {
-        canHorizontalMove: true,
-        canVerticalMove: true,
-      },
-    };
+    return { movementLimitMap };
   }
 
   return {
@@ -181,8 +184,9 @@ export function reflow(
 
 /**
  * Reflow method that returns the movement variables in a particular orientation, like "horizontal" or "vertical"
+ * movement variables involve movementMap of the reflowed spaces, movement Limits of moving/dragging/resizing spaces/blocks
  *
- * @param newSpacePositionsMap new/current positions map of the space/block
+ * @param newSpacePositionsMap new/current positions map of the dragging/resizing space/block
  * @param occupiedSpacesMap all the occupied spaces map on the canvas
  * @param direction direction of movement of the moving space
  * @param isHorizontal boolean to indicate if the orientation is horizontal
@@ -263,7 +267,7 @@ function getOrientationalMovementInfo(
     prevCollisionMap,
   );
 
-  if (!collidingSpaces || !collidingSpaces.length) return {};
+  if (!collidingSpaces.length) return {};
 
   if (!primaryMovementMap) {
     changeExitContainerDirection(collidingSpaceMap, exitContainerId, direction);

@@ -41,13 +41,22 @@ export const extractCurrentDSL = (
   return transformDSL(currentDSL, newPage);
 };
 
+/**
+ * To get updated positions of the dragging blocks
+ *
+ * @param draggingBlocks
+ * @param snapColumnSpace
+ * @param snapRowSpace
+ * @returns An array of updated positions of the dragging blocks
+ */
 export function getDraggingSpacesFromBlocks(
   draggingBlocks: WidgetDraggingBlock[],
   snapColumnSpace: number,
   snapRowSpace: number,
-) {
+): OccupiedSpace[] {
   const draggingSpaces = [];
   for (const draggingBlock of draggingBlocks) {
+    //gets top and left position of the block
     const [leftColumn, topRow] = getDropZoneOffsets(
       snapColumnSpace,
       snapRowSpace,

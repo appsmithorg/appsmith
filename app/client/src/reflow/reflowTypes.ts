@@ -108,6 +108,12 @@ export type DirectionalMovement = {
   isHorizontal: boolean;
 };
 
+export type CollisionTreeCache = {
+  [direction: string]: {
+    [spaceId: string]: number;
+  };
+};
+
 export type ReflowedSpace = {
   X?: number;
   Y?: number;

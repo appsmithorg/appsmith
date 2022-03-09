@@ -1,6 +1,6 @@
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
-import { debounce, isEmpty, throttle } from "lodash";
+import { isEmpty, throttle } from "lodash";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
@@ -16,12 +16,14 @@ import {
   SecondOrderCollisionMap,
 } from "reflow/reflowTypes";
 import {
+  getBottomMostRow,
   getLimitedMovementMap,
   getSpacesMapFromArray,
 } from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import { AppState } from "reducers";
 
 type WidgetCollidingSpace = CollidingSpace & {
   type: string;
@@ -44,7 +46,7 @@ export interface ReflowInterface {
     forceDirection?: boolean,
     immediateExitContainer?: string,
   ): {
-    movementLimitMap: MovementLimitMap | undefined;
+    movementLimitMap?: MovementLimitMap;
     movementMap: ReflowedSpaceMap;
     bottomMostRow: number;
   };
@@ -57,6 +59,9 @@ export const useReflow = (
 ): ReflowInterface => {
   const dispatch = useDispatch();
   const isReflowingGlobal = useSelector(getIsReflowing);
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
 
   const throttledDispatch = throttle(dispatch, 50);
 
@@ -71,17 +76,15 @@ export const useReflow = (
   const prevSecondOrderCollisionMap = useRef<SecondOrderCollisionMap>({});
 
   useEffect(() => {
-    //debouncing to only have it run when the user has completely stopped reflow
-    debounce(() => {
-      if (!isReflowingGlobal) {
-        isReflowing.current = false;
-        prevPositions.current = [...OGPositions];
-        prevCollidingSpaces.current = { horizontal: {}, vertical: {} };
-        prevMovementMap.current = {};
-        prevSecondOrderCollisionMap.current = {};
-      }
-    }, 300);
-  }, [isReflowingGlobal]);
+    //only have it run when the user has completely stopped dragging and stopped Reflowing
+    if (!isReflowingGlobal && !isDragging) {
+      isReflowing.current = false;
+      prevPositions.current = [...OGPositions];
+      prevCollidingSpaces.current = { horizontal: {}, vertical: {} };
+      prevMovementMap.current = {};
+      prevSecondOrderCollisionMap.current = {};
+    }
+  }, [isReflowingGlobal, isDragging]);
 
   // will become a state if we decide that resize should be a "toggle on-demand" feature
   const shouldResize = true;
@@ -169,13 +172,3 @@ export const useReflow = (
     };
   };
 };
-
-function getBottomMostRow(newPositions: OccupiedSpace[]): number {
-  return newPositions
-    .map((space) => space.bottom)
-    .reduce(
-      (prevBottomRow, currentBottomRow) =>
-        Math.max(prevBottomRow, currentBottomRow),
-      0,
-    );
-}

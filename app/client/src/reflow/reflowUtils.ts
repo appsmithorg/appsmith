@@ -7,6 +7,7 @@ import {
   CollisionAccessors,
   CollisionMap,
   CollisionTree,
+  CollisionTreeCache,
   GridProps,
   HORIZONTAL_RESIZE_LIMIT,
   MathComparators,
@@ -24,7 +25,9 @@ import {
 } from "./reflowTypes";
 
 /**
- * method to determine if the newly calculated MovementValue should replace an old value of the same Space Id
+ * This method is used while calculating MovementMap of the reflowed spaces,
+ * if a particular space's movement is already calculated once, this method returns a boolean
+ * if the current calculation should replace the previous calculation
  *
  * @param oldMovement
  * @param newMovement
@@ -45,27 +48,32 @@ export function shouldReplaceOldMovement(
   const oldDistance = oldMovement[distanceKey],
     newDistance = newMovement[distanceKey];
 
-  if (oldDistance === undefined && newDistance !== undefined) return true;
-  if (oldDistance !== undefined && newDistance === undefined) return true;
+  //if either one is undefined and other one is a number it should replace
+  if (
+    (oldDistance === undefined && newDistance !== undefined) ||
+    (oldDistance !== undefined && newDistance === undefined)
+  )
+    return true;
 
   if (oldDistance === undefined || newDistance === undefined) {
     return false;
   }
 
-  return compareNumbers(oldDistance, newDistance, directionIndicator < 0);
+  return compareNumbers(newDistance, oldDistance, directionIndicator > 0);
 }
 
 /**
- * method to get resized dimensions of the Space to determine the Spaces colliding with this Space
+ * for calculating all the spaces a particular space is colliding with,
+ * we have to resize the space through out it's movement in the direction
+ * for example, if a space is moved by 2 rows in the BOTTOM direction,
+ * then the space's bottom dimension is increased by 2 rows
  *
- * @param collisionTree
- * @param distanceBeforeCollision
- * @param emptySpaces
+ * @param space
  * @param accessors
- * @returns resized Dimension
+ * @returns resized Dimensions of the space
  */
 export function getResizedDimensions(
-  collisionTree: CollisionTree,
+  space: CollidingSpace,
   {
     direction,
     directionIndicator,
@@ -73,7 +81,7 @@ export function getResizedDimensions(
     parallelMin,
   }: CollisionAccessors,
 ) {
-  const reflowedPosition = { ...collisionTree, children: [] };
+  const reflowedPosition = { ...space, children: [] };
 
   reflowedPosition[direction] =
     reflowedPosition.collidingValue +
@@ -84,7 +92,9 @@ export function getResizedDimensions(
 }
 
 /**
- * sort the collidingSpaces with respect to the distance from the staticPosition
+ * sort the collidingSpaces with respect to the distance from the newSpacePositions
+ * eg, for the colliding spaces of dragging/moving spaces,
+ * it is sorted by distance from dragging/moving spaces
  *
  * @param collidingSpaces
  * @param staticPosition
@@ -99,9 +109,10 @@ export function sortCollidingSpacesByDistance(
 }
 
 /**
- * Returns a comparator to compare the distance of the spaces
+ * This is a comparator for colliding spaces to sort them by distance from dragging/moving spaces
+ *
  * @param isAscending
- * @returns negative or positive indicator
+ * @returns comparator function
  */
 function getDistanceComparator(isAscending = true) {
   return function(spaceA: CollidingSpace, spaceB: CollidingSpace) {
@@ -119,13 +130,13 @@ function getDistanceComparator(isAscending = true) {
 }
 
 /**
- * To Get Indicators if the new space positions can continue to reflow without Overlapping
+ * Method to generate object map with canHorizontalMove and canVerticalMove for every Dragging/MovingSpace
  *
  * @param existingMovementLimits
  * @param spaceMovementMap
  * @param delta
  * @param beforeLimit
- * @returns object map with a boolean each for vertical and horizontal direction
+ * @returns object map with canHorizontalMove and canVerticalMove for every Dragging/MovingSpace
  */
 export function getShouldReflow(
   existingMovementLimits: MovementLimitMap,
@@ -180,7 +191,28 @@ export function getShouldReflow(
 }
 
 /**
- * Should return X and Y coordinates of movement from Original SpacePositions to newSpacePositions
+ * initializes canHorizontalMove and canVerticalMove as true for all moving/resizing spaces
+ *
+ * @param newSpacePositions
+ * @returns object map with canHorizontalMove and canVerticalMove for every Dragging/MovingSpace
+ */
+export function initializeMovementLimitMap(
+  newSpacePositions: OccupiedSpace[],
+): MovementLimitMap {
+  const movementLimitMap: MovementLimitMap = {};
+
+  for (const spacePosition of newSpacePositions) {
+    movementLimitMap[spacePosition.id] = {
+      canHorizontalMove: true,
+      canVerticalMove: true,
+    };
+  }
+
+  return movementLimitMap;
+}
+
+/**
+ * Should return X and Y absolute coordinates of the Dragging/moving spaces relative to the original space positions
  *
  * @param OGSpacePositionsMap
  * @param newSpacePositionsMap
@@ -225,9 +257,10 @@ export function getDelta(
 }
 
 /**
- * returns Colliding Spaces map with the directions of each collision
+ * This method checks if the occupied spaces are overlapping with newSpacePositions,
+ * and generates a map with the overlapping spaces with the direction of collision
  *
- * @param newSpacePositions
+ * @param newSpacePositions Dragging/Moving Spaces
  * @param occupiedSpaces
  * @param direction
  * @param prevCollidingSpaceMap
@@ -257,7 +290,7 @@ export function getCollidingSpaceMap(
 
   for (const newSpacePosition of newSpacePositions) {
     for (const occupiedSpace of occupiedSpaces) {
-      if (areIntersecting(occupiedSpace, newSpacePosition)) {
+      if (areOverlapping(occupiedSpace, newSpacePosition)) {
         isColliding = true;
         const currentSpaceId = occupiedSpace.id;
 
@@ -280,8 +313,9 @@ export function getCollidingSpaceMap(
           primaryCollisionMap[occupiedSpace.id] &&
           primaryCollisionMap[occupiedSpace.id].collidingId ===
             newSpacePosition.id
-        )
+        ) {
           movementDirection = primaryCollisionMap[occupiedSpace.id].direction;
+        }
 
         // if incase of the previous run of the entire reflow algorithm, then even though it might be in
         //the opposite orientation of current, we should still consider the previous direction
@@ -293,11 +327,12 @@ export function getCollidingSpaceMap(
           ] &&
           prevCollidingSpaceMap[oppositeOrientationalAccessor][occupiedSpace.id]
             .collidingId === newSpacePosition.id
-        )
+        ) {
           movementDirection =
             prevCollidingSpaceMap[oppositeOrientationalAccessor][
               occupiedSpace.id
             ].direction;
+        }
 
         const {
           direction: directionAccessor,
@@ -339,7 +374,12 @@ export function getCollidingSpaceMap(
 }
 
 /**
- * returns Colliding Spaces map in a particular direction
+ * This method is used while generating a collision tree,
+ * This checks if the newSpacePosition is overlapping with occupiedSpaces
+ * and creates a array of those spaces with the direction of collision,
+ * This is usually the direction passed down but with some exceptions
+ * based on prevReflowState and isDirectCollidingSpace, it can be different
+ *
  * @param newSpacePosition
  * @param OGPosition
  * @param globalDirection
@@ -367,12 +407,18 @@ export function getCollidingSpacesInDirection(
     occupiedSpaces,
     direction,
   );
+
+  const currentOccupiedSpaces = filterSpaceByDirection(
+    newSpacePosition,
+    occupiedSpaces,
+    getOppositeDirection(direction),
+  );
   const accessor = getAccessor(direction);
 
   const { prevMovementMap, prevSecondOrderCollisionMap } = prevReflowState;
 
   let order = 1;
-  for (const occupiedSpace of occupiedSpacesInDirection) {
+  for (const occupiedSpace of currentOccupiedSpaces) {
     // determines if the space acn be added to the list of colliding spaces, if so in what direction
     const {
       changedDirection,
@@ -423,7 +469,10 @@ export function getCollidingSpacesInDirection(
 }
 
 /**
- * boolean if the occupied space is to be added to array, also mentions if there is a change in direction
+ * Checks if the collidingSpace is overlapping with newSpacePosition
+ * and check if collidingSpace should be added to the collidingSpaceArray
+ * and return and object with boolean and other variables if there is a change in direction
+ *
  * @param newSpacePosition
  * @param OGPosition
  * @param collidingSpace
@@ -449,7 +498,7 @@ export function ShouldAddToCollisionSpacesArray(
   prevSecondOrderCollisionMap?: SecondOrderCollisionMap,
 ) {
   // not intersecting then dont add to array
-  if (!areIntersecting(collidingSpace, newSpacePosition))
+  if (!areOverlapping(collidingSpace, newSpacePosition))
     return { shouldAddToArray: false };
 
   const {
@@ -533,10 +582,7 @@ export function ShouldAddToCollisionSpacesArray(
   };
 
   // if this cant be added in mentioned direction but still intersects, then we determine the correct direction
-  if (
-    !shouldAddToArray &&
-    areIntersecting(collidingSpace, currentStaticSpace)
-  ) {
+  if (!shouldAddToArray && areOverlapping(collidingSpace, currentStaticSpace)) {
     const correctedDirection = getCorrectedDirection(
       collidingSpace,
       prevStaticSpace,
@@ -558,7 +604,9 @@ export function ShouldAddToCollisionSpacesArray(
 }
 
 /**
- * method to filter spaces to be after a particular space in a particular direction
+ * method to filter occupiedSpaces to be after a newSpacePosition in direction
+ * eg, if the direction is BOTTOM, this methods returns all the occupiedSpaces below the newSpacePosition
+ *
  * @param newSpacePosition
  * @param occupiedSpaces
  * @param direction
@@ -598,7 +646,8 @@ export function filterSpaceByDirection(
 }
 
 /**
- * filters out a space with an id and returns the filtered Spaces
+ * filters out occupiedSpaces, and returns array without a space with id
+ *
  * @param id
  * @param occupiedSpaces
  * @returns filtered occupied spaces
@@ -617,10 +666,11 @@ export function filterSpaceById(
 }
 
 /**
- * filters out a space with an id and returns the filtered Spaces
- * @param id
- * @param occupiedSpaces
- * @returns filtered occupied spaces
+ * filters out occupiedSpaceMap and removes spaces with ids of newSpacePositionsMap
+ *
+ * @param newSpacePositionsMap
+ * @param occupiedSpaceMap
+ * @mutates occupiedSpaceMap
  */
 export function filterCommonSpaces(
   newSpacePositionsMap: { [key: string]: any },
@@ -641,7 +691,7 @@ export function filterCommonSpaces(
  * @param r2 space 2
  * @returns boolean if it is colliding
  */
-function areIntersecting(r1: Rect, r2: Rect) {
+function areOverlapping(r1: Rect, r2: Rect) {
   return !(
     r2.left >= r1.right ||
     r2.right <= r1.left ||
@@ -651,7 +701,10 @@ function areIntersecting(r1: Rect, r2: Rect) {
 }
 
 /**
- * to get the direction of the two spaces, by determining in what way two spaces can collide
+ * This method checks if collidingSpace can collide
+ * with the moving/dragging spaces in a particular direction
+ * if they cant collide in that direction a direction is determined based on prevPositions
+ *
  * @param collidingSpace
  * @param prevPositions
  * @param direction
@@ -721,6 +774,9 @@ function getCorrectedDirection(
 /**
  * if spaces cannot possibly collide in certain direction,
  * this method provides the direction it is most likely to collide in
+ * This is determined by checking the previous positions of the dragging/moving spaces
+ * with the dimension of collidingSpace
+ *
  * @param collidingSpace
  * @param prevPositions
  * @param direction
@@ -813,6 +869,8 @@ export function getOppositeDirection(
 
 /**
  * Accessors are used to access space's dimension based on direction
+ * These are string accessors to get the dimension of the space in a direction
+ *
  * @param direction
  * @returns accessors
  */
@@ -886,7 +944,8 @@ export function getAccessor(direction: ReflowDirection): CollisionAccessors {
 }
 
 /**
- * get Max X coordinate of the the space
+ * get Max X coordinate of the the space,
+ * MaxX is the maximum a reflowed space can move in the X axis before it should start to resize,
  *
  * @param collisionTree
  * @param gridProps
@@ -923,6 +982,7 @@ export function getMaxX(
 
 /**
  * get Max Y coordinate of the the space
+ * MaxY is the maximum a reflowed space can move in the Y axis before it should start to resize,
  *
  * @param collisionTree
  * @param gridProps
@@ -957,7 +1017,8 @@ export function getMaxY(
 }
 
 /**
- * get X or Y coordinate distance for space
+ * calculates the reflowed distance i.e, X or Y of the reflowed space
+ * this distance indicates the absolute value by which the reflowed space has to move rom it's original position
  *
  * @param collisionTree
  * @param direction
@@ -1002,7 +1063,8 @@ export function getReflowDistance(
 }
 
 /**
- * gets the resized dimension of the space along a direction
+ * returns the reflowed dimension (width or height) of the reflowed space
+ * It returns the original dimension if it has not reached the canvas borders
  *
  * @param collisionTree
  * @param direction
@@ -1064,7 +1126,8 @@ export function getReflowedDimension(
 
 /**
  * check the limits of each movement map
- * and replace with previous run's movement values if it cant move
+ * and replace with previous run's movement values if it has already reached the limit
+ *
  * @param movementMap
  * @param prevMovementMap
  * @param movementLimit
@@ -1094,7 +1157,8 @@ export function getLimitedMovementMap(
 }
 
 /**
- * replace movement in particular orientation
+ * replace movement of the reflowed space with previous run's movement of the reflowed space
+ *
  * @param movementMap
  * @param prevMovementMap
  * @param replaceHorizontal
@@ -1123,7 +1187,9 @@ function replaceMovementMapByDirection(
 }
 
 /**
- * on Container exit, the exited container and the widgets behind it should reflow in opposite direction
+ * on Container exit, the exited container and the widgets behind it should reflow in opposite direction,
+ * So this method checks if that it the case and sets it in the opposite direction
+ *
  * @param collidingSpaceMap
  * @param exitContainerId
  * @param direction
@@ -1142,7 +1208,6 @@ export function changeExitContainerDirection(
   const { directionIndicator, oppositeDirection } = getAccessor(oppDirection);
 
   const collidingSpaces: CollidingSpace[] = Object.values(collidingSpaceMap);
-  //eslint-disable-next-line
   const oppositeFrom = collidingSpaceMap[exitContainerId][oppositeDirection];
 
   const oppositeSpaceIds = collidingSpaces
@@ -1157,13 +1222,13 @@ export function changeExitContainerDirection(
     .map((collidingSpace: CollidingSpace) => collidingSpace.id);
 
   for (const spaceId of oppositeSpaceIds) {
-    //eslint-disable-next-line
     collidingSpaceMap[spaceId].direction = oppDirection;
   }
 }
 
 /**
- * Convert an array of spaces to spaceMap
+ * Convert an array of spaces to map of spaces
+ *
  * @param spacesArray
  * @returns space map
  */
@@ -1180,6 +1245,7 @@ export function getSpacesMapFromArray(
 
 /**
  * build a collision array to Collision map structure
+ *
  * @param spacesArray
  * @returns space map
  */
@@ -1214,6 +1280,8 @@ export function buildArrayToCollisionMap(
 
 /**
  * move the occupied spaces to previous opposite orientation run's position only in a particular orientation
+ * eg, if the current orientation is horizontal, then the occupiedSpacesMap's top and bottom positions are modified
+ * to match previously reflowed values
  *
  * @param occupiedSpacesMap
  * @param prevMovementMap
@@ -1263,6 +1331,7 @@ export function getModifiedOccupiedSpacesMap(
 /**
  * Check if the new CollidingSpaces are colliding with the new Space positions,
  * if so it is to be added to the Collision map of that new Space position's colliding map
+ *
  * @param collidingSpace
  * @param OGCollidingSpacePosition
  * @param globalDirection
@@ -1284,7 +1353,7 @@ export function checkReCollisionWithOtherNewSpacePositions(
   newSpacePositions: OccupiedSpace[],
   globalCollidingSpaces: CollidingSpace[],
   insertionIndex: number,
-  globalProcessedNodes: { [key: string]: boolean },
+  globalProcessedNodes: CollisionTreeCache,
   collidingSpaceMap: CollisionMap,
   prevReflowState: PrevReflowState,
   isSecondRun: boolean,
@@ -1299,7 +1368,7 @@ export function checkReCollisionWithOtherNewSpacePositions(
   let stopCollisionCheck = false;
 
   for (const newSpacePosition of newSpacePositions) {
-    if (areIntersecting(newSpacePosition, collidingSpace)) {
+    if (areOverlapping(newSpacePosition, collidingSpace)) {
       let currentDirection = getCorrectedDirection(
         collidingSpace,
         prevSpacesMap && prevSpacesMap[newSpacePosition.id],
@@ -1364,6 +1433,7 @@ export function checkReCollisionWithOtherNewSpacePositions(
 /**
  * If exact same spaces collide with each other again in the current run and previous run
  * calculate the direction they collide in
+ *
  * @param staticSpace
  * @param collidingSpace
  * @param direction
@@ -1391,15 +1461,18 @@ function getCollisionStatusBasedOnPrevValue(
   collidingValue?: number;
   isHorizontal?: boolean;
 } {
+  //If it is already been processed in this run then do't add
   if (prevCollisionMap.children[collidingSpace.id].processed)
     return { shouldAddToArray: false };
 
   prevCollisionMap.children[collidingSpace.id].processed = true;
   const prevCollisionSpace = prevCollisionMap.children[collidingSpace.id];
 
+  // If it previously as well collided in the current direction, then add to the Colliding spaces List
   if (prevCollisionSpace.direction === direction) {
     return { shouldAddToArray: true };
-  } else if (
+  } //if it is previously collided in the same orientation but current colliding value is lesser the dont add
+  else if (
     prevCollisionSpace.isHorizontal === accessor.isHorizontal &&
     compareNumbers(
       staticSpace.collidingValue,
@@ -1410,7 +1483,8 @@ function getCollisionStatusBasedOnPrevValue(
     return {
       shouldAddToArray: false,
     };
-  } else if (prevCollisionSpace.isHorizontal === accessor.isHorizontal) {
+  } //if it is previously collided in the same orientation but current colliding value is greater then add in the previous direction
+  else if (prevCollisionSpace.isHorizontal === accessor.isHorizontal) {
     return {
       shouldAddToArray: true,
       changedDirection: prevCollisionSpace.direction,
@@ -1460,6 +1534,10 @@ export function getOrientationAccessors(
 
 /**
  * get maximum and minimum space attributes in both orientation
+ * eg, if primary orientation is horizontal the,
+ * primary max is bottom, min is top and
+ * secondary max is right, min is left
+ *
  * @param accessor
  * @returns
  */
@@ -1544,7 +1622,7 @@ export function getSortedCollidingSpaces(
     (a) => a.isHorizontal === isHorizontal,
   );
 
-  if (!collidingSpaces.length) return;
+  if (!collidingSpaces.length) return [];
 
   collidingSpaces.sort((a, b) => {
     const collisionKeyA = a.id,
@@ -1607,4 +1685,17 @@ export function getCalculatedDirection(
     }
   }
   return [passedDirection];
+}
+
+/**
+ * Returns the bottom most row among all the widget
+ * @param newPositions
+ * @returns number, the bottom most row
+ */
+export function getBottomMostRow(newPositions: OccupiedSpace[]): number {
+  let maxBottomRow = 0;
+  for (const newPosition of newPositions) {
+    maxBottomRow = Math.max(maxBottomRow, newPosition.bottom);
+  }
+  return maxBottomRow;
 }

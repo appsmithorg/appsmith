@@ -390,6 +390,7 @@ export const useCanvasDragging = (
           };
           if (canReflow && reflow.current) {
             if (needsReflow) {
+              //The position array of dragging Widgets.
               const resizedPositions = getDraggingSpacesFromBlocks(
                 currentRectanglesToDraw,
                 snapColumnSpace,
@@ -413,7 +414,7 @@ export const useCanvasDragging = (
             if (isReflowing) {
               const { movementLimitMap } = currentReflowParams;
               for (const block of currentRectanglesToDraw) {
-                const isNotInParentBoundaries = noCollision(
+                const isWithinParentBoundaries = noCollision(
                   { x: block.left, y: block.top },
                   snapColumnSpace,
                   snapRowSpace,
@@ -436,7 +437,7 @@ export const useCanvasDragging = (
                     currentBlockLimit.canVerticalMove;
                 }
                 block.isNotColliding =
-                  isNotInParentBoundaries && isNotReachedLimit;
+                  isWithinParentBoundaries && isNotReachedLimit;
               }
               const widgetIdsToExclude = currentRectanglesToDraw.map(
                 (a) => a.widgetId,
