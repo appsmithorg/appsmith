@@ -91,6 +91,8 @@ function ApiAuthentication(props: Props): JSX.Element {
     "",
   );
 
+  const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
+
   const hasError = !get(datasource, "isValid", true);
 
   const shouldSave = datasource && !("id" in datasource);
@@ -122,6 +124,7 @@ function ApiAuthentication(props: Props): JSX.Element {
       </DescriptionText>
       <Button
         category={Category.tertiary}
+        disabled={!datasourceUrl}
         onClick={onClick}
         size={Size.medium}
         tag="button"

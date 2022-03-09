@@ -10,8 +10,8 @@ SSL_KEY_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/privkey.pem"
 
 # In case of existing custom certificate, container will use them to configure SSL
 if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-  SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
-  SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
+	SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
+	SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
 fi
 
 cat <<EOF
@@ -54,27 +54,6 @@ server {
 
   location / {
     try_files \$uri /index.html =404;
-
-    sub_filter __APPSMITH_SENTRY_DSN__ '\${APPSMITH_SENTRY_DSN}';
-    sub_filter __APPSMITH_SMART_LOOK_ID__ '\${APPSMITH_SMART_LOOK_ID}';
-    sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
-    sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
-    sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\${APPSMITH_MARKETPLACE_ENABLED}';
-    sub_filter __APPSMITH_SEGMENT_KEY__ '\${APPSMITH_SEGMENT_KEY}';
-    sub_filter __APPSMITH_ALGOLIA_API_ID__ '\${APPSMITH_ALGOLIA_API_ID}';
-    sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
-    sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\${APPSMITH_ALGOLIA_API_KEY}';
-    sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '\${APPSMITH_CLIENT_LOG_LEVEL}';
-    sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '\${APPSMITH_GOOGLE_MAPS_API_KEY}';
-    sub_filter __APPSMITH_TNC_PP__ '\${APPSMITH_TNC_PP}';
-    sub_filter __APPSMITH_VERSION_ID__ '\${APPSMITH_VERSION_ID}';
-    sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\${APPSMITH_VERSION_RELEASE_DATE}';
-    sub_filter __APPSMITH_INTERCOM_APP_ID__ '\${APPSMITH_INTERCOM_APP_ID}';
-    sub_filter __APPSMITH_MAIL_ENABLED__ '\${APPSMITH_MAIL_ENABLED}';
-    sub_filter __APPSMITH_DISABLE_TELEMETRY__ '\${APPSMITH_DISABLE_TELEMETRY}';
-    sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '\${APPSMITH_RECAPTCHA_SITE_KEY}';
-    sub_filter __APPSMITH_FORM_LOGIN_DISABLED__ '\${APPSMITH_FORM_LOGIN_DISABLED}';
-    sub_filter __APPSMITH_SIGNUP_DISABLED__ '\${APPSMITH_SIGNUP_DISABLED}';
   }
 
   location /api {
