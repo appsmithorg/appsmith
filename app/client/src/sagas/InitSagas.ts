@@ -157,7 +157,7 @@ function* initiateURLUpdate(
   history.replace(originalUrl);
 }
 
-function* initiateApplicationAndPages(payload: InitializeEditorPayload) {
+function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
   const pageId = payload.pageId;
   const applicationId = payload.applicationId;
 
@@ -280,7 +280,7 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    yield call(initiateApplicationAndPages, payload);
+    yield call(initiateEditorApplicationAndPages, payload);
 
     const { id: applicationId, name }: CurrentApplicationData = yield select(
       getCurrentApplication,
