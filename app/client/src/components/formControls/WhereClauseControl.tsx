@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
@@ -11,7 +9,7 @@ import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
 
-const DropdownWidth = "108";
+const DropdownWidth = 98;
 
 // Type of the value for each condition
 export type whereClauseValueType = {
@@ -48,7 +46,6 @@ const logicalFieldConfig: any = {
   key: "condition",
   controlType: "DROP_DOWN",
   initialValue: "EQ",
-  options: [],
   customStyles: { width: `${DropdownWidth}px` },
 };
 
@@ -57,7 +54,7 @@ const CenteredIcon = styled(Icon)<{
   alignSelf?: string;
   marginBottom?: string;
 }>`
-  margin-left: 5px;
+  margin-left: 4px;
   align-self: ${(props) => (props.alignSelf ? props.alignSelf : "end")};
   margin-bottom: ${(props) =>
     props.marginBottom ? props.marginBottom : "10px"};
@@ -67,26 +64,24 @@ const CenteredIcon = styled(Icon)<{
   }
 `;
 
-// Outer box that houses the whole component
-const PrimaryBox = styled.div`
-  display: flex;
-  width: min-content;
-  flex-direction: column;
-  border: 1.2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  padding: 10px;
-`;
-
 // Wrapper inside the main box, contains the dropdown and ConditionWrapper
-const SecondaryBox = styled.div`
+const SecondaryBox = styled.div<{ showBorder: boolean }>`
   display: flex;
   flex-direction: row;
+  position: relative;
+  border: solid 1.2px var(--appsmith-color-black-400);
+  max-width: 800px;
+  border-width: ${(props) => (props?.showBorder ? "1.2px" : "0px")};
+  margin: ${(props) => (props?.showBorder ? "0px 8px" : "0px")};
+  padding: ${(props) => (props?.showBorder ? "8px" : "0px")};
+  padding-bottom: 24px;
 `;
 
 // Wrapper to contain either a ConditionComponent or ConditionBlock
 const ConditionWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: min-content;
+  width: 100%;
   justify-content: space-between;
 `;
 
@@ -94,8 +89,7 @@ const ConditionWrapper = styled.div`
 const ConditionBox = styled.div`
   display: flex;
   flex-direction: row;
-  width: min-content;
-  justify-content: space-between;
+  width: 100%;
   margin: 4px 0px;
   :first-child {
     margin-top: 0px;
@@ -103,21 +97,31 @@ const ConditionBox = styled.div`
 `;
 
 // Box containing the action buttons to add more filters
-const ActionBox = styled.div`
+const ActionBox = styled.div<{ marginLeft: string }>`
   display: flex;
   margin-top: 16px;
   flex-direction: row;
   width: max-content;
   justify-content: space-between;
+  position: absolute;
+  height: 24px;
+  text-transform: uppercase;
+  background-color: inherit;
+  bottom: 0px;
+  margin-left: ${(props) => props.marginLeft};
 `;
 
 // The final button to add more filters/ filter groups
 const AddMoreAction = styled.div`
   cursor: pointer;
-  .${Classes.TEXT} {
-    margin-left: 8px;
-    color: #03b365;
-  }
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.6px;
+  color: #858282;
+  margin-right: 20px;
 `;
 
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
@@ -126,16 +130,6 @@ function ConditionComponent(props: any, index: number) {
 
   // 5 is subtracted because the width of the operator dropdown is 5vw
   const unitWidth = (props.maxWidth - 5) / 5;
-
-  // Labels are only displayed if the condition is the first one
-  // let keyLabel = "";
-  // let valueLabel = "";
-  // let conditionLabel = "";
-  // if (index === 0) {
-  //   keyLabel = "Key";
-  //   valueLabel = "Value";
-  //   conditionLabel = "Operator";
-  // }
 
   const keyPath = getBindingOrConfigPathsForWhereClauseControl(
     props.field,
@@ -156,7 +150,12 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...keyFieldConfig,
-          customStyles: { width: `${unitWidth * 2}vw`, margin: "0 8px" },
+          customStyles: {
+            width: `${unitWidth * 2}vw`,
+            margin: `${
+              props.currentNumberOfFields > 1 ? "0 8px" : "0px 8px 0px 0px"
+            }`,
+          },
           configProperty: keyPath,
         }}
         formName={props.formName}
@@ -176,20 +175,26 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...valueFieldConfig,
-          customStyles: { width: `${unitWidth * 2}vw`, margin: "0 8px" },
+          customStyles: {
+            width: `${unitWidth * 2}vw`,
+            margin: "0 8px",
+            flexGrow: "1",
+          },
           configProperty: valuePath,
         }}
         formName={props.formName}
       />
       {/* Component to render the delete icon */}
-      <CenteredIcon
-        name="trash"
-        onClick={(e) => {
-          e.stopPropagation();
-          props.onDeletePressed(index);
-        }}
-        size={IconSize.XL}
-      />
+      {index ? (
+        <CenteredIcon
+          name="cross"
+          onClick={(e) => {
+            e.stopPropagation();
+            props.onDeletePressed(index);
+          }}
+          size={IconSize.SMALL}
+        />
+      ) : null}
     </ConditionBox>
   );
 }
@@ -222,14 +227,6 @@ function ConditionBlock(props: any) {
     }
   }, [props.fields.length]);
 
-  let marginTop = "8px";
-  // In case the first component is a complex element, add extra margin
-  // because the keys are not visible. Will not affect the outer most
-  // component because index is not present in the props
-  if (props.index === 0) {
-    marginTop = "24px";
-  }
-
   let isDisabled = false;
   if (props.logicalTypes.length === 1) {
     isDisabled = true;
@@ -240,82 +237,88 @@ function ConditionBlock(props: any) {
   );
 
   return (
-    <>
-      <SecondaryBox>
-        {/* Component to render the joining operator between multiple conditions */}
-        <FormControl
-          config={{
-            ...logicalFieldConfig,
-            configProperty: conditionPath,
-            options: props.logicalTypes,
-            initialValue: props.logicalTypes[0].value,
-            isDisabled,
-          }}
-          formName={props.formName}
-        />
-        <ConditionWrapper>
-          {props.fields &&
-            props.fields.length > 0 &&
-            props.fields.map((field: any, index: number) => {
-              const fieldValue: whereClauseValueType = props.fields.get(index);
-              if (!!fieldValue && "children" in fieldValue) {
-                // If the value contains children in it, that means it is a ConditionBlock
-                const maxWidth = props.maxWidth - 7.5;
-                return (
-                  <ConditionBox>
-                    <FieldArray
-                      component={ConditionBlock}
-                      key={`${field}.children`}
-                      name={`${field}.children`}
-                      props={{
-                        maxWidth,
-                        configProperty: `${field}`,
-                        formName: props.formName,
-                        logicalTypes: props.logicalTypes,
-                        comparisonTypes: props.comparisonTypes,
-                        nestedLevels: props.nestedLevels,
-                        currentNestingLevel: props.currentNestingLevel + 1,
-                        onDeletePressed,
-                        index,
-                      }}
-                      rerenderOnEveryChange={false}
-                    />
-                    <CenteredIcon
-                      alignSelf={"center"}
-                      marginBottom={"-5px"}
-                      name="trash"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeletePressed(index);
-                      }}
-                      size={IconSize.XL}
-                    />
-                  </ConditionBox>
-                );
-              } else {
-                // Render a single condition component
-                return ConditionComponent(
-                  {
-                    onDeletePressed,
-                    field,
-                    formName: props.formName,
-                    comparisonTypes: props.comparisonTypes,
-                    maxWidth: props.maxWidth,
-                  },
-                  index,
-                );
-              }
-            })}
-        </ConditionWrapper>
-      </SecondaryBox>
-      <ActionBox>
+    <SecondaryBox showBorder={props.currentNestingLevel >= 1}>
+      {/* Component to render the joining operator between multiple conditions */}
+      {props.fields.length > 1 ? (
+        <div style={{ marginTop: "46px" }}>
+          <FormControl
+            config={{
+              ...logicalFieldConfig,
+              configProperty: conditionPath,
+              options: props.logicalTypes,
+              initialValue: props.logicalTypes[0].value,
+              isDisabled,
+            }}
+            formName={props.formName}
+          />
+        </div>
+      ) : null}
+      <ConditionWrapper>
+        {props.fields &&
+          props.fields.length > 0 &&
+          props.fields.map((field: any, index: number) => {
+            const fieldValue: whereClauseValueType = props.fields.get(index);
+            if (!!fieldValue && "children" in fieldValue) {
+              // If the value contains children in it, that means it is a ConditionBlock
+              const maxWidth = props.maxWidth - 7.5;
+              return (
+                <ConditionBox>
+                  <FieldArray
+                    component={ConditionBlock}
+                    key={`${field}.children`}
+                    name={`${field}.children`}
+                    props={{
+                      maxWidth,
+                      configProperty: `${field}`,
+                      formName: props.formName,
+                      logicalTypes: props.logicalTypes,
+                      comparisonTypes: props.comparisonTypes,
+                      nestedLevels: props.nestedLevels,
+                      currentNestingLevel: props.currentNestingLevel + 1,
+                      onDeletePressed,
+                      index,
+                    }}
+                    rerenderOnEveryChange={false}
+                  />
+                  <CenteredIcon
+                    alignSelf={"start"}
+                    marginBottom={"-5px"}
+                    name="cross"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeletePressed(index);
+                    }}
+                    size={IconSize.SMALL}
+                  />
+                </ConditionBox>
+              );
+            } else {
+              // Render a single condition component
+              return ConditionComponent(
+                {
+                  onDeletePressed,
+                  field,
+                  formName: props.formName,
+                  comparisonTypes: props.comparisonTypes,
+                  maxWidth: props.maxWidth,
+                  currentNumberOfFields: props.fields.length,
+                },
+                index,
+              );
+            }
+          })}
+      </ConditionWrapper>
+
+      <ActionBox
+        marginLeft={`${props.fields.length > 1 ? DropdownWidth + 8 : 0}px`}
+      >
         <AddMoreAction
           onClick={() =>
             props.fields.push({ condition: props.comparisonTypes[0].value })
           }
         >
-          {/*Hardcoded label to be removed */}
-          <Text type={TextType.H5}>+ Add Filter</Text>
+          <Icon name="add-more-fill" size={IconSize.XL} />
+          <span>Add Where Condition</span>
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
         {props.currentNestingLevel < props.nestedLevels && (
@@ -331,12 +334,12 @@ function ConditionBlock(props: any) {
               });
             }}
           >
-            {/*Hardcoded label to be removed */}
-            <Text type={TextType.H5}>+ Add Filter Group</Text>
+            <Icon name="add-more-fill" size={IconSize.XL} />
+            <span>Add Where Group Condition</span>
           </AddMoreAction>
         )}
       </ActionBox>
-    </>
+    </SecondaryBox>
   );
 }
 

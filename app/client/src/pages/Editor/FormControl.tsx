@@ -101,7 +101,7 @@ function FormConfig(props: FormConfigProps) {
   }
 
   return (
-    <div>
+    <div style={{ width: "auto" }}>
       <div
         style={{
           // TODO: replace condition with props.config.dataType === "TOGGLE"
