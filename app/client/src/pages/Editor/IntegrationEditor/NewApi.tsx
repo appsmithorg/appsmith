@@ -11,7 +11,7 @@ import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { PluginType } from "entities/Action";
+import { getGraphQLPlugin, PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
@@ -238,6 +238,16 @@ function NewApiScreen(props: Props) {
     }
   };
 
+  const API_PLUGINS = plugins.filter(
+    (p) => p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
+  );
+
+  const graphqlPlugin = getGraphQLPlugin(plugins);
+
+  if (graphqlPlugin) {
+    API_PLUGINS.push(graphqlPlugin);
+  }
+
   return (
     <StyledContainer>
       <ApiCardsContainer>
@@ -289,40 +299,34 @@ function NewApiScreen(props: Props) {
             </CardContentWrapper>
           </ApiCard>
         )}
-        {plugins
-          .filter(
-            (p) => p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
-          )
-          .map((p) => (
-            <ApiCard
-              className={`t--createBlankApi-${p.packageName}`}
-              key={p.id}
-              onClick={() => {
-                AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-                  pluginName: p.name,
-                  pluginPackageName: p.packageName,
-                });
-                handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
-                  pluginId: p.id,
-                });
-              }}
-            >
-              <CardContentWrapper>
-                <div className="content-icon-wrapper">
-                  <img
-                    alt={p.name}
-                    className={
-                      "content-icon saasImage t--saas-" +
-                      p.packageName +
-                      "-image"
-                    }
-                    src={p.iconLocation}
-                  />
-                </div>
-                <p className="t--plugin-name textBtn">{p.name}</p>
-              </CardContentWrapper>
-            </ApiCard>
-          ))}
+        {API_PLUGINS.map((p) => (
+          <ApiCard
+            className={`t--createBlankApi-${p.packageName}`}
+            key={p.id}
+            onClick={() => {
+              AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                pluginName: p.name,
+                pluginPackageName: p.packageName,
+              });
+              handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
+                pluginId: p.id,
+              });
+            }}
+          >
+            <CardContentWrapper>
+              <div className="content-icon-wrapper">
+                <img
+                  alt={p.name}
+                  className={
+                    "content-icon saasImage t--saas-" + p.packageName + "-image"
+                  }
+                  src={p.iconLocation}
+                />
+              </div>
+              <p className="t--plugin-name textBtn">{p.name}</p>
+            </CardContentWrapper>
+          </ApiCard>
+        ))}
       </ApiCardsContainer>
     </StyledContainer>
   );
