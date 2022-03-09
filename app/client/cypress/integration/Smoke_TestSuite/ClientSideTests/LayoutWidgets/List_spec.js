@@ -72,6 +72,23 @@ describe("Container Widget Functionality", function() {
     });
   });
 
+  it("doesn't alter the no of items present when invalid item spacing is entered", () => {
+    // Open Property pane
+    cy.SearchEntityandOpen("List1");
+    // Update an invalid value to item spacing
+    cy.testJsontext("itemspacing\\(" + "px" + "\\)", "-");
+    cy.wait(2000);
+
+    // Verify the length of list
+    cy.get(commonlocators.containerWidget).then(function($lis) {
+      expect($lis).to.have.length(2);
+    });
+
+    // Clear item spacing
+    cy.testJsontext("itemspacing\\(" + "px" + "\\)", "");
+    cy.wait(2000);
+  });
+
   it("checks button action", function() {
     // Open property pane
     cy.SearchEntityandOpen("Button1");
@@ -204,24 +221,6 @@ describe("Container Widget Functionality", function() {
     // Click on Deploy and ensure it is deployed appropriately
     cy.PublishtheApp();
     cy.get(publishPage.backToEditor).click({ force: true });
-  });
-
-  it("doesn't alter the no of items present when invalid item spacing is entered", () => {
-    // Open Property pane
-    cy.SearchEntityandOpen("List1");
-    // Update an invalid value to item spacing
-    cy.testJsontext("itemspacing\\(" + "px" + "\\)", "-");
-    cy.wait(2000);
-
-    // Verify Current Item Bindings
-    cy.get(commonlocators.TextInside).then(function($lis) {
-      expect($lis.eq(0)).to.contain(items[0].first_name);
-      expect($lis.eq(1)).to.contain(items[1].first_name);
-    });
-
-    // Add valid value back to item spacing
-    cy.testJsontext("itemspacing\\(" + "px" + "\\)", 12);
-    cy.wait(2000);
   });
 
   it("Renaming the widget from Property pane and Entity explorer ", function() {
