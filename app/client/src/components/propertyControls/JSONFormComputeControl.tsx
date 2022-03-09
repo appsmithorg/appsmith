@@ -24,6 +24,7 @@ import {
   DataType,
   FIELD_TYPE_TO_POTENTIAL_DATA,
   getBindingTemplate,
+  ROOT_SCHEMA_KEY,
   Schema,
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
@@ -209,19 +210,17 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
       widgetProperties,
     } = this.props;
 
-    const baseSchemaStructure = generateAutoCompleteStructure(
-      widgetProperties.schema,
-    );
+    const { schema } = widgetProperties;
+    const { sourceData } = schema[ROOT_SCHEMA_KEY] || {};
 
-    const fieldStateStructure = generateAutoCompleteStructure(
-      widgetProperties.schema,
-      {
-        isVisible: true,
-        isDisabled: true,
-        isRequired: true,
-        isValid: true,
-      },
-    );
+    const baseSchemaStructure = generateAutoCompleteStructure(schema);
+
+    const fieldStateStructure = generateAutoCompleteStructure(schema, {
+      isVisible: true,
+      isDisabled: true,
+      isRequired: true,
+      isValid: true,
+    });
 
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
@@ -238,7 +237,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
     return (
       <InputText
         additionalDynamicData={{
-          sourceData: baseSchemaStructure,
+          sourceData,
           formData: baseSchemaStructure,
           fieldState: fieldStateStructure,
         }}

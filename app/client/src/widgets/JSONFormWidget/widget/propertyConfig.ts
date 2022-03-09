@@ -310,7 +310,7 @@ export default [
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        customJSControl: "INPUT_TEXT",
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
