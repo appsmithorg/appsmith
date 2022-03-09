@@ -24,7 +24,7 @@ describe("Menu Button Widget Functionality", () => {
     // Change its icon alignment to right
     cy.get(`${iconAlignmentProperty} .t--button-tab-right`)
       .last()
-      .click();
+      .click({ force: true });
     cy.wait(200);
     // Assert if the icon appears on the right side of the button text
     cy.get(`${widgetName}`)
