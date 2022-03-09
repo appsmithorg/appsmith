@@ -1,3 +1,4 @@
+export * from "ce/configs/types";
 import {
   SentryConfig as CE_SentryConfig,
   AppsmithUIConfigs as CE_AppsmithUIConfigs,

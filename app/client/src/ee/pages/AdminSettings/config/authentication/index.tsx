@@ -1,3 +1,4 @@
+export * from "ce/pages/AdminSettings/config/authentication/index";
 import {
   config as CE_config,
   Form_Auth_Callout,
@@ -107,7 +108,7 @@ const OIDC_Auth: AdminConfigType = {
           controlType: SettingTypes.TAGINPUT,
           controlSubType: SettingSubtype.TEXT,
           label: "Scope",
-          subText: "Can have multiple values (Comma Separated)",
+          subText: "Can have multiple values",
         },
         {
           id: "APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE",
