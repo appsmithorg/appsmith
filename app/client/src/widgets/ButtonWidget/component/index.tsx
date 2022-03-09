@@ -39,12 +39,13 @@ import {
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomHoverColor,
   getCustomTextColor,
   getCustomJustifyContent,
   getAlignText,
 } from "widgets/WidgetUtils";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import { RenderMode } from "constants/WidgetConstants";
+import { DragContainer } from "./DragContainer";
+import { buttonHoverActiveStyles } from "./utils";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -75,51 +76,6 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-type ButtonContainerProps = {
-  buttonColor?: string;
-  buttonVariant?: ButtonVariant;
-  disabled?: boolean;
-  loading?: boolean;
-};
-
-const ButtonContainer = styled.div<ButtonContainerProps>`
-  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-  height: 100%;
-
-  & > button {
-    width: 100%;
-    height: 100%;
-  }
-
-  position: relative;
-  &:after {
-    content: "";
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    position: absolute;
-  }
-
-  ${({ buttonColor, buttonVariant, disabled, loading, theme }) => {
-    if (!disabled && !loading) {
-      return ` 
-      &:hover > button, &:active > button {
-        background: ${
-          getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-            ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-            : buttonVariant === ButtonVariantTypes.SECONDARY
-            ? theme.colors.button.primary.secondary.hoverColor
-            : buttonVariant === ButtonVariantTypes.TERTIARY
-            ? theme.colors.button.primary.tertiary.hoverColor
-            : theme.colors.button.primary.primary.hoverColor
-        } !important;
-      }
-      `;
-    }
-  }}
-`;
-
 const StyledButton = styled((props) => (
   <Button
     {..._.omit(props, [
@@ -137,6 +93,11 @@ const StyledButton = styled((props) => (
   outline: none;
   padding: 0px 10px;
 
+  // use the css at the top and not inside a function
+  &:hover, &:active {
+    ${buttonHoverActiveStyles}
+   }
+
   ${({ buttonColor, buttonVariant, theme }) => `
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
@@ -146,17 +107,6 @@ const StyledButton = styled((props) => (
           : "none"
       } !important;
     
-    &:hover, &:active {
-      background: ${
-        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.secondary.hoverColor
-          : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.tertiary.hoverColor
-          : theme.colors.button.primary.primary.hoverColor
-      } !important;
-    }
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
@@ -225,7 +175,7 @@ const StyledButton = styled((props) => (
       : ""}
 `;
 
-type ButtonStyleProps = {
+export type ButtonStyleProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   boxShadow?: ButtonBoxShadow;
@@ -260,8 +210,15 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
 
-  function renderStyledButton() {
-    return (
+  return (
+    <DragContainer
+      buttonColor={buttonColor}
+      buttonVariant={buttonVariant}
+      disabled={disabled}
+      loading={loading}
+      onClick={onClick}
+      renderMode={renderMode}
+    >
       <StyledButton
         alignText={getAlignText(isRightAlign, iconName)}
         borderRadius={borderRadius}
@@ -280,23 +237,8 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
         text={text}
       />
-    );
-  }
-
-  if (renderMode === RenderModes.CANVAS) {
-    return (
-      <ButtonContainer
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        disabled={disabled}
-        loading={loading}
-      >
-        {renderStyledButton()}
-      </ButtonContainer>
-    );
-  }
-
-  return renderStyledButton();
+    </DragContainer>
+  );
 }
 
 BaseButton.defaultProps = {
