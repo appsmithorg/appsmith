@@ -231,24 +231,29 @@ export function* fetchActionsForViewModeSaga(
     const response: GenericApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
       applicationId,
     );
-    const correctFormatResponse = response.data.map((action) => {
-      return {
-        ...action,
-        actionConfiguration: {
-          timeoutInMillisecond: action.timeoutInMillisecond,
-        },
-      };
-    });
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const correctFormatResponse = response.data.map((action) => {
+        return {
+          ...action,
+          actionConfiguration: {
+            timeoutInMillisecond: action.timeoutInMillisecond,
+          },
+        };
+      });
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
         payload: correctFormatResponse,
       });
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_ACTIONS_API,
-      );
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+        payload: response.responseMeta.error,
+      });
     }
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_ACTIONS_API,
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,

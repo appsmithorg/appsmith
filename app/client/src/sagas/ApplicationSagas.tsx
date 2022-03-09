@@ -244,33 +244,26 @@ export function* fetchAppAndPagesSaga(
         payload: response.data.application?.evaluationVersion,
       });
     } else {
-      yield put({
-        type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-        },
-      });
-      yield put({
-        type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-        },
-      });
+      yield* handleFetchApplicationError(response.responseMeta.error);
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-      payload: {
-        error,
-      },
-    });
+    yield* handleFetchApplicationError(error);
   }
+}
+
+function* handleFetchApplicationError(error: unknown) {
+  yield put({
+    type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+    payload: {
+      error,
+    },
+  });
+  yield put({
+    type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+    payload: {
+      error,
+    },
+  });
 }
 
 export function* setDefaultApplicationPageSaga(

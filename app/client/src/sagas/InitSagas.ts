@@ -357,20 +357,12 @@ export function* initializeAppViewerSaga(
   );
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
+
+  applicationId = applicationId || (yield select(getCurrentApplicationId));
   yield put(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
-
-  // We should have applicationId in the store by the time code reaches here.
-  applicationId = applicationId || (yield select(getCurrentApplicationId));
-
-  const jsActionsCall: boolean = yield failFastApiCalls(
-    [fetchJSCollectionsForView({ applicationId })],
-    [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
-  );
-  if (!jsActionsCall) return;
 
   const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
     [fetchActionsForView({ applicationId })],
@@ -378,7 +370,14 @@ export function* initializeAppViewerSaga(
     [ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR],
   );
 
-  if (resultOfPrimaryCalls) return;
+  if (!resultOfPrimaryCalls) return;
+
+  const jsActionsCall: boolean = yield failFastApiCalls(
+    [fetchJSCollectionsForView({ applicationId })],
+    [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
+  );
+  if (!jsActionsCall) return;
 
   const defaultPageId: string = yield select(getDefaultPageId);
   const toLoadPageId: string = pageId || defaultPageId;
