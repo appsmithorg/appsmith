@@ -39,10 +39,10 @@ import {
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomHoverColor,
   getCustomTextColor,
   getCustomJustifyContent,
   getAlignText,
+  getHoverColor,
 } from "widgets/WidgetUtils";
 
 const RecaptchaWrapper = styled.div`
@@ -118,18 +118,6 @@ const StyledButton = styled((props) => (
       } !important;
     }
 
-    &:hover:enabled, &:active:enabled {
-      background: ${
-        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.secondary.hoverColor
-          : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.tertiary.hoverColor
-          : theme.colors.button.primary.primary.hoverColor
-      } !important;
-    }
-
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
@@ -164,6 +152,13 @@ const StyledButton = styled((props) => (
       } !important;
     }
   `}
+
+  &:hover:enabled, &:active:enabled {
+    ${({ buttonColor }) => {
+      const hoverColor = getHoverColor(buttonColor);
+      return hoverColor && `background: ${hoverColor} !important;`;
+    }}
+  }
 
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};

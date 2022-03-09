@@ -132,8 +132,13 @@ export const getCustomBackgroundColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
+  const colorInstance = tinycolor(backgroundColor);
+  const isValid = colorInstance.isValid();
+
   return buttonVariant === ButtonVariantTypes.PRIMARY
-    ? backgroundColor
+    ? isValid
+      ? colorInstance.toString()
+      : "none"
     : "none";
 };
 
@@ -141,8 +146,13 @@ export const getCustomBorderColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
+  const colorInstance = tinycolor(backgroundColor);
+  const isValid = colorInstance.isValid();
+
   return buttonVariant === ButtonVariantTypes.SECONDARY
-    ? backgroundColor
+    ? isValid
+      ? colorInstance.toString()
+      : "none"
     : "none";
 };
 
@@ -173,4 +183,22 @@ export const escapeSpecialChars = (stringifiedJSONObject: string) => {
     .replace(/\\f/g, "\\\\f") //
     .replace(/\\/g, "\\\\") //
     .replace(/\\r/g, "\\\\r"); //
+};
+
+export const getHoverColor = (baseColor?: string) => {
+  const colorInstance = tinycolor(baseColor);
+  // 1. Check if baseColor is valid
+  const isValid = colorInstance.isValid();
+  if (!isValid) {
+    return;
+  }
+  // 3. get the lightness
+  const lightness: number = colorInstance.toHsl().l * 100;
+  if (lightness > 35) {
+    colorInstance.darken(5);
+  } else {
+    colorInstance.lighten(5);
+  }
+
+  return colorInstance.toString();
 };
