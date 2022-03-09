@@ -1,10 +1,11 @@
 import { ButtonVariantTypes } from "components/constants";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import { escapeSpecialChars } from "./WidgetUtils";
+import { escapeSpecialChars, isGradient } from "./WidgetUtils";
 import {
   getCustomTextColor,
   getCustomBackgroundColor,
   getCustomHoverColor,
+  getHoverColor,
 } from "./WidgetUtils";
 
 describe("validate widget utils button style functions", () => {
@@ -130,5 +131,73 @@ hello! how are you?
     const result = escapeSpecialChars(testString);
     const expectedResult = "a\nb\nc\nhello! how are you?\n";
     expect(result).toStrictEqual(expectedResult);
+  });
+
+  // validate getCustomHoverColor function
+  it("getCustomHoverColor - validate empty or undefined background color or variant", () => {
+    // background color and variant is both are undefined
+    const expected = "#00693B";
+    const result = getCustomHoverColor(theme);
+    expect(result).toStrictEqual(expected);
+
+    // variant is undefined
+    const backgroundColor = "#03b365";
+    const expected1 = "#028149";
+    const result1 = getCustomHoverColor(theme, undefined, backgroundColor);
+    expect(result1).toStrictEqual(expected1);
+  });
+
+  // validate getHoverColor function
+  it("getHoverColor - validate hover color for different variant", () => {
+    const backgroundColor = "#03b365";
+    // variant : PRIMARY
+    const expected1 = "#039a57";
+    const result1 = getHoverColor(ButtonVariantTypes.PRIMARY, backgroundColor);
+    expect(result1).toStrictEqual(expected1);
+
+    // variant : PRIMARY without background
+    const expected2 = undefined;
+    const result2 = getHoverColor(ButtonVariantTypes.PRIMARY);
+    expect(result2).toStrictEqual(expected2);
+
+    // variant : SECONDARY
+    const expected3 = "rgba(3, 179, 101, 0.1)";
+    const result3 = getHoverColor(
+      ButtonVariantTypes.SECONDARY,
+      backgroundColor,
+    );
+    expect(result3).toStrictEqual(expected3);
+
+    // variant : SECONDARY without background
+    const expected4 = undefined;
+    const result4 = getHoverColor(ButtonVariantTypes.SECONDARY);
+    expect(result4).toStrictEqual(expected4);
+
+    // variant : TERTIARY
+    const expected5 = "rgba(3, 179, 101, 0.1)";
+    const result5 = getHoverColor(ButtonVariantTypes.TERTIARY, backgroundColor);
+    expect(result5).toStrictEqual(expected5);
+
+    // variant : TERTIARY without background
+    const expected6 = undefined;
+    const result6 = getHoverColor(ButtonVariantTypes.TERTIARY);
+    expect(result6).toStrictEqual(expected6);
+  });
+
+  it("isGradient - check if value is a gradient", () => {
+    const input = [
+      undefined,
+      "",
+      "#03b365",
+      "linear-gradient(45deg, blue",
+      "linear-gradient(45deg, blue, red)",
+      "radial-gradient(#ff8a00, #e52e71)",
+    ];
+
+    const expected = [false, false, false, false, true, true];
+
+    const result = input.map((input) => isGradient(input));
+
+    expect(result).toStrictEqual(expected);
   });
 });

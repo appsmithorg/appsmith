@@ -18,6 +18,7 @@ import {
   ButtonPlacement,
   ButtonPlacementTypes,
 } from "components/constants";
+import { isGradient } from "widgets/WidgetUtils";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -330,11 +331,28 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       recaptchaToken: undefined,
+      isGradient: false,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
+  }
+
+  componentDidMount(): void {
+    this.props.updateWidgetMetaProperty(
+      "isGradient",
+      isGradient(this.props.buttonColor),
+    );
+  }
+
+  componentDidUpdate(prevProps: ButtonWidgetProps): void {
+    if (this.props.buttonColor !== prevProps.buttonColor) {
+      this.props.updateWidgetMetaProperty(
+        "isGradient",
+        isGradient(this.props.buttonColor),
+      );
+    }
   }
 
   onButtonClick(e: React.MouseEvent<HTMLElement>) {
@@ -392,6 +410,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         isDisabled={this.props.isDisabled}
+        isGradient={this.props.isGradient}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
@@ -427,6 +446,7 @@ export interface ButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
+  isGradint?: boolean;
 }
 
 interface ButtonWidgetState extends WidgetState {

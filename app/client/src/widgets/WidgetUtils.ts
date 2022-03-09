@@ -19,6 +19,7 @@ import {
   ButtonPlacementTypes,
 } from "components/constants";
 import tinycolor from "tinycolor2";
+import gradient from "gradient-parser";
 
 export function getDisplayName(WrappedComponent: {
   displayName: any;
@@ -134,10 +135,13 @@ export const getCustomBackgroundColor = (
 ) => {
   const colorInstance = tinycolor(backgroundColor);
   const isValid = colorInstance.isValid();
+  const isValidGradient = isGradient(backgroundColor);
 
   return buttonVariant === ButtonVariantTypes.PRIMARY
     ? isValid
       ? colorInstance.toString()
+      : isValidGradient
+      ? backgroundColor
       : "none"
     : "none";
 };
@@ -148,10 +152,13 @@ export const getCustomBorderColor = (
 ) => {
   const colorInstance = tinycolor(backgroundColor);
   const isValid = colorInstance.isValid();
+  const isValidGradient = isGradient(backgroundColor);
 
   return buttonVariant === ButtonVariantTypes.SECONDARY
     ? isValid
       ? colorInstance.toString()
+      : isValidGradient
+      ? backgroundColor
       : "none"
     : "none";
 };
@@ -190,7 +197,7 @@ export const getHoverColor = (
   baseColor?: string,
 ) => {
   const colorInstance = tinycolor(baseColor);
-  // 1. Check if baseColor is valid
+  // Check if baseColor is valid
   const isValid = colorInstance.isValid();
   if (!isValid) {
     return;
@@ -215,4 +222,21 @@ export const getHoverColor = (
   }
 
   return colorInstance.toString();
+};
+
+/**
+ * Check if color expression is for CSS3 gradient definition
+ * @param color
+ * @returns boolean
+ */
+export const isGradient = (color?: string) => {
+  if (color) {
+    try {
+      gradient.parse(color);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+  return false;
 };

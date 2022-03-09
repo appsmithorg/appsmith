@@ -44,6 +44,7 @@ import {
   getAlignText,
   getHoverColor,
 } from "widgets/WidgetUtils";
+import { GradientHoverOverlay } from "components/ads/GradientHoverOverlay";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -109,13 +110,10 @@ const StyledButton = styled((props) => (
 
   ${({ buttonColor, buttonVariant, theme }) => `
     &:enabled {
-      background: ${
-        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
-          ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.primary.bgColor
-          : "none"
-      } !important;
+      background: ${getCustomBackgroundColor(
+        buttonVariant,
+        buttonColor,
+      )} !important;
     }
 
     &:disabled {
@@ -131,8 +129,6 @@ const StyledButton = styled((props) => (
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
-        : buttonVariant === ButtonVariantTypes.SECONDARY
-        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
 
@@ -285,6 +281,7 @@ interface ButtonComponentProps extends ComponentProps {
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
+  isGradient: boolean;
 }
 
 function RecaptchaV2Component(
@@ -427,6 +424,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       recaptchaType={props.recaptchaType}
     >
       <ButtonContainer disabled={props.isDisabled}>
+        {props.isGradient && <GradientHoverOverlay />}
         <BaseButton
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}

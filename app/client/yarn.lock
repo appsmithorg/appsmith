@@ -2956,6 +2956,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/gradient-parser@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@types/gradient-parser/-/gradient-parser-0.1.2.tgz#15eb545e4b6ae0f7f6e609b7d32937c7138dfa4c"
+  integrity sha512-e2s1svCYJY8JDr2t/OoB/H4aWZy4sXUOAZ0NdSSHjKACw1jeU54gf4xj38di0AgVIObgzN1JSikJ5oSo3vxwgA==
+
 "@types/hast@^2.0.0":
   version "2.3.1"
   resolved "https://registry.npmjs.org/@types/hast/-/hast-2.3.1.tgz"
@@ -8646,6 +8651,11 @@ graceful-fs@^4.2.6:
   version "4.2.8"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.8.tgz#e412b8d33f5e006593cbd3cee6df9f2cebbe802a"
   integrity sha512-qkIilPUYcNhJpd33n0GBXTB1MMPp14TxEsEs0pTrsSVucApsYzW5V+Q8Qxhik6KU3evy+qkAAowTByymK0avdg==
+
+gradient-parser@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/gradient-parser/-/gradient-parser-1.0.2.tgz#d283b80390386e2613c992bb0e5abb259aedf25f"
+  integrity sha512-gR6nY33xC9yJoH4wGLQtZQMXDi6RI3H37ERu7kQCVUzlXjNedpZM7xcA489Opwbq0BSGohtWGsWsntupmxelMg==
 
 graphql@^15.4.0:
   version "15.5.0"
