@@ -162,13 +162,12 @@ class IconSelectControl extends BaseControl<
   public render() {
     const { defaultIconName, propertyValue: iconName } = this.props;
     const { activeIcon } = this.state;
+    const containerWidth =
+      this.iconSelectTargetRef.current?.getBoundingClientRect().width || 0;
+
     return (
       <>
-        <IconSelectContainerStyles
-          targetWidth={
-            this.iconSelectTargetRef.current?.getBoundingClientRect().width
-          }
-        />
+        <IconSelectContainerStyles targetWidth={containerWidth} />
         <TypedSelect
           activeItem={activeIcon || defaultIconName || NONE}
           className="icon-select-container"
