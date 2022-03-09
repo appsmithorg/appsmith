@@ -61,6 +61,9 @@ export const setMockPageList = () => {
 export const setMockApplication = () => {
   store.dispatch({
     type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-    payload: fetchApplicationMockResponse.data,
+    payload: {
+      ...fetchApplicationMockResponse.data.application,
+      pages: fetchApplicationMockResponse.data.pages,
+    },
   });
 };
