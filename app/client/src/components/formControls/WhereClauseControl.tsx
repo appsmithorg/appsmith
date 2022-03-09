@@ -241,7 +241,7 @@ function ConditionBlock(props: any) {
   if (props.fields.length > 1) {
     newWidths = {
       dropdownWidth: props.widths.dropdownWidth + DropdownWidth,
-      margins: props.widths.margins + Margin * 6,
+      margins: props.widths.margins + Margin * 6 - Margin / 2,
       iconWidth:
         props.currentNestingLevel > 1
           ? props.fields.length > 1
@@ -252,7 +252,7 @@ function ConditionBlock(props: any) {
   } else {
     newWidths = {
       dropdownWidth: props.widths.dropdownWidth,
-      margins: props.widths.margins + Margin * 4,
+      margins: props.widths.margins + Margin * 4 - Margin / 2,
       iconWidth:
         props.currentNestingLevel > 1
           ? props.fields.length > 1
@@ -350,7 +350,7 @@ function ConditionBlock(props: any) {
           }
         >
           <Icon name="add-more-fill" size={IconSize.XL} />
-          <span>Add Where Condition</span>
+          <span style={{ marginLeft: "8px" }}>Add Where Condition</span>
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
         {props.currentNestingLevel < props.nestedLevels && (
@@ -367,7 +367,7 @@ function ConditionBlock(props: any) {
             }}
           >
             <Icon name="add-more-fill" size={IconSize.XL} />
-            <span>Add Where Group Condition</span>
+            <span style={{ marginLeft: "8px" }}>Add Where Group Condition</span>
           </AddMoreAction>
         )}
       </ActionBox>
