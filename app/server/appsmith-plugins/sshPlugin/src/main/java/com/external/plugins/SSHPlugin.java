@@ -72,7 +72,9 @@ public class SSHPlugin extends BasePlugin {
                 Map<String, Object> responseBody = command.execute(actionConfiguration);
 
                 result.setBody(objectMapper.valueToTree(responseBody));
-                result.setIsExecutionSuccess((int) responseBody.get("exitCode") == 0);
+                // command exit code is not a good indicator for checking the execution success
+//                result.setIsExecutionSuccess((int) responseBody.get("exitCode") == 0);
+                result.setIsExecutionSuccess(true);
 
                 System.out.println("Executed the SSH command successfully");
             } catch (JSchException | IOException e) {
