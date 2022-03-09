@@ -288,7 +288,7 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
       .should("contain.text", "We are on planet Earth");
   });
 
-  it("12. Verify resetWidget via .then direct Promises", () => {
+  it("12. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
     cy.fixture("promisesBtnDsl").then((dsl: any) => {
       agHelper.AddDsl(dsl);
     });

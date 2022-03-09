@@ -245,8 +245,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS(
       "1",
       "1",
-      "background",
-      "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
+      "background-color",
+      "rgb(3, 179, 101)",
     );
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
@@ -264,8 +264,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS(
       "1",
       "1",
-      "background",
-      "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
+      "background-color",
+      "rgb(128, 0, 128)",
     );
     cy.get(publish.backToEditor).click();
   });
