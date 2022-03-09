@@ -331,9 +331,9 @@ function JSResponseView(props: Props) {
       <Resizer panelRef={panelRef} />
       <TabbedViewWrapper>
         <EntityBottomTabs
-          canCollapse
           containerRef={panelRef}
           defaultIndex={0}
+          expandByDefault
           expandedHeight={theme.actionsBottomTabInitialHeight}
           tabs={tabs}
         />

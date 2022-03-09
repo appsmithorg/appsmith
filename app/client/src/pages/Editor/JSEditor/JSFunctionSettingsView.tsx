@@ -16,13 +16,13 @@ const SETTINGS_HEADINGS = [
   {
     text: "Run on page load",
     hasInfo: true,
-    info: "Setting to allow functions run on page load",
+    info: "Allow function run when page loads",
     key: "run_on_pageload",
   },
   {
     text: "Confirm before calling ",
     hasInfo: true,
-    info: "Setting to ask for confirmation before executing function",
+    info: "Ask for confirmation before executing function",
     key: "run_before_calling",
   },
 ];
@@ -72,12 +72,18 @@ const StyledIcon = styled(AppIcon)`
   }
 `;
 
-const SettingColumn = styled.div<{ grow?: boolean }>`
+const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
   display: flex;
   align-items: center;
   flex-grow: ${(props) => (props.grow ? 1 : 0)};
   padding: 5px 12px;
-  min-width: 190px;
+  min-width: 250px;
+
+  ${(props) =>
+    props.isHeading &&
+    `
+  text-transform: uppercase;
+  `}
 
   ${StyledIcon} {
     margin-left: 8px;
@@ -104,7 +110,7 @@ const JSFunctionSettingsWrapper = styled.div`
 
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
   return (
-    <SettingColumn grow={grow}>
+    <SettingColumn grow={grow} isHeading>
       <span>{text}</span>
       {hasInfo && info && (
         <TooltipComponent content={createMessage(() => info)}>
@@ -168,6 +174,9 @@ function SettingsItem({ action }: SettingsItemProps) {
 }
 
 function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
+  const asyncActions = actions.filter(
+    (action) => action.actionConfiguration.isAsync,
+  );
   return (
     <JSFunctionSettingsWrapper>
       <h3>Function Settings</h3>
@@ -182,11 +191,9 @@ function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
           />
         ))}
       </SettingRow>
-      {actions
-        .filter((action) => action.actionConfiguration.isAsync)
-        .map((action) => (
-          <SettingsItem action={action} key={action.id} />
-        ))}
+      {asyncActions.map((action) => (
+        <SettingsItem action={action} key={action.id} />
+      ))}
     </JSFunctionSettingsWrapper>
   );
 }

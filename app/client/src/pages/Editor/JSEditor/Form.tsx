@@ -85,7 +85,7 @@ const ActionButtons = styled.div`
 
   button:last-child {
     margin: 0 ${(props) => props.theme.spaces[7]}px;
-    height: 36px;
+    height: 30px;
   }
 `;
 

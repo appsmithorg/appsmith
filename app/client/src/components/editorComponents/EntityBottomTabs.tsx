@@ -1,7 +1,11 @@
-import React, { useState, useEffect, RefObject } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTab } from "actions/debuggerActions";
-import { TabComponent, TabProp } from "components/ads/Tabs";
+import {
+  CollapsibleTabProps,
+  TabComponent,
+  TabProp,
+} from "components/ads/Tabs";
 import { getCurrentDebuggerTab } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
@@ -18,8 +22,23 @@ type EntityBottomTabsProps = {
   // height of container when expanded
   expandedHeight?: string;
 };
+
+type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps &
+  CollapsibleTabProps;
+
+const isCollapsibleEntityBottomTab = (
+  props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
+): props is CollapsibleEntityBottomTabsProps => {
+  return (
+    "containerRef" in props &&
+    "expandedHeight" in props &&
+    "expandByDefault" in props
+  );
+};
 // Using this if there are debugger related tabs
-function EntityBottomTabs(props: EntityBottomTabsProps) {
+function EntityBottomTabs(
+  props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
+) {
   const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const currentTab = useSelector(getCurrentDebuggerTab);
   const dispatch = useDispatch();
@@ -50,15 +69,19 @@ function EntityBottomTabs(props: EntityBottomTabsProps) {
 
   return (
     <TabComponent
-      canCollapse={props.canCollapse}
-      containerRef={props.containerRef}
-      expandedHeight={props.expandedHeight}
       onSelect={onTabSelect}
       responseViewer={props.responseViewer}
       selectedIndex={
         props.selectedTabIndex ? props.selectedTabIndex : selectedIndex
       }
       tabs={props.tabs}
+      {...(isCollapsibleEntityBottomTab(props)
+        ? {
+            containerRef: props.containerRef,
+            expandedHeight: props.expandedHeight,
+            expandByDefault: props.expandByDefault,
+          }
+        : {})}
     />
   );
 }
