@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { parseIncompletePhoneNumber } from "libphonenumber-js";
 
 import BaseInputField, {
   BaseInputComponentProps,
@@ -62,9 +63,10 @@ const isValid = (
 };
 
 const transformValue = (value: string) => {
+  const parsedValue = parseIncompletePhoneNumber(value);
   return {
-    text: value,
-    value: value,
+    text: parsedValue,
+    value: parsedValue,
   };
 };
 

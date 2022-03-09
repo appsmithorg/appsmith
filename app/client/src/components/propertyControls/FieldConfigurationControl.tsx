@@ -253,6 +253,8 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
             return DraggableListCard({
               ...props,
+              toggleVisibility:
+                id !== ARRAY_ITEM_KEY ? props.toggleVisibility : undefined,
               isDelete: isCustomField && id !== ARRAY_ITEM_KEY,
               placeholder: "Field label",
             });
