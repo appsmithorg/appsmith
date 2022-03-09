@@ -1,4 +1,4 @@
-import styled, { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from "styled-components";
 import { get, startCase } from "lodash";
 import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";

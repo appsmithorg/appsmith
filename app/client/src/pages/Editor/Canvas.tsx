@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo } from "react";
+import React, { memo, useCallback, useEffect } from "react";
 import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import log from "loglevel";

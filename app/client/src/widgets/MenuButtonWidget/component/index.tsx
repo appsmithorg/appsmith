@@ -262,7 +262,6 @@ export interface PopoverContentProps {
 function PopoverContent(props: PopoverContentProps) {
   const {
     backgroundColor,
-    borderRadius,
     isCompact,
     menuItems: itemsObj,
     onItemClicked,

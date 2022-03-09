@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
-import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 import { closeAppThemingBetaCard } from "actions/appThemingActions";
 import {
   createMessage,
@@ -10,7 +9,6 @@ import {
   APP_THEME_BETA_CARD_CONTENT,
 } from "@appsmith/constants/messages";
 
-import { getIsBetaCardShown } from "selectors/appThemingSelectors";
 import { Button, Size, Category, Variant } from "components/ads";
 import { Colors } from "constants/Colors";
 
