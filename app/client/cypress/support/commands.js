@@ -649,13 +649,6 @@ Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get("#loading").should("not.exist");
 });
 
-Cypress.Commands.add("NavigateToEntityExplorer", () => {
-  cy.get(explorer.entityExplorer)
-    .should("be.visible")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-});
-
 Cypress.Commands.add("CreateAPI", (apiname) => {
   cy.get(explorer.createNew).click({ force: true });
   cy.get(explorer.blankAPI).click({ force: true });
