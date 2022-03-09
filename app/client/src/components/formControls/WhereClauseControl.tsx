@@ -9,7 +9,9 @@ import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
 
-const DropdownWidth = 98;
+const DropdownWidth = 95; //in pixel
+const Margin = 8; //in pixel
+const IconWidth = 12; //in pixel
 
 // Type of the value for each condition
 export type whereClauseValueType = {
@@ -46,7 +48,6 @@ const logicalFieldConfig: any = {
   key: "condition",
   controlType: "DROP_DOWN",
   initialValue: "EQ",
-  customStyles: { width: `${DropdownWidth}px` },
 };
 
 // Component for the delete Icon
@@ -70,7 +71,7 @@ const SecondaryBox = styled.div<{ showBorder: boolean }>`
   flex-direction: row;
   position: relative;
   border: solid 1.2px var(--appsmith-color-black-400);
-  max-width: 800px;
+  width: max-content;
   border-width: ${(props) => (props?.showBorder ? "1.2px" : "0px")};
   margin: ${(props) => (props?.showBorder ? "0px 8px" : "0px")};
   padding: ${(props) => (props?.showBorder ? "8px" : "0px")};
@@ -128,9 +129,6 @@ const AddMoreAction = styled.div`
 function ConditionComponent(props: any, index: number) {
   // Custom styles have to be passed as props, otherwise the UI will be disproportional
 
-  // 5 is subtracted because the width of the operator dropdown is 5vw
-  const unitWidth = (props.maxWidth - 5) / 5;
-
   const keyPath = getBindingOrConfigPathsForWhereClauseControl(
     props.field,
     WhereClauseSubComponent.Key,
@@ -144,6 +142,10 @@ function ConditionComponent(props: any, index: number) {
     WhereClauseSubComponent.Condition,
   );
 
+  const flexWidth = `${props.maxWidth / 2}vw - ${props.widths.dropdownWidth /
+    2}px - ${props.widths.margins / 2}px -  ${props.widths.iconWidth / 2}px`;
+  /* eslint-disable */
+  console.log("rrai", props.maxWidth, flexWidth);
   return (
     <ConditionBox key={index}>
       {/* Component to input the LHS for single condition */}
@@ -151,7 +153,7 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...keyFieldConfig,
           customStyles: {
-            width: `${unitWidth * 2}vw`,
+            width: `calc(${flexWidth})`,
             margin: `${
               props.currentNumberOfFields > 1 ? "0 8px" : "0px 8px 0px 0px"
             }`,
@@ -176,9 +178,8 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...valueFieldConfig,
           customStyles: {
-            width: `${unitWidth * 2}vw`,
+            width: `calc(${flexWidth})`,
             margin: "0 8px",
-            flexGrow: "1",
           },
           configProperty: valuePath,
         }}
@@ -236,6 +237,31 @@ function ConditionBlock(props: any) {
     WhereClauseSubComponent.Condition,
   );
 
+  let newWidths: { dropdownWidth: number; margins: number; iconWidth: number };
+  if (props.fields.length > 1) {
+    newWidths = {
+      dropdownWidth: props.widths.dropdownWidth + DropdownWidth,
+      margins: props.widths.margins + Margin * 6,
+      iconWidth:
+        props.currentNestingLevel > 1
+          ? props.fields.length > 1
+            ? props.widths.iconWidth + IconWidth
+            : props.widths.iconWidth
+          : 0,
+    };
+  } else {
+    newWidths = {
+      dropdownWidth: props.widths.dropdownWidth,
+      margins: props.widths.margins + Margin * 4,
+      iconWidth:
+        props.currentNestingLevel > 1
+          ? props.fields.length > 1
+            ? props.widths.iconWidth + IconWidth
+            : props.widths.iconWidth
+          : 0,
+    };
+  }
+
   return (
     <SecondaryBox showBorder={props.currentNestingLevel >= 1}>
       {/* Component to render the joining operator between multiple conditions */}
@@ -244,6 +270,7 @@ function ConditionBlock(props: any) {
           <FormControl
             config={{
               ...logicalFieldConfig,
+              customStyles: { width: `${DropdownWidth}px` },
               configProperty: conditionPath,
               options: props.logicalTypes,
               initialValue: props.logicalTypes[0].value,
@@ -260,7 +287,6 @@ function ConditionBlock(props: any) {
             const fieldValue: whereClauseValueType = props.fields.get(index);
             if (!!fieldValue && "children" in fieldValue) {
               // If the value contains children in it, that means it is a ConditionBlock
-              const maxWidth = props.maxWidth - 7.5;
               return (
                 <ConditionBox>
                   <FieldArray
@@ -268,7 +294,12 @@ function ConditionBlock(props: any) {
                     key={`${field}.children`}
                     name={`${field}.children`}
                     props={{
-                      maxWidth,
+                      maxWidth: props.maxWidth,
+                      widths: {
+                        dropdownWidth: newWidths.dropdownWidth,
+                        margins: newWidths.margins,
+                        iconWidth: newWidths.iconWidth,
+                      },
                       configProperty: `${field}`,
                       formName: props.formName,
                       logicalTypes: props.logicalTypes,
@@ -301,6 +332,7 @@ function ConditionBlock(props: any) {
                   formName: props.formName,
                   comparisonTypes: props.comparisonTypes,
                   maxWidth: props.maxWidth,
+                  widths: newWidths,
                   currentNumberOfFields: props.fields.length,
                 },
                 index,
@@ -310,7 +342,7 @@ function ConditionBlock(props: any) {
       </ConditionWrapper>
 
       <ActionBox
-        marginLeft={`${props.fields.length > 1 ? DropdownWidth + 8 : 0}px`}
+        marginLeft={`${props.fields.length > 1 ? DropdownWidth + Margin : 0}px`}
       >
         <AddMoreAction
           onClick={() =>
@@ -353,7 +385,7 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
   } = props;
 
   // Max width is designed in a way that the proportion stays same even after nesting
-  const maxWidth = 55;
+  const maxWidth = 55; //in vw
   return (
     <FieldArray
       component={ConditionBlock}
@@ -362,6 +394,12 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
       props={{
         configProperty,
         maxWidth,
+        widths: {
+          //widths currently beign consumed by dropdown, Cross Icon and margins
+          dropdownWidth: 0, //in pixels
+          margins: 0, //in pixels
+          iconWidth: 0, //in pixels
+        },
         formName,
         logicalTypes,
         comparisonTypes,
