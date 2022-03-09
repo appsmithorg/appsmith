@@ -1,4 +1,4 @@
-name: Test fat, build and push Docker Image
+name: Test, build and push Docker Image
 
 on:
   # This line enables manual triggering of this workflow.
