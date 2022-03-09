@@ -131,10 +131,20 @@ export const getFilterListSelector = createSelector(
       template: Template,
     ) => {
       template[key].map((templateValue) => {
-        if (!filters[key].some((filter) => filter.value === templateValue)) {
-          const filteredData = dataReference.find(
-            (datum) => datum.value === templateValue,
-          );
+        if (
+          !filters[key].some((filter) => {
+            if (filter.value) {
+              return filter.value === templateValue;
+            }
+            return filter.label === templateValue;
+          })
+        ) {
+          const filteredData = dataReference.find((datum) => {
+            if (datum.value) {
+              return datum.value === templateValue;
+            }
+            return datum.label === templateValue;
+          });
           filteredData && filters[key].push(filteredData);
         }
       });

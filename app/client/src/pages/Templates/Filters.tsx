@@ -154,7 +154,8 @@ function FilterCategory({
   return (
     <FilterCategoryWrapper>
       <StyledFilterCategory type={TextType.SIDE_HEAD}>
-        {label.toLocaleUpperCase()}
+        {label.toLocaleUpperCase()}{" "}
+        {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
       <ListWrapper>
         {filterList.slice(0, 3).map((filter) => {
@@ -179,17 +180,18 @@ function FilterCategory({
             );
           })}
         </Collapse>
-
-        <Text
-          className={`more ${selectedFilters.length && expand && "hide"}`}
-          onClick={toggleExpand}
-          type={TextType.BUTTON_SMALL}
-          underline
-        >
-          {expand
-            ? `- ${createMessage(SHOW_LESS)}`
-            : `+ ${filterList.slice(3).length} ${createMessage(MORE)}`}
-        </Text>
+        {!!filterList.slice(3).length && (
+          <Text
+            className={`more ${selectedFilters.length && expand && "hide"}`}
+            onClick={toggleExpand}
+            type={TextType.BUTTON_SMALL}
+            underline
+          >
+            {expand
+              ? `- ${createMessage(SHOW_LESS)}`
+              : `+ ${filterList.slice(3).length} ${createMessage(MORE)}`}
+          </Text>
+        )}
       </ListWrapper>
     </FilterCategoryWrapper>
   );
