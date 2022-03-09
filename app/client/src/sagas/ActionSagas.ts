@@ -117,6 +117,8 @@ import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
+import { getFormValues } from "redux-form";
+import { API_EDITOR_FORM_NAME } from "constants/forms";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -304,7 +306,8 @@ export function* updateActionSaga(
       { actionid: actionPayload.payload.id },
     );
     let action = actionPayload.payload.action;
-    if (!action) action = yield select(getAction, actionPayload.payload.id);
+    // getFormValues retrives the latest snapshot of the form data with its key and value pair retained
+    if (!action) action = yield select(getFormValues(API_EDITOR_FORM_NAME));
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
