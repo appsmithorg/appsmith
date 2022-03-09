@@ -27,6 +27,7 @@ import {
   FETCH_MERGE_STATUS,
   FETCH_MERGE_STATUS_FAILURE,
   GENERATE_KEY,
+  GIT_COMMIT_MESSAGE_PLACEHOLDER,
   GIT_CONFLICTING_INFO,
   GIT_DISCONNECTION_SUBMENU,
   GIT_UPSTREAM_CHANGES,
@@ -101,7 +102,10 @@ describe("git-sync messages", () => {
       key: "GIT_USER_UPDATED_SUCCESSFULLY",
       value: "Git user updated successfully",
     },
-    { key: "REMOTE_URL_INPUT_PLACEHOLDER", value: "Paste your URL here" },
+    {
+      key: "REMOTE_URL_INPUT_PLACEHOLDER",
+      value: "git://example.com:user/repo.git",
+    },
     { key: "COPIED_SSH_KEY", value: "Copied SSH Key" },
     {
       key: "INVALID_USER_DETAILS_MSG",
@@ -177,6 +181,10 @@ describe("git-sync messages", () => {
     { key: "DISCONNECT", value: "DISCONNECT" },
     { key: "GIT_DISCONNECTION_SUBMENU", value: "Git Connection > Disconnect" },
     { key: "USE_DEFAULT_CONFIGURATION", value: "Use default configuration" },
+    {
+      key: "GIT_COMMIT_MESSAGE_PLACEHOLDER",
+      value: "Your commit message here",
+    },
   ];
   const functions = [
     CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
@@ -205,6 +213,7 @@ describe("git-sync messages", () => {
     FETCH_MERGE_STATUS,
     FETCH_MERGE_STATUS_FAILURE,
     GENERATE_KEY,
+    GIT_COMMIT_MESSAGE_PLACEHOLDER,
     GIT_CONFLICTING_INFO,
     GIT_DISCONNECTION_SUBMENU,
     GIT_UPSTREAM_CHANGES,
