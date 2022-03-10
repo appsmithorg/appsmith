@@ -23,6 +23,7 @@ import { noop, retryPromise } from "utils/AppsmithUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import {
+  CellEditActions,
   COLUMN_MIN_WIDTH,
   COLUMN_TYPES,
   DEFAULT_BUTTON_COLOR,
@@ -61,16 +62,16 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
-import { renderDefault } from "../component/renderHelpers1/DefaultRenderer";
-import { renderButton } from "../component/renderHelpers1/ButtonRenderer";
-import { renderDropdown } from "../component/renderHelpers1/DropdownRenderer";
+import { renderDefault } from "../component/renderHelpers/DefaultRenderer";
+import { renderButton } from "../component/renderHelpers/ButtonRenderer";
+import { renderDropdown } from "../component/renderHelpers/DropdownRenderer";
 import {
   renderMenuButton,
   RenderMenuButtonProps,
-} from "../component/renderHelpers1/MenuButtonRenderer";
-import { renderImage } from "../component/renderHelpers1/ImageRenderer";
-import { renderVideo } from "../component/renderHelpers1/VideoRenders";
-import { renderIconButton } from "../component/renderHelpers1/IconButtonRenderer";
+} from "../component/renderHelpers/MenuButtonRenderer";
+import { renderImage } from "../component/renderHelpers/ImageRenderer";
+import { renderVideo } from "../component/renderHelpers/VideoRenders";
+import { renderIconButton } from "../component/renderHelpers/IconButtonRenderer";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -324,6 +325,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               });
 
             default:
+              const isCellEditMode =
+                props.cell.column.alias === this.props.editableCell.column &&
+                rowIndex === this.props.editableCell.index;
               return renderDefault({
                 value: props.cell.value,
                 columnType: column.columnType,
@@ -331,26 +335,35 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 cellProperties: cellProperties,
                 tableWidth: componentWidth,
                 isCellVisible: cellProperties.isCellVisible ?? true,
-                isCellEditMode:
-                  props.cell.column.alias === this.props.editableCell?.column &&
-                  props.cell.row.index === this.props.editableCell?.index,
-                onCellChange: (data: string) => {
-                  this.updateTransientTableData({
-                    __original_index__: props.cell.row.index,
-                    [props.cell.column.columnProperties.alias]: data,
+                isCellEditMode: isCellEditMode,
+                onCellTextChange: (data: string) => {
+                  this.props.updateWidgetMetaProperty("editableCell", {
+                    ...this.props.editableCell,
+                    value: data,
                   });
                 },
-                toggleCellEditMode: (editMode: boolean) => {
+                toggleCellEditMode: (
+                  editMode: boolean,
+                  action?: CellEditActions,
+                ) => {
                   if (editMode) {
                     this.props.updateWidgetMetaProperty("editableCell", {
                       column: props.cell.column.alias,
-                      index: props.cell.row.index,
+                      index: rowIndex,
+                      value: props.cell.value,
                     });
                   } else {
+                    this.updateTransientTableData({
+                      __original_index__: this.getRowOriginalIndex(rowIndex),
+                      [props.cell.column.columnProperties.alias]:
+                        props.cell.value,
+                    });
+
                     this.props.updateWidgetMetaProperty("editableCell", {});
+
                     if (props.cell.column.columnProperties.onTextChange) {
                       this.onColumnEvent({
-                        rowIndex: props.cell.row.index,
+                        rowIndex: rowIndex,
                         action: props.cell.column.columnProperties.onTextChange,
                         triggerPropertyName: "onTextChange",
                         eventType: EventType.ON_TEXT_CHANGE,
@@ -483,6 +496,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
         }
       });
+
+      /*
+       * Inject the edited cell value from the editableCell object
+       */
+      if (this.props.editableCell.index === rowIndex) {
+        const { column, value } = this.props.editableCell;
+
+        newRow[column] = value;
+      }
 
       return newRow;
     });
@@ -1255,6 +1277,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ...transientData,
       },
     });
+  };
+
+  getRowOriginalIndex = (index: number) => {
+    const { filteredTableData } = this.props;
+
+    if (filteredTableData) {
+      const row = filteredTableData[index];
+
+      if (row) {
+        return row[ORIGINAL_INDEX_KEY];
+      }
+    }
+
+    return -1;
   };
 }
 

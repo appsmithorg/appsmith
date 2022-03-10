@@ -27,11 +27,11 @@ import { Colors } from "constants/Colors";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
-import { renderEmptyRows } from "./renderHelpers1/EmptyCellRenderer";
+import { renderEmptyRows } from "./renderHelpers/EmptyCellRenderer";
 import {
   renderBodyCheckBoxCell,
   renderHeaderCheckBoxCell,
-} from "./renderHelpers1/CheckboxCellRenderer";
+} from "./renderHelpers/CheckboxCellRenderer";
 import { HeaderCell } from "./components/HeaderCell";
 
 interface TableProps {

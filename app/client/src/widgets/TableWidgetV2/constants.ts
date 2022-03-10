@@ -49,6 +49,11 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   transientTableData: {
     [key: string]: Record<string, string>;
   };
+  editableCell: {
+    column: string;
+    index: number;
+    value: string;
+  };
 }
 
 export const getCurrentRowBinding = (
@@ -99,3 +104,8 @@ export type OnColumnEventArgs = {
   triggerPropertyName: string;
   eventType: EventType;
 };
+
+export enum CellEditActions {
+  SAVE = "SAVE",
+  DISCARD = "DISCARD",
+}

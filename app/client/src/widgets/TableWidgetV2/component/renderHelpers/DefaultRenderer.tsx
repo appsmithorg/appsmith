@@ -4,6 +4,7 @@ import { isNumber, isNil } from "lodash";
 import { ColumnTypes, CellLayoutProperties } from "../Constants";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { InlineCellEditor } from "../components/InlineCellEditor";
+import { CellEditActions } from "widgets/TableWidgetV2/constants";
 
 export type renderDefaultPropsType = {
   value: any;
@@ -13,8 +14,8 @@ export type renderDefaultPropsType = {
   tableWidth: number;
   isCellVisible: boolean;
   isCellEditMode?: boolean;
-  onCellChange: (data: string) => void;
-  toggleCellEditMode: (editMode: boolean) => void;
+  onCellTextChange: (data: string) => void;
+  toggleCellEditMode: (editMode: boolean, action?: CellEditActions) => void;
 };
 
 export function getCellText(
@@ -42,7 +43,7 @@ export const renderDefault = (props: renderDefaultPropsType) => {
     isCellEditMode,
     isCellVisible,
     isHidden,
-    onCellChange,
+    onCellTextChange,
     tableWidth,
     toggleCellEditMode,
     value,
@@ -53,8 +54,9 @@ export const renderDefault = (props: renderDefaultPropsType) => {
   if (isCellEditMode) {
     cell = (
       <InlineCellEditor
-        onBlur={() => toggleCellEditMode(false)}
-        onChange={(text: string) => onCellChange(text)}
+        onChange={(text: string) => onCellTextChange(text)}
+        onDiscard={() => toggleCellEditMode(false, CellEditActions.DISCARD)}
+        onSave={() => toggleCellEditMode(false, CellEditActions.SAVE)}
         value={value}
       />
     );
