@@ -1,8 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/MultipleInput.json");
-const pages = require("../../../../locators/Pages.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -17,7 +14,7 @@ describe("Binding the multiple input Widget", function() {
     return false;
   });
 
-  it("Cyclic depedancy error message validation", function() {
+  it("1. Cyclic depedancy error message validation", function() {
     cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
 
@@ -29,7 +26,7 @@ describe("Binding the multiple input Widget", function() {
     cy.get(commonlocators.toastmsg).contains("Cyclic dependency");
   });
 
-  it("Binding input widget1 and validating", function() {
+  it("2. Binding input widget1 and validating", function() {
     cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", testdata.defaultdata);
 
@@ -44,8 +41,9 @@ describe("Binding the multiple input Widget", function() {
       .should("contain", testdata.defaultdata);
   });
 
-  it("Binding second input widget with first input widget and validating", function() {
-    cy.SearchEntityandOpen("Input2");
+  it("3. Binding second input widget with first input widget and validating", function() {
+    cy.selectEntityByName("WIDGETS");
+    cy.selectEntityByName("Input2");
     cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
@@ -56,9 +54,6 @@ describe("Binding the multiple input Widget", function() {
     cy.xpath(testdata.input2)
       .invoke("attr", "value")
       .should("contain", testdata.defaultdata);
-    cy.reload();
-
-    /*
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
@@ -70,11 +65,11 @@ describe("Binding the multiple input Widget", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
-      */
   });
 
-  it("Binding third input widget with first input widget and validating", function() {
-    cy.SearchEntityandOpen("Input3");
+  it("4. Binding third input widget with first input widget and validating", function() {
+    cy.selectEntityByName("WIDGETS");
+    cy.selectEntityByName("Input3");
     cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
