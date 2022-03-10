@@ -9,7 +9,7 @@ import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import { Skin } from "constants/DefaultTheme";
-import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
+import AutoToolTipComponent from "./AutoToolTipComponent";
 import {
   OperatorTypes,
   Condition,

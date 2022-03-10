@@ -24,6 +24,7 @@ interface Props {
   cellProperties?: CellLayoutProperties;
   tableWidth?: number;
   columnType?: string;
+  className?: string;
 }
 
 function LinkWrapper(props: Props) {
@@ -91,6 +92,7 @@ function AutoToolTipComponent(props: Props) {
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
+      className={props.className}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isTextType

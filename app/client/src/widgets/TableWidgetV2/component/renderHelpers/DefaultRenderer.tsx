@@ -2,9 +2,10 @@ import React from "react";
 import { isNumber, isNil } from "lodash";
 
 import { ColumnTypes, CellLayoutProperties } from "../Constants";
-import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
-import { InlineCellEditor } from "../components/InlineCellEditor";
-import { CellEditActions } from "widgets/TableWidgetV2/constants";
+import AutoToolTipComponent from "../AutoToolTipComponent";
+import { InlineCellEditor } from "../cellComponents/InlineCellEditor";
+import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import { TextCell } from "../cellComponents/TextCell";
 
 export type renderDefaultPropsType = {
   value: any;
@@ -12,10 +13,11 @@ export type renderDefaultPropsType = {
   isHidden: boolean;
   cellProperties: CellLayoutProperties;
   tableWidth: number;
+  isCellEditable: boolean;
   isCellVisible: boolean;
   isCellEditMode?: boolean;
   onCellTextChange: (data: string) => void;
-  toggleCellEditMode: (editMode: boolean, action?: CellEditActions) => void;
+  toggleCellEditMode: (editMode: boolean, action?: EditableCellActions) => void;
 };
 
 export function getCellText(
@@ -40,6 +42,7 @@ export const renderDefault = (props: renderDefaultPropsType) => {
   const {
     cellProperties,
     columnType,
+    isCellEditable,
     isCellEditMode,
     isCellVisible,
     isHidden,
@@ -55,25 +58,23 @@ export const renderDefault = (props: renderDefaultPropsType) => {
     cell = (
       <InlineCellEditor
         onChange={(text: string) => onCellTextChange(text)}
-        onDiscard={() => toggleCellEditMode(false, CellEditActions.DISCARD)}
-        onSave={() => toggleCellEditMode(false, CellEditActions.SAVE)}
+        onDiscard={() => toggleCellEditMode(false, EditableCellActions.DISCARD)}
+        onSave={() => toggleCellEditMode(false, EditableCellActions.SAVE)}
         value={value}
       />
     );
   } else {
     cell = (
-      <AutoToolTipComponent
+      <TextCell
         cellProperties={cellProperties}
         columnType={columnType}
+        isCellEditable={isCellEditable}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         tableWidth={tableWidth}
-        title={!!value ? value.toString() : ""}
-      >
-        <div onClick={() => toggleCellEditMode(true)}>
-          {getCellText(value, cellProperties, columnType)}
-        </div>
-      </AutoToolTipComponent>
+        toggleCellEditMode={toggleCellEditMode}
+        value={getCellText(value, cellProperties, columnType)}
+      />
     );
   }
 

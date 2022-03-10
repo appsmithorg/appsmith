@@ -23,7 +23,6 @@ import { noop, retryPromise } from "utils/AppsmithUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import {
-  CellEditActions,
   COLUMN_MIN_WIDTH,
   COLUMN_TYPES,
   DEFAULT_BUTTON_COLOR,
@@ -32,6 +31,7 @@ import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
+  EditableCellActions,
   OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
@@ -85,7 +85,7 @@ const defaultFilter = [
   },
 ];
 
-class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
+class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
   }
@@ -334,6 +334,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 isHidden: isHidden,
                 cellProperties: cellProperties,
                 tableWidth: componentWidth,
+                isCellEditable: cellProperties.isCellEditable ?? false,
                 isCellVisible: cellProperties.isCellVisible ?? true,
                 isCellEditMode: isCellEditMode,
                 onCellTextChange: (data: string) => {
@@ -343,32 +344,65 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   });
                 },
                 toggleCellEditMode: (
-                  editMode: boolean,
-                  action?: CellEditActions,
+                  enable: boolean,
+                  action?: EditableCellActions,
                 ) => {
-                  if (editMode) {
+                  if (enable) {
                     this.props.updateWidgetMetaProperty("editableCell", {
                       column: props.cell.column.alias,
                       index: rowIndex,
                       value: props.cell.value,
-                    });
-                  } else {
-                    this.updateTransientTableData({
-                      __original_index__: this.getRowOriginalIndex(rowIndex),
-                      [props.cell.column.columnProperties.alias]:
-                        props.cell.value,
+                      // To revert back to previous on discard
+                      initialValue: props.cell.value,
                     });
 
-                    this.props.updateWidgetMetaProperty("editableCell", {});
-
-                    if (props.cell.column.columnProperties.onTextChange) {
-                      this.onColumnEvent({
-                        rowIndex: rowIndex,
-                        action: props.cell.column.columnProperties.onTextChange,
-                        triggerPropertyName: "onTextChange",
-                        eventType: EventType.ON_TEXT_CHANGE,
-                      });
+                    /*
+                     * We need to clear the selectedRowIndex and selectedRowIndices
+                     * if the rows are sorted, to avoid selectedRow jumping to
+                     * different page.
+                     */
+                    if (this.props.sortOrder.column) {
+                      if (this.props.multiRowSelection) {
+                        this.props.updateWidgetMetaProperty(
+                          "selectedRowIndices",
+                          [],
+                        );
+                      } else {
+                        this.props.updateWidgetMetaProperty(
+                          "selectedRowIndex",
+                          -1,
+                        );
+                      }
                     }
+                  } else {
+                    if (
+                      action === EditableCellActions.SAVE &&
+                      props.cell.value !== this.props.editableCell.initialValue
+                    ) {
+                      this.updateTransientTableData({
+                        __original_index__: this.getRowOriginalIndex(rowIndex),
+                        [props.cell.column.columnProperties.alias]:
+                          props.cell.value,
+                      });
+
+                      if (props.cell.column.columnProperties.onSubmit) {
+                        this.onColumnEvent({
+                          rowIndex: rowIndex,
+                          action: props.cell.column.columnProperties.onSubmit,
+                          triggerPropertyName: "onSubmit",
+                          eventType: EventType.ON_SUBMIT,
+                        });
+                      }
+                    }
+
+                    /*
+                     * We need to let the evaulations compute derived property (filteredTableData)
+                     * before we clear the editableCell to avoid the flickering effect of text
+                     * TODO(Balaji): Need to find a different way to wait before clearing
+                     */
+                    setTimeout(() => {
+                      this.props.updateWidgetMetaProperty("editableCell", {});
+                    }, 100);
                   }
                 },
               });
@@ -948,6 +982,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
+          editableCell={this.props.editableCell}
           filters={this.props.filters}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
@@ -1294,4 +1329,4 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 }
 
-export default TableWidget;
+export default TableWidgetV2;

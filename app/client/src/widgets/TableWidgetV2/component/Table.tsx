@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { reduce } from "lodash";
+import { pick, reduce } from "lodash";
 import {
   useTable,
   usePagination,
@@ -32,7 +32,8 @@ import {
   renderBodyCheckBoxCell,
   renderHeaderCheckBoxCell,
 } from "./renderHelpers/CheckboxCellRenderer";
-import { HeaderCell } from "./components/HeaderCell";
+import { HeaderCell } from "./cellComponents/HeaderCell";
+import { EditableCell } from "../constants";
 
 interface TableProps {
   width: number;
@@ -47,6 +48,7 @@ interface TableProps {
   data: Array<Record<string, unknown>>;
   totalRecordsCount?: number;
   editMode: boolean;
+  editableCell: EditableCell;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   selectTableRow: (row: {
@@ -112,12 +114,13 @@ export function Table(props: TableProps) {
     }
     props.handleResizeColumn(columnWidthMap);
   };
-  const data = React.useMemo(() => props.data, [props.data]);
-  const columnString = JSON.stringify({
-    columns: props.columns,
-    compactMode: props.compactMode,
-    columnWidthMap: props.columnWidthMap,
-  });
+  const data = React.useMemo(() => props.data, [
+    props.data,
+    props.editableCell,
+  ]);
+  const columnString = JSON.stringify(
+    pick(props, ["columns", "compactMode", "columnWidthMap", "editableCell"]),
+  );
   const columns = React.useMemo(() => props.columns, [columnString]);
   const tableHeadercolumns = React.useMemo(
     () =>

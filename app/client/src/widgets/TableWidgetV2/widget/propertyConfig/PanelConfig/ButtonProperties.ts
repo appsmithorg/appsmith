@@ -393,29 +393,5 @@ export default {
         },
       },
     },
-    {
-      helpText: "Triggers an action when the button is clicked",
-      propertyName: "onClick",
-      label: "onClick",
-      controlType: "ACTION_SELECTOR",
-      additionalAutoComplete: (props: TableWidgetProps) => ({
-        currentRow: Object.assign(
-          {},
-          ...Object.keys(props.primaryColumns).map((key) => ({
-            [key]: "",
-          })),
-        ),
-      }),
-      isJSConvertible: true,
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      isTriggerProperty: true,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.BUTTON,
-          ColumnTypes.ICON_BUTTON,
-        ]);
-      },
-    },
   ],
 };

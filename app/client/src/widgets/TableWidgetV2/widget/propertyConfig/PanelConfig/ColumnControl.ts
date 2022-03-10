@@ -126,6 +126,30 @@ export default {
       isTriggerProperty: false,
     },
     {
+      propertyName: "isCellEditable",
+      dependencies: ["primaryColumns", "columnType"],
+      label: "Editable",
+      helpText: "Controls the inline editablity of the cell in the column",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.NUMBER,
+        ]);
+      },
+    },
+    {
       propertyName: "isCellVisible",
       dependencies: ["primaryColumns", "columnType"],
       label: "Visible",
@@ -442,20 +466,6 @@ export default {
         },
       },
       isTriggerProperty: false,
-    },
-    {
-      propertyName: "onClick",
-      label: "onClick",
-      controlType: "ACTION_SELECTOR",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== "image";
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: true,
     },
   ],
 };

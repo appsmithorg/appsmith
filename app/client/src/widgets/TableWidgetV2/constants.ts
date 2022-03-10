@@ -9,6 +9,17 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { WithMeta } from "widgets/MetaHOC";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
+export type EditableCell = {
+  column: string;
+  index: number;
+  value: string;
+  initialValue: string;
+};
+
+export enum EditableCellActions {
+  SAVE = "SAVE",
+  DISCARD = "DISCARD",
+}
 export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   nextPageKey?: string;
   prevPageKey?: string;
@@ -49,11 +60,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   transientTableData: {
     [key: string]: Record<string, string>;
   };
-  editableCell: {
-    column: string;
-    index: number;
-    value: string;
-  };
+  editableCell: EditableCell;
 }
 
 export const getCurrentRowBinding = (
@@ -104,8 +111,3 @@ export type OnColumnEventArgs = {
   triggerPropertyName: string;
   eventType: EventType;
 };
-
-export enum CellEditActions {
-  SAVE = "SAVE",
-  DISCARD = "DISCARD",
-}

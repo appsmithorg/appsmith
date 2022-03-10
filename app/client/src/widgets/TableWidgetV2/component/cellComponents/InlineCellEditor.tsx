@@ -19,6 +19,21 @@ export function InlineCellEditor({
     onSave,
   ]);
 
+  const onKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { key } = event;
+
+      switch (key) {
+        case "Escape":
+          onDiscard();
+          break;
+        case "Enter":
+          onSave();
+      }
+    },
+    [onDiscard, onSave],
+  );
+
   return (
     <InputComponent
       autoFocus
@@ -29,6 +44,7 @@ export function InlineCellEditor({
       isLoading={false}
       label=""
       onFocusChange={onFocusChange}
+      onKeyDown={onKeyDown}
       onValueChange={onChange}
       showError
       value={value}

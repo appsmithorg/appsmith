@@ -10,7 +10,7 @@ import {
 } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import MenuButtonTableComponent from "../components/menuButtonTableComponent";
+import MenuButtonTableComponent from "../cellComponents/menuButtonTableComponent";
 
 interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
   action?: ColumnAction;

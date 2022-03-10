@@ -265,7 +265,7 @@ export default {
       });
     }
 
-    /* Populate meta keys (__originalIndex__, __primaryKey__) */
+    /* Populate meta keys (__originalIndex__, __primaryKey__) and transient values */
     processedTableData = processedTableData.map((row, index) => ({
       ...row,
       __originalIndex__: index,
