@@ -140,6 +140,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     }
   }
   .${Classes.BUTTON_TEXT} {
+    word-break: break-word;
     text-overflow: ellipsis;
     text-align: left;
     overflow: hidden;
