@@ -87,8 +87,8 @@ import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdation } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
-import { isMac } from "utils/helpers";
 import { replayHighlightClass } from "globalStyles/portals";
+import { getAutoIndentShortcutKey } from "./utils/autoIndentUtils";
 import {
   LintTooltipDirection,
   LINT_TOOLTIP_CLASS,
@@ -231,7 +231,7 @@ class CodeEditor extends Component<Props, State> {
       }
       const isReadOnly = !this.props.input.onChange || this.props.disabled;
       if (this.props.showLineNumbers && !isReadOnly) {
-        const autoIndentKey = isMac() ? "Shift-Cmd-P" : "Shift-Ctrl-P";
+        const autoIndentKey = getAutoIndentShortcutKey();
         options.extraKeys[autoIndentKey] = (editor) => {
           editor.eachLine((line) => {
             const lineNumber = this.editor.getLineNumber(line);

@@ -23,8 +23,8 @@ describe("GlobalSearch", function() {
   it("1. showsAndHidesUsingKeyboardShortcuts", () => {
     // wait for the page to load
     cy.get(commonlocators.canvas);
-    const isMac = Cypress.platform === "darwin";
-    if (isMac) {
+    const isMacOrIOS = Cypress.platform === "darwin";
+    if (isMacOrIOS) {
       cy.get("body").type("{cmd}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");
