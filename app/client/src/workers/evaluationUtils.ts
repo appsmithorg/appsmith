@@ -118,7 +118,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
   }
 
   const propertyPath = convertPathToString(difference.path);
-  //we do not need evaluate these paths coz these are internal paths
+  //we do not need to evaluate these paths' coz these are internal paths
   const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
     propertyPath,
   );
