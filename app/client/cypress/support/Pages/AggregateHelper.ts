@@ -68,7 +68,7 @@ export class AggregateHelper {
     }
 
     public SelectEntityByName(entityNameinLeftSidebar: string) {
-        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar), {timeout: 30000})
+        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar), { timeout: 30000 })
             .last()
             .click({ multiple: true })
         this.Sleep()
@@ -106,9 +106,15 @@ export class AggregateHelper {
         cy.log("Pagename: " + localStorage.getItem("PageName"));
     }
 
-    public expandCollapseEntity(entityName: string) {
-        cy.xpath(locator._expandCollapseArrow(entityName))
-            .click({ multiple: true }).wait(500);
+    public expandCollapseEntity(entityName: string, expand = true) {
+        cy.xpath(locator._expandCollapseArrow(entityName)).invoke('attr', 'name').then((arrow) => {
+            if (expand && arrow == 'arrow-right')
+                cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
+            else if (!expand && arrow == 'arrow-down')
+                cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
+            else
+                cy.wait(500)
+        })
     }
 
     public AddNewPage() {
@@ -152,7 +158,7 @@ export class AggregateHelper {
     }
 
     public WaitUntilEleAppear(selector: string, timeout = 500) {
-        cy.waitUntil(() => cy.get(selector, { timeout: 30000 }).should("have.length.greaterThan", 0),
+        cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
             {
                 errorMsg: "Element did not appear",
                 timeout: 5000,
