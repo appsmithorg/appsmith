@@ -1,15 +1,27 @@
 {
-  "command" : {
-    "label": "Commands",
-    "description": "Choose method you would like to use to execute a command on your remote SSH server",
-    "configProperty": "actionConfiguration.formData.command",
-    "controlType": "DROP_DOWN",
-    "initialValue": "RUN",
-    "options": [
-      {
-        "label": "Run Command(s)",
-        "fileName" : "run.json"
-      }
-    ]
-  }
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Commands",
+          "description": "Choose method SSH",
+          "configProperty": "actionConfiguration.formData.command",
+          "controlType": "DROP_DOWN",
+          "initialValue": "RUN",
+          "options": [
+            {
+              "label": "Run command(s)",
+              "value": "RUN"
+            }
+          ]
+        }
+      ]
+    }
+
+  ],
+  "files": [
+    "run.json"
+  ]
 }
