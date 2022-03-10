@@ -21,6 +21,7 @@
     "queryCreate": "//div[contains(@class, 't--template-menu')]//div[text()='Create']",
     "queryUpdate": "//div[contains(@class, 't--template-menu')]//div[text()='Update']",
     "queryDelete": "//div[contains(@class, 't--template-menu')]//div[text()='Delete']",
+    "queryFromEmail":".CodeMirror-lines",
     "codeTextArea": "//div[@class='CodeMirror-code']//span/span",
     "countText": "//span[contains(@class, 'cs-text')][text()='Result:']/span",
     "searchFilefield": "//input[@placeholder='Search File Prefix']",
