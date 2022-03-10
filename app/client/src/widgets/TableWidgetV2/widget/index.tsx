@@ -765,6 +765,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
 
+    /*
+     * Clear transient table data and editablecell when tableData changes
+     */
+    if (isTableDataModified) {
+      this.props.updateWidgetMetaProperty("transientTableData", {});
+      this.props.updateWidgetMetaProperty("editableCell", {});
+    }
+
     if (!pageNo) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
