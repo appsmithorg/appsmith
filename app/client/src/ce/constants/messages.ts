@@ -1071,3 +1071,11 @@ export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
 export const REDIRECT_URL_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
+
+export const FORK_APP_MODAL_LOADING_TITLE = () =>
+  "Fetching organisations to fork to...";
+export const FORK_APP_MODAL_EMPTY_TITLE = () =>
+  "No organisation available to fork to";
+export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
+  "Choose where to fork the app";
+export const FORK = () => `FORK`;
