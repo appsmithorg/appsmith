@@ -127,7 +127,7 @@ init_replica_set() {
     # Check mongodb cloud Replica Set
     echo "Checking Replica Set of external MongoDB"
 
-    if $(appsmithctl check_replica_set); then
+    if appsmithctl check_replica_set; then
       echo "Mongodb cloud Replica Set is enabled"
       mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     else

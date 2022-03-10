@@ -28,7 +28,7 @@ async function exec() {
 
 async function checkReplicaSet(client) {
   await client.connect();
-  return new Promise((resolve) => {
+  return await new Promise((resolve) => {
     try {
       client
         .watch()
