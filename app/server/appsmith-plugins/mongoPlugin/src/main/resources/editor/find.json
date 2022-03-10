@@ -1,6 +1,6 @@
 {
   "identifier": "FIND",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'FIND'}}"
   },
@@ -20,11 +20,11 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.query.data",
+          "configProperty": "actionConfiguration.formData.find.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -32,7 +32,7 @@
         },
         {
           "label": "Sort",
-          "configProperty": "actionConfiguration.formData.sort.data",
+          "configProperty": "actionConfiguration.formData.find.sort.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -40,7 +40,7 @@
         },
         {
           "label": "Projection",
-          "configProperty": "actionConfiguration.formData.projection.data",
+          "configProperty": "actionConfiguration.formData.find.projection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -48,14 +48,14 @@
         },
         {
           "label": "Limit",
-          "configProperty": "actionConfiguration.formData.limit.data",
+          "configProperty": "actionConfiguration.formData.find.limit.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "10"
         },
         {
           "label": "Skip",
-          "configProperty": "actionConfiguration.formData.skip.data",
+          "configProperty": "actionConfiguration.formData.find.skip.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "0"

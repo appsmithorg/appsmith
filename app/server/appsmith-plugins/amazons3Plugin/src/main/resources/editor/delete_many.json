@@ -19,7 +19,7 @@
         },
         {
           "label": "List of Files",
-          "configProperty": "actionConfiguration.path",
+          "configProperty": "actionConfiguration.formData.path.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true,
           "initialValue": "",

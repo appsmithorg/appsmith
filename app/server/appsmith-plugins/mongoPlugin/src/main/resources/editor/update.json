@@ -1,6 +1,6 @@
 {
   "identifier": "UPDATE",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'UPDATE'}}"
   },
@@ -20,27 +20,27 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.query.data",
+          "configProperty": "actionConfiguration.formData.updateMany.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "{rating : {$gte : 9}}"
+          "placeholderText": "{rating : {$gte : 9}}"
         },
         {
           "label": "Update",
-          "configProperty": "actionConfiguration.formData.update.data",
+          "configProperty": "actionConfiguration.formData.updateMany.update.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "{ $inc: { score: 1 } }"
+          "placeholderText": "{ $inc: { score: 1 } }"
         },
         {
           "label": "Limit",
-          "configProperty": "actionConfiguration.formData.limit.data",
+          "configProperty": "actionConfiguration.formData.updateMany.limit.data",
           "controlType": "DROP_DOWN",
           "initialValue": "SINGLE",
           "options": [

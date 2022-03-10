@@ -1,6 +1,6 @@
 {
   "identifier": "DELETE",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'DELETE'}}"
   },
@@ -20,19 +20,19 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.query.data",
+          "configProperty": "actionConfiguration.formData.delete.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "{rating : {$gte : 9}}"
+          "placeholderText": "{rating : {$gte : 9}}"
         },
         {
           "label": "Limit",
-          "configProperty": "actionConfiguration.formData.limit.data",
+          "configProperty": "actionConfiguration.formData.delete.limit.data",
           "controlType": "DROP_DOWN",
           "initialValue": "SINGLE",
           "options": [

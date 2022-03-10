@@ -26,13 +26,13 @@
       "children": [
         {
           "label": "File Path",
-          "configProperty": "actionConfiguration.path",
+          "configProperty": "actionConfiguration.formData.path.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
         },
         {
           "label": "Base64 Encode File - Yes/No",
-          "configProperty": "actionConfiguration.formData.dataType.data",
+          "configProperty": "actionConfiguration.formData.read.dataType.data",
           "controlType": "DROP_DOWN",
           "initialValue": "YES",
           "options": [

@@ -12,8 +12,8 @@
       "children": [
         {
           "label": "",
-          "propertyName" : "rawWithSmartSubstitute",
-          "configProperty": "actionConfiguration.body",
+          "propertyName": "rawWithSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.body.data",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "conditionals": {
@@ -22,8 +22,8 @@
         },
         {
           "label": "",
-          "configProperty": "actionConfiguration.body",
-          "propertyName" : "rawWithTemplateSubstitute",
+          "configProperty": "actionConfiguration.formData.body.data",
+          "propertyName": "rawWithTemplateSubstitute",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "conditionals": {

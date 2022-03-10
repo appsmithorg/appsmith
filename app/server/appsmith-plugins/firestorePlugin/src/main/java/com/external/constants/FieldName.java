@@ -1,6 +1,12 @@
 package com.external.constants;
 
 public class FieldName {
+
+    public static final String PATH = "path.data";
+    public static final String BODY = "body.data";
+    public static final String NEXT = "next.data";
+    public static final String PREV = "prev.data";
+
     public static final String COMMAND = "command.data";
     public static final String TIMESTAMP_VALUE_PATH = "timestampValuePath.data";
     public static final String DELETE_KEY_PATH = "deleteKeyPath.data";

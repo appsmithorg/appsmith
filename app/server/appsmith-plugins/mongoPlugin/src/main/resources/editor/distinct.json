@@ -1,6 +1,6 @@
 {
   "identifier": "DISTINCT",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'DISTINCT'}}"
   },
@@ -20,22 +20,22 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.query.data",
+          "configProperty": "actionConfiguration.formData.distinct.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "{rating : {$gte : 9}}"
+          "placeholderText": "{rating : {$gte : 9}}"
         },
         {
           "label": "Key",
-          "configProperty": "actionConfiguration.formData.key.data",
+          "configProperty": "actionConfiguration.formData.distinct.key.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "name"
+          "placeholderText": "name"
         }
       ]
     }

@@ -1,6 +1,6 @@
 {
   "identifier": "LIST",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
   },
@@ -22,17 +22,17 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Prefix",
-          "configProperty": "actionConfiguration.formData.prefix.data",
+          "configProperty": "actionConfiguration.formData.list.prefix.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
         },
         {
           "label": "Where",
-          "configProperty": "actionConfiguration.formData.where.data",
+          "configProperty": "actionConfiguration.formData.list.where.data",
           "nestedLevels": 3,
           "controlType": "WHERE_CLAUSE",
           "logicalTypes": [
@@ -72,7 +72,7 @@
       "children": [
         {
           "label": "Generate Signed URL",
-          "configProperty": "actionConfiguration.formData.signedUrl.data",
+          "configProperty": "actionConfiguration.formData.list.signedUrl.data",
           "controlType": "DROP_DOWN",
           "initialValue": "NO",
           "options": [
@@ -88,7 +88,7 @@
         },
         {
           "label": "Expiry Duration of Signed URL (Minutes)",
-          "configProperty": "actionConfiguration.formData.expiry.data",
+          "configProperty": "actionConfiguration.formData.list.expiry.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5",
           "conditionals": {
@@ -97,7 +97,7 @@
         },
         {
           "label": "Generate Un-signed URL",
-          "configProperty": "actionConfiguration.formData.unSignedUrl.data",
+          "configProperty": "actionConfiguration.formData.list.unSignedUrl.data",
           "controlType": "DROP_DOWN",
           "initialValue": "YES",
           "options": [
@@ -113,12 +113,12 @@
         },
         {
           "label": "Sort By",
-          "configProperty": "actionConfiguration.formData.sortBy.data",
+          "configProperty": "actionConfiguration.formData.list.sortBy.data",
           "controlType": "SORTING"
         },
         {
           "label": "Paginate By",
-          "configProperty": "actionConfiguration.formData.pagination.data",
+          "configProperty": "actionConfiguration.formData.list.pagination.data",
           "controlType": "PAGINATION"
         }
       ]

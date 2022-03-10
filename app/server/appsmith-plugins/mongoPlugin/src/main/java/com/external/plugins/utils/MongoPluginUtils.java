@@ -57,8 +57,7 @@ public class MongoPluginUtils {
 
                 // Parse the commands into raw appropriately
                 MongoCommand command = null;
-                final String commandString = (String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, "");
-                switch (commandString) {
+                switch ((String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, "")) {
                     case "INSERT":
                         command = new Insert(actionConfiguration);
                         break;

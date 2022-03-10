@@ -50,12 +50,15 @@ import static com.external.plugins.AmazonS3Plugin.SMART_SUBSTITUTION;
 import static com.external.plugins.AmazonS3Plugin.YES;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.DATATYPE;
-import static com.external.plugins.constants.FieldName.EXPIRY;
-import static com.external.plugins.constants.FieldName.PREFIX;
-import static com.external.plugins.constants.FieldName.SIGNED_URL;
-import static com.external.plugins.constants.FieldName.UNSIGNED_URL;
-import static com.external.plugins.constants.FieldName.WHERE;
+import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
+import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_PREFIX;
+import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_WHERE;
+import static com.external.plugins.constants.FieldName.READ_DATATYPE;
+import static com.external.plugins.constants.FieldName.READ_EXPIRY;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.CREATE_FILE_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.CREATE_MULTIPLE_FILES_TEMPLATE_NAME;
@@ -617,7 +620,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, READ_DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -661,7 +664,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, DATATYPE, "YES");
+        setValueSafelyInFormData(configMap, READ_DATATYPE, "YES");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1116,8 +1119,8 @@ public class AmazonS3PluginTest {
                     Map<String, Object> readFileConfig = (Map<String, Object>) readFileTemplate.getConfiguration();
                     assertEquals(AmazonS3Action.READ_FILE.name(), getValueSafelyFromFormData(readFileConfig, COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(readFileConfig, BUCKET));
-                    assertEquals(YES, getValueSafelyFromFormData(readFileConfig, DATATYPE));
-                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(readFileConfig, EXPIRY));
+                    assertEquals(YES, getValueSafelyFromFormData(readFileConfig, READ_DATATYPE));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(readFileConfig, READ_EXPIRY));
 
                     // Check create file template
                     Template createFileTemplate = templates.get(2);

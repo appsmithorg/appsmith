@@ -15,11 +15,13 @@ import static com.external.plugins.AmazonS3Plugin.NO;
 import static com.external.plugins.AmazonS3Plugin.YES;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.DATATYPE;
-import static com.external.plugins.constants.FieldName.EXPIRY;
-import static com.external.plugins.constants.FieldName.SIGNED_URL;
-import static com.external.plugins.constants.FieldName.UNSIGNED_URL;
-import static com.external.plugins.constants.FieldName.WHERE;
+import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
+import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_WHERE;
+import static com.external.plugins.constants.FieldName.READ_DATATYPE;
+import static com.external.plugins.constants.FieldName.READ_EXPIRY;
 
 public class TemplateUtils {
 
@@ -105,8 +107,8 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.READ_FILE.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, DATATYPE, YES);
-        setValueSafelyInFormData(configMap, EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
+        setValueSafelyInFormData(configMap, READ_DATATYPE, YES);
+        setValueSafelyInFormData(configMap, READ_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
 
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some

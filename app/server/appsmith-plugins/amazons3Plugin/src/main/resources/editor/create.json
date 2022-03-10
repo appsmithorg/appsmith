@@ -26,13 +26,13 @@
       "children": [
         {
           "label": "File Path",
-          "configProperty": "actionConfiguration.path",
+          "configProperty": "actionConfiguration.formData.path.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
         },
         {
           "label": "File Data Type",
-          "configProperty": "actionConfiguration.formData.dataType.data",
+          "configProperty": "actionConfiguration.formData.create.dataType.data",
           "controlType": "DROP_DOWN",
           "initialValue": "YES",
           "options": [
@@ -48,13 +48,13 @@
         },
         {
           "label": "Expiry Duration of Signed URL (Minutes)",
-          "configProperty": "actionConfiguration.formData.expiry.data",
+          "configProperty": "actionConfiguration.formData.create.expiry.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5"
         },
         {
           "label": "Content",
-          "configProperty": "actionConfiguration.body",
+          "configProperty": "actionConfiguration.formData.body.data",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "initialValue": "",
           "placeHolderText": "{{ FilePicker1.files[0] }}"
