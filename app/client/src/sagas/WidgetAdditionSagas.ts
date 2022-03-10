@@ -70,9 +70,9 @@ function* getThemeDefaultConfig(type: string) {
 
   return (
     stylesheet[type] || {
-      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      boxShadow: "none",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      primaryColor: "none",
+      primaryColor: "{{appsmith.theme.colors.primaryColor}}",
     }
   );
 }
