@@ -11,6 +11,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -356,6 +357,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .collectList()
                             .map(actionList -> {
                                 applicationJson.setActionList(actionList);
+
+                                Map<String, InvisibleActionFields> invisibleActionFieldsMap = new HashMap<>();
+                                applicationJson.setInvisibleActionFields(invisibleActionFieldsMap);
+                                actionList.forEach(newAction -> {
+                                    final InvisibleActionFields invisibleActionFields = new InvisibleActionFields();
+
+                                    if (newAction.getUnpublishedAction() != null) {
+                                        invisibleActionFields.setUnpublishedUserSetOnLoad(newAction.getUnpublishedAction().getUserSetOnLoad());
+                                    }
+                                    if (newAction.getPublishedAction() != null) {
+                                        invisibleActionFields.setPublishedUserSetOnLoad(newAction.getPublishedAction().getUserSetOnLoad());
+                                    }
+
+                                    if (invisibleActionFields.getPublishedUserSetOnLoad() != null || invisibleActionFields.getUnpublishedUserSetOnLoad() != null) {
+                                        invisibleActionFieldsMap.put(newAction.getId(), invisibleActionFields);
+                                    }
+                                });
 
                                 // This is where we're removing global datasources that are unused in this application
                                 applicationJson
@@ -829,7 +847,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 pluginMap,
                                 datasourceMap,
                                 unpublishedCollectionIdToActionIdsMap,
-                                publishedCollectionIdToActionIdsMap
+                                publishedCollectionIdToActionIdsMap,
+                                applicationJson.getInvisibleActionFields()
                         )
                         .map(NewAction::getId)
                         .collectList()
@@ -1101,7 +1120,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 Map<String, String> pluginMap,
                                                 Map<String, String> datasourceMap,
                                                 Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap,
-                                                Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap) {
+                                                Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap,
+                                                Map<String, InvisibleActionFields> invisibleActionFieldsMap) {
 
         Map<String, NewAction> savedActionsGitIdToActionsMap = new HashMap<>();
         final String organizationId = importedApplication.getOrganizationId();
@@ -1127,12 +1147,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     final String fallbackParentPageId = unpublishedAction.getPageId();
 
                     if (unpublishedAction.getName() != null) {
+                        if (invisibleActionFieldsMap != null) {
+                            unpublishedAction.setUserSetOnLoad(invisibleActionFieldsMap.get(newAction.getId()).getUnpublishedUserSetOnLoad());
+                        }
                         unpublishedAction.setId(newAction.getId());
                         parentPage = updatePageInAction(unpublishedAction, pageNameMap, actionIdMap);
                         sanitizeDatasourceInActionDTO(unpublishedAction, datasourceMap, pluginMap, organizationId, false);
                     }
 
                     if (publishedAction != null && publishedAction.getName() != null) {
+                        if (invisibleActionFieldsMap != null) {
+                            publishedAction.setUserSetOnLoad(invisibleActionFieldsMap.get(newAction.getId()).getPublishedUserSetOnLoad());
+                        }
                         publishedAction.setId(newAction.getId());
                         if (StringUtils.isEmpty(publishedAction.getPageId())) {
                             publishedAction.setPageId(fallbackParentPageId);
