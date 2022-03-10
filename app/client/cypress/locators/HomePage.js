@@ -17,6 +17,7 @@ export default {
   forkAppOrgButton: "[data-cy=t--fork-app-to-org-button]",
   selectAction: "#Base",
   deleteApp: "[data-cy=t--delete]",
+  createNewAppButton: ".t--new-button",
   deleteAppConfirm: "[data-cy=t--delete-confirm]",
   homeIcon: ".t--appsmith-logo",
   inputAppName: "input[name=applicationName]",
