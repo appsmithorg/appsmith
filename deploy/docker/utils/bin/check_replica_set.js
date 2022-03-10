@@ -5,19 +5,25 @@ async function exec() {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
-  checkReplicaSet(client).then((res) => {
-    // support replica set
-    if (res === 0) {
-      client.close();
-      process.exit(0);
-    }
+  checkReplicaSet(client)
+    .then((res) => {
+      // support replica set
+      if (res === 0) {
+        client.close();
+        process.exit(0);
+      }
 
-    // not support replica set
-    if (res === 1) {
+      // not support replica set
+      if (res === 1) {
+        client.close();
+        process.exit(1);
+      }
+    })
+    .catch((err) => {
+      // exit 1 for any other error
       client.close();
       process.exit(1);
-    }
-  });
+    });
 }
 
 async function checkReplicaSet(client) {
@@ -32,8 +38,7 @@ async function checkReplicaSet(client) {
       // setTimeout so the error event can kick-in first
       setTimeout(() => {
         resolve(0);
-      }, 3000);
-
+      }, 1000);
     } catch (err) {
       console.log(err.stack);
       resolve(1);
