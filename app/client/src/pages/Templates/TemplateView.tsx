@@ -40,6 +40,7 @@ import {
 const Wrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   overflow: auto;
+  position: relative;
 
   .breadcrumb-placeholder {
     margin-top: ${(props) => props.theme.spaces[12]}px;
@@ -61,6 +62,7 @@ const Wrapper = styled.div`
 const TemplateViewWrapper = styled.div`
   padding-right: ${(props) => props.theme.spaces[12]}px;
   padding-left: ${(props) => props.theme.spaces[12]}px;
+  padding-top: ${(props) => props.theme.spaces[12]}px;
   padding-bottom: 80px;
 `;
 
@@ -188,7 +190,17 @@ const BackButtonWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spaces[2]}px;
-  margin-top: ${(props) => props.theme.spaces[12]}px;
+`;
+
+const TopSectionBackground = styled.div`
+  position: absolute;
+  height: 698px;
+  width: 100%;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(248, 248, 248, 0.5);
 `;
 
 function TemplateViewLoader() {
@@ -250,6 +262,7 @@ function TemplateView() {
         <TemplateNotFound />
       ) : (
         <Wrapper ref={containerRef}>
+          <TopSectionBackground />
           <TemplateViewWrapper>
             <BackButtonWrapper onClick={goToTemplateListView}>
               <Icon name="view-less" size={IconSize.XL} />

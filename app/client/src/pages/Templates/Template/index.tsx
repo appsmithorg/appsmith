@@ -44,18 +44,19 @@ const TemplateContent = styled.div`
   flex: 1;
 
   .title {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${(props) => getTypographyByKey(props, "h1")}
     color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${(props) => getTypographyByKey(props, "h4")}
+    font-weight: normal;
     color: var(--appsmith-color-black-800);
     margin-top: ${(props) => props.theme.spaces[1]}px;
   }
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${(props) => getTypographyByKey(props, "p1")}
   }
 `;
 

@@ -57,10 +57,10 @@ function RequestTemplate() {
   return (
     <Wrapper>
       <StyledImage src={RequestTemplateSvg} />
-      <Text className={"title"} type={TextType.H4}>
+      <Text className={"title"} type={TextType.H1}>
         {createMessage(COULDNT_FIND_TEMPLATE)}
       </Text>
-      <Text className={"description"} type={TextType.P2}>
+      <Text className={"description"} type={TextType.P1}>
         {createMessage(COULDNT_FIND_TEMPLATE_DESCRIPTION)}
       </Text>
       <Button
