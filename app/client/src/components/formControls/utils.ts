@@ -110,6 +110,44 @@ export const getViewType = (values: any, configProperty: string) => {
     return ViewTypes.COMPONENT;
   }
 };
+
+export const switchViewType = (
+  values: any,
+  configProperty: string,
+  viewType: string,
+  formName: string,
+  changeFormValue: (formName: string, path: string, value: any) => void,
+) => {
+  const newViewType =
+    viewType === ViewTypes.JSON ? ViewTypes.COMPONENT : ViewTypes.JSON;
+  const pathForJsonData = configProperty.replace(".data", ".jsonData");
+  const pathForComponentData = configProperty.replace(
+    ".data",
+    ".componentData",
+  );
+  const jsonData = get(values, pathForJsonData);
+  const componentData = get(values, pathForComponentData);
+  const currentData = get(values, configProperty);
+
+  if (newViewType === ViewTypes.JSON) {
+    changeFormValue(formName, pathForComponentData, currentData);
+    if (!!jsonData) {
+      changeFormValue(formName, configProperty, jsonData);
+    }
+  } else {
+    changeFormValue(formName, pathForJsonData, currentData);
+    if (!!componentData) {
+      changeFormValue(formName, configProperty, componentData);
+    }
+  }
+
+  changeFormValue(
+    formName,
+    configProperty.replace(".data", ".viewType"),
+    newViewType,
+  );
+};
+
 // Function that extracts the initial value from the JSON configs
 export const getConfigInitialValues = (
   config: Record<string, any>[],
