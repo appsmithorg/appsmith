@@ -73,6 +73,7 @@ const SectionTitle = styled.div`
   ${(props) => getTypographyByKey(props, "p1")};
   color: ${Colors.CHARCOAL};
   display: inline-flex;
+
   & .branch {
     color: ${Colors.CRUSTA};
     width: 240px;
@@ -84,9 +85,11 @@ const SectionTitle = styled.div`
 
 const Container = styled.div`
   width: 100%;
+
   && ${LabelContainer} span {
     color: ${Colors.CHARCOAL};
   }
+
   .bp3-popover-target {
     width: fit-content;
   }
@@ -220,6 +223,7 @@ function Deploy() {
             onChange={setCommitMessage}
             placeholder={"Your commit message here"}
             ref={commitInputRef}
+            style={{ resize: "none" }}
             trimValue={false}
             useTextArea
             value={commitMessageDisplay}

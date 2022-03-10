@@ -76,6 +76,7 @@ export type TextInputProps = CommonComponentProps & {
   useTextArea?: boolean;
   isCopy?: boolean;
   border?: boolean;
+  style?: any;
 };
 
 type boxReturnType = {
@@ -126,7 +127,6 @@ const InputLoader = styled.div<{
       : "100%"};
 
   height: ${(props) => props.$height || "36px"};
-  border-radius: 0;
 `;
 
 const StyledInput = styled((props) => {
@@ -220,7 +220,7 @@ const InputWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
-  align-items: center;  
+  align-items: center;
   width: ${(props) =>
     props.fill ? "100%" : props.width ? props.width : "260px"};
   height: ${(props) => props.height || "36px"};
@@ -244,7 +244,7 @@ const InputWrapper = styled.div<{
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};
   }
-  ​ .helper {
+  .helper {
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.textInput.helper};
     }
