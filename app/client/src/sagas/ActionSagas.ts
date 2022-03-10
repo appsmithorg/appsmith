@@ -306,12 +306,13 @@ export function* updateActionSaga(
       { actionid: actionPayload.payload.id },
     );
     let action = actionPayload.payload.action;
-    // getFormValues retrives the latest snapshot of the form data with its key and value pair retained
-    if (!action) action = yield select(getFormValues(API_EDITOR_FORM_NAME));
+    if (!action) action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
-      action = transformRestAction(action);
+      // Redux form returns the form values unsantinized, transformRestAction then transforms the action
+      const apiFormAction = yield select(getFormValues(API_EDITOR_FORM_NAME));
+      action = transformRestAction(apiFormAction);
     }
 
     const response: GenericApiResponse<Action> = yield ActionAPI.updateAction(
