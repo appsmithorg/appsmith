@@ -16,6 +16,16 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
  */
 
 /**
+ * All widget's property or paths where user can write javaScript bindings using mustache syntax are called bindingPaths.
+ * Widget's meta and derived paths aren't binding paths as user can't add or remove binding for those value.
+ */
+type BindingPaths = Record<string, EvaluationSubstitutionType>;
+/**
+ * Binding paths and non-binding paths of widget/action together form reactivePaths.
+ */
+type ReactivePaths = Record<string, EvaluationSubstitutionType>;
+
+/**
  * This function gets the binding validation and trigger paths from a config
  * @param config
  * @param path
@@ -25,12 +35,12 @@ const checkPathsInConfig = (
   config: any,
   path: string,
 ): {
-  configBindingPaths: Record<string, EvaluationSubstitutionType>;
-  configReactivePaths: Record<string, EvaluationSubstitutionType>;
+  configBindingPaths: BindingPaths;
+  configReactivePaths: ReactivePaths;
   configTriggerPaths: Record<string, true>;
   configValidationPaths: Record<string, ValidationConfig>;
 } => {
-  const configBindingPaths: Record<string, EvaluationSubstitutionType> = {};
+  const configBindingPaths: BindingPaths = {};
   const configTriggerPaths: Record<string, true> = {};
   const configValidationPaths: Record<any, ValidationConfig> = {};
   // Purely a Binding Path
@@ -45,7 +55,7 @@ const checkPathsInConfig = (
   }
   return {
     configBindingPaths,
-    configReactivePaths: configBindingPaths,
+    configReactivePaths: configBindingPaths, // All bindingPaths are reactivePaths.
     configTriggerPaths,
     configValidationPaths,
   };
@@ -59,8 +69,8 @@ const childHasPanelConfig = (
   const panelPropertyPath = config.propertyName;
   const widgetPanelPropertyValues = get(widget, panelPropertyPath);
 
-  let bindingPaths: Record<string, EvaluationSubstitutionType> = {};
-  let reactivePaths: Record<string, EvaluationSubstitutionType> = {};
+  let bindingPaths: BindingPaths = {};
+  let reactivePaths: ReactivePaths = {};
   let triggerPaths: Record<string, true> = {};
   let validationPaths: Record<any, ValidationConfig> = {};
   if (widgetPanelPropertyValues) {
@@ -151,13 +161,13 @@ export const getAllPathsFromPropertyConfig = (
   widgetConfig: readonly PropertyPaneConfig[],
   defaultProperties: Record<string, any>,
 ): {
-  bindingPaths: Record<string, EvaluationSubstitutionType>;
-  reactivePaths: Record<string, EvaluationSubstitutionType>;
+  bindingPaths: BindingPaths;
+  reactivePaths: ReactivePaths;
   triggerPaths: Record<string, true>;
   validationPaths: Record<string, ValidationConfig>;
 } => {
-  let bindingPaths: Record<string, EvaluationSubstitutionType> = {};
-  let reactivePaths: Record<string, EvaluationSubstitutionType> = {};
+  let bindingPaths: BindingPaths = {};
+  let reactivePaths: ReactivePaths = {};
   Object.keys(defaultProperties).forEach((property) => {
     reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
   });

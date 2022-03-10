@@ -52,8 +52,8 @@ export const generateDataTreeJSAction = (
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
     body: removeThisReference,
     meta: meta,
-    bindingPaths: bindingPaths,
-    reactivePaths: bindingPaths,
+    bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
+    reactivePaths: { ...bindingPaths },
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
     dependencyMap: dependencyMap,

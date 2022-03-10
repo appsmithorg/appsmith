@@ -472,6 +472,13 @@ describe("DataTreeEvaluator", () => {
   });
 
   it("Evaluates for value changes in nested diff paths", () => {
+    const bindingPaths = {
+      options: EvaluationSubstitutionType.TEMPLATE,
+      defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+      isRequired: EvaluationSubstitutionType.TEMPLATE,
+      isVisible: EvaluationSubstitutionType.TEMPLATE,
+      isDisabled: EvaluationSubstitutionType.TEMPLATE,
+    };
     const updatedUnEvalTree = {
       ...unEvalTree,
       Dropdown2: {
@@ -487,12 +494,9 @@ describe("DataTreeEvaluator", () => {
           },
         ],
         type: "SELECT_WIDGET",
+        bindingPaths,
         reactivePaths: {
-          options: EvaluationSubstitutionType.TEMPLATE,
-          defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
-          isRequired: EvaluationSubstitutionType.TEMPLATE,
-          isVisible: EvaluationSubstitutionType.TEMPLATE,
-          isDisabled: EvaluationSubstitutionType.TEMPLATE,
+          ...bindingPaths,
           isValid: EvaluationSubstitutionType.TEMPLATE,
           selectedOption: EvaluationSubstitutionType.TEMPLATE,
           selectedOptionValue: EvaluationSubstitutionType.TEMPLATE,
