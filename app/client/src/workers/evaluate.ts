@@ -156,7 +156,7 @@ export const createGlobalData = (
               {},
               context?.requestId,
               resolvedObject[key],
-              key,
+              dataTreeKey.name + "." + key,
             );
           } else {
             dataTreeKey[key] = resolvedObject[key];
