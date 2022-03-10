@@ -94,6 +94,7 @@ const DatasourceContainer = styled.div`
     }
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};
+      margin-top: 1.8px;
     }
   }
 `;
