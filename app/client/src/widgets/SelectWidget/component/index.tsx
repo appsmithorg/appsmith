@@ -72,6 +72,7 @@ class SelectComponent extends React.Component<
       "label",
       activeItem?.label,
     ]);
+    if (activeItemIndex === this.state.activeItemIndex) return;
     this.setState({ activeItemIndex });
   };
 
@@ -178,6 +179,15 @@ class SelectComponent extends React.Component<
               boundary: "window",
               minimal: true,
               usePortal: true,
+              // onActiveItemChange is called twice abd puts the focus on the first item https://github.com/palantir/blueprint/issues/4192
+              onOpening: () => {
+                if (!this.props.selectedIndex) {
+                  return this.handleActiveItemChange(null);
+                }
+                return this.handleActiveItemChange(
+                  this.props.options[this.props.selectedIndex],
+                );
+              },
               onClose: () => {
                 if (!this.props.selectedIndex) return;
                 return this.handleActiveItemChange(
