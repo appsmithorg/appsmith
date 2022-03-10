@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
+import Entity from "./Entity";
 
 const ECContainer = styled.div`
   display: flex;
@@ -51,3 +52,11 @@ export function EmptyComponent(props: {
     </ECContainer>
   );
 }
+
+export const AddEntity = styled(Entity)`
+  color: ${Colors.CHARCOAL};
+
+  .t--entity-name {
+    color: ${Colors.CHARCOAL};
+  }
+`;

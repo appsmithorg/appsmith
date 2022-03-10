@@ -28,7 +28,7 @@ import {
   saveExplorerStatus,
 } from "./helpers";
 import Icon from "components/ads/Icon";
-import { EmptyComponent } from "./common";
+import { AddEntity, EmptyComponent } from "./common";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
@@ -114,7 +114,7 @@ const Datasources = React.memo(() => {
         />
       )}
       {appWideDS.length > 0 && (
-        <Entity
+        <AddEntity
           action={addDatasource}
           entityId={pageId + "_datasources_add_new_datasource"}
           icon={<Icon name="plus" />}

@@ -17,7 +17,7 @@ import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import Icon from "components/ads/Icon";
-import { EmptyComponent } from "../common";
+import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
 
 type ExplorerWidgetGroupProps = {
@@ -89,7 +89,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
           />
         )}
       {widgets?.children && widgets?.children?.length > 0 && (
-        <Entity
+        <AddEntity
           action={props.addWidgetsFn}
           entityId={pageId + "_widgets_add_new_datasource"}
           icon={<Icon name="plus" />}

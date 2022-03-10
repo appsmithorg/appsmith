@@ -26,7 +26,7 @@ import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import Icon from "components/ads/Icon";
 import { noop } from "lodash";
-import { EmptyComponent } from "../common";
+import { AddEntity, EmptyComponent } from "../common";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -123,7 +123,7 @@ function Files() {
         />
       )}
       {fileEntities.length > 0 && (
-        <Entity
+        <AddEntity
           action={onCreate}
           entityId={pageId + "_queries_js_add_new_datasource"}
           icon={<Icon name="plus" />}
