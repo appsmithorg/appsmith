@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
@@ -13,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.Getter;
@@ -28,7 +30,9 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -39,6 +43,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,6 +78,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final SessionUserService sessionUserService;
     private final UserService userService;
+    private final UserRepository userRepository;
     private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
 
@@ -164,7 +170,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         log.error("Unable to read env file " + envFilePath, e);
                         return Mono.error(e);
                     }
-
+                    Map<String, String> originalVariables = parseToMap(originalContent);
                     final List<String> changedContent = transformEnvContent(originalContent, changes);
 
                     try {
@@ -174,9 +180,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return Mono.error(e);
                     }
 
-                    return Mono.just(user);
+                    return Mono.just(originalVariables);
                 })
-                .flatMap(user -> {
+                .flatMap(originalValues -> {
                     // Try and update any at runtime, that can be.
                     final Map<String, String> changesCopy = new HashMap<>(changes);
 
@@ -194,6 +200,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     if (changesCopy.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
+                        String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
+                        updateAdminUserPolicies(oldAdminEmailsCsv);
                     }
 
                     if (changesCopy.containsKey(APPSMITH_MAIL_FROM.name())) {
@@ -251,6 +259,71 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     return Mono.just(new EnvChangesResponseDTO(true));
                 });
+    }
+
+    /**
+     * Adds or removes admin user policy from users.
+     * If an email is removed from admin emails, it'll remove the policy from that user.
+     * If a new email is added as admin email, it'll add the policy to that user
+     * @param oldAdminEmailsCsv comma separated email addresses that was set as admin email earlier
+     */
+    private void updateAdminUserPolicies(String oldAdminEmailsCsv) {
+        Set<String> oldAdminEmails = null;
+        if (!StringUtils.isEmpty(oldAdminEmailsCsv)) {
+            oldAdminEmails = Set.of(oldAdminEmailsCsv.trim().split("\\s*,\\s*"));
+        }
+
+        Set<String> newAdminEmails = commonConfig.getAdminEmails();
+
+        List<String> removedUsers = new ArrayList<>();
+        List<String> newUsers = new ArrayList<>();
+
+        if (!CollectionUtils.isEmpty(oldAdminEmails)) {
+            // need to remove permission from previous emails that is not present in new values
+            for (String email : oldAdminEmails) {
+                if (!newAdminEmails.contains(email)) {  // need to remove this user
+                    removedUsers.add(email);
+                }
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(newAdminEmails)) {
+            for (String email : newAdminEmails) {
+                if (oldAdminEmails != null && !oldAdminEmails.contains(email)) {
+                    // need to add permission for this user
+                    newUsers.add(email);
+                }
+            }
+        }
+
+        Flux<User> removedUserFlux = Flux.fromIterable(removedUsers).flatMap(userService::findByEmail)
+                .flatMap(user -> {
+                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(
+                            Set.of(AclPermission.MANAGE_INSTANCE_ENV), user.getUsername()
+                    );
+                    policyUtils.removePoliciesFromExistingObject(policyMap, user);
+                    return userRepository.save(user);
+                });
+
+        Flux<User> newUsersFlux = Flux.fromIterable(newUsers).flatMap(userService::findByEmail)
+                .flatMap(user -> {
+                    Map<String, Policy> policyMap =  policyUtils.generatePolicyFromPermission(
+                            Set.of(AclPermission.MANAGE_INSTANCE_ENV), user.getUsername()
+                    );
+                    policyUtils.addPoliciesToExistingObject(policyMap, user);
+                    return userRepository.save(user);
+                });
+
+        /*
+         * we need to run these two flux immediately because server will be restarted and these changes
+         * should be persisted to DB before that
+         */
+        removedUserFlux
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
+        newUsersFlux
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
     }
 
     public Map<String, String> parseToMap(String content) {
