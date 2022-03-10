@@ -106,16 +106,6 @@ export const StyledBottomLabel = styled(FormLabel)`
 `;
 
 function SortingComponent(props: any) {
-  const columnCustomStyles = {
-    width: "100%",
-    height: "30px",
-  };
-
-  const orderCustomStyles = {
-    // width: "15vw",
-    height: "30px",
-  };
-
   const onDeletePressed = (index: number) => {
     props.fields.remove(index);
   };
