@@ -50,34 +50,46 @@ function ManualUpgrades() {
     () => updates.reduce((max, u) => (max > u.version ? max : u.version), 0),
     [],
   );
-  const [showModal, setShowModal] = React.useState(
-    () => !updateDismissed && applicationVersion < latestVersion,
-  );
+  const [showModal, setShowModal] = React.useState(false);
+
+  const defaultProps =
+    !updateDismissed && applicationVersion < latestVersion
+      ? {
+          isOpen: true,
+        }
+      : {};
 
   const tooltipContent =
-    applicationVersion < latestVersion ? "" : "No new updates";
+    applicationVersion < latestVersion
+      ? `${updates.length} pending update(s)`
+      : "No new updates";
 
   return (
     <div className="t--upgrade relative">
       {applicationVersion < latestVersion && <RedDot />}
       <TooltipComponent
+        autoFocus={!updateDismissed && applicationVersion < latestVersion}
         content={tooltipContent}
         modifiers={{
           preventOverflow: { enabled: true },
         }}
+        {...defaultProps}
       >
         <Icon
           disabled={applicationVersion < latestVersion}
           fillColor={Colors.SCORPION}
           name="upgrade"
-          onClick={() => setShowModal(applicationVersion < latestVersion)}
+          onClick={() => {
+            setUpdateDismissed("true");
+            setShowModal(applicationVersion < latestVersion);
+          }}
           size={IconSize.XXXL}
         />
       </TooltipComponent>
       <UpdatesModal
+        applicationVersion={applicationVersion}
         closeModal={() => {
           setShowModal(false);
-          setUpdateDismissed("true");
         }}
         latestVersion={latestVersion}
         showModal={showModal}
@@ -112,6 +124,7 @@ const StyledIconContainer = styled.div`
 `;
 
 function UpdatesModal({
+  applicationVersion,
   closeModal,
   latestVersion,
   showModal,
@@ -119,6 +132,7 @@ function UpdatesModal({
   showModal: boolean;
   closeModal: () => void;
   latestVersion: ApplicationVersion;
+  applicationVersion: ApplicationVersion;
 }) {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -155,7 +169,7 @@ function UpdatesModal({
             size={IconSize.XXXL}
           />
         </div>
-        {updates.map((update) => (
+        {updates.slice(applicationVersion - 1).map((update) => (
           <div className="mt-4 mb-6" key={update.name}>
             <div className="mb-4">
               <Text type={TextType.H3}>{update.name}</Text>
