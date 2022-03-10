@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
@@ -263,6 +263,17 @@ function JSEditorForm(props: Props) {
       setDisableRunFunctionality(true);
     }
   }, [errors]);
+
+  useEffect(() => {
+    const activeJsAction =
+      activeJSActionId &&
+      getActionFromJsCollection(activeJSActionId, currentJSAction);
+    setSelectedJSActionOption(
+      (activeJsAction && convertJSActionToDropdownOption(activeJsAction)) ||
+        (jsActions.length && convertJSActionToDropdownOption(jsActions[0])) ||
+        NO_FUNCTION_DROPDOWN_OPTION,
+    );
+  }, [currentJSAction]);
 
   return (
     <>
