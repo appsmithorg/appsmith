@@ -213,10 +213,12 @@ function Deploy() {
           <TextInput
             $padding="8px 14px"
             autoFocus
+            className="t--commit-comment-input"
             disabled={commitInputDisabled}
             fill
             height={`${Math.min(autogrowHeight, 80)}px`}
             onChange={setCommitMessage}
+            placeholder={"Your commit message here"}
             ref={commitInputRef}
             trimValue={false}
             useTextArea
@@ -253,7 +255,7 @@ function Deploy() {
         )}
         {pullRequired && !isConflicting && (
           <Button
-            className="t--commit-button"
+            className="t--pull-button"
             isLoading={isPullingProgress}
             onClick={handlePull}
             size={Size.large}

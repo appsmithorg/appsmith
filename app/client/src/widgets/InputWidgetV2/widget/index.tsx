@@ -207,9 +207,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isTriggerProperty: false,
               validation: {
                 type: ValidationTypes.NUMBER,
-                params: {
-                  min: 1,
-                },
+                params: { min: 1, natural: true },
               },
               hidden: (props: InputWidgetProps) => {
                 return props.inputType !== InputTypes.TEXT;
@@ -365,7 +363,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             parsedValue = Number(value);
 
             if (isNaN(parsedValue)) {
-              parsedValue = undefined;
+              parsedValue = null;
             }
           }
           break;
@@ -393,8 +391,13 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   getPageView() {
     const value = this.props.text ?? "";
-    let isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    let isInvalid = false;
+    if (this.props.isDirty) {
+      isInvalid = "isValid" in this.props && !this.props.isValid;
+    } else {
+      isInvalid = false;
+    }
+
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {

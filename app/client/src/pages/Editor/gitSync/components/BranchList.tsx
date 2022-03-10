@@ -44,7 +44,6 @@ import { isEllipsisActive } from "utils/helpers";
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 
 import SegmentHeader from "components/ads/ListSegmentHeader";
-import BetaTag from "./BetaTag";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ListContainer = styled.div`
@@ -347,13 +346,14 @@ function Header({
         >
           <Tooltip
             content={createMessage(SYNC_BRANCHES)}
-            hoverOpenDelay={1000}
+            hoverOpenDelay={10}
             modifiers={{
               flip: { enabled: false },
             }}
             position={Position.TOP}
           >
             <Icon
+              className="t--sync-branches"
               fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
               hoverFillColor={Colors.BLACK}
               name="refresh"
@@ -362,11 +362,9 @@ function Header({
             />
           </Tooltip>
         </span>
-        <div style={{ marginLeft: 6 }}>
-          <BetaTag />
-        </div>
       </div>
       <Icon
+        className="t--close-branch-list"
         fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
         hoverFillColor={Colors.BLACK}
         name="close-modal"
