@@ -68,6 +68,7 @@ describe("Entity explorer tests related to copy query", function() {
       .contains("Page1")
       .click();
     agHelper.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(".t--entity-name")
       .contains("Query1")
       .click({ force: true });
@@ -92,6 +93,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("complete uid :" + updatedName);
       updatedName = uid.replace(/-/g, "_").slice(1, 15);
       cy.log("sliced id :" + updatedName);
+      cy.CheckAndUnfoldEntityItem("QUERIES/JS");
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.wait(2000);
       cy.hoverAndClick();
@@ -105,7 +107,6 @@ describe("Entity explorer tests related to copy query", function() {
       );
     });
 
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(".t--entity-name")
       .contains("Query1")
       .click();
