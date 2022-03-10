@@ -33,6 +33,7 @@ export type TreeDropdownOption = DropdownOption & {
   isChildrenOpen?: boolean;
   selfIndex?: number[];
   args?: Array<any>;
+  confirmDelete?: boolean;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -53,6 +54,8 @@ export type TreeDropdownProps = {
   modifiers?: IPopoverSharedProps["modifiers"];
   onMenuToggle?: (isOpen: boolean) => void;
   position?: Position;
+  setConfirmDelete?: (val: boolean) => void;
+  editorPageContextMenu?: boolean;
 };
 
 const StyledMenu = styled(Menu)`
@@ -85,7 +88,8 @@ const StyledMenu = styled(Menu)`
       fill: #9f9f9f;
     }
 
-    &.t--apiFormDeleteBtn {
+    &.t--apiFormDeleteBtn,
+    &.t--apiFormDeleteBtn.bp3-menu-item.bp3-active {
       color: ${Colors.DANGER_SOLID};
       .${Classes.ICON} svg {
         fill: ${Colors.DANGER_SOLID};
@@ -293,6 +297,11 @@ function TreeDropdown(props: TreeDropdownProps) {
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       option.onSelect(option, onSelect);
+      if (option.value === "delete" && !option.confirmDelete) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
     } else {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
       onSelect(option, defaultVal);
@@ -328,7 +337,6 @@ function TreeDropdown(props: TreeDropdownProps) {
       };
     return (e: any) => {
       handleSelect(option);
-      setIsOpen(false);
       props.onMenuToggle && props.onMenuToggle(false);
       e?.stopPropagation && e.stopPropagation();
     };
@@ -494,7 +502,10 @@ function TreeDropdown(props: TreeDropdownProps) {
     }
   };
 
-  const list = optionTree.map(RenderTreeOption);
+  // if the component is being used in the editor page list the optionTree out without any modifications
+  const list = props.editorPageContextMenu
+    ? props.optionTree.map(RenderTreeOption)
+    : optionTree.map(RenderTreeOption);
   const menuItems = <StyledMenu>{list}</StyledMenu>;
   const defaultToggle = (
     <DropdownTarget>
@@ -524,6 +535,7 @@ function TreeDropdown(props: TreeDropdownProps) {
       modifiers={props.modifiers}
       onClose={() => {
         setIsOpen(false);
+        props.setConfirmDelete ? props.setConfirmDelete(false) : null;
         props.onMenuToggle && props.onMenuToggle(false);
       }}
       position={props.position || PopoverPosition.LEFT}

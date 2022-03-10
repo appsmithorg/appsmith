@@ -24,6 +24,7 @@ export type TreeDropdownOption = DropdownOption & {
   children?: TreeDropdownOption[];
   className?: string;
   type?: string;
+  confirmDelete?: boolean;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -42,6 +43,7 @@ type TreeDropdownProps = {
   toggle?: React.ReactNode;
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
+  setConfirmDelete?: (val: boolean) => void;
 };
 
 export const StyledPopover = styled(Popover)`
@@ -112,6 +114,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     optionTree,
     selectedLabelModifier,
     selectedValue,
+    setConfirmDelete,
     toggle,
   } = props;
   const selectedOption = getSelectedOption(
@@ -125,6 +128,11 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       option.onSelect(option, props.onSelect);
+      if (option.value === "delete" && !option.confirmDelete) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
     } else {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
       onSelect(option, defaultVal);
@@ -147,7 +155,6 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             ? noop
             : (e: any) => {
                 handleSelect(option);
-                setIsOpen(false);
                 e.stopPropagation();
               }
         }
@@ -194,6 +201,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       modifiers={props.modifiers}
       onClose={() => {
         setIsOpen(false);
+        setConfirmDelete ? setConfirmDelete(false) : null;
       }}
       position={PopoverPosition.RIGHT_TOP}
       targetProps={{
