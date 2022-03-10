@@ -10,7 +10,6 @@ import { isNil } from "lodash";
 import Field from "../component/Field";
 import FormContext from "../FormContext";
 import MultiSelect from "widgets/MultiSelectWidgetV2/component";
-import useDeepEffect from "utils/hooks/useDeepEffect";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
@@ -94,7 +93,7 @@ function MultiSelectField({
   } = schemaItem;
   const { executeAction, updateWidgetMetaProperty } = useContext(FormContext);
   const [filterText, setFilterText] = useState<string>();
-  const [componentValues, setComponentValues] = useState<LabelValueType[]>([]);
+  // const [componentValues, setComponentValues] = useState<LabelValueType[]>([]);
 
   const {
     field: { onBlur, onChange, value },
@@ -123,10 +122,7 @@ function MultiSelectField({
     propertyValue: filterText,
   });
 
-  const { componentDefaultValue, fieldDefaultValue } = useMemo(() => {
-    let componentDefaultValue: LabelValueType[] = [];
-    let fieldDefaultValue: LabelValueType["value"][] = [];
-
+  const fieldDefaultValue = useMemo(() => {
     const values: LabelValueType["value"][] | LabelValueType[] = (() => {
       if (
         !isNil(schemaItem.defaultValue) &&
@@ -140,26 +136,17 @@ function MultiSelectField({
       return [];
     })();
 
-    if (Array.isArray(values) && values.length && isPrimitive(values[0])) {
-      fieldDefaultValue = values as LabelValueType["value"][];
-      componentDefaultValue = fieldValuesToComponentValues(
-        fieldDefaultValue,
-        schemaItem.options,
-      );
+    if (values.length && isPrimitive(values[0])) {
+      return values as LabelValueType["value"][];
     } else {
-      componentDefaultValue = values as LabelValueType[];
-      fieldDefaultValue = componentValuesToFieldValues(componentDefaultValue);
+      return componentValuesToFieldValues(values as LabelValueType[]);
     }
-
-    return {
-      componentDefaultValue,
-      fieldDefaultValue,
-    };
   }, [schemaItem.defaultValue, passedDefaultValue]);
 
-  useDeepEffect(() => {
-    setComponentValues(componentDefaultValue);
-  }, [componentDefaultValue]);
+  const componentValues = fieldValuesToComponentValues(
+    value || [],
+    schemaItem.options,
+  );
 
   const onFilterChange = useCallback(
     (value: string) => {
@@ -180,8 +167,6 @@ function MultiSelectField({
 
   const onOptionChange = useCallback(
     (values: DefaultValueType) => {
-      setComponentValues(values as LabelValueType[]);
-
       onChange(componentValuesToFieldValues(values as LabelValueType[]));
 
       if (schemaItem.onOptionChange && executeAction) {
