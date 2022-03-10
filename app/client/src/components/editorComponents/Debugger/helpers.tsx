@@ -14,7 +14,7 @@ import {
   matchQueryPath,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
-import { isMac, modText } from "utils/helpers";
+import { modText } from "utils/helpers";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
