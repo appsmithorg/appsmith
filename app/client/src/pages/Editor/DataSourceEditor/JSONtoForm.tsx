@@ -135,7 +135,7 @@ export class JSONtoForm<
       } else {
         const value = _.get(values, fieldConfigProperty);
 
-        if (!value) {
+        if (_.isNil(value)) {
           _.set(errors, fieldConfigProperty, "This field is required");
         }
       }
