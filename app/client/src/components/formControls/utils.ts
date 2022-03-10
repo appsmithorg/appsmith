@@ -111,8 +111,12 @@ export const getViewType = (values: any, configProperty: string) => {
   }
 };
 // Function that extracts the initial value from the JSON configs
-export const getConfigInitialValues = (config: Record<string, any>[]) => {
-  const configInitialValues = {};
+export const getConfigInitialValues = (
+  config: Record<string, any>[],
+  multipleViewTypesSupported = false,
+) => {
+  const configInitialValues: Record<string, any> = {};
+
   // We expect the JSON configs to be an array of objects
   if (!Array.isArray(config)) return configInitialValues;
 
@@ -136,11 +140,43 @@ export const getConfigInitialValues = (config: Record<string, any>[]) => {
         `${section.configProperty}.condition`,
         section.logicalTypes[0].value,
       );
+      if (
+        multipleViewTypesSupported &&
+        section.configProperty.includes(".data")
+      ) {
+        set(
+          configInitialValues,
+          section.configProperty.replace(".data", ".viewType"),
+          "component",
+        );
+        set(
+          configInitialValues,
+          section.configProperty.replace(".data", ".componentData.condition"),
+          section.logicalTypes[0].value,
+        );
+      }
     }
     if ("children" in section) {
       section.children.forEach((section: any) => {
         parseConfig(section);
       });
+    } else if (
+      "configProperty" in section &&
+      multipleViewTypesSupported &&
+      section.configProperty.includes(".data")
+    ) {
+      set(
+        configInitialValues,
+        section.configProperty.replace(".data", ".viewType"),
+        "component",
+      );
+      if (section.configProperty in configInitialValues) {
+        set(
+          configInitialValues,
+          section.configProperty.replace(".data", ".componentData"),
+          configInitialValues[section.configProperty],
+        );
+      }
     }
   };
 
