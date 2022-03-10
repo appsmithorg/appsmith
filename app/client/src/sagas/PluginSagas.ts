@@ -27,7 +27,7 @@ import {
 import { GenericApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
-import { PluginType } from "entities/Action";
+import { getGraphQLPlugin, PluginType } from "entities/Action";
 import {
   FormEditorConfigs,
   FormSettingsConfigs,
@@ -70,6 +70,7 @@ function* fetchPluginFormConfigsSaga() {
     // can exist without a saved datasource
     const apiPlugin = plugins.find((plugin) => plugin.type === PluginType.API);
     const jsPlugin = plugins.find((plugin) => plugin.type === PluginType.JS);
+    const graphqlPlugin = getGraphQLPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
@@ -85,6 +86,10 @@ function* fetchPluginFormConfigsSaga() {
 
     if (jsPlugin) {
       pluginIdFormsToFetch.add(jsPlugin.id);
+    }
+
+    if (graphqlPlugin) {
+      pluginIdFormsToFetch.add(graphqlPlugin.id);
     }
     const formConfigs: Record<string, any[]> = {};
     const editorConfigs: FormEditorConfigs = {};

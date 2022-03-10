@@ -1,6 +1,7 @@
 import { EmbeddedRestDatasource } from "entities/Datasource";
 import { DynamicPath } from "../../utils/DynamicBindingUtils";
 import _ from "lodash";
+import { Plugin } from "api/PluginApi";
 
 export enum PluginType {
   API = "API",
@@ -167,4 +168,8 @@ export function isQueryAction(action: Action): action is QueryAction {
 
 export function isSaaSAction(action: Action): action is SaaSAction {
   return action.pluginType === PluginType.SAAS;
+}
+
+export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
+  return plugins.find((p) => p.packageName === "graphql-plugin");
 }

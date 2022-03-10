@@ -107,7 +107,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "003", id = "add-graphql-plugin", author = "")
-    public void addArangoDBPlugin(MongockTemplate mongoTemplate) {
+    public void addGraphQLPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("GraphQL");
         plugin.setType(PluginType.API);
