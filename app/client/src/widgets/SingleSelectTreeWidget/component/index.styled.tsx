@@ -623,7 +623,6 @@ ${({ dropDownWidth, id, parentWidth }) => `
 export const TreeSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
@@ -723,8 +722,7 @@ export const TreeSelectContainer = styled.div<{
     border: 1px solid
       ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
     box-sizing: border-box;
-    background: ${({ backgroundColor }) =>
-      `${backgroundColor || Colors.WHITE}`};
+    background: ${Colors.WHITE};
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     overflow: hidden;
@@ -736,8 +734,7 @@ export const TreeSelectContainer = styled.div<{
       width: 100%;
       height: 100%;
       input {
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.WHITE}`};
+        background: ${Colors.WHITE};
         width: 100%;
         appearance: none;
         &::-webkit-search-cancel-button {
@@ -776,8 +773,7 @@ export const TreeSelectContainer = styled.div<{
       padding: 1px;
       box-shadow: none;
       border: 1px solid rgb(231, 231, 231);
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.WHITE}`};
+      background: ${Colors.WHITE};
       border-radius: ${({ borderRadius }) => borderRadius};
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;

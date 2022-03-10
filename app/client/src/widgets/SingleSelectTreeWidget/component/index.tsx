@@ -49,7 +49,6 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
@@ -93,7 +92,6 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
 
 function SingleSelectTreeComponent({
   allowClear,
-  backgroundColor,
   borderRadius,
   boxShadow,
   compactMode,
@@ -138,7 +136,6 @@ function SingleSelectTreeComponent({
 
   return (
     <TreeSelectContainer
-      backgroundColor={backgroundColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       compactMode={compactMode}
