@@ -123,6 +123,7 @@ export interface CellLayoutProperties {
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
+  isCellEditable: boolean;
 }
 
 export type MenuItems = Record<
@@ -212,6 +213,7 @@ export interface ColumnProperties {
   isCellVisible?: boolean;
   isAscOrder?: boolean;
   alias?: string;
+  isCellEditable: boolean;
 }
 
 export const ConditionFunctions: {

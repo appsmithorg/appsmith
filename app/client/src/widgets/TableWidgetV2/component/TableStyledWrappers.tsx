@@ -3,6 +3,7 @@ import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import { EditableRowHoverStyle } from "./cellComponents/TextCell";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -510,7 +511,7 @@ export const CommonFunctionsMenuWrapper = styled.div<{
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
 `;
 
-export const RowWrapper = styled.div`
+export const TableHeaderContentWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -573,4 +574,8 @@ export const MenuCategoryWrapper = styled.div`
 
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
+`;
+
+export const RowWrapper = styled.div`
+  ${() => EditableRowHoverStyle}
 `;

@@ -11,6 +11,7 @@ import {
   StyledHiddenIcon,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
+import Checkbox from "./Checkbox";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -29,6 +30,7 @@ type RenderComponentProps = {
     isDerived?: boolean;
     isVisible?: boolean;
     isDuplicateLabel?: boolean;
+    isCellEditable?: boolean;
   };
   isDelete?: boolean;
   isDragging: boolean;
@@ -38,6 +40,7 @@ type RenderComponentProps = {
   onEdit?: (index: number) => void;
   deleteOption: (index: number) => void;
   toggleVisibility?: (index: number) => void;
+  showEditable?: boolean;
 };
 
 export function DraggableListCard(props: RenderComponentProps) {
@@ -53,6 +56,7 @@ export function DraggableListCard(props: RenderComponentProps) {
     item,
     onEdit,
     placeholder,
+    showEditable,
     toggleVisibility,
     updateFocus,
     updateOption,
@@ -156,6 +160,9 @@ export function DraggableListCard(props: RenderComponentProps) {
           }}
           width={20}
         />
+      )}
+      {showEditable && (
+        <Checkbox isDefaultChecked={item.isCellEditable} label="" />
       )}
     </ItemWrapper>
   );

@@ -2,7 +2,6 @@ import React from "react";
 import { isNumber, isNil } from "lodash";
 
 import { ColumnTypes, CellLayoutProperties } from "../Constants";
-import AutoToolTipComponent from "../AutoToolTipComponent";
 import { InlineCellEditor } from "../cellComponents/InlineCellEditor";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { TextCell } from "../cellComponents/TextCell";

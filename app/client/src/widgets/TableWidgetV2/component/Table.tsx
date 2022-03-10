@@ -9,6 +9,7 @@ import {
   Row,
 } from "react-table";
 import {
+  RowWrapper,
   TableWrapper,
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
@@ -354,7 +355,7 @@ export function Table(props: TableProps) {
                   row.index === selectedRowIndex ||
                   selectedRowIndices.includes(row.index);
                 return (
-                  <div
+                  <RowWrapper
                     {...rowProps}
                     className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
                     key={rowIndex}
@@ -379,7 +380,7 @@ export function Table(props: TableProps) {
                         </div>
                       );
                     })}
-                  </div>
+                  </RowWrapper>
                 );
               })}
               {props.pageSize > subPage.length &&

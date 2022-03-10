@@ -4,6 +4,7 @@ import { CellWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
+import { ColumnWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -90,31 +91,33 @@ function AutoToolTipComponent(props: Props) {
     return <LinkWrapper {...props} />;
   }
   return (
-    <CellWrapper
-      cellProperties={props.cellProperties}
-      className={props.className}
-      isCellVisible={props.isCellVisible}
-      isHidden={props.isHidden}
-      isTextType
-      ref={ref}
-    >
-      {useToolTip && props.children ? (
-        <Tooltip
-          autoFocus={false}
-          content={
-            <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
-              {props.title}
-            </TooltipContentWrapper>
-          }
-          hoverOpenDelay={1000}
-          position="top"
-        >
-          {props.children}
-        </Tooltip>
-      ) : (
-        props.children
-      )}
-    </CellWrapper>
+    <ColumnWrapper className={props.className}>
+      <CellWrapper
+        cellProperties={props.cellProperties}
+        isCellVisible={props.isCellVisible}
+        isHidden={props.isHidden}
+        isTextType
+        ref={ref}
+      >
+        {useToolTip && props.children ? (
+          <Tooltip
+            autoFocus={false}
+            content={
+              <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
+                {props.title}
+              </TooltipContentWrapper>
+            }
+            hoverOpenDelay={1000}
+            position="top"
+          >
+            {props.children}
+          </Tooltip>
+        ) : (
+          props.children
+        )}
+      </CellWrapper>
+      {useToolTip && props.children && <>&nbsp;...</>}
+    </ColumnWrapper>
   );
 }
 

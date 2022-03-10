@@ -59,6 +59,7 @@ export const CONFIG = {
         enableSort: true,
         isVisible: true,
         isCellVisible: true,
+        isCellEditable: false,
         isDerived: false,
         label: "step",
         computedValue:
@@ -78,6 +79,7 @@ export const CONFIG = {
         enableSort: true,
         isVisible: true,
         isCellVisible: true,
+        isCellEditable: false,
         isDerived: false,
         label: "task",
         computedValue:
@@ -97,6 +99,7 @@ export const CONFIG = {
         enableSort: true,
         isVisible: true,
         isCellVisible: true,
+        isCellEditable: false,
         isDerived: false,
         label: "status",
         computedValue:
@@ -116,6 +119,7 @@ export const CONFIG = {
         enableSort: true,
         isVisible: true,
         isCellVisible: true,
+        isCellEditable: false,
         isDisabled: false,
         isDerived: false,
         label: "action",

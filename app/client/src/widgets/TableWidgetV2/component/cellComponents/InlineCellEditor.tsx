@@ -1,6 +1,26 @@
+import { Colors } from "constants/Colors";
 import React, { useCallback } from "react";
+import styled from "styled-components";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import InputComponent from "widgets/InputWidgetV2/component";
+
+const Wrapper = styled.div`
+  padding: 1px;
+  border: 1px solid ${Colors.GREEN_1};
+  box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+
+  &&&&& {
+    .bp3-input,
+    .bp3-input:focus {
+      border: none;
+      /*
+       * using !important since underlying
+       * component styled has !important
+       */
+      box-shadow: none !important;
+    }
+  }
+`;
 
 type renderInlineEditorPropsType = {
   onChange: (text: string) => void;
@@ -35,20 +55,22 @@ export function InlineCellEditor({
   );
 
   return (
-    <InputComponent
-      autoFocus
-      compactMode
-      disableNewLineOnPressEnterKey={false}
-      inputType={InputTypes.TEXT}
-      isInvalid={false}
-      isLoading={false}
-      label=""
-      onFocusChange={onFocusChange}
-      onKeyDown={onKeyDown}
-      onValueChange={onChange}
-      showError
-      value={value}
-      widgetId=""
-    />
+    <Wrapper>
+      <InputComponent
+        autoFocus
+        compactMode
+        disableNewLineOnPressEnterKey={false}
+        inputType={InputTypes.TEXT}
+        isInvalid={false}
+        isLoading={false}
+        label=""
+        onFocusChange={onFocusChange}
+        onKeyDown={onKeyDown}
+        onValueChange={onChange}
+        showError
+        value={value}
+        widgetId=""
+      />
+    </Wrapper>
   );
 }
