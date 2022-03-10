@@ -8,6 +8,7 @@ import _ from "lodash";
 import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
+import Tooltip from "components/ads/Tooltip";
 
 const DropdownWidth = 95; //in pixel
 const Margin = 8; //in pixel
@@ -113,7 +114,7 @@ const ActionBox = styled.div<{ marginLeft: string }>`
 `;
 
 // The final button to add more filters/ filter groups
-const AddMoreAction = styled.div`
+const AddMoreAction = styled.div<{ isDisabled?: boolean }>`
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -121,10 +122,15 @@ const AddMoreAction = styled.div`
   font-weight: 500;
   line-height: 14px;
   letter-spacing: 0.6px;
-  color: #858282;
   margin-right: 20px;
+  color: ${(props) =>
+    props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
 `;
 
+const StyledTooltip = styled(Tooltip)`
+  display: flex;
+  align-items: center;
+`;
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
 function ConditionComponent(props: any, index: number) {
   // Custom styles have to be passed as props, otherwise the UI will be disproportional
@@ -353,23 +359,29 @@ function ConditionBlock(props: any) {
           <span style={{ marginLeft: "8px" }}>Add Where Condition</span>
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
-        {props.currentNestingLevel < props.nestedLevels && (
+        <StyledTooltip
+          disabled={props.currentNestingLevel < props.nestedLevels}
+          content="For S3 only 4 nested where condition group is allowed"
+        >
           <AddMoreAction
+            isDisabled={!(props.currentNestingLevel < props.nestedLevels)}
             onClick={() => {
-              props.fields.push({
-                condition: props.logicalTypes[0].value,
-                children: [
-                  {
-                    condition: props.comparisonTypes[0].value,
-                  },
-                ],
-              });
+              if (props.currentNestingLevel < props.nestedLevels) {
+                props.fields.push({
+                  condition: props.logicalTypes[0].value,
+                  children: [
+                    {
+                      condition: props.comparisonTypes[0].value,
+                    },
+                  ],
+                });
+              }
             }}
           >
             <Icon name="add-more-fill" size={IconSize.XL} />
             <span style={{ marginLeft: "8px" }}>Add Where Group Condition</span>
           </AddMoreAction>
-        )}
+        </StyledTooltip>
       </ActionBox>
     </SecondaryBox>
   );
