@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";

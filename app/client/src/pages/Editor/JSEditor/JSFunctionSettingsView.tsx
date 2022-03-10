@@ -6,6 +6,10 @@ import { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import {
+  ASYNC_FUNCTION_SETTINGS_HEADING,
+  NO_ASYNC_FUNCTIONS,
+} from "./constants";
 
 const SETTINGS_HEADINGS = [
   {
@@ -52,10 +56,15 @@ type JSFunctionSettingsProps = {
   actions: JSAction[];
 };
 
-const SettingRow = styled.div<{ isHeading?: boolean }>`
+const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
   display: flex;
   padding: 8px;
-  border-bottom: ${(props) => `solid 1px ${props.theme.colors.table.border}`};
+  ${(props) =>
+    !props.noBorder &&
+    `
+  border-bottom: solid 1px ${props.theme.colors.table.border}};
+  `}
+
   ${(props) =>
     props.isHeading &&
     `   
@@ -179,7 +188,7 @@ function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
   );
   return (
     <JSFunctionSettingsWrapper>
-      <h3>Function Settings</h3>
+      <h3>{ASYNC_FUNCTION_SETTINGS_HEADING}</h3>
       <SettingRow isHeading>
         {SETTINGS_HEADINGS.map((setting, index) => (
           <SettingsHeading
@@ -191,9 +200,15 @@ function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
           />
         ))}
       </SettingRow>
-      {asyncActions.map((action) => (
-        <SettingsItem action={action} key={action.id} />
-      ))}
+      {asyncActions && asyncActions.length ? (
+        asyncActions.map((action) => (
+          <SettingsItem action={action} key={action.id} />
+        ))
+      ) : (
+        <SettingRow noBorder>
+          <SettingColumn>{NO_ASYNC_FUNCTIONS}</SettingColumn>
+        </SettingRow>
+      )}
     </JSFunctionSettingsWrapper>
   );
 }

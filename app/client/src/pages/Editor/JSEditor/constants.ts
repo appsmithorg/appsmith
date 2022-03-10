@@ -19,6 +19,9 @@ export const NO_FUNCTION_DROPDOWN_OPTION: JSActionDropdownOption = {
 };
 export const RUN_GUTTER_ID = "run-gutter";
 export const RUN_GUTTER_CLASSNAME = "run-marker-gutter";
+export const ASYNC_FUNCTION_SETTINGS_HEADING = "Async Function Settings";
+export const NO_ASYNC_FUNCTIONS =
+  "There is no asynchronous function in this JSObject";
 
 /* Indicates the mode the code should be parsed in. 
 This influences global strict mode and parsing of import and export declarations.
