@@ -557,7 +557,7 @@ export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
+  "Checkout branches, make commits, and deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
   `Create an empty git repository and paste the remote URL here.`;
@@ -1075,3 +1075,11 @@ export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
 export const REDIRECT_URL_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
+
+export const FORK_APP_MODAL_LOADING_TITLE = () =>
+  "Fetching organisations to fork to...";
+export const FORK_APP_MODAL_EMPTY_TITLE = () =>
+  "No organisation available to fork to";
+export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
+  "Choose where to fork the app";
+export const FORK = () => `FORK`;
