@@ -94,6 +94,22 @@ export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
   return !!hiddenConfig;
 };
 
+export enum ViewTypes {
+  JSON = "json",
+  COMPONENT = "component",
+}
+
+export const getViewType = (values: any, configProperty: string) => {
+  if (
+    configProperty.startsWith("actionConfiguration.formData") &&
+    configProperty.endsWith(".data")
+  ) {
+    const pathForViewType = configProperty.replace(".data", ".viewType");
+    return get(values, pathForViewType, ViewTypes.COMPONENT);
+  } else {
+    return ViewTypes.COMPONENT;
+  }
+};
 // Function that extracts the initial value from the JSON configs
 export const getConfigInitialValues = (config: Record<string, any>[]) => {
   const configInitialValues = {};
