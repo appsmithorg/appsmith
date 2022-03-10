@@ -73,6 +73,7 @@ const SectionTitle = styled.div`
   ${(props) => getTypographyByKey(props, "p1")};
   color: ${Colors.CHARCOAL};
   display: inline-flex;
+
   & .branch {
     color: ${Colors.CRUSTA};
     width: 240px;
@@ -84,9 +85,11 @@ const SectionTitle = styled.div`
 
 const Container = styled.div`
   width: 100%;
+
   && ${LabelContainer} span {
     color: ${Colors.CHARCOAL};
   }
+
   .bp3-popover-target {
     width: fit-content;
   }
@@ -213,11 +216,14 @@ function Deploy() {
           <TextInput
             $padding="8px 14px"
             autoFocus
+            className="t--commit-comment-input"
             disabled={commitInputDisabled}
             fill
             height={`${Math.min(autogrowHeight, 80)}px`}
             onChange={setCommitMessage}
+            placeholder={"Your commit message here"}
             ref={commitInputRef}
+            style={{ resize: "none" }}
             trimValue={false}
             useTextArea
             value={commitMessageDisplay}
@@ -253,7 +259,7 @@ function Deploy() {
         )}
         {pullRequired && !isConflicting && (
           <Button
-            className="t--commit-button"
+            className="t--pull-button"
             isLoading={isPullingProgress}
             onClick={handlePull}
             size={Size.large}

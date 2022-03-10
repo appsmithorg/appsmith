@@ -17,17 +17,11 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { sha256 } from "js-sha256";
 import moment from "moment";
-import log from "loglevel";
 import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
-
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const snapToGrid = (
   columnWidth: number,
@@ -430,6 +424,7 @@ export const scrollbarWidth = () => {
 // To { isValid: false, settings.color: false}
 export const flattenObject = (data: Record<string, any>) => {
   const result: Record<string, any> = {};
+
   function recurse(cur: any, prop: any) {
     if (Object(cur) !== cur) {
       result[prop] = cur;
@@ -446,6 +441,7 @@ export const flattenObject = (data: Record<string, any>) => {
       if (isEmpty && prop) result[prop] = {};
     }
   }
+
   recurse(data, "");
   return result;
 };
@@ -484,28 +480,6 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
   }
 };
 
-export function bootIntercom(user?: User) {
-  if (intercomAppID && window.Intercom) {
-    let { email, username } = user || {};
-    let name;
-    if (!cloudHosting) {
-      username = sha256(username || "");
-      // keep email undefined so that users are prompted to enter it when they reach out on intercom
-      email = undefined;
-    } else {
-      name = user?.name;
-    }
-
-    window.Intercom("boot", {
-      app_id: intercomAppID,
-      user_id: username,
-      email,
-      // keep name undefined instead of an empty string so that intercom auto assigns a name
-      name,
-    });
-  }
-}
-
 export const stopClickEventPropagation = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
 ) => {
@@ -520,10 +494,15 @@ export const stopClickEventPropagation = (
  * @param date 2021-09-08T14:14:12Z
  *
  */
-export const howMuchTimeBeforeText = (date: string) => {
+export const howMuchTimeBeforeText = (
+  date: string,
+  options: { lessThanAMinute: boolean } = { lessThanAMinute: false },
+) => {
   if (!date || !moment.isMoment(moment(date))) {
     return "";
   }
+
+  const { lessThanAMinute } = options;
 
   const now = moment();
   const checkDate = moment(date);
@@ -538,7 +517,10 @@ export const howMuchTimeBeforeText = (date: string) => {
   else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
   else if (hours > 0) return `${hours} hr${hours > 1 ? "s" : ""}`;
   else if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""}`;
-  else return `${seconds} sec${seconds > 1 ? "s" : ""}`;
+  else
+    return lessThanAMinute
+      ? "less than a minute"
+      : `${seconds} sec${seconds > 1 ? "s" : ""}`;
 };
 
 /**
@@ -592,28 +574,6 @@ export const trimQueryString = (value = "") => {
 export const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
   return decodeURIComponent(params.get(key) || "");
-};
-
-/**
- * get query params object
- * ref: https://stackoverflow.com/a/8649003/1543567
- */
-export const getQueryParamsObject = () => {
-  const search = window.location.search.substring(1);
-  if (!search) return {};
-  try {
-    return JSON.parse(
-      '{"' +
-        decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"') +
-        '"}',
-    );
-  } catch (e) {
-    log.error(e, "error parsing search string");
-    return {};
-  }
 };
 
 /*

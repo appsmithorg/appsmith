@@ -171,7 +171,7 @@ helm install -f values.yaml stable-appsmith/appsmith --generate-name
 *Tip: You can use the default [values.yaml](https://github.com/appsmithorg/appsmith/blob/release/deploy/helm/values.yaml)*
 
 ### Appsmith configuration
-To change Appsmith configurations, you can use configuration UI in application or update value in values.yaml(The available configurations is listed below). 
+To change Appsmith configurations, you can use configuration UI in application or update value in values.yaml(The available configurations is listed below).
 |	Name																										|	Value									|
 |	----------------------------------------------------		|	---------------------	|
 | `applicationConfig.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID`		| `""`									|
@@ -198,6 +198,8 @@ To change Appsmith configurations, you can use configuration UI in application o
 | `applicationConfig.APPSMITH_ENCRYPTION_PASSWORD`				| `""`									|
 | `applicationConfig.APPSMITH_ENCRYPTION_SALT`						| `""`									|
 | `applicationConfig.APPSMITH_CUSTOM_DOMAIN`							| `""`									|
+| `applicationConfig.APPSMITH_FORM_LOGIN_DISABLED`        | `""`                  |
+| `applicationConfig.APPSMITH_SIGNUP_DISABLED`            | `""`                  |
 
 For example, to change the encryption salt configuration, you can run the following command:
 ```
@@ -211,13 +213,16 @@ helm install \
 - In case of you have not install the Helm chart yet, you can run the below command to install it with exposing Appsmith
 ```
 helm install stable-appsmith/appsmith --generate-name \
---set ingress.enabled=true \
---set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
---set service.type=ClusterIP
+  --set ingress.enabled=true \
+  --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
+  --set service.type=ClusterIP
 ```
 - If you have installed Appsmith Helm chart, please run the `helm upgrade` command to upgrade the existing installation
 ```
-helm upgrade --set ingress.enabled=true stable-appsmith/appsmith appsmith
+helm upgrade stable-appsmith/appsmith appsmith \
+  --set ingress.enabled=true \
+  --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
+  --set service.type=ClusterIP
 
 # Or this command if you are using values.yaml file
 helm upgrade --values values.yaml stable-appsmith/appsmith appsmith
