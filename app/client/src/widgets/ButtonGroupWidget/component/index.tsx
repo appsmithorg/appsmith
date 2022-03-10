@@ -127,6 +127,25 @@ interface ButtonStyleProps {
   placement?: ButtonPlacement;
 }
 
+/*
+  Don't use buttonHoverActiveStyles in a nested function it won't work - 
+
+  const buttonHoverActiveStyles = css ``
+
+  const Button = styled.button`
+  // won't work
+    ${({ buttonColor, theme }) => {
+      &:hover, &:active {
+        ${buttonHoverActiveStyles}
+      }
+    }}
+
+  // will work
+  &:hover, &:active {
+    ${buttonHoverActiveStyles}
+  }`
+*/
+
 const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   flex: 1 1 auto;
   display: flex;
@@ -134,7 +153,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   align-items: center;
   padding: 0px 10px;
 
-  // use the css at the top and not inside a function
   &:hover,
   &:active {
     ${buttonHoverActiveStyles}
