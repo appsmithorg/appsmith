@@ -2185,7 +2185,6 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
         .click();
       // delete datasource
       cy.get(".t--delete-datasource").click();
-      cy.get("[data-cy=t--confirm-modal-btn]").click();
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -2504,7 +2503,6 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
     .click({ force: true });
   cy.contains(".t--datasource-name", datasourceName).click();
   cy.get(".t--delete-datasource").click();
-  cy.get("[data-cy=t--confirm-modal-btn]").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -2582,7 +2580,6 @@ Cypress.Commands.add("deleteJSObject", () => {
 Cypress.Commands.add("deleteDataSource", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
-  cy.get("[data-cy=t--confirm-modal-btn]").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
