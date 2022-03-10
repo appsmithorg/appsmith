@@ -44,7 +44,9 @@ class RequestConfirmationModal extends React.Component<Props> {
   };
 
   onKeyUp = (event: KeyboardEvent) => {
-    if (event.keyCode === Keys.ENTER) {
+    // Sometimes calling the shortcut keys "Cmd + Enter" also triggers the onConfirm function below
+    // so We check if no multiple keys are being pressed currently before executing this block of code.
+    if (!(event.metaKey || event.ctrlKey) && event.keyCode === Keys.ENTER) {
       // please note: due to the way the state is being updated, the last action will always correspond to the right Action Modal.
       // this is not a bug.
       this.onConfirm(this.props.modals[this.props.modals.length - 1]);

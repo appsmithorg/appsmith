@@ -343,7 +343,10 @@ export function* updateFormFields(
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
 
   // get current content type of the action
-  let apiContentType = values.actionConfiguration.formData.apiContentType;
+  let apiContentType =
+    values?.actionConfiguration?.formData?.apiContentType ||
+    POST_BODY_FORMAT_OPTIONS.JSON;
+
   if (field === "actionConfiguration.httpMethod") {
     const { actionConfiguration } = values;
     if (!actionConfiguration.headers) return;

@@ -557,7 +557,7 @@ export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
+  "Checkout branches, make commits, and deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
   `Create an empty git repository and paste the remote URL here.`;
@@ -610,7 +610,9 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
-export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste your URL here";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
+  "git://example.com:user/repo.git";
+export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
@@ -1037,6 +1039,33 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+// Templates
+export const MORE = () => "MORE";
+export const SHOW_LESS = () => "SHOW LESS";
+export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
+export const SELECT_ORGANISATION = () => "Select Organization";
+export const FORK_TEMPLATE = () => "FORK TEMPLATE";
+export const TEMPLATES = () => "TEMPLATES";
+export const FORK_THIS_TEMPLATE = () => "Fork this template";
+export const COULDNT_FIND_TEMPLATE = () =>
+  "Couldn’t find what you are looking for?";
+export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
+  "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
+export const REQUEST_TEMPLATE = () => "Request for a template";
+export const SEARCH_TEMPLATES = () => "Search templates";
+export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
+export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
+  "You can browse, fork, and make them your own here";
+export const GO_BACK = () => "GO BACK";
+export const OVERVIEW = () => "Overview";
+export const FUNCTION = () => "Function";
+export const INDUSTRY = () => "Industry";
+export const DATASOURCES = () => "Datasources";
+export const NOTE = () => "Note:";
+export const NOTE_MESSAGE = () => "You can add your datasources as well";
+export const WIDGET_USED = () => "Widgets Used";
+export const SIMILAR_TEMPLATES = () => "Similar Templates";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 

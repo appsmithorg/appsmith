@@ -259,7 +259,6 @@ const BASE_ACTION: DataTreeAction = {
     data: EvaluationSubstitutionType.TEMPLATE,
   },
   dependencyMap: {},
-  datasourceUrl: "",
 };
 
 const metaMock = jest.spyOn(WidgetFactory, "getWidgetMetaPropertiesMap");
