@@ -99,7 +99,7 @@ const Section = styled.div`
   padding-top: ${(props) => props.theme.spaces[12]}px;
 
   .section-content {
-    margin-top: ${(props) => props.theme.spaces[9]}px;
+    margin-top: ${(props) => props.theme.spaces[5]}px;
   }
 
   .template-fork-button {
