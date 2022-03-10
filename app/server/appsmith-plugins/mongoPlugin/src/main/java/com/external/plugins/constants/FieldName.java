@@ -45,15 +45,6 @@ public class FieldName {
     public static final String FIND_SKIP = FIND + "." + SKIP;
     public static final String UPDATE_LIMIT = UPDATE_MANY + "." + LIMIT;
 
-    public static final String QUERY = "query.data";
-    public static final String SORT = "sort.data";
-    public static final String PROJECTION = "projection.data";
-    public static final String LIMIT = "limit.data";
-    public static final String SKIP = "skip.data";
-    public static final String UPDATE = "update.data";
-    public static final String KEY = "key.data";
-    public static final String PIPELINES = "arrayPipelines.data";
-    public static final String DOCUMENTS = "documents.data";
     
     public static final String RAW = "RAW";
 

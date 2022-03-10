@@ -125,8 +125,8 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.UPLOAD_FILE_FROM_BODY.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, DATATYPE, YES);
-        setValueSafelyInFormData(configMap, EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, YES);
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
 
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some
@@ -144,8 +144,8 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.UPLOAD_MULTIPLE_FILES_FROM_BODY.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, DATATYPE, YES);
-        setValueSafelyInFormData(configMap, EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, YES);
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
 
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some
@@ -163,9 +163,9 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.LIST.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, SIGNED_URL, NO);
-        setValueSafelyInFormData(configMap, UNSIGNED_URL, YES);
-        setValueSafelyInFormData(configMap, WHERE, new HashMap<String, Object>() {{
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, NO);
+        setValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, YES);
+        setValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {{
             put("condition", "AND");
         }});
 

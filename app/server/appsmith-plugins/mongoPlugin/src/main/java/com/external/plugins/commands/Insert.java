@@ -22,13 +22,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.DOCUMENTS;
+import static com.external.plugins.constants.FieldName.INSERT;
+import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -41,8 +42,8 @@ public class Insert extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresentInFormData(formData, DOCUMENTS)) {
-            this.documents = (String) getValueSafelyFromFormData(formData, DOCUMENTS);
+        if (validConfigurationPresentInFormData(formData, INSERT_DOCUMENT)) {
+            this.documents = (String) getValueSafelyFromFormData(formData, INSERT_DOCUMENT);
         }
     }
 
@@ -62,7 +63,7 @@ public class Insert extends MongoCommand {
     public Document parseCommand() {
         Document commandDocument = new Document();
 
-        commandDocument.put("insert", this.collection);
+        commandDocument.put(INSERT, this.collection);
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.documents);
         if (dataType.equals(DataType.ARRAY)) {
@@ -102,7 +103,7 @@ public class Insert extends MongoCommand {
 
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, DOCUMENTS, "[{" + sampleInsertDocuments + "}]");
+        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +

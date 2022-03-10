@@ -12,6 +12,7 @@ import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -167,6 +168,30 @@ public class DatabaseChangelog2 {
                     ));
                 });
 
+        final String unpublishedBody = unpublishedAction.getActionConfiguration().getBody();
+        if (StringUtils.hasLength(unpublishedBody)) {
+            convertToFormDataObject(unpublishedFormData, "body", unpublishedBody);
+            unpublishedAction.getActionConfiguration().setBody(null);
+        }
+
+        final String unpublishedPath = unpublishedAction.getActionConfiguration().getPath();
+        if (StringUtils.hasLength(unpublishedPath)) {
+            convertToFormDataObject(unpublishedFormData, "path", unpublishedPath);
+            unpublishedAction.getActionConfiguration().setPath(null);
+        }
+
+        final String unpublishedNext = unpublishedAction.getActionConfiguration().getNext();
+        if (StringUtils.hasLength(unpublishedNext)) {
+            convertToFormDataObject(unpublishedFormData, "next", unpublishedNext);
+            unpublishedAction.getActionConfiguration().setNext(null);
+        }
+
+        final String unpublishedPrev = unpublishedAction.getActionConfiguration().getPrev();
+        if (StringUtils.hasLength(unpublishedPrev)) {
+            convertToFormDataObject(unpublishedFormData, "prev", unpublishedPrev);
+            unpublishedAction.getActionConfiguration().setPrev(null);
+        }
+
         /**
          * Migrate published action configuration data.
          */
@@ -186,6 +211,30 @@ public class DatabaseChangelog2 {
                                 "viewType", "form"
                         ));
                     });
+
+            final String publishedBody = publishedAction.getActionConfiguration().getBody();
+            if (StringUtils.hasLength(publishedBody)) {
+                convertToFormDataObject(publishedFormData, "body", publishedBody);
+                publishedAction.getActionConfiguration().setBody(null);
+            }
+
+            final String publishedPath = publishedAction.getActionConfiguration().getPath();
+            if (StringUtils.hasLength(publishedPath)) {
+                convertToFormDataObject(publishedFormData, "path", publishedPath);
+                publishedAction.getActionConfiguration().setPath(null);
+            }
+
+            final String publishedNext = publishedAction.getActionConfiguration().getNext();
+            if (StringUtils.hasLength(publishedNext)) {
+                convertToFormDataObject(publishedFormData, "next", publishedNext);
+                publishedAction.getActionConfiguration().setNext(null);
+            }
+
+            final String publishedPrev = publishedAction.getActionConfiguration().getPrev();
+            if (StringUtils.hasLength(publishedPrev)) {
+                convertToFormDataObject(publishedFormData, "prev", publishedPrev);
+                publishedAction.getActionConfiguration().setPrev(null);
+            }
         }
 
         /**
@@ -228,15 +277,28 @@ public class DatabaseChangelog2 {
                 ));
     }
 
-    private static void mapS3ToNewFormData(ActionDTO action, Map<String, Object> newUnpublishedFormDataMap) {
+    private static void mapS3ToNewFormData(ActionDTO action, Map<String, Object> f) {
         final Map<String, Object> unpublishedFormData = action.getActionConfiguration().getFormData();
+
+        final String body = action.getActionConfiguration().getBody();
+        if (StringUtils.hasLength(body)) {
+            convertToFormDataObject(f, "body", body);
+            action.getActionConfiguration().setBody(null);
+        }
+
+        final String path = action.getActionConfiguration().getPath();
+        if (StringUtils.hasLength(path)) {
+            convertToFormDataObject(f, "path", path);
+            action.getActionConfiguration().setPath(null);
+        }
+
         final String command = (String) unpublishedFormData.get("command");
         if (command == null) {
             return;
         }
-        convertToFormDataObject(newUnpublishedFormDataMap, "command", command);
-        convertToFormDataObject(newUnpublishedFormDataMap, "bucket", unpublishedFormData.get("bucket"));
-        convertToFormDataObject(newUnpublishedFormDataMap, "smartSubstitution", unpublishedFormData.get("smartSubstitution"));
+        convertToFormDataObject(f, "command", command);
+        convertToFormDataObject(f, "bucket", unpublishedFormData.get("bucket"));
+        convertToFormDataObject(f, "smartSubstitution", unpublishedFormData.get("smartSubstitution"));
         switch (command) {
             // No case for delete single and multiple since they only had bucket that needed migration
             case "LIST":
@@ -244,8 +306,8 @@ public class DatabaseChangelog2 {
                 if (listMap == null) {
                     break;
                 }
-                final Map<String,Object> newListMap = new HashMap<>();
-                newUnpublishedFormDataMap.put("list", newListMap);
+                final Map<String, Object> newListMap = new HashMap<>();
+                f.put("list", newListMap);
                 convertToFormDataObject(newListMap, "prefix", listMap.get("prefix"));
                 convertToFormDataObject(newListMap, "where", listMap.get("where"));
                 convertToFormDataObject(newListMap, "signedUrl", listMap.get("signedUrl"));
@@ -261,7 +323,7 @@ public class DatabaseChangelog2 {
                     break;
                 }
                 final Map<String,Object> newCreateMap = new HashMap<>();
-                newUnpublishedFormDataMap.put("create", newCreateMap);
+                f.put("create", newCreateMap);
                 convertToFormDataObject(newCreateMap, "dataType", createMap.get("dataType"));
                 convertToFormDataObject(newCreateMap, "expiry", createMap.get("expiry"));
                 break;
@@ -271,7 +333,7 @@ public class DatabaseChangelog2 {
                     break;
                 }
                 final Map<String,Object> newReadMap = new HashMap<>();
-                newUnpublishedFormDataMap.put("read", newReadMap);
+                f.put("read", newReadMap);
                 convertToFormDataObject(newReadMap, "dataType", readMap.get("usingBase64Encoding"));
                 break;
         }
@@ -332,6 +394,13 @@ public class DatabaseChangelog2 {
 
     private static void mapMongoToNewFormData(ActionDTO action, Map<String, Object> f) {
         final Map<String, Object> formData = action.getActionConfiguration().getFormData();
+
+        final String body = action.getActionConfiguration().getBody();
+        if (StringUtils.hasLength(body)) {
+            convertToFormDataObject(f, "body", body);
+            action.getActionConfiguration().setBody(null);
+        }
+
         final String command = (String) formData.get("command");
         if (command == null) {
             return;

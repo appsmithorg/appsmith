@@ -273,7 +273,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, SIGNED_URL, "NO");
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -341,8 +341,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, DATATYPE, "NO");
-        setValueSafelyInFormData(configMap, EXPIRY, "100000");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -386,7 +386,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -433,7 +433,7 @@ public class AmazonS3PluginTest {
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, true);
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -471,8 +471,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, DATATYPE, "YES");
-        setValueSafelyInFormData(configMap, EXPIRY, "100000");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -500,7 +500,7 @@ public class AmazonS3PluginTest {
                     expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
-                    expectedRequestParams.add(new RequestParamDTO(DATATYPE, "Base64", null,
+                    expectedRequestParams.add(new RequestParamDTO(CREATE_DATATYPE, "Base64", null,
                             null, null)); // File data type
                     assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
@@ -523,8 +523,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, DATATYPE, "YES");
-        setValueSafelyInFormData(configMap, EXPIRY, "100000");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -552,7 +552,7 @@ public class AmazonS3PluginTest {
                     expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
-                    expectedRequestParams.add(new RequestParamDTO(DATATYPE, "Base64", null,
+                    expectedRequestParams.add(new RequestParamDTO(CREATE_DATATYPE, "Base64", null,
                             null, null)); // File data type
                     assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
@@ -581,8 +581,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, DATATYPE, "NO");
-        setValueSafelyInFormData(configMap, EXPIRY, "100000");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -699,7 +699,7 @@ public class AmazonS3PluginTest {
                     expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
-                    expectedRequestParams.add(new RequestParamDTO(DATATYPE, "YES", null,
+                    expectedRequestParams.add(new RequestParamDTO(READ_DATATYPE, "YES", null,
                             null, null)); // Base64 encode file
                     assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
@@ -771,7 +771,7 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, PREFIX, "Hel");
+        setValueSafelyInFormData(configMap, LIST_PREFIX, "Hel");
 
         actionConfiguration.setFormData(configMap);
 
@@ -833,9 +833,9 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, SIGNED_URL, "NO");
-        setValueSafelyInFormData(configMap, UNSIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, PREFIX, "");
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
+        setValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -912,9 +912,9 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, SIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, EXPIRY, "1000");
-        setValueSafelyInFormData(configMap, PREFIX, "");
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, LIST_EXPIRY, "1000");
+        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -994,8 +994,8 @@ public class AmazonS3PluginTest {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, "LIST");
         setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, SIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, PREFIX, "");
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1065,13 +1065,13 @@ public class AmazonS3PluginTest {
                             , null, null)); // Action
                     expectedRequestParams.add(new RequestParamDTO(BUCKET, "bucket_name",
                             null, null, null)); // Bucket name
-                    expectedRequestParams.add(new RequestParamDTO(PREFIX, "", null,
+                    expectedRequestParams.add(new RequestParamDTO(LIST_PREFIX, "", null,
                             null, null)); // Prefix
-                    expectedRequestParams.add(new RequestParamDTO(SIGNED_URL, "YES", null,
+                    expectedRequestParams.add(new RequestParamDTO(LIST_SIGNED_URL, "YES", null,
                             null, null)); // Generate signed URL
-                    expectedRequestParams.add(new RequestParamDTO(EXPIRY, "5", null,
+                    expectedRequestParams.add(new RequestParamDTO(LIST_EXPIRY, "5", null,
                             null, null)); // Expiry duration
-                    expectedRequestParams.add(new RequestParamDTO(UNSIGNED_URL, "NO", null,
+                    expectedRequestParams.add(new RequestParamDTO(LIST_UNSIGNED_URL, "NO", null,
                             null, null)); // Generate Un-signed URL
                     assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
@@ -1104,12 +1104,12 @@ public class AmazonS3PluginTest {
                     Map<String, Object> listFilesConfig = (Map<String, Object>) listFilesTemplate.getConfiguration();
                     assertEquals(AmazonS3Action.LIST.name(), getValueSafelyFromFormData(listFilesConfig, COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(listFilesConfig, BUCKET));
-                    assertEquals(NO, getValueSafelyFromFormData(listFilesConfig, SIGNED_URL));
-                    assertEquals(YES, getValueSafelyFromFormData(listFilesConfig, UNSIGNED_URL));
+                    assertEquals(NO, getValueSafelyFromFormData(listFilesConfig, LIST_SIGNED_URL));
+                    assertEquals(YES, getValueSafelyFromFormData(listFilesConfig, LIST_UNSIGNED_URL));
                     assertEquals(new HashMap<String, Object>() {{
                                      put("condition", "AND");
                                  }},
-                            getValueSafelyFromFormData(listFilesConfig, WHERE));
+                            getValueSafelyFromFormData(listFilesConfig, LIST_WHERE));
 
                     // Check read file template
                     Template readFileTemplate = templates.get(1);
@@ -1132,8 +1132,8 @@ public class AmazonS3PluginTest {
                     assertEquals(AmazonS3Action.UPLOAD_FILE_FROM_BODY.name(),
                             getValueSafelyFromFormData(createFileConfig, COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(createFileConfig, BUCKET));
-                    assertEquals(YES, getValueSafelyFromFormData(createFileConfig, DATATYPE));
-                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createFileConfig, EXPIRY));
+                    assertEquals(YES, getValueSafelyFromFormData(createFileConfig, CREATE_DATATYPE));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createFileConfig, CREATE_EXPIRY));
 
                     // Check create multiple files template
                     Template createMultipleFilesTemplate = templates.get(3);
@@ -1146,8 +1146,8 @@ public class AmazonS3PluginTest {
                     assertEquals(AmazonS3Action.UPLOAD_MULTIPLE_FILES_FROM_BODY.name(),
                             getValueSafelyFromFormData(createMultipleFilesConfig, COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(createMultipleFilesConfig, BUCKET));
-                    assertEquals(YES, getValueSafelyFromFormData(createMultipleFilesConfig, DATATYPE));
-                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createMultipleFilesConfig, EXPIRY));
+                    assertEquals(YES, getValueSafelyFromFormData(createMultipleFilesConfig, CREATE_DATATYPE));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createMultipleFilesConfig, CREATE_EXPIRY));
 
                     // Check delete file template
                     Template deleteFileTemplate = templates.get(4);

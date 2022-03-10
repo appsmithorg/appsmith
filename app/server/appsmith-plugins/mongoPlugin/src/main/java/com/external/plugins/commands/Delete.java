@@ -15,14 +15,15 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.LIMIT;
-import static com.external.plugins.constants.FieldName.QUERY;
+import static com.external.plugins.constants.FieldName.DELETE;
+import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
+import static com.external.plugins.constants.FieldName.DELETE_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -36,12 +37,12 @@ public class Delete extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresentInFormData(formData, QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, QUERY);
+        if (validConfigurationPresentInFormData(formData, DELETE_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, DELETE_QUERY);
         }
 
-        if (validConfigurationPresentInFormData(formData, LIMIT)) {
-            String limitOption = (String) getValueSafelyFromFormData(formData, LIMIT);
+        if (validConfigurationPresentInFormData(formData, DELETE_LIMIT)) {
+            String limitOption = (String) getValueSafelyFromFormData(formData, DELETE_LIMIT);
             if ("ALL".equals(limitOption)) {
                 this.limit = 0;
             }
@@ -65,7 +66,7 @@ public class Delete extends MongoCommand {
     public Document parseCommand() {
         Document document = new Document();
 
-        document.put("delete", this.collection);
+        document.put(DELETE, this.collection);
 
         Document queryDocument = parseSafely("Query", this.query);
 
@@ -90,8 +91,8 @@ public class Delete extends MongoCommand {
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "DELETE");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
-        setValueSafelyInFormData(configMap, QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-        setValueSafelyInFormData(configMap, LIMIT, "SINGLE");
+        setValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+        setValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
 
         String rawQuery = "{\n" +
                 "  \"delete\": \"" + collectionName + "\",\n" +

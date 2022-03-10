@@ -2,10 +2,9 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
@@ -15,13 +14,14 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.QUERY;
+import static com.external.plugins.constants.FieldName.COUNT;
+import static com.external.plugins.constants.FieldName.COUNT_QUERY;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -34,8 +34,8 @@ public class Count extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresentInFormData(formData, QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, QUERY);
+        if (validConfigurationPresentInFormData(formData, COUNT_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, COUNT_QUERY);
         }
     }
 
@@ -43,7 +43,7 @@ public class Count extends MongoCommand {
     public Document parseCommand() {
         Document document = new Document();
 
-        document.put("count", this.collection);
+        document.put(COUNT, this.collection);
 
         if (StringUtils.isNullOrEmpty(this.query)) {
             this.query = "{}";
@@ -62,7 +62,7 @@ public class Count extends MongoCommand {
 
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "COUNT");
-        setValueSafelyInFormData(configMap, QUERY, "{\"_id\": {\"$exists\": true}}");
+        setValueSafelyInFormData(configMap, COUNT_QUERY, "{\"_id\": {\"$exists\": true}}");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +

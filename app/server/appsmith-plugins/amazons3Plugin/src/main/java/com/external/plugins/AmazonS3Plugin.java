@@ -76,9 +76,15 @@ import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.DATATYPE;
-import static com.external.plugins.constants.FieldName.EXPIRY;
-import static com.external.plugins.constants.FieldName.PAGINATE;
+import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
+import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_PAGINATE;
+import static com.external.plugins.constants.FieldName.LIST_PREFIX;
+import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_SORT;
+import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
@@ -545,17 +551,17 @@ public class AmazonS3Plugin extends BasePlugin {
 
                                 ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
 
-                        Boolean isSignedUrl = YES.equals(getValueSafelyFromFormData(formData, SIGNED_URL));
+                                Boolean isSignedUrl = YES.equals(getValueSafelyFromFormData(formData, LIST_SIGNED_URL));
 
                         if (isSignedUrl) {
-                            requestParams.add(new RequestParamDTO(SIGNED_URL, YES, null,
+                            requestParams.add(new RequestParamDTO(LIST_SIGNED_URL, YES, null,
                                     null, null));
 
                             int durationInMinutes;
 
                             try {
                                 durationInMinutes = Integer.parseInt((String) getValueSafelyFromFormDataOrDefault(formData,
-                                        EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES));
+                                        LIST_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES));
                             } catch (NumberFormatException e) {
                                 return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -566,7 +572,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 ));
                             }
 
-                            requestParams.add(new RequestParamDTO(EXPIRY,
+                            requestParams.add(new RequestParamDTO(LIST_EXPIRY,
                                     durationInMinutes, null, null, null));
 
                             Calendar calendar = Calendar.getInstance();
@@ -597,7 +603,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 ((ArrayList<Object>) actionResult).add(fileInfo);
                             }
                         } else {
-                            requestParams.add(new RequestParamDTO(SIGNED_URL,
+                            requestParams.add(new RequestParamDTO(LIST_SIGNED_URL,
                                     "", null, null, null));
                             actionResult = new ArrayList<>();
                             for (int i = 0; i < listOfFiles.size(); i++) {
@@ -607,11 +613,11 @@ public class AmazonS3Plugin extends BasePlugin {
                             }
                         }
 
-                        String isUnsignedUrl = (String) getValueSafelyFromFormData(formData, UNSIGNED_URL);
+                                String isUnsignedUrl = (String) getValueSafelyFromFormData(formData, LIST_UNSIGNED_URL);
 
                         if (YES.equals(isUnsignedUrl)) {
 
-                            requestParams.add(new RequestParamDTO(UNSIGNED_URL, YES, null,
+                            requestParams.add(new RequestParamDTO(LIST_UNSIGNED_URL, YES, null,
                                     null, null));
                             ((ArrayList<Object>) actionResult).stream()
                                     .forEach(item -> ((Map) item)
@@ -621,38 +627,38 @@ public class AmazonS3Plugin extends BasePlugin {
                                             )
                                     );
                         } else {
-                            requestParams.add(new RequestParamDTO(UNSIGNED_URL, NO, null,
+                            requestParams.add(new RequestParamDTO(LIST_UNSIGNED_URL, NO, null,
                                     null, null));
                         }
 
-                        // Check if where condition is configured
-                        Object whereFormObject = getValueSafelyFromFormData(formData, WHERE);
-                        Condition condition = null;
+                                // Check if where condition is configured
+                                Object whereFormObject = getValueSafelyFromFormData(formData, LIST_WHERE);
+                                Condition condition = null;
 
-                        if (whereFormObject != null) {
-                            Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
-                            condition = parseWhereClause(whereForm);
-                        }
+                                if (whereFormObject != null) {
+                                    Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
+                                    condition = parseWhereClause(whereForm);
+                                }
 
-                        List<Map<String, String>> sortBy =
-                                (List<Map<String, String>>) getValueSafelyFromFormData(formData, SORT);
+                                List<Map<String, String>> sortBy =
+                                        (List<Map<String, String>>) getValueSafelyFromFormData(formData, LIST_SORT);
 
-                        Map<String, String> paginateBy =
-                                (Map<String, String>) getValueSafelyFromFormData(formData, PAGINATE);
+                                Map<String, String> paginateBy =
+                                        (Map<String, String>) getValueSafelyFromFormData(formData, LIST_PAGINATE);
 
-                        ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
-                        actionResult = filterDataService.filterDataNew(preFilteringResponse,
-                                new UQIDataFilterParams(condition, null, sortBy, paginateBy));
+                                ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
+                                actionResult = filterDataService.filterDataNew(preFilteringResponse,
+                                        new UQIDataFilterParams(condition, null, sortBy, paginateBy));
 
-                        break;
-                    case UPLOAD_FILE_FROM_BODY: {
-                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
+                                break;
+                            case UPLOAD_FILE_FROM_BODY: {
+                                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
-                        int durationInMinutes;
+                                int durationInMinutes;
 
                         try {
                             durationInMinutes = Integer.parseInt((String) getValueSafelyFromFormDataOrDefault(formData,
-                                    EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES));
+                                    CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES));
                         } catch (NumberFormatException e) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -673,14 +679,14 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         String signedUrl;
 
-                        String dataType = (String) getValueSafelyFromFormData(formData, DATATYPE);
+                        String dataType = (String) getValueSafelyFromFormData(formData, CREATE_DATATYPE);
 
                         if (YES.equals(dataType)) {
-                            requestParams.add(new RequestParamDTO(DATATYPE, "Base64",
+                            requestParams.add(new RequestParamDTO(CREATE_DATATYPE, "Base64",
                                     null, null, null));
                             signedUrl = uploadFileFromBody(connection, bucketName, path, body, true, expiryDateTime);
                         } else {
-                            requestParams.add(new RequestParamDTO(DATATYPE,
+                            requestParams.add(new RequestParamDTO(CREATE_DATATYPE,
                                     "Text / Binary", null, null, null));
                             signedUrl = uploadFileFromBody(connection, bucketName, path, body, false, expiryDateTime);
                         }
@@ -688,7 +694,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         ((HashMap<String, Object>) actionResult).put("signedUrl", signedUrl);
                         ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
 
-                        requestParams.add(new RequestParamDTO(EXPIRY,
+                        requestParams.add(new RequestParamDTO(CREATE_EXPIRY,
                                 expiryDateTimeString, null, null, null));
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, body, null, null, null));
                         break;
@@ -700,7 +706,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         try {
                             durationInMinutes = Integer.parseInt((String) getValueSafelyFromFormDataOrDefault(formData,
-                                    EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES));
+                                    CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES));
                         } catch (NumberFormatException e) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -721,14 +727,14 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         List<String> signedUrls;
 
-                        String dataType = (String) getValueSafelyFromFormData(formData, DATATYPE);
+                        String dataType = (String) getValueSafelyFromFormData(formData, CREATE_DATATYPE);
 
                         if (YES.equals(dataType)) {
-                            requestParams.add(new RequestParamDTO(DATATYPE, "Base64",
+                            requestParams.add(new RequestParamDTO(CREATE_DATATYPE, "Base64",
                                     null, null, null));
                             signedUrls = uploadMultipleFilesFromBody(connection, bucketName, path, body, true, expiryDateTime);
                         } else {
-                            requestParams.add(new RequestParamDTO(DATATYPE,
+                            requestParams.add(new RequestParamDTO(CREATE_DATATYPE,
                                     "Text / Binary", null, null, null));
                             signedUrls = uploadMultipleFilesFromBody(connection, bucketName, path, body, false, expiryDateTime);
                         }
@@ -736,7 +742,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         ((HashMap<String, Object>) actionResult).put("signedUrls", signedUrls);
                         ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
 
-                        requestParams.add(new RequestParamDTO(EXPIRY,
+                        requestParams.add(new RequestParamDTO(CREATE_EXPIRY,
                                 expiryDateTimeString, null, null, null));
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, body, null, null, null));
                         break;
