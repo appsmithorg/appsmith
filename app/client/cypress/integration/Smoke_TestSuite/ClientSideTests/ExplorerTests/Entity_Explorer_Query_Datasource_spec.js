@@ -120,6 +120,9 @@ describe("Entity explorer tests related to query and datasource", function() {
       .click({ force: true });
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -541,7 +541,7 @@ Cypress.Commands.add("DeleteApp", (appName) => {
     .should("be.visible")
     .click({ force: true });
   cy.get(homePage.deleteApp)
-    .contains(commonLocators.deleteConfirmation)
+    .contains("Are you sure?")
     .click({ force: true });
 });
 
@@ -1260,7 +1260,6 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.deleteAPI)
-    .contains(commonLocators.deleteConfirmation)
     .first()
     .click({ force: true });
   cy.wait("@deleteAction").should(
@@ -2197,7 +2196,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
       // delete datasource
       cy.get(".t--delete-datasource").click();
       cy.get(".t--delete-datasource")
-        .contains(commonLocators.deleteConfirmation)
+        .contains("Are you sure?")
         .click();
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
@@ -2518,7 +2517,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.contains(".t--datasource-name", datasourceName).click();
   cy.get(".t--delete-datasource").click();
   cy.get(".t--delete-datasource")
-    .contains(commonLocators.deleteConfirmation)
+    .contains("Are you sure?")
     .click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
@@ -2611,7 +2610,7 @@ Cypress.Commands.add("deleteQueryUsingContext", () => {
   cy.get(queryEditor.queryMoreAction).click();
   cy.get(queryEditor.deleteUsingContext).click();
   cy.get(queryEditor.deleteUsingContext)
-    .contains(commentsLocators.deleteConfirmation)
+    .contains("Are you sure?")
     .click();
   cy.wait("@deleteAction").should(
     "have.nested.property",
