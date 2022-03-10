@@ -1,7 +1,7 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import Button, { Category } from "components/ads/Button";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
@@ -38,6 +38,12 @@ import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { debounce } from "lodash";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -179,6 +185,8 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const isDeletingDatasource = useSelector(getIsDeletingDatasource);
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
@@ -229,9 +237,15 @@ function DatasourceCard(props: DatasourceCardProps) {
     );
   };
 
+  const delayConfirmDeleteToFalse = debounce(
+    () => setConfirmDelete(false),
+    2200,
+  );
+
   const deleteAction = () => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasource.id }));
+    delayConfirmDeleteToFalse();
   };
 
   return (
@@ -308,8 +322,14 @@ function DatasourceCard(props: DatasourceCardProps) {
                   className="t--datasource-option-delete"
                   icon="delete"
                   isLoading={isDeletingDatasource}
-                  onSelect={deleteAction}
-                  text="Delete"
+                  onSelect={() => {
+                    confirmDelete ? deleteAction() : setConfirmDelete(true);
+                  }}
+                  text={
+                    confirmDelete
+                      ? createMessage(CONFIRM_CONTEXT_DELETE)
+                      : createMessage(CONTEXT_DELETE)
+                  }
                 />
               </MenuComponent>
             </MenuWrapper>

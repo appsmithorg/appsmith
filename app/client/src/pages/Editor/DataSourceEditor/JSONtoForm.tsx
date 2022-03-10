@@ -43,9 +43,14 @@ export const SaveButtonContainer = styled.div`
 
 export const ActionButton = styled(BaseButton)`
   &&& {
-    max-width: 72px;
+    width: auto;
+    min-width: 74px;
     margin-right: 9px;
     min-height: 32px;
+
+    & > span {
+      max-width: 100%;
+    }
   }
 `;
 

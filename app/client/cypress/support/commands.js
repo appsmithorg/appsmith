@@ -541,7 +541,7 @@ Cypress.Commands.add("DeleteApp", (appName) => {
     .should("be.visible")
     .click({ force: true });
   cy.get(homePage.deleteApp)
-    .contains("Are you sure?")
+    .contains(commonLocators.deleteConfirmation)
     .click({ force: true });
 });
 
@@ -550,6 +550,9 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
     .last()
     .click({ force: true });
   cy.get(pages.deletePage)
+    .first()
+    .click({ force: true });
+  cy.get(pages.deletePageConfirm)
     .first()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -1230,7 +1233,10 @@ Cypress.Commands.add("DeleteAPIFromSideBar", () => {
 });
 
 Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
-  cy.deleteEntity();
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@updateLayout").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1243,6 +1249,7 @@ Cypress.Commands.add("deleteEntity", () => {
     .last()
     .click({ force: true });
   cy.get(apiwidget.delete).click({ force: true });
+  cy.get(apiwidget.deleteConfirm).click({ force: true });
 });
 
 Cypress.Commands.add("DeleteAPI", (apiname) => {
@@ -1250,6 +1257,10 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.deleteAPI)
+    .first()
+    .click({ force: true });
+  cy.get(apiwidget.deleteAPI)
+    .contains(commonLocators.deleteConfirmation)
     .first()
     .click({ force: true });
   cy.wait("@deleteAction").should(
@@ -2185,6 +2196,9 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
         .click();
       // delete datasource
       cy.get(".t--delete-datasource").click();
+      cy.get(".t--delete-datasource")
+        .contains(commonLocators.deleteConfirmation)
+        .click();
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -2503,6 +2517,9 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
     .click({ force: true });
   cy.contains(".t--datasource-name", datasourceName).click();
   cy.get(".t--delete-datasource").click();
+  cy.get(".t--delete-datasource")
+    .contains(commonLocators.deleteConfirmation)
+    .click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -2554,6 +2571,7 @@ Cypress.Commands.add("hoverAndClickParticularIndex", (index) => {
 Cypress.Commands.add("deleteQuery", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
+  cy.get(apiwidget.deleteConfirm).click({ force: true });
   cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -2570,6 +2588,7 @@ Cypress.Commands.add("selectAction", (option) => {
 Cypress.Commands.add("deleteJSObject", () => {
   cy.hoverAndClick();
   cy.get(jsEditorLocators.delete).click({ force: true });
+  cy.get(jsEditorLocators.deleteConfirm).click({ force: true });
   cy.wait("@deleteJSCollection").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -2580,6 +2599,7 @@ Cypress.Commands.add("deleteJSObject", () => {
 Cypress.Commands.add("deleteDataSource", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
+  cy.get(apiwidget.deleteConfirm).click({ force: true });
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -2590,6 +2610,9 @@ Cypress.Commands.add("deleteDataSource", () => {
 Cypress.Commands.add("deleteQueryUsingContext", () => {
   cy.get(queryEditor.queryMoreAction).click();
   cy.get(queryEditor.deleteUsingContext).click();
+  cy.get(queryEditor.deleteUsingContext)
+    .contains(commentsLocators.deleteConfirmation)
+    .click();
   cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",

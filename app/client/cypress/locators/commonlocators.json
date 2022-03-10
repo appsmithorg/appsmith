@@ -160,5 +160,6 @@
   "filepickerv2": ".t--draggable-filepickerwidgetv2",
   "dashboardItemName": ".uppy-Dashboard-Item-name",
   "mapChartShowLabels": ".t--property-control-showlabels input",
-  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle"
+  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle",
+  "deleteConfirmation": "Are you sure?"
 }
