@@ -218,6 +218,7 @@ function Deploy() {
             fill
             height={`${Math.min(autogrowHeight, 80)}px`}
             onChange={setCommitMessage}
+            placeholder={"Your commit message here"}
             ref={commitInputRef}
             trimValue={false}
             useTextArea

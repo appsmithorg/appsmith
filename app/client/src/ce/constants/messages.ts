@@ -610,7 +610,9 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
-export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste your URL here";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
+  "git://example.com:user/repo.git";
+export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
