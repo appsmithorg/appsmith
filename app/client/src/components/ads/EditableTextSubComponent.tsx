@@ -287,7 +287,7 @@ export function EditableTextSubComponent(props: EditableTextSubComponentProps) {
           </IconWrapper>
         ) : value && !props.hideEditIcon ? (
           <IconWrapper className="icon-wrapper">
-            <Icon name={iconName} size={IconSize.XL} />
+            <Icon fillColor="#939090" name={iconName} size={IconSize.XL} />
           </IconWrapper>
         ) : null}
       </TextContainer>

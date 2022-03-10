@@ -90,7 +90,6 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
             editInteractionKind={NewEditInteractionKind.SINGLE}
             fill
             forceDefault={forceUpdate}
-            hideEditIcon
             isEditingDefault={isNew}
             isInvalid={isInvalidNameForEntity}
             onBlur={handleNameChange}
