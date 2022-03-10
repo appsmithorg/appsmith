@@ -20,9 +20,11 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
   disabledWhenInvalid?: boolean;
   fixedFooter: boolean;
+  getFormData: () => TValues;
   hideFooter: boolean;
   isSubmitting: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  registerResetObserver: (callback: () => void) => void;
   resetButtonStyles: ButtonStyleProps;
   schema?: Schema;
   scrollContents: boolean;
@@ -30,6 +32,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   stretchBodyVertically: boolean;
   submitButtonStyles: ButtonStyleProps;
   title: string;
+  unregisterResetObserver: () => void;
   updateFormData: (values: TValues) => void;
 }>;
 
@@ -113,9 +116,11 @@ function Form<TValues = any>({
   children,
   disabledWhenInvalid,
   fixedFooter,
+  getFormData,
   hideFooter,
   isSubmitting,
   onSubmit,
+  registerResetObserver,
   resetButtonStyles,
   schema,
   scrollContents,
@@ -123,6 +128,7 @@ function Form<TValues = any>({
   stretchBodyVertically,
   submitButtonStyles,
   title,
+  unregisterResetObserver,
   updateFormData,
 }: FormProps<TValues>) {
   const valuesRef = useRef({});
@@ -139,33 +145,9 @@ function Form<TValues = any>({
     fixedFooter,
   });
 
-  useEffect(() => {
-    const debouncedUpdateFormData = debounce(updateFormData, 300);
+  const onReset = (event?: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    event?.preventDefault?.();
 
-    if (schema && schema[ROOT_SCHEMA_KEY]) {
-      const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
-
-      debouncedUpdateFormData(defaultValues as TValues);
-    }
-
-    const subscription = watch((values) => {
-      if (!equal(valuesRef.current, values)) {
-        const clonedValue = cloneDeep(values);
-        valuesRef.current = clonedValue;
-        debouncedUpdateFormData(clonedValue as TValues);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!scrollContents && bodyRef.current) {
-      bodyRef.current.scrollTo({ top: 0 });
-    }
-  }, [scrollContents]);
-
-  const onReset = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    event.preventDefault();
     const defaultValues = schema
       ? schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY])
       : {};
@@ -174,6 +156,57 @@ function Form<TValues = any>({
       reset(defaultValues);
     }
   };
+
+  useEffect(() => {
+    const debouncedUpdateFormData = debounce(updateFormData, 300);
+    let isMounting = true;
+
+    const formData = getFormData();
+
+    /**
+     * Hydration logic -
+     * If on mounting if it is mounted for the very first time then the formData
+     * would be empty and the formData has to be hydrated with the default value.
+     *
+     * When the widget is dragged, the Form component is remounted but we want
+     * to preserve the values entered in the form before it was dragged and repositioned.
+     * In this case the formData (meta) is used to hydrate the form.
+     */
+    if (isEmpty(formData) && schema && schema[ROOT_SCHEMA_KEY]) {
+      const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
+      debouncedUpdateFormData(defaultValues as TValues);
+    } else {
+      // TODO: When the accessor changes, this formData needs to be converted to have
+      // identifier as keys
+      reset(formData);
+    }
+
+    const subscription = watch((values) => {
+      if (isMounting) {
+        isMounting = false;
+        return;
+      }
+
+      if (!equal(valuesRef.current, values)) {
+        const clonedValue = cloneDeep(values);
+        valuesRef.current = clonedValue;
+        debouncedUpdateFormData(clonedValue as TValues);
+      }
+    });
+
+    registerResetObserver(onReset);
+
+    return () => {
+      subscription.unsubscribe();
+      unregisterResetObserver();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!scrollContents && bodyRef.current) {
+      bodyRef.current.scrollTo({ top: 0 });
+    }
+  }, [scrollContents]);
 
   return (
     <FormProvider {...methods}>

@@ -60,7 +60,6 @@ function CheckboxField({
     fieldState: { isDirty },
   } = useController({
     name,
-    shouldUnregister: true,
   });
 
   const { inputRef } = useEvents<HTMLInputElement>({

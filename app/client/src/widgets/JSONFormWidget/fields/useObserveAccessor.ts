@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 
 import FormContext from "../FormContext";
@@ -13,13 +13,17 @@ type UseUpdateAccessorProps = {
  */
 
 function useUpdateAccessor({ accessor }: UseUpdateAccessorProps) {
+  const accessorRef = useRef(accessor);
   const { getValues } = useFormContext();
   const { updateFormData } = useContext(FormContext);
 
   useEffect(() => {
-    const values = getValues();
+    if (accessorRef.current !== accessor) {
+      accessorRef.current = accessor;
+      const values = getValues();
 
-    updateFormData(values);
+      updateFormData(values);
+    }
   }, [accessor]);
 }
 

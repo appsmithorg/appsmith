@@ -100,7 +100,6 @@ function MultiSelectField({
     fieldState: { isDirty },
   } = useController({
     name,
-    shouldUnregister: true,
   });
 
   const { onBlurHandler, onFocusHandler } = useEvents<HTMLInputElement>({

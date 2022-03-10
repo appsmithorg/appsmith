@@ -37,10 +37,13 @@ export type JSONFormComponentProps<TValues = any> = {
   fixedFooter: boolean;
   isSubmitting: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  registerResetObserver: (callback: () => void) => void;
   renderMode: RenderMode;
   resetButtonStyles: ButtonStyleProps;
   schema: Schema;
+  getFormData: () => TValues;
   scrollContents: boolean;
+  unregisterResetObserver: () => void;
   setMetaInternalFieldState: (
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
   ) => void;
@@ -87,10 +90,13 @@ function JSONFormComponent<TValues>({
   backgroundColor,
   executeAction,
   fieldLimitExceeded,
+  getFormData,
   isSubmitting,
+  registerResetObserver,
   renderMode,
   schema,
   setMetaInternalFieldState,
+  unregisterResetObserver,
   updateFormData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
@@ -160,9 +166,11 @@ function JSONFormComponent<TValues>({
           backgroundColor={backgroundColor}
           disabledWhenInvalid={rest.disabledWhenInvalid}
           fixedFooter={rest.fixedFooter}
+          getFormData={getFormData}
           hideFooter={hideFooter}
           isSubmitting={isSubmitting}
           onSubmit={rest.onSubmit}
+          registerResetObserver={registerResetObserver}
           resetButtonStyles={rest.resetButtonStyles}
           schema={schema}
           scrollContents={rest.scrollContents}
@@ -170,6 +178,7 @@ function JSONFormComponent<TValues>({
           stretchBodyVertically={isSchemaEmpty}
           submitButtonStyles={rest.submitButtonStyles}
           title={rest.title}
+          unregisterResetObserver={unregisterResetObserver}
           updateFormData={updateFormData}
         >
           {renderComponent}

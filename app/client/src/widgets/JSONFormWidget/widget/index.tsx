@@ -1,7 +1,7 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { connect } from "react-redux";
-import { debounce, difference } from "lodash";
+import { debounce, difference, isEmpty, noop } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
@@ -52,6 +52,7 @@ export type MetaInternalFieldState = FieldState<{
 }>;
 
 export type JSONFormWidgetState = {
+  resetObserverCallback: () => void;
   isSubmitting: boolean;
   metaInternalFieldState: MetaInternalFieldState;
 };
@@ -72,6 +73,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   state = {
+    resetObserverCallback: noop,
     isSubmitting: false,
     metaInternalFieldState: {},
   };
@@ -102,6 +104,10 @@ class JSONFormWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
+    if (isEmpty(this.props.formData) && isEmpty(this.props.fieldState)) {
+      this.state.resetObserverCallback();
+    }
+
     this.constructAndSaveSchemaIfRequired(prevProps);
     this.debouncedParseAndSaveFieldState();
   }
@@ -222,6 +228,16 @@ class JSONFormWidget extends BaseWidget<
     this.setState(cb);
   };
 
+  registerResetObserver = (callback: () => void) => {
+    this.setState({ resetObserverCallback: callback });
+  };
+
+  unregisterResetObserver = () => {
+    this.setState({ resetObserverCallback: noop });
+  };
+
+  getFormData = () => this.props.formData;
+
   getPageView() {
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
@@ -238,8 +254,10 @@ class JSONFormWidget extends BaseWidget<
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.props.fieldLimitExceeded}
         fixedFooter={this.props.fixedFooter}
+        getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
         onSubmit={this.onSubmit}
+        registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonStyles={this.props.resetButtonStyles}
         schema={this.props.schema}
@@ -248,6 +266,7 @@ class JSONFormWidget extends BaseWidget<
         showReset={this.props.showReset}
         submitButtonStyles={this.props.submitButtonStyles}
         title={this.props.title}
+        unregisterResetObserver={this.unregisterResetObserver}
         updateFormData={this.updateFormData}
         updateWidgetMetaProperty={this.onUpdateWidgetMetaProperty}
         updateWidgetProperty={this.onUpdateWidgetProperty}

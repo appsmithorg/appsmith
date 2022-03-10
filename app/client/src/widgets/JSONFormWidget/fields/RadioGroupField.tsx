@@ -45,7 +45,6 @@ function RadioGroupField({
     field: { onChange, value },
   } = useController({
     name,
-    shouldUnregister: true,
   });
 
   const isValueValid = isValid(schemaItem, value);

@@ -90,7 +90,6 @@ function SelectField({
     fieldState: { isDirty },
   } = useController({
     name,
-    shouldUnregister: true,
   });
 
   const isValueValid = isValid(schemaItem, value);

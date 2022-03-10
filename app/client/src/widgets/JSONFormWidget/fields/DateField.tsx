@@ -105,7 +105,6 @@ function DateField({
     field: { onBlur, onChange, value },
   } = useController({
     name,
-    shouldUnregister: true,
   });
 
   const { inputRef } = useEvents<HTMLInputElement>({
