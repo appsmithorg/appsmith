@@ -19,6 +19,7 @@ import {
   limitDecimalValue,
 } from "widgets/CurrencyInputWidget/component/utilities";
 import derived from "widgets/CurrencyInputWidget/widget/derived";
+import { isEmpty } from "../helper";
 
 type CurrencyInputComponentProps = BaseInputComponentProps & {
   currencyCountryCode: string;
@@ -47,26 +48,24 @@ const COMPONENT_DEFAULT_VALUES: CurrencyInputComponentProps = {
   label: "",
 };
 
-const isValid = (
+export const isValid = (
   schemaItem: CurrencyInputFieldProps["schemaItem"],
-  inputValue: string,
+  inputValue?: string | null,
 ) => {
   let hasValidValue, value;
   try {
     value = Number(inputValue);
-    hasValidValue = Number.isFinite(value);
+    hasValidValue = !isEmpty(inputValue) && Number.isFinite(value);
   } catch (e) {
     return false;
   }
 
-  if (
-    !schemaItem.isRequired &&
-    (inputValue === "" || inputValue === undefined)
-  ) {
-    return true;
-  }
   if (schemaItem.isRequired && !hasValidValue) {
     return false;
+  }
+
+  if (isEmpty(inputValue)) {
+    return true;
   }
 
   if (typeof schemaItem.validation === "boolean" && !schemaItem.validation) {

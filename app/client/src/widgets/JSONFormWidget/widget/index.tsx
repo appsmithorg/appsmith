@@ -32,7 +32,8 @@ export interface JSONFormWidgetProps extends WidgetProps {
   boxShadowColor?: string;
   canvasWidgets: Record<string, WidgetProps>;
   disabledWhenInvalid?: boolean;
-  fieldState: Record<string, any>;
+  fieldState: Record<string, unknown>;
+  formData: Record<string, unknown>;
   fixedFooter: boolean;
   isVisible: boolean;
   onSubmit?: string;
@@ -40,7 +41,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   schema: Schema;
   scrollContents: boolean;
   showReset: boolean;
-  sourceData?: Record<string, any>;
+  sourceData?: Record<string, unknown>;
   submitButtonStyles: ButtonStyleProps;
   title: string;
 }
@@ -223,6 +224,9 @@ class JSONFormWidget extends BaseWidget<
 
   getPageView() {
     return (
+      // Warning!!! Do not ever introduce formData as a prop directly,
+      // it would lead to severe performance degradation due to frequent
+      // re-rendering.
       <JSONFormComponent
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}

@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
@@ -62,7 +63,7 @@ type BaseInputFieldProps<
     newValue: string,
     oldValue: string,
   ) => { text: string; value?: number | string | null | undefined };
-  isValid: (schemaItem: TSchemaItem, value: string) => boolean;
+  isValid: (schemaItem: TSchemaItem, value?: string | null) => boolean;
 };
 
 type IsValidOptions = {
@@ -134,6 +135,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   schemaItem,
   transformValue,
 }: BaseInputFieldProps<TSchemaItem>) {
+  const isNilSetByField = useRef(false);
   const { executeAction } = useContext(FormContext);
   const inputDefaultValue = schemaItem.defaultValue || passedDefaultValue;
 
@@ -145,7 +147,6 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     fieldState: { isDirty },
   } = useController({
     name,
-    shouldUnregister: true,
   });
 
   const {
@@ -153,20 +154,65 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     onFocus: onFocusDynamicString,
   } = schemaItem;
 
-  const isValueValid = isValid(schemaItem, value);
-
-  useRegisterFieldValidity({
-    fieldName: name,
-    fieldType: schemaItem.fieldType,
-    isValid: isValueValid,
-  });
-
   useEffect(() => {
     const stringifiedValue = isNil(inputDefaultValue)
       ? inputDefaultValue
       : `${inputDefaultValue}`;
     setTextValue(stringifiedValue);
   }, [inputDefaultValue]);
+
+  /**
+   * Objective - Use value from useController as source of truth for the
+   * value of the component.
+   *
+   * Reason - If an when the value changes from outside the field like during
+   * reset or default value change, the component would react accordingly.
+   *
+   * Problem - The base input components always expects a string value and this
+   * is ok for all types expect the number type which has an edge case.
+   * If the number typed out is "1.0" and we run Number("1.0") on it, it returns 1
+   * and this is what we save in the "value" of useController but in the field component
+   * we need to "1.0" as that is what it was typed out.
+   *
+   * Solution - We have a state called textValue which always stores the textual form of
+   * the base input component value. As the main problem are number types we check if
+   * the textValue and the actual value are same then the textValue can be used and
+   * if for some reason the value is null (due to invalid number) then we check if the
+   * null/undefined if set buy the onChange method or the null/undefined came from
+   * resetting the field.
+   */
+  const text = useMemo(() => {
+    if (isNil(value)) {
+      if (isNilSetByField.current) {
+        isNilSetByField.current = false;
+        return textValue;
+      }
+
+      return value;
+    }
+
+    if (!isNil(value)) {
+      if (typeof value === "number") {
+        if (Number(textValue) === value) {
+          return textValue;
+        } else {
+          return `${value}`;
+        }
+      }
+
+      return `${value}`;
+    }
+
+    return value;
+  }, [value, textValue]);
+
+  const isValueValid = isValid(schemaItem, text);
+
+  useRegisterFieldValidity({
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
+    isValid: isValueValid,
+  });
 
   const { inputRef } = useEvents<HTMLInputElement | HTMLTextAreaElement>({
     fieldBlurHandler: onBlur,
@@ -214,6 +260,10 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       // value - what we store in the formData
       const { text, value } = transformValue(inputValue, textValue || "");
 
+      if (isNil(value)) {
+        isNilSetByField.current = true;
+      }
+
       fieldOnChangeHandler(value);
       setTextValue(text);
 
@@ -248,16 +298,17 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       }
     }
 
-    if (
-      inputType === "TEXT" &&
-      maxChars &&
-      inputDefaultValue &&
-      typeof inputDefaultValue === "string" &&
-      inputDefaultValue?.toString()?.length > maxChars
-    ) {
-      props.isInvalid = true;
-      props.errorMessage = createMessage(INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR);
+    if (inputType === "TEXT" && maxChars) {
       props.maxChars = maxChars;
+
+      if (
+        inputDefaultValue &&
+        typeof inputDefaultValue === "string" &&
+        inputDefaultValue?.toString()?.length > maxChars
+      ) {
+        props.isInvalid = true;
+        props.errorMessage = createMessage(INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR);
+      }
     }
 
     return props;
@@ -288,7 +339,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         showError={isFocused}
         spellCheck={schemaItem.isSpellCheck}
         stepSize={1}
-        value={textValue || ""}
+        value={text || ""}
         widgetId=""
       />
     );

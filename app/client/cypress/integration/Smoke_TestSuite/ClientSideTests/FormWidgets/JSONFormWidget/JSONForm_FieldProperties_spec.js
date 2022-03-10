@@ -44,7 +44,7 @@ describe("Text Field Property Control", () => {
   });
 
   it("sets valid property with custom error message", () => {
-    cy.testJsontext("valid", "{{formData.name.length > 5}}");
+    cy.testJsontext("valid", "false");
     cy.get(`${fieldPrefix}-name input`)
       .clear()
       .type("abcd");

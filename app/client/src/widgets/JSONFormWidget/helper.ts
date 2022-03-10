@@ -186,3 +186,7 @@ export const countFields = (
 
   return count;
 };
+
+export const isEmpty = (value?: string | null): value is null | undefined => {
+  return value === "" || isNil(value);
+};

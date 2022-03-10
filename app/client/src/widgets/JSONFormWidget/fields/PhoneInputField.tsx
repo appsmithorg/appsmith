@@ -13,6 +13,7 @@ import ISDCodeDropdown, {
   getSelectedISDCode,
   ISDCodeDropdownOptions,
 } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
+import { isEmpty } from "../helper";
 
 type PhoneInputComponentProps = BaseInputComponentProps & {
   allowDialCodeChange: boolean;
@@ -40,17 +41,18 @@ const COMPONENT_DEFAULT_VALUES: PhoneInputComponentProps = {
   label: "",
 };
 
-const isValid = (
+export const isValid = (
   schemaItem: PhoneInputFieldProps["schemaItem"],
-  value: string,
+  inputValue?: string | null,
 ) => {
-  const hasValidValue = Boolean(value);
+  const isEmptyValue = !isEmpty(inputValue);
 
-  if (!schemaItem.isRequired && (value === "" || value === undefined)) {
-    return true;
-  }
-  if (schemaItem.isRequired && !hasValidValue) {
+  if (schemaItem.isRequired && isEmptyValue) {
     return false;
+  }
+
+  if (isEmpty(inputValue)) {
+    return true;
   }
 
   if (typeof schemaItem.validation === "boolean" && !schemaItem.validation) {
@@ -59,7 +61,7 @@ const isValid = (
 
   const parsedRegex = parseRegex(schemaItem.regex);
 
-  return parsedRegex ? parsedRegex.test(value) : hasValidValue;
+  return parsedRegex ? parsedRegex.test(inputValue) : isEmptyValue;
 };
 
 const transformValue = (value: string) => {

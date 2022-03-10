@@ -7,6 +7,7 @@ import BaseInputField, {
 } from "./BaseInputField";
 import { BaseFieldComponentProps, FieldType } from "../constants";
 import { isNil } from "lodash";
+import { isEmpty } from "../helper";
 
 type InputComponentProps = BaseInputComponentProps & {
   iconName?: string;
@@ -41,33 +42,32 @@ const getInputHTMLType = (fieldType: FieldType) => {
   }
 };
 
-const isValid = (
+export const isValid = (
   schemaItem: InputFieldProps["schemaItem"],
-  inputValue: string,
+  inputValue?: string | null,
 ) => {
-  let hasValidValue, value, isEmpty;
+  let hasValidValue, value;
   switch (schemaItem.fieldType) {
     case FieldType.NUMBER_INPUT:
       try {
-        isEmpty = isNil(inputValue);
         value = Number(inputValue);
-        hasValidValue = Number.isFinite(value);
+        hasValidValue = !isEmpty(inputValue) && Number.isFinite(value);
         break;
       } catch (e) {
         return false;
       }
     default:
       value = inputValue;
-      isEmpty = !value;
-      hasValidValue = !!value;
+      hasValidValue = !isEmpty(inputValue);
       break;
   }
 
-  if (!schemaItem.isRequired && isEmpty) {
-    return true;
-  }
   if (schemaItem.isRequired && !hasValidValue) {
     return false;
+  }
+
+  if (isEmpty(inputValue)) {
+    return true;
   }
 
   if (typeof schemaItem.validation === "boolean" && !schemaItem.validation) {
@@ -88,6 +88,8 @@ const isValid = (
         return true;
       }
     case FieldType.NUMBER_INPUT:
+      if (typeof value !== "number") return false;
+
       if (
         !isNil(schemaItem.maxNum) &&
         Number.isFinite(schemaItem.maxNum) &&

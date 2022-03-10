@@ -1,7 +1,17 @@
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
-import { ControllerRenderProps, useFormContext } from "react-hook-form";
-import { cloneDeep, get, set } from "lodash";
+import {
+  ControllerRenderProps,
+  useController,
+  useFormContext,
+} from "react-hook-form";
+import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
 
 import Accordion from "../component/Accordion";
@@ -23,6 +33,8 @@ import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
+
+const clone = require("rfdc/default");
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
@@ -111,11 +123,18 @@ function ArrayField({
   schemaItem,
 }: ArrayFieldProps) {
   const { getValues, setValue } = useFormContext();
-  const [keys, setKeys] = useState<string[]>([]);
+  const keysRef = useRef<string[]>([]);
+  const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
   const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
     defaultValue,
   );
+
+  const {
+    field: { value },
+  } = useController({ name, defaultValue: [] });
+
+  const valueLength = value.length;
 
   useUpdateAccessor({ accessor: schemaItem.accessor });
 
@@ -124,13 +143,21 @@ function ArrayField({
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
   const add = () => {
-    setKeys((prevKeys) => [...prevKeys, generateReactKey()]);
+    let values = clone(getValues(name));
+    if (values && values.length) {
+      values.push({});
+    } else {
+      values = [{}];
+    }
+    setValue(name, values);
   };
 
   const remove = useCallback(
     (removedKey: string) => {
-      const removedIndex = keys.findIndex((key) => key === removedKey);
-      const values = cloneDeep(getValues(name));
+      const removedIndex = keysRef.current.findIndex(
+        (key) => key === removedKey,
+      );
+      const values = clone(getValues(name));
 
       if (values === undefined) {
         return;
@@ -143,7 +170,7 @@ function ArrayField({
       // cachedDefaultValue[index] in the FieldRenderer
       if (removedIndex < cachedDefaultValue.length) {
         setCachedDefaultValue((prevDefaultValue) => {
-          const clonedValue = cloneDeep(prevDefaultValue);
+          const clonedValue = clone(prevDefaultValue);
 
           clonedValue.splice(removedIndex, 1);
 
@@ -153,14 +180,11 @@ function ArrayField({
 
       // Manually remove from the values and re-insert to maintain the position of the
       // values
-      const newValues = values.filter(
-        (_val: any, index: number) => index !== removedIndex,
+      const newValues = clone(
+        values.filter((_val: any, index: number) => index !== removedIndex),
       );
 
-      setKeys((prevKeys) => {
-        const newKeys = prevKeys.filter((prevKey) => prevKey !== removedKey);
-        return newKeys;
-      });
+      removedKeys.current = [removedKey];
 
       // setTimeout with 0 is used to let the fields get removed,
       // react-hook-form updating value take place and then we update with appropriate
@@ -169,33 +193,41 @@ function ArrayField({
         setValue(name, newValues);
       }, 0);
     },
-    [keys, setKeys, setValue, getValues],
+    [keysRef, setValue, getValues],
   );
 
-  // When the default value changes, the ArrayField
-  // need to generate the correct number of items
-  // So we check if the there are more number of items (keys) than
-  // the default value, then we remove extra else we add if more is required
-  useDeepEffect(() => {
-    if (defaultValue.length > keys.length) {
-      const diff = defaultValue.length - keys.length;
+  const itemKeys = useMemo(() => {
+    if (keysRef.current.length > valueLength) {
+      if (removedKeys.current.length > 0) {
+        const removedKey = removedKeys.current[0];
+        const prevKeys: string[] = [...keysRef.current];
+        const newKeys = prevKeys.filter((prevKey) => prevKey !== removedKey);
+
+        keysRef.current = newKeys;
+        removedKeys.current = [];
+      } else {
+        const diff = keysRef.current.length - valueLength;
+        const newKeys = [...keysRef.current];
+        newKeys.splice(-1 * diff);
+
+        keysRef.current = newKeys;
+      }
+    } else if (keysRef.current.length < valueLength) {
+      const diff = valueLength - keysRef.current.length;
 
       const newKeys = Array(diff)
         .fill(0)
         .map(generateReactKey);
 
-      setKeys((prevKeys) => [...prevKeys, ...newKeys]);
-    } else if (defaultValue.length < keys.length) {
-      const diff = keys.length - defaultValue.length;
-
-      setKeys((prevKeys) => {
-        const clonedPrevKeys = [...prevKeys];
-        clonedPrevKeys.splice(-1 * diff);
-
-        return clonedPrevKeys;
-      });
+      keysRef.current = [...keysRef.current, ...newKeys];
     }
-    setCachedDefaultValue(defaultValue);
+
+    return keysRef.current;
+  }, [valueLength]);
+
+  useDeepEffect(() => {
+    setValue(name, clone(defaultValue));
+    setCachedDefaultValue(clone(defaultValue));
   }, [defaultValue]);
 
   /**
@@ -206,9 +238,7 @@ function ArrayField({
    */
   useDeepEffect(() => {
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = cloneDeep(
-        prevState.metaInternalFieldState,
-      );
+      const metaInternalFieldState = clone(prevState.metaInternalFieldState);
       const currMetaInternalFieldState: FieldState<{ isValid: true }> = get(
         metaInternalFieldState,
         name,
@@ -216,10 +246,10 @@ function ArrayField({
       );
 
       if (Array.isArray(currMetaInternalFieldState)) {
-        if (currMetaInternalFieldState.length > keys.length) {
+        if (currMetaInternalFieldState.length > itemKeys.length) {
           const updatedMetaInternalFieldState = currMetaInternalFieldState.slice(
             0,
-            keys.length,
+            itemKeys.length,
           );
 
           set(metaInternalFieldState, name, updatedMetaInternalFieldState);
@@ -231,12 +261,12 @@ function ArrayField({
         metaInternalFieldState,
       };
     });
-  }, [keys, name]);
+  }, [itemKeys, name]);
 
   const fields = useMemo(() => {
     const arrayItemSchema = schemaItem.children[ARRAY_ITEM_KEY];
 
-    return keys.map((key, index) => {
+    return itemKeys.map((key, index) => {
       const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
       const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.identifier}`;
 
@@ -274,7 +304,7 @@ function ArrayField({
     basePropertyPath,
     name,
     remove,
-    keys,
+    itemKeys,
     fieldClassName,
     cachedDefaultValue,
   ]);
