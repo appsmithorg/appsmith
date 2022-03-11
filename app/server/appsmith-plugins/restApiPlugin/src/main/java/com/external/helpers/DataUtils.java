@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
 import net.minidev.json.JSONArray;
@@ -157,34 +158,43 @@ public class DataUtils {
 
                         final MultipartFormDataType multipartFormDataType =
                                 MultipartFormDataType.valueOf(property.getType().toUpperCase(Locale.ROOT));
-                        if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
-                            bodyBuilder.part(key, property.getValue());
-                        } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
-                            try {
-                                populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
-                            } catch (JsonProcessingException e) {
-                                e.printStackTrace();
-                                throw new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                        "Unable to parse content. Expected to receive an array or object of multipart data"
-                                );
-                            }
-                        } else if (MultipartFormDataType.ARRAY.equals(multipartFormDataType)) {
-                            if (property.getValue() instanceof Collection<?>) {
-                                System.out.println(property);
-                                Collection<?> list = (Collection<?>) property.getValue();
-                                for (Object item : list) {
-                                    bodyBuilder.part(key, item);
-                                }
-                            } else if (property.getValue() instanceof String[]) {
-                                // if it's not an array just treat it as a single object
-                                String[] list = (String[]) property.getValue();
-                                for (String s : list) {
-                                    bodyBuilder.part(key, s);
-                                }
-                            } else {
+
+                        switch (multipartFormDataType) {
+                            case TEXT:
                                 bodyBuilder.part(key, property.getValue());
-                            }
+                                break;
+                            case FILE:
+                                try {
+                                    populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
+                                } catch (JsonProcessingException e) {
+                                    e.printStackTrace();
+                                    throw new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                            "Unable to parse content. Expected to receive an array or object of multipart data"
+                                    );
+                                }
+                                break;
+                            case ARRAY:
+                                System.out.println(property);
+                                if (property.getValue() instanceof String) {
+                                    final String value = (String) property.getValue();
+                                    try {
+                                        final JsonNode jsonNode = objectMapper.readTree(value);
+                                        if (jsonNode.isArray()) {
+                                            for (JsonNode node : jsonNode) {
+                                                if (node.isTextual()) bodyBuilder.part(key, node.asText());
+                                                else bodyBuilder.part(key, node);
+                                            }
+                                        } else {
+                                            bodyBuilder.part(key, value);
+                                        }
+                                    } catch (JsonProcessingException e) {
+                                        bodyBuilder.part(key, value);
+                                    }
+                                } else {
+                                    bodyBuilder.part(key, property.getValue());
+                                }
+                                break;
                         }
                     }
 
