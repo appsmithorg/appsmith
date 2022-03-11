@@ -170,7 +170,11 @@ const Wrapper = styled(
       backgroundColor: string;
       isMobile?: boolean;
     },
-  ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
+  ) => (
+    <Card
+      {...omit(props, ["hasReadPermission", "backgroundColor", "isMobile"])}
+    />
+  ),
 )`
   display: flex;
   flex-direction: row-reverse;
