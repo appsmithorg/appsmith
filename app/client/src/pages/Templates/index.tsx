@@ -47,7 +47,7 @@ export const TemplateListWrapper = styled.div`
 `;
 
 export const ResultsCount = styled.div`
-  ${(props) => getTypographyByKey(props, "h2")}
+  ${(props) => getTypographyByKey(props, "h1")}
   color: ${Colors.CODE_GRAY};
   margin-top: ${(props) => props.theme.spaces[5]}px;
   margin-left: ${(props) => props.theme.spaces[12]}px;

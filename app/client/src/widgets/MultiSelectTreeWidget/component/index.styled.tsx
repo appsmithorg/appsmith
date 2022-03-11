@@ -9,6 +9,7 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
+import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -77,15 +78,12 @@ const rcSelectDropdownSlideUpOut = keyframes`
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .multiselecttree-popover-width-${id} {
-    min-width: ${
-      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
-    }px !important;
+    min-width: ${dropDownWidth}px !important;
   }
 `}
 .rc-tree-select-dropdown-hidden {
@@ -265,43 +263,24 @@ border: 1px solid #E8E8E8;
   min-height: 100px;
   position: absolute;
   background: #fff;
-  width: 100%;
+  width: auto;
   border-radius: 0px;
   margin-top: 5px;
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-    &&&& .${Classes.ALIGN_LEFT} {
-        font-size: 16px;
-        padding-bottom: 10px;
-        margin-left: 16px ;
-      .${Classes.CONTROL_INDICATOR} {
-        margin-right: 20px;
-      }
+  > div {
+      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
     }
-      &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-      background: white;
-      box-shadow: none;
-      border-width: 2px;
-      border-style: solid;
-      border-color: ${Colors.GEYSER};
-      &::before {
-        width: auto;
-        height: 1em;
-      }
-    }
-    .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: rgb(3, 179, 101) !important;
-						color: rgb(255, 255, 255);
-						border-color: rgb(3, 179, 101) !important;
-						box-shadow: none;
-						outline: none !important;
-    }
+    ${CommonSelectFilterStyle}
     .rc-tree-select-item {
 	font-size: 16px;
 	line-height: 1.5;
 	padding: 5px 16px;
 	align-items: center;
 	cursor: pointer;
+}
+.rc-tree-select-tree-list-holder-inner {
+  overflow: hidden;
 }
 .rc-tree-select-item-option-state {
 	.bp3-control.bp3-checkbox {
@@ -378,7 +357,11 @@ border: 1px solid #E8E8E8;
 	text-decoration: none;
 	vertical-align: top;
 	cursor: pointer;
-  flex: 1
+  overflow-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 0;
 }
 
 .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
@@ -576,6 +559,8 @@ border: 1px solid #E8E8E8;
   margin-left: 10px;
   font-size: 14px !important;
   color: ${Colors.GREY_8};
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rc-tree-select-tree-indent {
 	display: inline-block;
@@ -758,7 +743,6 @@ export const TreeSelectContainer = styled.div<{
       }
       .rc-tree-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }
@@ -864,6 +848,17 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
+  && .rc-tree-select-show-arrow.rc-tree-select-focused {
+    .rc-tree-select-selector {
+      outline: 0px;
+      ${(props) =>
+        props.isValid
+          ? `
+          border: 1.2px solid ${Colors.GREEN_SOLID} ;
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+    }
+  }
   .rc-tree-select-show-arrow {
     .rc-tree-select-clear {
       top: 0;
@@ -906,21 +901,23 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
-  .rc-tree-select-show-arrow.rc-tree-select-focused {
-    .rc-tree-select-selector {
-      outline: 0px;
-      ${(props) =>
-        props.isValid
-          ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID} !important;
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
-    }
-  }
+  
 `;
+
 export const StyledCheckbox = styled(Checkbox)`
-  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
-    margin: 0;
+  &&&.${Classes.CHECKBOX}.${Classes.CONTROL} {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 38px;
+    padding-bottom: 0;
+    color: ${Colors.GREY_8};
+    display: flex;
+    align-items: center;
+    &:hover {
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_9};
+    }
   }
 `;
 

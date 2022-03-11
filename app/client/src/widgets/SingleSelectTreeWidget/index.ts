@@ -7,7 +7,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 7,
+    rows: 4,
     columns: 20,
     animateLoading: true,
     options: [
@@ -37,7 +37,7 @@ export const CONFIG = {
     allowClear: false,
     expandAll: false,
     placeholderText: "Select option",
-    labelText: "Label",
+    labelText: "",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

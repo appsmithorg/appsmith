@@ -3,7 +3,13 @@ import Fuse from "fuse.js";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getOrganizationCreateApplication } from "./applicationSelectors";
+import { getWidgetCards } from "./editorSelectors";
 import { getDefaultPlugins } from "./entitiesSelector";
+import {
+  functions as allIndustries,
+  useCases as allUseCases,
+} from "pages/Templates/constants";
+import { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "functions", "useCases"],
@@ -95,6 +101,63 @@ export const templatesDatasourceFiltersSelector = createSelector(
         value: plugin.packageName,
       };
     });
+  },
+);
+
+// Get all filters which is associated with atleast one template
+// If no template is associated with a filter, then the filter shouldn't be in the filter list
+export const getFilterListSelector = createSelector(
+  getWidgetCards,
+  templatesDatasourceFiltersSelector,
+  getTemplatesSelector,
+  (widgetConfigs, allDatasources, templates) => {
+    const filters: Record<string, Filter[]> = {
+      datasources: [],
+      useCases: [],
+      functions: [],
+      widgets: [],
+    };
+
+    const allWidgets = widgetConfigs.map((widget) => {
+      return {
+        label: widget.displayName,
+        value: widget.type,
+      };
+    });
+
+    const filterFilters = (
+      key: "datasources" | "widgets" | "useCases" | "functions",
+      dataReference: Filter[],
+      template: Template,
+    ) => {
+      template[key].map((templateValue) => {
+        if (
+          !filters[key].some((filter) => {
+            if (filter.value) {
+              return filter.value === templateValue;
+            }
+            return filter.label === templateValue;
+          })
+        ) {
+          const filteredData = dataReference.find((datum) => {
+            if (datum.value) {
+              return datum.value === templateValue;
+            }
+            return datum.label === templateValue;
+          });
+          filteredData && filters[key].push(filteredData);
+        }
+      });
+    };
+
+    templates.map((template) => {
+      filterFilters("datasources", allDatasources, template);
+      filterFilters("widgets", allWidgets, template);
+      filterFilters("useCases", allUseCases, template);
+      filterFilters("functions", allIndustries, template);
+    });
+
+    return filters;
   },
 );
 
