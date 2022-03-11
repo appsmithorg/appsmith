@@ -10,9 +10,9 @@ import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/ac
 import { WhereClauseSubComponent } from "./utils";
 import Tooltip from "components/ads/Tooltip";
 
-const DropdownWidth = 95; //in pixel
+const DropdownWidth = 100; //in pixel
 const Margin = 8; //in pixel
-const IconWidth = 12; //in pixel
+const IconWidth = 14; //in pixel
 
 // Type of the value for each condition
 export type whereClauseValueType = {
@@ -148,10 +148,19 @@ function ConditionComponent(props: any, index: number) {
     WhereClauseSubComponent.Condition,
   );
 
+  const fullFlexWidth = `${props.maxWidth}vw - ${props.widths.dropdownWidth}px - ${props.widths.margins}px -  ${props.widths.iconWidth}px`;
+
   const flexWidth = `${props.maxWidth / 2}vw - ${props.widths.dropdownWidth /
     2}px - ${props.widths.margins / 2}px -  ${props.widths.iconWidth / 2}px`;
   /* eslint-disable */
-  console.log("rrai", props.maxWidth, flexWidth);
+  console.log(
+    "rrai",
+    "level=",
+    props.currentNestingLevel,
+    "len=",
+    props.currentNumberOfFields,
+    fullFlexWidth,
+  );
   return (
     <ConditionBox key={index}>
       {/* Component to input the LHS for single condition */}
@@ -244,28 +253,58 @@ function ConditionBlock(props: any) {
   );
 
   let newWidths: { dropdownWidth: number; margins: number; iconWidth: number };
-  if (props.fields.length > 1) {
-    newWidths = {
-      dropdownWidth: props.widths.dropdownWidth + DropdownWidth,
-      margins: props.widths.margins + Margin * 6 - Margin / 2,
-      iconWidth:
-        props.currentNestingLevel > 1
-          ? props.fields.length > 1
-            ? props.widths.iconWidth + IconWidth
-            : props.widths.iconWidth
-          : 0,
-    };
+  // if (props.fields.length > 1) {
+  //   newWidths = {
+  //     dropdownWidth: props.widths.dropdownWidth + DropdownWidth,
+  //     margins: props.widths.margins + Margin * 6 - Margin / 2,
+  //     iconWidth:
+  //       props.currentNestingLevel > 1
+  //         ? props.fields.length > 1
+  //           ? props.widths.iconWidth + IconWidth
+  //           : props.widths.iconWidth
+  //         : 0,
+  //   };
+  // } else {
+  //   newWidths = {
+  //     dropdownWidth: props.widths.dropdownWidth,
+  //     margins: props.widths.margins + Margin * 4 - Margin / 2,
+  //     iconWidth:
+  //       props.currentNestingLevel > 1
+  //         ? props.fields.length > 1
+  //           ? props.widths.iconWidth + IconWidth
+  //           : props.widths.iconWidth
+  //         : 0,
+  //   };
+  // }
+
+  if (props.currentNestingLevel == 0) {
+    if (props.fields.length <= 1) {
+      newWidths = {
+        dropdownWidth: props.widths.dropdownWidth + 1 * DropdownWidth,
+        margins: props.widths.margins + 4 * Margin,
+        iconWidth: props.widths.iconWidth,
+      };
+    } else {
+      newWidths = {
+        dropdownWidth: props.widths.dropdownWidth + 2 * DropdownWidth,
+        margins: props.widths.margins + 7 * Margin,
+        iconWidth: props.widths.iconWidth,
+      };
+    }
   } else {
-    newWidths = {
-      dropdownWidth: props.widths.dropdownWidth,
-      margins: props.widths.margins + Margin * 4 - Margin / 2,
-      iconWidth:
-        props.currentNestingLevel > 1
-          ? props.fields.length > 1
-            ? props.widths.iconWidth + IconWidth
-            : props.widths.iconWidth
-          : 0,
-    };
+    if (props.fields.length <= 1) {
+      newWidths = {
+        dropdownWidth: props.widths.dropdownWidth + 1 * DropdownWidth,
+        margins: props.widths.margins + 5 * Margin,
+        iconWidth: props.widths.iconWidth + IconWidth,
+      };
+    } else {
+      newWidths = {
+        dropdownWidth: props.widths.dropdownWidth + 2 * DropdownWidth,
+        margins: props.widths.margins + 7 * Margin,
+        iconWidth: props.widths.iconWidth + IconWidth,
+      };
+    }
   }
 
   return (
@@ -340,6 +379,7 @@ function ConditionBlock(props: any) {
                   maxWidth: props.maxWidth,
                   widths: newWidths,
                   currentNumberOfFields: props.fields.length,
+                  currentNestingLevel: props.currentNestingLevel,
                 },
                 index,
               );
@@ -397,7 +437,7 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
   } = props;
 
   // Max width is designed in a way that the proportion stays same even after nesting
-  const maxWidth = 55; //in vw
+  const maxWidth = 60; //in vw
   return (
     <FieldArray
       component={ConditionBlock}
