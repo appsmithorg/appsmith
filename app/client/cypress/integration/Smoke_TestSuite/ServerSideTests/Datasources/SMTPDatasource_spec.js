@@ -1,6 +1,5 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/SMTPTestdsl.json");
 let datasourceName;
@@ -98,12 +97,23 @@ describe("SMTP datasource test cases using ted", function() {
       .eq(0)
       .type("test@appsmith.com");
     cy.xpath("//input[@class='bp3-input']")
-      .eq(1)
-      .type("test@appsmith.com");
+      .eq(2)
+      .type("this is a smtp test");
+    // adding an attachment in file picker
+    /* cy.SearchEntityandOpen("FilePicker");
+    const fixturePath = "testFile.mov";
+    cy.get(commonlocators.filePickerButton).click();
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .attachFile(fixturePath);
+    cy.get(commonlocators.filePickerUploadButton).click();
+    cy.get(".bp3-spinner").should("have.length", 1);
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.get("button").contains("1 files selected"); */
     cy.xpath(
       "//span[text()='Run query'  and @class='bp3-button-text']",
     ).click();
-    cy.pause();
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       //  expect(response.body.data.statusCode).to.eq("5000");
       expect(response.body.data.body).to.contain("Sent the email successfully");
