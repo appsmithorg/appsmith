@@ -282,6 +282,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
           .replace(/['"]+/g, ""),
       );
     });
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.actionContextMenuByEntityName("Query1");
   });
 
@@ -318,6 +319,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get(datasource.MongoDB).click({ force: true });
     cy.fillMongoDatasourceForm();
 
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo Documents ${uid}`;
       cy.renameDatasource(datasourceName);
@@ -359,6 +361,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.xpath(queryLocators.countText).should("have.text", "3 Records");
 
     cy.get("@dSName").then((dbName) => {
+      cy.CheckAndUnfoldEntityItem("DATASOURCES");
       cy.actionContextMenuByEntityName(dbName, "Refresh");
       cy.get(`.t--entity.datasource:contains(${dbName})`)
         .find(explorer.collapse)
@@ -377,6 +380,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
     });
 
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedWidgetChart)
       .click()
@@ -460,12 +464,14 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //cy.get(queryLocators.templateMenu).click();
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}');
     cy.runQuery();
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.get("@dSName").then((dbName) => {
       cy.actionContextMenuByEntityName(dbName, "Refresh");
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
 
     cy.deleteQueryUsingContext();
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.actionContextMenuByEntityName("Table1");
     cy.actionContextMenuByEntityName("Chart1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails

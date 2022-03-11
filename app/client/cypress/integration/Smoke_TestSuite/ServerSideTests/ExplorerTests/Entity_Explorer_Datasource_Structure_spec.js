@@ -30,6 +30,7 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.get(".t--entity-name")
       .contains(datasourceName)
       .click({ force: true });
@@ -63,6 +64,7 @@ describe("Entity explorer datasource structure", function() {
 
     cy.deleteQueryUsingContext();
 
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
     cy.deleteQueryUsingContext();

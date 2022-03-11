@@ -325,7 +325,7 @@ Cypress.Commands.add("launchApp", (appName) => {
 Cypress.Commands.add("AppSetupForRename", () => {
   cy.get(homePage.applicationName).then(($appName) => {
     if (!$appName.hasClass(homePage.editingAppName)) {
-      cy.get(homePage.applicationName).click();
+      cy.get(homePage.applicationName).click({ force: true });
       cy.get(homePage.portalMenuItem)
         .contains("Edit Name", { matchCase: false })
         .click();
@@ -867,12 +867,6 @@ Cypress.Commands.add("OpenBindings", (apiname1) => {
 });
 
 Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.get(".t--entity-name").click({ multiple: true });
-  cy.wait(500);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
@@ -2500,6 +2494,19 @@ Cypress.Commands.add(
       .type(userMockDatabaseUsername);
   },
 );
+Cypress.Commands.add(
+  "fillSMTPDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["smtp-host"] + "  "
+      : datasourceFormData["smtp-host"];
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["smtp-port"]);
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(datasourceFormData["smtp-username"]);
+    cy.get(datasourceEditor.password).type(datasourceFormData["smtp-password"]);
+  },
+);
 
 Cypress.Commands.add("createPostgresDatasource", () => {
   cy.NavigateToDatasourceEditor();
@@ -2785,6 +2792,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
       originalWidget = originalWidget.replaceAll(/\u200B/g, "");
       cy.log(originalWidget);
       cy.get(widgetsPage.copyWidget).click({ force: true });
+      cy.wait(2000);
       cy.reload();
       // Wait for the widget to be appear in the DOM and press Ctrl/Cmd + V to paste the button.
       cy.get(widgetLocator).should("be.visible");
@@ -3168,6 +3176,7 @@ Cypress.Commands.add("ValidatePublishTableData", (value) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
+  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
@@ -3580,7 +3589,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("createGitBranch", (branch) => {
-  cy.get(gitSyncLocators.branchButton).click();
+  cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
   // increasing timeout to reduce flakyness
   cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
@@ -3588,7 +3597,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
-  cy.get(gitSyncLocators.branchButton).click();
+  cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
   cy.get(gitSyncLocators.branchListItem)
     .contains(branch)
@@ -3994,6 +4003,25 @@ Cypress.Commands.add("validateEvaluatedValue", (value) => {
   cy.get(".t-property-evaluated-value").should("contain", value);
 });
 
+Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
+  cy.xpath("//div[contains(@class, 't--entity-name')][text()='" + item + "']")
+    .parents(commonlocators.entityItem)
+    .first()
+    .children(commonlocators.entityCollapseToggle)
+    .invoke("attr", "name")
+    .then((name) => {
+      if (name === "arrow-right") {
+        cy.xpath(
+          "//div[contains(@class, 't--entity-name')][text()='" + item + "']",
+        )
+          .parents(commonlocators.entityItem)
+          .first()
+          .children(commonlocators.entityCollapseToggle)
+          .click({ force: true });
+      }
+    });
+});
+
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;
 
@@ -4002,4 +4030,19 @@ Cypress.Commands.add("validateEvaluatedValue", (value) => {
 addMatchImageSnapshotCommand({
   failureThreshold: 0.1, // threshold for entire image
   failureThresholdType: "percent",
+});
+
+Cypress.Commands.add("DeleteEntityStateLocalStorage", () => {
+  let currentURL;
+  let appId;
+  cy.url().then((url) => {
+    currentURL = url;
+    const myRegexp = /applications(.*)/;
+    const match = myRegexp.exec(currentURL);
+    appId = match ? match[1].split("/")[1] : null;
+
+    if (appId !== null) {
+      window.localStorage.removeItem(`explorerState_${appId}`);
+    }
+  });
 });
