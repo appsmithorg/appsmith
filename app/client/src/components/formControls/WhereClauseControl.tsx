@@ -14,6 +14,13 @@ const DropdownWidth = 100; //in pixel
 const Margin = 8; //in pixel
 const IconWidth = 14; //in pixel
 
+const Offset = [
+  [50, 182],
+  [208, 340],
+  [366, 498],
+  [524, 656],
+];
+
 // Type of the value for each condition
 export type whereClauseValueType = {
   condition?: string;
@@ -57,6 +64,7 @@ const CenteredIcon = styled(Icon)<{
   marginBottom?: string;
 }>`
   margin-left: 4px;
+  margin-right: 8px;
   align-self: ${(props) => (props.alignSelf ? props.alignSelf : "end")};
   margin-bottom: ${(props) =>
     props.marginBottom ? props.marginBottom : "10px"};
@@ -148,19 +156,12 @@ function ConditionComponent(props: any, index: number) {
     WhereClauseSubComponent.Condition,
   );
 
-  const fullFlexWidth = `${props.maxWidth}vw - ${props.widths.dropdownWidth}px - ${props.widths.margins}px -  ${props.widths.iconWidth}px`;
-
-  const flexWidth = `${props.maxWidth / 2}vw - ${props.widths.dropdownWidth /
-    2}px - ${props.widths.margins / 2}px -  ${props.widths.iconWidth / 2}px`;
-  /* eslint-disable */
-  console.log(
-    "rrai",
-    "level=",
-    props.currentNestingLevel,
-    "len=",
-    props.currentNumberOfFields,
-    fullFlexWidth,
-  );
+  // const flexWidth = `${props.maxWidth / 2}vw - ${props.widths.dropdownWidth /
+  //   2}px - ${props.widths.margins / 2}px -  ${props.widths.iconWidth / 2}px`;
+  const numberOfDropdowns = props.currentNumberOfFields > 1 ? 1 : 0;
+  const flexWidth = `${props.maxWidth / 2}vw - ${Offset[
+    props.currentNestingLevel
+  ][numberOfDropdowns] / 2}px`;
   return (
     <ConditionBox key={index}>
       {/* Component to input the LHS for single condition */}
@@ -253,29 +254,6 @@ function ConditionBlock(props: any) {
   );
 
   let newWidths: { dropdownWidth: number; margins: number; iconWidth: number };
-  // if (props.fields.length > 1) {
-  //   newWidths = {
-  //     dropdownWidth: props.widths.dropdownWidth + DropdownWidth,
-  //     margins: props.widths.margins + Margin * 6 - Margin / 2,
-  //     iconWidth:
-  //       props.currentNestingLevel > 1
-  //         ? props.fields.length > 1
-  //           ? props.widths.iconWidth + IconWidth
-  //           : props.widths.iconWidth
-  //         : 0,
-  //   };
-  // } else {
-  //   newWidths = {
-  //     dropdownWidth: props.widths.dropdownWidth,
-  //     margins: props.widths.margins + Margin * 4 - Margin / 2,
-  //     iconWidth:
-  //       props.currentNestingLevel > 1
-  //         ? props.fields.length > 1
-  //           ? props.widths.iconWidth + IconWidth
-  //           : props.widths.iconWidth
-  //         : 0,
-  //   };
-  // }
 
   if (props.currentNestingLevel == 0) {
     if (props.fields.length <= 1) {
@@ -306,7 +284,6 @@ function ConditionBlock(props: any) {
       };
     }
   }
-
   return (
     <SecondaryBox showBorder={props.currentNestingLevel >= 1}>
       {/* Component to render the joining operator between multiple conditions */}
@@ -400,8 +377,8 @@ function ConditionBlock(props: any) {
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
         <StyledTooltip
-          disabled={props.currentNestingLevel < props.nestedLevels}
           content="For S3 only 4 nested where condition group is allowed"
+          disabled={props.currentNestingLevel < props.nestedLevels}
         >
           <AddMoreAction
             isDisabled={!(props.currentNestingLevel < props.nestedLevels)}
