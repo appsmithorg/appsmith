@@ -173,10 +173,25 @@ export const getConfigInitialValues = (
         set(configInitialValues, section.configProperty, section.initialValue);
       }
     } else if (section.controlType === "WHERE_CLAUSE") {
+      let logicalTypes = [];
+      if ("logicalTypes" in section && section.logicalTypes.length > 0) {
+        logicalTypes = section.logicalTypes;
+      } else {
+        logicalTypes = [
+          {
+            label: "OR",
+            value: "OR",
+          },
+          {
+            label: "AND",
+            value: "AND",
+          },
+        ];
+      }
       set(
         configInitialValues,
         `${section.configProperty}.condition`,
-        section.logicalTypes[0].value,
+        logicalTypes[0].value,
       );
       if (
         multipleViewTypesSupported &&
@@ -190,7 +205,7 @@ export const getConfigInitialValues = (
         set(
           configInitialValues,
           section.configProperty.replace(".data", ".componentData.condition"),
-          section.logicalTypes[0].value,
+          logicalTypes[0].value,
         );
       }
     }
