@@ -88,6 +88,7 @@ import CheckLineIcon from "remixicon-react/CheckLineIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
+import CompassesLine from "remixicon-react/CompassesLineIcon";
 import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
 import Database2Line from "remixicon-react/Database2LineIcon";
@@ -147,6 +148,7 @@ import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
 import FileListLineIcon from "remixicon-react/FileListLineIcon";
 import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
+import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -247,6 +249,7 @@ const ICON_LOOKUP = {
   "close-modal": <CloseLineIcon />,
   "close-x": <CloseLineIcon />,
   "comment-context-menu": <CommentContextMenu />,
+  "compasses-line": <CompassesLine />,
   "context-menu": <ContextMenuIcon />,
   "database-2-line": <Database2Line />,
   "delete-blank": <DeleteBin7 />,
@@ -294,6 +297,7 @@ const ICON_LOOKUP = {
   "trending-flat": <TrendingFlat />,
   "unread-pin": <UnreadPin />,
   "user-2": <UserV2Icon />,
+  "user-heart-line": <UserHeartLineIcon />,
   "view-all": <RightArrowIcon />,
   "view-less": <LeftArrowIcon />,
   "warning-line": <WarningLineIcon />,
@@ -333,6 +337,7 @@ const ICON_LOOKUP = {
   loader: <LoaderLineIcon />,
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
+  member: <UserHeartLineIcon />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
   pin: <Pin />,

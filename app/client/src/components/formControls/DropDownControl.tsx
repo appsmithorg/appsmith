@@ -54,7 +54,7 @@ function renderDropdown(
   } & DropDownControlProps,
 ): JSX.Element {
   let selectedValue: string | string[];
-  if (_.isUndefined(props.input?.value)) {
+  if (_.isNil(props.input?.value)) {
     if (props.isMultiSelect)
       selectedValue = props?.initialValue ? (props.initialValue as string) : [];
     else
@@ -62,14 +62,14 @@ function renderDropdown(
         ? (props.initialValue as string[])
         : "";
   } else {
+    selectedValue = props.input?.value;
     if (props.isMultiSelect) {
-      selectedValue = props.input?.value ? props.input.value : [];
       if (!Array.isArray(selectedValue)) {
         selectedValue = [selectedValue];
       } else {
         selectedValue = [...new Set(selectedValue)];
       }
-    } else selectedValue = props.input?.value ? props.input.value : "";
+    }
   }
   let options: DropdownOption[] = [];
   let selectedOptions: DropdownOption[] = [];
@@ -84,7 +84,7 @@ function renderDropdown(
   }
   // Function to handle selction of options
   const onSelectOptions = (value: string | undefined) => {
-    if (value) {
+    if (!_.isNil(value)) {
       if (props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           if (!selectedValue.includes(value))
@@ -99,7 +99,7 @@ function renderDropdown(
 
   // Function to handle deselction of options
   const onRemoveOptions = (value: string | undefined) => {
-    if (value) {
+    if (!_.isNil(value)) {
       if (props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           if (selectedValue.includes(value))
