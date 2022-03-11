@@ -60,7 +60,7 @@ function RequestTemplate() {
       <Text className={"title"} type={TextType.H4}>
         {createMessage(COULDNT_FIND_TEMPLATE)}
       </Text>
-      <Text className={"description"} type={TextType.P3}>
+      <Text className={"description"} type={TextType.P2}>
         {createMessage(COULDNT_FIND_TEMPLATE_DESCRIPTION)}
       </Text>
       <Button
