@@ -65,5 +65,6 @@
   "searchBoxDropdown":".select-popover-wrapper div.bp3-input-group",
   "NavHomePage": "[data-icon='home']",
   "apiCallToast": "div.t--toast-action span[type='p1']",
-  "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle"
+  "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle",
+  "toggleButtonVariant": ".t--property-control-buttonvariant .t--js-toggle"
 }
