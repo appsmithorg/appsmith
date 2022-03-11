@@ -14193,11 +14193,6 @@ react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz"
 
-react-masonry-css@^1.0.16:
-  version "1.0.16"
-  resolved "https://registry.yarnpkg.com/react-masonry-css/-/react-masonry-css-1.0.16.tgz#72b28b4ae3484e250534700860597553a10f1a2c"
-  integrity sha512-KSW0hR2VQmltt/qAa3eXOctQDyOu7+ZBevtKgpNDSzT7k5LA/0XntNa9z9HKCdz3QlxmJHglTZ18e4sX4V8zZQ==
-
 react-media-recorder@^1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/react-media-recorder/-/react-media-recorder-1.6.1.tgz#000aa19b6bfe829cdee52d8292cd4d7e5941da30"

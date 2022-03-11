@@ -1,0 +1,18 @@
+    {     
+    "selectPost":"//span[text()='POST']",
+    "selectDelete":"//span[text()='DELETE']",
+    "pagebutton":"//div[text()='Page1']",
+    "submitButton":"//span[text()='Submit New Proposal']",
+    "mailButton":"//span[text()='Mail']",
+    "sendMailText":"//span[text()='Send Mail']",
+    "inputMail":"//input[@value='Curt50@gmail.com']",
+    "subjectField":"(//div[@class='bp3-input-group']//input)[6]",
+    "contentField":"//textarea[@class='bp3-input']",
+    "confirmButton":"//span[text()='Confirm']",
+    "closeButton":"//span[text()='Close']",
+    "datasourcesbutton":"//div[text()='Datasources']",
+    "postApi":"//div[text()='send_mail']",
+    "deleteApi":"//div[text()='delete_proposal']",
+    "deleteButton":"//span[text()='Delete Proposal']",
+    "deleteTaskText":"//span[text()='Delete this task']"
+}

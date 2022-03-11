@@ -24,8 +24,6 @@ import {
   TextLoader,
 } from "./StyledComponents";
 import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
-import { getAppsmithConfigs } from "@appsmith/configs";
-const { disableLoginForm } = getAppsmithConfigs();
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -107,11 +105,9 @@ function General() {
           {isFetchingUser && <TextLoader className={Classes.SKELETON} />}
           {!isFetchingUser && <Text type={TextType.P1}>{user?.email}</Text>}
 
-          {!disableLoginForm && (
-            <ForgotPassword onClick={forgotPassword}>
-              Reset Password
-            </ForgotPassword>
-          )}
+          <ForgotPassword onClick={forgotPassword}>
+            Reset Password
+          </ForgotPassword>
         </div>
       </FieldWrapper>
       {/* <InputWrapper>

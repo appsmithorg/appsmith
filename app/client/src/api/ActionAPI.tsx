@@ -166,15 +166,11 @@ class ActionAPI extends API {
   }
 
   static executeAction(
-    executeAction: FormData,
+    executeAction: ExecuteActionRequest,
     timeout?: number,
   ): AxiosPromise<ActionExecutionResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
-      headers: {
-        accept: "application/json",
-        "Content-Type": "multipart/form-data",
-      },
     });
   }
 

@@ -565,7 +565,6 @@ export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 
-export const USE_DEFAULT_CONFIGURATION = () => "Use default configuration";
 export const AUTHOR_NAME = () => "Author name";
 export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
@@ -610,7 +609,7 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
-export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste your URL here";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
@@ -632,11 +631,6 @@ export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
   "You have uncommitted changes. Please commit before pulling the remote changes";
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit before proceeding to merge";
-
-export const DISCONNECT_SERVICE_SUBHEADER = () =>
-  "Changes to this section can disrupt user authentication. Proceed with caution.";
-export const DISCONNECT_SERVICE_WARNING = () =>
-  "will be removed as primary method of authentication";
 
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";
@@ -1038,34 +1032,4 @@ export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
 
-// Templates
-export const MORE = () => "MORE";
-export const SHOW_LESS = () => "SHOW LESS";
-export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
-export const SELECT_ORGANISATION = () => "Select Organization";
-export const FORK_TEMPLATE = () => "FORK TEMPLATE";
-export const TEMPLATES = () => "TEMPLATES";
-export const FORK_THIS_TEMPLATE = () => "Fork this template";
-export const COULDNT_FIND_TEMPLATE = () =>
-  "Couldn’t find what you are looking for?";
-export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
-  "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
-export const REQUEST_TEMPLATE = () => "Request for a template";
-export const SEARCH_TEMPLATES = () => "Search templates";
-export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
-export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
-  "You can browse, fork, and make them your own here";
-export const GO_BACK = () => "GO BACK";
-export const OVERVIEW = () => "Overview";
-export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Industry";
-export const DATASOURCES = () => "Datasources";
-export const NOTE = () => "Note:";
-export const NOTE_MESSAGE = () => "You can add your datasources as well";
-export const WIDGET_USED = () => "Widgets Used";
-export const SIMILAR_TEMPLATES = () => "Similar Templates";
-
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
-
-export const REDIRECT_URL_TOOLTIP = () =>
-  "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";

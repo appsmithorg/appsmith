@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -25,9 +24,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
-import com.external.plugins.constants.MongoSpecialDataTypes;
 import com.external.plugins.utils.MongoErrorUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
@@ -61,7 +58,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -125,20 +121,15 @@ public class MongoPlugin extends BasePlugin {
     private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
 
     /**
-     * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
-     * e.g. "ObjectId(...)". Case for single quotes e.g. 'ObjectId(...)' is not added because the way client sends
-     * back the data to the API server it would be extremely uncommon to encounter this case.
-     *
-     * In the given regex E is replaced by the name of special data types before doing the match / find operation.
-     * e.g. E will be replaced with ObjectId to find the occurrence of "ObjectId(...)" pattern.
-     *
-     * Example: for "[\"ObjectId('xyz')\"]":
-     *   o group 1 will match "ObjectId(...)"
-     *   o group 2 will match ObjectId(...)
-     *   o group 3 will match 'xyz'
-     *   o group 4 will match xyz
+     * This regex matches the following two patterns:
+     *   - "ObjectId(someId)"  // will not match without outer double quotes
+     *     - Group 1 = "ObjectId(someId)"
+     *     - Group 2 = ObjectId(someId) // no quotes
+     *   - 'ObjectId(someId)'  // will not match without outer single quotes
+     *      - Group 3 = 'ObjectId(someId)'
+     *      - Group 4 = ObjectId(someId) // not quotes
      */
-    private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
+    private static final String OBJECT_ID_INSIDE_QUOTES_REGEX = "(\\\"(ObjectId\\(.*?\\))\\\")|('(ObjectId\\(.*?\\))')";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
@@ -438,84 +429,57 @@ public class MongoPlugin extends BasePlugin {
          * happens as part of smart substitution process.
          *
          * @param replacementValue - value to be substituted
-         * @param dataType
          * @return - updated replacement value
          */
         @Override
-        public String sanitizeReplacement(String replacementValue, DataType dataType) {
-            replacementValue = removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
-
-            if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)) {
-                /**
-                 * For all other data types the replacementValue is prepared for replacement (by using Matcher
-                 * .quoteReplacement(...)) during the common handling of data types in
-                 * `jsonSmartReplacementPlaceholderWithValue(...)` method before reaching this program point. For
-                 * BSON_SPECIAL_DATA_TYPES it is skipped in the common handling flow because we want to modify
-                 * (removeOrAddQuotesAroundMongoDBSpecialTypes(...)) the replacement value further before the final
-                 * replacement happens.
-                 */
-                replacementValue = Matcher.quoteReplacement(replacementValue);
-            }
+        public String sanitizeReplacement(String replacementValue) {
+            replacementValue = removeQuotesAroundObjectId(replacementValue);
 
             return replacementValue;
         }
 
         /**
-         * This method is meant to remove extra quotes around the MongoDB special types like `ObjectId(...)` string.
-         * E.g. if the input query is "... {$in: [\"ObjectId(\"123\")\"]}" then the output query will be "... {$in:
-         * [ObjectId(\"123\")]}".
-         * Please note that it may also add quotes around the data type arguments if required. e.g. "ObjectId(xyz)"
-         * -> "ObjectId(\"xyz\")"
+         * This method is meant to remove extra quotes around the `ObjectId(...)` string. E.g. if the input query is
+         * "... {$in: [\"ObjectId(\"123\")\"]}" then the output query will be "... {$in: [ObjectId(\"123\")]}".
          *
          * @param query - input query
-         * @return - query obtained after removing/adding quotes around MongoDB special types string.
+         * @return - query obtained after removing quotes around ObjectId string.
          */
-        private String removeOrAddQuotesAroundMongoDBSpecialTypes(String query) {
-            // Iterating over MongoDB types and creating a regex for every one of them
-            for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
-                final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType.name());
+        private String removeQuotesAroundObjectId(String query) {
+            Map<String, String> objectIdMap = new HashMap();
 
-                Map<String, String> objectIdMap = new LinkedHashMap<>();
+            Pattern pattern = Pattern.compile(OBJECT_ID_INSIDE_QUOTES_REGEX);
+            Matcher matcher = pattern.matcher(query);
+            while (matcher.find()) {
+                String objectIdWithQuotes;
+                String objectIdWithoutQuotes;
 
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(query);
-                while (matcher.find()) {
-                    /**
-                     * `If` branch will match when any special data type is found wrapped within double quotes e.g.
-                     * "ObjectId('someId')":
-                     *   o Group 1 = "ObjectId('someId')"
-                     *   o Group 2 = ObjectId(someId)
-                     *   o Group 3 = 'someId'
-                     *   o Group 4 = someId
-                     */
-                    if (matcher.group(1) != null) {
-                        String objectIdWithQuotes = matcher.group(1);
-                        String objectIdWithoutQuotes = matcher.group(2);
-                        String argWithQuotes = matcher.group(3);
-                        String argWithoutQuotes = "";
-                        try {
-                            argWithoutQuotes = matcher.group(4);
-                            if (specialType.isQuotesRequiredAroundParameter()) {
-                                argWithoutQuotes = objectMapper.writeValueAsString(argWithoutQuotes);
-                            }
-                        } catch (JsonProcessingException e) {
-                            throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                    argWithoutQuotes,
-                                    e.getMessage()
-                            );
-                        }
-                        objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
-                        objectIdMap.put(argWithQuotes, argWithoutQuotes);
-                    }
+                /**
+                 * `If` branch will match when ObjectId is wrapped within double quotes e.g. "ObjectId(someId)"
+                 *   - Group 1 = "ObjectId(someId)"
+                 *   - Group 2 = ObjectId(someId) // no quotes
+                 * `Else` branch will match when ObjectId is wrapped within single quotes e.g. 'ObjectId(someId)'
+                 *   - Group 3 = 'ObjectId(someId)'
+                 *   - Group 4 = ObjectId(someId) // no quotes
+                 */
+                if (matcher.group(1) != null) {
+                    objectIdWithQuotes = matcher.group(1);
+                    objectIdWithoutQuotes = matcher.group(2);
+                }
+                else {
+                    objectIdWithQuotes = matcher.group(3);
+                    objectIdWithoutQuotes = matcher.group(4);
                 }
 
-                for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
-                    String objectIdWithQuotes = (entry).getKey();
-                    String objectIdWithoutQuotes = (entry).getValue();
-                    query = query.replace(objectIdWithQuotes, objectIdWithoutQuotes);
-                }
+                objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
             }
+
+            for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
+                String objectIdWithQuotes = (entry).getKey();
+                String objectIdWithoutQuotes = (entry).getValue();
+                query = query.replace(objectIdWithQuotes, objectIdWithoutQuotes);
+            }
+
             return query;
         }
 
@@ -1012,38 +976,8 @@ public class MongoPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value,dataType, insertedParams, this);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, this);
         }
-
-        /**
-         * This method checks if the replacement string contains any usage of special Mongo data types like
-         * `ObjectId` or `ISODate`. For complete list please check out `MongoSpecialDataTypes.java`. The check for
-         * special data type only happens if the common data type detection login in `DataTypeStringUtils
-         * .stringToKnownDataTypeConverter` identifies the data type of the replacement value as `DataType.STRING`
-         * even though it contains a Mongo special data type and hence should be treated differently.
-         *
-         * @param replacement replacement value
-         * @return identified data type of replacement value
-         */
-        private DataType stringToKnownMongoDBDataTypeConverter(String replacement) {
-            DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
-            if (dataType == DataType.STRING) {
-                for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
-                    final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E",
-                            specialType.name());
-                    final Pattern pattern = Pattern.compile(regex);
-                    final Matcher matcher = pattern.matcher(replacement);
-                    if (matcher.find()) {
-                        dataType = DataType.BSON_SPECIAL_DATA_TYPES;
-                        break;
-                    }
-                }
-            }
-
-            return dataType;
-        }
-
 
         @Override
         public Mono<ActionExecutionResult> execute(MongoClient mongoClient,

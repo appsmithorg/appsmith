@@ -1,0 +1,281 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "label": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Command",
+          "configProperty": "actionConfiguration.formData.command",
+          "controlType": "DROP_DOWN",
+          "initialValue": "FIND",
+          "options": [
+            {
+              "label": "Find Document(s)",
+              "value": "FIND"
+            },
+            {
+              "label": "Insert Document(s)",
+              "value": "INSERT"
+            },
+            {
+              "label": "Update Document(s)",
+              "value": "UPDATE"
+            },
+            {
+              "label": "Delete Document(s)",
+              "value": "DELETE"
+            },
+            {
+              "label": "Count",
+              "value": "COUNT"
+            },
+            {
+              "label": "Distinct",
+              "value": "DISTINCT"
+            },
+            {
+              "label": "Aggregate",
+              "value": "AGGREGATE"
+            },
+            {
+              "label": "Raw",
+              "value": "RAW"
+            }
+          ]
+        },
+        {
+          "label": "Collection Name",
+          "configProperty": "actionConfiguration.formData.collection",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "conditionals": {
+            "hide": "{{actionConfiguration.formData.command === 'RAW'}}"
+          }
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "serverLabel": "findCommandForm",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'FIND'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.find.query",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Sort",
+              "configProperty": "actionConfiguration.formData.find.sort",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{name : 1}"
+            },
+            {
+              "label": "Projection",
+              "configProperty": "actionConfiguration.formData.find.projection",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{name : 1}"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.formData.find.limit",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "10"
+            },
+            {
+              "label": "Skip",
+              "configProperty": "actionConfiguration.formData.find.skip",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "0"
+            }
+          ]
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "id": 4,
+          "serverLabel": "updateMany",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'UPDATE'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.updateMany.query",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Update",
+              "configProperty": "actionConfiguration.formData.updateMany.update",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{ $inc: { score: 1 } }"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.formData.updateMany.limit",
+              "controlType": "DROP_DOWN",
+              "initialValue": "SINGLE",
+              "options": [
+                {
+                  "label": "Single Document",
+                  "value": "SINGLE"
+                },
+                {
+                  "label": "All Matching Documents",
+                  "value": "ALL"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "id": 5,
+          "serverLabel": "delete",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'DELETE'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.delete.query",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.formData.delete.limit",
+              "controlType": "DROP_DOWN",
+              "initialValue": "SINGLE",
+              "options": [
+                {
+                  "label": "Single Document",
+                  "value": "SINGLE"
+                },
+                {
+                  "label": "All Matching Documents",
+                  "value": "ALL"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "id": 6,
+          "serverLabel": "count",
+          "_conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'COUNT'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.count.query",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "id": 7,
+          "serverLabel": "distinct",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'DISTINCT'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.distinct.query",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Key",
+              "configProperty": "actionConfiguration.formData.distinct.key",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "name"
+            }
+          ]
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "id": 8,
+          "serverLabel": "aggregate",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'AGGREGATE'}}"
+          },
+          "children": [
+            {
+              "label": "Array of Pipelines",
+              "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "[{ $project: { tags: 1 } }, { $unwind: \"$tags\" }, { $group: { _id: \"$tags\", count: { $sum : 1 } } }  ]"
+            }
+          ]
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "id": 9,
+          "serverLabel": "insert",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'INSERT'}}"
+          },
+          "children": [
+            {
+              "label": "Documents",
+              "configProperty": "actionConfiguration.formData.insert.documents",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"
+            }
+          ]
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "internalLabel": "Query",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'RAW' && actionConfiguration.formData.smartSubstitution === true}}"
+          }
+        },
+        {
+          "controlType": "SECTION",
+          "label": "",
+          "configProperty": "actionConfiguration.body",
+          "internalLabel": "Query",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'RAW' && actionConfiguration.formData.smartSubstitution === false}}"
+          }
+        }
+      ]
+    }
+  ]
+}

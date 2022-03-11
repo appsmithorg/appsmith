@@ -57,8 +57,7 @@ describe("List Widget Functionality", function() {
 
     allowed.forEach((widget) => {
       cy.dragAndDropToWidget(widget, "listwidget", { x: 50, y: 50 });
-      cy.assertPageSave();
-      cy.get(`.t--draggable-${widget}`).should("exist");
+      cy.get(`.t--widget-${widget}`).should("exist");
       cy.get(widgetsPage.removeWidget).click({ force: true });
       cy.wait("@updateLayout");
     });

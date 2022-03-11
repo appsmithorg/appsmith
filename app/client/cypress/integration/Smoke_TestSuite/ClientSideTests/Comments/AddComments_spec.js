@@ -1,4 +1,4 @@
-import commentsLocators from "../../../../locators/CommentsLocators";
+const commentsLocators = require("../../../../locators/commentsLocators.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 const dsl = require("../../../../fixtures/basicDsl.json");

@@ -2,7 +2,6 @@ import { createGlobalStyle } from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Classes as PopoverClasses } from "@blueprintjs/popover2";
 import { Layers } from "constants/Layers";
-import { Colors } from "constants/Colors";
 
 export const PopoverStyles = createGlobalStyle`
   .${Classes.POPOVER}, .${PopoverClasses.POPOVER2} {
@@ -22,9 +21,6 @@ export const PopoverStyles = createGlobalStyle`
   }
   .onboarding-carousel .${Classes.OVERLAY_CONTENT} {
     filter: drop-shadow(0px 6px 20px rgba(0, 0, 0, 0.15));
-  }
-  .templates-notification .bp3-popover2-arrow-fill {
-    fill: ${Colors.SEA_SHELL};
   }
   .bp3-modal-widget.onboarding-carousel-portal {
     z-index: ${Layers.help} !important; 
