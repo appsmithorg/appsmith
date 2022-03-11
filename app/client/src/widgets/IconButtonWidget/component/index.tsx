@@ -262,7 +262,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
         buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
+        buttonVariant={_.trim(buttonVariant)}
         dimension={dimension}
         disabled={isDisabled}
         hasOnClickAction={hasOnClickAction}
