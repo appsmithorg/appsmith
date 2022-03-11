@@ -45,7 +45,7 @@ export interface ControlProps extends ControlData, ControlFunctions {
 export interface ControlData {
   id: string;
   label: string;
-  viewTypes?: ViewTypes[];
+  alternateViewTypes?: ViewTypes[];
   tooltipText?: string;
   configProperty: string;
   controlType: ControlType;

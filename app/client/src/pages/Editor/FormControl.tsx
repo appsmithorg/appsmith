@@ -50,8 +50,11 @@ function FormControl(props: FormControlProps) {
 
   if (hidden) return null;
   const viewTypes: ViewTypes[] = [];
-  if ("viewTypes" in props.config && Array.isArray(props.config.viewTypes)) {
-    viewTypes.push(...props.config.viewTypes);
+  if (
+    "alternateViewTypes" in props.config &&
+    Array.isArray(props.config.alternateViewTypes)
+  ) {
+    viewTypes.push(...props.config.alternateViewTypes);
   }
 
   return (
