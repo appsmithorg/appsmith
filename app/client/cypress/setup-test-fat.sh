@@ -82,7 +82,7 @@ if [ "$status_code" -eq "502" ]; then
   exit 1
 fi
 
-cp cypress_fat.json cypress.json
+
 
 # DEBUG=cypress:* $(npm bin)/cypress version
 # sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
