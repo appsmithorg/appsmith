@@ -101,12 +101,16 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
       .first()
       .click({ force: true });
 
+    cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    /*
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-
+    */
     cy.get(generatePage.generateCRUDPageActionCard).click();
     cy.get(generatePage.selectDatasourceDropdown).click();
 

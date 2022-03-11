@@ -15,7 +15,7 @@ describe("Delete organization test spec", function() {
       cy.contains("Delete Organization").click();
       cy.contains("Are you sure").click();
       cy.wait("@deleteOrgApiCall").then((httpResponse) => {
-        expect(httpResponse.status).to.equal(200);
+        expect(httpResponse.response.body.responseMeta.status).to.deep.eq(200);
       });
       cy.get(newOrganizationName).should("not.exist");
     });

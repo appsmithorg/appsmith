@@ -11,18 +11,16 @@ describe("Entity explorer datasource structure", function() {
     cy.ClearSearch();
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
 
   it("Entity explorer datasource structure", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.wait("@createNewApi").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    cy.wait("@createNewApi").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+    });
 
     cy.get(apiwidget.apiTxt)
       .clear()
@@ -30,15 +28,17 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
+
+    cy.GlobalSearchEntity(datasourceName);
+    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+      .find(explorer.collapse)
+      .click();
     cy.get(".t--entity-name")
       .contains(datasourceName)
       .click({ force: true });
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-
+    cy.wait("@getDatasourceStructure").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     cy.get(explorer.datasourceStructure)
       .first()
       .find(explorer.collapse)
@@ -55,29 +55,23 @@ describe("Entity explorer datasource structure", function() {
       .last()
       .contains("SELECT")
       .click({ force: true });
-    cy.wait("@createNewApi").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    cy.wait("@createNewApi").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+    });
 
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@deleteAction").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@deleteAction").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
@@ -120,11 +114,9 @@ describe("Entity explorer datasource structure", function() {
     //   .click({ force: true });
 
     cy.actionContextMenuByEntityName(datasourceName, "Refresh");
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@getDatasourceStructure").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     // Expand datasource
     cy.get(`.t--entity.datasource:contains(${datasourceName})`)
       .find(explorer.collapse)
@@ -141,11 +133,9 @@ describe("Entity explorer datasource structure", function() {
     cy.typeValueNValidate(`DROP TABLE public.${tableName}`);
     cy.runQuery();
     cy.actionContextMenuByEntityName(datasourceName, "Refresh");
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@getDatasourceStructure").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     cy.xpath("//div[text()='public." + tableName + "']").should("not.exist");
     cy.deleteQueryUsingContext();
     cy.deleteDatasource(datasourceName);

@@ -3,8 +3,10 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
+import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
 
 let datasourceName;
+const agHelper = new AggregateHelper();
 
 describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
   beforeEach(() => {
@@ -202,18 +204,16 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("ListingAndReviews");
+    //cy.actionContextMenuByEntityName("listingAndReviews");
   });
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.validateNSelectDropdown("Commands", "Find Document(s)");
-    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-      .find(explorer.collapse)
-      .first()
-      .click();
-    cy.xpath(queryLocators.listingAndReviewContext).click({ force: true });
+    agHelper.expandCollapseEntity(`${datasourceName}`);
+    cy.xpath(queryLocators.listingAndReviewContext)
+      .invoke("show")
+      .click({ force: true });
+
     cy.xpath("//div[text()='Find']")
       .click()
       .wait(100); //wait for Find form to open
@@ -281,7 +281,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
     cy.actionContextMenuByEntityName("Query1");
-    cy.actionContextMenuByEntityName("Query2");
   });
 
   it("10. Delete the datasource after NewPage deletion is success", () => {
@@ -296,8 +295,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //   200,
     // );
 
-    cy.wait("@deleteDatasource").should((response) => {
-      expect(response.status).to.be.oneOf([200, 409]);
+    cy.wait("@deleteDatasource").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.be.oneOf([
+        200,
+        409,
+      ]);
     });
   });
 
@@ -306,11 +308,16 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get(homePage.createNew)
       .first()
       .click({ force: true });
+    cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    /*  
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
+    */
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click({ force: true });
     cy.fillMongoDatasourceForm();

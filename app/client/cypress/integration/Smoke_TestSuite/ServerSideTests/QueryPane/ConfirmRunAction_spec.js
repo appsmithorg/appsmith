@@ -9,7 +9,7 @@ describe("Confirm run action", function() {
 
   beforeEach(() => {
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -39,11 +39,9 @@ describe("Confirm run action", function() {
 
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@deleteAction").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     cy.deleteDatasource(datasourceName);
   });

@@ -18,11 +18,9 @@ describe("Create, test, save then delete a mongo datasource", function() {
     cy.get(".t--test-datasource").click();
     cy.wait("@testDatasource");
     cy.get(".t--save-datasource").click();
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@saveDatasource").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     /*
     cy.NavigateToQueryEditor();
 

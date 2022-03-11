@@ -14,7 +14,7 @@ describe("MySQL datasource test cases", function() {
     cy.get(datasource.MySQL).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillMySQLDatasourceForm();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.wait("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.testSaveDatasource();
@@ -25,7 +25,7 @@ describe("MySQL datasource test cases", function() {
     cy.get(datasource.MySQL).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillMySQLDatasourceForm(true);
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.wait("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.testSaveDatasource();
@@ -36,19 +36,14 @@ describe("MySQL datasource test cases", function() {
     cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
       .last()
       .click();
-    cy.wait("@createNewApi").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-
+    cy.wait("@createNewApi").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+    });
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@deleteAction").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     cy.deleteDatasource(datasourceName);
   });

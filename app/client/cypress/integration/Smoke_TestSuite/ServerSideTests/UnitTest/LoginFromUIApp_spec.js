@@ -24,11 +24,13 @@ describe("Login from UI and check the functionality", function() {
         .click({ force: true });
       cy.wait(2000);
     });
-    cy.wait("@deletePage");
-    cy.get("@deletePage").should("have.property", "status", 200);
+    cy.wait("@deletePage").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     cy.DeleteApp(appname);
-    cy.wait("@deleteApplication");
-    cy.get("@deleteApplication").should("have.property", "status", 200);
+    cy.wait("@deleteApplication").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
   });
 
   it("Login/Logout click Appsmith logo should route to login page", function() {

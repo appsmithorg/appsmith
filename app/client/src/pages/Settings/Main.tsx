@@ -5,7 +5,7 @@ import { ADMIN_SETTINGS_CATEGORY_DEFAULT_URL } from "../../constants/routes";
 import React from "react";
 import SettingsForm from "./SettingsForm";
 
-const Main = () => {
+function Main() {
   const params = useParams() as any;
   const { category, subCategory } = params;
   const wrapperCategory =
@@ -22,6 +22,6 @@ const Main = () => {
   } else {
     return <SettingsForm />;
   }
-};
+}
 
 export default Main;

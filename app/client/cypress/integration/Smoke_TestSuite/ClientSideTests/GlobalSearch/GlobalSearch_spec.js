@@ -84,7 +84,7 @@ describe("GlobalSearch", function() {
 
   it("4. navigatesToDatasourceHavingAQuery", () => {
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       const expectedDatasource = httpResponse.response.body.data;
 
       cy.NavigateToActiveDSQueryPane(expectedDatasource.name);

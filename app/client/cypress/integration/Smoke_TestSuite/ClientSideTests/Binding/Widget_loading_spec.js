@@ -22,7 +22,7 @@ describe("Binding the multiple widgets and validating default data", function() 
     cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -42,21 +42,17 @@ describe("Binding the multiple widgets and validating default data", function() 
   it("3. Button widget test with on action query run", function() {
     cy.SearchEntityandOpen("Button1");
     cy.executeDbQuery("Query1");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@updateLayout").then((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
   });
 
   it("4. Input widget test with default value update with query data", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputQuery);
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@updateLayout").then((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
   });
 
   it("5. Publish App and validate loading functionalty", function() {
@@ -66,11 +62,9 @@ describe("Binding the multiple widgets and validating default data", function() 
     cy.get(widgetsPage.widgetBtn)
       .first()
       .click({ force: true });
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@postExecute").then((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
