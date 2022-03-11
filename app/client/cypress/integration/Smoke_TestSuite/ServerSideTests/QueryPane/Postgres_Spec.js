@@ -173,7 +173,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .type("APPROVED");
 
     cy.get(generatePage.updateBtn)
-      .closest("button")
+      .closest("div")
       .click()
       .wait(2000); //Wait for update call to be success
 
@@ -203,6 +203,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .type("curduser31@ihg.com")
       .wait(1000); //Waiting for Submit button to get enabled
     cy.get(generatePage.submitBtn)
+      .closest("div")
       .first()
       .click();
 
@@ -216,6 +217,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .should("be.visible")
       .click({ force: true });
     cy.get(generatePage.confirmBtn)
+      .closest("div")
       .click()
       .wait(2000); //Wait for update call to be success
 

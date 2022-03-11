@@ -340,7 +340,7 @@ interface PopoverContentProps {
       onClick?: string;
     }
   >;
-  onItemClicked: (onClick: string | undefined) => () => void;
+  onItemClicked: (onClick: string | undefined) => void;
 }
 
 function PopoverContent(props: PopoverContentProps) {
@@ -371,7 +371,7 @@ function PopoverContent(props: PopoverContentProps) {
           disabled={isDisabled}
           key={id}
           labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={onItemClicked(onClick)}
+          onClick={() => onItemClicked(onClick)}
           text={label}
           textColor={textColor}
         />
@@ -383,7 +383,7 @@ function PopoverContent(props: PopoverContentProps) {
         disabled={isDisabled}
         icon={<Icon color={iconColor} icon={iconName} />}
         key={id}
-        onClick={onItemClicked(onClick)}
+        onClick={() => onItemClicked(onClick)}
         text={label}
         textColor={textColor}
       />
@@ -443,7 +443,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   content={
                     <PopoverContent
                       menuItems={menuItems || {}}
-                      onItemClicked={() => () => this.onButtonClick()}
+                      onItemClicked={this.onButtonClick}
                     />
                   }
                   disabled={button.isDisabled}

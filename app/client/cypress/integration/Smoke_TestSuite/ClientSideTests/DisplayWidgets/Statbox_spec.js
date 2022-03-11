@@ -43,7 +43,9 @@ describe("Statbox Widget Functionality", function() {
     cy.get(".bp3-icon-arrow-up").should("be.visible");
     // verifying modal has been added
     cy.get(".t--draggable-iconbuttonwidget").click();
-    cy.xpath("//span[text()='Close']").click();
+    cy.get("span:contains('Close')")
+      .closest("div")
+      .click();
   });
 
   it("Bind datasource to multiple components in statbox", () => {

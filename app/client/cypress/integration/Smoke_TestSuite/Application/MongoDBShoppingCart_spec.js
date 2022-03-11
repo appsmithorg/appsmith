@@ -117,37 +117,37 @@ describe("Shopping cart App", function() {
     cy.xpath(appPage.bookgenre).type("Self help");
     cy.xpath(appPage.bookprice).type(200);
     cy.xpath(appPage.bookquantity).type(2);
-    cy.xpath(appPage.addtoCart)
-      .last()
+    cy.get(".bp3-button-text", "Submit")
+      .closest("div")
       .click();
     cy.wait(2000);
     cy.xpath(appPage.bookname).type("A man called ove");
     cy.xpath(appPage.bookgenre).type("Fiction");
     cy.xpath(appPage.bookprice).type(100);
     cy.xpath(appPage.bookquantity).type(1);
-    cy.xpath(appPage.addtoCart)
-      .last()
+    cy.get(".bp3-button-text", "Submit")
+      .closest("div")
       .click();
     cy.wait(2000);
-    cy.xpath(appPage.addtoCart)
-      .first()
+    cy.get(".bp3-button-text", "Submit")
+      .closest("div")
       .click();
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
       .within(() => {
-        cy.xpath(appPage.deletefromCart)
-          .first()
+        cy.get(".bp3-button-text", "Delete")
+          .closest("div")
           .click();
         // validating that the book is deleted
-        cy.xpath(appPage.deletefromCart).should("have.length", 1);
+        cy.xpath(".bp3-button-text", "Delete").should("have.length", 1);
       });
     // Updating the book quantity from edit cart
     cy.xpath(appPage.editbookquantity)
       .clear()
       .type("3");
-    cy.xpath(appPage.addtoCart)
-      .first()
+    cy.get(".bp3-button-text", "Submit")
+      .closest("div")
       .click();
     // validating updated value in the cart
     cy.get(".selected-row")
