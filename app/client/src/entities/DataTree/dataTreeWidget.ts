@@ -135,10 +135,11 @@ export const generateDataTreeWidget = (
    */
   return _.merge(
     {},
+    widget,
+    unInitializedDefaultProps,
     defaultMetaProps,
     widgetMetaProps,
     derivedProps,
-    unInitializedDefaultProps,
     {
       defaultProps,
       defaultMetaProps: Object.keys(defaultMetaProps),
@@ -158,6 +159,5 @@ export const generateDataTreeWidget = (
         ...widget.privateWidgets,
       },
     },
-    widget,
   );
 };
