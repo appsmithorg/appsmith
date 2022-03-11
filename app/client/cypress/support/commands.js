@@ -325,7 +325,7 @@ Cypress.Commands.add("launchApp", (appName) => {
 Cypress.Commands.add("AppSetupForRename", () => {
   cy.get(homePage.applicationName).then(($appName) => {
     if (!$appName.hasClass(homePage.editingAppName)) {
-      cy.get(homePage.applicationName).click();
+      cy.get(homePage.applicationName).click({ force: true });
       cy.get(homePage.portalMenuItem)
         .contains("Edit Name", { matchCase: false })
         .click();
@@ -2482,6 +2482,19 @@ Cypress.Commands.add(
       .type(userMockDatabaseUsername);
   },
 );
+Cypress.Commands.add(
+  "fillSMTPDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["smtp-host"] + "  "
+      : datasourceFormData["smtp-host"];
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["smtp-port"]);
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(datasourceFormData["smtp-username"]);
+    cy.get(datasourceEditor.password).type(datasourceFormData["smtp-password"]);
+  },
+);
 
 Cypress.Commands.add("createPostgresDatasource", () => {
   cy.NavigateToDatasourceEditor();
@@ -3557,7 +3570,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("createGitBranch", (branch) => {
-  cy.get(gitSyncLocators.branchButton).click();
+  cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
   // increasing timeout to reduce flakyness
   cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
@@ -3565,7 +3578,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
-  cy.get(gitSyncLocators.branchButton).click();
+  cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
   cy.get(gitSyncLocators.branchListItem)
     .contains(branch)
