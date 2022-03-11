@@ -30,6 +30,8 @@
   "dropdownInput": ".bp3-tag-input-values",
   "mulitiselectInput": ".rc-select-selection-search-input",
   "treeSelectInput": ".rc-tree-select-selection-search-input",
+  "treeSelectFilterInput": ".tree-select-dropdown .bp3-input",
+  "multiTreeSelectFilterInput": ".tree-multiselect-dropdown .bp3-input",
   "labelradio": ".t--draggable-radiogroupwidget label",
   "labelCheckboxGroup": ".t--draggable-checkboxgroupwidget label",
   "labelSwitchGroup": ".t--draggable-switchgroupwidget label",
