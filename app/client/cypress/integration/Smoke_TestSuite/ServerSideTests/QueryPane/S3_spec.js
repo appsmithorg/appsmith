@@ -658,7 +658,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Confirm");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

@@ -50,7 +50,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
   it("6. Validate Deletion of JSObject", function() {
     agHelper.SelectEntityByName(pageId);
-    agHelper.ActionContextMenuByEntityName("ExplorerRenamed", "Delete")
+    agHelper.ActionContextMenuByEntityName("ExplorerRenamed", "Delete", "Are you sure?")
     agHelper.ValidateEntityAbsenceInExplorer('ExplorerRenamed')
   });
 

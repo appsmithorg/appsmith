@@ -94,6 +94,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.wait(2000);
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });
+      cy.get(apiwidget.deleteConfirm).click({ force: true });
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
@@ -105,6 +106,6 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get(".t--entity-name")
       .contains("Query1")
       .click();
-    agHelper.ActionContextMenuByEntityName("Query1", "Delete");
+    agHelper.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 });

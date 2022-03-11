@@ -46,6 +46,7 @@ describe("Api Naming conflict on different pages test", function() {
       .trigger("mouseover");
     cy.hoverAndClick();
     cy.selectAction("Delete");
+    cy.selectAction("Are you sure?");
     cy.wait(1000);
     cy.DeleteAPIFromSideBar();
   });
