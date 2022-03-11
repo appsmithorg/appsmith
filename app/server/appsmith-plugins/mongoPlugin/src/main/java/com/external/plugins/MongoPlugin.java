@@ -173,7 +173,8 @@ public class MongoPlugin extends BasePlugin {
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(AGGREGATE_PIPELINES,
+    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(
+            AGGREGATE_PIPELINES,
             COUNT_QUERY,
             DELETE_QUERY,
             DISTINCT_QUERY,
@@ -263,6 +264,8 @@ public class MongoPlugin extends BasePlugin {
             if (parsedRawCommand != null) {
                 setValueSafelyInFormData(formData, BODY, parsedRawCommand);
             }
+
+            actionConfiguration.setFormData(formData);
 
             return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
         }
