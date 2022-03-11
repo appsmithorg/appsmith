@@ -18,7 +18,9 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
-import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
+const FocusTrap = require("focus-trap-react");
+
+const MAX_COLS = 10;
 
 /**
  * ----------------------------------------------------------------------------
@@ -81,7 +83,151 @@ const StyledInputGroup = styled(InputGroup)`
   }
 `;
 
-const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer hover:ring-1 ring-gray-500 t--colorpicker-v2-color`;
+const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer hover:ring-1 ring-gray-500 t--colorpicker-v2-color focus:ring-2`;
+
+interface ColorPickerPopupProps {
+  color: string;
+  setColor: (color: string) => unknown;
+  setIsOpen: (isOpen: boolean) => unknown;
+  changeColor: (color: string) => unknown;
+  showThemeColors?: boolean;
+  showApplicationColors?: boolean;
+}
+
+function ColorPickerPopup(props: ColorPickerPopupProps) {
+  const themeColors = useSelector(getSelectedAppThemeProperties).colors;
+  const widgets = useSelector(getWidgets);
+  const DSLStringified = JSON.stringify(widgets);
+  const applicationColors = useMemo(() => {
+    return extractColorsFromString(DSLStringified);
+  }, [DSLStringified]);
+  const {
+    changeColor,
+    color,
+    setColor,
+    setIsOpen,
+    showApplicationColors,
+    showThemeColors,
+  } = props;
+  return (
+    <FocusTrap>
+      <div className="p-3 space-y-2 w-72" data-testid="color-picker">
+        {showThemeColors && (
+          <div className="space-y-2">
+            <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
+            <section className="space-y-2">
+              <h3 className="text-xs">Theme Colors</h3>
+              <div className="grid grid-cols-10 gap-2">
+                {Object.keys(themeColors).map((colorKey, colorIndex) => (
+                  <div
+                    className={`${COLOR_BOX_CLASSES} ${
+                      color ===
+                      getThemePropertyBinding(
+                        `${colorsPropertyName}.${colorKey}`,
+                      )
+                        ? "ring-1"
+                        : ""
+                    }`}
+                    key={`color-picker-v2-${colorKey}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setColor(themeColors[colorKey]);
+                      setIsOpen(false);
+                      changeColor(
+                        getThemePropertyBinding(
+                          `${colorsPropertyName}.${colorKey}`,
+                        ),
+                      );
+                    }}
+                    style={{ backgroundColor: themeColors[colorKey] }}
+                    tabIndex={colorIndex === 0 ? 0 : -1}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+        {showApplicationColors && applicationColors.length > 0 && (
+          <section className="space-y-2">
+            <h3 className="text-xs">Application Colors</h3>
+            <div className="grid grid-cols-10 gap-2">
+              {Object.values(applicationColors).map(
+                (colorCode: string, colorIndex) => (
+                  <div
+                    className={`${COLOR_BOX_CLASSES} ring-gray-500 ${
+                      color === colorCode ? "ring-1" : ""
+                    }`}
+                    key={colorCode}
+                    onClick={() => {
+                      setColor(colorCode);
+                      setIsOpen(false);
+                      changeColor(colorCode);
+                    }}
+                    style={{ backgroundColor: colorCode }}
+                    tabIndex={colorIndex === 0 ? 0 : -1}
+                  />
+                ),
+              )}
+            </div>
+          </section>
+        )}
+
+        <section className="space-y-2">
+          <h3 className="text-xs">All Colors</h3>
+          <div className="grid grid-cols-10 gap-2">
+            {Object.keys(TAILWIND_COLORS).map((colorKey, rowIndex) =>
+              Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
+                (singleColorKey, colIndex) => (
+                  <div
+                    className={`${COLOR_BOX_CLASSES}  ${
+                      color === TAILWIND_COLORS[colorKey][singleColorKey]
+                        ? "ring-1"
+                        : ""
+                    }`}
+                    key={`all-colors-${colorKey}-${singleColorKey}`}
+                    onClick={(e) => {
+                      setIsOpen(false);
+                      e.stopPropagation();
+                      setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
+                      changeColor(TAILWIND_COLORS[colorKey][singleColorKey]);
+                    }}
+                    style={{
+                      backgroundColor:
+                        TAILWIND_COLORS[colorKey][singleColorKey],
+                    }}
+                    tabIndex={rowIndex === 0 && colIndex === 0 ? 0 : -1}
+                  />
+                ),
+              ),
+            )}
+
+            <div
+              className={`${COLOR_BOX_CLASSES}  ${
+                color === "#fff" ? "ring-1" : ""
+              }`}
+              onClick={() => {
+                setColor("#fff");
+                changeColor("#fff");
+              }}
+              tabIndex={-1}
+            />
+            <div
+              className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
+                color === "transparent" ? "ring-1" : ""
+              }`}
+              onClick={() => {
+                setColor("transparent");
+                changeColor("transparent");
+              }}
+              tabIndex={-1}
+            />
+          </div>
+        </section>
+      </div>
+    </FocusTrap>
+  );
+}
 
 /**
  * ----------------------------------------------------------------------------
@@ -90,21 +236,11 @@ const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer 
  */
 function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<HTMLDivElement>(null);
-  const popoverRef = useRef<any>();
-  const [focussed, setFocussed] = React.useState(false);
+  const inputGroupRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = React.useState(false);
   const [color, setColor] = React.useState(
     props.evaluatedColorValue || props.color,
   );
-  const widgets = useSelector(getWidgets);
-  const themeColors = useSelector(getSelectedAppThemeProperties).colors;
-  const DSLStringified = JSON.stringify(widgets);
-  const applicationColors = useMemo(() => {
-    return extractColorsFromString(DSLStringified);
-  }, [DSLStringified]);
-
-  useOnClickOutside([inputRef, popoverRef], () => {
-    setFocussed(false);
-  });
 
   /**
    * debounced onChange
@@ -116,6 +252,105 @@ function ColorPickerComponent(props: ColorPickerProps) {
     }, 250),
     [],
   );
+
+  useEffect(() => {
+    document.body.addEventListener("keydown", handleKeydown);
+    return () => {
+      document.body.removeEventListener("keydown", handleKeydown);
+    };
+  });
+
+  const currentFocus = useRef(0);
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (isOpen) {
+      switch (e.key) {
+        case "Escape":
+          e.stopPropagation();
+          setIsOpen(false);
+          inputGroupRef.current?.focus();
+          break;
+        case "Tab":
+          currentFocus.current = 0;
+          break;
+        case "Enter":
+        case " ":
+          (document.activeElement as any)?.click();
+          inputGroupRef.current?.focus();
+          e.preventDefault();
+          break;
+        case "ArrowRight": {
+          const totalColors =
+            document.activeElement?.parentElement?.childElementCount ?? 0;
+          currentFocus.current = currentFocus.current + 1;
+          if (
+            currentFocus.current % MAX_COLS === 0 ||
+            currentFocus.current >= totalColors
+          )
+            currentFocus.current =
+              currentFocus.current % MAX_COLS === 0
+                ? currentFocus.current - MAX_COLS
+                : totalColors - (totalColors % MAX_COLS);
+          (document.activeElement?.parentElement?.childNodes[
+            currentFocus.current
+          ] as any).focus();
+          break;
+        }
+        case "ArrowLeft": {
+          const totalColors =
+            document.activeElement?.parentElement?.childElementCount ?? 0;
+          currentFocus.current = currentFocus.current - 1;
+          if (
+            currentFocus.current < 0 ||
+            currentFocus.current % MAX_COLS === MAX_COLS - 1
+          ) {
+            currentFocus.current = currentFocus.current + MAX_COLS;
+            if (currentFocus.current > totalColors)
+              currentFocus.current = totalColors - 1;
+          }
+          (document.activeElement?.parentElement?.childNodes[
+            currentFocus.current
+          ] as any).focus();
+          break;
+        }
+        case "ArrowDown": {
+          const totalColors =
+            document.activeElement?.parentElement?.childElementCount ?? 0;
+          if (totalColors < MAX_COLS) break;
+          currentFocus.current = currentFocus.current + MAX_COLS;
+          if (currentFocus.current >= totalColors)
+            currentFocus.current = currentFocus.current % MAX_COLS;
+          (document.activeElement?.parentElement?.childNodes[
+            currentFocus.current
+          ] as any).focus();
+          break;
+        }
+        case "ArrowUp": {
+          const totalColors =
+            document.activeElement?.parentElement?.childElementCount ?? 0;
+          if (totalColors < MAX_COLS) break;
+          currentFocus.current = currentFocus.current - MAX_COLS;
+          if (currentFocus.current < 0) {
+            const factor = Math.floor(totalColors / MAX_COLS) * MAX_COLS;
+            const nextIndex = factor + currentFocus.current + MAX_COLS;
+            if (nextIndex >= totalColors)
+              currentFocus.current = nextIndex - MAX_COLS;
+            else currentFocus.current = nextIndex;
+          }
+          (document.activeElement?.parentElement?.childNodes[
+            currentFocus.current
+          ] as any).focus();
+          break;
+        }
+      }
+    } else if (document.activeElement === inputGroupRef.current) {
+      switch (e.key) {
+        case "Enter":
+          setIsOpen(true);
+          break;
+      }
+    }
+  };
 
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -133,166 +368,59 @@ function ColorPickerComponent(props: ColorPickerProps) {
 
   const evaluatedValue = color || "";
 
-  return (
-    <div
-      className="popover-target-colorpicker t--colorpicker-v2-popover"
-      ref={inputRef}
-    >
+  function LeftIcon() {
+    return (
       <Popover
+        autoFocus={false}
         boundary="viewport"
         interactionKind={PopoverInteractionKind.CLICK}
-        isOpen={focussed}
+        isOpen={isOpen}
         minimal
         modifiers={{
           offset: {
             offset: "0, 10px",
           },
         }}
-        openOnTargetFocus
-        usePortal
+        onInteraction={(nextOpenState) => {
+          if (isOpen !== nextOpenState) setIsOpen(nextOpenState);
+        }}
       >
-        <div>
-          <StyledInputGroup
-            autoFocus={props.autoFocus}
-            leftIcon={
-              color ? (
-                <ColorIcon
-                  className="rounded-full cursor-pointer"
-                  color={evaluatedValue}
-                  onClick={() => {
-                    setFocussed(true);
-                  }}
-                />
-              ) : (
-                <ColorPickerIconContainer
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setFocussed(true);
-                  }}
-                >
-                  <ColorPickerIcon />
-                </ColorPickerIconContainer>
-              )
-            }
-            onChange={handleChangeColor}
-            onFocus={() => {
-              setFocussed(true);
-            }}
-            placeholder="enter color name or hex"
-            value={evaluatedValue}
+        {color ? (
+          <ColorIcon
+            className="rounded-full cursor-pointer"
+            color={evaluatedValue}
           />
-        </div>
-        <div className="p-3 space-y-2 w-72" ref={popoverRef}>
-          {props.showThemeColors && (
-            <div className="space-y-2">
-              <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
-              <section className="space-y-2">
-                <h3 className="text-xs">Theme Colors</h3>
-                <div className="grid grid-cols-10 gap-2">
-                  {Object.keys(themeColors).map((colorKey) => (
-                    <div
-                      className={`${COLOR_BOX_CLASSES} ${
-                        props.color ===
-                        getThemePropertyBinding(
-                          `${colorsPropertyName}.${colorKey}`,
-                        )
-                          ? "ring-1"
-                          : ""
-                      }`}
-                      key={`color-picker-v2-${colorKey}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setColor(themeColors[colorKey]);
-                        setFocussed(false);
-                        props.changeColor(
-                          getThemePropertyBinding(
-                            `${colorsPropertyName}.${colorKey}`,
-                          ),
-                        );
-                      }}
-                      style={{ backgroundColor: themeColors[colorKey] }}
-                    />
-                  ))}
-                </div>
-              </section>
-            </div>
-          )}
-          {props.showApplicationColors && applicationColors.length > 0 && (
-            <section className="space-y-2">
-              <h3 className="text-xs">Application Colors</h3>
-              <div className="grid grid-cols-10 gap-2">
-                {Object.values(applicationColors).map((colorCode: string) => (
-                  <div
-                    className={`${COLOR_BOX_CLASSES} ring-gray-500 ${
-                      props.color === colorCode ? "ring-1" : ""
-                    }`}
-                    key={colorCode}
-                    onClick={() => {
-                      setColor(colorCode);
-                      setFocussed(false);
-                      props.changeColor(colorCode);
-                    }}
-                    style={{ backgroundColor: colorCode }}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+        ) : (
+          <ColorPickerIconContainer className="cursor-pointer">
+            <ColorPickerIcon />
+          </ColorPickerIconContainer>
+        )}
 
-          <section className="space-y-2">
-            <h3 className="text-xs">All Colors</h3>
-            <div className="grid grid-cols-10 gap-2">
-              {Object.keys(TAILWIND_COLORS).map((colorKey) =>
-                Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
-                  (singleColorKey) => (
-                    <div
-                      className={`${COLOR_BOX_CLASSES}  ${
-                        props.color ===
-                        TAILWIND_COLORS[colorKey][singleColorKey]
-                          ? "ring-1"
-                          : ""
-                      }`}
-                      key={`all-colors-${colorKey}-${singleColorKey}`}
-                      onClick={(e) => {
-                        setFocussed(false);
-                        e.stopPropagation();
-                        setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
-                        props.changeColor(
-                          TAILWIND_COLORS[colorKey][singleColorKey],
-                        );
-                      }}
-                      style={{
-                        backgroundColor:
-                          TAILWIND_COLORS[colorKey][singleColorKey],
-                      }}
-                    />
-                  ),
-                ),
-              )}
-
-              <div
-                className={`${COLOR_BOX_CLASSES}  ${
-                  props.color === "#fff" ? "ring-1" : ""
-                }`}
-                onClick={() => {
-                  setColor("#fff");
-                  props.changeColor("#fff");
-                }}
-              />
-              <div
-                className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
-                  props.color === "transparent" ? "ring-1" : ""
-                }`}
-                onClick={() => {
-                  setColor("transparent");
-                  props.changeColor("transparent");
-                }}
-              />
-            </div>
-          </section>
-        </div>
+        <ColorPickerPopup
+          changeColor={props.changeColor}
+          color={color}
+          setColor={setColor}
+          setIsOpen={setIsOpen}
+          showApplicationColors={props.showApplicationColors}
+          showThemeColors={props.showThemeColors}
+        />
       </Popover>
+    );
+  }
+
+  return (
+    <div
+      className="popover-target-colorpicker t--colorpicker-v2-popover"
+      ref={inputRef}
+    >
+      <StyledInputGroup
+        autoFocus={props.autoFocus}
+        inputRef={inputGroupRef}
+        leftIcon={<LeftIcon />}
+        onChange={handleChangeColor}
+        placeholder="enter color name or hex"
+        value={evaluatedValue}
+      />
     </div>
   );
 }
