@@ -220,7 +220,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).then(
+        getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
           (schemaItem) => {
             if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
             return !schemaItem.serverSideFiltering;

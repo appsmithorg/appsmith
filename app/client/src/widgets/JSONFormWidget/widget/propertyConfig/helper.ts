@@ -73,13 +73,13 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
     fieldTypes: Readonly<FieldType[]> | FieldType[],
   ) => !fieldTypes.includes(schemaItem.fieldType);
 
-  const then = (cb: (props: TSchemaItem) => any) => cb(schemaItem);
+  const compute = (cb: (props: TSchemaItem) => any) => cb(schemaItem);
 
   return {
     fieldTypeMatches,
     fieldTypeNotMatches,
     fieldTypeNotIncludes,
-    then,
+    compute,
   };
 };
 
@@ -106,10 +106,12 @@ const getUpdatedSchemaFor = (
   return newSchema;
 };
 
-// This hook updates the disabled state for array and object field types only
-// If such field is disabled then all the underlying fields are recursively
-// disabled by setting the isDisabled property in the schema and updating it
-// in the dsl.
+/**
+ * This hook updates the disabled state for array and object field types only
+ * If such field is disabled then all the underlying fields are recursively
+ * disabled by setting the isDisabled property in the schema and updating it
+ * in the dsl.
+ */
 export const updateChildrenDisabledStateHook = (
   props: JSONFormWidgetProps,
   propertyPath: string,
@@ -135,6 +137,4 @@ export const updateChildrenDisabledStateHook = (
       },
     ];
   }
-
-  return;
 };

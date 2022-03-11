@@ -54,7 +54,7 @@ function generatePanelPropertyConfig(
             isTriggerProperty: false,
             panelConfig: generatePanelPropertyConfig(nestingLevel - 1),
             hidden: (...args: HiddenFnParams) => {
-              return getSchemaItem(...args).then((schemaItem) => {
+              return getSchemaItem(...args).compute((schemaItem) => {
                 return (
                   schemaItem.fieldType !== FieldType.OBJECT &&
                   isEmpty(schemaItem.children)

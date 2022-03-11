@@ -1,5 +1,4 @@
 import {
-  cloneDeep,
   difference,
   isEmpty,
   merge,
@@ -23,6 +22,8 @@ import {
   Schema,
   SchemaItem,
 } from "./constants";
+
+const clone = require("rfdc/default");
 
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];
@@ -119,7 +120,7 @@ export const getSourceDataPathFromSchemaItemPath = (
   schemaItemPath: string,
 ) => {
   const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", ROOT_SCHEMA_KEY, "children", "name"]
-  let clonedSchema = cloneDeep(schema);
+  let clonedSchema = clone(schema);
   let sourceDataPath = "sourceData";
   let schemaItem: SchemaItem;
   let skipIteration = false;
@@ -588,7 +589,7 @@ class SchemaParser {
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = cloneDeep(prevSchema);
+    const schema = clone(prevSchema);
     const currData = normalizeArrayValue(currSourceData as any[]);
 
     const prevDataType = schema[ARRAY_ITEM_KEY]?.dataType;
@@ -625,7 +626,7 @@ class SchemaParser {
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = cloneDeep(prevSchema);
+    const schema = clone(prevSchema);
     const origIdentifierToIdentifierMap = mapOriginalIdentifierToSanitizedIdentifier(
       schema,
     );
@@ -657,7 +658,7 @@ class SchemaParser {
 
     modifiedKeys.forEach((modifiedKey) => {
       const identifier = origIdentifierToIdentifierMap[modifiedKey];
-      const prevSchemaItem = cloneDeep(schema[identifier]);
+      const prevSchemaItem = clone(schema[identifier]);
       const currData = currObj[modifiedKey];
       const prevData = prevSchemaItem.sourceData;
       const currDataType = dataTypeFor(currData);

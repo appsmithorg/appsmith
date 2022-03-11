@@ -1,10 +1,12 @@
 import * as Sentry from "@sentry/react";
-import { cloneDeep, set } from "lodash";
+import { set } from "lodash";
 import { ControllerProps, useFormContext } from "react-hook-form";
 import { useContext, useEffect } from "react";
 
 import FormContext from "../FormContext";
 import { FieldType } from "../constants";
+
+const clone = require("rfdc/default");
 
 export type UseRegisterFieldValidityProps = {
   isValid: boolean;
@@ -36,9 +38,7 @@ function useRegisterFieldValidity({
     }
 
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = cloneDeep(
-        prevState.metaInternalFieldState,
-      );
+      const metaInternalFieldState = clone(prevState.metaInternalFieldState);
       set(metaInternalFieldState, `${fieldName}.isValid`, isValid);
 
       return {

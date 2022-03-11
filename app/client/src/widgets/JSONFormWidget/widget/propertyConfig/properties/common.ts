@@ -195,7 +195,7 @@ const COMMON_PROPERTIES = {
         const isHidden = hiddenIfArrayItemIsObject(...args);
         if (isHidden) return true;
 
-        return getSchemaItem(...args).then(
+        return getSchemaItem(...args).compute(
           (schemaItem) =>
             schemaItem.fieldType === FieldType.OBJECT ||
             schemaItem.fieldType === FieldType.ARRAY,

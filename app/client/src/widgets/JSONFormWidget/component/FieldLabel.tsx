@@ -132,8 +132,10 @@ function FieldLabel({
     };
   }, [labelStyle, labelTextColor, labelTextSize]);
 
-  // If field and label are to be displayed horizontally then we consider the alignField
-  // prop else we always want to have label then field in case of vertical alignment (direction === "column")
+  /**
+   * If field and label are to be displayed horizontally then we consider the alignField
+   * prop else we always want to have label then field in case of vertical alignment (direction === "column")
+   */
   const align = direction === "row" ? alignField : "RIGHT";
 
   return (

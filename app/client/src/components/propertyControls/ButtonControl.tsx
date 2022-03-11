@@ -15,7 +15,7 @@ export type OnButtonClickProps = {
 export type ButtonControlProps = ControlProps & {
   onClick: (props: OnButtonClickProps) => void;
   buttonLabel: string;
-  disabled?: (widgetProperties: any) => boolean;
+  isDisabled?: (widgetProperties: any) => boolean;
 };
 
 type ButtonControlState = {
@@ -54,12 +54,12 @@ class ButtonControl extends BaseControl<
   disableLoading = () => this.setState({ isLoading: false });
 
   render() {
-    const { buttonLabel, disabled, widgetProperties } = this.props;
+    const { buttonLabel, isDisabled, widgetProperties } = this.props;
 
     return (
       <StyledButton
         category={Category.tertiary}
-        disabled={disabled?.(widgetProperties)}
+        disabled={isDisabled?.(widgetProperties)}
         isLoading={this.state.isLoading}
         onClick={this.onCTAClick}
         size={Size.medium}

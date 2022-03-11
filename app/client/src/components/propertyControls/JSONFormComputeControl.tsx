@@ -46,7 +46,10 @@ function processObject(schema: Schema, defaultValue?: any) {
   const obj: Record<string, any> = {};
 
   Object.values(schema).forEach((schemaItem) => {
-    obj[schemaItem.accessor] = processSchemaItem(schemaItem, defaultValue);
+    obj[schemaItem.accessor] = processSchemaItemAutocomplete(
+      schemaItem,
+      defaultValue,
+    );
   });
 
   return obj;
@@ -55,30 +58,18 @@ function processObject(schema: Schema, defaultValue?: any) {
 // Auxiliary function for processArray, which returns the value for an array field
 function processArray(schema: Schema, defaultValue?: any): any[] {
   if (schema[ARRAY_ITEM_KEY]) {
-    return [processSchemaItem(schema[ARRAY_ITEM_KEY], defaultValue)];
+    return [
+      processSchemaItemAutocomplete(schema[ARRAY_ITEM_KEY], defaultValue),
+    ];
   }
 
   return [];
 }
 
-// Auxiliary function for generateAutoCompleteStructure, which returns the value for a field
-function processSchemaItem(schemaItem: SchemaItem, defaultValue?: any) {
-  if (schemaItem.dataType === DataType.OBJECT) {
-    return processObject(schemaItem.children, defaultValue);
-  }
-
-  if (schemaItem.dataType === DataType.ARRAY) {
-    return processArray(schemaItem.children, defaultValue);
-  }
-
-  return defaultValue || FIELD_TYPE_TO_POTENTIAL_DATA[schemaItem.fieldType];
-}
-
 /**
- * This function takes a schema, traverses through it and creates an object out of it. This
+ * This function takes a schemaItem, traverses through it and creates an object out of it. This
  * object would look like the form data and this object would be used for autocomplete.
- * Eg - schema {
- *  __root_schema__: {
+ * Eg -  {
  *    fieldType: object,
  *    children: {
  *      name: {
@@ -91,7 +82,6 @@ function processSchemaItem(schemaItem: SchemaItem, defaultValue?: any) {
  *      }
  *    }
  *  }
- * }
  *
  * @returns
  * {
@@ -102,19 +92,19 @@ function processSchemaItem(schemaItem: SchemaItem, defaultValue?: any) {
  * @param schema
  * @param defaultValue Values that the autocomplete should show for a particular field
  */
-function generateAutoCompleteStructure(
-  schema: Schema,
+function processSchemaItemAutocomplete(
+  schemaItem: SchemaItem,
   defaultValue?: any,
-): any {
-  let obj;
-
-  if (schema) {
-    Object.values(schema).forEach((schemaItem) => {
-      obj = processSchemaItem(schemaItem, defaultValue);
-    });
+) {
+  if (schemaItem.dataType === DataType.OBJECT) {
+    return processObject(schemaItem.children, defaultValue);
   }
 
-  return obj;
+  if (schemaItem.dataType === DataType.ARRAY) {
+    return processArray(schemaItem.children, defaultValue);
+  }
+
+  return defaultValue || FIELD_TYPE_TO_POTENTIAL_DATA[schemaItem.fieldType];
 }
 
 export function InputText(props: {
@@ -211,11 +201,12 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
     } = this.props;
 
     const { schema } = widgetProperties;
-    const { sourceData } = schema[ROOT_SCHEMA_KEY] || {};
+    const rootSchemaItem = schema[ROOT_SCHEMA_KEY] || {};
+    const { sourceData } = rootSchemaItem;
 
-    const baseSchemaStructure = generateAutoCompleteStructure(schema);
+    const baseSchemaStructure = processSchemaItemAutocomplete(rootSchemaItem);
 
-    const fieldStateStructure = generateAutoCompleteStructure(schema, {
+    const fieldStateStructure = processSchemaItemAutocomplete(rootSchemaItem, {
       isVisible: true,
       isDisabled: true,
       isRequired: true,

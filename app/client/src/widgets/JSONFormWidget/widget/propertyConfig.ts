@@ -322,7 +322,7 @@ export default [
         isBindProperty: false,
         buttonLabel: "Generate Form",
         onClick: onGenerateFormClick,
-        disabled: generateFormCTADisabled,
+        isDisabled: generateFormCTADisabled,
         isTriggerProperty: false,
         dependencies: ["autoGenerateForm", "schema", "fieldLimitExceeded"],
         evaluatedDependencies: ["sourceData"],

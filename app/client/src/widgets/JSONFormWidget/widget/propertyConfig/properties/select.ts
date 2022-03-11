@@ -163,7 +163,7 @@ const PROPERTIES = {
       dependencies: ["schema", "sourceData"],
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem<SelectFieldProps["schemaItem"]>(...args).then(
+        getSchemaItem<SelectFieldProps["schemaItem"]>(...args).compute(
           (schemaItem) => {
             if (schemaItem.fieldType !== FieldType.SELECT) return true;
             return !schemaItem.serverSideFiltering;

@@ -230,10 +230,11 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
   // Step 5 handle checking with existing keys if present
   const { existingKeys = [] } = options || {};
   if (existingKeys.length) {
-    const keyToIndexMap = generateKeyToIndexMap(existingKeys);
     const exactMatch = existingKeys.includes(sanitizedKey);
 
     if (!exactMatch) return sanitizedKey;
+
+    const keyToIndexMap = generateKeyToIndexMap(existingKeys);
 
     const match = sanitizedKey.match(/\d+$/);
     let prefix = sanitizedKey;

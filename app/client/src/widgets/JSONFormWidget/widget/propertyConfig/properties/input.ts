@@ -437,7 +437,7 @@ const PROPERTIES = {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
       hidden: (...args: HiddenFnParams) =>
-        getSchemaItem<InputFieldProps["schemaItem"]>(...args).then(
+        getSchemaItem<InputFieldProps["schemaItem"]>(...args).compute(
           (schemaItem) => !schemaItem.iconName,
         ),
       dependencies: ["schema"],

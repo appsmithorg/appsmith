@@ -2,11 +2,12 @@ import equal from "fast-deep-equal/es6";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { ControllerProps, useFormContext } from "react-hook-form";
-import { cloneDeep } from "lodash";
 
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
 import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
+
+const clone = require("rfdc/default");
 
 type FieldProps<TValue> = React.PropsWithChildren<
   {
@@ -57,7 +58,7 @@ function Field<TValue>({
     if (!equal(refDefaultValue.current, defaultValue)) {
       refDefaultValue.current = defaultValue;
 
-      setValue(name, cloneDeep(defaultValue));
+      setValue(name, clone(defaultValue));
     }
   }, [defaultValue, setValue]);
 

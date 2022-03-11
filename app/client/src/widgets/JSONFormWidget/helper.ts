@@ -147,9 +147,7 @@ export const validateOptions = (
     }
   }
 
-  if (hasPrimitive && hasObject) return false;
-
-  return true;
+  return !(hasPrimitive && hasObject);
 };
 
 export const mergeAllObjectsInAnArray = (arrObj: Record<string, unknown>[]) => {

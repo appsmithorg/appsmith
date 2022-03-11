@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import React, { PropsWithChildren, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { cloneDeep, debounce, isEmpty } from "lodash";
+import { debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
@@ -15,6 +15,8 @@ import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { schemaItemDefaultValue } from "../helper";
 import { TEXT_SIZES } from "constants/WidgetConstants";
+
+const clone = require("rfdc/default");
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
@@ -188,7 +190,7 @@ function Form<TValues = any>({
       }
 
       if (!equal(valuesRef.current, values)) {
-        const clonedValue = cloneDeep(values);
+        const clonedValue = clone(values);
         valuesRef.current = clonedValue;
         debouncedUpdateFormData(clonedValue as TValues);
       }

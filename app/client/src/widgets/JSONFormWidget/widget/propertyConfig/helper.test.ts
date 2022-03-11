@@ -1,4 +1,4 @@
-import { cloneDeep, get, set } from "lodash";
+import { get, set } from "lodash";
 
 import schemaTestData from "widgets/JSONFormWidget/schemaTestData";
 import {
@@ -15,6 +15,8 @@ import {
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "./helper";
+
+const clone = require("rfdc/default");
 
 const widgetName = "JSONForm1";
 
@@ -85,7 +87,7 @@ describe(".fieldTypeUpdateHook", () => {
   });
 
   it("updates valid new schema item for a field type array -> multiselect", () => {
-    const schema = cloneDeep(schemaTestData.initialDataset.schemaOutput);
+    const schema = clone(schemaTestData.initialDataset.schemaOutput);
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
     const fieldType = FieldType.MULTISELECT;
 
@@ -215,7 +217,7 @@ describe(".getSchemaItem", () => {
     expect(result.fieldTypeMatches).toBeDefined();
     expect(result.fieldTypeNotMatches).toBeDefined();
     expect(result.fieldTypeNotIncludes).toBeDefined();
-    expect(result.then).toBeDefined();
+    expect(result.compute).toBeDefined();
   });
 
   it("returns boolean when fieldTypeMatches is chained", () => {
@@ -297,7 +299,7 @@ describe(".getSchemaItem", () => {
         schema,
       } as unknown) as JSONFormWidgetProps,
       propertyPath,
-    ).then((schemaItem) => schemaItem);
+    ).compute((schemaItem) => schemaItem);
 
     expect(result).toEqual(expectedOutput);
   });
