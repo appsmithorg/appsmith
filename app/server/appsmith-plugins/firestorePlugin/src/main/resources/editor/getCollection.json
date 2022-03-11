@@ -51,6 +51,7 @@
       "configProperty": "actionConfiguration.formData.where.data",
       "nestedLevels": 1,
       "controlType": "WHERE_CLAUSE",
+      "alternateViewTypes": ["json"],
       "logicalTypes": [
         {
           "label": "AND",

@@ -42,6 +42,7 @@
           "label": "Limit",
           "configProperty": "actionConfiguration.formData.updateMany.limit.data",
           "controlType": "DROP_DOWN",
+          "alternateViewTypes": ["json"],
           "initialValue": "SINGLE",
           "options": [
             {

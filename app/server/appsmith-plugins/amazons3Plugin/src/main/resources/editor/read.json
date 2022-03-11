@@ -34,6 +34,9 @@
           "label": "Base64 Encode File - Yes/No",
           "configProperty": "actionConfiguration.formData.read.dataType.data",
           "controlType": "DROP_DOWN",
+          "alternateViewTypes": [
+            "json"
+          ],
           "initialValue": "YES",
           "options": [
             {

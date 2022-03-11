@@ -35,6 +35,9 @@
           "configProperty": "actionConfiguration.formData.list.where.data",
           "nestedLevels": 3,
           "controlType": "WHERE_CLAUSE",
+          "alternateViewTypes": [
+            "json"
+          ],
           "logicalTypes": [
             {
               "label": "AND",
@@ -74,6 +77,9 @@
           "label": "Generate Signed URL",
           "configProperty": "actionConfiguration.formData.list.signedUrl.data",
           "controlType": "DROP_DOWN",
+          "alternateViewTypes": [
+            "json"
+          ],
           "initialValue": "NO",
           "options": [
             {
@@ -99,6 +105,9 @@
           "label": "Generate Un-signed URL",
           "configProperty": "actionConfiguration.formData.list.unSignedUrl.data",
           "controlType": "DROP_DOWN",
+          "alternateViewTypes": [
+            "json"
+          ],
           "initialValue": "YES",
           "options": [
             {
@@ -114,12 +123,18 @@
         {
           "label": "Sort By",
           "configProperty": "actionConfiguration.formData.list.sortBy.data",
-          "controlType": "SORTING"
+          "controlType": "SORTING",
+          "alternateViewTypes": [
+            "json"
+          ]
         },
         {
           "label": "Paginate By",
           "configProperty": "actionConfiguration.formData.list.pagination.data",
-          "controlType": "PAGINATION"
+          "controlType": "PAGINATION",
+          "alternateViewTypes": [
+            "json"
+          ]
         }
       ]
     }
