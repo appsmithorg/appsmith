@@ -44,6 +44,7 @@ module.exports = {
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
       disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
       disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
+      disableTelemetry: parseConfig("__APPSMITH_DISABLE_TELEMETRY__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
