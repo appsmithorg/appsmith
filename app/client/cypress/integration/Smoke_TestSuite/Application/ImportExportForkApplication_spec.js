@@ -63,10 +63,6 @@ describe("Import, Export and Fork application and validate data binding", functi
       .first()
       .click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
-    cy.get(homePage.forkAppOrgList)
-      .children()
-      .last()
-      .click({ force: true });
     cy.get(homePage.forkAppOrgButton).click({ force: true });
     cy.wait(4000);
     // validating data binding for the forked application
