@@ -14,7 +14,7 @@ export const config: AdminConfigType = {
   settings: [
     {
       id: "APPSMITH_CURRENT_VERSION",
-      category: "version",
+      category: SettingCategories.VERSION,
       controlType: SettingTypes.TEXT,
       label: "Current version",
     },
@@ -27,7 +27,7 @@ export const config: AdminConfigType = {
             payload: true,
           });
       },
-      category: "version",
+      category: SettingCategories.VERSION,
       controlType: SettingTypes.LINK,
       label: "Release Notes",
     },

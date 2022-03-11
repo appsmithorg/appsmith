@@ -32,11 +32,12 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
+import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 
 const StyledEntity = styled(Entity)`
   &.pages {
     & > div:not(.t--entity-item) {
-      max-height: 138px !important;
+      max-height: 144px !important;
       overflow-y: auto !important;
     }
   }
@@ -57,6 +58,7 @@ function Pages() {
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
+  const isPagesOpen = getExplorerStatus(applicationId, "pages");
 
   useEffect(() => {
     document.getElementsByClassName("activePage")[0]?.scrollIntoView();
@@ -113,6 +115,13 @@ function Pages() {
     [applicationId, currentPageId],
   );
 
+  const onPageToggle = useCallback(
+    (isOpen: boolean) => {
+      saveExplorerStatus(applicationId, "pages", isOpen);
+    },
+    [applicationId],
+  );
+
   const pageElements = useMemo(
     () =>
       pages.map((page) => {
@@ -163,11 +172,12 @@ function Pages() {
       className="group pages"
       entityId="Pages"
       icon={""}
-      isDefaultExpanded
+      isDefaultExpanded={isPagesOpen === null ? true : isPagesOpen}
       name="PAGES"
       onClickPreRightIcon={onPin}
       onClickRightIcon={onClickRightIcon}
       onCreate={createPageCallback}
+      onToggle={onPageToggle}
       rightIcon={settingsIconWithTooltip}
       searchKeyword={""}
       step={0}

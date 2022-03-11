@@ -45,10 +45,11 @@ import SortingControl, {
 import EntitySelectorControl, {
   EntitySelectorControlProps,
 } from "components/formControls/EntitySelectorControl";
-import ProjectionSelectorControl, {
-  ProjectionSelectorControlProps,
-} from "components/formControls/ProjectionSelectorControl";
 
+/**
+ * NOTE: If you are adding a component that uses FormControl
+ * then add logic for creating bindingPaths in recursiveFindBindingPaths() at entities/Action/actionProperties.ts
+ */
 class FormControlRegistry {
   static registerFormControlBuilders() {
     FormControlFactory.registerControlBuilder("INPUT_TEXT", {
@@ -147,10 +148,15 @@ class FormControlRegistry {
       },
     });
     FormControlFactory.registerControlBuilder("PROJECTION", {
-      buildPropertyControl(
-        controlProps: ProjectionSelectorControlProps,
-      ): JSX.Element {
-        return <ProjectionSelectorControl {...controlProps} />;
+      buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
+        return (
+          <DropDownControl
+            fetchOptionsCondtionally
+            isMultiSelect
+            isSearchable
+            {...controlProps}
+          />
+        );
       },
     });
   }

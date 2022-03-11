@@ -1,12 +1,18 @@
+// Leaving this require here. The path-to-regexp module has a commonJS version and an ESM one.
+// We are loading the correct one with the typings with our compilerOptions property "moduleResolution" set to "node". Ref: https://stackoverflow.com/questions/59013618/unable-to-find-module-path-to-regexp
+// All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
 const { compile, match } = require("path-to-regexp");
 
-import { getQueryParamsObject } from "utils/helpers";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
+
+export const TEMPLATES_URL = "/templates";
+export const TEMPLATES_ID_PATH = "/templates/:templateId";
 
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
@@ -51,6 +57,7 @@ export const GENERATE_TEMPLATE_FORM_PATH = `${GENERATE_TEMPLATE_PATH}${GEN_TEMPL
 
 export const BUILDER_CHECKLIST_URL = `${BUILDER_URL}/checklist`;
 
+export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
@@ -60,6 +67,8 @@ export const matchBuilderPath = match(BUILDER_URL);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = match(VIEWER_URL);
 export const matchViewerForkPath = match(VIEWER_FORK_PATH);
+export const matchTemplatesPath = match(TEMPLATES_URL);
+export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
 
 export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;
 export const extractAppIdAndPageIdFromUrl = (url = "") => {
@@ -221,6 +230,9 @@ export const JS_COLLECTION_EDITOR_URL = (
     pageId,
     suffix: "jsObjects",
   });
+
+export const TEMPLATE_ID_URL = (templateId = ":templateId"): string =>
+  `${TEMPLATES_URL}/${templateId}`;
 
 export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",
