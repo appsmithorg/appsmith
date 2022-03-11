@@ -1,5 +1,5 @@
-import React from "react";
-import { sortBy, uniqueId } from "lodash";
+import React, { RefObject, createRef } from "react";
+import { sortBy } from "lodash";
 import {
   Alignment,
   Icon,
@@ -30,7 +30,6 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
   getCustomJustifyContent,
-  WidgetContainerDiff,
 } from "widgets/WidgetUtils";
 
 interface WrapperStyleProps {
@@ -88,26 +87,17 @@ const MenuButtonWrapper = styled.div`
 `;
 
 const PopoverStyles = createGlobalStyle<{
-  parentWidth: number;
-  menuDropDownWidth: number;
+  popoverTargetWidth?: number;
   id: string;
 }>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
-  ${({ id, menuDropDownWidth, parentWidth }) => `
-  .menu-button-width-${id} {
-
-    max-width: ${
-      menuDropDownWidth > parentWidth
-        ? `${menuDropDownWidth}px`
-        : `${parentWidth}px`
-    } !important;
-    min-width: ${
-      parentWidth > menuDropDownWidth ? parentWidth : menuDropDownWidth
-    }px !important;
-  }
-`}
+  ${({ id, popoverTargetWidth }) => `
+    .menu-button-width-${id} {
+       ${popoverTargetWidth && `width: ${popoverTargetWidth}px`};
+    }
+  `}
 `;
 
 interface ButtonStyleProps {
@@ -379,20 +369,112 @@ function PopoverContent(props: PopoverContentProps) {
   return <StyledMenu>{listItems}</StyledMenu>;
 }
 
-class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
+class ButtonGroupComponent extends React.Component<
+  ButtonGroupComponentProps,
+  ButtonGroupComponentState
+> {
+  private timer?: number;
+
+  constructor(props: ButtonGroupComponentProps) {
+    super(props);
+    this.state = {
+      itemRefs: {},
+      itemWidths: {},
+    };
+  }
+
+  componentDidMount() {
+    this.setState(() => {
+      return {
+        ...this.state,
+        itemRefs: Object.keys(this.props.groupButtons).reduce((acc, id) => {
+          if (this.props.groupButtons[id].buttonType === "MENU") {
+            return {
+              ...acc,
+              [id]: createRef(),
+            };
+          }
+          return acc;
+        }, {}),
+      };
+    });
+
+    this.timer = setTimeout(() => {
+      this.setState(() => {
+        return {
+          ...this.state,
+          itemWidths: Object.keys(this.props.groupButtons).reduce((acc, id) => {
+            if (this.props.groupButtons[id].buttonType === "MENU") {
+              return {
+                ...acc,
+                [id]: this.state.itemRefs[id].current?.getBoundingClientRect()
+                  .width,
+              };
+            }
+            return acc;
+          }, {}),
+        };
+      });
+    }, 0);
+  }
+
+  componentDidUpdate(
+    prevProps: ButtonGroupComponentProps,
+    prevState: ButtonGroupComponentState,
+  ) {
+    if (
+      JSON.stringify(this.props.groupButtons) !==
+      JSON.stringify(prevProps.groupButtons)
+    ) {
+      this.setState(() => {
+        return {
+          ...this.state,
+          itemRefs: Object.keys(this.props.groupButtons).reduce((acc, id) => {
+            if (this.props.groupButtons[id].buttonType === "MENU") {
+              return {
+                ...acc,
+                [id]: createRef(),
+              };
+            }
+            return acc;
+          }, {}),
+        };
+      });
+    } else if (
+      this.state.itemRefs !== prevState.itemRefs ||
+      this.props.width !== prevProps.width ||
+      this.props.orientation !== prevProps.orientation
+    ) {
+      this.setState(() => {
+        return {
+          ...this.state,
+          itemWidths: Object.keys(this.props.groupButtons).reduce((acc, id) => {
+            if (this.props.groupButtons[id].buttonType === "MENU") {
+              return {
+                ...acc,
+                [id]: this.state.itemRefs[id].current?.getBoundingClientRect()
+                  .width,
+              };
+            }
+            return acc;
+          }, {}),
+        };
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
   onButtonClick = (onClick: string | undefined) => () => {
     this.props.buttonClickHandler(onClick);
   };
 
   render = () => {
-    const {
-      buttonVariant,
-      groupButtons,
-      isDisabled,
-      menuDropDownWidth,
-      orientation,
-      width,
-    } = this.props;
+    const { buttonVariant, groupButtons, isDisabled, orientation } = this.props;
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -416,14 +498,12 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
-            const id = uniqueId();
 
             return (
               <MenuButtonWrapper key={button.id}>
                 <PopoverStyles
-                  id={id}
-                  menuDropDownWidth={menuDropDownWidth}
-                  parentWidth={width - WidgetContainerDiff}
+                  id={button.id}
+                  popoverTargetWidth={this.state.itemWidths[button.id]}
                 />
                 <Popover2
                   content={
@@ -436,7 +516,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   fill
                   minimal
                   placement="bottom-end"
-                  popoverClassName={`menu-button-popover menu-button-width-${id}`}
+                  popoverClassName={`menu-button-popover menu-button-width-${button.id}`}
                 >
                   <StyledButton
                     borderRadOnEnd={borderRadOnEnd}
@@ -447,6 +527,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                     iconAlign={button.iconAlign}
                     isDisabled={isButtonDisabled}
                     isHorizontal={isHorizontal}
+                    ref={this.state.itemRefs[button.id]}
                     style={{ height: "100%", width: "100%" }}
                   >
                     <StyledButtonContent
@@ -537,7 +618,11 @@ export interface ButtonGroupComponentProps {
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;
   width: number;
-  menuDropDownWidth: number;
+}
+
+export interface ButtonGroupComponentState {
+  itemRefs: Record<string, RefObject<HTMLButtonElement>>;
+  itemWidths: Record<string, number>;
 }
 
 export default ButtonGroupComponent;
