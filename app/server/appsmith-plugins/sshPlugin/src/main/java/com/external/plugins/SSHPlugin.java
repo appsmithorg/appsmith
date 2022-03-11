@@ -2,7 +2,6 @@ package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -16,7 +15,6 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.commands.Execute;
 import com.external.plugins.commands.SSHCommand;
-import com.external.plugins.commands.Upload;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -36,7 +34,6 @@ import static com.appsmith.external.models.SSHAuth.AuthType.IDENTITY_FILE;
 import static com.appsmith.external.models.SSHAuth.AuthType.PASSWORD;
 
 //TODOS:
-//1. Add some commonly used commands to the dropdown
 //4. Add fallback condition for key-based login to use Appsmith's private key (Maybe)
 
 public class SSHPlugin extends BasePlugin {
@@ -57,17 +54,7 @@ public class SSHPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
             ActionExecutionResult result = new ActionExecutionResult();
             try {
-                String commandStr = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), COMMAND);
-                // todo remove this
-                System.out.println("Got the commandStr: " + commandStr);
-
-                // todo Remove UPLOAD and amend commit
-                final SSHCommand command;
-                if (commandStr != null && commandStr.equalsIgnoreCase("RUN")) {
-                    command = new Execute(session);
-                } else {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid SSH command found.");
-                }
+                final SSHCommand command = new Execute(session);
 
                 Map<String, Object> responseBody = command.execute(actionConfiguration);
 
@@ -75,8 +62,6 @@ public class SSHPlugin extends BasePlugin {
                 // command exit code is not a good indicator for checking the execution success
 //                result.setIsExecutionSuccess((int) responseBody.get("exitCode") == 0);
                 result.setIsExecutionSuccess(true);
-
-                System.out.println("Executed the SSH command successfully");
             } catch (JSchException | IOException e) {
                 e.printStackTrace();
                 result.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("Error while executing SSH command. Cause: " + e.getMessage()));
@@ -126,8 +111,6 @@ public class SSHPlugin extends BasePlugin {
 
                 // with 60 sec timeout
                 session.connect(60_000);
-                // todo remove all prints
-                System.out.println("Created SSH datasource connection");
                 return Mono.just(session);
             } catch (JSchException e) {
                 return Mono.error(new AppsmithPluginException(
@@ -139,7 +122,6 @@ public class SSHPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Session session) {
-            System.out.println("Destroying the SSH connection");
             session.disconnect();
         }
 

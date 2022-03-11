@@ -7,6 +7,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSHAuth;
 import com.appsmith.external.models.SSHPrivateKey;
 import com.appsmith.external.models.UploadedFile;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jcraft.jsch.Session;
 import org.bson.internal.Base64;
 import org.junit.AfterClass;
@@ -27,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -163,8 +164,10 @@ public class SSHPluginTest {
                 .assertNext(result -> {
                     System.out.println(result.toString());
                     assertNotNull(result);
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertTrue(String.valueOf(result.getBody()).contains("not found"));
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode body = ((JsonNode) result.getBody());
+                    assertNotEquals(body.get("exitCode").asInt(0),0);
+                    assertTrue(String.valueOf(body).contains("not found"));
                 })
                 .verifyComplete();
 
@@ -227,29 +230,4 @@ public class SSHPluginTest {
                 pluginExecutor.validateDatasource(datasourceConfiguration));
     }
 
-    @Test
-    public void testUploadFile() throws Exception {
-        DatasourceConfiguration datasourceConfiguration = createDSConfigurationForKeyLogin();
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setTimeoutInMillisecond("50000");
-        actionConfiguration.setBody("ls -al");
-        Map<String, Object> formData = new HashMap<>();
-        formData.put("command", "UPLOAD");
-        formData.put("workingDirectory", "/tmp/test");
-        formData.put("content", "Test data");
-        actionConfiguration.setFormData(formData);
-
-        Mono<Session> dsMono = pluginExecutor.datasourceCreate(datasourceConfiguration).cache();
-        Mono<ActionExecutionResult> resultMono =
-                dsMono.flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    System.out.println(result.toString());
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                })
-                .verifyComplete();
-
-        pluginExecutor.datasourceDestroy(dsMono.block());
-    }
 }
