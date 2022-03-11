@@ -1,5 +1,7 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 
+const widgetName = "buttongroupwidget";
+
 describe("Button Group Widget Functionality", function() {
   before(() => {
     // no dsl required
@@ -84,6 +86,86 @@ describe("Button Group Widget Functionality", function() {
     cy.get(".t--buttongroup-widget > button > div")
       .eq(0)
       .should("have.css", "flex-direction", "row-reverse");
+  });
+
+  it("After being mounted, A menu button popover width should always be the same as the target width", () => {
+    cy.closePropertyPane();
+    // Get the default menu button
+    cy.get(`.t--widget-${widgetName} div.t--buttongroup-widget`)
+      .children()
+      .last()
+      .as("target");
+    // Open popover
+    cy.get("@target").click();
+    // Get the target width
+    cy.get("@target")
+      .invoke("outerWidth")
+      .then((targetWidth) => {
+        // Check if popover width is set to its target width
+        cy.get(".bp3-popover2.menu-button-width-groupButton3").should(
+          "have.css",
+          "width",
+          `${targetWidth}px`,
+        );
+      });
+  });
+
+  it("After converting a simple button to a menu button, The menu button popover width should always be the same as the target width", () => {
+    // Change the first button type to menu
+    cy.openPropertyPane(widgetName);
+    cy.editColumn("groupButton1");
+    cy.selectDropdownValue(".t--property-control-buttontype", "Menu");
+    cy.get(".t--add-menu-item-btn").click();
+    cy.closePropertyPane();
+    // Get the newly converted menu button
+    cy.get(`.t--widget-${widgetName} div.t--buttongroup-widget`)
+      .children()
+      .first()
+      .as("target");
+    // Open popover
+    cy.get("@target").click();
+    // Get the target width
+    cy.get("@target")
+      .invoke("outerWidth")
+      .then((targetWidth) => {
+        // Check if popover width is set to its target width
+        cy.get(".bp3-popover2.menu-button-width-groupButton1").should(
+          "have.css",
+          "width",
+          `${targetWidth}px`,
+        );
+      });
+  });
+
+  it("If an existing menu button width changes, its popover width should always be the same as the changed target width", () => {
+    // Change the first button text
+    cy.openPropertyPane(widgetName);
+    cy.get(".t--property-pane-section-buttons input")
+      .first()
+      .type("incrase width");
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    // Get the menu button with its width changed
+    cy.get(`.t--widget-${widgetName} div.t--buttongroup-widget`)
+      .children()
+      .first()
+      .as("target");
+    // Open popover
+    cy.get("@target").click();
+    // Get the target width
+    cy.get("@target")
+      .invoke("outerWidth")
+      .then((targetWidth) => {
+        // Check if popover width is set to its target width
+        cy.get(".bp3-popover2.menu-button-width-groupButton1").should(
+          "have.css",
+          "width",
+          `${targetWidth}px`,
+        );
+      });
   });
 
   after(() => {
