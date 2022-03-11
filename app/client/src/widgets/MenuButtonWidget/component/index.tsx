@@ -19,11 +19,11 @@ import { ThemeProp } from "components/ads/common";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomHoverColor,
   getCustomTextColor,
   getCustomJustifyContent,
   getAlignText,
   WidgetContainerDiff,
+  getHoverColor,
 } from "widgets/WidgetUtils";
 import _ from "lodash";
 
@@ -90,25 +90,10 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 
   ${({ buttonColor, buttonVariant, theme }) => `
     &:enabled {
-      background: ${
-        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
-          ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.primary.bgColor
-          : "none"
-      } !important;
-    }
-
-    &:hover:enabled, &:active:enabled {
-      background: ${
-        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.secondary.hoverColor
-          : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.tertiary.hoverColor
-          : theme.colors.button.primary.primary.hoverColor
-      } !important;
+      background: ${getCustomBackgroundColor(
+        buttonVariant,
+        buttonColor,
+      )} !important;
     }
 
     &:disabled {
@@ -148,6 +133,13 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       } !important;
     }
   `}
+
+  &:hover:enabled, &:active:enabled {
+    ${({ buttonColor, buttonVariant }) => {
+      const hoverColor = getHoverColor(buttonColor, buttonVariant);
+      return hoverColor && `background: ${hoverColor} !important;`;
+    }}
+  }
 
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};

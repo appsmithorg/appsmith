@@ -151,7 +151,7 @@ const StyledButton = styled((props) => (
 
   &:hover:enabled, &:active:enabled {
     ${({ buttonColor, buttonVariant }) => {
-      const hoverColor = getHoverColor(buttonVariant, buttonColor);
+      const hoverColor = getHoverColor(buttonColor, buttonVariant);
       return hoverColor && `background: ${hoverColor} !important;`;
     }}
   }

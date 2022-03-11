@@ -18,8 +18,8 @@ import {
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomHoverColor,
   getCustomTextColor,
+  getHoverColor,
 } from "widgets/WidgetUtils";
 
 type IconButtonContainerProps = {
@@ -61,31 +61,12 @@ export const StyledButton = styled((props) => (
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
-  ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
+  ${({ buttonColor, buttonVariant, theme }) => `
     &:enabled {
-      background: ${
-        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
-          ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.primary.bgColor
-          : "none"
-      } !important;
-    }
-
-    ${
-      hasOnClickAction
-        ? `&:hover:enabled, &:active:enabled {
-        background: ${
-          getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-            ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-            : buttonVariant === ButtonVariantTypes.SECONDARY
-            ? theme.colors.button.primary.secondary.hoverColor
-            : buttonVariant === ButtonVariantTypes.TERTIARY
-            ? theme.colors.button.primary.tertiary.hoverColor
-            : theme.colors.button.primary.primary.hoverColor
-        } !important;
-      }`
-        : ""
+      background: ${getCustomBackgroundColor(
+        buttonVariant,
+        buttonColor,
+      )} !important;
     }
 
     &:disabled {
@@ -134,6 +115,15 @@ export const StyledButton = styled((props) => (
       min-width: 16px;
     }
   `}
+
+  &:hover:enabled, &:active:enabled {
+    ${({ buttonColor, buttonVariant, hasOnClickAction }) => {
+      if (hasOnClickAction) {
+        const hoverColor = getHoverColor(buttonColor, buttonVariant);
+        return hoverColor && `background: ${hoverColor} !important;`;
+      }
+    }}
+  }
 
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.CIRCLE

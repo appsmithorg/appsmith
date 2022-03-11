@@ -149,39 +149,53 @@ hello! how are you?
 
   // validate getHoverColor function
   it("getHoverColor - validate hover color for different variant", () => {
-    const backgroundColor = "#03b365";
-    // variant : PRIMARY
-    const expected1 = "#039a57";
-    const result1 = getHoverColor(ButtonVariantTypes.PRIMARY, backgroundColor);
-    expect(result1).toStrictEqual(expected1);
-
-    // variant : PRIMARY without background
-    const expected2 = undefined;
-    const result2 = getHoverColor(ButtonVariantTypes.PRIMARY);
-    expect(result2).toStrictEqual(expected2);
-
-    // variant : SECONDARY
-    const expected3 = "rgba(3, 179, 101, 0.1)";
-    const result3 = getHoverColor(
+    let expected;
+    // if baseColor is undefined
+    let inputs = [
+      undefined,
+      ButtonVariantTypes.PRIMARY,
       ButtonVariantTypes.SECONDARY,
-      backgroundColor,
-    );
-    expect(result3).toStrictEqual(expected3);
+      ButtonVariantTypes.TERTIARY,
+    ];
 
-    // variant : SECONDARY without background
-    const expected4 = undefined;
-    const result4 = getHoverColor(ButtonVariantTypes.SECONDARY);
-    expect(result4).toStrictEqual(expected4);
+    let outputs = inputs.map((input) => getHoverColor(undefined, input));
+    expected = [undefined, undefined, undefined, undefined];
+    expect(outputs).toStrictEqual(expected);
 
-    // variant : TERTIARY
-    const expected5 = "rgba(3, 179, 101, 0.1)";
-    const result5 = getHoverColor(ButtonVariantTypes.TERTIARY, backgroundColor);
-    expect(result5).toStrictEqual(expected5);
+    // if baseColor is empty string
+    inputs = [
+      undefined,
+      ButtonVariantTypes.PRIMARY,
+      ButtonVariantTypes.SECONDARY,
+      ButtonVariantTypes.TERTIARY,
+    ];
 
-    // variant : TERTIARY without background
-    const expected6 = undefined;
-    const result6 = getHoverColor(ButtonVariantTypes.TERTIARY);
-    expect(result6).toStrictEqual(expected6);
+    outputs = inputs.map((input) => getHoverColor("", input));
+    expected = [undefined, undefined, undefined, undefined];
+    expect(outputs).toStrictEqual(expected);
+
+    // if baseColor string is wrong color expression, it always returns undefined
+    const wrongColors = ["this is not color", "#78", "rgb(3, 2"];
+    outputs = wrongColors.map((input) => getHoverColor(input));
+    expected = [undefined, undefined, undefined];
+    expect(outputs).toStrictEqual(expected);
+
+    // if baseColor exists
+    const baseColor = "#03b365";
+    inputs = [
+      undefined,
+      ButtonVariantTypes.PRIMARY,
+      ButtonVariantTypes.SECONDARY,
+      ButtonVariantTypes.TERTIARY,
+    ];
+    outputs = inputs.map((input) => getHoverColor(baseColor, input));
+    expected = [
+      "#039a57",
+      "#039a57",
+      "rgba(3, 179, 101, 0.1)",
+      "rgba(3, 179, 101, 0.1)",
+    ];
+    expect(outputs).toStrictEqual(expected);
   });
 
   it("isGradient - check if value is a gradient", () => {

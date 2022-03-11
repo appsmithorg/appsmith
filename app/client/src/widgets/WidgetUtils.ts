@@ -193,8 +193,8 @@ export const escapeSpecialChars = (stringifiedJSONObject: string) => {
 };
 
 export const getHoverColor = (
-  buttonVariant: ButtonVariant,
   baseColor?: string,
+  buttonVariant?: ButtonVariant,
 ) => {
   const colorInstance = tinycolor(baseColor);
   // Check if baseColor is valid

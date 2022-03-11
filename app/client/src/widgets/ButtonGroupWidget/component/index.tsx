@@ -27,10 +27,10 @@ import { Colors } from "constants/Colors";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomHoverColor,
   getCustomTextColor,
   getCustomJustifyContent,
   WidgetContainerDiff,
+  getHoverColor,
 } from "widgets/WidgetUtils";
 
 interface WrapperStyleProps {
@@ -142,30 +142,20 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     theme,
   }) => `
     & {
-      background: ${
-        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
-          ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.primary.bgColor
-          : "none"
-      } !important;
+      background: ${getCustomBackgroundColor(
+        buttonVariant,
+        buttonColor,
+      )} !important;
       flex-direction : ${iconAlign === "right" ? "row-reverse" : "row"};
       .bp3-icon {
         ${iconAlign === "right" ? "margin-left: 10px" : "margin-right: 10px"};
       }
     }
 
-    &:hover, &:active {
-      background: ${
-        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.secondary.hoverColor
-          : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.tertiary.hoverColor
-          : theme.colors.button.primary.primary.hoverColor
-      } !important;
-    }
+    ${getHoverColor(buttonColor, buttonVariant) &&
+      `&:hover, &:active {
+        background: ${getHoverColor(buttonColor, buttonVariant)} !important;
+      }`}
 
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
