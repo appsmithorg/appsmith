@@ -31,11 +31,63 @@ describe("Derived property - ", () => {
 
       expect(isValid).toBeFalsy();
 
+      //Number input with required true and invalid value `null`
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.NUMBER,
+          text: null,
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeFalsy();
+
+      //Number input with required true and invalid value `undefined`
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.NUMBER,
+          text: undefined,
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeFalsy();
+
+      //Number input with required true and invalid value `""`
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.NUMBER,
+          text: "",
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeFalsy();
+
       //Number input with required true and valid value
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.NUMBER,
           text: 1,
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeTruthy();
+
+      //Number input with required true and valid value
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.NUMBER,
+          text: 1.1,
           isRequired: true,
         },
         null,

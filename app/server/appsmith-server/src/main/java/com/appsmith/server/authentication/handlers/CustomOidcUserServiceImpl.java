@@ -1,11 +1,9 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomOidcUserServiceCEImpl;
-import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.AppsmithOidcAccessToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.UserState;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -13,11 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -47,14 +43,21 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
 
         return super.checkAndCreateUser(oidcUser, userRequest)
                 .flatMap(user -> {
-                    final UserData userData = new UserData();
-                    String accessToken = userRequest.getAccessToken().getTokenValue();
+                    final UserData updates = new UserData();
+                    OAuth2AccessToken accessToken = userRequest.getAccessToken();
                     Map<String, Object> userClaims = oidcUser.getUserInfo().getClaims();
 
-                    userData.setAccessToken(accessToken);
-                    userData.setUserClaims(userClaims);
+                    updates.setOidcAccessToken(
+                            new AppsmithOidcAccessToken(
+                                    accessToken.getTokenType(),
+                                    accessToken.getScopes(),
+                                    accessToken.getTokenValue(),
+                                    accessToken.getIssuedAt(),
+                                    accessToken.getExpiresAt())
+                    );
+                    updates.setUserClaims(userClaims);
 
-                    return userDataService.update(user.getId(), userData)
+                    return userDataService.updateForUser(user, updates)
                             .thenReturn(user);
                 });
     }

@@ -1,5 +1,6 @@
 package com.appsmith.server.variables;
 
+import com.appsmith.server.domains.AppsmithOidcAccessToken;
 import com.appsmith.server.services.UserDataService;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -24,7 +25,10 @@ public class UserDataVariableReplacement implements ServerSideVariableReplacemen
                     .flatMap(userData -> {
                         switch (userDataVariableType) {
                             case APPSMITH_USER_OAUTH2_ACCESS_TOKEN:
-                                return Mono.just(userData.getAccessToken());
+                                AppsmithOidcAccessToken accessToken = userData.getOidcAccessToken();
+                                if (accessToken != null) {
+                                    return Mono.just(accessToken.getTokenValue());
+                                }
                             default:
                                 break;
                         }
