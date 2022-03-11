@@ -1,8 +1,10 @@
 /// <reference types="Cypress" />
 
+const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/listwidgetdsl.json");
+const pages = require("../../../../locators/Pages.json");
+const apiPage = require("../../../../locators/ApiEditor.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-import apiPage from "../../../../locators/ApiEditor";
 
 describe("Test Create Api and Bind to Table widget", function() {
   let apiData;

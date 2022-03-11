@@ -1,6 +1,6 @@
 const testdata = require("../../../../fixtures/testdata.json");
+const apiEditor = require("../../../../locators/ApiEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import apiEditor from "../../../../locators/ApiEditor";
 
 describe("API Panel request body", function() {
   it("Check whether input and type dropdown selector exist when multi-part is selected", function() {

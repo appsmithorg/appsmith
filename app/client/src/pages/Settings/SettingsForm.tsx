@@ -18,21 +18,7 @@ import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
-import {
-  SettingTypes,
-  Setting,
-} from "@appsmith/pages/AdminSettings/config/types";
-import { DisconnectService } from "./DisconnectService";
-import {
-  createMessage,
-  DISCONNECT_SERVICE_SUBHEADER,
-  DISCONNECT_SERVICE_WARNING,
-} from "@appsmith/constants/messages";
-import { Toaster, Variant } from "components/ads";
-import {
-  connectedMethods,
-  saveAllowed,
-} from "@appsmith/utils/adminSettingsHelpers";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -42,9 +28,7 @@ const Wrapper = styled.div`
   overflow: auto;
 `;
 
-const SettingsFormWrapper = styled.div`
-  max-width: 40rem;
-`;
+const SettingsFormWrapper = styled.div``;
 
 export const BottomSpace = styled.div`
   height: ${(props) => props.theme.settings.footerHeight + 20}px;
@@ -95,16 +79,9 @@ export function SettingsForm(
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
   );
-  const pageTitle = getSettingLabel(
-    details?.title || (subCategory ?? category),
-  );
 
   const onSave = () => {
-    if (saveAllowed(props.settings)) {
-      dispatch(saveSettings(props.settings));
-    } else {
-      saveBlocked();
-    }
+    dispatch(saveSettings(props.settings));
   };
 
   const onClear = () => {
@@ -113,6 +90,13 @@ export function SettingsForm(
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
         props.settingsConfig[settingName] =
           props.settingsConfig[settingName].toString() == "true";
+
+        if (
+          typeof props.settingsConfig["APPSMITH_SIGNUP_DISABLED"] ===
+          "undefined"
+        ) {
+          props.settingsConfig["APPSMITH_SIGNUP_DISABLED"] = true;
+        }
       }
     });
     props.initialize(props.settingsConfig);
@@ -127,32 +111,13 @@ export function SettingsForm(
     });
   }, []);
 
-  const saveBlocked = () => {
-    Toaster.show({
-      text: "Cannot disconnect the only connected authentication method.",
-      variant: Variant.danger,
-    });
-  };
-
-  const disconnect = (currentSettings: AdminConfig) => {
-    const updatedSettings: any = {};
-    if (connectedMethods.length >= 2) {
-      _.forEach(currentSettings, (setting: Setting) => {
-        if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
-          updatedSettings[setting.id] = "";
-        }
-      });
-      dispatch(saveSettings(updatedSettings));
-    } else {
-      saveBlocked();
-    }
-  };
-
   return (
     <Wrapper>
       <SettingsFormWrapper>
         <HeaderWrapper>
-          <SettingsHeader>{pageTitle}</SettingsHeader>
+          <SettingsHeader>
+            {getSettingLabel(details?.title || (subCategory ?? category))}
+          </SettingsHeader>
           {details?.subText && (
             <SettingsSubHeader>{details.subText}</SettingsSubHeader>
           )}
@@ -171,15 +136,6 @@ export function SettingsForm(
             valid={props.valid}
           />
         )}
-        {details?.isConnected && (
-          <DisconnectService
-            disconnect={() => disconnect(settings)}
-            subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
-            warning={`${pageTitle} ${createMessage(
-              DISCONNECT_SERVICE_WARNING,
-            )}`}
-          />
-        )}
         <BottomSpace />
       </SettingsFormWrapper>
       {props.showReleaseNotes && (
@@ -193,9 +149,9 @@ export function SettingsForm(
 const validate = (values: Record<string, any>) => {
   const errors: any = {};
   _.filter(values, (value, name) => {
-    const err_message = AdminConfig.validate(name, value);
-    if (err_message) {
-      errors[name] = err_message;
+    const message = AdminConfig.validate(name, value);
+    if (message) {
+      errors[name] = message;
     }
   });
   return errors;

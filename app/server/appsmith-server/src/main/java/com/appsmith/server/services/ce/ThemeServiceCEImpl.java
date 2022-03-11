@@ -315,7 +315,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> archiveById(String themeId) {
+    public Mono<Theme> delete(String themeId) {
         return repository.findById(themeId, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.THEME))

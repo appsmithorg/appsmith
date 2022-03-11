@@ -2,7 +2,6 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-
 let datasourceName;
 
 describe("Validate CRUD queries for Postgres along with UI flow verifications", function() {
@@ -19,6 +18,9 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("1. Creates a new Postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
+
+    cy.getPluginFormsAndCreateDatasource();
+
     cy.fillPostgresDatasourceForm();
 
     cy.generateUUID().then((uid) => {
@@ -160,7 +162,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.ClickGotIt();
 
-    cy.wait(2000);
     //Verifying Update from UI
     cy.xpath(generatePage.selectRowinTable)
       .scrollIntoView()
@@ -171,7 +172,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .clear()
       .wait(500)
       .type("APPROVED");
-
     cy.get(generatePage.updateBtn)
       .closest("button")
       .click()
@@ -184,8 +184,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     ); //This verifies the Update on the table
 
     //.should("have.nested.property", "response.body.data.request.requestParams.Query.value",);
-
-    cy.wait(2000);
 
     cy.xpath(generatePage.selectRowinTable)
       .scrollIntoView()
@@ -235,7 +233,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Confirm");
 
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
@@ -282,14 +279,11 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click({ force: true });
-    cy.clickButton("Confirm");
-
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
     //   200,
     // );
-
     cy.wait("@deleteDatasource").should((response) => {
       expect(response.status).to.be.oneOf([200, 409]);
     });

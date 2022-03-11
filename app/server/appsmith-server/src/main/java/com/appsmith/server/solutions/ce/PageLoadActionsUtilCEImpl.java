@@ -789,7 +789,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
             for (Property x : dynamicBindingPathList) {
                 final String fieldPath = String.valueOf(x.getKey());
 
-                // Ignore pagination configuration since pagination technically does not belong to dynamic binding list.
+                // Ignore pagination configuration since paginatio technically does not belong to dynamic binding list.
                 if (fieldPath.equals("prev") || fieldPath.equals("next")) {
                     continue;
                 }
@@ -823,7 +823,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     }
                     // After updating the parent, check for the types
                     if (parent == null) {
-                        // path doesn't seem to exist. Ignore.
+                        // path doesnt seem to exist. Ignore.
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;

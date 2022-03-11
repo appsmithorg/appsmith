@@ -132,7 +132,7 @@ describe("Map Chart Widget Functionality", function() {
     cy.addAction(boundMessage);
     cy.get(commonLocators.chooseMsgType)
       .last()
-      .click({ force: true });
+      .click();
     cy.get(commonLocators.chooseAction)
       .children()
       .contains("Success")

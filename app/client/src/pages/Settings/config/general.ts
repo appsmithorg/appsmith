@@ -16,7 +16,7 @@ export const config: AdminConfigType = {
   settings: [
     {
       id: "APPSMITH_INSTANCE_NAME",
-      category: SettingCategories.GENERAL,
+      category: "general",
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Instance Name",
@@ -24,7 +24,7 @@ export const config: AdminConfigType = {
     },
     {
       id: "APPSMITH_ADMIN_EMAILS",
-      category: SettingCategories.GENERAL,
+      category: "general",
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.EMAIL,
       label: "Admin Email",
@@ -51,14 +51,14 @@ export const config: AdminConfigType = {
           "_blank",
         );
       },
-      category: SettingCategories.GENERAL,
+      category: "general",
       controlType: SettingTypes.BUTTON,
       label: "Generated Docker Compose File",
       text: "Download",
     },
     {
       id: "APPSMITH_DISABLE_TELEMETRY",
-      category: SettingCategories.GENERAL,
+      category: "general",
       controlType: SettingTypes.TOGGLE,
       label: "Disable Sharing Anonymous Usage Data",
       subText: "Share anonymous usage data to help improve the product",
@@ -66,7 +66,7 @@ export const config: AdminConfigType = {
         if (value) {
           return "Don't share any data";
         } else {
-          return "Share Anonymous Telemetry";
+          return "Share data & make appsmith better!";
         }
       },
     },

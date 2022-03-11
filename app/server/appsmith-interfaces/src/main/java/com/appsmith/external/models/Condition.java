@@ -73,28 +73,17 @@ public class Condition {
         return condition;
     }
 
-    /**
-     * To evaluate 'Path' and 'Operator' to be available for filtering
-     * 'Values' not evaluated for availability, to support searching empty values
-     * @param condition
-     * @return  Boolean
-     */
     public static Boolean isValid(Condition condition) {
 
-        if (StringUtils.isEmpty(condition.getPath()) || (condition.getOperator() == null)) {
+        if (StringUtils.isEmpty(condition.getPath()) ||
+                (condition.getOperator() == null) ||
+                StringUtils.isEmpty((CharSequence) condition.getValue())) {
             return false;
         }
 
         return true;
     }
 
-    /**
-     * To generate condition list based on selected condition
-     * Mandatory inputs validated are path and operator
-     * Value is optional and considered as a null input
-     * @param configurationList
-     * @return
-     */
     public static List<Condition> generateFromConfiguration(List<Object> configurationList) {
         List<Condition> conditionList = new ArrayList<>();
 
@@ -103,7 +92,7 @@ public class Condition {
             if (condition.entrySet().isEmpty()) {
                 // Its an empty object set by the client for UX. Ignore the same
                 continue;
-            } else if (!condition.keySet().containsAll(Set.of("path", "operator"))) {
+            } else if (!condition.keySet().containsAll(Set.of("path", "operator", "value"))) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Filtering Condition not configured properly");
             }
             conditionList.add(new Condition(

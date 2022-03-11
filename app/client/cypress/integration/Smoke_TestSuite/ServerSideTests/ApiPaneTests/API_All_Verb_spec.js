@@ -1,6 +1,6 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import ApiEditor from "../../../../locators/ApiEditor";
+const ApiEditor = require("../../../../locators/ApiEditor.json");
 
 describe("API Panel Test Functionality", function() {
   afterEach(function() {

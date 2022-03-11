@@ -414,9 +414,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // cy.window().its('navigator.clipboard').invoke('readText').should('contain', 'CRUDNewPageFile')
 
     //Verifying DeleteFile icon from UI
-    cy.xpath(queryLocators.deleteFileicon)
-      .eq(0)
-      .click(); //Verifies 8684
+    cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
     expect(
@@ -436,7 +434,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Confirm");
+
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -445,8 +443,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
   });
 
-  //Open bug : 3836, 6492
-  it.skip("7. Bug 9069, 9201, 6975, 9922, 3836, 6492: Upload/Update query is failing in S3 crud pages", function() {
+  it("7. Bug 9069, 9201, 6975, 9922: Upload/Update query is failing in S3 crud pages", function() {
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.wait(3000);
     //Verifying List of Files from UI
@@ -558,7 +555,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.xpath(queryLocators.searchFilefield)
       .clear()
       .wait(500)
-      .type("AAAFlower")
+      .type("AAAFlowerVase")
       .wait(7000); //for search to finish
     expect(
       cy.xpath(
@@ -658,7 +655,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Confirm");
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

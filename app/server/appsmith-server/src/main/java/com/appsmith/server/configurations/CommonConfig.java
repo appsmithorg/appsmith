@@ -34,8 +34,8 @@ public class CommonConfig {
     @Value("${appsmith.instance.name:}")
     private String instanceName;
 
-    @Setter(AccessLevel.NONE)
-    private boolean isSignupDisabled = false;
+    @Value("${signup.disabled}")
+    private boolean isSignupDisabled;
 
     @Setter(AccessLevel.NONE)
     private Set<String> adminEmails = Collections.emptySet();
@@ -109,12 +109,6 @@ public class CommonConfig {
     @Autowired
     public void setAdminEmails(@Value("${admin.emails}") String value) {
         adminEmails = Set.of(value.trim().split("\\s*,\\s*"));
-    }
-
-    @Autowired
-    public void setSignupDisabled(@Value("${signup.disabled}") String value) {
-        // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
-        isSignupDisabled = "true".equalsIgnoreCase(value);
     }
 
 }

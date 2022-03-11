@@ -46,7 +46,6 @@ export interface AppsmithUIConfigs {
   enableGithubOAuth: boolean;
   disableLoginForm: boolean;
   disableSignup: boolean;
-  disableTelemetry: boolean;
   enableMixpanel: boolean;
   enableTNCPP: boolean;
 

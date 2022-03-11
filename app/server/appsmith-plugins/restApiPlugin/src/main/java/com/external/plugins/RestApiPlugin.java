@@ -479,7 +479,6 @@ public class RestApiPlugin extends BasePlugin {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
                                 responseDataType = ResponseDataType.IMAGE;
-
                             } else if (binaryDataTypes.contains(contentType.toString())) {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
@@ -756,7 +755,7 @@ public class RestApiPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, null);
         }
 
         @Override

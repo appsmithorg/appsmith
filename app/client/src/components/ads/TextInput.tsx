@@ -74,7 +74,6 @@ export type TextInputProps = CommonComponentProps & {
   trimValue?: boolean;
   $padding?: string;
   useTextArea?: boolean;
-  isCopy?: boolean;
 };
 
 type boxReturnType = {

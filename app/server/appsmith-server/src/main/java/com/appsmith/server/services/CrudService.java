@@ -22,10 +22,10 @@ public interface CrudService<T extends BaseDomain, ID> {
         return this.getById(id);
     }
 
-    Mono<T> archiveById(ID id);
+    Mono<T> delete(ID id);
 
-    default Mono<T> archiveByIdAndBranchName(ID id, String branchName) {
-        return this.archiveById(id);
+    default Mono<T> deleteByIdAndBranchName(ID id, String branchName) {
+        return this.delete(id);
     }
 
     Mono<T> addPolicies(ID id, Set<Policy> policies);
