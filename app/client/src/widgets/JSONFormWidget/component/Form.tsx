@@ -150,9 +150,10 @@ function Form<TValues = any>({
   const onReset = (event?: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event?.preventDefault?.();
 
-    const defaultValues = schema
-      ? schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY])
-      : {};
+    const defaultValues =
+      schema && schema[ROOT_SCHEMA_KEY]
+        ? schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY])
+        : {};
 
     if (typeof defaultValues === "object") {
       reset(defaultValues);

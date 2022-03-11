@@ -134,7 +134,7 @@ function ArrayField({
     field: { value },
   } = useController({ name, defaultValue: [] });
 
-  const valueLength = value.length;
+  const valueLength = value?.length || 0;
 
   useUpdateAccessor({ accessor: schemaItem.accessor });
 

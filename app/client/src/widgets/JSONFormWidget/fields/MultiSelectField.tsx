@@ -58,8 +58,10 @@ const StyledMultiSelectWrapper = styled.div`
   width: 100%;
 `;
 
-const isValid = (schemaItem: MultiSelectFieldProps["schemaItem"], value = []) =>
-  !schemaItem.isRequired || Boolean(value.length);
+const isValid = (
+  schemaItem: MultiSelectFieldProps["schemaItem"],
+  value: unknown[],
+) => !schemaItem.isRequired || Boolean(value.length);
 
 const DEFAULT_DROPDOWN_STYLES = {
   zIndex: Layers.dropdownModalWidget,
@@ -93,7 +95,6 @@ function MultiSelectField({
   } = schemaItem;
   const { executeAction, updateWidgetMetaProperty } = useContext(FormContext);
   const [filterText, setFilterText] = useState<string>();
-  // const [componentValues, setComponentValues] = useState<LabelValueType[]>([]);
 
   const {
     field: { onBlur, onChange, value },
@@ -102,13 +103,16 @@ function MultiSelectField({
     name,
   });
 
+  const inputValue: LabelValueType["value"][] =
+    (Array.isArray(value) && value) || [];
+
   const { onBlurHandler, onFocusHandler } = useEvents<HTMLInputElement>({
     fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
 
-  const isValueValid = isValid(schemaItem, value);
+  const isValueValid = isValid(schemaItem, inputValue);
 
   useRegisterFieldValidity({
     isValid: isValueValid,
@@ -143,7 +147,7 @@ function MultiSelectField({
   }, [schemaItem.defaultValue, passedDefaultValue]);
 
   const componentValues = fieldValuesToComponentValues(
-    value || [],
+    inputValue,
     schemaItem.options,
   );
 

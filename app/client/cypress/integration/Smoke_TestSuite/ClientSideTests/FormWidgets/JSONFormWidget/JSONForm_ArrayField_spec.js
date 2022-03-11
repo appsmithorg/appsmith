@@ -12,6 +12,8 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("can add more items to the field", () => {
+    cy.openPropertyPane("jsonformwidget");
+
     cy.get(`${education}-item`)
       .should("have.length", 1)
       .within(() => {

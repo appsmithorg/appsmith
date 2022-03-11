@@ -104,7 +104,11 @@ class JSONFormWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
-    if (isEmpty(this.props.formData) && isEmpty(this.props.fieldState)) {
+    if (
+      isEmpty(this.props.formData) &&
+      isEmpty(this.props.fieldState) &&
+      !isEmpty(prevProps.fieldState)
+    ) {
       this.state.resetObserverCallback();
     }
 
