@@ -63,6 +63,7 @@ export interface MultiSelectProps
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
+const FOCUS_TIMEOUT = 500;
 
 function MultiSelectComponent({
   allowSelectAll,
@@ -93,17 +94,15 @@ function MultiSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const _menu = useRef<HTMLElement | null>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const clearButton = useMemo(
-    () => (
-      <Button
-        disabled={disabled}
-        icon="cross"
-        minimal
-        onClick={() => setFilter("")}
-      />
-    ),
-    [],
+    () =>
+      filter ? (
+        <Button icon="cross" minimal onClick={() => setFilter("")} />
+      ) : null,
+    [filter],
   );
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -136,6 +135,12 @@ function MultiSelectComponent({
     }
     return onChange([]);
   };
+
+  const onOpen = useCallback((open: boolean) => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+    }
+  }, []);
 
   const checkOptionsAndValue = () => {
     const emptyFalseArr = [false];
@@ -188,11 +193,21 @@ function MultiSelectComponent({
     },
     serverSideFiltering ? [options] : [filter, options],
   );
+  const memoDropDownWidth = useMemo(() => {
+    if (compactMode && labelRef.current) {
+      const labelWidth = labelRef.current.clientWidth;
+      const widthDiff = dropDownWidth - labelWidth;
+      return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
+    }
+    const parentWidth = width - WidgetContainerDiff;
+    return parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
+  }, [compactMode, dropDownWidth, width]);
 
-  const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setFilter(event.target.value);
-  };
+  }, []);
+
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
@@ -200,12 +215,13 @@ function MultiSelectComponent({
       <>
         {isFilterable ? (
           <InputGroup
-            autoFocus
+            inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
             placeholder="Filter..."
-            rightElement={clearButton}
+            // ref={inputRef}
+            rightElement={clearButton as JSX.Element}
             small
             type="text"
             value={filter}
@@ -232,6 +248,7 @@ function MultiSelectComponent({
       allowSelectAll,
       isFilterable,
       filter,
+      onQueryChange,
     ],
   );
 
@@ -241,13 +258,9 @@ function MultiSelectComponent({
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles
-        dropDownWidth={dropDownWidth}
-        id={widgetId}
-        parentWidth={width - WidgetContainerDiff}
-      />
+      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
       {labelText && (
-        <TextLabelWrapper compactMode={compactMode}>
+        <TextLabelWrapper compactMode={compactMode} ref={labelRef}>
           <StyledLabel
             $compactMode={compactMode}
             $disabled={disabled}
@@ -267,7 +280,7 @@ function MultiSelectComponent({
         // TODO: Make Autofocus a variable in the property pane
         // autoFocus
         className="rc-select"
-        defaultActiveFirstOption
+        defaultActiveFirstOption={false}
         disabled={disabled}
         dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
         dropdownRender={dropdownRender}
@@ -290,6 +303,7 @@ function MultiSelectComponent({
         notFoundContent="No Results Found"
         onBlur={onBlur}
         onChange={onChange}
+        onDropdownVisibleChange={onOpen}
         onFocus={onFocus}
         options={filteredOptions}
         placeholder={placeholder || "select option(s)"}

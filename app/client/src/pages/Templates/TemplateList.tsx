@@ -23,7 +23,6 @@ const FirstRow = styled.div`
   display: flex;
   flex-direction: row;
   gap: ${(props) => props.theme.spaces[8]}px;
-  align-items: flex-start;
 `;
 interface TemplateListProps {
   templates: TemplateInterface[];

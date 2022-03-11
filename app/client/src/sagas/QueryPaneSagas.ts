@@ -54,7 +54,7 @@ import {
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { EventLocation } from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import {
   ActionData,
   ActionDataState,
@@ -150,6 +150,8 @@ function* formValueChangeSaga(
 
     // Update the datasource of the form as well
     yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
+
+    AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
 
     return;
   }
