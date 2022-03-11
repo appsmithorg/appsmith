@@ -183,10 +183,7 @@ const DiscardChangesWarningContainer = styled.div`
   margin: 16px 0;
 `;
 
-function DiscardChangesWarning({
-  onCloseDiscardChangesWarning,
-  onDiscardChanges,
-}: any) {
+function DiscardChangesWarning({ onCloseDiscardChangesWarning }: any) {
   const notificationBannerOptions: NotificationBannerProps = {
     canClose: true,
     className: "error",
@@ -267,6 +264,7 @@ function Deploy() {
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
   const isConflicting = !isFetchingGitStatus && pullFailed;
 
+  const isDiscardProgressing = isChangeDiscardInProgress;
   const pullRequired =
     gitError &&
     gitError.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
@@ -435,7 +433,7 @@ function Deploy() {
         {isDiscardProgressing && (
           <StatusbarWrapper>
             <Statusbar
-              completed={}
+              completed={isDiscardProgressing}
               message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
               period={2}
             />
@@ -446,7 +444,6 @@ function Deploy() {
       {showDiscardWarning && (
         <DiscardChangesWarning
           onCloseDiscardChangesWarning={onCloseDiscardChangesWarning}
-          onDiscardChanges={() => onDiscardChanges()}
         />
       )}
 
