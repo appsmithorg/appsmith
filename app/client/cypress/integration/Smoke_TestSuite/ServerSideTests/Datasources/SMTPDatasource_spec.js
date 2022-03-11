@@ -85,7 +85,7 @@ describe("SMTP datasource test cases using ted", function() {
       );
     });
   });
-  it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function() {
+  /* it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function() {
     cy.get(`.t--entity-name:contains("smtpquery")`)
       .should("be.visible")
       .click({ force: true });
@@ -110,13 +110,13 @@ describe("SMTP datasource test cases using ted", function() {
     cy.get(".bp3-spinner").should("have.length", 1);
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get("button").contains("1 files selected"); */
+    cy.get("button").contains("1 files selected"); 
     cy.xpath(
-      "//span[text()='Run query'  and @class='bp3-button-text']",
+      "//span[text()='Run query' and @class='bp3-button-text']",
     ).click();
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       //  expect(response.body.data.statusCode).to.eq("5000");
       expect(response.body.data.body).to.contain("Sent the email successfully");
     });
-  });
+  }); */
 });
