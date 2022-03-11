@@ -1,13 +1,10 @@
-import { createActionRequest } from "actions/pluginActionActions";
 import { createModalAction } from "actions/widgetActions";
 import { TreeDropdownOption } from "components/ads/TreeDropdown";
 import TreeStructure from "components/utils/TreeStructure";
 import { PluginType } from "entities/Action";
-import { Datasource } from "entities/Datasource";
 import { isString, keyBy } from "lodash";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
-  getPluginIcon,
   JsFileIconV2,
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
@@ -21,7 +18,6 @@ import {
 } from "selectors/editorSelectors";
 import {
   getActionsForCurrentPage,
-  getDBDatasources,
   getJSCollectionsForCurrentPage,
   getPageListAsOptions,
 } from "selectors/entitiesSelector";
@@ -29,7 +25,6 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { createNewQueryName } from "utils/AppsmithUtils";
 import Fields, {
   ACTION_ANONYMOUS_FUNC_REGEX,
   ACTION_TRIGGER_REGEX,
@@ -416,7 +411,6 @@ function getIntegrationOptionsWithChildren(
   options: TreeDropdownOption[],
   actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
-  datasources: Datasource[],
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
 ) {
@@ -473,34 +467,6 @@ function getIntegrationOptionsWithChildren(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
         ),
-      } as TreeDropdownOption);
-    });
-    datasources.forEach((dataSource: Datasource) => {
-      (option.children as TreeDropdownOption[]).push({
-        label: dataSource.name,
-        id: dataSource.id,
-        value: dataSource.name,
-        type: option.value,
-        icon: getPluginIcon(plugins[dataSource.pluginId]) as React.ReactNode,
-        onSelect: () => {
-          const newQueryName = createNewQueryName(actions, pageId);
-          dispatch(
-            createActionRequest({
-              name: newQueryName,
-              pageId,
-              datasource: {
-                id: dataSource.id,
-              },
-              eventData: {
-                actionType: "Query",
-                from: "home-screen",
-                dataSource: dataSource.name,
-              },
-              pluginId: dataSource.pluginId,
-              actionConfiguration: {},
-            }),
-          );
-        },
       } as TreeDropdownOption);
     });
   }
@@ -561,7 +527,6 @@ function getIntegrationOptionsWithChildren(
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId) as string;
-  const datasources: Datasource[] = useSelector(getDBDatasources);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -577,7 +542,6 @@ function useIntegrationsOptionTree() {
     getBaseOptions(),
     actions,
     jsActions,
-    datasources,
     {
       label: "New Query",
       value: "datasources",

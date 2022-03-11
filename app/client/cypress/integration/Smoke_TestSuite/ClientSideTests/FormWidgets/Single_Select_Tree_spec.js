@@ -3,7 +3,7 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("MultiSelectTree Widget Functionality", function() {
+describe("Single Select Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -19,8 +19,8 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true });
-    cy.get(formWidgetsPage.treeSelectInput)
-      .last()
+    cy.get(formWidgetsPage.treeSelectFilterInput)
+      .click()
       .type("light");
     cy.treeSelectDropdown("Light Blue");
   });

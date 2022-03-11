@@ -2098,36 +2098,41 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .cache();
         Mono<Application> defaultApplicationMono = this.getApplicationById(defaultApplicationId);
 
+        Mono<Application> discardChangeMono;
         if (Boolean.TRUE.equals(doPull)) {
-            return defaultApplicationMono
+            discardChangeMono = defaultApplicationMono
                     .flatMap(defaultApplication -> this.pullAndRehydrateApplication(defaultApplication, branchName))
                     .map(GitPullDTO::getApplication)
                     .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
                     .map(responseUtils::updateApplicationWithDefaultResources);
+        } else {
+            // Rehydrate the application from local file system
+            discardChangeMono = branchedApplicationMono
+                    .flatMap(branchedApplication -> {
+                        GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
+                        if (gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+                        }
+                        Path repoSuffix = Paths.get(branchedApplication.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                        return gitExecutor.checkoutToBranch(repoSuffix, branchName)
+                                        .then(fileUtils.reconstructApplicationJsonFromGitRepo(
+                                                branchedApplication.getOrganizationId(),
+                                                branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                                                branchedApplication.getGitApplicationMetadata().getRepoName(),
+                                                branchName)
+                                        )
+                                .flatMap(applicationJson ->
+                                    importExportApplicationService
+                                            .importApplicationInOrganization(branchedApplication.getOrganizationId(), applicationJson, branchedApplication.getId(), branchName)
+                                );
+                    })
+                    .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
+                    .map(responseUtils::updateApplicationWithDefaultResources);
         }
 
-        // Rehydrate the application from local file system
-        return branchedApplicationMono
-                .flatMap(branchedApplication -> {
-                    GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
-                    if (gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
-                    }
-                    Path repoSuffix = Paths.get(branchedApplication.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return gitExecutor.checkoutToBranch(repoSuffix, branchName)
-                                    .then(fileUtils.reconstructApplicationJsonFromGitRepo(
-                                            branchedApplication.getOrganizationId(),
-                                            branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
-                                            branchedApplication.getGitApplicationMetadata().getRepoName(),
-                                            branchName)
-                                    )
-                            .flatMap(applicationJson ->
-                                importExportApplicationService
-                                        .importApplicationInOrganization(branchedApplication.getOrganizationId(), applicationJson, branchedApplication.getId(), branchName)
-                            );
-                })
-                .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+        return Mono.create(sink -> discardChangeMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
@@ -2384,12 +2389,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .cache();
                     // Rehydrate the application from file system
                     Mono<ApplicationJson> applicationJsonMono = pullStatusMono
-                            .then(
+                            .flatMap(status ->
                                     fileUtils.reconstructApplicationJsonFromGitRepo(
                                             branchedApplication.getOrganizationId(),
                                             branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                                             branchedApplication.getGitApplicationMetadata().getRepoName(),
-                                            branchName)
+                                            branchName
+                                    )
                             );
 
                     return Mono.zip(pullStatusMono, Mono.just(branchedApplication), applicationJsonMono);
