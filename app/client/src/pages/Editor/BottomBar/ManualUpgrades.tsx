@@ -36,7 +36,10 @@ const updates = [
 
 function RedDot() {
   return (
-    <div className="h-2 w-2 bg-red-600 rounded-full absolute top-0 left-3" />
+    <div
+      className="h-2 w-2 bg-red-600 rounded-full absolute top-0 left-3"
+      data-testid="update-indicator"
+    />
   );
 }
 
@@ -61,7 +64,7 @@ function ManualUpgrades() {
 
   const tooltipContent =
     applicationVersion < latestVersion
-      ? `${updates.length} pending update(s)`
+      ? `${latestVersion - applicationVersion} pending update(s)`
       : "No new updates";
 
   return (
