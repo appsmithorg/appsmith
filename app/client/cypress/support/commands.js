@@ -3804,16 +3804,24 @@ Cypress.Commands.add(
   "actionContextMenuByEntityName",
   (entityNameinLeftSidebar, action = "Delete") => {
     cy.wait(2000);
-    cy.get(
-      commonlocators.entitySearchResult
-        .concat(entityNameinLeftSidebar)
-        .concat("')"),
+    // cy.get(
+    //   commonlocators.entitySearchResult
+    //     .concat(entityNameinLeftSidebar)
+    //     .concat("')"),
+    // )
+    //   .parents(commonlocators.entityItem)
+    //   .first()
+    //   .trigger("mouseover")
+    //   .find(commonlocators.entityContextMenu)
+    //   .last()
+    //   .click({ force: true });
+
+    cy.xpath(
+      "//div[text()='" +
+        entityNameinLeftSidebar +
+        "']/ancestor::div[contains(@class, 't--entity')]//div[contains(@class, 'entity-context-menu-icon')]",
     )
-      .parents(commonlocators.entityItem)
       .first()
-      .trigger("mouseover")
-      .find(commonlocators.entityContextMenu)
-      .last()
       .click({ force: true });
 
     cy.xpath(

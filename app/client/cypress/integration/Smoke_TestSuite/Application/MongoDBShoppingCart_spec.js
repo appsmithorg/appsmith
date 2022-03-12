@@ -32,9 +32,9 @@ describe("Shopping cart App", function() {
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames");
-    cy.get(".CodeEditorTarget")
-      .eq(1)
-      .type("{}");
+    // cy.get(".CodeEditorTarget")
+    //   .eq(1)
+    //   .type("{}");
     cy.get(appPage.dropdownChevronLeft).click();
     // EditProducts query to update the cart
     cy.get(queryLocators.createQuery)
@@ -123,6 +123,7 @@ describe("Shopping cart App", function() {
       .eq(1)
       .click();
     cy.assertPageSave();
+    cy.wait(8000);
     cy.xpath(appPage.bookname)
       .click()
       .type("A man called ove");
@@ -140,12 +141,14 @@ describe("Shopping cart App", function() {
       .eq(1)
       .click();
     cy.assertPageSave();
+    cy.wait(8000);
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
       .within(() => {
         cy.get("span:contains('Delete')")
           .closest("div")
+          .eq(0)
           .click();
         // validating that the book is deleted
         cy.get("span:contains('Delete')").should("have.length", 1);
