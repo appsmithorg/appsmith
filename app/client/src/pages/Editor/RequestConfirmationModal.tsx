@@ -9,7 +9,7 @@ import {
 } from "actions/pluginActionActions";
 import DialogComponent from "components/ads/DialogComponent";
 import styled from "styled-components";
-import Button, { Category } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
@@ -98,25 +98,23 @@ class RequestConfirmationModal extends React.Component<Props> {
               <Button
                 category={Category.tertiary}
                 cypressSelector="t--cancel-modal-btn"
-                height="40"
                 onClick={() => {
                   dispatch(cancelActionConfirmationModal(modalInfo.name));
                   this.handleClose(modalInfo);
                 }}
+                size={Size.large}
                 tag="button"
                 text="No"
                 type="button"
-                width="136px"
               />
               <Button
                 category={Category.primary}
                 cypressSelector="t--confirm-modal-btn"
-                height="40"
                 onClick={() => this.onConfirm(modalInfo)}
+                size={Size.large}
                 tag="button"
                 text="Yes"
                 type="button"
-                width="136px"
               />
             </ModalFooter>
           </DialogComponent>
