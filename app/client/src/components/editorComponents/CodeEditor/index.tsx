@@ -91,7 +91,7 @@ import { replayHighlightClass } from "globalStyles/portals";
 import {
   LintTooltipDirection,
   LINT_TOOLTIP_CLASS,
-  LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS,
+  LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
 
 interface ReduxStateProps {
@@ -524,7 +524,7 @@ class CodeEditor extends Component<Props, State> {
         tooltip &&
         getLintTooltipDirection(tooltip) === LintTooltipDirection.left
       ) {
-        tooltip.classList.add(LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS);
+        tooltip.classList.add(LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS);
       }
     }
   };

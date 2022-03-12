@@ -11,6 +11,7 @@ import {
   SourceType,
   RUN_GUTTER_CLASSNAME,
   RUN_GUTTER_ID,
+  NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
 import { DropdownOption } from "components/ads/Dropdown";
 
@@ -132,4 +133,17 @@ export const getActionFromJsCollection = (
 ): JSAction | null => {
   if (!actionId) return null;
   return jsCollection.actions.find((action) => action.id === actionId) || null;
+};
+
+export const getInitialJSActionOption = (
+  activeJSAction: JSAction | null,
+  jsActions: JSAction[],
+): JSActionDropdownOption => {
+  let initialJSActionOption = NO_FUNCTION_DROPDOWN_OPTION;
+  if (activeJSAction) {
+    initialJSActionOption = convertJSActionToDropdownOption(activeJSAction);
+  } else if (jsActions.length) {
+    initialJSActionOption = convertJSActionToDropdownOption(jsActions[0]);
+  }
+  return initialJSActionOption;
 };

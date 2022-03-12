@@ -392,6 +392,11 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
+export const JS_SHORTCUT_FIRST_HALF = () => "You can also use";
+export const JS_SHORTCUT_LAST_HALF = () =>
+  "keyboard shortcut to run the function";
+export const EMPTY_JS_RESPONSE_LAST_HALF = () =>
+  "to view response of the selected function";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on Appsmith, can you please help? \n\n${text}`;
@@ -451,6 +456,9 @@ export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
+export const JS_EXECUTION_SUCCESS_TOASTER = (actionName: string) =>
+  `${actionName} ran successfully`;
+export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
@@ -459,6 +467,9 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
+export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async Function Settings";
+export const NO_ASYNC_FUNCTIONS = () =>
+  "There is no asynchronous function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 

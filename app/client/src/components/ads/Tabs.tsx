@@ -351,9 +351,7 @@ export function TabComponent(
     const { containerRef, expandedHeight } = props;
 
     if (containerRef?.current && expandedHeight) {
-      containerRef.current.style.height = expanded
-        ? TAB_MIN_HEIGHT
-        : expandedHeight;
+      containerRef.current.style.height = expanded ? "32px" : expandedHeight;
     }
   }, [expanded]);
 

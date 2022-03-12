@@ -1,3 +1,4 @@
+import { OptionProps } from "components/ads";
 import { JSActionDropdownOption } from "./utils";
 
 export const ECMA_VERSION = 11;
@@ -17,11 +18,38 @@ export const NO_FUNCTION_DROPDOWN_OPTION: JSActionDropdownOption = {
   value: "",
   data: null,
 };
+export const SETTINGS_HEADINGS = [
+  {
+    text: "Function Name",
+    hasInfo: false,
+    key: "func_name",
+  },
+  {
+    text: "Run on page load",
+    hasInfo: true,
+    info: "Allow function run when page loads",
+    key: "run_on_pageload",
+  },
+  {
+    text: "Confirm before calling ",
+    hasInfo: true,
+    info: "Ask for confirmation before executing function",
+    key: "run_before_calling",
+  },
+];
+export const RADIO_OPTIONS: OptionProps[] = [
+  {
+    label: "Yes",
+    value: "true",
+  },
+  {
+    label: "No",
+    value: "false",
+  },
+];
 export const RUN_GUTTER_ID = "run-gutter";
 export const RUN_GUTTER_CLASSNAME = "run-marker-gutter";
-export const ASYNC_FUNCTION_SETTINGS_HEADING = "Async Function Settings";
-export const NO_ASYNC_FUNCTIONS =
-  "There is no asynchronous function in this JSObject";
+export const JS_OBJECT_HOTKEYS_CLASSNAME = "js-object-hotkeys";
 
 /* Indicates the mode the code should be parsed in. 
 This influences global strict mode and parsing of import and export declarations.

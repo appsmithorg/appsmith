@@ -59,6 +59,7 @@ import {
   JS_EXECUTION_SUCCESS,
   JS_EXECUTION_FAILURE,
   JS_EXECUTION_FAILURE_TOASTER,
+  JS_EXECUTION_SUCCESS_TOASTER,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
   JS_FUNCTION_UPDATE_SUCCESS,
@@ -365,6 +366,10 @@ export function* handleExecuteJSFunctionSaga(data: {
         id: collectionId,
       },
       state: { response: result },
+    });
+    Toaster.show({
+      text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
+      variant: Variant.success,
     });
   } catch (e) {
     AppsmithConsole.addError({

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
@@ -39,24 +39,35 @@ import {
   convertJSActionsToDropdownOptions,
   convertJSActionToDropdownOption,
   getActionFromJsCollection,
+  getInitialJSActionOption,
   getJSFunctionsLineGutters,
   JSActionDropdownOption,
 } from "./utils";
-import { NO_FUNCTION_DROPDOWN_OPTION } from "./constants";
+import {
+  JS_OBJECT_HOTKEYS_CLASSNAME,
+  NO_FUNCTION_DROPDOWN_OPTION,
+} from "./constants";
 import { DropdownOnSelect } from "components/ads";
 import { isMac } from "utils/helpers";
 import { Severity } from "entities/AppsmithConsole";
-import JSFunctionSettingsView from "./JSFunctionSettingsView";
+import JSFunctionSettingsView from "./JSFunctionSettings";
+import JSObjectHotKeys from "./JSObjectHotKeys";
+
+const FormWrapper = styled.div`
+  height: ${({ theme }) =>
+    `calc(100vh - ${theme.smallHeaderHeight} - ${theme.backBanner})`};
+
+  .${JS_OBJECT_HOTKEYS_CLASSNAME} {
+    width: 100%;
+    height: 100%;
+  }
+`;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.backBanner}
-  );
+  height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
   overflow: hidden;
-  width: 100%;
   ${FormLabel} {
     padding: ${(props) => props.theme.spaces[3]}px;
   }
@@ -65,6 +76,9 @@ const Form = styled.form`
       padding: 0;
       width: 100%;
     }
+  }
+  .t--no-binding-prompt {
+    display: none;
   }
 `;
 
@@ -128,89 +142,87 @@ export const TabbedViewContainer = styled.div`
   }
 `;
 interface JSFormProps {
-  jsAction: JSCollection;
-  settingsConfig: any;
+  jsCollection: JSCollection;
 }
 
 type Props = JSFormProps;
 
-function JSEditorForm(props: Props) {
+function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const theme = EditorTheme.LIGHT;
   const [mainTabIndex, setMainTabIndex] = useState(0);
   const dispatch = useDispatch();
-  const currentJSAction = props.jsAction;
   const dataTree = useSelector(getDataTree);
   const { pageId } = useParams<ExplorerURLParams>();
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
   const [showResponse, setshowResponse] = useState(false);
-
-  const getErrors = get(
+  const allErrors = get(
     dataTree,
-    `${currentJSAction.name}.${EVAL_ERROR_PATH}.body`,
+    `${currentJSCollection.name}.${EVAL_ERROR_PATH}.body`,
     [],
   ) as EvaluationError[];
-
-  const errors = getErrors.filter((er) => {
+  const parseErrors = allErrors.filter((er) => {
     return er.severity === Severity.ERROR;
   });
-
   const jsActions = useSelector(
-    (state: AppState) => getJSActions(state, currentJSAction.id),
+    (state: AppState) => getJSActions(state, currentJSCollection.id),
     isEqual,
   );
   const activeJSActionId = useSelector((state: AppState) =>
-    getActiveJSActionId(state, currentJSAction.id),
+    getActiveJSActionId(state, currentJSCollection.id),
   );
+  const activeJsAction = activeJSActionId
+    ? getActionFromJsCollection(activeJSActionId, currentJSCollection)
+    : null;
 
   const [selectedJSActionOption, setSelectedJSActionOption] = useState<
     JSActionDropdownOption
-  >(() => {
-    const activeJsAction =
-      activeJSActionId &&
-      getActionFromJsCollection(activeJSActionId, currentJSAction);
-    return (
-      (activeJsAction && convertJSActionToDropdownOption(activeJsAction)) ||
-      (jsActions.length && convertJSActionToDropdownOption(jsActions[0])) ||
-      NO_FUNCTION_DROPDOWN_OPTION
-    );
-  });
+  >(getInitialJSActionOption(activeJsAction, jsActions));
 
-  const handleOnChange = (event: string) => {
+  const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
+    const value: string =
+      typeof valueOrEvent === "string"
+        ? valueOrEvent
+        : valueOrEvent.target.value;
+
     showResponse && setshowResponse(false);
-    if (currentJSAction) {
-      dispatch(updateJSCollectionBody(event, currentJSAction.id));
-    }
+    dispatch(updateJSCollectionBody(value, currentJSCollection.id));
   };
 
   const isExecutingCurrentJSAction = useSelector((state: AppState) =>
     getIsExecutingJSAction(
       state,
-      currentJSAction.id,
+      currentJSCollection.id,
       selectedJSActionOption.data?.id || "",
     ),
   );
 
-  const runJSAction = (jsAction: JSAction) => {
+  const executeJSAction = (jsAction: JSAction) => {
     setshowResponse(true);
     setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
     dispatch(
       executeJSFunction({
-        collectionName: currentJSAction.name || "",
+        collectionName: currentJSCollection.name || "",
         action: jsAction,
-        collectionId: currentJSAction.id || "",
+        collectionId: currentJSCollection.id || "",
       }),
     );
   };
 
   const JSGutters = useMemo(
-    () => getJSFunctionsLineGutters(jsActions, runJSAction, !errors.length),
-    [jsActions, errors],
+    () =>
+      getJSFunctionsLineGutters(
+        jsActions,
+        executeJSAction,
+        !parseErrors.length,
+      ),
+    [jsActions, parseErrors],
   );
 
   const customKeyMap = {
     combination: isMac() ? "Cmd-Enter" : "Ctrl-Enter",
     onKeyDown: () => {
-      selectedJSActionOption.data && runJSAction(selectedJSActionOption.data);
+      selectedJSActionOption.data &&
+        executeJSAction(selectedJSActionOption.data);
     },
   };
 
@@ -225,141 +237,138 @@ function JSEditorForm(props: Props) {
       );
   };
 
-  const handleButtonClick = (
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
+  const handleRunAction = (
+    event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
   ) => {
     event.preventDefault();
-    selectedJSActionOption.data && runJSAction(selectedJSActionOption.data);
+    selectedJSActionOption.data && executeJSAction(selectedJSActionOption.data);
   };
 
   useEffect(() => {
-    const activeJsAction =
-      activeJSActionId &&
-      getActionFromJsCollection(activeJSActionId, currentJSAction);
     if (activeJsAction) {
       setSelectedJSActionOption(
         convertJSActionToDropdownOption(activeJsAction),
       );
-    } else {
-      if (!isEmpty(jsActions)) {
-        setSelectedJSActionOption(
-          convertJSActionToDropdownOption(jsActions[0]),
-        );
-      }
     }
   }, [activeJSActionId]);
 
   useEffect(() => {
-    if (isEmpty(jsActions)) {
-      setSelectedJSActionOption(NO_FUNCTION_DROPDOWN_OPTION);
-      !disableRunFunctionality && setDisableRunFunctionality(true);
-    } else {
-      disableRunFunctionality && setDisableRunFunctionality(false);
-    }
-  }, [jsActions]);
-
-  useEffect(() => {
-    if (errors && errors.length) {
+    if ((parseErrors && parseErrors.length) || isEmpty(jsActions)) {
       setDisableRunFunctionality(true);
+      isEmpty(jsActions) &&
+        setSelectedJSActionOption(NO_FUNCTION_DROPDOWN_OPTION);
+    } else {
+      setDisableRunFunctionality(false);
     }
-  }, [errors]);
+  }, [parseErrors, jsActions]);
 
   useEffect(() => {
-    const activeJsAction =
-      activeJSActionId &&
-      getActionFromJsCollection(activeJSActionId, currentJSAction);
     setSelectedJSActionOption(
-      (activeJsAction && convertJSActionToDropdownOption(activeJsAction)) ||
-        (jsActions.length && convertJSActionToDropdownOption(jsActions[0])) ||
-        NO_FUNCTION_DROPDOWN_OPTION,
+      getInitialJSActionOption(activeJsAction, jsActions),
     );
-  }, [currentJSAction]);
+  }, [currentJSCollection]);
 
   return (
-    <>
-      <CloseEditor />
-      <Form>
-        <MainConfiguration>
-          <FormRow className="form-row-header">
-            <NameWrapper className="t--nameOfJSObject">
-              <JSObjectNameEditor page="JS_PANE" />
-            </NameWrapper>
-            <ActionButtons className="t--formActionButtons">
+    <FormWrapper>
+      <JSObjectHotKeys runActiveJSFunction={handleRunAction}>
+        <CloseEditor />
+        <Form>
+          <MainConfiguration>
+            <FormRow className="form-row-header">
+              <NameWrapper className="t--nameOfJSObject">
+                <JSObjectNameEditor page="JS_PANE" />
+              </NameWrapper>
+              <ActionButtons className="t--formActionButtons">
+                <JSFunctionRun
+                  disabled={disableRunFunctionality}
+                  isLoading={isExecutingCurrentJSAction}
+                  jsCollection={currentJSCollection}
+                  onButtonClick={handleRunAction}
+                  onSelect={handleJSActionOptionSelection}
+                  options={convertJSActionsToDropdownOptions(jsActions)}
+                  selected={selectedJSActionOption}
+                  showTooltip={!selectedJSActionOption.data}
+                />
+                <SearchSnippets
+                  entityId={currentJSCollection?.id}
+                  entityType={ENTITY_TYPE.JSACTION}
+                />
+                <MoreJSCollectionsMenu
+                  className="t--more-action-menu"
+                  id={currentJSCollection.id}
+                  name={currentJSCollection.name}
+                  pageId={pageId}
+                />
+              </ActionButtons>
+            </FormRow>
+          </MainConfiguration>
+          <SecondaryWrapper>
+            <TabbedViewContainer>
+              <TabComponent
+                onSelect={setMainTabIndex}
+                selectedIndex={mainTabIndex}
+                tabs={[
+                  {
+                    key: "code",
+                    title: "Code",
+                    panelComponent: (
+                      <CodeEditor
+                        className={"js-editor"}
+                        customGutter={JSGutters}
+                        customKeyMap={customKeyMap}
+                        dataTreePath={`${currentJSCollection.name}.body`}
+                        folding
+                        height={"100%"}
+                        hideEvaluatedValue
+                        input={{
+                          value: currentJSCollection.body,
+                          onChange: handleEditorChange,
+                        }}
+                        mode={EditorModes.JAVASCRIPT}
+                        placeholder="Let's write some code!"
+                        showLightningMenu={false}
+                        showLineNumbers
+                        size={EditorSize.EXTENDED}
+                        tabBehaviour={TabBehaviour.INDENT}
+                        theme={theme}
+                      />
+                    ),
+                  },
+                  {
+                    key: "settings",
+                    title: "Settings",
+                    panelComponent: (
+                      <JSFunctionSettingsView actions={jsActions} />
+                    ),
+                  },
+                ]}
+              />
+            </TabbedViewContainer>
+            <JSResponseView
+              currentFunction={selectedJSActionOption.data}
+              disabled={disableRunFunctionality}
+              errors={parseErrors}
+              isLoading={isExecutingCurrentJSAction}
+              jsObject={currentJSCollection}
+              onButtonClick={handleRunAction}
+              showResponse={showResponse}
+              theme={theme}
+            >
               <JSFunctionRun
                 disabled={disableRunFunctionality}
                 isLoading={isExecutingCurrentJSAction}
-                jsCollection={currentJSAction}
-                onButtonClick={handleButtonClick}
+                jsCollection={currentJSCollection}
+                onButtonClick={handleRunAction}
                 onSelect={handleJSActionOptionSelection}
                 options={convertJSActionsToDropdownOptions(jsActions)}
                 selected={selectedJSActionOption}
                 showTooltip={!selectedJSActionOption.data}
               />
-              <SearchSnippets
-                entityId={currentJSAction?.id}
-                entityType={ENTITY_TYPE.JSACTION}
-              />
-              <MoreJSCollectionsMenu
-                className="t--more-action-menu"
-                id={currentJSAction.id}
-                name={currentJSAction.name}
-                pageId={pageId}
-              />
-            </ActionButtons>
-          </FormRow>
-        </MainConfiguration>
-        <SecondaryWrapper>
-          <TabbedViewContainer>
-            <TabComponent
-              onSelect={setMainTabIndex}
-              selectedIndex={mainTabIndex}
-              tabs={[
-                {
-                  key: "code",
-                  title: "Code",
-                  panelComponent: (
-                    <CodeEditor
-                      className={"js-editor"}
-                      customGutter={JSGutters}
-                      customKeyMap={customKeyMap}
-                      dataTreePath={`${currentJSAction.name}.body`}
-                      folding
-                      height={"100%"}
-                      hideEvaluatedValue
-                      input={{
-                        value: currentJSAction.body,
-                        onChange: (event: any) => handleOnChange(event),
-                      }}
-                      mode={EditorModes.JAVASCRIPT}
-                      placeholder="Let's write some code!"
-                      showLightningMenu={false}
-                      showLineNumbers
-                      size={EditorSize.EXTENDED}
-                      tabBehaviour={TabBehaviour.INDENT}
-                      theme={theme}
-                    />
-                  ),
-                },
-                {
-                  key: "settings",
-                  title: "Settings",
-                  panelComponent: (
-                    <JSFunctionSettingsView actions={jsActions} />
-                  ),
-                },
-              ]}
-            />
-          </TabbedViewContainer>
-          <JSResponseView
-            currentFunction={selectedJSActionOption.data}
-            errors={errors}
-            jsObject={currentJSAction}
-            showResponse={showResponse}
-            theme={theme}
-          />
-        </SecondaryWrapper>
-      </Form>
-    </>
+            </JSResponseView>
+          </SecondaryWrapper>
+        </Form>
+      </JSObjectHotKeys>
+    </FormWrapper>
   );
 }
 
