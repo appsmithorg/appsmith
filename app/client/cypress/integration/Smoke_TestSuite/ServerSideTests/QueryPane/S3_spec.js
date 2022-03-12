@@ -436,13 +436,19 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Confirm");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName(
+      "Assets-test.appsmith.com",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   //Open bug : 3836, 6492
@@ -597,7 +603,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ); //verify Deletion of file is success from UI also
 
     //Deleting the page:
-    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName(
+      "Assets-test.appsmith.com",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("8. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {

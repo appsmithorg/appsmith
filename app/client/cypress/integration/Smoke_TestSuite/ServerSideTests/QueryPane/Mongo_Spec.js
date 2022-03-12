@@ -283,7 +283,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    cy.actionContextMenuByEntityName("Query1");
+    cy.actionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 
   it("10. Delete the datasource after NewPage deletion is success", () => {

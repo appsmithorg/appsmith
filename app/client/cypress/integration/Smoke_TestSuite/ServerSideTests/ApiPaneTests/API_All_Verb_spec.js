@@ -6,7 +6,9 @@ describe("API Panel Test Functionality", function() {
   afterEach(function() {
     cy.get(ApiEditor.ApiActionMenu).click({ force: true });
     cy.get(apiwidget.deleteAPI).click({ force: true });
-    cy.get(apiwidget.deleteConfirm).click({ force: true });
+    cy.get(apiwidget.deleteAPI)
+      .contains("Are you sure?")
+      .click({ force: true });
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",

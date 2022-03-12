@@ -3821,7 +3821,7 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
 
 Cypress.Commands.add(
   "actionContextMenuByEntityName",
-  (entityNameinLeftSidebar, action = "Delete") => {
+  (entityNameinLeftSidebar, action = "Delete", subAction) => {
     cy.wait(2000);
     cy.get(
       commonlocators.entitySearchResult
@@ -3842,6 +3842,16 @@ Cypress.Commands.add(
     )
       .click({ force: true })
       .wait(500);
+
+    if (subAction) {
+      cy.xpath(
+        "//div[text()='" +
+          subAction +
+          "']/parent::a[contains(@class, 'single-select')]",
+      )
+        .click({ force: true })
+        .wait(500);
+    }
 
     if (action === "Delete")
       cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
