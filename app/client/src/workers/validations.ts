@@ -352,9 +352,25 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     let parsed = value;
 
     if (isObject(value)) {
+      let parsed: string = JSON.stringify(value, null, 2);
+      if (config.params && config.params.limitLineBreaks) {
+        const MAX_ALLOWED_LINE_BREAKS = 5000; // Rendering performance deteriorates beyond this number.
+        const lineBreakCount: number =
+          parsed.match(/[^\n]*\n[^\n]*/gi)?.length || 0;
+        if (lineBreakCount > MAX_ALLOWED_LINE_BREAKS) {
+          parsed = JSON.stringify(value); // Parse without line breaks
+          return {
+            isValid: false,
+            parsed,
+            messages: [
+              `Warning: Line breaks in text exceed ${MAX_ALLOWED_LINE_BREAKS}. Text will be visible without line breaks.`,
+            ],
+          };
+        }
+      }
       return {
         isValid: false,
-        parsed: JSON.stringify(value, null, 2),
+        parsed,
         messages: [
           `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],

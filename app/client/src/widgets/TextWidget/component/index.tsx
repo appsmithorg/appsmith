@@ -17,7 +17,6 @@ import { Colors } from "constants/Colors";
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
 const ELLIPSIS_HEIGHT = 15;
-const MAX_ALLOWED_LINE_BREAKS = 5000; // Rendering performance deteriorates beyond this number.
 
 export const TextContainer = styled.div`
   & {
@@ -200,7 +199,6 @@ export interface TextComponentProps extends ComponentProps {
 }
 
 type State = {
-  displayText: string;
   isTruncated: boolean;
   showModal: boolean;
 };
@@ -209,7 +207,6 @@ type TextRef = React.Ref<Text> | undefined;
 
 class TextComponent extends React.Component<TextComponentProps, State> {
   state = {
-    displayText: "",
     isTruncated: false,
     showModal: false,
   };
@@ -225,23 +222,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     );
   };
 
-  exceedsMaxLineBreaks = (text: string): boolean => {
-    // Count the number of line breaks in the text.
-    const count: number = text.match(/[^\n]*\n[^\n]*/gi)?.length || 0;
-    return count > MAX_ALLOWED_LINE_BREAKS;
-  };
-
-  updateDisplayText = (): void => {
-    const text: string = this.props?.text || "";
-    if (this.exceedsMaxLineBreaks(text)) {
-      // TODO: add logic for showing error in the widget.
-      this.setState({ displayText: JSON.stringify(text) });
-    }
-    this.setState({ displayText: text });
-  };
-
   componentDidMount = () => {
-    this.updateDisplayText();
     const textRef = get(this.textRef, "current.textRef");
     if (textRef && this.props.shouldTruncate) {
       const isTruncated = this.getTruncate(textRef);
@@ -251,9 +232,6 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   componentDidUpdate = (prevProps: TextComponentProps) => {
     if (!isEqual(prevProps, this.props)) {
-      if (prevProps.text !== this.props.text) {
-        this.updateDisplayText();
-      }
       if (this.props.shouldTruncate) {
         const textRef = get(this.textRef, "current.textRef");
         if (textRef) {
@@ -283,6 +261,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       fontStyle,
       shouldScroll,
       shouldTruncate,
+      text,
       textAlign,
       textColor,
       truncateButtonColor,
@@ -305,7 +284,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             truncate={!!shouldTruncate}
           >
             <Interweave
-              content={this.state.displayText}
+              content={text}
               matchers={
                 disableLink
                   ? []
@@ -353,7 +332,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               textColor={textColor}
             >
               <Interweave
-                content={this.state.displayText}
+                content={text}
                 matchers={
                   disableLink
                     ? []
