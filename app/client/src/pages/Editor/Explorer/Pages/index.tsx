@@ -36,11 +36,16 @@ import { tailwindLayers } from "constants/Layers";
 import useResize, { DIRECTION } from "utils/hooks/useResize";
 import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 
-const StyledEntity = styled(Entity)`
+const ENTITY_HEIGHT = 36;
+
+const StyledEntity = styled(Entity)<{ pagesSize?: number }>`
   &.pages {
     & > div:not(.t--entity-item) > div > div {
       max-height: 40vh;
-      min-height: 100px;
+      min-height: ${(props) =>
+        props.pagesSize && props.pagesSize > 100 ? 100 : props.pagesSize}px;
+      height: ${(props) =>
+        props.pagesSize && props.pagesSize > 128 ? 128 : props.pagesSize}px;
       overflow-y: auto;
     }
   }
@@ -188,6 +193,7 @@ function Pages() {
         onClickRightIcon={onClickRightIcon}
         onCreate={createPageCallback}
         onToggle={onPageToggle}
+        pagesSize={ENTITY_HEIGHT * pages.length}
         rightIcon={settingsIconWithTooltip}
         searchKeyword={""}
         step={0}
