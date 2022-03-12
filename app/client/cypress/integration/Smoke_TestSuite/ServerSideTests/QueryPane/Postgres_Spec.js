@@ -174,6 +174,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.get(generatePage.updateBtn)
       .closest("div")
+      .eq(0)
       .click()
       .wait(2000); //Wait for update call to be success
 
