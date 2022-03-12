@@ -159,6 +159,7 @@ describe("Shopping cart App", function() {
       .type("3");
     cy.get("span:contains('Submit')")
       .closest("div")
+      .eq(0)
       .click();
     // validating updated value in the cart
     cy.get(".selected-row")

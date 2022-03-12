@@ -174,10 +174,10 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.get(generatePage.updateBtn)
       .closest("div")
-      .eq(0)
-      .click()
-      .wait(5000); //Wait for update call to be success
+      .eq(1)
+      .click();
 
+    cy.wait(8000); //Wait for update call to be success
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -192,10 +192,15 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-    cy.xpath(generatePage.currentStatusField).should("have.value", "APPROVED"); //Verifying update is success
+
+    cy.getTableDataSelector("1", "2").then((selector) => {
+      cy.get(selector + " span span span").should("have.text", "APPROVED");
+    }); //Verifying update is success
 
     //verifying Insert from UI
-    cy.xpath(generatePage.addRowIcon).click();
+    cy.xpath(generatePage.addRowIcon)
+      .scrollIntoView()
+      .click();
     cy.xpath(generatePage.idField).type("31");
     cy.xpath(generatePage.nameField).type("CRUD User31");
     cy.xpath(generatePage.statusField).type("REJECTED");
@@ -207,6 +212,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .closest("div")
       .first()
       .click();
+    cy.wait(5000);
 
     cy.xpath(generatePage.sortByDropdown).click(); //Sorting by descending to verify newly added record - also sorting is verified
     cy.xpath(generatePage.descending).click();

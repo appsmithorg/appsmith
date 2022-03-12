@@ -2538,7 +2538,7 @@ Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery)
     .last()
     .click({ force: true })
-    .wait(500);
+    .wait(1000);
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -3819,9 +3819,9 @@ Cypress.Commands.add(
     cy.xpath(
       "//div[text()='" +
         entityNameinLeftSidebar +
-        "']/ancestor::div[contains(@class, 't--entity')]//div[contains(@class, 'entity-context-menu-icon')]",
+        "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]",
     )
-      .first()
+      .last()
       .click({ force: true });
 
     cy.xpath(
