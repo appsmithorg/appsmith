@@ -197,7 +197,7 @@ export type EntityProps = {
   onToggle?: (isOpen: boolean) => void;
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
-  addButtonHelptext?: string;
+  addButtonHelptext?: JSX.Element | string;
   isBeta?: boolean;
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;

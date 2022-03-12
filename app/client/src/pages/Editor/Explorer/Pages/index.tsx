@@ -34,6 +34,7 @@ import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
 import { tailwindLayers } from "constants/Layers";
 import useResize, { DIRECTION } from "utils/hooks/useResize";
+import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 
 const StyledEntity = styled(Entity)`
   &.pages {
@@ -65,6 +66,7 @@ function Pages() {
     pageResizeRef,
     DIRECTION.vertical,
   );
+  const isPagesOpen = getExplorerStatus(applicationId, "pages");
 
   useEffect(() => {
     document.getElementsByClassName("activePage")[0]?.scrollIntoView();
@@ -121,6 +123,13 @@ function Pages() {
     [applicationId, currentPageId],
   );
 
+  const onPageToggle = useCallback(
+    (isOpen: boolean) => {
+      saveExplorerStatus(applicationId, "pages", isOpen);
+    },
+    [applicationId],
+  );
+
   const pageElements = useMemo(
     () =>
       pages.map((page) => {
@@ -173,11 +182,12 @@ function Pages() {
         collapseRef={pageResizeRef}
         entityId="Pages"
         icon={""}
-        isDefaultExpanded
+        isDefaultExpanded={isPagesOpen === null ? true : isPagesOpen}
         name="PAGES"
         onClickPreRightIcon={onPin}
         onClickRightIcon={onClickRightIcon}
         onCreate={createPageCallback}
+        onToggle={onPageToggle}
         rightIcon={settingsIconWithTooltip}
         searchKeyword={""}
         step={0}
