@@ -12,12 +12,8 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
-import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/Fields";
 import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 import {
   ARRAY_ITEM_KEY,
@@ -155,6 +151,31 @@ export function InputText(props: {
     </StyledDynamicInput>
   );
 }
+
+export const stringToJS = (string: string): string => {
+  const { jsSnippets, stringSegments } = getDynamicBindings(string);
+  const js = stringSegments
+    .map((segment, index) => {
+      if (jsSnippets[index] && jsSnippets[index].length > 0) {
+        return jsSnippets[index];
+      } else {
+        return `\`${segment}\``;
+      }
+    })
+    .join(" + ");
+  return js;
+};
+
+export const JSToString = (js: string): string => {
+  const segments = js.split(" + ");
+  return segments
+    .map((segment) => {
+      if (segment.charAt(0) === "`") {
+        return segment.substring(1, segment.length - 1);
+      } else return "{{" + segment + "}}";
+    })
+    .join("");
+};
 
 class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
   getInputComputedValue = (propertyValue: string) => {

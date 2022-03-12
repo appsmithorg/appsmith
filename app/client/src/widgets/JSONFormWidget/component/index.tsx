@@ -39,10 +39,12 @@ export type JSONFormComponentProps<TValues = any> = {
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
   renderMode: RenderMode;
+  resetButtonLabel: string;
   resetButtonStyles: ButtonStyleProps;
   schema: Schema;
   getFormData: () => TValues;
   scrollContents: boolean;
+  submitButtonLabel: string;
   unregisterResetObserver: () => void;
   setMetaInternalFieldState: (
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
@@ -94,8 +96,10 @@ function JSONFormComponent<TValues>({
   isSubmitting,
   registerResetObserver,
   renderMode,
+  resetButtonLabel,
   schema,
   setMetaInternalFieldState,
+  submitButtonLabel,
   unregisterResetObserver,
   updateFormData,
   updateWidgetMetaProperty,
@@ -171,11 +175,13 @@ function JSONFormComponent<TValues>({
           isSubmitting={isSubmitting}
           onSubmit={rest.onSubmit}
           registerResetObserver={registerResetObserver}
+          resetButtonLabel={resetButtonLabel}
           resetButtonStyles={rest.resetButtonStyles}
           schema={schema}
           scrollContents={rest.scrollContents}
           showReset={rest.showReset}
           stretchBodyVertically={isSchemaEmpty}
+          submitButtonLabel={submitButtonLabel}
           submitButtonStyles={rest.submitButtonStyles}
           title={rest.title}
           unregisterResetObserver={unregisterResetObserver}

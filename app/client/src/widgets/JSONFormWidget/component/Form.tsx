@@ -15,6 +15,7 @@ import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { schemaItemDefaultValue } from "../helper";
 import { TEXT_SIZES } from "constants/WidgetConstants";
+import { convertSchemaItemToFormData } from "../widget/helper";
 
 const clone = require("rfdc/default");
 
@@ -27,11 +28,13 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   isSubmitting: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
+  resetButtonLabel: string;
   resetButtonStyles: ButtonStyleProps;
   schema?: Schema;
   scrollContents: boolean;
   showReset: boolean;
   stretchBodyVertically: boolean;
+  submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
   unregisterResetObserver: () => void;
@@ -123,11 +126,13 @@ function Form<TValues = any>({
   isSubmitting,
   onSubmit,
   registerResetObserver,
+  resetButtonLabel,
   resetButtonStyles,
   schema,
   scrollContents,
   showReset,
   stretchBodyVertically,
+  submitButtonLabel,
   submitButtonStyles,
   title,
   unregisterResetObserver,
@@ -175,13 +180,20 @@ function Form<TValues = any>({
      * to preserve the values entered in the form before it was dragged and repositioned.
      * In this case the formData (meta) is used to hydrate the form.
      */
-    if (isEmpty(formData) && schema && schema[ROOT_SCHEMA_KEY]) {
-      const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
-      debouncedUpdateFormData(defaultValues as TValues);
-    } else {
-      // TODO: When the accessor changes, this formData needs to be converted to have
-      // identifier as keys
-      reset(formData);
+    if (schema && schema[ROOT_SCHEMA_KEY]) {
+      if (isEmpty(formData)) {
+        const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
+        debouncedUpdateFormData(defaultValues as TValues);
+      } else {
+        // When the accessor changes, this formData needs to be converted to have
+        // identifier as keys
+        const convertedFormData = convertSchemaItemToFormData(
+          schema[ROOT_SCHEMA_KEY],
+          formData,
+          { fromId: "accessor", toId: "identifier" },
+        );
+        reset(convertedFormData);
+      }
     }
 
     const subscription = watch((values) => {
@@ -229,7 +241,7 @@ function Form<TValues = any>({
                 <Button
                   {...resetButtonStyles}
                   onClick={onReset}
-                  text="Reset"
+                  text={resetButtonLabel}
                   type="reset"
                 />
               </StyledResetButtonWrapper>
@@ -239,7 +251,7 @@ function Form<TValues = any>({
               disabled={disabledWhenInvalid && isFormInValid}
               loading={isSubmitting}
               onClick={onSubmit}
-              text="Submit"
+              text={submitButtonLabel}
               type="submit"
             />
           </StyledFormFooter>

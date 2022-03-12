@@ -28,20 +28,22 @@ export interface JSONFormWidgetProps extends WidgetProps {
   borderColor?: string;
   borderRadius?: number;
   boxShadow?: BoxShadow;
-  fieldLimitExceeded: boolean;
   boxShadowColor?: string;
   canvasWidgets: Record<string, WidgetProps>;
   disabledWhenInvalid?: boolean;
+  fieldLimitExceeded: boolean;
   fieldState: Record<string, unknown>;
-  formData: Record<string, unknown>;
   fixedFooter: boolean;
+  formData: Record<string, unknown>;
   isVisible: boolean;
   onSubmit?: string;
+  resetButtonLabel: string;
   resetButtonStyles: ButtonStyleProps;
   schema: Schema;
   scrollContents: boolean;
   showReset: boolean;
   sourceData?: Record<string, unknown>;
+  submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
 }
@@ -172,7 +174,10 @@ class JSONFormWidget extends BaseWidget<
 
   updateFormData = (values: any) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
-    const formData = convertSchemaItemToFormData(rootSchemaItem, values);
+    const formData = convertSchemaItemToFormData(rootSchemaItem, values, {
+      fromId: "identifier",
+      toId: "accessor",
+    });
 
     this.props.updateWidgetMetaProperty("formData", formData);
   };
@@ -263,11 +268,13 @@ class JSONFormWidget extends BaseWidget<
         onSubmit={this.onSubmit}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
+        resetButtonLabel={this.props.resetButtonLabel}
         resetButtonStyles={this.props.resetButtonStyles}
         schema={this.props.schema}
         scrollContents={this.props.scrollContents}
         setMetaInternalFieldState={this.setMetaInternalFieldState}
         showReset={this.props.showReset}
+        submitButtonLabel={this.props.submitButtonLabel}
         submitButtonStyles={this.props.submitButtonStyles}
         title={this.props.title}
         unregisterResetObserver={this.unregisterResetObserver}

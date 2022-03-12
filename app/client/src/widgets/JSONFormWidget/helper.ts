@@ -3,6 +3,8 @@ import { LabelValueType } from "rc-select/lib/interface/generator";
 
 import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
 
+const clone = require("rfdc/default");
+
 // Auxiliary function to evalValue to iterate over Object
 const evalObjectValue = (value: any, schema: Schema) => {
   const obj: Record<string, any> = {};
@@ -102,12 +104,16 @@ export const schemaItemDefaultValue = (schemaItem: SchemaItem) => {
   }
 
   if (schemaItem.fieldType === FieldType.ARRAY) {
-    const defaultArrayValue = processArray(schemaItem.children);
+    let defaultArrayValue = processArray(schemaItem.children);
     const sanitizedDefaultValue = evalValue(
       schemaItem.defaultValue,
       schemaItem,
     );
 
+    if (sanitizedDefaultValue?.length > defaultArrayValue?.length) {
+      const arrayEntry = clone(defaultArrayValue[0]);
+      defaultArrayValue = sanitizedDefaultValue.map(() => arrayEntry);
+    }
     /**
      * Reason for merge
      * - For an array type, the default value of individual fields underneath the array

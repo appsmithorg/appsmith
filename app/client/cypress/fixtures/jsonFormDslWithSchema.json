@@ -384,7 +384,9 @@
             "isLoading": false,
             "scrollContents": true,
             "fixedFooter": true,
-            "disabledWhenInvalid": true
+            "disabledWhenInvalid": true,
+            "submitButtonLabel": "Submit",
+            "resetButtonLabel": "Reset"
         }
     ]
 }

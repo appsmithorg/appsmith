@@ -581,14 +581,9 @@ export const entityDefinitions: Record<string, unknown> = {
       "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
     // TODO: Update the url
     "!url": "https://docs.appsmith.com/widget-reference",
-    // TODO: Fix definition
     formData: generateTypeDef(widget.formData),
     sourceData: generateTypeDef(widget.sourceData),
     fieldState: generateTypeDef(widget.fieldState),
-    backgroundColor: {
-      "!type": "string",
-      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
-    },
   }),
 };
 

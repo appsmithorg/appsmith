@@ -36,6 +36,8 @@ export const CONFIG = {
       date_of_birth: "20/02/1990",
       employee_id: 1001,
     },
+    submitButtonLabel: "Submit",
+    resetButtonLabel: "Reset",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

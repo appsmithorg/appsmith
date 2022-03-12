@@ -126,6 +126,76 @@ describe(".schemaItemDefaultValue", () => {
     expect(result).toEqual(expectedDefaultValue);
   });
 
+  it("returns merged default value when array field has default value more than one item", () => {
+    const schemaItem = ({
+      name: "education",
+      accessor: "education",
+      identifier: "education",
+      originalIdentifier: "education",
+      dataType: DataType.ARRAY,
+      fieldType: FieldType.ARRAY,
+      defaultValue: [
+        {
+          college: "String field 1",
+          graduationDate: "10/12/2021",
+        },
+        {
+          college: "String field 2",
+          graduationDate: "30/12/2021",
+        },
+      ],
+      children: {
+        __array_item__: {
+          accessor: ARRAY_ITEM_KEY,
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
+          dataType: DataType.OBJECT,
+          fieldType: FieldType.OBJECT,
+          defaultValue: {
+            college: "String field",
+            graduationDate: "10/12/2021",
+          },
+          children: {
+            college: {
+              label: "College",
+              children: {},
+              dataType: DataType.STRING,
+              defaultValue: "Some college name",
+              fieldType: FieldType.TEXT_INPUT,
+              accessor: "college",
+              identifier: "college",
+              originalIdentifier: "college",
+            },
+            graduationDate: {
+              children: {},
+              dataType: DataType.STRING,
+              defaultValue: undefined,
+              fieldType: FieldType.DATEPICKER,
+              accessor: "graduationDate",
+              identifier: "graduationDate",
+              originalIdentifier: "graduationDate",
+            },
+          },
+        },
+      },
+    } as unknown) as SchemaItem;
+
+    const expectedDefaultValue = [
+      {
+        college: "Some college name",
+        graduationDate: "10/12/2021",
+      },
+      {
+        college: "Some college name",
+        graduationDate: "30/12/2021",
+      },
+    ];
+
+    const result = schemaItemDefaultValue(schemaItem);
+
+    expect(result).toEqual(expectedDefaultValue);
+  });
+
   it("returns only sub array fields default value, when array level default value is empty", () => {
     const schemaItem = ({
       accessor: "education",

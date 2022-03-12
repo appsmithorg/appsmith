@@ -46,7 +46,9 @@
             "rightColumn": 46,
             "topRow": 7,
             "bottomRow": 47,
-            "parentId": "0"
+            "parentId": "0",
+            "submitButtonLabel": "Submit",
+            "resetButtonLabel": "Reset"
         }
     ]
   }
