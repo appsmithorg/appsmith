@@ -105,7 +105,7 @@ const getDefaultValue = (
   passedDefaultValue?: unknown,
 ) => {
   if (Array.isArray(schemaItem.defaultValue)) {
-    return schemaItemDefaultValue(schemaItem) as unknown[];
+    return schemaItemDefaultValue(schemaItem, "identifier") as unknown[];
   }
 
   if (Array.isArray(passedDefaultValue)) {

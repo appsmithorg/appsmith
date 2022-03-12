@@ -13,9 +13,8 @@ import {
 import { Colors } from "constants/Colors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
-import { schemaItemDefaultValue } from "../helper";
+import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 import { TEXT_SIZES } from "constants/WidgetConstants";
-import { convertSchemaItemToFormData } from "../widget/helper";
 
 const clone = require("rfdc/default");
 
@@ -38,7 +37,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   submitButtonStyles: ButtonStyleProps;
   title: string;
   unregisterResetObserver: () => void;
-  updateFormData: (values: TValues) => void;
+  updateFormData: (values: TValues, skipConversion?: boolean) => void;
 }>;
 
 type StyledFormProps = {
@@ -116,6 +115,8 @@ const StyledResetButtonWrapper = styled.div`
   background: #fff;
 `;
 
+const DEBOUNCE_TIMEOUT = 200;
+
 function Form<TValues = any>({
   backgroundColor,
   children,
@@ -152,12 +153,15 @@ function Form<TValues = any>({
     fixedFooter,
   });
 
-  const onReset = (event?: React.MouseEvent<HTMLElement, MouseEvent>) => {
+  const onReset = (
+    schema?: Schema,
+    event?: React.MouseEvent<HTMLElement, MouseEvent>,
+  ) => {
     event?.preventDefault?.();
 
     const defaultValues =
       schema && schema[ROOT_SCHEMA_KEY]
-        ? schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY])
+        ? schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY], "identifier")
         : {};
 
     if (typeof defaultValues === "object") {
@@ -166,7 +170,7 @@ function Form<TValues = any>({
   };
 
   useEffect(() => {
-    const debouncedUpdateFormData = debounce(updateFormData, 300);
+    const debouncedUpdateFormData = debounce(updateFormData, DEBOUNCE_TIMEOUT);
     let isMounting = true;
 
     const formData = getFormData();
@@ -182,8 +186,11 @@ function Form<TValues = any>({
      */
     if (schema && schema[ROOT_SCHEMA_KEY]) {
       if (isEmpty(formData)) {
-        const defaultValues = schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY]);
-        debouncedUpdateFormData(defaultValues as TValues);
+        const defaultValues = schemaItemDefaultValue(
+          schema[ROOT_SCHEMA_KEY],
+          "accessor",
+        );
+        updateFormData(defaultValues as TValues, true);
       } else {
         // When the accessor changes, this formData needs to be converted to have
         // identifier as keys
@@ -240,7 +247,7 @@ function Form<TValues = any>({
               <StyledResetButtonWrapper>
                 <Button
                   {...resetButtonStyles}
-                  onClick={onReset}
+                  onClick={(e) => onReset(schema, e)}
                   text={resetButtonLabel}
                   type="reset"
                 />

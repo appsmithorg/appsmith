@@ -16,12 +16,12 @@ import { FieldState, ROOT_SCHEMA_KEY, Schema } from "../constants";
 import {
   ComputedSchemaStatus,
   computeSchema,
-  convertSchemaItemToFormData,
   dynamicPropertyPathListFromSchema,
   generateFieldState,
 } from "./helper";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
+import { convertSchemaItemToFormData } from "../helper";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -111,7 +111,7 @@ class JSONFormWidget extends BaseWidget<
       isEmpty(this.props.fieldState) &&
       !isEmpty(prevProps.fieldState)
     ) {
-      this.state.resetObserverCallback();
+      this.state.resetObserverCallback(this.props.schema);
     }
 
     this.constructAndSaveSchemaIfRequired(prevProps);
@@ -129,6 +129,18 @@ class JSONFormWidget extends BaseWidget<
     return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
   };
 
+  getPreviousSourceData = (prevProps?: JSONFormWidgetProps) => {
+    // The autoGenerate flag was switched on.
+    if (!prevProps?.autoGenerateForm && this.props.autoGenerateForm) {
+      const rootSchemaItem =
+        this.props.schema && this.props.schema[ROOT_SCHEMA_KEY];
+
+      return rootSchemaItem?.sourceData || {};
+    }
+
+    return prevProps?.sourceData;
+  };
+
   /**
    * Why this computation cannot be done in the updateHook of the sourceData property
    *
@@ -144,7 +156,7 @@ class JSONFormWidget extends BaseWidget<
     const widget = this.props.canvasWidgets[
       this.props.widgetId
     ] as JSONFormWidgetProps;
-    const prevSourceData = prevProps?.sourceData;
+    const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
 
     const { dynamicPropertyPathList, schema, status } = computeSchema({
@@ -172,12 +184,16 @@ class JSONFormWidget extends BaseWidget<
     }
   };
 
-  updateFormData = (values: any) => {
+  updateFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
-    const formData = convertSchemaItemToFormData(rootSchemaItem, values, {
-      fromId: "identifier",
-      toId: "accessor",
-    });
+    let formData = values;
+
+    if (!skipConversion) {
+      formData = convertSchemaItemToFormData(rootSchemaItem, values, {
+        fromId: "identifier",
+        toId: "accessor",
+      });
+    }
 
     this.props.updateWidgetMetaProperty("formData", formData);
   };

@@ -1,5 +1,13 @@
-import { ARRAY_ITEM_KEY, DataType, FieldType, SchemaItem } from "./constants";
 import {
+  ARRAY_ITEM_KEY,
+  DataType,
+  FieldType,
+  ROOT_SCHEMA_KEY,
+  Schema,
+  SchemaItem,
+} from "./constants";
+import {
+  convertSchemaItemToFormData,
   countFields,
   mergeAllObjectsInAnArray,
   schemaItemDefaultValue,
@@ -59,7 +67,64 @@ describe(".schemaItemDefaultValue", () => {
       },
     ];
 
-    const result = schemaItemDefaultValue(schemaItem);
+    const result = schemaItemDefaultValue(schemaItem, "identifier");
+
+    expect(result).toEqual(expectedDefaultValue);
+  });
+
+  it("returns array default value when sub array fields don't have default value with accessor keys", () => {
+    const schemaItem = ({
+      accessor: "education 1",
+      identifier: "education",
+      originalIdentifier: "education",
+      dataType: DataType.ARRAY,
+      fieldType: FieldType.ARRAY,
+      defaultValue: [
+        {
+          college: "String field",
+          graduationDate: "10/12/2021",
+        },
+      ],
+      children: {
+        __array_item__: {
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
+          dataType: DataType.OBJECT,
+          fieldType: FieldType.OBJECT,
+          defaultValue: undefined,
+          children: {
+            college: {
+              label: "College",
+              children: {},
+              dataType: DataType.STRING,
+              defaultValue: undefined,
+              fieldType: FieldType.TEXT_INPUT,
+              accessor: "graduating college",
+              identifier: "college",
+              originalIdentifier: "college",
+            },
+            graduationDate: {
+              children: {},
+              dataType: DataType.STRING,
+              defaultValue: undefined,
+              fieldType: FieldType.DATEPICKER,
+              accessor: "graduation date",
+              identifier: "graduationDate",
+              originalIdentifier: "graduationDate",
+            },
+          },
+        },
+      },
+    } as unknown) as SchemaItem;
+
+    const expectedDefaultValue = [
+      {
+        "graduating college": "String field",
+        "graduation date": "10/12/2021",
+      },
+    ];
+
+    const result = schemaItemDefaultValue(schemaItem, "accessor");
 
     expect(result).toEqual(expectedDefaultValue);
   });
@@ -121,7 +186,7 @@ describe(".schemaItemDefaultValue", () => {
       },
     ];
 
-    const result = schemaItemDefaultValue(schemaItem);
+    const result = schemaItemDefaultValue(schemaItem, "identifier");
 
     expect(result).toEqual(expectedDefaultValue);
   });
@@ -191,7 +256,7 @@ describe(".schemaItemDefaultValue", () => {
       },
     ];
 
-    const result = schemaItemDefaultValue(schemaItem);
+    const result = schemaItemDefaultValue(schemaItem, "identifier");
 
     expect(result).toEqual(expectedDefaultValue);
   });
@@ -244,7 +309,7 @@ describe(".schemaItemDefaultValue", () => {
       },
     ];
 
-    const result = schemaItemDefaultValue(schemaItem);
+    const result = schemaItemDefaultValue(schemaItem, "identifier");
 
     expect(result).toEqual(expectedDefaultValue);
   });
@@ -302,7 +367,7 @@ describe(".schemaItemDefaultValue", () => {
       },
     ];
 
-    const result = schemaItemDefaultValue(schemaItem);
+    const result = schemaItemDefaultValue(schemaItem, "identifier");
 
     expect(result).toEqual(expectedDefaultValue);
   });
@@ -489,5 +554,133 @@ describe(".countFields", () => {
 
       expect(result).toEqual(expectedOutput);
     });
+  });
+});
+
+describe(".convertSchemaItemToFormData", () => {
+  const schema = ({
+    __root_schema__: {
+      children: {
+        customField1: {
+          children: {},
+          dataType: DataType.STRING,
+          fieldType: FieldType.TEXT_INPUT,
+          accessor: "gender",
+          identifier: "customField1",
+          originalIdentifier: "customField1",
+        },
+        array: {
+          children: {
+            __array_item__: {
+              children: {
+                name: {
+                  dataType: DataType.STRING,
+                  fieldType: FieldType.TEXT_INPUT,
+                  accessor: "firstName",
+                  identifier: "name",
+                  originalIdentifier: "name",
+                },
+              },
+              dataType: DataType.OBJECT,
+              fieldType: FieldType.OBJECT,
+              accessor: ARRAY_ITEM_KEY,
+              identifier: ARRAY_ITEM_KEY,
+              originalIdentifier: ARRAY_ITEM_KEY,
+            },
+          },
+          dataType: DataType.ARRAY,
+          fieldType: FieldType.ARRAY,
+          accessor: "students",
+          identifier: "array",
+          originalIdentifier: "array",
+        },
+      },
+      dataType: DataType.OBJECT,
+      fieldType: FieldType.OBJECT,
+      accessor: "",
+      identifier: "",
+      originalIdentifier: "",
+    },
+  } as unknown) as Schema;
+
+  it("replaces data with accessor keys to identifier keys", () => {
+    const formData = {
+      gender: "male",
+      students: [{ firstName: "test1" }, { firstName: "test2" }],
+    };
+
+    const expectedOutput = {
+      customField1: "male",
+      array: [{ name: "test1" }, { name: "test2" }],
+    };
+
+    const result = convertSchemaItemToFormData(
+      schema[ROOT_SCHEMA_KEY],
+      formData,
+      { fromId: "accessor", toId: "identifier" },
+    );
+
+    expect(result).toEqual(expectedOutput);
+  });
+
+  it("replaces data with identifier keys to accessor keys", () => {
+    const formData = {
+      customField1: "male",
+      customField2: "demo",
+      array: [{ name: "test1" }, { name: "test2" }],
+    };
+
+    const expectedOutput = {
+      gender: "male",
+      students: [{ firstName: "test1" }, { firstName: "test2" }],
+    };
+
+    const result = convertSchemaItemToFormData(
+      schema[ROOT_SCHEMA_KEY],
+      formData,
+      { fromId: "identifier", toId: "accessor" },
+    );
+
+    expect(result).toEqual(expectedOutput);
+  });
+
+  it("replaces data with identifier keys to accessor keys when keys are missing", () => {
+    const formData = {
+      customField1: "male",
+      customField2: "demo",
+    };
+
+    const expectedOutput = {
+      gender: "male",
+    };
+
+    const result = convertSchemaItemToFormData(
+      schema[ROOT_SCHEMA_KEY],
+      formData,
+      { fromId: "identifier", toId: "accessor" },
+    );
+
+    expect(result).toEqual(expectedOutput);
+  });
+
+  it("replaces data with identifier keys to accessor keys when keys are undefined", () => {
+    const formData = {
+      customField1: "male",
+      customField2: "demo",
+      array: [{ name: "test1" }, { name: undefined }],
+    };
+
+    const expectedOutput = {
+      gender: "male",
+      students: [{ firstName: "test1" }, { firstName: undefined }],
+    };
+
+    const result = convertSchemaItemToFormData(
+      schema[ROOT_SCHEMA_KEY],
+      formData,
+      { fromId: "identifier", toId: "accessor" },
+    );
+
+    expect(result).toEqual(expectedOutput);
   });
 });

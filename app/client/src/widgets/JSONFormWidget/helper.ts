@@ -5,49 +5,116 @@ import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
 
 const clone = require("rfdc/default");
 
-// Auxiliary function to evalValue to iterate over Object
-const evalObjectValue = (value: any, schema: Schema) => {
-  const obj: Record<string, any> = {};
-  Object.values(schema).forEach((schemaItem) => {
-    const val =
-      value[schemaItem.originalIdentifier] ?? value[schemaItem.accessor];
-    obj[schemaItem.accessor] = evalValue(val, schemaItem);
-  });
-
-  return obj;
+type ConvertFormDataOptions = {
+  fromId: keyof SchemaItem | (keyof SchemaItem)[];
+  toId: keyof SchemaItem;
 };
 
-// Auxiliary function to evalValue to iterate over Array
-const evalArrayValue = (value: any, schema: Schema): any[] => {
-  if (schema[ARRAY_ITEM_KEY]) {
-    return value.map((valueItem: any) =>
-      evalValue(valueItem, schema[ARRAY_ITEM_KEY]),
-    );
+/**
+ * This function finds the value from the object by using the id provided. The id
+ * can be one of the key that is present in the schemaItem (identifier/accessor/defaultValue).
+ * This keys value is picked up from the schema item and used for the lookup in the obj.
+ * The id is either a single or an array. If it is an array, each key is picked up and tested
+ * until a value is found (null would be considered as a value but undefined would mean it's empty).
+ */
+const valueLookup = (
+  obj: Record<string, unknown>,
+  schemaItem: SchemaItem,
+  id: ConvertFormDataOptions["fromId"],
+) => {
+  if (typeof id === "string") {
+    return obj[schemaItem[id]];
   }
 
-  return [];
+  for (const key of id) {
+    const value = obj[schemaItem[key]];
+    if (value !== undefined) {
+      return value;
+    }
+  }
+
+  return;
+};
+
+const convertObjectTypeToFormData = (
+  schema: Schema,
+  formValue: unknown,
+  options: ConvertFormDataOptions,
+) => {
+  if (formValue && typeof formValue === "object") {
+    const formData: Record<string, unknown> = {};
+
+    Object.values(schema).forEach((schemaItem) => {
+      const value = valueLookup(
+        formValue as Record<string, unknown>,
+        schemaItem,
+        options.fromId,
+      );
+      const toKey = schemaItem[options.toId];
+      formData[toKey] = convertSchemaItemToFormData(schemaItem, value, options);
+    });
+
+    return formData;
+  }
+
+  return;
+};
+
+const convertArrayTypeToFormData = (
+  schema: Schema,
+  formValues: unknown,
+  options: ConvertFormDataOptions,
+) => {
+  if (formValues && Array.isArray(formValues)) {
+    const formData: unknown[] = [];
+    const arraySchemaItem = schema[ARRAY_ITEM_KEY];
+
+    formValues.forEach((formValue, index) => {
+      formData[index] = convertSchemaItemToFormData(
+        arraySchemaItem,
+        formValue,
+        options,
+      );
+    });
+
+    return formData.filter((d) => d !== undefined);
+  }
+
+  return;
 };
 
 /**
  * This function iterates through the schemaItem and returns a value
- * that matches with the the value param passed but the keys are transformed
- * to what the accessor is set for the particular schemaItem.
+ * that matches with the the value param passed. The return value key-value pairs
+ * are determined by what the fromKey and toKey values are. If the fromKey is accessor
+ * and toKey is identifier then it will look in the input value object with the identifier of the
+ * schemaItem and would set it as the accessor value of schemaItem.
+ *
+ * This helps to transform formData from having accessor as key to identifier as keys and vice-versa
  *
  * If schemaItem
  * {
- *  accessor: "address",
+ *  identifier: "address",
+ *  accessor: "addresses",
  *    fieldType: "object",
  *    children: {
  *      "line1": {
+ *         identifier: "line1",
  *         accessor: "line1",
  *         originalIdentifier: "line1"
  *      },
  *      "pincode": {
  *         accessor: "zipcode"
+ *         identifier: "pincode",
  *         originalIdentifier: "pincode"
  *      }
  *    }
  * }
+ *
+ * Example 1
+ * ----------
+ * fromKey = identifier
+ * toKey = accessor
  *
  * value
  * {
@@ -59,56 +126,93 @@ const evalArrayValue = (value: any, schema: Schema): any[] => {
  *
  * @returns
  * {
- *  address: {
+ *  addresses: {
  *    line1: "24th main",
- *    zipcode: "230123"
+ *    pincode: "230123"
  *  }
  * }
+ *
+ * Example 2
+ * ----------
+ * fromKey = accessor
+ * toKey = identifier
+ *
+ * value
+ * {
+ *  addresses: {
+ *    line1: "24th main",
+ *    zipcode: "230123",
+ *  }
+ * }
+ *
+ * @returns
+ * {
+ *  address: {
+ *    line1: "24th main",
+ *    pincode: "230123"
+ *  }
+ * }
+ *
  */
-export const evalValue = (value: any, schemaItem: SchemaItem) => {
-  if (schemaItem.fieldType === FieldType.ARRAY) {
-    return Array.isArray(value)
-      ? evalArrayValue(value, schemaItem.children)
-      : [];
-  }
-
+export const convertSchemaItemToFormData = <TValue>(
+  schemaItem: SchemaItem,
+  formValue: TValue,
+  options: ConvertFormDataOptions,
+) => {
   if (schemaItem.fieldType === FieldType.OBJECT) {
-    return isPlainObject(value)
-      ? evalObjectValue(value, schemaItem.children)
-      : {};
+    return convertObjectTypeToFormData(schemaItem.children, formValue, options);
   }
 
-  return value;
+  if (schemaItem.fieldType === FieldType.ARRAY) {
+    return convertArrayTypeToFormData(schemaItem.children, formValue, options);
+  }
+
+  return formValue;
 };
 
-const processObject = (schema: Schema) => {
+const processObject = (schema: Schema, toKey: keyof SchemaItem) => {
   const obj: Record<string, any> = {};
   Object.values(schema).forEach((schemaItem) => {
-    obj[schemaItem.accessor] = schemaItemDefaultValue(schemaItem);
+    obj[schemaItem[toKey]] = schemaItemDefaultValue(schemaItem, toKey);
   });
 
   return obj;
 };
 
-const processArray = (schema: Schema): any[] => {
+const processArray = (schema: Schema, toKey: keyof SchemaItem): any[] => {
   if (schema[ARRAY_ITEM_KEY]) {
-    return [schemaItemDefaultValue(schema[ARRAY_ITEM_KEY])];
+    return [schemaItemDefaultValue(schema[ARRAY_ITEM_KEY], toKey)];
   }
 
   return [];
 };
 
-export const schemaItemDefaultValue = (schemaItem: SchemaItem) => {
+export const schemaItemDefaultValue = (
+  schemaItem: SchemaItem,
+  toKey: keyof SchemaItem,
+) => {
   if (schemaItem.fieldType === FieldType.OBJECT) {
-    return processObject(schemaItem.children);
+    return processObject(schemaItem.children, toKey);
   }
 
   if (schemaItem.fieldType === FieldType.ARRAY) {
-    let defaultArrayValue = processArray(schemaItem.children);
-    const sanitizedDefaultValue = evalValue(
-      schemaItem.defaultValue,
-      schemaItem,
-    );
+    let defaultArrayValue = processArray(schemaItem.children, toKey);
+    let sanitizedDefaultValue: unknown[] = [];
+
+    if (Array.isArray(schemaItem.defaultValue)) {
+      const convertedValue = convertSchemaItemToFormData(
+        schemaItem,
+        schemaItem.defaultValue as unknown[],
+        {
+          fromId: ["originalIdentifier", "accessor"],
+          toId: "accessor",
+        },
+      );
+
+      if (Array.isArray(convertedValue)) {
+        sanitizedDefaultValue = convertedValue;
+      }
+    }
 
     if (sanitizedDefaultValue?.length > defaultArrayValue?.length) {
       const arrayEntry = clone(defaultArrayValue[0]);

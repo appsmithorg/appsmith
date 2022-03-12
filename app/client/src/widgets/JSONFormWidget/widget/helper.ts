@@ -48,11 +48,6 @@ export enum ComputedSchemaStatus {
   UPDATED = "UPDATED",
 }
 
-type ConvertFormDataOptions = {
-  fromId: keyof SchemaItem;
-  toId: keyof SchemaItem;
-};
-
 // propertyPath -> "schema[0].children[0].fieldType"
 // returns parentPropertyPath -> "schema[0].children[0]"
 export const getParentPropertyPath = (propertyPath: string) => {
@@ -293,75 +288,4 @@ export const computeSchema = ({
     dynamicPropertyPathList,
     schema,
   };
-};
-
-const convertObjectTypeToFormData = (
-  schema: Schema,
-  formValue: unknown,
-  options: ConvertFormDataOptions,
-) => {
-  if (formValue && typeof formValue === "object") {
-    const formData: Record<string, unknown> = {};
-
-    Object.values(schema).forEach((schemaItem) => {
-      const fromKey = schemaItem[options.fromId];
-      const toKey = schemaItem[options.toId];
-      formData[toKey] = convertSchemaItemToFormData(
-        schemaItem,
-        (formValue as Record<string, unknown>)[fromKey],
-        options,
-      );
-    });
-
-    return formData;
-  }
-
-  return;
-};
-
-const convertArrayTypeToFormData = (
-  schema: Schema,
-  formValues: unknown,
-  options: ConvertFormDataOptions,
-) => {
-  if (formValues && Array.isArray(formValues)) {
-    const formData: unknown[] = [];
-    const arraySchemaItem = schema[ARRAY_ITEM_KEY];
-
-    formValues.forEach((formValue, index) => {
-      formData[index] = convertSchemaItemToFormData(
-        arraySchemaItem,
-        formValue,
-        options,
-      );
-    });
-
-    return formData.filter((d) => d !== undefined);
-  }
-
-  return;
-};
-
-export const convertSchemaItemToFormData = <TValue>(
-  schemaItem: SchemaItem,
-  formValue: TValue,
-  options: ConvertFormDataOptions,
-) => {
-  if (schemaItem.fieldType === FieldType.OBJECT) {
-    return convertObjectTypeToFormData(
-      schemaItem.children,
-      formValue,
-      options,
-    ) as TValue;
-  }
-
-  if (schemaItem.fieldType === FieldType.ARRAY) {
-    return (convertArrayTypeToFormData(
-      schemaItem.children,
-      formValue,
-      options,
-    ) as unknown) as TValue;
-  }
-
-  return formValue as TValue;
 };
