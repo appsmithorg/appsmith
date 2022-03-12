@@ -488,7 +488,7 @@ describe("Migration Validate", function() {
     //Page 2 Validations:
 
     cy.selectEntityByName("Change color and font");
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("Table1");
 
     cy.get(widgetsPage.bold)
