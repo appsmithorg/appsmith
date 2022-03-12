@@ -135,7 +135,7 @@ export const getActionFromJsCollection = (
   return jsCollection.actions.find((action) => action.id === actionId) || null;
 };
 
-export const getInitialJSActionOption = (
+export const getJSActionOption = (
   activeJSAction: JSAction | null,
   jsActions: JSAction[],
 ): JSActionDropdownOption => {

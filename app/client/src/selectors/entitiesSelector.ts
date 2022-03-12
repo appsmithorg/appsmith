@@ -12,7 +12,7 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find, sortBy } from "lodash";
+import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -24,6 +24,8 @@ import { APP_MODE } from "entities/App";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
+import { EvaluationError, EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import { Severity } from "entities/AppsmithConsole";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -815,4 +817,19 @@ export const getIsExecutingJSAction = (
     return jsCollection.isExecuting[actionId];
   }
   return false;
+};
+
+export const getJSCollectionParseErrors = (
+  state: AppState,
+  jsCollectionName: string,
+) => {
+  const dataTree = state.evaluations.tree;
+  const allErrors = get(
+    dataTree,
+    `${jsCollectionName}.${EVAL_ERROR_PATH}.body`,
+    [],
+  ) as EvaluationError[];
+  return allErrors.filter((error) => {
+    return error.severity === Severity.ERROR;
+  });
 };

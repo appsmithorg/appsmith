@@ -22,10 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
-import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-import { get, isEmpty, isEqual } from "lodash";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { EvaluationError } from "utils/DynamicBindingUtils";
+import { isEmpty, isEqual } from "lodash";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
@@ -34,22 +31,19 @@ import {
   getActiveJSActionId,
   getIsExecutingJSAction,
   getJSActions,
+  getJSCollectionParseErrors,
 } from "selectors/entitiesSelector";
 import {
   convertJSActionsToDropdownOptions,
   convertJSActionToDropdownOption,
   getActionFromJsCollection,
-  getInitialJSActionOption,
+  getJSActionOption,
   getJSFunctionsLineGutters,
   JSActionDropdownOption,
 } from "./utils";
-import {
-  JS_OBJECT_HOTKEYS_CLASSNAME,
-  NO_FUNCTION_DROPDOWN_OPTION,
-} from "./constants";
+import { JS_OBJECT_HOTKEYS_CLASSNAME } from "./constants";
 import { DropdownOnSelect } from "components/ads";
 import { isMac } from "utils/helpers";
-import { Severity } from "entities/AppsmithConsole";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 
@@ -151,18 +145,14 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const theme = EditorTheme.LIGHT;
   const [mainTabIndex, setMainTabIndex] = useState(0);
   const dispatch = useDispatch();
-  const dataTree = useSelector(getDataTree);
   const { pageId } = useParams<ExplorerURLParams>();
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
   const [showResponse, setshowResponse] = useState(false);
-  const allErrors = get(
-    dataTree,
-    `${currentJSCollection.name}.${EVAL_ERROR_PATH}.body`,
-    [],
-  ) as EvaluationError[];
-  const parseErrors = allErrors.filter((er) => {
-    return er.severity === Severity.ERROR;
-  });
+  const parseErrors = useSelector(
+    (state: AppState) =>
+      getJSCollectionParseErrors(state, currentJSCollection.name),
+    isEqual,
+  );
   const jsActions = useSelector(
     (state: AppState) => getJSActions(state, currentJSCollection.id),
     isEqual,
@@ -170,13 +160,15 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const activeJSActionId = useSelector((state: AppState) =>
     getActiveJSActionId(state, currentJSCollection.id),
   );
-  const activeJsAction = activeJSActionId
-    ? getActionFromJsCollection(activeJSActionId, currentJSCollection)
-    : null;
+
+  const activeJSAction = getActionFromJsCollection(
+    activeJSActionId,
+    currentJSCollection,
+  );
 
   const [selectedJSActionOption, setSelectedJSActionOption] = useState<
     JSActionDropdownOption
-  >(getInitialJSActionOption(activeJsAction, jsActions));
+  >(getJSActionOption(activeJSAction, jsActions));
 
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
     const value: string =
@@ -245,28 +237,13 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   };
 
   useEffect(() => {
-    if (activeJsAction) {
-      setSelectedJSActionOption(
-        convertJSActionToDropdownOption(activeJsAction),
-      );
-    }
-  }, [activeJSActionId]);
-
-  useEffect(() => {
-    if ((parseErrors && parseErrors.length) || isEmpty(jsActions)) {
+    if (parseErrors.length || isEmpty(jsActions)) {
       setDisableRunFunctionality(true);
-      isEmpty(jsActions) &&
-        setSelectedJSActionOption(NO_FUNCTION_DROPDOWN_OPTION);
     } else {
       setDisableRunFunctionality(false);
     }
+    setSelectedJSActionOption(getJSActionOption(activeJSAction, jsActions));
   }, [parseErrors, jsActions]);
-
-  useEffect(() => {
-    setSelectedJSActionOption(
-      getInitialJSActionOption(activeJsAction, jsActions),
-    );
-  }, [currentJSCollection]);
 
   return (
     <FormWrapper>
