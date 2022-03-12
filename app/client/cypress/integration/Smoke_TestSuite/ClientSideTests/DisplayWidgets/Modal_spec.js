@@ -31,6 +31,7 @@ describe("Modal Widget Functionality", function() {
 
     cy.testJsontext("onclose", "{{showAlert('test','success')}}");
 
+    cy.wait(1000); //make sure evaluated value disappears
     cy.get(widgets.modalCloseButton).click({ force: true });
 
     cy.get(commonlocators.toastmsg).contains("test");
@@ -46,6 +47,7 @@ describe("Modal Widget Functionality", function() {
       .first()
       .contains("Copied");
 
+    cy.wait(1000); //make sure evaluated value disappears
     cy.get(widgets.modalCloseButton).click({ force: true });
 
     cy.get("body").type(`{${modifierKey}}v`);
