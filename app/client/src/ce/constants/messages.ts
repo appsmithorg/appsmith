@@ -950,7 +950,7 @@ export const API_PANE_NO_BODY = () => "This request does not have a body";
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
-export const ADD_QUERY_JS_TOOLTIP = () => "Add a new Query, API or JS Object";
+export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -1039,6 +1039,17 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
+
+// Entity explorer
+export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
+export const ADD_WIDGET_BUTTON = () => "ADD WIDGET";
+export const ADD_QUERY_JS_BUTTON = () => "ADD QUERY/JS";
+export const EMPTY_WIDGET_MAIN_TEXT = () => "No widget to display";
+export const EMPTY_WIDGET_BUTTON_TEXT = () => "NEW WIDGET";
+export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
+export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "NEW QUERY/JS";
+export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
+export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 
 // Templates
 export const MORE = () => "MORE";
