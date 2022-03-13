@@ -62,7 +62,7 @@ fi
 docker rm -f wildcard-nginx || true
 
 uname_out="$(uname -s)"
-vars_to_substitute="$(printf '\$%s,' $(grep -o "^APPSMITH_[A-Z0-9_]\+" ../../.env | xargs))"
+vars_to_substitute="$(printf '\$%s,' $(grep -o "^APPSMITH_[A-Z0-9_]\+" "$ENV_FILE" | xargs))"
 client_proxy_pass="${default_client_proxy}"
 network_mode="bridge"
 case "${uname_out}" in

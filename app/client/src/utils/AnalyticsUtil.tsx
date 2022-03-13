@@ -15,6 +15,7 @@ export type EventLocation =
   | "OMNIBAR";
 
 export type EventName =
+  | "SWITCH_DATASOURCE"
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
   | "PAGE_VIEW"
@@ -155,6 +156,7 @@ export type EventName =
   | "COMMENTS_ONBOARDING_MODAL_TRIGGERED"
   | "REPLAY_UNDO"
   | "REPLAY_REDO"
+  | "REDIRECT_URL_COPIED"
   | "SNIPPET_CUSTOMIZE"
   | "SNIPPET_EXECUTE"
   | "SNIPPET_FILTER"

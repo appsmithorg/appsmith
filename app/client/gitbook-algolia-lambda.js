@@ -4,7 +4,7 @@ const aws = require("aws-sdk");
 
 const SSM = new aws.SSM();
 
-const DOCS_VERSION = "v1.2.1";
+const DOCS_VERSION = "v1.3";
 
 const orderArr = [{
     path: "master/core-concepts/building-the-ui",

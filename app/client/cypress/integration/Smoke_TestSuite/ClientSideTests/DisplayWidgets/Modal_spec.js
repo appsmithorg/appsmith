@@ -31,7 +31,7 @@ describe("Modal Widget Functionality", function() {
 
     cy.testJsontext("onclose", "{{showAlert('test','success')}}");
 
-    cy.get(widgets.iconWidgetBtn).click({ force: true });
+    cy.get(widgets.modalCloseButton).click({ force: true });
 
     cy.get(commonlocators.toastmsg).contains("test");
   });
@@ -46,7 +46,7 @@ describe("Modal Widget Functionality", function() {
       .first()
       .contains("Copied");
 
-    cy.get(widgets.iconWidgetBtn).click({ force: true });
+    cy.get(widgets.modalCloseButton).click({ force: true });
 
     cy.get("body").type(`{${modifierKey}}v`);
 

@@ -111,6 +111,7 @@
     "react-infinite-scroller": "^1.2.4",
     "react-instantsearch-dom": "^6.4.0",
     "react-json-view": "^1.19.1",
+    "react-masonry-css": "^1.0.16",
     "react-media-recorder": "^1.6.1",
     "react-mentions": "^4.1.1",
     "react-paginating": "^1.4.0",

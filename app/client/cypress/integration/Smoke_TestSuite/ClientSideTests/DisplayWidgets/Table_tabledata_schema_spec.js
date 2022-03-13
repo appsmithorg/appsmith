@@ -56,7 +56,7 @@ describe("Table Widget", function() {
       .click()
       .wait(1000);
     cy.wait(30000);
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.actionContextMenuByEntityName("Switch1");
     cy.actionContextMenuByEntityName("Table1");
   });
