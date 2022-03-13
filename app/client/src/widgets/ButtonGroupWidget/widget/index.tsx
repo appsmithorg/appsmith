@@ -549,6 +549,7 @@ class ButtonGroupWidget extends BaseWidget<
         isDisabled={this.props.isDisabled}
         menuDropDownWidth={menuDropDownWidth}
         orientation={this.props.orientation}
+        renderMode={this.props.renderMode}
         width={componentWidth}
       />
     );

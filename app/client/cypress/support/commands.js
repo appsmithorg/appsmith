@@ -2538,7 +2538,7 @@ Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery)
     .last()
     .click({ force: true })
-    .wait(500);
+    .wait(1000);
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -3804,15 +3804,23 @@ Cypress.Commands.add(
   "actionContextMenuByEntityName",
   (entityNameinLeftSidebar, action = "Delete") => {
     cy.wait(2000);
-    cy.get(
-      commonlocators.entitySearchResult
-        .concat(entityNameinLeftSidebar)
-        .concat("')"),
+    // cy.get(
+    //   commonlocators.entitySearchResult
+    //     .concat(entityNameinLeftSidebar)
+    //     .concat("')"),
+    // )
+    //   .parents(commonlocators.entityItem)
+    //   .first()
+    //   .trigger("mouseover")
+    //   .find(commonlocators.entityContextMenu)
+    //   .last()
+    //   .click({ force: true });
+
+    cy.xpath(
+      "//div[text()='" +
+        entityNameinLeftSidebar +
+        "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]",
     )
-      .parents(commonlocators.entityItem)
-      .first()
-      .trigger("mouseover")
-      .find(commonlocators.entityContextMenu)
       .last()
       .click({ force: true });
 

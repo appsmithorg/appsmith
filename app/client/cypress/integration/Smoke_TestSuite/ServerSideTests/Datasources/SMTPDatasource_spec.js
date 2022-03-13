@@ -59,9 +59,9 @@ describe("SMTP datasource test cases using ted", function() {
     cy.xpath("//input[@class='bp3-input']")
       .eq(0)
       .type("test@appsmith.com");
-    cy.xpath(
-      "//span[text()='Run query'  and @class='bp3-button-text']",
-    ).click();
+    cy.get("span.bp3-button-text:contains('Run query')")
+      .closest("div")
+      .click();
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("5005");
       expect(response.body.data.body).to.contain(
@@ -75,9 +75,9 @@ describe("SMTP datasource test cases using ted", function() {
     cy.xpath("//input[@class='bp3-input']")
       .eq(1)
       .type("qwerty@appsmith.com");
-    cy.xpath(
-      "//span[text()='Run query'  and @class='bp3-button-text']",
-    ).click();
+    cy.get("span.bp3-button-text:contains('Run query')")
+      .closest("div")
+      .click();
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("5005");
       expect(response.body.data.body).to.contain(

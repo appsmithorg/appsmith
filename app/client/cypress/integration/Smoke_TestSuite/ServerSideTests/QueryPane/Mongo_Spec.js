@@ -204,7 +204,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "response.body.responseMeta.status",
       409,
     );
-    //cy.actionContextMenuByEntityName("listingAndReviews");
+    cy.actionContextMenuByEntityName("ListingAndReviews");
   });
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
@@ -357,12 +357,12 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.xpath(queryLocators.countText).should("have.text", "3 Records");
 
     cy.get("@dSName").then((dbName) => {
-      cy.CheckAndUnfoldEntityItem("DATASOURCES");
+      //cy.CheckAndUnfoldEntityItem("DATASOURCES");
       cy.actionContextMenuByEntityName(dbName, "Refresh");
-      cy.get(`.t--entity.datasource:contains(${dbName})`)
-        .find(explorer.collapse)
-        .first()
-        .click();
+      // cy.get(`.t--entity.datasource:contains(${dbName})`)
+      //   .find(explorer.collapse)
+      //   .first()
+      //   .click();
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("exist");
 
@@ -372,7 +372,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       cy.log("1st Response is :" + JSON.stringify(response.body));
-
       //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
     });
 
@@ -383,7 +382,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       cy.log("2nd Response is :" + JSON.stringify(response.body));
-
       //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
     });
 
