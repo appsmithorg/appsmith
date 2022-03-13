@@ -49,7 +49,7 @@ describe("Entity explorer API pane related testcases", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
       .trigger("mouseover", { force: true })
-      .click();
+      .click({ force: true });
     AHelper.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
     cy.EditApiNameFromExplorer("SecondAPI");
     cy.xpath(apiwidget.popover)
