@@ -4,20 +4,20 @@ import styled from "styled-components";
 import BranchButton from "./BranchButton";
 
 import {
-  COMMIT_CHANGES,
-  PULL_CHANGES,
-  MERGE,
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
-  CONNECT_GIT,
+  COMING_SOON,
+  COMMIT_CHANGES,
   CONFLICTS_FOUND,
+  CONNECT_GIT,
+  CONNECT_GIT_BETA,
+  CONNECTING_TO_REPO_DISABLED,
+  createMessage,
+  DURING_ONBOARDING_TOUR,
+  GIT_SETTINGS,
+  MERGE,
   NO_COMMITS_TO_PULL,
   NOT_LIVE_FOR_YOU_YET,
-  COMING_SOON,
-  CONNECTING_TO_REPO_DISABLED,
-  DURING_ONBOARDING_TOUR,
-  createMessage,
-  GIT_SETTINGS,
-  CONNECT_GIT_BETA,
+  PULL_CHANGES,
 } from "@appsmith/constants/messages";
 
 import Tooltip from "components/ads/Tooltip";
@@ -34,12 +34,12 @@ import {
 import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
 import {
-  getGitStatus,
-  getIsGitConnected,
-  getPullInProgress,
-  getIsFetchingGitStatus,
-  getPullFailed,
   getCountOfChangesToCommit,
+  getGitStatus,
+  getIsFetchingGitStatus,
+  getIsGitConnected,
+  getPullFailed,
+  getPullInProgress,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -61,12 +61,15 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
     ${(props) => props.theme.spaces[2]}px;
   margin: 0 ${(props) => props.theme.spaces[2]}px;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+
   &:hover {
     background-color: ${(props) =>
       props.theme.colors.editorBottomBar.buttonBackgroundHover};
   }
+
   position: relative;
   overflow: visible;
+
   .count {
     position: absolute;
     width: 20px;
@@ -106,8 +109,10 @@ function QuickActionButton({
   onClick,
   tooltipText,
 }: QuickActionButtonProps) {
+  const content = capitalizeFirstLetter(tooltipText);
+
   return (
-    <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
+    <Tooltip content={content} hoverOpenDelay={10}>
       <QuickActionButtonContainer
         className={className}
         disabled={disabled}
@@ -120,9 +125,7 @@ function QuickActionButton({
         ) : (
           <div>
             <Icon name={icon} size={IconSize.XL} />
-            {count > 0 && (
-              <span className="count">{count > 9 ? `${9}+` : count}</span>
-            )}
+            {count > 0 && <span className="count">{count}</span>}
           </div>
         )}
       </QuickActionButtonContainer>
@@ -213,9 +216,11 @@ const Container = styled.div`
 
 const StyledIcon = styled(GitCommitLine)`
   cursor: default;
+
   & path {
     fill: ${Colors.DARK_GRAY};
   }
+
   margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -231,10 +236,10 @@ const PlaceholderButton = styled.div`
 
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
-  const isInOnboarding = useSelector(inGuidedTour);
+  const isInGuidedTour = useSelector(inGuidedTour);
 
-  const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
-  const tooltipContent = !isInOnboarding ? (
+  const isTooltipEnabled = !getFeatureFlags().GIT || isInGuidedTour;
+  const tooltipContent = !isInGuidedTour ? (
     <>
       <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
       <div>{createMessage(COMING_SOON)}</div>
@@ -245,7 +250,7 @@ function ConnectGitPlaceholder() {
       <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
     </>
   );
-  const isGitConnectionEnabled = getFeatureFlags().GIT && !isInOnboarding;
+  const isGitConnectionEnabled = getFeatureFlags().GIT && !isInGuidedTour;
 
   return (
     <Container>

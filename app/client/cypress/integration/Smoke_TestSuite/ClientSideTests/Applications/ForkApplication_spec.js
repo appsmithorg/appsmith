@@ -32,11 +32,6 @@ describe("Fork application across orgs", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
-    // select a different org here
-    cy.get(homePage.forkAppOrgList)
-      .children()
-      .last()
-      .click({ force: true });
     cy.get(homePage.forkAppOrgButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);

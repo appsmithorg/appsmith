@@ -80,18 +80,18 @@ export const DropdownWrapper = styled(StyledFormGroup)`
 
 export function withDropdown(options: OptionType[], width: string) {
   return function DropdownField(
-    ComponentProps: FormTextFieldProps & {
+    componentProps: FormTextFieldProps & {
       meta: Partial<WrappedFieldMetaProps>;
       input: Partial<WrappedFieldInputProps>;
     },
   ) {
     function onSelect(value?: string) {
-      ComponentProps.input.onChange && ComponentProps.input.onChange(value);
-      ComponentProps.input.onBlur && ComponentProps.input.onBlur(value);
+      componentProps.input.onChange && componentProps.input.onChange(value);
+      componentProps.input.onBlur && componentProps.input.onBlur(value);
     }
 
     const selected =
-      options.find((option) => option.value == ComponentProps.input.value) ||
+      options.find((option) => option.value == componentProps.input.value) ||
       {};
 
     return (
