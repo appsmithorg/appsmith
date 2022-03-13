@@ -175,7 +175,7 @@ export function getMovementMap(
  * @param isSecondRun boolean to indicate if it is being run for the second time
  * @returns array of collision Tree
  */
-function getCollisionTree(
+export function getCollisionTree(
   newSpacePositions: OccupiedSpace[],
   occupiedSpaces: OccupiedSpace[],
   occupiedSpacesMap: SpaceMap,
@@ -464,7 +464,7 @@ function getCollisionTreeHelper(
  * @param currentProcessedNodes cache to make sure to not generate a tree for the same space of all the widgets below the colliding space
  * @returns collision tree of a particular in a direction
  */
-function getModifiedArgumentsForCollisionTree(
+export function getModifiedArgumentsForCollisionTree(
   collidingSpace: CollidingSpace,
   occupiedSpaces: OccupiedSpace[],
   occupiedSpacesMap: SpaceMap,
@@ -685,7 +685,7 @@ function getMovementMapHelper(
  * @param shouldResize if the reflowed widgets can be reflowed
  * @returns movement of the collision tree node in horizontal orientation
  */
-function getHorizontalSpaceMovement(
+export function getHorizontalSpaceMovement(
   collisionTree: CollisionTree,
   gridProps: GridProps,
   direction: ReflowDirection,
@@ -754,7 +754,7 @@ function getHorizontalSpaceMovement(
  * @param shouldResize if the reflowed widgets can be reflowed
  * @returns movement of the collision tree node in vertical orientation
  */
-function getVerticalSpaceMovement(
+export function getVerticalSpaceMovement(
   collisionTree: CollisionTree,
   gridProps: GridProps,
   direction: ReflowDirection,

@@ -643,29 +643,32 @@ export const useCanvasDragging = (
             );
           }
         };
-        const onScroll = () => {
-          const {
-            lastMouseMoveEvent,
-            lastScrollHeight,
-            lastScrollTop,
-          } = scrollObj;
-          if (
-            lastMouseMoveEvent &&
-            Number.isInteger(lastScrollHeight) &&
-            Number.isInteger(lastScrollTop) &&
-            scrollParent &&
-            canScroll.current
-          ) {
-            const delta =
-              scrollParent?.scrollHeight +
-              scrollParent?.scrollTop -
-              (lastScrollHeight + lastScrollTop);
-            onMouseMove({
-              offsetX: lastMouseMoveEvent.offsetX,
-              offsetY: lastMouseMoveEvent.offsetY + delta,
-            });
-          }
-        };
+        // Adding setTimeout to make sure this gets called after
+        // the onscroll that resets intersectionObserver in StickyCanvasArena.tsx
+        const onScroll = () =>
+          setTimeout(() => {
+            const {
+              lastMouseMoveEvent,
+              lastScrollHeight,
+              lastScrollTop,
+            } = scrollObj;
+            if (
+              lastMouseMoveEvent &&
+              typeof lastScrollHeight === "number" &&
+              typeof lastScrollTop === "number" &&
+              scrollParent &&
+              canScroll.current
+            ) {
+              const delta =
+                scrollParent?.scrollHeight +
+                scrollParent?.scrollTop -
+                (lastScrollHeight + lastScrollTop);
+              onMouseMove({
+                offsetX: lastMouseMoveEvent.offsetX,
+                offsetY: lastMouseMoveEvent.offsetY + delta,
+              });
+            }
+          }, 0);
         const captureMousePosition = (e: any) => {
           if (isDragging && !canvasIsDragging) {
             currentDirection.current = getMouseMoveDirection(e);
