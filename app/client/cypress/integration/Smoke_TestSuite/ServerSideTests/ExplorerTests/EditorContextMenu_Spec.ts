@@ -44,7 +44,6 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     const newPageId = "Page2";
     agHelper.AddNewPage();
     agHelper.ValidateEntityPresenceInExplorer(newPageId);
-    cy.get("body").click({ force: true }); // to cancel the tooltip
     agHelper.SelectEntityByName(pageId);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     agHelper.ActionContextMenuByEntityName(
@@ -58,7 +57,6 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
   });
 
   it("6. Validate Deletion of JSObject", function() {
-    cy.get("body").click({ force: true }); // to cancel the tooltip
     agHelper.SelectEntityByName(pageId);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     agHelper.ActionContextMenuByEntityName("ExplorerRenamed", "Delete");

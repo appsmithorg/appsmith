@@ -17,10 +17,10 @@ describe("Entity explorer tests related to copy query", function() {
 
   it("1. Create a query with dataSource in explorer", function() {
     cy.Createpage(pageid);
-    cy.get("body").click({ force: true }); // to cancel the tooltip
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .trigger("mouseover", { force: true })
+      .click({ force: true });
     cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
@@ -65,10 +65,10 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("2. Create a page and copy query in explorer", function() {
-    cy.get("body").click({ force: true }); // to cancel the tooltip
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .trigger("mouseover", { force: true })
+      .click({ force: true });
     agHelper.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(".t--entity-name")
@@ -86,10 +86,10 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("3. Delete query and rename datasource in explorer", function() {
-    cy.get("body").click({ force: true }); // to cancel the tooltip
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .trigger("mouseover", { force: true })
+      .click({ force: true });
     cy.wait(2000);
     cy.generateUUID().then((uid) => {
       updatedName = uid;

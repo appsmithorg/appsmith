@@ -9,11 +9,10 @@ describe("Pages", function() {
   it("Clone page", function() {
     cy.wait(20000);
     cy.NavigateToAPI_Panel();
-    cy.get("body").click({ force: true }); // to cancel the tooltip
     cy.CreateAPI(apiName);
 
     cy.get(".t--entity-name:contains(Page1)")
-      .trigger("mouseover")
+      .trigger("mouseover", { force: true })
       .click({ force: true });
     cy.xpath(apiwidget.popover)
       .first()
