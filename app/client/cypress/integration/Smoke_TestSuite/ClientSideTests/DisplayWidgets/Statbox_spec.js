@@ -44,7 +44,7 @@ describe("Statbox Widget Functionality", function() {
     cy.get(".bp3-icon-arrow-up").should("be.visible");
     // verifying modal has been added
     cy.get(".t--draggable-iconbuttonwidget")
-      .first()
+      .last()
       .click();
     cy.get("span:contains('Close')")
       .closest("div")

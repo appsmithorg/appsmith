@@ -286,7 +286,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.deleteQueryUsingContext();
   });
 
-  it("11. Deletes the datasource", () => {
+  it("12. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
