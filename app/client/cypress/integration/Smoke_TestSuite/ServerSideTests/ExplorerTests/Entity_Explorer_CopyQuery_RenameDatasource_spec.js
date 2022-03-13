@@ -17,6 +17,7 @@ describe("Entity explorer tests related to copy query", function() {
 
   it("1. Create a query with dataSource in explorer", function() {
     cy.Createpage(pageid);
+    cy.get("body").click({ force: true }); // to cancel the tooltip
     cy.get(".t--entity-name")
       .contains("Page1")
       .click();
@@ -64,6 +65,7 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("2. Create a page and copy query in explorer", function() {
+    cy.get("body").click({ force: true }); // to cancel the tooltip
     cy.get(".t--entity-name")
       .contains("Page1")
       .click();
@@ -84,6 +86,7 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("3. Delete query and rename datasource in explorer", function() {
+    cy.get("body").click({ force: true }); // to cancel the tooltip
     cy.get(".t--entity-name")
       .contains("Page1")
       .click();

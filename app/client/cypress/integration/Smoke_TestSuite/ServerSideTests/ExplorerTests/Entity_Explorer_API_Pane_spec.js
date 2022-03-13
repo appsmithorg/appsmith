@@ -46,6 +46,7 @@ describe("Entity explorer API pane related testcases", function() {
       .contains(testdata.Get)
       .should("be.visible");
     cy.Createpage(pageid);
+    cy.get("body").click({ force: true }); // to cancel the tooltip
     cy.get(".t--entity-name")
       .contains("Page1")
       .click();
