@@ -127,6 +127,7 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
     @Override
     public Mono<T> create(T object) {
+        log.debug("Going to create object with id {} : {}", object.getId(), object);
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
