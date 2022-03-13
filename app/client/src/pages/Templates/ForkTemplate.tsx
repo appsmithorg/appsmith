@@ -66,7 +66,7 @@ function ForkTemplate({
   return (
     <StyledDialog
       canOutsideClickClose={!isImportingTemplate}
-      headerIcon={{ name: "fork", bgColor: Colors.GEYSER_LIGHT }}
+      headerIcon={{ name: "compasses-line", bgColor: Colors.GEYSER_LIGHT }}
       isOpen={showForkModal}
       onClose={isImportingTemplate ? noop : onClose}
       title={createMessage(CHOOSE_WHERE_TO_FORK)}
