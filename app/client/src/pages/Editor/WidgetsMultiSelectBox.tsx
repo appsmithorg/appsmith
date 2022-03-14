@@ -9,7 +9,7 @@ import {
   groupWidgets,
   deleteSelectedWidget,
 } from "actions/widgetActions";
-import { isMac } from "utils/helpers";
+import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
 import { FormIcons } from "icons/FormIcons";
 import Tooltip from "components/ads/Tooltip";
@@ -136,15 +136,14 @@ const GroupIcon = ControlIcons.GROUP_CONTROL;
  * helper text that comes in popover on hover of actions in context menu
  * @returns
  */
-const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
 const copyHelpText = (
   <>
-    Click or <b>{modText()} + C</b> & {modText()} + V
+    Click or <b>{modText()} C</b> & {modText()} V
   </>
 );
 const cutHelpText = (
   <>
-    Click or <b>{modText()} + X</b> & {modText()} + V
+    Click or <b>{modText()} X</b> & {modText()} V
   </>
 );
 const deleteHelpText = (
@@ -154,7 +153,7 @@ const deleteHelpText = (
 );
 const groupHelpText = (
   <>
-    Click or <b>{modText()} + G to group</b>
+    Click or <b>{modText()} G to group</b>
   </>
 );
 

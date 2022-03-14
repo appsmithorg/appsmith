@@ -236,6 +236,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         isDisabled={isDisabled}
         isVisible={isVisible}
         onClick={this.handleClick}
+        renderMode={this.props.renderMode}
         widgetId={widgetId}
         width={
           (this.props.rightColumn - this.props.leftColumn) *
