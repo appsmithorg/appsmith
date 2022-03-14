@@ -17,6 +17,7 @@ import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
 import { isPrimitive } from "../helper";
+import { isNil } from "lodash";
 
 type MetaProps = {
   filterText?: string;
@@ -54,16 +55,8 @@ const StyledSelectWrapper = styled.div`
   width: 100%;
 `;
 
-const isValid = (
-  schemaItem: SelectFieldProps["schemaItem"],
-  value?: unknown,
-) => {
-  if (schemaItem.isRequired && (value === undefined || value === null)) {
-    return false;
-  }
-  if (!isPrimitive(value)) return false;
-  return true;
-};
+const isValid = (schemaItem: SelectFieldProps["schemaItem"], value?: unknown) =>
+  !schemaItem.isRequired || !isNil(value);
 
 const composeDefaultValue = (
   schemaItemDefaultValue: DefaultValue,
@@ -87,7 +80,6 @@ function SelectField({
   const [filterText, setFilterText] = useState<string>();
   const {
     field: { onChange, value },
-    fieldState: { isDirty },
   } = useController({
     name,
   });
@@ -176,12 +168,13 @@ function SelectField({
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={options[selectedOptionIndex]?.value}
-          widgetId=""
+          widgetId={name}
           width={10}
         />
       </StyledSelectWrapper>
     ),
     [
+      name,
       selectedOptionIndex,
       schemaItem.serverSideFiltering,
       schemaItem.placeholderText,
@@ -192,7 +185,6 @@ function SelectField({
       isDirtyRef,
       filterText,
       wrapperRef,
-      isDirty,
       isValueValid,
       onOptionSelected,
       selectedIndex,
