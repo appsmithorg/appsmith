@@ -153,6 +153,7 @@ const StyledInput = styled((props) => {
     "useTextArea",
     "border",
     "asyncControl",
+    "handleCopy",
   ];
 
   const HtmlTag = props.useTextArea ? "textarea" : "input";
