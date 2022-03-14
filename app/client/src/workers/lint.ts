@@ -82,6 +82,7 @@ export const getLintingErrors = (
     mocha: false,
     // global values
     globals: globalData,
+    loopfunc: true,
   };
 
   jshint(script, options);
