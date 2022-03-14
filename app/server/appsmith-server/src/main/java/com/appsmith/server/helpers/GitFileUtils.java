@@ -109,7 +109,8 @@ public class GitFileUtils {
         applicationReference.setPages(new HashMap<>(resourceMap));
         resourceMap.clear();
 
-        // Send actions
+        // Insert actions and also assign the keys which later will be used for saving the resource in actual filepath
+        // queryName_pageName => nomenclature for the keys
         applicationJson.getActionList().forEach(newAction -> {
             String prefix = newAction.getUnpublishedAction() != null ?
                     newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
@@ -120,7 +121,8 @@ public class GitFileUtils {
         applicationReference.setActions(new HashMap<>(resourceMap));
         resourceMap.clear();
 
-        // Send jsActionCollections
+        // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
+        // JSObjectName_pageName => nomenclature for the keys
         applicationJson.getActionCollectionList().forEach(actionCollection -> {
             String prefix = actionCollection.getUnpublishedCollection() != null ?
                     actionCollection.getUnpublishedCollection().getName() + "_" + actionCollection.getUnpublishedCollection().getPageId()

@@ -25,6 +25,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.BufferedWriter;
@@ -172,11 +173,11 @@ public class FileUtilsImpl implements FileInterface {
 
                     // Save actions
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActions().entrySet()) {
-                        // queryName_pageName => for page level queries
+                        // queryName_pageName => nomenclature for the keys
                         // TODO
                         //  queryName => for app level queries, this is not implemented yet
                         String[] names = resource.getKey().split("_");
-                        if (names.length > 1) {
+                        if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             final String queryName = names[0];
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -190,11 +191,11 @@ public class FileUtilsImpl implements FileInterface {
 
                     // Save JSObjects
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActionsCollections().entrySet()) {
-                        // JSObjectName_pageName => for page level queries
+                        // JSObjectName_pageName => nomenclature for the keys
                         // TODO
                         //  JSObjectName => for app level JSObjects, this is not implemented yet
                         String[] names = resource.getKey().split("_");
-                        if (names.length > 1) {
+                        if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             final String actionCollectionName = names[0];
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
