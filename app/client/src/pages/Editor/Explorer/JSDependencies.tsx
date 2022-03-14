@@ -63,7 +63,12 @@ const Title = styled.div`
   align-items: center;
   padding-right: 4px;
   padding-left: 0.25rem;
-  font-size: 14px;
+  font-size: 14px; //fallback if clamp is not supported by browser
+  font-size: min(
+    max(12px, 0.7vw + 0.2rem),
+    16px
+  ); //fallback if clamp is not supported by browser
+  font-size: clamp(12px, 0.7vw + 0.2rem, 16px);
   &:hover {
     background: ${Colors.ALABASTER_ALT};
   }
