@@ -10,7 +10,11 @@ import Icon from "components/ads/AppIcon";
 import { Size } from "components/ads/Button";
 
 const Wrapper = styled.div`
-  font-size: 14px;
+  font-size: 14px; //fallback if clamp is not supported by browser
+  font-size: min(
+    max(12px, 0.7vw + 0.2rem),
+    16px
+  ); //fallback if clamp is not supported by browser
   font-size: clamp(12px, 0.7vw + 0.2rem, 16px);
 `;
 const ListItem = styled.li`
