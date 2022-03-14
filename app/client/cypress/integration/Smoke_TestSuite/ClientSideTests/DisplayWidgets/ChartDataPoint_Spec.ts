@@ -21,7 +21,7 @@ describe("Input widget test with default value from chart datapoint", () => {
     });
 
     it("1. Input widget test with default value from another Input widget", () => {
-        agHelper.SelectEntityByName("WIDGETS")
+        agHelper.expandCollapseEntity("WIDGETS")
         agHelper.SelectEntityByName("Input1")
         jsEditor.EnterJSContext("defaulttext", dataSet.bindChartData + "}}");
         agHelper.ValidateNetworkCallRespPut('@updateLayout')
