@@ -7,7 +7,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import {
   findLoadingEntities,
-  getEntityDependants,
+  getEntityDependantPaths,
   groupAndFilterDependantsMap,
 } from "utils/WidgetLoadingStateUtils";
 
@@ -327,10 +327,10 @@ describe("Widget loading state utils", () => {
     });
   });
 
-  describe("getEntityDependants", () => {
+  describe("getEntityDependantPaths", () => {
     // Select1.options -> JS_file.func1 -> Query1.data
     it("handles simple dependency", () => {
-      const dependants = getEntityDependants(
+      const dependants = getEntityDependantPaths(
         ["Query1"],
         {
           Query1: {
@@ -342,16 +342,15 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
-      expect(dependants).toStrictEqual({
-        names: new Set(["JS_file", "Select1"]),
-        fullPaths: new Set(["JS_file.func1", "Select1.options"]),
-      });
+      expect(dependants).toStrictEqual(
+        new Set(["JS_file.func1", "Select1.options"]),
+      );
     });
 
     // Select1.options -> JS_file.func1 -> Query1.data
     // Select2.options -> JS_file.func2 -> Query1.data
     it("handles multiple dependencies", () => {
-      const dependants = getEntityDependants(
+      const dependants = getEntityDependantPaths(
         ["Query1"],
         {
           Query1: {
@@ -364,19 +363,18 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
-      expect(dependants).toStrictEqual({
-        names: new Set(["JS_file", "Select1", "Select2"]),
-        fullPaths: new Set([
+      expect(dependants).toStrictEqual(
+        new Set([
           "JS_file.func1",
           "Select1.options",
           "JS_file.func2",
           "Select2.options",
         ]),
-      });
+      );
     });
 
     it("handles specific entity paths", () => {
-      const dependants = getEntityDependants(
+      const dependants = getEntityDependantPaths(
         ["JS_file.func2"], // specific path
         {
           Query1: {
@@ -392,15 +390,12 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
-      expect(dependants).toStrictEqual({
-        names: new Set(["Select2"]),
-        fullPaths: new Set(["Select2.options"]),
-      });
+      expect(dependants).toStrictEqual(new Set(["Select2.options"]));
     });
 
     // Select1.options -> JS_file.func1 -> JS_file.internalFunc -> Query1.data
     it("handles JS self-dependencies", () => {
-      const dependants = getEntityDependants(
+      const dependants = getEntityDependantPaths(
         ["Query1"],
         {
           Query1: {
@@ -413,19 +408,14 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
-      expect(dependants).toStrictEqual({
-        names: new Set(["JS_file", "Select1"]),
-        fullPaths: new Set([
-          "JS_file.internalFunc",
-          "JS_file.func1",
-          "Select1.options",
-        ]),
-      });
+      expect(dependants).toStrictEqual(
+        new Set(["JS_file.internalFunc", "JS_file.func1", "Select1.options"]),
+      );
     });
 
     // Select1.options -> JS_file.func -> JS_file.internalFunc1 -> JS_file.internalFunc2 -> Query1.data
     it("handles nested JS self-dependencies", () => {
-      const dependants = getEntityDependants(
+      const dependants = getEntityDependantPaths(
         ["Query1"],
         {
           Query1: {
@@ -439,15 +429,14 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
-      expect(dependants).toStrictEqual({
-        names: new Set(["JS_file", "Select1"]),
-        fullPaths: new Set([
+      expect(dependants).toStrictEqual(
+        new Set([
           "JS_file.internalFunc1",
           "JS_file.internalFunc2",
           "JS_file.func",
           "Select1.options",
         ]),
-      });
+      );
     });
 
     /* Select1.options -> JS.func1 -> Query1.data,
@@ -458,7 +447,7 @@ describe("Widget loading state utils", () => {
        Only Select2 should be listed, not Select1.
     */
     it("handles selective dependencies in same JS file", () => {
-      const dependants = getEntityDependants(
+      const dependants = getEntityDependantPaths(
         ["Query2"],
         {
           Query1: {
@@ -474,10 +463,9 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
-      expect(dependants).toStrictEqual({
-        names: new Set(["JS_file", "Select2"]),
-        fullPaths: new Set(["JS_file.func2", "Select2.options"]),
-      });
+      expect(dependants).toStrictEqual(
+        new Set(["JS_file.func2", "Select2.options"]),
+      );
     });
   });
 });

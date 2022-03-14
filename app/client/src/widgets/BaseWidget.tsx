@@ -75,6 +75,10 @@ abstract class BaseWidget<
     return {};
   }
 
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return;
+  }
+
   /**
    *  Widget abstraction to register the widget type
    *  ```javascript
