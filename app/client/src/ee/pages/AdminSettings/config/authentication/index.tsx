@@ -45,6 +45,7 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.UNEDITABLEFIELD,
       value: "/login/oauth2/code/oidc",
       helpText: "Paste this URL in your IdP service providers console.",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_CLIENT_ID",
@@ -53,6 +54,7 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_CLIENT_SECRET",
@@ -61,6 +63,7 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client Secret",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_AUTHORIZATION_URI",
@@ -69,6 +72,7 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Authorization URL",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_TOKEN_URI",
@@ -77,6 +81,7 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Token URL",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_USER_INFO",
@@ -85,6 +90,7 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "User Info URL",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_JWK_SET_URI",
@@ -93,32 +99,26 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "JWK Set URL",
+      isRequired: true,
     },
     {
-      id: "APPSMITH_OAUTH2_OIDC_ADVANCED",
+      id: "APPSMITH_OAUTH2_OIDC_SCOPE",
       category: SettingCategories.OIDC_AUTH,
       subCategory: SettingSubCategories.OIDC,
-      controlType: SettingTypes.ACCORDION,
-      label: "Advanced",
-      advanced: [
-        {
-          id: "APPSMITH_OAUTH2_OIDC_SCOPE",
-          category: SettingCategories.OIDC_AUTH,
-          subCategory: SettingSubCategories.OIDC,
-          controlType: SettingTypes.TAGINPUT,
-          controlSubType: SettingSubtype.TEXT,
-          label: "Scope",
-          subText: "Can have multiple values",
-        },
-        {
-          id: "APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE",
-          category: SettingCategories.OIDC_AUTH,
-          subCategory: SettingSubCategories.OIDC,
-          controlType: SettingTypes.TEXTINPUT,
-          controlSubType: SettingSubtype.TEXT,
-          label: "Username Attribute",
-        },
-      ],
+      controlType: SettingTypes.TAGINPUT,
+      controlSubType: SettingSubtype.TEXT,
+      label: "Scope",
+      subText: "Can have multiple values",
+      isRequired: true,
+    },
+    {
+      id: "APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE",
+      category: SettingCategories.OIDC_AUTH,
+      subCategory: SettingSubCategories.OIDC,
+      controlType: SettingTypes.TEXTINPUT,
+      controlSubType: SettingSubtype.TEXT,
+      label: "Username Attribute",
+      isRequired: true,
     },
   ],
 };

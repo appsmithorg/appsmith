@@ -112,7 +112,7 @@ export function OidcSettingsForm(
         ) ||
         (typeof scopeSettings === "string" && !scopeSettings.trim())
       ) {
-        props.settings["APPSMITH_OAUTH2_OIDC_SCOPE"] = "openid,profile";
+        props.settings["APPSMITH_OAUTH2_OIDC_SCOPE"] = "openid,profile,email";
       }
 
       if (
