@@ -546,6 +546,7 @@ class ButtonGroupWidget extends BaseWidget<
         groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
         orientation={this.props.orientation}
+        renderMode={this.props.renderMode}
         width={componentWidth}
       />
     );
