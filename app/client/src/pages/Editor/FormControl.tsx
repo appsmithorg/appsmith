@@ -37,18 +37,14 @@ function FormControl(props: FormControlProps) {
     shallowEqual,
   );
 
-  const FormConfigMemoizedValue = (config = props.config) =>
-    useMemo(
-      () =>
-        FormControlFactory.createControl(
-          config,
-          props.formName,
-          props?.multipleConfig,
-        ),
-      [props],
+  const FormControlRenderMethod = (config = props.config) => {
+    return FormControlFactory.createControl(
+      config,
+      props.formName,
+      props?.multipleConfig,
     );
+  };
 
-  if (hidden) return null;
   const viewTypes: ViewTypes[] = [];
   if (
     "alternateViewTypes" in props.config &&
@@ -57,27 +53,31 @@ function FormControl(props: FormControlProps) {
     viewTypes.push(...props.config.alternateViewTypes);
   }
 
-  return (
-    <FormConfig
-      config={props.config}
-      configErrors={configErrors}
-      formName={props.formName}
-      multipleConfig={props?.multipleConfig}
-    >
-      <div className={`t--form-control-${props.config.controlType}`}>
-        {viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
-          <ToggleComponentToJson
-            configProperty={props.config.configProperty}
-            formName={props.formName}
-            formValues={formValues}
-            renderCompFunction={FormConfigMemoizedValue}
-            viewType={viewType}
-          />
-        ) : (
-          FormConfigMemoizedValue()
-        )}
-      </div>
-    </FormConfig>
+  return useMemo(
+    () =>
+      !hidden ? (
+        <FormConfig
+          config={props.config}
+          configErrors={configErrors}
+          formName={props.formName}
+          multipleConfig={props?.multipleConfig}
+        >
+          <div className={`t--form-control-${props.config.controlType}`}>
+            {viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
+              <ToggleComponentToJson
+                configProperty={props.config.configProperty}
+                formName={props.formName}
+                formValues={formValues}
+                renderCompFunction={FormControlRenderMethod}
+                viewType={viewType}
+              />
+            ) : (
+              FormControlRenderMethod()
+            )}
+          </div>
+        </FormConfig>
+      ) : null,
+    [props],
   );
 }
 
