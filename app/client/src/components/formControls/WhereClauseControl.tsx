@@ -10,15 +10,17 @@ import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/ac
 import { WhereClauseSubComponent } from "./utils";
 import Tooltip from "components/ads/Tooltip";
 
-const DropdownWidth = 100; //in pixel
-const Margin = 8; //in pixel
-const IconWidth = 14; //in pixel
-
+//Dropdwidth and Icon have fixed widths
+const DropdownWidth = 100; //pixel value
+const Margin = 8; //pixel value, space between two adjacent fields
+//Offsets are pixel values adjusted for Margin = 8px, and DropdownWidth = 100px
+//Offsets are used to calculate flexible width of Key and Value fields
+//TODO: add logic to calculate width using DropdownWidth and Margin
 const Offset = [
-  [50, 182],
-  [208, 340],
-  [366, 498],
-  [524, 656],
+  [116, 248],
+  [274, 406],
+  [432, 564],
+  [590, 722],
 ];
 
 // Type of the value for each condition
@@ -156,12 +158,14 @@ function ConditionComponent(props: any, index: number) {
     WhereClauseSubComponent.Condition,
   );
 
-  // const flexWidth = `${props.maxWidth / 2}vw - ${props.widths.dropdownWidth /
-  //   2}px - ${props.widths.margins / 2}px -  ${props.widths.iconWidth / 2}px`;
+  //flexWidth is the width of one Key or Value field
+  //It is a function of DropdownWidth and Margin
+  //fexWidth = maxWidth(set By WhereClauseControl) - Offset Values based on DropdownWidth and Margin
   const numberOfDropdowns = props.currentNumberOfFields > 1 ? 1 : 0;
   const flexWidth = `${props.maxWidth / 2}vw - ${Offset[
     props.currentNestingLevel
   ][numberOfDropdowns] / 2}px`;
+
   return (
     <ConditionBox key={index}>
       {/* Component to input the LHS for single condition */}
@@ -253,37 +257,6 @@ function ConditionBlock(props: any) {
     WhereClauseSubComponent.Condition,
   );
 
-  let newWidths: { dropdownWidth: number; margins: number; iconWidth: number };
-
-  if (props.currentNestingLevel == 0) {
-    if (props.fields.length <= 1) {
-      newWidths = {
-        dropdownWidth: props.widths.dropdownWidth + 1 * DropdownWidth,
-        margins: props.widths.margins + 4 * Margin,
-        iconWidth: props.widths.iconWidth,
-      };
-    } else {
-      newWidths = {
-        dropdownWidth: props.widths.dropdownWidth + 2 * DropdownWidth,
-        margins: props.widths.margins + 7 * Margin,
-        iconWidth: props.widths.iconWidth,
-      };
-    }
-  } else {
-    if (props.fields.length <= 1) {
-      newWidths = {
-        dropdownWidth: props.widths.dropdownWidth + 1 * DropdownWidth,
-        margins: props.widths.margins + 5 * Margin,
-        iconWidth: props.widths.iconWidth + IconWidth,
-      };
-    } else {
-      newWidths = {
-        dropdownWidth: props.widths.dropdownWidth + 2 * DropdownWidth,
-        margins: props.widths.margins + 7 * Margin,
-        iconWidth: props.widths.iconWidth + IconWidth,
-      };
-    }
-  }
   return (
     <SecondaryBox showBorder={props.currentNestingLevel >= 1}>
       {/* Component to render the joining operator between multiple conditions */}
@@ -317,11 +290,6 @@ function ConditionBlock(props: any) {
                     name={`${field}.children`}
                     props={{
                       maxWidth: props.maxWidth,
-                      widths: {
-                        dropdownWidth: newWidths.dropdownWidth,
-                        margins: newWidths.margins,
-                        iconWidth: newWidths.iconWidth,
-                      },
                       configProperty: `${field}`,
                       formName: props.formName,
                       logicalTypes: props.logicalTypes,
@@ -354,7 +322,6 @@ function ConditionBlock(props: any) {
                   formName: props.formName,
                   comparisonTypes: props.comparisonTypes,
                   maxWidth: props.maxWidth,
-                  widths: newWidths,
                   currentNumberOfFields: props.fields.length,
                   currentNestingLevel: props.currentNestingLevel,
                 },
@@ -423,12 +390,6 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
       props={{
         configProperty,
         maxWidth,
-        widths: {
-          //widths currently beign consumed by dropdown, Cross Icon and margins
-          dropdownWidth: 0, //in pixels
-          margins: 0, //in pixels
-          iconWidth: 0, //in pixels
-        },
         formName,
         logicalTypes,
         comparisonTypes,
