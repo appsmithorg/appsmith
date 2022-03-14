@@ -6,11 +6,7 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import {
-  ControllerRenderProps,
-  useController,
-  useFormContext,
-} from "react-hook-form";
+import { ControllerRenderProps, useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
 
@@ -104,7 +100,10 @@ const getDefaultValue = (
   schemaItem: SchemaItem,
   passedDefaultValue?: unknown,
 ) => {
-  if (Array.isArray(schemaItem.defaultValue)) {
+  if (
+    Array.isArray(schemaItem.defaultValue) &&
+    schemaItem.defaultValue.length > 0
+  ) {
     return schemaItemDefaultValue(schemaItem, "identifier") as unknown[];
   }
 
@@ -122,19 +121,15 @@ function ArrayField({
   propertyPath,
   schemaItem,
 }: ArrayFieldProps) {
-  const { getValues, setValue } = useFormContext();
+  const { getValues, setValue, watch } = useFormContext();
   const keysRef = useRef<string[]>([]);
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
+  const value = watch(name);
+  const valueLength = value?.length || 0;
   const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
     defaultValue,
   );
-
-  const {
-    field: { value },
-  } = useController({ name, defaultValue: [] });
-
-  const valueLength = value?.length || 0;
 
   useUpdateAccessor({ accessor: schemaItem.accessor });
 
@@ -186,12 +181,7 @@ function ArrayField({
 
       removedKeys.current = [removedKey];
 
-      // setTimeout with 0 is used to let the fields get removed,
-      // react-hook-form updating value take place and then we update with appropriate
-      // values else we would see multiple null values in the formData.
-      setTimeout(() => {
-        setValue(name, newValues);
-      }, 0);
+      setValue(name, newValues);
     },
     [keysRef, setValue, getValues],
   );

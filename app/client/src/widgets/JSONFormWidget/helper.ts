@@ -3,8 +3,6 @@ import { LabelValueType } from "rc-select/lib/interface/generator";
 
 import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
 
-const clone = require("rfdc/default");
-
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
   toId: keyof SchemaItem;
@@ -196,7 +194,7 @@ export const schemaItemDefaultValue = (
   }
 
   if (schemaItem.fieldType === FieldType.ARRAY) {
-    let defaultArrayValue = processArray(schemaItem.children, toKey);
+    const defaultArrayValue = processArray(schemaItem.children, toKey);
     let sanitizedDefaultValue: unknown[] = [];
 
     if (Array.isArray(schemaItem.defaultValue)) {
@@ -214,10 +212,6 @@ export const schemaItemDefaultValue = (
       }
     }
 
-    if (sanitizedDefaultValue?.length > defaultArrayValue?.length) {
-      const arrayEntry = clone(defaultArrayValue[0]);
-      defaultArrayValue = sanitizedDefaultValue.map(() => arrayEntry);
-    }
     /**
      * Reason for merge
      * - For an array type, the default value of individual fields underneath the array
@@ -227,7 +221,7 @@ export const schemaItemDefaultValue = (
      * Thus we merge both array level default value and any default value the underlying field holds
      * to get a complete defaultValue.
      */
-    return merge(sanitizedDefaultValue, defaultArrayValue);
+    return merge(defaultArrayValue, sanitizedDefaultValue);
   }
 
   const { defaultValue } = schemaItem;

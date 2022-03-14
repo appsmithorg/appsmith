@@ -165,7 +165,6 @@ describe("JSON Form Widget Field Change", () => {
   });
 
   it("modifies field type Multi-Select to Array", () => {
-    cy.addDsl(dslWithSchema);
     cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-hobbies`)

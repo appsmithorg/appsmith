@@ -181,7 +181,7 @@ describe(".schemaItemDefaultValue", () => {
 
     const expectedDefaultValue = [
       {
-        college: "Some college name",
+        college: "String field",
         graduationDate: "10/12/2021",
       },
     ];
@@ -247,11 +247,11 @@ describe(".schemaItemDefaultValue", () => {
 
     const expectedDefaultValue = [
       {
-        college: "Some college name",
+        college: "String field 1",
         graduationDate: "10/12/2021",
       },
       {
-        college: "Some college name",
+        college: "String field 2",
         graduationDate: "30/12/2021",
       },
     ];

@@ -137,7 +137,13 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
 }: BaseInputFieldProps<TSchemaItem>) {
   const isNilSetByField = useRef(false);
   const { executeAction } = useContext(FormContext);
-  const inputDefaultValue = schemaItem.defaultValue || passedDefaultValue;
+  const inputDefaultValue = (() => {
+    if (passedDefaultValue === undefined) {
+      return schemaItem.defaultValue;
+    }
+
+    return passedDefaultValue;
+  })();
 
   const [isFocused, setIsFocused] = useState(false);
   const [textValue, setTextValue] = useState<string | undefined | null>("");

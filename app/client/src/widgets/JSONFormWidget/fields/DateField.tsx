@@ -114,7 +114,7 @@ function DateField({
   });
 
   const isValueValid = isValid(schemaItem, value);
-  const defaultDateValue = schemaItem.defaultValue || passedDefaultValue;
+  const defaultDateValue = passedDefaultValue ?? schemaItem.defaultValue;
 
   useRegisterFieldValidity({
     isValid: isValueValid,

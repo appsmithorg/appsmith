@@ -118,7 +118,7 @@ function CheckboxField({
     <Field
       accessor={schemaItem.accessor}
       alignField={schemaItem.alignWidget}
-      defaultValue={schemaItem.defaultValue ?? passedDefaultValue}
+      defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       hideLabel={hideLabel}
       inlineLabel

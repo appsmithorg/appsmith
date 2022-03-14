@@ -171,8 +171,6 @@ function Form<TValues = any>({
 
   useEffect(() => {
     const debouncedUpdateFormData = debounce(updateFormData, DEBOUNCE_TIMEOUT);
-    let isMounting = true;
-
     const formData = getFormData();
 
     /**
@@ -199,16 +197,20 @@ function Form<TValues = any>({
           formData,
           { fromId: "accessor", toId: "identifier" },
         );
-        reset(convertedFormData);
+        /**
+         * This setTimeout is because of the setTimeout present in
+         * FieldComponent defaultValue effect. First all the setValue
+         * in the field effect is run then this reset function is run.
+         * The reason to these in setTimeout with 0 is to circumvent
+         * race condition in ReactHookForm.
+         */
+        setTimeout(() => {
+          reset(convertedFormData);
+        }, 0);
       }
     }
 
     const subscription = watch((values) => {
-      if (isMounting) {
-        isMounting = false;
-        return;
-      }
-
       if (!equal(valuesRef.current, values)) {
         const clonedValue = clone(values);
         valuesRef.current = clonedValue;

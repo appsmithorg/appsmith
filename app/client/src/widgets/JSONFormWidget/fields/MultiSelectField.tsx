@@ -127,14 +127,16 @@ function MultiSelectField({
 
   const fieldDefaultValue = useMemo(() => {
     const values: LabelValueType["value"][] | LabelValueType[] = (() => {
+      if (!isNil(passedDefaultValue) && validateOptions(passedDefaultValue)) {
+        return passedDefaultValue;
+      }
+
       if (
         !isNil(schemaItem.defaultValue) &&
         validateOptions(schemaItem.defaultValue)
       ) {
         return schemaItem.defaultValue;
       }
-
-      if (validateOptions(passedDefaultValue)) return passedDefaultValue;
 
       return [];
     })();

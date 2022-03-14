@@ -105,7 +105,7 @@ describe("JSON Form Widget Array Field", () => {
     });
   });
 
-  it("should render with default value if set in individual array item field", () => {
+  it("should not render field level default value if form level is present", () => {
     const collegeFieldDefaultValue = "College default value";
 
     cy.closePropertyPane();
@@ -121,10 +121,7 @@ describe("JSON Form Widget Array Field", () => {
     cy.get(`${education}-item`)
       .should("have.length", 1)
       .within(() => {
-        cy.get(`${education}-0--college input`).should(
-          "have.value",
-          collegeFieldDefaultValue,
-        );
+        cy.get(`${education}-0--college input`).should("have.value", "MIT");
         cy.get(`${education}-0--year input`).should("have.value", "20/10/2014");
       });
 
@@ -134,10 +131,7 @@ describe("JSON Form Widget Array Field", () => {
     cy.get(`${education}-item`)
       .should("have.length", 2)
       .within(() => {
-        cy.get(`${education}-0--college input`).should(
-          "have.value",
-          collegeFieldDefaultValue,
-        );
+        cy.get(`${education}-0--college input`).should("have.value", "MIT");
         cy.get(`${education}-0--year input`).should("have.value", "20/10/2014");
         cy.get(`${education}-1--college input`).should(
           "have.value",

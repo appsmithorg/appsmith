@@ -101,7 +101,7 @@ function SwitchField({
   return (
     <Field
       accessor={schemaItem.accessor}
-      defaultValue={schemaItem.defaultValue ?? passedDefaultValue}
+      defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       inlineLabel
       isRequiredField={schemaItem.isRequired}

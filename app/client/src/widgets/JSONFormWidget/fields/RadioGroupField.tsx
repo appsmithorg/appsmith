@@ -75,7 +75,7 @@ function RadioGroupField({
   return (
     <Field
       accessor={schemaItem.accessor}
-      defaultValue={schemaItem.defaultValue || passedDefaultValue}
+      defaultValue={passedDefaultValue || schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

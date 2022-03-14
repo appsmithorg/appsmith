@@ -58,7 +58,10 @@ function Field<TValue>({
     if (!equal(refDefaultValue.current, defaultValue)) {
       refDefaultValue.current = defaultValue;
 
-      setValue(name, clone(defaultValue));
+      // Follow the comment in Form component above reset(convertedFormData);
+      setTimeout(() => {
+        setValue(name, clone(defaultValue));
+      }, 0);
     }
   }, [defaultValue, setValue]);
 
