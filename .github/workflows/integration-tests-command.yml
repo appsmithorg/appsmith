@@ -329,7 +329,7 @@ jobs:
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
-buildRts:
+  buildRts:
     defaults:
       run:
         working-directory: app/rts
