@@ -357,6 +357,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
               }
               return propertiesToUpdate;
             },
+            dependencies: ["iconAlign"],
             validation: {
               type: ValidationTypes.TEXT,
             },
@@ -446,6 +447,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         {...this.props}
         menuDropDownWidth={menuDropDownWidth}
         onItemClicked={this.menuItemClickHandler}
+        renderMode={this.props.renderMode}
         width={componentWidth}
       />
     );

@@ -18,18 +18,19 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class DataUtils {
             case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
             default:
-                return BodyInserters.fromValue(body);
+                return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -161,12 +162,18 @@ public class DataUtils {
 
                         switch (multipartFormDataType) {
                             case TEXT:
-                                bodyBuilder.part(key, property.getValue());
-                                break;
+                                byte[] valueBytesArray = new byte[0];
+                                if (StringUtils.hasLength(String.valueOf(property.getValue()))) {
+                                    valueBytesArray = String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1);
+                                }
+                                bodyBuilder.part(
+                                        key,
+                                        valueBytesArray,
+                                        MediaType.TEXT_PLAIN);                                break;
                             case FILE:
                                 try {
                                     populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
-                                } catch (JsonProcessingException e) {
+                                } catch (IOException e) {
                                     e.printStackTrace();
                                     throw new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -207,22 +214,23 @@ public class DataUtils {
     }
 
     private void populateFileTypeBodyBuilder(MultipartBodyBuilder bodyBuilder, Property property, ClientHttpRequest outputMessage)
-            throws JsonProcessingException {
-        final Object fileValue = property.getValue();
+            throws IOException {
+        final String fileValue = (String) property.getValue();
         final String key = property.getKey();
         List<MultipartFormDataDTO> multipartFormDataDTOs = new ArrayList<>();
 
 
-        if (String.valueOf(fileValue).startsWith("{")) {
+        if (fileValue.startsWith("{")) {
             // Check whether the JSON string is an object
-            final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(String.valueOf(fileValue),
+            final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(
+                    fileValue,
                     MultipartFormDataDTO.class);
             multipartFormDataDTOs.add(multipartFormDataDTO);
-        } else if (String.valueOf(fileValue).startsWith("[")) {
+        } else if (fileValue.startsWith("[")) {
             // Check whether the JSON string is an array
             multipartFormDataDTOs = Arrays.asList(
                     objectMapper.readValue(
-                            String.valueOf(fileValue),
+                            fileValue,
                             MultipartFormDataDTO[].class));
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -232,9 +240,8 @@ public class DataUtils {
         multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
             final MultipartFormDataDTO finalMultipartFormDataDTO = multipartFormDataDTO;
             Flux<DataBuffer> data = DataBufferUtils.readInputStream(
-                    () -> new ByteArrayInputStream(String
-                            .valueOf(finalMultipartFormDataDTO.getData())
-                            .getBytes(StandardCharsets.UTF_8)),
+                    () -> new ByteArrayInputStream(String.valueOf(finalMultipartFormDataDTO.getData())
+                            .getBytes(StandardCharsets.ISO_8859_1)),
                     outputMessage.bufferFactory(),
                     4096);
 

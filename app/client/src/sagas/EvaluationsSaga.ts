@@ -198,6 +198,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   eventType: EventType,
   triggerMeta: TriggerMeta,
   callbackData?: Array<any>,
+  globalContext?: Record<string, unknown>,
 ) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
@@ -205,7 +206,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   const { requestChannel, responseChannel } = yield call(
     worker.duplexRequest,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-    { dataTree: unEvalTree, dynamicTrigger, callbackData },
+    { dataTree: unEvalTree, dynamicTrigger, callbackData, globalContext },
   );
   let keepAlive = true;
 
