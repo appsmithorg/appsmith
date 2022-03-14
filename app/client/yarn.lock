@@ -3001,6 +3001,11 @@
   version "2.2.34"
   resolved "https://registry.npmjs.org/@types/invariant/-/invariant-2.2.34.tgz"
 
+"@types/is-html@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/is-html/-/is-html-2.0.0.tgz#a08ef6b238ce0205e0256249dc30f2423ec4bf22"
+  integrity sha512-mELKA3l0R0hPJ4sZyxMakE34Mv1qU0Pz0xek1LF+Py5NS3uHjmsg5owDI6vFGMqSBLJOce/ngrfnDXPiFa0CtQ==
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0", "@types/istanbul-lib-coverage@^2.0.1":
   version "2.0.3"
   resolved "https://registry.npmjs.org/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.3.tgz"
@@ -9591,6 +9596,13 @@ is-glob@^4.0.3:
 is-hexadecimal@^1.0.0:
   version "1.0.4"
   resolved "https://registry.npmjs.org/is-hexadecimal/-/is-hexadecimal-1.0.4.tgz"
+
+is-html@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/is-html/-/is-html-3.0.0.tgz#a2fef286da052db8f4c7941ac5eb2137eb840cf6"
+  integrity sha512-LmdKtXjzmYi07R1wJA6ZJk/8Y+6J40x8zwsJT3VnhqgxJdRWwYWizpGjvdtA9PkeA57pjZYMbwm6IpPMSn4JNA==
+  dependencies:
+    html-tags "^3.1.0"
 
 is-installed-globally@~0.4.0:
   version "0.4.0"
