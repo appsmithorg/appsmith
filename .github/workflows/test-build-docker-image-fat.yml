@@ -137,7 +137,6 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
-            REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
             REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
             yarn build
           ls -l build
@@ -596,6 +595,7 @@ jobs:
           record: true
           install: false
           parallel: true
+          config-file: cypress_fat.json
           group: "Electrons on Github Action Fat Container"
           spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
           working-directory: app/client
@@ -628,6 +628,7 @@ jobs:
           record: true
           install: false
           parallel: true
+          config-file: cypress_fat.json
           group: "Electrons on Github Action"
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
