@@ -1,7 +1,9 @@
 import React, {
+  ChangeEvent,
   ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -21,22 +23,20 @@ import {
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
-import { Classes } from "@blueprintjs/core";
+import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import _ from "lodash";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
-
 export interface TreeSelectProps
   extends Required<
     Pick<
       SelectProps,
       | "disabled"
-      | "options"
       | "placeholder"
       | "loading"
       | "dropdownStyle"
       | "allowClear"
+      | "options"
     >
   > {
   value?: DefaultValueType;
@@ -50,6 +50,9 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
+  filterText?: string;
+  widgetId: string;
+  isFilterable: boolean;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -86,6 +89,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   }
   return getSvg(treeNode.expanded);
 };
+const FOCUS_TIMEOUT = 500;
 
 function SingleSelectTreeComponent({
   allowClear,
@@ -94,6 +98,8 @@ function SingleSelectTreeComponent({
   dropdownStyle,
   dropDownWidth,
   expandAll,
+  filterText,
+  isFilterable,
   isValid,
   labelStyle,
   labelText,
@@ -104,10 +110,14 @@ function SingleSelectTreeComponent({
   options,
   placeholder,
   value,
+  widgetId,
   width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
+  const [filter, setFilter] = useState(filterText ?? "");
+  const labelRef = useRef<HTMLDivElement>(null);
   const _menu = useRef<HTMLElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
@@ -125,7 +135,57 @@ function SingleSelectTreeComponent({
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
   const onClear = useCallback(() => onChange([], []), []);
-  const id = _.uniqueId();
+  const onOpen = useCallback((open: boolean) => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+    }
+  }, []);
+  const clearButton = useMemo(
+    () =>
+      filter ? (
+        <Button icon="cross" minimal onClick={() => setFilter("")} />
+      ) : null,
+    [filter],
+  );
+  const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    setFilter(event.target.value);
+  }, []);
+
+  const memoDropDownWidth = useMemo(() => {
+    if (compactMode && labelRef.current) {
+      const labelWidth = labelRef.current.clientWidth;
+      const widthDiff = dropDownWidth - labelWidth;
+      return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
+    }
+    const parentWidth = width - WidgetContainerDiff;
+    return parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
+  }, [compactMode, dropDownWidth, width, labelRef.current]);
+
+  const dropdownRender = useCallback(
+    (
+      menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
+    ) => (
+      <>
+        {isFilterable ? (
+          <InputGroup
+            autoFocus
+            inputRef={inputRef}
+            leftIcon="search"
+            onChange={onQueryChange}
+            onKeyDown={(e) => e.stopPropagation()}
+            placeholder="Filter..."
+            rightElement={clearButton as JSX.Element}
+            small
+            type="text"
+            value={filter}
+          />
+        ) : null}
+        <div className={`${loading ? Classes.SKELETON : ""}`}>{menu}</div>
+      </>
+    ),
+    [loading, isFilterable, filter, onQueryChange],
+  );
 
   return (
     <TreeSelectContainer
@@ -133,13 +193,9 @@ function SingleSelectTreeComponent({
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles
-        dropDownWidth={dropDownWidth}
-        id={id}
-        parentWidth={width - WidgetContainerDiff}
-      />
+      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
       {labelText && (
-        <TextLabelWrapper compactMode={compactMode}>
+        <TextLabelWrapper compactMode={compactMode} ref={labelRef}>
           <StyledLabel
             $compactMode={compactMode}
             $disabled={disabled}
@@ -169,8 +225,10 @@ function SingleSelectTreeComponent({
           />
         }
         disabled={disabled}
-        dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${id}`}
+        dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${widgetId}`}
+        dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
+        filterTreeNode
         getPopupContainer={getDropdownPosition}
         inputIcon={
           <Icon
@@ -186,9 +244,11 @@ function SingleSelectTreeComponent({
         notFoundContent="No Results Found"
         onChange={onChange}
         onClear={onClear}
+        onDropdownVisibleChange={onOpen}
         placeholder={placeholder}
+        searchValue={filter}
         showArrow
-        showSearch
+        showSearch={false}
         style={{ width: "100%" }}
         switcherIcon={switcherIcon}
         transitionName="rc-tree-select-dropdown-slide-up"
