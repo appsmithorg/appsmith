@@ -168,7 +168,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 Set<String> adminEmails = TextUtils.csvToSet(emailCsv);
                 if(!adminEmails.contains(user.getEmail())) { // user can not remove own email address
                     return Mono.error(new AppsmithException(
-                            AppsmithError.INVALID_PARAMETER, "Removing own email from Admin Email is not allowed"
+                            AppsmithError.GENERIC_BAD_REQUEST, "Removing own email from Admin Email is not allowed"
                     ));
                 } else {
                     // set the clean value to changes
