@@ -1,4 +1,9 @@
-import { ButtonVariantTypes } from "components/constants";
+import { IconNames } from "@blueprintjs/icons";
+import { Colors } from "constants/Colors";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -45,16 +50,18 @@ export const CONFIG = {
             blueprint: {
               view: [
                 {
-                  type: "ICON_WIDGET",
+                  type: "ICON_BUTTON_WIDGET",
                   position: { left: 56, top: 1 },
                   size: {
                     rows: 4,
                     cols: 8,
                   },
                   props: {
-                    iconName: "cross",
+                    buttonColor: Colors.OXFORD_BLUE,
+                    buttonVariant: ButtonVariantTypes.TERTIARY,
+                    borderRadius: ButtonBorderRadiusTypes.SHARP,
+                    iconName: IconNames.CROSS,
                     iconSize: 24,
-                    color: "#040627",
                     version: 1,
                   },
                 },
@@ -116,7 +123,7 @@ export const CONFIG = {
                     const iconChild =
                       widget.children &&
                       widget.children.find(
-                        (child) => child.type === "ICON_WIDGET",
+                        (child) => child.type === "ICON_BUTTON_WIDGET",
                       );
 
                     if (iconChild && parent) {
