@@ -1,3 +1,35 @@
+FROM openjdk:11 as javabuild
+
+COPY app/server/ /app
+
+WORKDIR /app
+
+RUN apt-get update;apt-get install -y maven rsync; apt-get clean; rm -rf /var/lib/apt/lists/*
+
+RUN ./build.sh -DskipTests
+
+FROM node:14 as rtsbuild
+
+COPY app/rts /app
+
+WORKDIR /app
+
+RUN yarn install --frozen-lockfile
+
+RUN npx tsc
+
+FROM node:14 as clientbuild
+
+COPY app/client /app
+
+COPY .git /app
+
+WORKDIR /app
+
+RUN yarn install; yarn build
+
+RUN mkdir /artifacts ; cp -r build /artifacts/
+
 FROM ubuntu:20.04
 
 LABEL maintainer="tech@appsmith.com"
@@ -47,23 +79,26 @@ VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
 # Add backend server - Application Layer
-ARG JAR_FILE=./app/server/dist/server-*.jar
-ARG PLUGIN_JARS=./app/server/dist/plugins/*.jar
+COPY --from=javabuild /app/dist/ /opt/appsmith/app/server/dist/
+
+COPY --from=rtsbuild /app/package.json /opt/appsmith/rts/
+COPY --from=rtsbuild /app/dist/* /opt/appsmith/rts/
+COPY --from=rtsbuild /app/node_modules /opt/appsmith/rts/node_modules
+
+ARG JAR_FILE=/opt/appsmith/app/server/dist/server-*.jar
+ARG PLUGIN_JARS=/opt/appsmith/app/server/dist/plugins/*.jar
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
+
 #Create the plugins directory
-RUN mkdir -p ./backend ./editor ./rts ./backend/plugins ./templates ./utils
+RUN mkdir -p backend editor rts backend/plugins templates utils
 
 #Add the jar to the container
-COPY ${JAR_FILE} backend/server.jar
-COPY ${PLUGIN_JARS} backend/plugins/
+RUN mv ${JAR_FILE} backend/server.jar
+RUN mv ${PLUGIN_JARS} backend/plugins/
 
 # Add client UI - Application Layer
-COPY ./app/client/build editor/
-
-# Add RTS - Application Layer
-COPY ./app/rts/package.json ./app/rts/dist/* rts/
-COPY ./app/rts/node_modules rts/node_modules
+COPY --from=clientbuild /artifacts/build editor/
 
 # Nginx & MongoDB config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* \
@@ -74,7 +109,7 @@ COPY ./deploy/docker/templates/nginx/* \
 # Add bootstrapfile
 COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* ./
 
-# Add uitl tools
+# Add util tools
 COPY ./deploy/docker/utils ./utils
 RUN cd ./utils && npm install && npm install -g .
 
