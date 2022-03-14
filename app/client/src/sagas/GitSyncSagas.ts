@@ -622,6 +622,7 @@ function* discardChanges() {
       // yield fetchGitStatusSaga();
       const applicationId: string = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
+      localStorage.setItem("GIT_DISCARD_CHANGES", "success");
       window.open(
         BUILDER_PAGE_URL({ applicationId: applicationId, pageId: pageId }),
         "_self",
@@ -629,6 +630,7 @@ function* discardChanges() {
     }
   } catch (error) {
     yield put(discardChangesFailure({ error }));
+    localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
   }
 }
 

@@ -603,6 +603,8 @@ export const COMMITTING_AND_PUSHING_CHANGES = () =>
   "COMMITTING AND PUSHING CHANGES...";
 export const DISCARDING_AND_PULLING_CHANGES = () =>
   "DISCARDING AND PULLING CHANGES...";
+export const DISCARD_SUCCESS = () => "Discarded changes successfully.";
+
 export const IS_MERGING = () => "MERGING CHANGES...";
 
 export const MERGE_CHANGES = () => "Merge changes";
