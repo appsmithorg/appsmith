@@ -76,6 +76,7 @@ export type TextInputProps = CommonComponentProps & {
   $padding?: string;
   useTextArea?: boolean;
   isCopy?: boolean;
+  border?: boolean;
   style?: any;
 };
 
@@ -151,6 +152,8 @@ const StyledInput = styled((props) => {
     "fill",
     "errorMsg",
     "useTextArea",
+    "border",
+    "asyncControl",
   ];
 
   const HtmlTag = props.useTextArea ? "textarea" : "input";
