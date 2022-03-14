@@ -595,6 +595,7 @@ jobs:
           record: true
           install: false
           parallel: true
+          config-file: cypress_fat.json
           group: "Electrons on Github Action Fat Container"
           spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
           working-directory: app/client
@@ -627,6 +628,7 @@ jobs:
           record: true
           install: false
           parallel: true
+          config-file: cypress_fat.json
           group: "Electrons on Github Action"
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
