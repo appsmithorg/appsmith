@@ -10832,11 +10832,7 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
-lodash-es@4.17.14:
-  version "4.17.14"
-  resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.14.tgz"
-
-lodash-es@^4.17.21:
+lodash-es@4.17.21, lodash-es@^4.17.21:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.21.tgz"
 
