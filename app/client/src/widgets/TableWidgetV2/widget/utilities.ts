@@ -331,3 +331,10 @@ export const getCellProperties = (
   }
   return {} as CellLayoutProperties;
 };
+
+export function isColumnEditable(column: ColumnProperties) {
+  return (
+    column.columnType === ColumnTypes.TEXT ||
+    column.columnType === ColumnTypes.NUMBER
+  );
+}

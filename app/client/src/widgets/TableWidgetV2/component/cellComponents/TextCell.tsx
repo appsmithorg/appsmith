@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import AutoToolTipComponent from "../AutoToolTipComponent";
 import { renderDefaultPropsType } from "../renderHelpers/DefaultRenderer";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
   display: flex;
@@ -20,8 +21,12 @@ const StyledAutoToolTipComponent = styled(AutoToolTipComponent)`
 const StyledEditIcon = styled(EditIcon)`
   flex-basis: ${EDIT_ICON_WIDTH};
   cursor: pointer;
-  height: 10px;
+  height: 12px;
   display: none;
+
+  & path {
+    fill: ${Colors.GREEN_1};
+  }
 `;
 
 export const EditableRowHoverStyle = css`
@@ -51,8 +56,8 @@ export function TextCell({
   toggleCellEditMode,
   value,
 }: TextCellProps) {
-  const onIconClick = useCallback(
-    (e: React.MouseEvent<SVGElement>) => {
+  const onEdit = useCallback(
+    (e: React.MouseEvent<SVGElement | HTMLDivElement>) => {
       e.stopPropagation();
       toggleCellEditMode(true);
     },
@@ -60,7 +65,7 @@ export function TextCell({
   );
 
   return (
-    <Wrapper>
+    <Wrapper onDoubleClick={onEdit}>
       <StyledAutoToolTipComponent
         cellProperties={cellProperties}
         className={isCellEditable ? "editable-cell" : ""}
@@ -73,7 +78,7 @@ export function TextCell({
         {value}
       </StyledAutoToolTipComponent>
       {isCellEditable && (
-        <StyledEditIcon className="editable-cell-icon" onClick={onIconClick} />
+        <StyledEditIcon className="editable-cell-icon" onClick={onEdit} />
       )}
     </Wrapper>
   );

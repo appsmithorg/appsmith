@@ -12,6 +12,7 @@ type RenderComponentProps = {
   isDragging: boolean;
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
+  toggleCheckbox?: (index: number, checked: boolean) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
@@ -25,6 +26,7 @@ interface DroppableComponentProps {
   renderComponent: (props: RenderComponentProps) => JSX.Element;
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
+  toggleCheckbox?: (index: number, checked: boolean) => void;
   toggleVisibility?: (index: number) => void;
   updateItems: (items: Array<Record<string, unknown>>) => void;
   onEdit?: (index: number) => void;
@@ -85,6 +87,7 @@ export class DroppableComponent extends React.Component<
       focusedIndex,
       onEdit,
       renderComponent,
+      toggleCheckbox,
       toggleVisibility,
       updateFocus,
       updateOption,
@@ -94,6 +97,7 @@ export class DroppableComponent extends React.Component<
       deleteOption,
       updateFocus,
       updateOption,
+      toggleCheckbox,
       toggleVisibility,
       onEdit,
       focusedIndex,

@@ -9,9 +9,10 @@ import {
   StyledDeleteIcon,
   StyledVisibleIcon,
   StyledHiddenIcon,
+  StyledCheckbox,
+  StyledActionContainer,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
-import Checkbox from "./Checkbox";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -30,17 +31,19 @@ type RenderComponentProps = {
     isDerived?: boolean;
     isVisible?: boolean;
     isDuplicateLabel?: boolean;
-    isCellEditable?: boolean;
+    isChecked?: boolean;
+    isCheckboxDisabled?: boolean;
   };
   isDelete?: boolean;
   isDragging: boolean;
+  showCheckbox?: boolean;
   placeholder: string;
   updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
   onEdit?: (index: number) => void;
   deleteOption: (index: number) => void;
   toggleVisibility?: (index: number) => void;
-  showEditable?: boolean;
+  toggleCheckbox?: (index: number, checked: boolean) => void;
 };
 
 export function DraggableListCard(props: RenderComponentProps) {
@@ -56,7 +59,8 @@ export function DraggableListCard(props: RenderComponentProps) {
     item,
     onEdit,
     placeholder,
-    showEditable,
+    showCheckbox,
+    toggleCheckbox,
     toggleVisibility,
     updateFocus,
     updateOption,
@@ -120,50 +124,65 @@ export function DraggableListCard(props: RenderComponentProps) {
         onFocus={onFocus}
         placeholder={placeholder}
         ref={ref}
+        rightPadding={showCheckbox ? 90 : 60}
         value={value}
         width="100%"
       />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={() => {
-          onEdit && onEdit(index);
-        }}
-        width={20}
-      />
-      {!!item.isDerived || isDelete ? (
-        <StyledDeleteIcon
-          className="t--delete-column-btn"
+      <StyledActionContainer>
+        <StyledEditIcon
+          className="t--edit-column-btn"
           height={20}
           onClick={() => {
-            deleteOption && deleteOption(index);
+            onEdit && onEdit(index);
           }}
           width={20}
         />
-      ) : visibility ? (
-        <StyledVisibleIcon
-          className="t--show-column-btn"
-          height={20}
-          onClick={() => {
-            setVisibility(!visibility);
-            toggleVisibility && toggleVisibility(index);
-          }}
-          width={20}
-        />
-      ) : (
-        <StyledHiddenIcon
-          className="t--show-column-btn"
-          height={20}
-          onClick={() => {
-            setVisibility(!visibility);
-            toggleVisibility && toggleVisibility(index);
-          }}
-          width={20}
-        />
-      )}
-      {showEditable && (
-        <Checkbox isDefaultChecked={item.isCellEditable} label="" />
-      )}
+        {!!item.isDerived || isDelete ? (
+          <StyledDeleteIcon
+            className="t--delete-column-btn"
+            height={20}
+            onClick={() => {
+              deleteOption && deleteOption(index);
+            }}
+            width={20}
+          />
+        ) : visibility ? (
+          <StyledVisibleIcon
+            className="t--show-column-btn"
+            height={20}
+            onClick={() => {
+              setVisibility(!visibility);
+              toggleVisibility && toggleVisibility(index);
+            }}
+            width={20}
+          />
+        ) : (
+          <StyledHiddenIcon
+            className="t--show-column-btn"
+            height={20}
+            onClick={() => {
+              setVisibility(!visibility);
+              toggleVisibility && toggleVisibility(index);
+            }}
+            width={20}
+          />
+        )}
+        {/*
+         * Used in Table_Widget_V2's primary columns to enable/disable cell editability
+         * Using a common name `showCheckbox` instead of showEditable or isEditable
+         * to be generic and reusable.
+         */}
+        {showCheckbox && (
+          <StyledCheckbox
+            disabled={item.isCheckboxDisabled}
+            isDefaultChecked={item.isChecked}
+            label=""
+            onCheckChange={(checked: boolean) =>
+              toggleCheckbox && toggleCheckbox(index, checked)
+            }
+          />
+        )}
+      </StyledActionContainer>
     </ItemWrapper>
   );
 }

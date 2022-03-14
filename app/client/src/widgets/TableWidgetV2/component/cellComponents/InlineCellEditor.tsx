@@ -15,9 +15,10 @@ const Wrapper = styled.div`
       border: none;
       /*
        * using !important since underlying
-       * component styled has !important
+       * component styles has !important
        */
       box-shadow: none !important;
+      padding: 0px 8px;
     }
   }
 `;

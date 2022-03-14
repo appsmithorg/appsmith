@@ -126,6 +126,24 @@ export default {
       isTriggerProperty: false,
     },
     {
+      propertyName: "isCellVisible",
+      dependencies: ["primaryColumns", "columnType"],
+      label: "Visible",
+      helpText: "Controls the visibility of the cell in the column",
+      defaultValue: true,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+    },
+    {
       propertyName: "isCellEditable",
       dependencies: ["primaryColumns", "columnType"],
       label: "Editable",
@@ -147,24 +165,6 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.NUMBER,
         ]);
-      },
-    },
-    {
-      propertyName: "isCellVisible",
-      dependencies: ["primaryColumns", "columnType"],
-      label: "Visible",
-      helpText: "Controls the visibility of the cell in the column",
-      defaultValue: true,
-      controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
       },
     },
     {

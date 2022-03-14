@@ -18,6 +18,7 @@ import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import {
   getDefaultColumnProperties,
   getTableStyles,
+  isColumnEditable,
 } from "widgets/TableWidgetV2/widget/utilities";
 import { reorderColumns } from "widgets/TableWidgetV2/component/TableHelpers";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -149,6 +150,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             this.state.duplicateColumnIds,
             column.id,
           ),
+          isChecked: column.isCellEditable,
+          isCheckboxDisabled: !isColumnEditable(column),
         };
       },
     );
@@ -176,9 +179,11 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               DraggableListCard({
                 ...props,
                 isDelete: false,
+                showCheckbox: true,
                 placeholder: "Column Title",
               })
             }
+            toggleCheckbox={this.toggleCheckbox}
             toggleVisibility={this.toggleVisibility}
             updateFocus={this.updateFocus}
             updateItems={this.updateItems}
@@ -260,6 +265,23 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       this.updateProperty(
         `${this.props.propertyName}.${originalColumn.id}.isVisible`,
         !originalColumn.isVisible,
+      );
+    }
+  };
+
+  toggleCheckbox = (index: number, checked: boolean) => {
+    const columns: Record<string, ColumnProperties> =
+      this.props.propertyValue || {};
+    const originalColumn = getOriginalColumn(
+      columns,
+      index,
+      this.props.widgetProperties.columnOrder,
+    );
+
+    if (originalColumn) {
+      this.updateProperty(
+        `${this.props.propertyName}.${originalColumn.id}.isCellEditable`,
+        checked,
       );
     }
   };
