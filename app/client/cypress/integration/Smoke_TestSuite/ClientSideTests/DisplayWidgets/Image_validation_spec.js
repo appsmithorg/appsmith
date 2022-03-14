@@ -9,18 +9,21 @@ describe("Image Widget Validation Image Urls", function() {
     cy.addDsl(dsl);
   });
 
-  it("Check default image and new image", function() {
+  it("Check default image src", function() {
     cy.openPropertyPane("imagewidget");
-    cy.testJsontext("defaultimage", this.data.defaultimage);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
-      .should("contain", this.data.defaultimage);
+      .should(
+        "contain",
+        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+      );
+  });
 
+  it("Add new image and check image is showing instead of default image", function() {
     cy.testCodeMirror(this.data.NewImage);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
-      .should("contain", this.data.NewImage)
-      .should("not.contain", this.data.defaultimage);
+      .should("contain", this.data.NewImage);
     cy.closePropertyPane();
   });
 
