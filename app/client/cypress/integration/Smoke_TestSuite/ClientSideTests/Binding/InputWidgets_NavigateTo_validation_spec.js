@@ -31,7 +31,9 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   it("2. Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
+    cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
