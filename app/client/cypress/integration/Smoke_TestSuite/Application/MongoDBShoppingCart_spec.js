@@ -41,7 +41,7 @@ describe("Shopping cart App", function() {
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("EditProducts");
-    cy.get("[data-cy='actionConfiguration.formData.command']").click();
+    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
     cy.get(".t--dropdown-option")
       .eq(2)
       .click();
@@ -72,7 +72,7 @@ describe("Shopping cart App", function() {
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("AddProduct");
-    cy.get("[data-cy='actionConfiguration.formData.command']").click();
+    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
     cy.get(".t--dropdown-option")
       .eq(1)
       .click();
@@ -96,7 +96,7 @@ describe("Shopping cart App", function() {
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("DeleteProduct");
-    cy.get("[data-cy='actionConfiguration.formData.command']").click();
+    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
     cy.get(".t--dropdown-option")
       .eq(3)
       .click();
