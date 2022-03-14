@@ -1,4 +1,5 @@
 import {
+  ARE_YOU_SURE,
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
   CHANGES_MADE_SINCE_LAST_COMMIT,
@@ -20,7 +21,10 @@ import {
   DEPLOY,
   DEPLOY_KEY_TITLE,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  DISCARD_CHANGES,
   DISCARD_CHANGES_WARNING,
+  DISCARD_SUCCESS,
+  DISCARDING_AND_PULLING_CHANGES,
   DISCONNECT,
   DISCONNECT_CAUSE_APPLICATION_BREAK,
   DISCONNECT_EXISTING_REPOSITORIES,
@@ -219,8 +223,25 @@ describe("git-sync messages", () => {
       key: "DISCARD_CHANGES_WARNING",
       value: "Discarding these changes will pull previous changes from Git.",
     },
+    {
+      key: "DISCARD_SUCCESS",
+      value: "Discarded changes successfully.",
+    },
+    {
+      key: "DISCARDING_AND_PULLING_CHANGES",
+      value: "DISCARDING AND PULLING CHANGES...",
+    },
+    {
+      key: "ARE_YOU_SURE",
+      value: "Are you sure?",
+    },
+    {
+      key: "DISCARD_CHANGES",
+      value: "Discard changes",
+    },
   ];
   const functions = [
+    ARE_YOU_SURE,
     CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
     CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
     CHANGES_MADE_SINCE_LAST_COMMIT,
@@ -241,7 +262,10 @@ describe("git-sync messages", () => {
     DEPLOY,
     DEPLOY_KEY_TITLE,
     DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+    DISCARDING_AND_PULLING_CHANGES,
+    DISCARD_CHANGES,
     DISCARD_CHANGES_WARNING,
+    DISCARD_SUCCESS,
     DISCONNECT,
     DISCONNECT_CAUSE_APPLICATION_BREAK,
     DISCONNECT_EXISTING_REPOSITORIES,
