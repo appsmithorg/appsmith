@@ -19,8 +19,8 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(formWidgetsPage.treeSelectInput)
       .first()
       .click({ force: true });
-    cy.get(formWidgetsPage.treeSelectInput)
-      .first()
+    cy.get(formWidgetsPage.multiTreeSelectFilterInput)
+      .click()
       .type("light");
     cy.treeMultiSelectDropdown("Light Blue");
   });

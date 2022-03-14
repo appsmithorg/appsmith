@@ -82,7 +82,7 @@ import {
 } from "actions/explorerActions";
 import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
-import { isMac } from "utils/helpers";
+import { modText } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
@@ -353,7 +353,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                       : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
                   </span>
                   <span className="ml-4 text-xs text-gray-300">
-                    {isMac() ? "Cmd" : "Ctrl"} + /
+                    {modText()} /
                   </span>
                 </div>
               }

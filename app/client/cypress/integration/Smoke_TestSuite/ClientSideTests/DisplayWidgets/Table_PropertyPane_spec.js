@@ -13,7 +13,7 @@ describe("Table Widget property pane feature validation", function() {
   // To be done:
   // Column Data type: Video
 
-  it("Verify default array data", function() {
+  it("1. Verify default array data", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Open Widget side bar
@@ -31,7 +31,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.ClearSearch();
   });
 
-  it("Verify empty columnName in data", () => {
+  it("2. Verify empty columnName in data", () => {
     cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidget", { x: 300, y: 200 });
@@ -56,7 +56,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.deleteWidget(widgetsPage.tableWidget);
   });
 
-  it("Verify On Row Selected Action", function() {
+  it("3. Verify On Row Selected Action", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
@@ -70,7 +70,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Check On Page Change Action", function() {
+  it("4. Check On Page Change Action", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
@@ -83,7 +83,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.toastmsg).contains("Page Changed");
     cy.get(publish.backToEditor).click();
   });
-  it("Verify On Search Text Change Action", function() {
+
+  it("5. Verify On Search Text Change Action", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Show Message on Search text change Action
@@ -97,7 +98,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Check open section and column data in property pane", function() {
+  it("6. Check open section and column data in property pane", function() {
     cy.openPropertyPane("tablewidget");
 
     // Validate the columns are visible in the property pane
@@ -125,7 +126,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
   });
 
-  it("Column Detail - Edit column name and validate test for computed value based on column type selected", function() {
+  it("7. Column Detail - Edit column name and validate test for computed value based on column type selected", function() {
     cy.wait(1000);
     cy.makeColumnVisible("email");
     cy.makeColumnVisible("userName");
@@ -208,18 +209,20 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     // Changing Column data type from "Date" to "URl"
-    cy.readTabledataPublish("1", "1").then(() => {
+    cy.readTabledataPublish("1", "1").then((actualEmail) => {
       cy.changeColumnType("URL");
       // "Image" to "url"
       cy.updateComputedValue(testdata.currentRowEmail);
-      cy.readTabledataPublish("1", "0", true).then((tabData2) => {
-        expect(tabData2).not.to.equal("lindsay.ferguson@reqres.in");
+      cy.readTabledataPublish("1", "0").then((tabData2) => {
+        expect(tabData2)
+          .to.equal("lindsay.ferguson@reqres.in")
+          .to.eq(actualEmail);
         cy.log("computed value of URL is " + tabData2);
       });
     });
   });
 
-  it("Test to validate text allignment", function() {
+  it("8. Test to validate text allignment", function() {
     // Verifying Center Alignment
     cy.get(widgetsPage.centerAlign)
       .first()
@@ -245,7 +248,7 @@ describe("Table Widget property pane feature validation", function() {
     );
   });
 
-  it("Test to validate text format", function() {
+  it("9. Test to validate text format", function() {
     // Validate Bold text
     cy.get(widgetsPage.bold).click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "font-weight", "700");
@@ -254,7 +257,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "font-style", "italic");
   });
 
-  it("Test to validate vertical allignment", function() {
+  it("10. Test to validate vertical allignment", function() {
     // Validate vertical alignemnt of Cell text to TOP
     cy.get(widgetsPage.verticalTop).click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-start", true);
@@ -270,12 +273,14 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "align-items", "flex-end", true);
   });
 
-  it("Test to validate text color and text background", function() {
+  it("11. Test to validate text color and text background", function() {
     cy.get(widgetsPage.textColor)
       .first()
       .click({ force: true });
     // Changing text color to GREEN and validate
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.get(widgetsPage.greenColor)
+      .last()
+      .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     cy.wait("@updateLayout");
@@ -289,7 +294,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.backgroundColor)
       .first()
       .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.get(widgetsPage.greenColor)
+      .last()
+      .click();
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "1",
@@ -313,7 +320,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.closePropertyPane();
   });
 
-  it("Verify default search text", function() {
+  it("12. Verify default search text", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Chage deat search text value to "data"
@@ -324,7 +331,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Verify default selected row", function() {
+  it("13. Verify default selected row", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("defaultsearchtext", "");
@@ -341,7 +348,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Table-Delete Verification", function() {
+  it("14. Table-Delete Verification", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Delete the Table widget

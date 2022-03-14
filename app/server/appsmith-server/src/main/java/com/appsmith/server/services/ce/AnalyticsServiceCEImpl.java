@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -159,7 +160,16 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
-        Mono<User> userMono = sessionUserService.getCurrentUser();
+
+        // In case the event needs to be sent during sign in, then `sessionUserService.getCurrentUser()` returns Mono.emtpy()
+        // Handle the same by returning an anonymous user only for sending events.
+        User anonymousUser = new User();
+        anonymousUser.setName(FieldName.ANONYMOUS_USER);
+        anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
+        anonymousUser.setIsAnonymous(true);
+
+        Mono<User> userMono = sessionUserService.getCurrentUser()
+                .switchIfEmpty(Mono.just(anonymousUser));
 
         return userMono
                 .map(user -> {
