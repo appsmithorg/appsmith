@@ -260,6 +260,18 @@ public class DatabaseChangelog2 {
 
                                 dynamicBindingPath.setKey("formData." + fieldName + ".data" + remainderPath);
                             }
+                        } else {
+                            final String oldKey = dynamicBindingPath.getKey();
+                            final Pattern pattern = Pattern.compile("^(body|next|prev|path)(\\..*)?");
+
+                            Matcher matcher = pattern.matcher(oldKey);
+
+                            while (matcher.find()) {
+                                final String fieldName = matcher.group(1);
+                                final String remainderPath = matcher.group(2) == null ? "" : matcher.group(2);
+
+                                dynamicBindingPath.setKey("formData." + fieldName + ".data" + remainderPath);
+                            }
                         }
                     });
         }
@@ -382,6 +394,8 @@ public class DatabaseChangelog2 {
             dynamicBindingMapper.put("formData.read.usingBase64Encoding", "formData.read.dataType.data");
             dynamicBindingMapper.put("formData.read.expiry", "formData.read.expiry.data");
             dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
+            dynamicBindingMapper.put("body", "formData.body.data");
+            dynamicBindingMapper.put("path", "formData.path.data");
             dynamicBindingPathList
                     .stream()
                     .forEach(dynamicBindingPath -> {
@@ -532,6 +546,7 @@ public class DatabaseChangelog2 {
             dynamicBindingMapper.put("formData.updateMany.update", "formData.updateMany.update.data");
             dynamicBindingMapper.put("formData.updateMany.limit", "formData.updateMany.limit.data");
             dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
+            dynamicBindingMapper.put("body", "formData.body.data");
             dynamicBindingPathList
                     .stream()
                     .forEach(dynamicBindingPath -> {
