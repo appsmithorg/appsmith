@@ -9,6 +9,7 @@ import {
   DEPLOY_YOUR_APPLICATION,
   DISCARD_CHANGES,
   DISCARD_CHANGES_WARNING,
+  DISCARDING_AND_PULLING_CHANGES,
   FETCH_GIT_STATUS,
   GIT_NO_UPDATED_TOOLTIP,
   GIT_UPSTREAM_CHANGES,
@@ -24,9 +25,9 @@ import {
   getConflictFoundDocUrlDeploy,
   getGitCommitAndPushError,
   getGitStatus,
-  getIsChangeDiscardInProgress,
   getIsCommitSuccessful,
   getIsCommittingInProgress,
+  getIsDiscardInProgress,
   getIsFetchingGitStatus,
   getIsPullingProgress,
   getPullFailed,
@@ -137,40 +138,6 @@ const ActionsContainer = styled.div`
   }
 `;
 
-const DiscardChangesConfirmationButtonContainer = styled.div`
-  & a.t--discard-pull-button {
-    color: #c91818;
-    font-weight: 600;
-    margin-top: 8px;
-    cursor: pointer;
-    text-transform: uppercase;
-    border: none;
-    display: inline-block;
-    padding: 0;
-
-    &:hover {
-      background-color: ${Colors.ERROR_50};
-      border: none;
-    }
-  }
-`;
-
-function DiscardWarningActions(props: any) {
-  const confirmationButtonOptions = {
-    category: Category.secondary,
-    className: "t--discard-pull-button discard-pull-changes-link",
-    onClick: props.onClick,
-    text: createMessage(DISCARD_CHANGES),
-  };
-  return (
-    <div>
-      <DiscardChangesConfirmationButtonContainer>
-        <Button {...confirmationButtonOptions} />
-      </DiscardChangesConfirmationButtonContainer>
-    </div>
-  );
-}
-
 function DiscardWarningMessage() {
   return (
     <div style={{ color: "#C91818", fontSize: "12px" }}>
@@ -196,7 +163,6 @@ function DiscardChangesWarning({ onCloseDiscardChangesWarning }: any) {
     <DiscardChangesWarningContainer>
       <NotificationBanner {...notificationBannerOptions}>
         <DiscardWarningMessage />
-        {/*<DiscardWarningActions onClick={onDiscardChanges} />*/}
       </NotificationBanner>
     </DiscardChangesWarningContainer>
   );
@@ -205,7 +171,7 @@ function DiscardChangesWarning({ onCloseDiscardChangesWarning }: any) {
 function Deploy() {
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
-  const isChangeDiscardInProgress = useSelector(getIsChangeDiscardInProgress);
+  const isDiscardInProgress = useSelector(getIsDiscardInProgress) || false;
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
@@ -219,7 +185,8 @@ function Deploy() {
   const [commitMessage, setCommitMessage] = useState(
     gitMetaData?.remoteUrl && lastDeployedAt ? "" : INITIAL_COMMIT,
   );
-
+  const [shouldDiscard, setShouldDiscard] = useState(false);
+  const [isDiscarding, setIsDiscarding] = useState(isDiscardInProgress);
   const [showDiscardWarning, setShowDiscardWarning] = useState(false);
 
   const currentBranch = gitMetaData?.branchName;
@@ -262,9 +229,8 @@ function Deploy() {
   const commitInputDisabled = !hasChangesToCommit || isCommittingInProgress;
 
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
-  const isConflicting = !isFetchingGitStatus && pullFailed;
+  const isConflicting = !isFetchingGitStatus && !!pullFailed;
 
-  const isDiscardProgressing = isChangeDiscardInProgress;
   const pullRequired =
     gitError &&
     gitError.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
@@ -272,11 +238,18 @@ function Deploy() {
     !isConflicting &&
     !pullRequired &&
     !isFetchingGitStatus &&
-    !isCommittingInProgress;
+    !isCommittingInProgress &&
+    !isDiscarding;
+  const isCommitting =
+    !!commitButtonLoading &&
+    (!!commitRequired || showCommitButton) &&
+    !isDiscarding;
   const showDiscardChangesButton =
-    !isFetchingGitStatus && !isCommittingInProgress && hasChangesToCommit;
-  const isProgressing =
-    commitButtonLoading && (commitRequired || showCommitButton);
+    !isFetchingGitStatus &&
+    !isCommittingInProgress &&
+    hasChangesToCommit &&
+    !isDiscarding &&
+    !isCommitting;
   const commitMessageDisplay = hasChangesToCommit
     ? commitMessage
     : NO_CHANGES_TO_COMMIT;
@@ -293,12 +266,19 @@ function Deploy() {
 
   const autogrowHeight = useAutoGrow(commitMessageDisplay, 37);
 
+  const onDiscardInit = () => {
+    setShowDiscardWarning(true);
+    setShouldDiscard(true);
+  };
   const onDiscardChanges = () => {
     dispatch(discardChanges());
     setShowDiscardWarning(false);
+    setShouldDiscard(true);
+    setIsDiscarding(true);
   };
-  const onCloseDiscardChangesWarning = () => {
+  const onCloseDiscardWarning = () => {
     setShowDiscardWarning(false);
+    setShouldDiscard(false);
   };
   return (
     <Container>
@@ -410,7 +390,9 @@ function Deploy() {
                 isFetchingGitStatus ||
                 isCommittingInProgress
               }
-              onClick={() => setShowDiscardWarning(true)}
+              onClick={() =>
+                shouldDiscard ? onDiscardChanges() : onDiscardInit()
+              }
               size={Size.large}
               text={
                 showDiscardWarning
@@ -421,7 +403,7 @@ function Deploy() {
           )}
         </ActionsContainer>
 
-        {isProgressing && (
+        {isCommitting && !isDiscarding && (
           <StatusbarWrapper>
             <Statusbar
               completed={!commitButtonLoading}
@@ -430,12 +412,12 @@ function Deploy() {
             />
           </StatusbarWrapper>
         )}
-        {isDiscardProgressing && (
+        {isDiscarding && !isCommitting && (
           <StatusbarWrapper>
             <Statusbar
-              completed={isDiscardProgressing}
-              message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
-              period={2}
+              completed={!isDiscarding}
+              message={createMessage(DISCARDING_AND_PULLING_CHANGES)}
+              period={5}
             />
           </StatusbarWrapper>
         )}
@@ -443,7 +425,7 @@ function Deploy() {
 
       {showDiscardWarning && (
         <DiscardChangesWarning
-          onCloseDiscardChangesWarning={onCloseDiscardChangesWarning}
+          onCloseDiscardChangesWarning={onCloseDiscardWarning}
         />
       )}
 

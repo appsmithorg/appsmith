@@ -18,6 +18,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import {
   commitToRepoSuccess,
+  discardChangesFailure,
   discardChangesSuccess,
   fetchBranchesInit,
   fetchBranchesSuccess,
@@ -627,10 +628,7 @@ function* discardChanges() {
       );
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.GIT_DISCARD_CHANGES_ERROR,
-      payload: { error, show: false },
-    });
+    yield put(discardChangesFailure({ error }));
   }
 }
 

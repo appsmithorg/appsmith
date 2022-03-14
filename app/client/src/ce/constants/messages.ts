@@ -601,6 +601,8 @@ export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
   "COMMITTING AND PUSHING CHANGES...";
+export const DISCARDING_AND_PULLING_CHANGES = () =>
+  "DISCARDING AND PULLING CHANGES...";
 export const IS_MERGING = () => "MERGING CHANGES...";
 
 export const MERGE_CHANGES = () => "Merge changes";

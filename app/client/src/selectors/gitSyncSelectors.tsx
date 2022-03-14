@@ -24,8 +24,8 @@ export const getIsGitRepoSetup = (state: AppState) => {
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
 
-export const getIsChangeDiscardInProgress = (state: AppState) =>
-  state.ui.gitSync.isChangeDiscarding;
+export const getIsDiscardInProgress = (state: AppState) =>
+  state.ui.gitSync.isDiscarding;
 
 export const getIsCommitSuccessful = (state: AppState) =>
   state.ui.gitSync.isCommitSuccessful;

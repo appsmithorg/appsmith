@@ -180,6 +180,11 @@ export const discardChangesSuccess = (payload: any) => ({
   payload,
 });
 
+export const discardChangesFailure = (payload: any) => ({
+  type: ReduxActionErrorTypes.GIT_DISCARD_CHANGES_ERROR,
+  payload: { error: payload.error, show: false },
+});
+
 export const updateBranchLocally = (payload: string) => ({
   type: ReduxActionTypes.UPDATE_BRANCH_LOCALLY,
   payload,
