@@ -294,14 +294,6 @@ function TreeDropdown(props: TreeDropdownProps) {
     }
   }, [isOpen]);
 
-  // when using this component in the editor pages, whenever the optionTree changes due to user trying to delete action
-  // update the optionTree state. this extra step is due to the memoization done for this component
-  useEffect(() => {
-    if (props.editorPageContextMenu) {
-      setOptionTree(props.optionTree);
-    }
-  }, [props.optionTree]);
-
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       option.onSelect(option, onSelect);
@@ -352,8 +344,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     };
   };
 
-  function RenderTreeOption(props: { option: TreeDropdownOption }) {
-    const { option } = props;
+  function RenderTreeOption(option: TreeDropdownOption) {
     const isSelected =
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
@@ -385,10 +376,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         popoverProps={popoverProps}
         text={option.label}
       >
-        {option.children &&
-          option.children.map((option: TreeDropdownOption, index: number) => (
-            <RenderTreeOption key={index} option={option} />
-          ))}
+        {option.children && option.children.map(RenderTreeOption)}
       </MenuItem>
     );
   }
@@ -516,10 +504,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     }
   };
 
-  // converting renderTreeOption to a react component due to rendererd-more-hooks-than-previous-render issue.
-  const list = optionTree.map((option: TreeDropdownOption, index: number) => (
-    <RenderTreeOption key={index} option={option} />
-  ));
+  const list = optionTree.map(RenderTreeOption);
   const menuItems = <StyledMenu>{list}</StyledMenu>;
   const defaultToggle = (
     <DropdownTarget>

@@ -11,7 +11,7 @@ import {
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
-import TreeDropdown from "components/ads/TreeDropdown";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -125,7 +125,6 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     <TreeDropdown
       className={props.className}
       defaultText=""
-      editorPageContextMenu
       modifiers={ContextMenuPopoverModifiers}
       onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
       onSelect={noop}

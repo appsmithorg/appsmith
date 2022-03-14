@@ -13,6 +13,7 @@ import {
   IPopoverSharedProps,
   Popover,
   Classes,
+  Position,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "constants/DefaultTheme";
@@ -44,6 +45,10 @@ type TreeDropdownProps = {
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
   setConfirmDelete?: (val: boolean) => void;
+  onMenuToggle?: (isOpen: boolean) => void;
+  position?: Position;
+  icon?: React.ReactNode;
+  editorPage?: boolean;
 };
 
 export const StyledPopover = styled(Popover)`
@@ -147,7 +152,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       <StyledMenuItem
         active={isSelected}
         className={option.className || "single-select"}
-        icon={option.id === "create" ? "plus" : undefined}
+        icon={option.icon}
         intent={option.intent}
         key={option.value}
         onClick={
@@ -203,7 +208,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         setIsOpen(false);
         setConfirmDelete ? setConfirmDelete(false) : null;
       }}
-      position={PopoverPosition.RIGHT_TOP}
+      position={props.position || PopoverPosition.RIGHT_TOP}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);
