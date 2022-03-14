@@ -21,7 +21,6 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -43,7 +42,6 @@ import java.util.Map;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 
-@Slf4j
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String> implements UserDataServiceCE {
 
     private final UserRepository userRepository;
@@ -123,14 +121,10 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> updateForUser(User user, UserData updates) {
-        log.debug("updateForUser called for userId {} with updates : {}", user.getId(), updates);
         // If a UserData document exists for this user, update it. If not, create one.
         updates.setUserId(user.getId());
         final Mono<UserData> updaterMono = update(user.getId(), updates);
-        final Mono<UserData> creatorMono = Mono.just(updates).flatMap(updates1 -> {
-            log.debug("Going to create userData since update returned empty");
-            return this.create(updates1);
-        });
+        final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
         return updaterMono.switchIfEmpty(creatorMono);
     }
 
@@ -139,8 +133,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         if (userId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName(QUserData.userData.userId)));
         }
-
-        log.debug("Going to update userId {} with update {}", userId, resource);
 
         Query query = new Query(Criteria.where(fieldName(QUserData.userData.userId)).is(userId));
 
