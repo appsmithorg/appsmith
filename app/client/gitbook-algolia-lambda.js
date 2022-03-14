@@ -95,10 +95,37 @@ async function getAllPages(pageIds) {
   return Promise.all(allPages);
 }
 
+function extractLinkMatches(markdown) {
+  const regex =  /\[(.*?)\]\((.*?)\)/g;
+  const matches = markdown.matchAll(regex);
+  return [...matches];
+}
+
+function getAbsoluteLink(link, currentPageFullPath) {
+  console.log("page path ", currentPageFullPath);
+  console.log("relative link ", link);
+  const linkPaths = link.split("/");
+  const pagePaths = currentPageFullPath.split("/");
+  let pathIndex = pagePaths.length > 1 ? (pagePaths.length - 1) : 0;
+  linkPaths.map((path, index) => {
+    if (path === "..") {
+      pagePaths[pathIndex] = undefined;
+      pathIndex -= 1;
+    }
+  });
+  let absoluteLink = pagePaths.filter((path) => path !== undefined).join("/");
+  if (absoluteLink.length > 0) {
+    absoluteLink += "/";
+  }
+  absoluteLink += linkPaths.filter((path) => path !== "..").join("/");
+  console.log("absolute link ", absoluteLink);
+  return absoluteLink;
+}
+
 exports.handler = async (event, context, callback) => {
-  const parameters = await loadParametersFromStore("/" + process.env.ENV + "/algolia");
   console.log('Received event:', JSON.stringify(event, null, 2));
 
+  const parameters = await loadParametersFromStore("/" + process.env.ENV + "/algolia");
   const client = algoliasearch(parameters.application_id, parameters.api_key);
   const algoliaIndex = client.initIndex("test_appsmith");
 
@@ -117,7 +144,7 @@ exports.handler = async (event, context, callback) => {
           delete masterPage.pages;
 
           getAllPages(Object.keys(pages)).then(updatedPages => {
-            console.log("fetched all pages ", Object.keys(pages));
+            // console.log("fetched all pages ", Object.keys(pages));
             updatedPages.forEach((page, index) => {
               // console.log("update page fullpath", page.uid);
               page.path = pages[page.uid].path;
@@ -139,12 +166,20 @@ exports.handler = async (event, context, callback) => {
                 if (page.markdown) {
                   const size = JSON.stringify(page).length;
                   if (size > 10000) { 
-                    console.log("Truncating page", page);
                     page.markdown = page.markdown.substr(0, page.markdown.length - (JSON.stringify(page).length - 9900));
                   }
                   if (orderMap[page.path]) {
                     page.isDefault = true;
                   }
+                  const matches = extractLinkMatches(page.markdown);
+                  matches.map((match) => {
+                    const link = match[2];
+                    if (!link.startsWith('https:')) {
+                      const absoluteLink = getAbsoluteLink(link, page.path);
+                      console.log('replace', match[0], match[0].replace(link, absoluteLink));
+                      page.markdown = page.markdown.replace(match[0], match[0].replace(link, absoluteLink));
+                    }
+                  });
                   page.document = page.markdown;
                   page.markdown = undefined;
                   page.kind = "document";
@@ -157,7 +192,7 @@ exports.handler = async (event, context, callback) => {
             //   statusCode: 200,
             //   body: JSON.stringify(updatedPages)
             // })
-            if (updatedPages.length == 0) {
+            if (updatedPages.length < 5) {
               reject({
                 statusCode: 304,
                 body: 'No content to update'
