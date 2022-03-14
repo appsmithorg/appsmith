@@ -15,14 +15,12 @@ describe("Image Widget Validation Image Urls", function() {
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
       .should("contain", this.data.defaultimage);
-    cy.wait(1000);
-    /**
-     * @param{URL} ImageUrl
-     */
+
     cy.testCodeMirror(this.data.NewImage);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
-      .should("contain", this.data.NewImage);
+      .should("contain", this.data.NewImage)
+      .should("not.contain", this.data.defaultimage);
     cy.closePropertyPane();
   });
 
@@ -50,8 +48,9 @@ describe("Image Widget Validation Image Urls", function() {
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
       .should("contain", this.data.NewImage);
+    // error container doesn't exist
+    cy.get(
+      `${viewWidgetsPage.imageWidget} div[data-testid=error-container]`,
+    ).should("not.exist");
   });
-});
-afterEach(() => {
-  // put your clean up code if any
 });
