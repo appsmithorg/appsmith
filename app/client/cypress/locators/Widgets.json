@@ -172,5 +172,6 @@
     "cellBackground": ".t--property-control-cellbackgroundcolor",
     "cellBackgroundToggle": ".t--property-control-cellbackgroundcolor .t--js-toggle",
     "borderColorPickerNew": ".t--property-control-bordercolor input",
-    "selectedTextSize": ".t--property-control-textsize .bp3-popover-target .sub-text"
+    "selectedTextSize": ".t--property-control-textsize .bp3-popover-target .sub-text",
+    "modalCloseButton": ".t--draggable-iconbuttonwidget .bp3-button"
 }
