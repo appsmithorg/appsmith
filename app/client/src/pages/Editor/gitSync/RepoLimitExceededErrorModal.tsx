@@ -86,6 +86,7 @@ const AppListContainer = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
+  padding-right: 5px;
 
   &::-webkit-scrollbar-thumb {
     background-color: rgba(75, 72, 72, 0.5);
