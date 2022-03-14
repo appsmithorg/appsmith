@@ -3,7 +3,9 @@ package com.appsmith.server.helpers;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.Normalizer;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -41,5 +43,24 @@ public class TextUtils {
         // convert to lower case, remove multiple consecutive `-` with single `-`
         // if we've only `-` left and nothing else, replace it with empty string
         return slug.toLowerCase(Locale.ENGLISH).replaceAll("-{2,}","-").replaceAll("^-|-$","");
+    }
+
+    /**
+     * Splits a csv string and returns the parts as a set.
+     * If comma has one or more spaces before and after, it'll ignore the spaces.
+     * @param inputStringCsv csv string
+     * @return Set of string containing the parts of the csv
+     */
+    public static Set<String> csvToSet(String inputStringCsv) {
+        Set<String> stringSet = new HashSet<>();
+        if(inputStringCsv != null) {
+            String[] strings = inputStringCsv.split("(\\s*,\\s*)+");
+            for(String str : strings) {
+                if(str.length() > 0) {
+                    stringSet.add(str.trim());
+                }
+            }
+        }
+        return stringSet;
     }
 }

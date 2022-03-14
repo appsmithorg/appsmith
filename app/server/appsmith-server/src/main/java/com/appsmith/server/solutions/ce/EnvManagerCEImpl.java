@@ -13,6 +13,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.SessionUserService;
@@ -20,7 +22,6 @@ import com.appsmith.server.services.UserService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +31,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,7 +44,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -157,8 +157,31 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return outLines;
     }
 
+    private Mono<Void> validateChanges(User user, Map<String, String> changes) {
+        if(changes.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
+            String emailCsv = StringUtils.trimAllWhitespace(changes.get(APPSMITH_ADMIN_EMAILS.name()));
+
+            // validate input is in the format email,email,email and is not empty
+            if(!ValidationUtils.validateEmailCsv(emailCsv)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Admin Email"));
+            } else { // make sure user is not removing own email
+                Set<String> adminEmails = TextUtils.csvToSet(emailCsv);
+                if(!adminEmails.contains(user.getEmail())) { // user can not remove own email address
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.INVALID_PARAMETER, "Removing own email from Admin Email is not allowed"
+                    ));
+                } else {
+                    // set the clean value to changes
+                    changes.put(APPSMITH_ADMIN_EMAILS.name(), String.join(",", adminEmails));
+                }
+            }
+        }
+        return Mono.empty();
+    }
+
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
         return verifyCurrentUserIsSuper()
+                .flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
                     // Write the changes to the env file.
                     final String originalContent;
@@ -183,6 +206,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     return Mono.just(originalVariables);
                 })
                 .flatMap(originalValues -> {
+                    Mono<Void> dependentTasks = Mono.empty();
+
                     // Try and update any at runtime, that can be.
                     final Map<String, String> changesCopy = new HashMap<>(changes);
 
@@ -201,7 +226,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     if (changesCopy.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
                         String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
-                        updateAdminUserPolicies(oldAdminEmailsCsv);
+                        dependentTasks = dependentTasks.then(updateAdminUserPolicies(oldAdminEmailsCsv));
                     }
 
                     if (changesCopy.containsKey(APPSMITH_MAIL_FROM.name())) {
@@ -251,9 +276,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     // Ideally, we should only need a restart here if `changesCopy` is not empty. However, some of these
                     // env variables are also used in client code, which means restart might be necessary there. So, to
                     // provide a more uniform and predictable experience, we always restart.
-
                     Mono.delay(Duration.ofSeconds(1))
-                            .flatMap(ignored -> restart())
+                            .then(dependentTasks)
+                            .then(restart())
                             .subscribeOn(Schedulers.boundedElastic())
                             .subscribe();
 
@@ -267,34 +292,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * If a new email is added as admin email, it'll add the policy to that user
      * @param oldAdminEmailsCsv comma separated email addresses that was set as admin email earlier
      */
-    private void updateAdminUserPolicies(String oldAdminEmailsCsv) {
-        Set<String> oldAdminEmails = null;
-        if (!StringUtils.isEmpty(oldAdminEmailsCsv)) {
-            oldAdminEmails = Set.of(oldAdminEmailsCsv.trim().split("\\s*,\\s*"));
-        }
-
+    private Mono<Void> updateAdminUserPolicies(String oldAdminEmailsCsv) {
+        Set<String> oldAdminEmails = TextUtils.csvToSet(oldAdminEmailsCsv);
         Set<String> newAdminEmails = commonConfig.getAdminEmails();
 
-        List<String> removedUsers = new ArrayList<>();
-        List<String> newUsers = new ArrayList<>();
-
-        if (!CollectionUtils.isEmpty(oldAdminEmails)) {
-            // need to remove permission from previous emails that is not present in new values
-            for (String email : oldAdminEmails) {
-                if (!newAdminEmails.contains(email)) {  // need to remove this user
-                    removedUsers.add(email);
-                }
-            }
-        }
-
-        if (!CollectionUtils.isEmpty(newAdminEmails)) {
-            for (String email : newAdminEmails) {
-                if (oldAdminEmails != null && !oldAdminEmails.contains(email)) {
-                    // need to add permission for this user
-                    newUsers.add(email);
-                }
-            }
-        }
+        // we need to find out the removed emails and new emails
+        Set<String> removedUsers = new HashSet<>(oldAdminEmails);
+        removedUsers.removeAll(newAdminEmails);
+        Set<String> newUsers = new HashSet<>(newAdminEmails);
+        newUsers.removeAll(oldAdminEmails);
 
         Flux<User> removedUserFlux = Flux.fromIterable(removedUsers).flatMap(userService::findByEmail)
                 .flatMap(user -> {
@@ -318,12 +324,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
          * we need to run these two flux immediately because server will be restarted and these changes
          * should be persisted to DB before that
          */
-        removedUserFlux
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
-        newUsersFlux
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
+        return Mono.whenDelayError(
+                removedUserFlux.then(),
+                newUsersFlux.then()
+        );
     }
 
     public Map<String, String> parseToMap(String content) {
@@ -407,7 +411,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     props.put("mail.transport.protocol", "smtp");
                     props.put("mail.smtp.starttls.enable", "true");
 
-                    if(!StringUtils.isEmpty(requestDTO.getUsername())) {
+                    if(StringUtils.hasLength(requestDTO.getUsername())) {
                         props.put("mail.smtp.auth", "true");
                         mailSender.setUsername(requestDTO.getUsername());
                         mailSender.setPassword(requestDTO.getPassword());
