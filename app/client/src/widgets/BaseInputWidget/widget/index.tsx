@@ -344,9 +344,9 @@ class BaseInputWidget<
        * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
        * before we actually execute the action.
        * Since updateMetaProperty expects a meta property to be updated,
-       * we are redundantly updating the text here. But the main part is the action execution payload.
+       * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
        */
-      this.props.updateWidgetMetaProperty("text", this.props.text, {
+      this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
         triggerPropertyName: "onSubmit",
         dynamicString: onSubmit,
         event: {
