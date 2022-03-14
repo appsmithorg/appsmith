@@ -5,6 +5,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
+import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
@@ -810,7 +811,7 @@ public class ImportExportApplicationServiceTests {
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {
                     assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
-                    assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
+                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                 });
 
                 List<String> collectionIdInAction = new ArrayList<>();
@@ -986,7 +987,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
-                        assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
+                        assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     });
 
                     assertThat(actionDTOS).isNotEmpty();

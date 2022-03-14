@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.InvisibleActionFields;
+import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,6 +47,8 @@ public class ApplicationJson {
     List<NewAction> actionList;
 
     List<ActionCollection> actionCollectionList;
+
+    Map<String, DecryptedSensitiveFields> decryptedFields;
 
     Map<String, InvisibleActionFields> invisibleActionFields;
 
