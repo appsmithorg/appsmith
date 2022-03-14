@@ -5,7 +5,9 @@ import { TemplateLayout } from "./index";
 
 const LargeTemplate = styled(TemplateLayout)`
   border: 1px solid ${Colors.GEYSER_LIGHT};
+  display: flex;
   flex: 1;
+  flex-direction: column;
   max-width: 50%;
   cursor: pointer;
   &:hover {
@@ -23,6 +25,7 @@ const LargeTemplate = styled(TemplateLayout)`
     }
     .description {
       ${(props) => getTypographyByKey(props, "p1")}
+      flex: 1;
     }
   }
 
@@ -31,7 +34,7 @@ const LargeTemplate = styled(TemplateLayout)`
       `${props.theme.spaces[9]}px ${props.theme.spaces[11]}px ${props.theme.spaces[0]}px`};
     transition: all 1s ease-out;
     width: 100%;
-    min-height: 250px;
+    height: 270px;
   }
 
   .fork-button {
@@ -39,8 +42,8 @@ const LargeTemplate = styled(TemplateLayout)`
     width: 38px;
 
     svg {
-      height: 17px;
-      width: 17px;
+      height: 18px;
+      width: 18px;
     }
   }
 `;

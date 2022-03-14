@@ -15,6 +15,7 @@ export type EventLocation =
   | "OMNIBAR";
 
 export type EventName =
+  | "SWITCH_DATASOURCE"
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
   | "PAGE_VIEW"

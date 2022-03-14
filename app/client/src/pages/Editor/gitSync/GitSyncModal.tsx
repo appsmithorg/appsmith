@@ -49,10 +49,10 @@ const MenuContainer = styled.div`
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: ${(props) => props.theme.spaces[1]}px;
+  right: 0;
+  top: 0;
   padding: ${(props) => props.theme.spaces[1]}px;
   border-radius: ${(props) => props.theme.radii[1]}px;
-  top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const ComponentsByTab = {
@@ -80,7 +80,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   const setActiveTabIndex = useCallback(
     (index: number) =>
-      dispatch(setIsGitSyncModalOpen({ isOpen: !!isModalOpen, tab: index })),
+      dispatch(setIsGitSyncModalOpen({ isOpen: isModalOpen, tab: index })),
     [dispatch, setIsGitSyncModalOpen, isModalOpen],
   );
 

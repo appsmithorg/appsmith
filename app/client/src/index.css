@@ -12,13 +12,13 @@ body {
   background-color: #FFF !important;
 }
 
-body.dragging *{
+body.dragging * {
   cursor: grabbing !important;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  monospace;
 }
 
 * {
@@ -39,10 +39,10 @@ span.bp3-popover-target > * {
 }
 
 div.bp3-popover-arrow {
-  display:none;
+  display: none;
 }
 
-.bp3-button.bp3-loading{
+.bp3-button.bp3-loading {
   cursor: default !important;
 }
 
@@ -55,6 +55,7 @@ div.bp3-popover-arrow {
   border-radius: 4px !important;
   box-shadow: none !important;
 }
+
 .Toastify__toast-body {
   margin: 0 !important;
 }
@@ -84,7 +85,7 @@ div.bp3-popover-arrow {
   margin-top: 8px !important;
 }
 
-.layout-control.bp3-popover.bp3-minimal{
+.layout-control.bp3-popover.bp3-minimal {
   margin-top: 8px !important;
 }
 
@@ -102,7 +103,7 @@ div.bp3-popover-arrow {
   border-color: #E7E7E7 !important;
 }
 
-.tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type), .tox .tox-statusbar  {
+.tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type), .tox .tox-statusbar {
   border-color: #E7E7E7 !important;
 }
 
@@ -110,6 +111,7 @@ div.bp3-popover-arrow {
   background: white !important;
   border-bottom: 1px solid #E7E7E7 !important;
 }
+
 /* making both the Modal layer and the Dropdown layer */
 .bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
   z-index: 2 !important;
@@ -118,4 +120,8 @@ div.bp3-popover-arrow {
 /* Portals on the Modal widget */
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
+}
+
+.bp3-overlay-backdrop {
+  background-color: rgba(16, 22, 26, 0.7) !important;
 }

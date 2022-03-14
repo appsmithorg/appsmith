@@ -1,26 +1,30 @@
 import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
   useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
-import { Subtitle, Title, Space } from "../components/StyledComponents";
+import { Space, Subtitle, Title } from "../components/StyledComponents";
 import {
+  CONNECT_BTN_LABEL,
   CONNECT_TO_GIT,
   CONNECT_TO_GIT_SUBTITLE,
+  CONNECTING_REPO,
+  createMessage,
+  GENERATE_KEY,
+  LEARN_MORE,
+  PASTE_SSH_URL_INFO,
   REMOTE_URL,
   REMOTE_URL_INFO,
-  createMessage,
   REMOTE_URL_INPUT_PLACEHOLDER,
-  CONNECTING_REPO,
-  LEARN_MORE,
   IMPORT_FROM_GIT_REPOSITORY,
   IMPORT_BTN_LABEL,
   IMPORTING_APP_FROM_GIT,
+  UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import TextInput from "components/ads/TextInput";
+import TextInput, { emailValidator } from "components/ads/TextInput";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
@@ -44,14 +48,7 @@ import {
   setIsGitSyncModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
-import { emailValidator } from "components/ads/TextInput";
 import { isEqual } from "lodash";
-import {
-  UPDATE_CONFIG,
-  CONNECT_BTN_LABEL,
-  PASTE_SSH_URL_INFO,
-  GENERATE_KEY,
-} from "@appsmith/constants/messages";
 import {
   getGitConnectError,
   getGlobalGitConfig,
@@ -276,7 +273,7 @@ function GitConnection({ isImport }: Props) {
   };
 
   const isUseGlobalProfileFlagUpdated =
-    !!useGlobalConfigInputVal !== !!useGlobalProfile;
+    useGlobalConfigInputVal !== !!useGlobalProfile;
 
   const submitButtonDisabled = useMemo(() => {
     const isAuthInfoUpdated = isAuthorInfoUpdated();
