@@ -84,7 +84,7 @@ const StyledCount = styled.h5`
   color: #716e6e;
 `;
 
-const ModalContent = styled.p`
+const ModalContent = styled.div`
   margin-left: 36px;
 `;
 const ModalContentHeader = styled.h5`
