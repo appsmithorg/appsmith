@@ -142,13 +142,18 @@ function* initiateURLUpdate(
   const { pathname, search } = window.location;
   if (isURLDeprecated(pathname) || !pageIdInUrl) {
     if (appMode === APP_MODE.EDIT) {
-      const childRoutePath = pathname.split("/edit").pop();
       originalUrl =
-        builderURL({ applicationSlug, pageSlug, pageId }) +
-        (childRoutePath ?? "") +
-        search;
+        pathname
+          .replace(
+            `/applications/${currentApplication.id}`,
+            `/${applicationSlug}`,
+          )
+          .replace(
+            `/pages/${currentPage.pageId}`,
+            `/${pageSlug}-${currentPage.pageId}`,
+          ) + search;
     } else {
-      originalUrl = viewerURL({ applicationSlug, pageSlug, pageId }) + search;
+      originalUrl = viewerURL({ applicationSlug, pageSlug, pageId });
     }
   } else {
     // For urls which has pageId in it,
