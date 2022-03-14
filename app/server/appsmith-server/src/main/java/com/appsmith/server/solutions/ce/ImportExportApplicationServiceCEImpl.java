@@ -2,10 +2,14 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.OAuth2;
@@ -69,6 +73,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -644,6 +649,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // This is explicitly copied over from the map we created before
                                 datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                 datasource.setOrganizationId(organizationId);
+
+                                // Check if any decrypted fields are present for datasource
+                                if (importedDoc.getDecryptedFields()!= null
+                                        && importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+
+                                    DecryptedSensitiveFields decryptedFields =
+                                            importedDoc.getDecryptedFields().get(datasource.getName());
+
+                                    updateAuthenticationDTO(datasource, decryptedFields);
+                                }
 
                                 return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId, applicationId);
                             })
@@ -1666,7 +1681,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
                     }
                     // No matching existing datasource found, so create a new one.
-                    datasource.setIsConfigured(false);
+                    if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
+                        datasource.setIsConfigured(true);
+                    } else {
+                        datasource.setIsConfigured(false);
+                    }
                     return datasourceService
                             .findByNameAndOrganizationId(datasource.getName(), organizationId, AclPermission.MANAGE_DATASOURCES)
                             .flatMap(duplicateNameDatasource ->
@@ -1678,6 +1697,43 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .then(datasourceService.create(datasource));
                 }));
+    }
+
+    /**
+     * Here we will be rehydrating the sensitive fields like password, secrets etc. in datasource while importing the application
+     *
+     * @param datasource      for which sensitive fields should be rehydrated
+     * @param decryptedFields sensitive fields
+     * @return updated datasource with rehydrated sensitive fields
+     */
+    private Datasource updateAuthenticationDTO(Datasource datasource, DecryptedSensitiveFields decryptedFields) {
+
+        final DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
+        String authType = decryptedFields.getAuthType();
+        if (dsConfig == null || authType == null) {
+            return datasource;
+        }
+
+        if (StringUtils.equals(authType, DBAuth.class.getName())) {
+            final DBAuth dbAuth = decryptedFields.getDbAuth();
+            dbAuth.setPassword(decryptedFields.getPassword());
+            datasource.getDatasourceConfiguration().setAuthentication(dbAuth);
+        } else if (StringUtils.equals(authType, BasicAuth.class.getName())) {
+            final BasicAuth basicAuth = decryptedFields.getBasicAuth();
+            basicAuth.setPassword(decryptedFields.getPassword());
+            datasource.getDatasourceConfiguration().setAuthentication(basicAuth);
+        } else if (StringUtils.equals(authType, OAuth2.class.getName())) {
+            OAuth2 auth2 = decryptedFields.getOpenAuth2();
+            AuthenticationResponse authResponse = new AuthenticationResponse();
+            auth2.setClientSecret(decryptedFields.getPassword());
+            authResponse.setToken(decryptedFields.getToken());
+            authResponse.setRefreshToken(decryptedFields.getRefreshToken());
+            authResponse.setTokenResponse(decryptedFields.getTokenResponse());
+            authResponse.setExpiresAt(Instant.now());
+            auth2.setAuthenticationResponse(authResponse);
+            datasource.getDatasourceConfiguration().setAuthentication(auth2);
+        }
+        return datasource;
     }
 
     /**
