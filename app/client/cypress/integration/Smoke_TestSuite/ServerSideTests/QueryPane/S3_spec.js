@@ -445,8 +445,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
   });
 
-  //Open bug : 3836, 6492
-  it.skip("7. Bug 9069, 9201, 6975, 9922, 3836, 6492: Upload/Update query is failing in S3 crud pages", function() {
+  it("7. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function() {
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.wait(3000);
     //Verifying List of Files from UI
