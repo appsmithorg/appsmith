@@ -36,7 +36,7 @@ import Button, { Size } from "components/ads/Button";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
-import isHtml from "is-html";
+import { isHtml } from "./utils";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
