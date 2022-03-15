@@ -50,7 +50,7 @@ import JSObjectHotKeys from "./JSObjectHotKeys";
 const FormWrapper = styled.div`
   height: ${({ theme }) =>
     `calc(100vh - ${theme.smallHeaderHeight} - ${theme.backBanner})`};
-
+  overflow: hidden;
   .${JS_OBJECT_HOTKEYS_CLASSNAME} {
     width: 100%;
     height: 100%;

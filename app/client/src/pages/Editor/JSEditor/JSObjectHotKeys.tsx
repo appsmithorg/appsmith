@@ -16,6 +16,7 @@ class JSObjectHotKeys extends React.Component<Props> {
       <Hotkeys>
         <Hotkey
           combo={isMac() ? "cmd + enter" : "ctrl + enter"}
+          global
           label="Run Js Function"
           onKeyDown={this.props.runActiveJSFunction}
         />
