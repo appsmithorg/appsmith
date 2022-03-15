@@ -29,7 +29,7 @@ public class GetStructureMethodTest {
     public void testTransformResponse_missingValues_returnsEmpty() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"valueRanges\":[{},{}]}";
+        final String jsonString = "{\"valueRanges\":[{}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
@@ -73,9 +73,9 @@ public class GetStructureMethodTest {
                 "{\"range\":\"Sheet1!A1:D1\"," +
                 "\"majorDimension\":\"ROWS\"," +
                 "\"values\":[[\"Name\",\"Actor\",\"Music\",\"Director\"]]}," +
-                "{\"range\":\"Sheet1!A2:D6\"," +
+                "{\"range\":\"Sheet1!A2:D2\"," +
                 "\"majorDimension\":\"ROWS\"," +
-                "\"values\":[[],[],[],[\"Some\",\"123\",\"values\",\"to\"],[\"work\",\"with\",\"and\",\"manipulate\"],[\"q\",\"w\",\"e\",\"r\"],[\"a\",\"s\",\"d\",\"f\"],[\"z\",\"x\",\"c\",\"v\"]]}" +
+                "\"values\":[[]]}" +
                 "]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
@@ -86,10 +86,10 @@ public class GetStructureMethodTest {
         JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray() && result.size() == 8);
+        Assert.assertTrue(result.isArray() && result.size() == 1);
 
         Assert.assertTrue("".equalsIgnoreCase(result.get(0).get("Name").asText()));
-        Assert.assertTrue("Some".equalsIgnoreCase(result.get(3).get("Name").asText()));
+        Assert.assertTrue("".equalsIgnoreCase(result.get(0).get("Director").asText()));
     }
 
     @Test
@@ -100,9 +100,9 @@ public class GetStructureMethodTest {
                 "{\"range\":\"Sheet1!A1:D1\"," +
                 "\"majorDimension\":\"ROWS\"," +
                 "\"values\":[[\"Name\",\"Actor\",\"Music\",\"Director\"]]}," +
-                "{\"range\":\"Sheet1!A2:D6\"," +
+                "{\"range\":\"Sheet1!A2:D2\"," +
                 "\"majorDimension\":\"ROWS\"," +
-                "\"values\":[[],[],[]]}" +
+                "\"values\":[[]]}" +
                 "]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
@@ -114,7 +114,7 @@ public class GetStructureMethodTest {
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
-        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(1, result.size());
         Assert.assertEquals(0, result.get(0).get(GoogleSheets.ROW_INDEX).asInt());
     }
 
@@ -126,9 +126,9 @@ public class GetStructureMethodTest {
                 "{\"range\":\"Sheet1!A1:D2\"," +
                 "\"majorDimension\":\"ROWS\"," +
                 "\"values\":[[\"\",\"\",\"\",\"\"],[\"Name\",\"Actor\",\"Music\",\"Director\"]]}," +
-                "{\"range\":\"Sheet1!A3:D7\"," +
+                "{\"range\":\"Sheet1!A3:D3\"," +
                 "\"majorDimension\":\"ROWS\"," +
-                "\"values\":[[\"Bean\",\"Sean\",\"Dean\",\"Mean\"],[\"Cow\",\"Dow\",\"Sow\",\"Bow\"],[\"Luke\",\"Make\",\"Duke\",\"Cake\"]]}" +
+                "\"values\":[[\"Bean\",\"Sean\",\"Dean\",\"Mean\"]]}" +
                 "]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
@@ -140,7 +140,7 @@ public class GetStructureMethodTest {
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
-        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(1, result.size());
     }
 
 
@@ -152,9 +152,9 @@ public class GetStructureMethodTest {
                 "{\"range\":\"Sheet1!A1:D1\"," +
                 "\"majorDimension\":\"ROWS\"," +
                 "\"values\":[[\"Name\",\"Actor\",\"Music\",\"Director\"]]}," +
-                "{\"range\":\"Sheet1!A3:D7\"," +
+                "{\"range\":\"Sheet1!A2:D2\"," +
                 "\"majorDimension\":\"ROWS\"," +
-                "\"values\":[[\"Bean\",\"Sean\",\"Dean\",\"Mean\"],[\"Cow\",\"Dow\",\"Sow\",\"Bow\"],[\"Luke\",\"Make\",\"Duke\",\"Cake\"]]}" +
+                "\"values\":[[\"Luke\",\"Make\",\"Duke\",\"Cake\"]]}" +
                 "]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
@@ -165,7 +165,7 @@ public class GetStructureMethodTest {
         JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
-        Assert.assertEquals(result.toString(), "[{\"Name\":\"Bean\",\"Actor\":\"Sean\",\"Music\":\"Dean\",\"Director\":\"Mean\",\"rowIndex\":\"1\"},{\"Name\":\"Cow\",\"Actor\":\"Dow\",\"Music\":\"Sow\",\"Director\":\"Bow\",\"rowIndex\":\"2\"},{\"Name\":\"Luke\",\"Actor\":\"Make\",\"Music\":\"Duke\",\"Director\":\"Cake\",\"rowIndex\":\"3\"}]");
+        Assert.assertEquals(result.toString(), "[{\"Name\":\"Luke\",\"Actor\":\"Make\",\"Music\":\"Duke\",\"Director\":\"Cake\",\"rowIndex\":\"0\"}]");
 
     }
 
