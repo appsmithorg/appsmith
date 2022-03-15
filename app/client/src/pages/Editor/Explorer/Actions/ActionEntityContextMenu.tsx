@@ -156,7 +156,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         },
         {
           confirmDelete: confirmDelete,
-          className: "t--apiFormDeleteBtn",
+          className: "t--apiFormDeleteBtn single-select",
           value: "delete",
           label: confirmDelete
             ? createMessage(CONFIRM_CONTEXT_DELETE)

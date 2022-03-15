@@ -126,6 +126,7 @@ export function PageContextMenu(props: {
 
   if (!props.isDefaultPage) {
     optionTree.push({
+      className: "t--apiFormDeleteBtn single-select",
       confirmDelete: confirmDelete,
       value: "delete",
       onSelect: () => {
