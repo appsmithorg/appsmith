@@ -33,7 +33,7 @@ const fs = require("fs")
 const indexPath = "/opt/appsmith/index.html.original"
 const content = fs.readFileSync(indexPath, "utf8").replace(
 	/\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
-	(placeholder, name) => (process.env[name] || placeholder)
+	(placeholder, name) => (process.env[name] || "")
 )
 fs.writeFileSync(indexPath, content)
 '
