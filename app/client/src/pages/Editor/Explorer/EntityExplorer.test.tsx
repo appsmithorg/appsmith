@@ -7,6 +7,7 @@ import React from "react";
 import { MockPageDSL } from "test/testCommon";
 import Sidebar from "components/editorComponents/Sidebar";
 import { generateReactKey } from "utils/generators";
+import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 jest.useFakeTimers();
 describe("Entity Explorer tests", () => {
   it("Should render Widgets tree in entity explorer", () => {
@@ -16,7 +17,7 @@ describe("Entity Explorer tests", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Sidebar />
+        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
       </MockPageDSL>,
     );
     const widgetsTree: any = component.queryByText("WIDGETS", {
@@ -37,16 +38,9 @@ describe("Entity Explorer tests", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Sidebar />
+        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("WIDGETS", {
-      selector: "div.t--entity-name",
-    });
-    act(() => {
-      fireEvent.click(widgetsTree);
-      jest.runAllTimers();
-    });
     const tabsWidget: any = component.queryByText(children[0].widgetName);
     act(() => {
       fireEvent.click(tabsWidget);
@@ -68,16 +62,9 @@ describe("Entity Explorer tests", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Sidebar />
+        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("WIDGETS", {
-      selector: "div.t--entity-name",
-    });
-    act(() => {
-      fireEvent.click(widgetsTree);
-      jest.runAllTimers();
-    });
     const checkBox: any = component.queryByText(children[0].widgetName);
     act(() => {
       fireEvent.click(checkBox);
@@ -110,16 +97,9 @@ describe("Entity Explorer tests", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Sidebar />
+        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("WIDGETS", {
-      selector: "div.t--entity-name",
-    });
-    act(() => {
-      fireEvent.click(widgetsTree);
-      jest.runAllTimers();
-    });
     const buttonWidget: any = component.queryByText(children[2].widgetName);
 
     act(() => {
@@ -166,16 +146,9 @@ describe("Entity Explorer tests", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Sidebar />
+        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("WIDGETS", {
-      selector: "div.t--entity-name",
-    });
-    act(() => {
-      fireEvent.click(widgetsTree);
-      jest.runAllTimers();
-    });
     const containerWidget: any = component.queryByText(
       containerChildren[0].widgetName,
     );
