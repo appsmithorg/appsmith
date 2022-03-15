@@ -61,15 +61,22 @@ export const POST_BODY_FORMAT_OPTIONS: Record<
   RAW: "text/plain",
 };
 
+// Set Default content-type header for api as application/json
+
+const DEFAULT_API_HEADERS = [
+  { key: "content-type", value: "application/json" },
+];
+
 export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
   httpMethod: HTTP_METHOD.GET,
-  headers: EMPTY_KEY_VALUE_PAIRS.slice(),
+  headers: DEFAULT_API_HEADERS,
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
   body: "",
+  bodyFormData: [],
   formData: {
-    apiContentType: POST_BODY_FORMAT_OPTIONS.NONE,
+    apiContentType: POST_BODY_FORMAT_OPTIONS.JSON,
   },
   pluginSpecifiedTemplates: [
     {

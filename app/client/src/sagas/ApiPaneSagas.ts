@@ -68,6 +68,7 @@ import {
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getDisplayFormat } from "selectors/apiPaneSelectors";
+import _ from "lodash";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -158,10 +159,7 @@ function* handleUpdateBodyContentType(
   let formData = { ...values.actionConfiguration.formData };
   if (formData === undefined) formData = {};
   formData["apiContentType"] =
-    title === POST_BODY_FORMAT_OPTIONS.RAW ||
-    title === POST_BODY_FORMAT_OPTIONS.NONE
-      ? previousContentType
-      : title;
+    title === POST_BODY_FORMAT_OPTIONS.NONE ? previousContentType : title;
 
   yield put(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.formData", formData),
@@ -199,8 +197,7 @@ function* handleUpdateBodyContentType(
   // this is done to ensure user input isn't cleared off if they switch to raw or none mode.
   // however if the user types in a new value, we use the updated value (formValueChangeSaga - line 426).
   if (
-    (displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE ||
-      displayFormatValue === POST_BODY_FORMAT_OPTIONS.RAW) &&
+    displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE &&
     indexToUpdate !== -1
   ) {
     headers[indexToUpdate] = {
@@ -244,12 +241,37 @@ function* initializeExtraFormDataSaga() {
   // when initializing, check if theres a display format present, if not use Json display format as default.
   const extraFormData = yield select(getDisplayFormat, values.id);
 
-  // as a fail safe, if no display format is present, use Raw mode
-  const rawApiContentType = extraFormData?.displayFormat?.value
-    ? extraFormData?.displayFormat?.value
-    : POST_BODY_FORMAT_OPTIONS.RAW;
-
   if (!extraFormData) {
+    let rawApiContentType;
+
+    /*
+     * Checking if the content-type header exists, if yes then set the body format type one of the three json, multipart or url encoded whichever matches else set raw as default
+     */
+    const headers: Array<{ key: string; value: string }> = _.get(
+      values,
+      "actionConfiguration.headers",
+    );
+    if (headers?.length) {
+      const contentTypeValue: string =
+        headers.find(
+          (h: { key: string; value: string }) =>
+            h.key === CONTENT_TYPE_HEADER_KEY,
+        )?.value || "";
+      if (
+        [
+          POST_BODY_FORMAT_OPTIONS.JSON,
+          POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+        ].includes(contentTypeValue)
+      ) {
+        rawApiContentType = contentTypeValue;
+      } else {
+        rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
+      }
+    } else {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
+    }
+
     yield call(setHeaderFormat, values.id, rawApiContentType);
   }
 }
