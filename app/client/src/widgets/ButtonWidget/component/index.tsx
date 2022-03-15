@@ -39,11 +39,13 @@ import {
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomHoverColor,
   getCustomTextColor,
   getCustomJustifyContent,
   getAlignText,
 } from "widgets/WidgetUtils";
+import { RenderMode } from "constants/WidgetConstants";
+import { DragContainer } from "./DragContainer";
+import { buttonHoverActiveStyles } from "./utils";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -74,21 +76,24 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-type ButtonContainerProps = {
-  disabled?: boolean;
-};
+/*
+  Don't use buttonHoverActiveStyles in a nested function it won't work - 
 
-const ButtonContainer = styled.div<ButtonContainerProps>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  ${({ disabled }) => disabled && "cursor: not-allowed;"}
+  const buttonHoverActiveStyles = css ``
 
-  & > button {
-    height: 100%;
-  }
-`;
+  const Button = styled.button`
+  // won't work
+    ${({ buttonColor, theme }) => {
+      &:hover, &:active {
+        ${buttonHoverActiveStyles}
+      }
+    }}
+
+  // will work
+  &:hover, &:active {
+    ${buttonHoverActiveStyles}
+  }`
+*/
 
 const StyledButton = styled((props) => (
   <Button
@@ -107,8 +112,11 @@ const StyledButton = styled((props) => (
   outline: none;
   padding: 0px 10px;
 
+  &:hover, &:active {
+    ${buttonHoverActiveStyles}
+   }
+
   ${({ buttonColor, buttonVariant, theme }) => `
-    &:enabled {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
@@ -116,24 +124,12 @@ const StyledButton = styled((props) => (
           ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
-    }
-
-    &:hover:enabled, &:active:enabled {
-      background: ${
-        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.secondary.hoverColor
-          : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.tertiary.hoverColor
-          : theme.colors.button.primary.primary.hoverColor
-      } !important;
-    }
+    
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
+      cursor: not-allowed;
       color: ${theme.colors.button.disabled.textColor} !important;
-      pointer-events: none;
       border-color: ${theme.colors.button.disabled.bgColor} !important;
       > span {
         color: ${theme.colors.button.disabled.textColor} !important;
@@ -197,7 +193,7 @@ const StyledButton = styled((props) => (
       : ""}
 `;
 
-type ButtonStyleProps = {
+export type ButtonStyleProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   boxShadow?: ButtonBoxShadow;
@@ -206,6 +202,7 @@ type ButtonStyleProps = {
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
+  renderMode?: RenderMode;
 };
 
 // To be used in any other part of the app
@@ -224,6 +221,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     loading,
     onClick,
     placement,
+    renderMode,
     rightIcon,
     text,
   } = props;
@@ -231,24 +229,33 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   const isRightAlign = iconAlign === Alignment.RIGHT;
 
   return (
-    <StyledButton
-      alignText={getAlignText(isRightAlign, iconName)}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
+    <DragContainer
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
-      className={className}
-      data-test-variant={buttonVariant}
       disabled={disabled}
-      fill
-      icon={isRightAlign ? icon : iconName || icon}
       loading={loading}
       onClick={onClick}
-      placement={placement}
-      rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
-      text={text}
-    />
+      renderMode={renderMode}
+    >
+      <StyledButton
+        alignText={getAlignText(isRightAlign, iconName)}
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        boxShadowColor={boxShadowColor}
+        buttonColor={buttonColor}
+        buttonVariant={buttonVariant}
+        className={className}
+        data-test-variant={buttonVariant}
+        disabled={disabled}
+        fill
+        icon={isRightAlign ? icon : iconName || icon}
+        loading={loading}
+        onClick={onClick}
+        placement={placement}
+        rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
+        text={text}
+      />
+    </DragContainer>
   );
 }
 
@@ -280,6 +287,7 @@ interface ButtonComponentProps extends ComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
   isLoading: boolean;
+  renderMode: RenderMode;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
   buttonColor?: string;
@@ -431,24 +439,23 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       onClick={props.onClick}
       recaptchaType={props.recaptchaType}
     >
-      <ButtonContainer disabled={props.isDisabled}>
-        <BaseButton
-          borderRadius={props.borderRadius}
-          boxShadow={props.boxShadow}
-          boxShadowColor={props.boxShadowColor}
-          buttonColor={props.buttonColor}
-          buttonVariant={props.buttonVariant}
-          disabled={props.isDisabled}
-          icon={props.icon}
-          iconAlign={props.iconAlign}
-          iconName={props.iconName}
-          loading={props.isLoading}
-          placement={props.placement}
-          rightIcon={props.rightIcon}
-          text={props.text}
-          type={props.type}
-        />
-      </ButtonContainer>
+      <BaseButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
+        buttonColor={props.buttonColor}
+        buttonVariant={props.buttonVariant}
+        disabled={props.isDisabled}
+        icon={props.icon}
+        iconAlign={props.iconAlign}
+        iconName={props.iconName}
+        loading={props.isLoading}
+        placement={props.placement}
+        renderMode={props.renderMode}
+        rightIcon={props.rightIcon}
+        text={props.text}
+        type={props.type}
+      />
     </BtnWrapper>
   );
   if (props.tooltip) {
