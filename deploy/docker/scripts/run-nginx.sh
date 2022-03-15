@@ -24,9 +24,13 @@ fi
 
 bash "$APP_TEMPLATE" "$APPSMITH_CUSTOM_DOMAIN" > /etc/nginx/sites-available/default
 
+if [[ ! -f /opt/appsmith/editor/.index.html.original ]]; then
+  cp -v /opt/appsmith/editor/index.html /opt/appsmith/index.html.original
+fi
+
 node -e '
 const fs = require("fs")
-const indexPath = "/opt/appsmith/editor/index.html"
+const indexPath = "/opt/appsmith/index.html.original"
 const content = fs.readFileSync(indexPath, "utf8").replace(
 	/\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
 	(placeholder, name) => (process.env[name] || placeholder)
