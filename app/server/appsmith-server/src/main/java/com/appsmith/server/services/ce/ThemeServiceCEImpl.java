@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -44,7 +45,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> create(Theme resource) {
-        return repository.save(resource);
+        return repository.save(resource)
+                .flatMap(analyticsService::sendCreateEvent);
     }
 
     @Override
@@ -142,7 +144,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                             applicationId, savedTheme.getId(),null, MANAGE_APPLICATIONS
                                     ).thenReturn(savedTheme);
                                 }
-                            });
+                            }).flatMap(savedTheme ->
+                                    analyticsService.sendObjectEvent(AnalyticsEvents.APPLY, savedTheme)
+                            );
                         })
                 );
     }
@@ -222,7 +226,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     private Mono<Theme> saveThemeForApplication(String currentThemeId, Theme targetThemeResource, Application application, ApplicationMode applicationMode) {
         return repository.findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
-                    // set the edit mode values to published mode theme
+                    // update the attributes of entity as per the request DTO
                     currentTheme.setConfig(targetThemeResource.getConfig());
                     currentTheme.setStylesheet(targetThemeResource.getStylesheet());
                     currentTheme.setProperties(targetThemeResource.getProperties());
@@ -246,7 +250,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         if(applicationMode == ApplicationMode.EDIT) {
                             return applicationRepository.setAppTheme(
                                     application.getId(), theme.getId(), null, MANAGE_APPLICATIONS
-                            ).thenReturn(theme);
+                            ).then(analyticsService.sendUpdateEvent(theme)).thenReturn(theme);
                         } else {
                             return applicationRepository.setAppTheme(
                                     application.getId(), null, theme.getId(), MANAGE_APPLICATIONS
@@ -290,7 +294,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         theme.setName(theme.getName() + " copy");
                     }
                     return repository.save(theme);
-                });
+                }).flatMap(theme -> analyticsService.sendObjectEvent(AnalyticsEvents.FORK, theme));
     }
 
     /**
@@ -325,7 +329,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
-                });
+                }).flatMap(analyticsService::sendDeleteEvent);
     }
 
     @Override
