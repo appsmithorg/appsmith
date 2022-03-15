@@ -1708,6 +1708,19 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void checkoutBranch_branchNotProvided_throwInvalidParameterError() {
+
+        Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.BRANCH_NAME)))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void commitApplication_noChangesInLocal_emptyCommitMessage() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
