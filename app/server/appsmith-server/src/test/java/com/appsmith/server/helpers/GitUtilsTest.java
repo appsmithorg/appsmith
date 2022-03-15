@@ -16,46 +16,50 @@ public class GitUtilsTest {
 
     @Test
     public void convertSshUrlToBrowserSupportedUrl() {
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.test.net:user/test/tests/testRepo.git"))
-                .isEqualTo("https://github.test.net/user/test/tests/testRepo.git");
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.com:test/testRepo.git"))
-                .isEqualTo("https://github.com/test/testRepo.git");
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@gitlab.org:test/testRepo.git"))
-                .isEqualTo("https://gitlab.org/test/testRepo.git");
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@bitbucket.in:test/testRepo.git"))
-                .isEqualTo("https://bitbucket.in/test/testRepo.git");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.test.net:user/test/tests/testRepo.git"))
+                .isEqualTo("https://example.test.net/user/test/tests/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.com:test/testRepo.git"))
+                .isEqualTo("https://example.com/test/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.org:test/testRepo.git"))
+                .isEqualTo("https://example.org/test/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.in:test/testRepo.git"))
+                .isEqualTo("https://example.in/test/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@example.test.net:user/test/tests/testRepo.git"))
+                .isEqualTo("https://example.test.net/user/test/tests/testRepo");
     }
     @Test
     public void isRepoPrivate() throws IOException {
-        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.com:test/testRepo.git")))
+        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.com:test/testRepo.git")))
                 .isEqualTo(Boolean.TRUE);
-        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@gitlab.com:test/testRepo.git")))
+        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.com:test/testRepo.git")))
                 .isEqualTo(Boolean.TRUE);
-        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@bitbucket.org:test/testRepo.git")))
+        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.org:test/testRepo.git")))
                 .isEqualTo(Boolean.TRUE);
+        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@appsmith.com.git")))
+                .isEqualTo(Boolean.FALSE);
     }
 
     @Test
     public void getRepoName() {
-        assertThat(GitUtils.getRepoName("git@github.test.net:user/test/tests/testRepo.git"))
+        assertThat(GitUtils.getRepoName("git@example.test.net:user/test/tests/testRepo.git"))
                 .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@github.com:test/testRepo.git"))
+        assertThat(GitUtils.getRepoName("git@example.com:test/testRepo.git"))
                 .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@gitlab.org:test/testRepo.git"))
+        assertThat(GitUtils.getRepoName("git@example.org:test/testRepo.git"))
                 .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@bitbucket.in:test/testRepo.git"))
+        assertThat(GitUtils.getRepoName("git@example.in:test/testRepo.git"))
                 .isEqualTo("testRepo");
     }
 
     @Test
     public void getGitProviderName() {
-        assertThat(GitUtils.getGitProviderName("git@github.test.net:user/test/tests/testRepo.git"))
-                .isEqualTo("github");
-        assertThat(GitUtils.getGitProviderName("git@github.com:test/testRepo.git"))
-                .isEqualTo("github");
-        assertThat(GitUtils.getGitProviderName("git@gitlab.org:test/testRepo.git"))
-                .isEqualTo("gitlab");
-        assertThat(GitUtils.getGitProviderName("git@bitbucket.in:test/testRepo.git"))
-                .isEqualTo("bitbucket");
+        assertThat(GitUtils.getGitProviderName("git@example.test.net:user/test/tests/testRepo.git"))
+                .isEqualTo("example");
+        assertThat(GitUtils.getGitProviderName("git@example.com:test/testRepo.git"))
+                .isEqualTo("example");
+        assertThat(GitUtils.getGitProviderName("git@example.org:test/testRepo.git"))
+                .isEqualTo("example");
+        assertThat(GitUtils.getGitProviderName("git@example.in:test/testRepo.git"))
+                .isEqualTo("example");
     }
 }
