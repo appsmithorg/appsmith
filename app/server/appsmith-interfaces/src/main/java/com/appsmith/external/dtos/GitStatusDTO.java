@@ -46,6 +46,6 @@ public class GitStatusDTO {
         // Remote tracking branch name
         String remoteBranch;
 
-        // Remote tracking branch name
+        // Documentation url for discard and pull functionality
         String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
 }
