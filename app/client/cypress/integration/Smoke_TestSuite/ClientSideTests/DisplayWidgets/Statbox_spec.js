@@ -8,7 +8,7 @@ describe("Statbox Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Open Existing Statbox from created Widgets list", () => {
+  it("1. Open Existing Statbox from created Widgets list", () => {
     cy.get(".widgets")
       .first()
       .click();
@@ -17,7 +17,8 @@ describe("Statbox Widget Functionality", function() {
       .last()
       .click({ force: true });
   });
-  it("Open Existing Statbox, change background color and verify", () => {
+
+  it("2. Open Existing Statbox, change background color and verify", () => {
     cy.openPropertyPane("statboxwidget");
     // changing the background color of statbox and verying it
     cy.get(".t--property-pane-section-general").then(() => {
@@ -28,7 +29,7 @@ describe("Statbox Widget Functionality", function() {
     });
   });
 
-  it("Verify Statbox icon button's onClick action and change the icon", () => {
+  it("3. Verify Statbox icon button's onClick action and change the icon", () => {
     cy.openPropertyPane("iconbuttonwidget");
     cy.get(".t--property-pane-section-general").then(() => {
       // changing the icon to arrow-up
@@ -42,11 +43,15 @@ describe("Statbox Widget Functionality", function() {
     // verifying the changed icon
     cy.get(".bp3-icon-arrow-up").should("be.visible");
     // verifying modal has been added
-    cy.get(".t--draggable-iconbuttonwidget").click();
-    cy.xpath("//span[text()='Close']").click();
+    cy.get(".t--draggable-iconbuttonwidget")
+      .last()
+      .click();
+    cy.get("span:contains('Close')")
+      .closest("div")
+      .click();
   });
 
-  it("Bind datasource to multiple components in statbox", () => {
+  it("4. Bind datasource to multiple components in statbox", () => {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("MockApi");
     cy.enterDatasourceAndPath(data.paginationUrl, "users?page=4&size=3");
@@ -65,7 +70,7 @@ describe("Statbox Widget Functionality", function() {
       });
   });
 
-  it("Verify Statbox can be placed inside another widget", () => {
+  it("5. Verify Statbox can be placed inside another widget", () => {
     cy.get(explorer.addWidget).click();
     // placing statbox widget inside container widget
     cy.dragAndDropToCanvas("containerwidget", { x: 500, y: 300 });

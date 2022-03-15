@@ -382,7 +382,8 @@ class MultiSelectTreeWidget extends BaseWidget<
     const filteredValue = this.filterValues(values);
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
       <MultiTreeSelectComponent
         allowClear={this.props.allowClear}
@@ -399,7 +400,8 @@ class MultiSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
-        isValid={this.props.isValid}
+        isFilterable
+        isValid={!isInvalid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -410,6 +412,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         value={filteredValue}
+        widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );
@@ -427,6 +430,9 @@ class MultiSelectTreeWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   flat(array: DropdownOption[]) {
@@ -441,9 +447,7 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   filterValues(values: string[] | undefined) {
-    const options = this.props.options
-      ? this.flat(this.props.options as DropdownOption[])
-      : [];
+    const options = this.props.options ? this.flat(this.props.options) : [];
     if (isArray(values)) {
       return values.filter((o) => {
         const index = findIndex(options, { value: o });

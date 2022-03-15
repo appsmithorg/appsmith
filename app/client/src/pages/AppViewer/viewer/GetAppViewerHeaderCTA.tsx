@@ -27,9 +27,6 @@ const Cta = styled(Button)`
 `;
 
 const ForkButton = styled(Cta)`
-  svg {
-    transform: rotate(-90deg);
-  }
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
 `;
 
@@ -66,7 +63,7 @@ function GetAppViewerHeaderCTA(props: any) {
         <ForkButton
           className="t--fork-app"
           href={forkUrl}
-          icon="fork"
+          icon="compasses-line"
           text={createMessage(FORK_APP)}
         />
       );
@@ -78,7 +75,7 @@ function GetAppViewerHeaderCTA(props: any) {
             trigger={
               <TriggerButton
                 className="t--fork-app"
-                icon="fork"
+                icon="compasses-line"
                 onClick={() => dispatch(getAllApplications())}
                 size={Size.small}
                 text={createMessage(FORK_APP)}

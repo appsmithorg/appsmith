@@ -16,7 +16,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import _, { isNil } from "lodash";
+import { isNil, omit, merge } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
@@ -327,13 +327,24 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return _.merge(super.getDerivedPropertiesMap(), {
+    return merge(super.getDerivedPropertiesMap(), {
       isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
+      text: `{{(() => {${derivedProperties.getText}})()}}`,
     });
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return super.getMetaPropertiesMap();
+    const baseMetaProperties = omit(super.getMetaPropertiesMap(), "text");
+
+    return merge(baseMetaProperties, {
+      inputText: undefined,
+    });
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      inputText: "defaultText",
+    };
   }
 
   componentDidUpdate(prevPorps: InputWidgetProps) {
@@ -359,35 +370,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   onValueChange = (value: string) => {
-    let parsedValue;
-    switch (this.props.inputType) {
-      case "NUMBER":
-        try {
-          if (value === "") {
-            parsedValue = null;
-          } else if (value === "-") {
-            parsedValue = "-";
-          } else if (/\.$/.test(value)) {
-            parsedValue = value;
-          } else {
-            parsedValue = Number(value);
-
-            if (isNaN(parsedValue)) {
-              parsedValue = null;
-            }
-          }
-          break;
-        } catch (e) {
-          parsedValue = value;
-        }
-        break;
-      case "TEXT":
-      case "EMAIL":
-      case "PASSWORD":
-        parsedValue = value;
-        break;
-    }
-    this.props.updateWidgetMetaProperty("text", parsedValue, {
+    this.props.updateWidgetMetaProperty("inputText", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -399,8 +382,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     }
   };
 
+  resetWidgetText = () => {
+    this.props.updateWidgetMetaProperty("inputText", "");
+  };
+
   getPageView() {
-    const value = this.props.text ?? "";
+    const value = this.props.inputText ?? "";
     let isInvalid = false;
     if (this.props.isDirty) {
       isInvalid = "isValid" in this.props && !this.props.isValid;
@@ -496,6 +483,7 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   isSpellCheck?: boolean;
   maxNum?: number;
   minNum?: number;
+  inputText: string;
 }
 
 export default InputWidget;

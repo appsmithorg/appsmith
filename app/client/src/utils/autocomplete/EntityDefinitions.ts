@@ -477,7 +477,7 @@ export const entityDefinitions: Record<string, unknown> = {
       "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
     "!url": "https://docs.appsmith.com/widget-reference/recorder",
     isVisible: isVisible,
-    blobUrl: "string",
+    blobURL: "string",
     dataURL: "string",
     rawBinary: "string",
   },
