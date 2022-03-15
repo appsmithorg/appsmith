@@ -53,6 +53,9 @@ import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
 import LabelPositionOptionsControl from "./LabelPositionOptionsControl";
 import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
+import NumericInputControl, {
+  NumericInputControlProps,
+} from "./NumericInputControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -83,6 +86,7 @@ export const PropertyControls = {
   ButtonBorderRadiusOptionsControl,
   LabelPositionOptionsControl,
   LabelAlignmentOptionsControl,
+  NumericInputControl,
 };
 
 export type PropertyControlPropsType =
@@ -98,7 +102,8 @@ export type PropertyControlPropsType =
   | StepControlProps
   | ColorPickerControlProps
   | ComputeTablePropertyControlProps
-  | PrimaryColumnDropdownControlProps;
+  | PrimaryColumnDropdownControlProps
+  | NumericInputControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

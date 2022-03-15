@@ -244,9 +244,11 @@ class SingleSelectTreeWidget extends BaseWidget<
               "Sets the label width of the widget as the number of columns",
             propertyName: "labelWidth",
             label: "Width",
-            controlType: "INPUT_TEXT",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            min: 0,
             validation: {
               type: ValidationTypes.NUMBER,
               params: {
