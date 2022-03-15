@@ -344,15 +344,6 @@ export function* updateApplicationSaga(
       }
       if (request.applicationVersion) {
         if (request.applicationVersion === ApplicationVersion.SLUG_URL) {
-          const pageSlug: string = yield select(selectCurrentPageSlug);
-          const pageId: string = yield select(getCurrentPageId);
-          const newURL = builderURL({
-            applicationVersion: response.data.applicationVersion,
-            applicationSlug: response.data.slug,
-            pageSlug,
-            pageId,
-          });
-          history.replace(newURL);
           request.callback?.();
         }
       }

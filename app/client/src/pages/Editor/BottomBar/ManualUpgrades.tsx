@@ -203,10 +203,7 @@ function UpdatesModal({
                   {
                     applicationVersion: latestVersion,
                   },
-                  () => {
-                    setIsLoading(false);
-                    closeModal();
-                  },
+                  window.location.reload.bind(window.location),
                 ),
               );
             }}
