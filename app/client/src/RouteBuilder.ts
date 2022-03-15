@@ -80,7 +80,6 @@ function baseURLBuilder(
   mode: APP_MODE = APP_MODE.EDIT,
 ): string {
   const { hash = "", params = {}, suffix } = { ...rest };
-
   applicationVersion =
     applicationVersion ?? BASE_URL_BUILDER_PARAMS.applicationVersion;
   const shouldUseLegacyURLs =

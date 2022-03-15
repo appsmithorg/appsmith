@@ -59,12 +59,12 @@ describe("URL slug names", () => {
     const url2 = builderURL(params);
     store.dispatch({
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-      payload: { applicationVersion: 1 },
+      payload: { applicationVersion: ApplicationVersion.DEFAULT },
     });
     const url3 = builderURL(params);
     store.dispatch({
       type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-      payload: { applicationVersion: 2 },
+      payload: { applicationVersion: ApplicationVersion.SLUG_URL },
     });
     const url4 = builderURL(params);
     expect(url1).toBe("/applications/appId/pages/pageId/edit");
