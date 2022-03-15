@@ -15,7 +15,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
-      .click();
+      .click({ force: true });
     cy.SearchEntityandOpen("Text1");
     cy.get(".t--draggable-textwidget .bp3-ui-text").should("be.visible");
     cy.get(".t--draggable-textwidget .bp3-ui-text").should("have.value", "");
@@ -30,7 +30,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
-      .click();
+      .click({ force: true });
     cy.SearchEntityandOpen("Text1");
     cy.get(".t--draggable-textwidget .bp3-ui-text").should("be.visible");
     cy.get(".t--draggable-textwidget .bp3-ui-text").should("have.value", "");
