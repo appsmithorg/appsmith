@@ -4035,3 +4035,37 @@ Cypress.Commands.add("DeleteEntityStateLocalStorage", () => {
     }
   });
 });
+
+Cypress.Commands.add(
+  "checkLabelWidth",
+  (parentColumnSpace, labelWidth, $labelSelector) => {
+    // Set the label width to labelWidth cols
+    cy.get(`.t--property-control-width .bp3-input`)
+      .first()
+      .focus()
+      .type(`${labelWidth}`);
+    cy.wait(300);
+    // Assert the label width
+    cy.get($labelSelector)
+      .first()
+      .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
+    // Increase the label width
+    cy.get(`.t--property-control-width .bp3-button-group > .bp3-button`)
+      .first()
+      .click();
+    // Assert the increased label width
+    cy.wait(300);
+    cy.get($labelSelector)
+      .first()
+      .should("have.css", "width", `${parentColumnSpace * (labelWidth + 1)}px`);
+    // Decrease the label width
+    cy.get(`.t--property-control-width .bp3-button-group > .bp3-button`)
+      .last()
+      .click();
+    cy.wait(300);
+    // Assert the decreased label width
+    cy.get($labelSelector)
+      .first()
+      .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
+  },
+);

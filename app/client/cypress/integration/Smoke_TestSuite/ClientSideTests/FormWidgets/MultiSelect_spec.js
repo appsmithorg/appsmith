@@ -97,12 +97,10 @@ describe("MultiSelect Widget Functionality", function() {
       const labelText = "Label";
       const parentColumnSpace = 10.87890625;
       const widgetSelector = `.t--widget-${widgetName}`;
-      const labelSelector = `${widgetSelector} label.tree-multiselect-label`;
+      const labelSelector = `${widgetSelector} label.multiselect-label`;
       const containerSelector = `${widgetSelector} [data-testid="multiselect-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
-      const labelWidthSelector =
-        ".t--property-control-width .CodeMirror textarea";
 
       cy.openPropertyPane(widgetName);
 
@@ -138,16 +136,8 @@ describe("MultiSelect Widget Functionality", function() {
       cy.get(labelSelector)
         .first()
         .should("have.css", "text-align", "right");
-      // Set label width to 4 cols
-      cy.get(labelWidthSelector)
-        .first()
-        .focus()
-        .type("4");
-      cy.wait(300);
       // Assert label width
-      cy.get(labelSelector)
-        .first()
-        .should("have.css", "width", `${parentColumnSpace * 4}px`);
+      cy.checkLabelWidth(parentColumnSpace, 4, labelSelector);
     });
   });
 });

@@ -335,7 +335,7 @@ export const MultiSelectContainer = styled.div<{
   }};
   overflow-x: hidden;
 
-  label.tree-multiselect-label {
+  label.multiselect-label {
     ${({ compactMode, labelPosition }) => {
       if (labelPosition === LabelPosition.Top)
         return "margin-bottom: 5px; margin-right: 0px";

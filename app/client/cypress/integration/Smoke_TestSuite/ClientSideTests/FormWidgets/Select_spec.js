@@ -15,8 +15,6 @@ describe("Select Widget", () => {
       const containerSelector = `${widgetSelector} [data-testid="select-container"]`;
       const labelPositionSelector = ".t--property-control-position button";
       const labelAlignmentSelector = ".t--property-control-alignment button";
-      const labelWidthSelector =
-        ".t--property-control-width .CodeMirror textarea";
 
       cy.openPropertyPane(widgetName);
 
@@ -52,16 +50,8 @@ describe("Select Widget", () => {
       cy.get(labelSelector)
         .first()
         .should("have.css", "text-align", "right");
-      // Set label width to 4 cols
-      cy.get(labelWidthSelector)
-        .first()
-        .focus()
-        .type("4");
-      cy.wait(300);
       // Assert label width
-      cy.get(labelSelector)
-        .first()
-        .should("have.css", "width", `${parentColumnSpace * 4}px`);
+      cy.checkLabelWidth(parentColumnSpace, 4, labelSelector);
     });
   });
 });
