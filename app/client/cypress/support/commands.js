@@ -2924,8 +2924,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
   cy.route("GET", "/api/v1/datasources?organizationId=*").as("getDataSources");
-  cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
-  cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
+  cy.route("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
+  cy.route("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
 
   cy.route("POST");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
