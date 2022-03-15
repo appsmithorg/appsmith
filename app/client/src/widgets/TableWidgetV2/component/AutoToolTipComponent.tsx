@@ -4,7 +4,6 @@ import { CellWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
-import { ColumnWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -15,6 +14,12 @@ export const OpenNewTabIconWrapper = styled.div`
   left: 4px;
   top: 2px;
   position: relative;
+`;
+
+export const ColumnWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;
 
 interface Props {
@@ -116,7 +121,7 @@ function AutoToolTipComponent(props: Props) {
           props.children
         )}
       </CellWrapper>
-      {useToolTip && props.children && <>&nbsp;...</>}
+      {useToolTip && props.children && <>&nbsp;...&nbsp;&nbsp;&nbsp;</>}
     </ColumnWrapper>
   );
 }

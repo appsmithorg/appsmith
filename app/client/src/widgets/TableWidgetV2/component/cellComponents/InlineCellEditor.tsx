@@ -8,6 +8,8 @@ const Wrapper = styled.div`
   padding: 1px;
   border: 1px solid ${Colors.GREEN_1};
   box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+  height: 100%;
+  background: #fff;
 
   &&&&& {
     .bp3-input,
@@ -19,6 +21,7 @@ const Wrapper = styled.div`
        */
       box-shadow: none !important;
       padding: 0px 8px;
+      min-height: 34px;
     }
   }
 `;

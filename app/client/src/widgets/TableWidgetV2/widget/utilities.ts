@@ -164,6 +164,7 @@ export function getDefaultColumnProperties(
     isVisible: true,
     isDisabled: false,
     isCellEditable: false,
+    isEditable: false,
     isCellVisible: true,
     isDerived: !!isDerived,
     label: id,
@@ -326,13 +327,16 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      isCellEditable: columnProperties.isCellEditable,
+      isCellEditable: getBooleanPropertyValue(
+        columnProperties.isCellEditable,
+        rowIndex,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
 };
 
-export function isColumnEditable(column: ColumnProperties) {
+export function isColumnTypeEditable(column: ColumnProperties) {
   return (
     column.columnType === ColumnTypes.TEXT ||
     column.columnType === ColumnTypes.NUMBER

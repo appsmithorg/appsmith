@@ -18,8 +18,11 @@ const StyledAutoToolTipComponent = styled(AutoToolTipComponent)`
   width: 100%;
 `;
 
-const StyledEditIcon = styled(EditIcon)`
-  flex-basis: ${EDIT_ICON_WIDTH};
+const StyledEditIcon = styled(EditIcon)<{ backgroundColor?: string }>`
+  position: absolute;
+  right: 0px;
+  background: ${(props) => props.backgroundColor || Colors.NARVIK_GREEN};
+  width: ${EDIT_ICON_WIDTH};
   cursor: pointer;
   height: 12px;
   display: none;
@@ -31,10 +34,6 @@ const StyledEditIcon = styled(EditIcon)`
 
 export const EditableRowHoverStyle = css`
   &:hover {
-    .editable-cell {
-      width: calc(100% - ${EDIT_ICON_WIDTH});
-    }
-
     .editable-cell-icon {
       display: block;
     }
@@ -58,8 +57,10 @@ export function TextCell({
 }: TextCellProps) {
   const onEdit = useCallback(
     (e: React.MouseEvent<SVGElement | HTMLDivElement>) => {
-      e.stopPropagation();
-      toggleCellEditMode(true);
+      if (isCellEditable) {
+        e.stopPropagation();
+        toggleCellEditMode(true);
+      }
     },
     [toggleCellEditMode],
   );
@@ -78,7 +79,11 @@ export function TextCell({
         {value}
       </StyledAutoToolTipComponent>
       {isCellEditable && (
-        <StyledEditIcon className="editable-cell-icon" onClick={onEdit} />
+        <StyledEditIcon
+          backgroundColor={cellProperties.cellBackground}
+          className="editable-cell-icon"
+          onMouseUp={onEdit}
+        />
       )}
     </Wrapper>
   );

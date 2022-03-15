@@ -325,6 +325,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               });
 
             default:
+              const isColumnEditable = column.isEditable;
               const isCellEditMode =
                 props.cell.column.alias === this.props.editableCell.column &&
                 rowIndex === this.props.editableCell.index;
@@ -334,7 +335,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 isHidden: isHidden,
                 cellProperties: cellProperties,
                 tableWidth: componentWidth,
-                isCellEditable: cellProperties.isCellEditable ?? false,
+                isCellEditable:
+                  (isColumnEditable && cellProperties.isCellEditable) ?? false,
                 isCellVisible: cellProperties.isCellVisible ?? true,
                 isCellEditMode: isCellEditMode,
                 onCellTextChange: (data: string) => {
@@ -394,15 +396,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                         });
                       }
                     }
-
+                    this.props.updateWidgetMetaProperty("editableCell", {});
                     /*
                      * We need to let the evaulations compute derived property (filteredTableData)
-                     * before we clear the editableCell to avoid the flickering effect of text
+                     * before we clear the editableCell to avoid the text flickering
                      * TODO(Balaji): Need to find a different way to wait before clearing
                      */
-                    setTimeout(() => {
-                      this.props.updateWidgetMetaProperty("editableCell", {});
-                    }, 100);
+                    // setTimeout(() => {
+                    //   this.props.updateWidgetMetaProperty("editableCell", {});
+                    // }, 100);
                   }
                 },
               });

@@ -44,6 +44,7 @@ type RenderComponentProps = {
   deleteOption: (index: number) => void;
   toggleVisibility?: (index: number) => void;
   toggleCheckbox?: (index: number, checked: boolean) => void;
+  isAllColumnEditable?: boolean;
 };
 
 export function DraggableListCard(props: RenderComponentProps) {

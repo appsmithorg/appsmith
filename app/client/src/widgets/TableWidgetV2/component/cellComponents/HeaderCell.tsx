@@ -1,10 +1,10 @@
 import React from "react";
 import { AnyStyledComponent } from "styled-components";
 
-import { DraggableHeaderWrapper } from "../TableStyledWrappers";
 import { Colors } from "constants/Colors";
 import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
+import { CellAlignment, TEXT_ALIGN } from "../Constants";
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
@@ -29,6 +29,13 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
       fill: ${Colors.LIGHT_GREYISH_BLUE};
     }
   }
+`;
+
+export const DraggableHeaderWrapper = styled.div<{
+  horizontalAlignment?: CellAlignment;
+}>`
+  text-align: ${(props) =>
+    props?.horizontalAlignment && TEXT_ALIGN[props?.horizontalAlignment]};
 `;
 
 export function HeaderCell(props: {
