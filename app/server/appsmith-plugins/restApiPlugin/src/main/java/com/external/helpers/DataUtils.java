@@ -166,10 +166,8 @@ public class DataUtils {
                                 if (StringUtils.hasLength(String.valueOf(property.getValue()))) {
                                     valueBytesArray = String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1);
                                 }
-                                bodyBuilder.part(
-                                        key,
-                                        valueBytesArray,
-                                        MediaType.TEXT_PLAIN);                                break;
+                                bodyBuilder.part(key, valueBytesArray, MediaType.TEXT_PLAIN);
+                                break;
                             case FILE:
                                 try {
                                     populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
@@ -182,7 +180,6 @@ public class DataUtils {
                                 }
                                 break;
                             case ARRAY:
-                                System.out.println(property);
                                 if (property.getValue() instanceof String) {
                                     final String value = (String) property.getValue();
                                     try {
