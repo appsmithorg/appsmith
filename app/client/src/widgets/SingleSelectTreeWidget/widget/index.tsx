@@ -227,16 +227,6 @@ class SingleSelectTreeWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             propertyName: "borderRadius",
             label: "Border Radius",
             helpText:
@@ -388,7 +378,6 @@ class SingleSelectTreeWidget extends BaseWidget<
     return (
       <SingleSelectTreeComponent
         allowClear={this.props.allowClear}
-        backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         compactMode={
@@ -482,7 +471,6 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;

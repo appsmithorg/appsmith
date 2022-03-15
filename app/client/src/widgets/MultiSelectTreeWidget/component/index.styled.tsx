@@ -599,7 +599,6 @@ export const TreeSelectContainer = styled.div<{
   compactMode: boolean;
   allowClear: boolean;
   isValid: boolean;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
 }>`
@@ -690,8 +689,7 @@ export const TreeSelectContainer = styled.div<{
     display: flex;
     flex-wrap: wrap;
     padding-right: 42px;
-    background: ${({ backgroundColor }) =>
-      `${backgroundColor || Colors.WHITE}`};
+    background: ${Colors.WHITE};
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     border: 1px solid rgb(231, 231, 231);
@@ -739,8 +737,7 @@ export const TreeSelectContainer = styled.div<{
     .rc-tree-select-selector {
       display: flex;
       flex-wrap: wrap;
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.WHITE}`};
+      background: ${Colors.WHITE};
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
@@ -864,8 +861,7 @@ export const TreeSelectContainer = styled.div<{
     .rc-tree-select-selector {
       padding-right: ${({ allowClear }) => (allowClear ? "40px" : "20px")};
       padding-left: 10px;
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.WHITE}`};
+      background: ${Colors.WHITE};
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;

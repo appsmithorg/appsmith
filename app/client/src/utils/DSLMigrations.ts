@@ -1538,6 +1538,7 @@ export const migrateStylingPropertiesForTheming = (
   const widgetsWithPrimaryColorProp = [
     "DATE_PICKER_WIDGET2",
     "INPUT_WIDGET",
+    "INPUT_WIDGET_V2",
     "LIST_WIDGET",
     "MULTI_SELECT_TREE_WIDGET",
     "DROP_DOWN_WIDGET",
@@ -1547,6 +1548,8 @@ export const migrateStylingPropertiesForTheming = (
     "BUTTON_GROUP_WIDGET",
     "PHONE_INPUT_WIDGET",
     "CURRENCY_INPUT_WIDGET",
+    "SELECT_WIDGET",
+    "MULTI_SELECT_WIDGET_V2",
   ];
 
   currentDSL.children = currentDSL.children?.map((child) => {
@@ -1562,7 +1565,11 @@ export const migrateStylingPropertiesForTheming = (
         child.borderRadius = "9999px";
         break;
       default:
-        child.borderRadius = "0px";
+        if (child.type === "CONTAINER_WIDGET" || child.type === "FORM_WIDGET") {
+          child.borderRadius = `${child.borderRadius}px`;
+        } else {
+          child.borderRadius = "0px";
+        }
     }
 
     // migrate box shadow
@@ -1587,33 +1594,30 @@ export const migrateStylingPropertiesForTheming = (
         child.boxShadow = `-2px -2px 0px ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
         break;
-
       default:
         child.boxShadow = "none";
     }
 
     // migrate font size
-    if (child.type === "TEXT_WIDGET") {
-      switch (child.fontSize) {
-        case TextSizes.PARAGRAPH2:
-          child.fontSize = "0.75rem";
-          break;
-        case TextSizes.PARAGRAPH:
-          child.fontSize = "0.875rem";
-          break;
-        case TextSizes.HEADING3:
-          child.fontSize = "1rem";
-          break;
-        case TextSizes.HEADING2:
-          child.fontSize = "1.125rem";
-          break;
-        case TextSizes.HEADING1:
-          child.fontSize = "1.5rem";
-          break;
-
-        default:
-          child.fontSize = "1rem";
-      }
+    switch (child.fontSize) {
+      case TextSizes.PARAGRAPH2:
+        child.fontSize = "0.75rem";
+        addPropertyToDynamicPropertyPathList("fontSize", child);
+        break;
+      case TextSizes.PARAGRAPH:
+        child.fontSize = "0.875rem";
+        break;
+      case TextSizes.HEADING3:
+        child.fontSize = "1rem";
+        break;
+      case TextSizes.HEADING2:
+        child.fontSize = "1.125rem";
+        addPropertyToDynamicPropertyPathList("fontSize", child);
+        break;
+      case TextSizes.HEADING1:
+        child.fontSize = "1.5rem";
+        addPropertyToDynamicPropertyPathList("fontSize", child);
+        break;
     }
 
     /**
@@ -1663,4 +1667,24 @@ export const migrateStylingPropertiesForTheming = (
   });
 
   return currentDSL;
+};
+
+/**
+ * This function will add the given propertyName into the dynamicPropertyPathList.
+ * @param propertyName
+ * @param child
+ */
+const addPropertyToDynamicPropertyPathList = (
+  propertyName: string,
+  child: WidgetProps,
+) => {
+  const resultantDynamicProp = (child.dynamicPropertyPathList || []).find(
+    (property) => property.key === propertyName,
+  );
+  if (!resultantDynamicProp) {
+    child.dynamicPropertyPathList = [
+      ...(child.dynamicPropertyPathList || []),
+      { key: propertyName },
+    ];
+  }
 };
