@@ -68,19 +68,22 @@ type TagInputProps = {
  * @param props : TagInputProps
  */
 function TagInputComponent(props: TagInputProps) {
-  const _values =
+  const inputValues =
     props.input.value && props.input.value.length > 0
       ? props.input.value.split(",")
       : [];
 
-  const [values, setValues] = useState<string[]>(_values || []);
+  const [values, setValues] = useState<string[]>(inputValues || []);
   const [currentValue, setCurrentValue] = useState<string>("");
 
   useEffect(() => {
-    if (_values.length === 0 && values.length > 0) {
+    if (inputValues.length === 0 && values.length > 0) {
       setValues([]);
     }
-  }, [_values, values]);
+    if (inputValues.length > 0 && values.length === 0) {
+      setValues(inputValues);
+    }
+  }, [inputValues, values]);
 
   const validateEmail = (newValues: string[]) => {
     if (newValues && newValues.length > 0) {
@@ -167,7 +170,7 @@ function TagInputComponent(props: TagInputProps) {
         tagProps={{
           round: true,
         }}
-        values={_values || [""]}
+        values={inputValues || [""]}
       />
     </TagInputWrapper>
   );

@@ -113,6 +113,7 @@ describe("Git sync:", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
     cy.get(explorerLocators.explorerSwitchId).click({ force: true });
+    cy.CheckAndUnfoldEntityItem("PAGES");
     cy.Createpage("NewPage");
     cy.commitAndPush();
     cy.merge(mainBranch);

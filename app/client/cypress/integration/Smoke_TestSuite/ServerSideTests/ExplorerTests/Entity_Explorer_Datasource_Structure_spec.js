@@ -8,7 +8,7 @@ let datasourceName;
 
 describe("Entity explorer datasource structure", function() {
   beforeEach(() => {
-    cy.ClearSearch();
+    //cy.ClearSearch();
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
@@ -16,7 +16,7 @@ describe("Entity explorer datasource structure", function() {
     });
   });
 
-  it("Entity explorer datasource structure", function() {
+  it("1. Entity explorer datasource structure", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.wait("@createNewApi").should((interception) => {
       expect(interception.response.body.responseMeta.status).to.deep.eq(201);
@@ -28,11 +28,7 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
-
-    cy.GlobalSearchEntity(datasourceName);
-    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-      .find(explorer.collapse)
-      .click();
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.get(".t--entity-name")
       .contains(datasourceName)
       .click({ force: true });
@@ -65,6 +61,7 @@ describe("Entity explorer datasource structure", function() {
       expect(interception.response.body.responseMeta.status).to.deep.eq(200);
     });
 
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
     cy.get(queryEditor.queryMoreAction).click();
@@ -78,7 +75,7 @@ describe("Entity explorer datasource structure", function() {
     cy.deleteDatasource(datasourceName);
   });
 
-  it("Refresh datasource structure", function() {
+  it("2. Refresh datasource structure", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
 
@@ -118,10 +115,10 @@ describe("Entity explorer datasource structure", function() {
       expect(interception.response.body.responseMeta.status).to.deep.eq(200);
     });
     // Expand datasource
-    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-      .find(explorer.collapse)
-      .first()
-      .click();
+    // cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+    //   .find(explorer.collapse)
+    //   .first()
+    //   .click();
     cy.xpath("//div[text()='public." + tableName + "']").should("exist");
 
     // cy.get(explorer.refreshStructure).click({ force: true });
