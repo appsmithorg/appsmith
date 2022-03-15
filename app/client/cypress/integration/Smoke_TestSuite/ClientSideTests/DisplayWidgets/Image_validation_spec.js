@@ -43,9 +43,12 @@ describe("Image Widget Validation Image Urls", function() {
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
       .should("contain", "");
+    cy.closePropertyPane();
   });
 
   it("Add new image and check image src", function() {
+    cy.openPropertyPane("imagewidget");
+
     cy.testCodeMirror(this.data.NewImage);
     // if imageError flag not reset properly, this test will fail.
     cy.get(viewWidgetsPage.imageinner)
