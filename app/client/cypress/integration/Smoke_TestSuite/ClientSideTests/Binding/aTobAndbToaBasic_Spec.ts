@@ -21,7 +21,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Input widget test with default value for atob method", () => {
-        agHelper.SelectEntityByName("WIDGETS")
+        agHelper.expandCollapseEntity("WIDGETS")
         agHelper.SelectEntityByName("Input1")
         jsEditor.EnterJSContext("defaulttext", dataSet.atobInput + "}}");
         agHelper.ValidateNetworkCallRespPut('@updateLayout')
