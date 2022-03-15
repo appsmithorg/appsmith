@@ -531,17 +531,17 @@ jobs:
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
         run: |
-          mkdir fatcontainerlocal
-          cd fatcontainerlocal          
+          mkdir -p fatcontainerlocal/stacks/configuration/
+          cp cypress/docker_fat.env fatcontainerlocal/stacks/configuration/docker.env
+          cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" fatcontainer
-          sleep 30s
             
-      - name: Added Appsmith license key
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          sudo echo  "APPSMITH_LICENSE_KEY=$secrets.APPSMITH_LICENSE_KEY" >> fatcontainerlocal/stacks/configuration/docker.env
-          docker restart appsmith
+      #- name: Added Appsmith license key
+      #  if: steps.run_result.outputs.run_result != 'success'
+      #  run: |
+      #    sudo echo  "APPSMITH_LICENSE_KEY=$secrets.APPSMITH_LICENSE_KEY" >> fatcontainerlocal/stacks/configuration/docker.env
+      #    docker restart appsmith
 
       - name: Use Node.js 14.15.4
         if: steps.run_result.outputs.run_result != 'success'
