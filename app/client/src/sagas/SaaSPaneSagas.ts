@@ -18,10 +18,7 @@ import { get } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Plugin } from "api/PluginApi";
-import {
-  saasEditorApiIdURL,
-  saasEditorDatasourceIdURL,
-} from "AppsmithRouteFactory";
+import { saasEditorApiIdURL, saasEditorDatasourceIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {

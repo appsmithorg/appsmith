@@ -18,7 +18,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

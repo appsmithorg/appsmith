@@ -30,7 +30,7 @@ import {
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px

@@ -1,4 +1,4 @@
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 
 export const navigateToCanvas = ({

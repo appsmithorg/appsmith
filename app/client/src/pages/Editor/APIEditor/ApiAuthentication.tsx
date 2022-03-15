@@ -26,7 +26,7 @@ import {
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { datasourcesEditorIdURL } from "AppsmithRouteFactory";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }

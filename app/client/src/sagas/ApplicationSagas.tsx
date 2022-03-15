@@ -79,11 +79,7 @@ import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { updateSlugNamesInURL } from "utils/helpers";
-import {
-  builderURL,
-  generateTemplateURL,
-  viewerURL,
-} from "AppsmithRouteFactory";
+import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
 import { identity, pickBy } from "lodash";

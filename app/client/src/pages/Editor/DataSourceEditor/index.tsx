@@ -32,7 +32,7 @@ import {
   getCurrentApplicationId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { saasEditorDatasourceIdURL } from "AppsmithRouteFactory";
+import { saasEditorDatasourceIdURL } from "RouteBuilder";
 
 interface ReduxStateProps {
   formData: Datasource;

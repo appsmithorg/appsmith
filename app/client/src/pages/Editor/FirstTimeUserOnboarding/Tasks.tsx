@@ -40,7 +40,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import IntroductionModal from "./IntroductionModal";
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   width: 100%;

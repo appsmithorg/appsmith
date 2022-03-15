@@ -39,7 +39,7 @@ import {
 import { getUIComponent } from "./helpers";
 import { diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 
 const EmptyStateContainer = styled.div`
   display: flex;

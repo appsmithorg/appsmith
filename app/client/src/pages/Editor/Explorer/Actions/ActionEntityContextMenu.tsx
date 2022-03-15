@@ -26,7 +26,7 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 type EntityContextMenuProps = {
   id: string;

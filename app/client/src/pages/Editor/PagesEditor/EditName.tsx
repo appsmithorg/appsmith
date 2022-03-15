@@ -15,7 +15,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, GO_TO_PAGE } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 const LinkIcon = MenuIcons.LINK_ICON;
 

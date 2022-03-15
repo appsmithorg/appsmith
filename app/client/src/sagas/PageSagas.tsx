@@ -112,7 +112,7 @@ import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { builderURL, generateTemplateURL } from "AppsmithRouteFactory";
+import { builderURL, generateTemplateURL } from "RouteBuilder";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

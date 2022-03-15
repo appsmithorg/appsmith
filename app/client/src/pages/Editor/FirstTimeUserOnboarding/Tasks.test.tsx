@@ -1,4 +1,4 @@
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";

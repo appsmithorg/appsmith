@@ -29,7 +29,7 @@ import {
 } from "./helpers";
 import Icon from "components/ads/Icon";
 import { AddEntity, EmptyComponent } from "./common";
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;

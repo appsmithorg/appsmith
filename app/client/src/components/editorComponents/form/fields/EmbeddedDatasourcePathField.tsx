@@ -61,7 +61,7 @@ import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
-import { datasourcesEditorIdURL } from "AppsmithRouteFactory";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 
 type ReduxStateProps = {
   orgId: string;

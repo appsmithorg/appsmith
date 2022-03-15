@@ -21,7 +21,7 @@ import { getAction } from "selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 
 type ExplorerDatasourceEntityProps = {

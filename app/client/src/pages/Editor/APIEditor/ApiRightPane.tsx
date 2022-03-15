@@ -16,7 +16,7 @@ import { Classes } from "components/ads/common";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
-import { datasourcesEditorIdURL } from "AppsmithRouteFactory";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;

@@ -64,10 +64,7 @@ import {
   getFirstTimeUserOnboardingComplete,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
-import {
-  datasourcesEditorIdURL,
-  integrationEditorURL,
-} from "AppsmithRouteFactory";
+import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 
 //  ---------- Styles ----------
 

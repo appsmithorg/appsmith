@@ -26,7 +26,7 @@ import {
   getCurrentApplicationId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 
 const HeaderFlex = styled.div`
   display: flex;

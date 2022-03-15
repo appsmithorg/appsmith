@@ -18,7 +18,7 @@ import history from "utils/history";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { apiEditorIdURL } from "AppsmithRouteFactory";
+import { apiEditorIdURL } from "RouteBuilder";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { name, pageId, type } = action.payload;

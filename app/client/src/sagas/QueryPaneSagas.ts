@@ -58,7 +58,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
   queryEditorIdURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {

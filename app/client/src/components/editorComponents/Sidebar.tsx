@@ -40,7 +40,7 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { Colors } from "constants/Colors";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 type Props = {
   width: number;

@@ -52,7 +52,7 @@ import { Datasource } from "entities/Datasource";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { triggerWelcomeTour } from "./Utils";
-import { builderURL, integrationEditorURL } from "AppsmithRouteFactory";
+import { builderURL, integrationEditorURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;

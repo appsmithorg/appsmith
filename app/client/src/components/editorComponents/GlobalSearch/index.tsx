@@ -84,7 +84,7 @@ import {
   datasourcesEditorIdURL,
   builderURL,
   jsCollectionIdURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>

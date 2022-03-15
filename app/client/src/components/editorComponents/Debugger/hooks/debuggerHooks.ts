@@ -17,7 +17,7 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateTo
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
-import { jsCollectionIdURL } from "AppsmithRouteFactory";
+import { jsCollectionIdURL } from "RouteBuilder";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);

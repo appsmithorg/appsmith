@@ -16,7 +16,7 @@ import {
   setTemplateNotificationSeen,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 function* getAllTemplatesSaga() {
   try {

@@ -21,7 +21,7 @@ import {
   RATING_TITLE,
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.guidedTour.card.background};

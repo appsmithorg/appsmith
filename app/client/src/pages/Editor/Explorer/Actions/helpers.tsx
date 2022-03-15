@@ -13,7 +13,7 @@ import {
   apiEditorIdURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed

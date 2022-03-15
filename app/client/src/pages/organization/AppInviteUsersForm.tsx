@@ -16,7 +16,7 @@ import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
-import { viewerURL } from "AppsmithRouteFactory";
+import { viewerURL } from "RouteBuilder";
 
 const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};

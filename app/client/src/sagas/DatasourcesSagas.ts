@@ -93,7 +93,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   saasEditorDatasourceIdURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 
 function* fetchDatasourcesSaga() {

@@ -116,7 +116,7 @@ import {
   integrationEditorURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<

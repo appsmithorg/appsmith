@@ -57,7 +57,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
-import { builderURL, jsCollectionIdURL } from "AppsmithRouteFactory";
+import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,

@@ -36,7 +36,7 @@ import {
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
-import { pageListEditorURL } from "AppsmithRouteFactory";
+import { pageListEditorURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type NavigationMenuDataProps = ThemeProp & {

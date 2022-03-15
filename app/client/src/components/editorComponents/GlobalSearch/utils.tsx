@@ -22,7 +22,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { getQueryParams } from "utils/AppsmithUtils";
 import history from "utils/history";
-import { curlImportPageURL } from "AppsmithRouteFactory";
+import { curlImportPageURL } from "RouteBuilder";
 import { isMac, modText, shiftText } from "utils/helpers";
 
 export type SelectEvent =

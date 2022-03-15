@@ -28,7 +28,7 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   height: 100%;

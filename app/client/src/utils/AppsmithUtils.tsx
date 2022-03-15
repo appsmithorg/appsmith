@@ -20,7 +20,7 @@ import localStorage from "utils/localStorage";
 import { APP_MODE } from "entities/App";
 import { trimQueryString } from "./helpers";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { builderURL, viewerURL } from "AppsmithRouteFactory";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 export const createReducer = (
   initialState: any,

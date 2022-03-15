@@ -18,7 +18,7 @@ import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSele
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { selectURLSlugs } from "selectors/editorSelectors";
-import { curlImportPageURL } from "AppsmithRouteFactory";
+import { curlImportPageURL } from "RouteBuilder";
 
 const StyledContainer = styled.div`
   flex: 1;

@@ -70,7 +70,7 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { builderURL, queryEditorIdURL } from "AppsmithRouteFactory";
+import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 

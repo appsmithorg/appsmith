@@ -26,7 +26,7 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;

@@ -37,7 +37,7 @@ import {
   getCurrentApplicationId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 

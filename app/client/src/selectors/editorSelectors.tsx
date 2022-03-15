@@ -33,7 +33,7 @@ import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;

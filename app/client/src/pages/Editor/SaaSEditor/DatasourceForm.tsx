@@ -25,7 +25,7 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
-import { saasEditorDatasourceIdURL } from "AppsmithRouteFactory";
+import { saasEditorDatasourceIdURL } from "RouteBuilder";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;

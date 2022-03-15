@@ -58,7 +58,7 @@ import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
-import { builderURL, viewerURL } from "AppsmithRouteFactory";
+import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
 
 type NameWrapperProps = {

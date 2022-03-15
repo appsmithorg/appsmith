@@ -10,7 +10,7 @@ import { rootSaga } from "sagas";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
 import * as Sentry from "@sentry/react";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { updateURLFactory } from "AppsmithRouteFactory";
+import { updateURLFactory } from "RouteBuilder";
 
 const sagaMiddleware = createSagaMiddleware();
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({

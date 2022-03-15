@@ -64,7 +64,7 @@ import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
   integrationEditorURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,

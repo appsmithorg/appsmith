@@ -35,7 +35,7 @@ import {
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { Colors } from "constants/Colors";
-import { onboardingCheckListUrl } from "AppsmithRouteFactory";
+import { onboardingCheckListUrl } from "RouteBuilder";
 
 const Wrapper = styled.div<{ active: boolean }>`
   width: 100%;

@@ -16,7 +16,7 @@ import history from "utils/history";
 import { Datasource, QueryTemplate } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.queryTemplate.bg};

@@ -76,7 +76,7 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
-import { viewerURL } from "AppsmithRouteFactory";
+import { viewerURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 

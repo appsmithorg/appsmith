@@ -59,7 +59,7 @@ import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { updateReplayEntity } from "actions/pageActions";
-import { jsCollectionIdURL } from "AppsmithRouteFactory";
+import { jsCollectionIdURL } from "RouteBuilder";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);

@@ -3,7 +3,7 @@ import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { builderURL, viewerURL } from "AppsmithRouteFactory";
+import { builderURL, viewerURL } from "RouteBuilder";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 // used for dev

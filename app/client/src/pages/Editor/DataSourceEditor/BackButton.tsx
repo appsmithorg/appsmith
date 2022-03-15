@@ -5,7 +5,7 @@ import Text, { TextType } from "components/ads/Text";
 import { useHistory } from "react-router-dom";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";
-import { builderURL, generateTemplateFormURL } from "AppsmithRouteFactory";
+import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 
 const Back = styled.span`
   height: 30px;

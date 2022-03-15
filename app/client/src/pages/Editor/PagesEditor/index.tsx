@@ -19,7 +19,7 @@ import DraggableList from "components/ads/DraggableList";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   padding: 20px;

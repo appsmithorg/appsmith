@@ -1,4 +1,4 @@
-import { builderURL, viewerURL } from "AppsmithRouteFactory";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 describe("builderURL", () => {
   let location: typeof window.location;

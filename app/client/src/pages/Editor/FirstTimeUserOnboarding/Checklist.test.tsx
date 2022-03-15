@@ -1,6 +1,6 @@
 import { bindDataOnCanvas } from "actions/pluginActionActions";
-import { updateURLFactory } from "AppsmithRouteFactory";
-import { builderURL, integrationEditorURL } from "AppsmithRouteFactory";
+import { updateURLFactory } from "RouteBuilder";
+import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";

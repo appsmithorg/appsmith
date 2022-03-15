@@ -10,7 +10,7 @@ import { AppState } from "reducers";
 import { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
-import { jsCollectionIdURL } from "AppsmithRouteFactory";
+import { jsCollectionIdURL } from "RouteBuilder";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;

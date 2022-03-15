@@ -14,7 +14,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { selectURLSlugs } from "selectors/editorSelectors";
-import { builderURL, generateTemplateFormURL } from "AppsmithRouteFactory";
+import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 
 type routeId = {
   applicationSlug: string;

@@ -14,7 +14,7 @@ import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { NavigateActionDescription } from "entities/DataTree/actionTriggers";
-import { builderURL, viewerURL } from "AppsmithRouteFactory";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",

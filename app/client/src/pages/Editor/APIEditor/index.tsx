@@ -41,7 +41,7 @@ import {
   getPluginSettingConfigs,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
-import { saasEditorApiIdURL } from "AppsmithRouteFactory";
+import { saasEditorApiIdURL } from "RouteBuilder";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;

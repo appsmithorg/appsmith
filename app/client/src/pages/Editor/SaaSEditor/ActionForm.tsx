@@ -34,7 +34,7 @@ import { updateReplayEntity } from "actions/pageActions";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { integrationEditorURL } from "AppsmithRouteFactory";
+import { integrationEditorURL } from "RouteBuilder";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;

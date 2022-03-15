@@ -35,7 +35,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PagesEditor from "./PagesEditor";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`

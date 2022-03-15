@@ -31,7 +31,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
-import { builderURL, pageListEditorURL } from "AppsmithRouteFactory";
+import { builderURL, pageListEditorURL } from "RouteBuilder";
 import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 
 const StyledEntity = styled(Entity)`

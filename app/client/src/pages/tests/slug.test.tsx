@@ -1,6 +1,6 @@
 import React from "react";
 import { ApplicationVersion } from "actions/applicationActions";
-import { builderURL, updateURLFactory } from "AppsmithRouteFactory";
+import { builderURL, updateURLFactory } from "RouteBuilder";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import store from "store";

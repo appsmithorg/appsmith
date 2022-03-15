@@ -23,7 +23,7 @@ import {
 } from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
 import { DSLWidget } from "widgets/constants";
-import { builderURL } from "AppsmithRouteFactory";
+import { builderURL } from "RouteBuilder";
 
 const Section = styled.section`
   background: ${(props) => props.theme.colors.artboard};

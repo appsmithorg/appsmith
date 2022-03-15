@@ -53,12 +53,21 @@ export const DEFAULT_BASE_URL_BUILDER_PARAMS: BaseURLBuilderParams = {
   pageSlug: "",
 };
 
+/**
+ * This variable is private to this module and should not be exported.
+ * This variable holds the information essential for url building, (current applicationId, pageId, pageSlug and applicationSlug ),
+ * updateURLFactory method is used to update this variable in a middleware. Refer /store.ts.
+ * */
 let BASE_URL_BUILDER_PARAMS = DEFAULT_BASE_URL_BUILDER_PARAMS;
 
 export function updateURLFactory(params: Optional<BaseURLBuilderParams>) {
   BASE_URL_BUILDER_PARAMS = { ...BASE_URL_BUILDER_PARAMS, ...params };
 }
 
+/**
+ * Do not export this method directly. Please write wrappers for your URLs.
+ * Uses applicationVersion attribute to determine whether to use slug URLs or legacy URLs.
+ */
 function baseURLBuilder(
   {
     applicationId,
@@ -80,6 +89,8 @@ function baseURLBuilder(
 
   let basePath = "";
   pageId = pageId ?? BASE_URL_BUILDER_PARAMS.pageId;
+
+  // fallback incase pageId is not set
   if (!pageId) {
     const match = matchPath<{ pageId: string }>(window.location.pathname, {
       path: [
@@ -93,6 +104,8 @@ function baseURLBuilder(
     });
     pageId = match?.params.pageId;
   }
+  // fallback incase pageId is not set
+
   if (shouldUseLegacyURLs) {
     applicationId = applicationId ?? BASE_URL_BUILDER_PARAMS.applicationId;
     basePath = `/applications/${applicationId}/pages/${pageId}`;

@@ -84,7 +84,7 @@ import { modText } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
-import { viewerURL } from "AppsmithRouteFactory";
+import { viewerURL } from "RouteBuilder";
 
 const HeaderWrapper = styled.div`
   width: 100%;

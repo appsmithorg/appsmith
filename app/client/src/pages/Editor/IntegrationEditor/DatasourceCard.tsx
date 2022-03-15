@@ -35,7 +35,7 @@ import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   saasEditorDatasourceIdURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 
 const Wrapper = styled.div`
   padding: 18px;

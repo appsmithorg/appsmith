@@ -13,7 +13,7 @@ import {
   builderURL,
   generateTemplateFormURL,
   integrationEditorURL,
-} from "AppsmithRouteFactory";
+} from "RouteBuilder";
 
 const IconContainer = styled.div`
   //width: 100%;
