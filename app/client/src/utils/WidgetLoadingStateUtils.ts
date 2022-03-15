@@ -1,6 +1,6 @@
-import { DataTree, DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
-import { isAction, isJSObject } from "workers/evaluationUtils";
+import { isJSObject } from "workers/evaluationUtils";
 import { DependencyMap } from "./DynamicBindingUtils";
 import WidgetFactory from "./WidgetFactory";
 
