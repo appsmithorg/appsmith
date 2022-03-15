@@ -6,6 +6,7 @@ TEMPLATE_DIR="/opt/appsmith/templates"
 APP_TEMPLATE="$TEMPLATE_DIR/nginx-app-http.conf.template.sh"
 
 # Check exist certificate with given custom domain
+# Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
 if [[ -n $APPSMITH_CUSTOM_DOMAIN ]] && [[ -z $DYNO ]]; then
   APP_TEMPLATE="$TEMPLATE_DIR/nginx-app-https.conf.template.sh"
   if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then

@@ -38,17 +38,21 @@ server {
     proxy_buffering     off;
     proxy_max_temp_file_size 0;
     proxy_redirect     off;
-    proxy_set_header   Host             \$http_host/supervisor/;
-    proxy_set_header   X-Forwarded-For  \$proxy_add_x_forwarded_for;
-    proxy_set_header   Connection       "";
+    
+    proxy_set_header  Host             	\$http_host/supervisor/;
+    proxy_set_header  X-Forwarded-For  	\$proxy_add_x_forwarded_for;
+    proxy_set_header 	X-Forwarded-Proto \$scheme;
+    proxy_set_header 	X-Forwarded-Host 	\$http_host;
+    proxy_set_header  Connection       "";
+    
     proxy_pass http://localhost:9001/;
 
     auth_basic "Protected";
     auth_basic_user_file /etc/nginx/passwords;
   }
 
-  proxy_set_header X-Forwarded-Proto \$scheme;
-  proxy_set_header X-Forwarded-Host \$http_host;
+  proxy_set_header X-Forwarded-Proto \$origin_scheme;
+  proxy_set_header X-Forwarded-Host \$host;
 
   location / {
     try_files \$uri /index.html =404;
