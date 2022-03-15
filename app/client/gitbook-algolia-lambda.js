@@ -176,8 +176,8 @@ exports.handler = async (event, context, callback) => {
                     const link = match[2];
                     if (!link.startsWith('https:')) {
                       const absoluteLink = getAbsoluteLink(link, page.path);
-                      console.log('replace', match[0], match[0].replace(link, absoluteLink));
-                      page.markdown = page.markdown.replace(match[0], match[0].replace(link, absoluteLink));
+                      console.log('replace', match[0], match[0].replace("(" + link + ")", "(" + absoluteLink + ")"));
+                      page.markdown = page.markdown.replace(match[0], match[0].replace("(" + link + ")", "(" + absoluteLink + ")"));
                     }
                   });
                   page.document = page.markdown;
