@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  useCallback,
+} from "react";
 import styled, { ThemeContext } from "styled-components";
 import {
   getApplicationViewerPageURL,
@@ -55,6 +61,7 @@ import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
+import history from "utils/history";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -713,9 +720,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
-  const LaunchAppInMobile = () => {
-    window.location.href = viewApplicationURL;
-  };
+  const LaunchAppInMobile = useCallback(() => {
+    history.push(viewApplicationURL);
+  }, [viewApplicationURL]);
 
   return (
     <Container
@@ -773,10 +780,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
-                      href={editApplicationURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        history.push(editApplicationURL);
+                      }}
                       size={Size.medium}
+                      tag="button"
                       text="Edit"
                     />
                   )}
@@ -785,10 +796,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
-                      href={viewApplicationURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        history.push(viewApplicationURL);
+                      }}
                       size={Size.medium}
+                      tag="button"
                       text="Launch"
                     />
                   )}

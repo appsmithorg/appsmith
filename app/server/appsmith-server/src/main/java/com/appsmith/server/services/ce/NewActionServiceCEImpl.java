@@ -1159,8 +1159,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         toDelete.getUnpublishedAction().setDeletedAt(Instant.now());
                         newActionMono = repository.save(toDelete);
                     } else {
-                        // This action was never published. This can be safely deleted from the db
-                        newActionMono = repository.delete(toDelete).thenReturn(toDelete);
+                        // This action was never published. This document can be safely archived
+                        newActionMono = repository.archive(toDelete).thenReturn(toDelete);
                     }
 
                     return newActionMono;
@@ -1493,39 +1493,36 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<NewAction> delete(String id) {
+    public Mono<NewAction> archiveById(String id) {
         Mono<NewAction> actionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
-                .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
+                .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
     }
 
     @Override
-    public Mono<NewAction> deleteByIdAndBranchName(String id, String branchName) {
+    public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
         Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, MANAGE_ACTIONS);
 
         return branchedActionMono
-                .flatMap(newAction -> this.delete(newAction.getId()))
+                .flatMap(branchedAction -> this.archiveById(branchedAction.getId()))
                 .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
     @Override
-    public Mono<NewAction> archive(String id) {
-        Mono<NewAction> actionMono = repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
-        return actionMono
-                .flatMap(toArchive -> {
-                    toArchive.getUnpublishedAction().setArchivedAt(Instant.now());
-                    return repository.save(toArchive);
-                })
-                .flatMap(analyticsService::sendArchiveEvent);
+    public Mono<NewAction> archive(NewAction newAction) {
+        return repository.archive(newAction);
     }
 
     @Override
     public Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
         return repository.findByApplicationId(applicationId, permission)
                 .flatMap(repository::archive)
+                .onErrorResume(throwable -> {
+                    log.error(throwable.getMessage());
+                    return Mono.empty();
+                })
                 .collectList();
     }
 

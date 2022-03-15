@@ -52,7 +52,7 @@ services:
       com.centurylinklabs.watchtower.enable: "true"
 
   auto_update:
-    image: containrrr/watchtower:latest-dev
+    image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     # Update check every hour.
