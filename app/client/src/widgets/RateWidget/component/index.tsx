@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Icon, Position } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "styled-components";
@@ -21,7 +21,6 @@ import { Colors } from "constants/Colors";
 
 interface RateContainerProps {
   isDisabled: boolean;
-  scrollable: boolean;
 }
 
 export const RateContainer = styled.div<RateContainerProps>`
@@ -33,7 +32,10 @@ export const RateContainer = styled.div<RateContainerProps>`
   overflow: auto;
 
   > span {
-    align-self: ${(props) => (props.scrollable ? "flex-start" : "center")};
+    display: flex !important;
+    flex-wrap: wrap;
+    height: 100%;
+    align-items: center;
   }
 
   ${({ isDisabled }) => isDisabled && disable}
@@ -99,40 +101,18 @@ function RateComponent(props: RateComponentProps) {
   const rateContainerRef = React.createRef<HTMLDivElement>();
 
   const {
-    bottomRow,
     inactiveColor,
     isAllowHalf,
     isDisabled,
-    leftColumn,
     maxCount,
     onValueChanged,
     readonly,
-    rightColumn,
     size,
-    topRow,
     value,
   } = props;
 
-  const [scrollable, setScrollable] = useState(false);
-
-  useEffect(() => {
-    const rateContainerElement = rateContainerRef.current;
-    if (
-      rateContainerElement &&
-      rateContainerElement.scrollHeight > rateContainerElement.clientHeight
-    ) {
-      setScrollable(true);
-    } else {
-      setScrollable(false);
-    }
-  }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
-
   return (
-    <RateContainer
-      isDisabled={Boolean(isDisabled)}
-      ref={rateContainerRef}
-      scrollable={scrollable}
-    >
+    <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
       <Rating
         emptySymbol={
           <Star

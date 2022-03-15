@@ -51,8 +51,43 @@ const scrollNavControlContainerBaseStyle = css`
   display: flex;
   position: absolute;
   top: 0;
-  z-index: 1;
+  bottom: 0;
+  z-index: 2;
   background: white;
+
+  &::after,
+  &::before {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 100%;
+    position: absolute;
+  }
+
+  &::before {
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 1) 100%
+    );
+  }
+
+  &::after {
+    right: 0;
+    background: linear-gradient(
+      270deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 1) 100%
+    );
+  }
+
+  button {
+    z-index: 1;
+    border-radius: 0px;
+  }
 `;
 
 const scrollContents = css`
@@ -112,6 +147,7 @@ const TabsContainer = styled.div<TabsContainerProps>`
   height: ${TAB_CONTAINER_HEIGHT};
   background: ${(props) => props.theme.colors.builderBodyBG};
   overflow: hidden;
+  border-bottom: ${(props) => `1px solid ${props.theme.colors.bodyBG}`};
 
   overflow-x: scroll;
   &::-webkit-scrollbar {
@@ -137,11 +173,9 @@ type TabProps = {
 
 const StyledTab = styled.div`
   height: ${TAB_CONTAINER_HEIGHT};
-  border-bottom: 1px solid ${(props) => props.theme.colors.bodyBG};
   border-color: ${(props) => props.theme.colors.bodyBG};
   width: 100%;
   position: absolute;
-  border-bottom: ${(props) => `1px solid ${props.theme.colors.bodyBG}`};
 `;
 
 const StyledText = styled.div<TabProps>`
@@ -155,7 +189,7 @@ const StyledText = styled.div<TabProps>`
   border-bottom: ${(props) =>
     props.selected
       ? `3px solid ${props.primaryColor}`
-      : `1px solid ${props.theme.colors.bodyBG}`};
+      : `0px solid ${props.theme.colors.bodyBG}`};
   cursor: pointer;
   position: relative;
   z-index: 1;
@@ -169,7 +203,7 @@ const StyledText = styled.div<TabProps>`
     border-bottom: ${(props) =>
       props.selected
         ? `3px solid ${props.primaryColor}`
-        : `1px solid ${lightenColor(props.primaryColor)}`};
+        : `0px solid ${lightenColor(props.primaryColor)}`};
   }
 `;
 

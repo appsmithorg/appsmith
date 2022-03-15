@@ -67,7 +67,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Modal Title",
-                    fontSize: "HEADING1",
+                    fontSize: "1.25rem",
                     version: 1,
                   },
                 },

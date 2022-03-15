@@ -221,36 +221,11 @@ export const getComplementaryGrayscaleColor = (color = "#fff", alpha = 1) => {
  * @returns
  */
 export const lightenColor = (color = "#fff") => {
-  const tinyAccentColor = tinycolor(color);
-  const brightness = tinycolor(color)
-    .greyscale()
-    .getBrightness();
+  const { h, s } = tinycolor(color).toHsl();
 
-  const percentageBrightness = (brightness / 255) * 100;
-  let nextBrightness = 0;
+  const newColor = tinycolor(`hsl ${h} ${s} 0.93}`).toHex();
 
-  switch (true) {
-    case percentageBrightness > 70:
-      nextBrightness = 15;
-      break;
-    case percentageBrightness > 60:
-      nextBrightness = 25;
-      break;
-    case percentageBrightness > 50:
-      nextBrightness = 35;
-      break;
-    case percentageBrightness > 40:
-      nextBrightness = 45;
-      break;
-    default:
-      nextBrightness = 65;
-  }
-
-  if (brightness > 180) {
-    return tinyAccentColor.darken(10).toString();
-  } else {
-    return tinyAccentColor.lighten(nextBrightness).toString();
-  }
+  return `#${newColor}`;
 };
 
 /**
