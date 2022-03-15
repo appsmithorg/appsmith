@@ -16,11 +16,12 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import { isNil, omit, merge } from "lodash";
+import { isNil, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { getParsedText } from "./Utilities";
 
 export function defaultValueValidation(
   value: any,
@@ -329,14 +330,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return merge(super.getDerivedPropertiesMap(), {
       isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
-      text: `{{(() => {${derivedProperties.getText}})()}}`,
     });
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    const baseMetaProperties = omit(super.getMetaPropertiesMap(), "text");
-
-    return merge(baseMetaProperties, {
+    return merge(super.getMetaPropertiesMap(), {
       inputText: undefined,
     });
   }
@@ -359,7 +357,47 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     super.handleKeyDown(e);
   };
 
+  componentDidMount = () => {
+    this.props.updateWidgetMetaProperty(
+      "text",
+      getParsedText(this.props.inputText, this.props.inputType),
+    );
+  };
+
+  componentDidUpdate = (prevProps: InputWidgetProps) => {
+    /*
+     *  When inputText gets set to defaulText, update the text property
+     */
+    if (
+      prevProps.inputText !== this.props.inputText &&
+      this.props.inputText !== toString(this.props.text)
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "text",
+        getParsedText(this.props.inputText, this.props.inputType),
+      );
+    }
+
+    if (prevProps.inputType !== this.props.inputType) {
+      this.props.updateWidgetMetaProperty(
+        "text",
+        getParsedText(this.props.inputText, this.props.inputType),
+      );
+    }
+  };
+
   onValueChange = (value: string) => {
+    /*
+     * Ideally text property should be derived property. But widgets
+     * with derived properties won't work as expected inside a List
+     * widget.
+     * TODO(Balaji): Once we refactor the List widget, need to conver
+     * text to a derived property.
+     */
+    this.props.updateWidgetMetaProperty(
+      "text",
+      getParsedText(value, this.props.inputType),
+    );
     this.props.updateWidgetMetaProperty("inputText", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
@@ -374,6 +412,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   resetWidgetText = () => {
     this.props.updateWidgetMetaProperty("inputText", "");
+    this.props.updateWidgetMetaProperty("text", "");
   };
 
   getPageView() {
