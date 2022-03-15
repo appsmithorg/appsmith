@@ -541,7 +541,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           echo  "APPSMITH_LICENSE_KEY=$secrets.APPSMITH_LICENSE_KEY" >> fatcontainerlocal/stacks/configuration/docker.env
-	        docker restart appsmith
+          docker restart appsmith
 
       - name: Use Node.js 14.15.4
         if: steps.run_result.outputs.run_result != 'success'
