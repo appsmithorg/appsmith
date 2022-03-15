@@ -1189,7 +1189,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
 
         if (StringUtils.isEmptyOrNull(branchName)) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
 
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
