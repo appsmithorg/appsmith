@@ -21,6 +21,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     });
   });
 
+
   it("1. Add users api and bind to JSObject", () => {
     apiPage.CreateAndFillApi(dataSet.userApi + "/users");
     apiPage.RunAPI();
@@ -34,54 +35,50 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     cy.get("@jsObjName").then((jsObj) => {
       jsName = jsObj;
       cy.log("jsName returned is :" + jsName);
-    });
+     });
+  });
+  
+  it("2. Validate the Api data is updated on List widget", function () {
+      agHelper.expandCollapseEntity("WIDGETS")//to expand widgets
+      agHelper.SelectEntityByName("List1");
+      jsEditor.EnterJSContext("items", "{{" + jsName as string + ".myFun1()}}")
+      cy.get(locator._textWidget).should("have.length", 8);
+      cy.get(locator._textWidget)
+          .first()
+          .invoke("text")
+          .then((text) => {
+              expect(text).to.equal((valueToTest as string).trimEnd());
+          });
+      agHelper.DeployApp();
+      agHelper.WaitUntilEleAppear(locator._textWidgetInDeployed)
+      cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+      cy.get(locator._textWidgetInDeployed)
+          .first()
+          .invoke("text")
+          .then((text) => {
+              expect(text).to.equal((valueToTest as string).trimEnd());
+          });
   });
 
-  it("2. Validate the Api data is updated on List widget", function() {
-    agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
-    agHelper.SelectEntityByName("List1");
-    jsEditor.EnterJSContext(
-      "items",
-      (("{{" + jsName) as string) + ".myFun1()}}",
-    );
-    cy.get(locator._textWidget).should("have.length", 8);
-    cy.get(locator._textWidget)
-      .first()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal((valueToTest as string).trimEnd());
-      });
-    agHelper.DeployApp();
-    agHelper.WaitUntilEleAppear(locator._textWidgetInDeployed);
-    cy.get(locator._textWidgetInDeployed).should("have.length", 8);
-    cy.get(locator._textWidgetInDeployed)
-      .first()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal((valueToTest as string).trimEnd());
-      });
-  });
-
-  it("3. Validate the List widget ", function() {
-    agHelper.NavigateBacktoEditor();
-    agHelper.SelectEntityByName("WIDGETS"); //to expand widgets
-    agHelper.SelectEntityByName("List1");
-    jsEditor.EnterJSContext("itemspacing\\(px\\)", "50");
-    cy.get(locator._textWidget).should("have.length", 6);
-    cy.get(locator._textWidget)
-      .first()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal((valueToTest as string).trimEnd());
-      });
-    agHelper.DeployApp();
-    cy.get(locator._textWidgetInDeployed).should("have.length", 6);
-    cy.get(locator._textWidgetInDeployed)
-      .first()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal((valueToTest as string).trimEnd());
-      });
-    agHelper.NavigateBacktoEditor();
+  it("3. Validate the List widget ", function () {
+      agHelper.NavigateBacktoEditor()
+      agHelper.expandCollapseEntity("WIDGETS")//to expand widgets
+      agHelper.SelectEntityByName("List1");
+      jsEditor.EnterJSContext("itemspacing\\(px\\)", "50")
+      cy.get(locator._textWidget).should("have.length", 6);
+      cy.get(locator._textWidget)
+          .first()
+          .invoke("text")
+          .then((text) => {
+              expect(text).to.equal((valueToTest as string).trimEnd());
+          });
+      agHelper.DeployApp();
+      cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+      cy.get(locator._textWidgetInDeployed).first()
+          .invoke("text")
+          .then((text) => {
+              expect(text).to.equal((valueToTest as string).trimEnd());
+          });
+      agHelper.NavigateBacktoEditor()
   });
 });

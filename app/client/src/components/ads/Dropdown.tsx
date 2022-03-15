@@ -551,7 +551,7 @@ function DefaultDropDownValueNode({
         : selected.value
       : placeholder
       ? placeholder
-      : "Please select a option.";
+      : "Please select an option.";
 
   function Label() {
     if (isMultiSelect && Array.isArray(selected) && selected.length) {

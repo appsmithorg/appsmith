@@ -557,7 +557,7 @@ export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
+  "Checkout branches, make commits, and deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
   `Create an empty git repository and paste the remote URL here.`;
@@ -610,7 +610,9 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
-export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste your URL here";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
+  "git://example.com:user/repo.git";
+export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
@@ -948,7 +950,7 @@ export const API_PANE_NO_BODY = () => "This request does not have a body";
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
-export const ADD_QUERY_JS_TOOLTIP = () => "Add a new Query, API or JS Object";
+export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -1038,6 +1040,17 @@ export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
 
+// Entity explorer
+export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
+export const ADD_WIDGET_BUTTON = () => "ADD WIDGET";
+export const ADD_QUERY_JS_BUTTON = () => "ADD QUERY/JS";
+export const EMPTY_WIDGET_MAIN_TEXT = () => "No widget to display";
+export const EMPTY_WIDGET_BUTTON_TEXT = () => "NEW WIDGET";
+export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
+export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "NEW QUERY/JS";
+export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
+export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
+
 // Templates
 export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
@@ -1069,3 +1082,11 @@ export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
 export const REDIRECT_URL_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
+
+export const FORK_APP_MODAL_LOADING_TITLE = () =>
+  "Fetching organisations to fork to...";
+export const FORK_APP_MODAL_EMPTY_TITLE = () =>
+  "No organisation available to fork to";
+export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
+  "Choose where to fork the app";
+export const FORK = () => `FORK`;
