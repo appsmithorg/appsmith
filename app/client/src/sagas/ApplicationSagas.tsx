@@ -55,7 +55,6 @@ import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectCurrentPageSlug,
   selectURLSlugs,
 } from "selectors/editorSelectors";
 
