@@ -65,9 +65,6 @@ const ResponseContainer = styled.div`
   ${DebuggerErrorList} {
     height: ${() => `calc(100% - 50px)`};
   }
-  .CodeEditorTarget {
-    pointer-events: none;
-  }
 `;
 
 const ResponseTabWrapper = styled.div`
