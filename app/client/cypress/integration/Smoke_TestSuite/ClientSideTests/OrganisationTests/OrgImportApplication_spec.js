@@ -50,6 +50,7 @@ describe("Organization Import Application", function() {
             cy.get(homePage.orgImportAppButton).click({ force: true });
             cy.wait("@importNewApplication").then((interception) => {
               let appId = interception.response.body.data.id;
+              const appSlug = interception.response.body.data.slug;
               let defaultPage = interception.response.body.data.pages.find(
                 (eachPage) => !!eachPage.isDefault,
               );
@@ -59,7 +60,7 @@ describe("Organization Import Application", function() {
               );
               cy.url().should(
                 "include",
-                `/applications/${appId}/pages/${defaultPage.id}/edit`,
+                `/${appSlug}/${defaultPage.slug}-${defaultPage.id}/edit`,
               );
             });
           });

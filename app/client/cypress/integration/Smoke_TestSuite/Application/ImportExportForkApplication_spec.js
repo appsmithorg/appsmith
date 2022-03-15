@@ -111,7 +111,8 @@ describe("Import, Export and Fork application and validate data binding", functi
             // import exported application in new organization
             cy.get(homePage.orgImportAppButton).click({ force: true });
             cy.wait("@importNewApplication").then((interception) => {
-              let appId = interception.response.body.data.id;
+              const appId = interception.response.body.data.id;
+              const appSlug = interception.response.body.data.slug;
               let defaultPage = interception.response.body.data.pages.find(
                 (eachPage) => !!eachPage.isDefault,
               );
@@ -128,7 +129,7 @@ describe("Import, Export and Fork application and validate data binding", functi
 
               cy.url().should(
                 "include",
-                `/applications/${appId}/pages/${defaultPage.id}/edit`,
+                `/${appSlug}/${defaultPage.slug}-${defaultPage.id}/edit`,
               );
             });
           });
