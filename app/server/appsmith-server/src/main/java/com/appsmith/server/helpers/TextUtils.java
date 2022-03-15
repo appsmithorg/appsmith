@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.Normalizer;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -52,15 +53,21 @@ public class TextUtils {
      * @return Set of string containing the parts of the csv
      */
     public static Set<String> csvToSet(String inputStringCsv) {
-        Set<String> stringSet = new HashSet<>();
-        if(inputStringCsv != null) {
-            String[] strings = inputStringCsv.split("(\\s*,\\s*)+");
-            for(String str : strings) {
-                if(str.length() > 0) {
-                    stringSet.add(str.trim());
-                }
-            }
+        if(inputStringCsv == null) {
+            return Set.of();
         }
-        return stringSet;
+        Set<String> parts = new HashSet<>(Arrays.asList(inputStringCsv.trim().split("(\\s*,\\s*)+")));
+        parts.remove("");
+        return parts;
+//        Set<String> stringSet = new HashSet<>();
+//        if(inputStringCsv != null) {
+//            String[] strings = inputStringCsv.split("(\\s*,\\s*)+");
+//            for(String str : strings) {
+//                if(str.length() > 0) {
+//                    stringSet.add(str.trim());
+//                }
+//            }
+//        }
+//        return stringSet;
     }
 }
