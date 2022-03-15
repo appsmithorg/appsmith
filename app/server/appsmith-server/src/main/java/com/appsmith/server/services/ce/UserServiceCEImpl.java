@@ -462,7 +462,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private Set<Policy> adminUserPolicy(User user) {
 
-        Set<AclPermission> aclPermissions = Set.of(MANAGE_USERS, USER_MANAGE_ORGANIZATIONS, MANAGE_INSTANCE_ENV);
+        Set<AclPermission> aclPermissions = Set.of(MANAGE_INSTANCE_ENV);
 
         Map<String, Policy> userPolicies = policyUtils.generatePolicyFromPermission(aclPermissions, user);
 
@@ -477,9 +477,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         user.setEmail(user.getEmail().toLowerCase());
 
         // Set the permissions for the user
-        if(!isAdminUser) {
-            user.getPolicies().addAll(crudUserPolicy(user));
-        } else {
+        user.getPolicies().addAll(crudUserPolicy(user));
+        if(isAdminUser) {
             user.getPolicies().addAll(adminUserPolicy(user));
         }
 

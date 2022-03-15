@@ -170,9 +170,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     return Mono.error(new AppsmithException(
                             AppsmithError.GENERIC_BAD_REQUEST, "Removing own email from Admin Email is not allowed"
                     ));
-                } else {
-                    // set the clean value to changes
-                    changes.put(APPSMITH_ADMIN_EMAILS.name(), String.join(",", adminEmails));
                 }
             }
         }

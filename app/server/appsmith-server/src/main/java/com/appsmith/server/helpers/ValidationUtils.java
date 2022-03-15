@@ -9,8 +9,10 @@ import java.util.regex.Pattern;
 public final class ValidationUtils {
     public static final int LOGIN_PASSWORD_MIN_LENGTH = 6;
     public static final int LOGIN_PASSWORD_MAX_LENGTH = 48;
+    private static final String EMAIL_PATTERN = "[\\w+\\-.%]+@[\\w\\-.]+\\.[A-Za-z]+";
+
     private static final Pattern EMAIL_CSV_PATTERN = Pattern.compile(
-            "^[\\W]*([\\w+\\-.%]+@[\\w\\-.]+\\.[A-Za-z]+[\\W]*,{1}[\\W]*)*([\\w+\\-.%]+@[\\w\\-.]+\\.[A-Za-z]+)[\\W]*$"
+            "^[\\s]*(" + EMAIL_PATTERN + "[\\s]*,[\\s]*)*(" + EMAIL_PATTERN + ")[\\s]*$"
     );
 
     public static boolean validateEmail(String emailStr) {
