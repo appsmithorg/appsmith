@@ -73,6 +73,7 @@ export interface MultiSelectProps
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
+const FOCUS_TIMEOUT = 500;
 
 function MultiSelectComponent({
   allowSelectAll,
@@ -106,6 +107,8 @@ function MultiSelectComponent({
   const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
 
   const _menu = useRef<HTMLElement | null>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // SelectAll if all options are in Value
   useEffect(() => {
@@ -169,15 +172,11 @@ function MultiSelectComponent({
   }, []);
 
   const clearButton = useMemo(
-    () => (
-      <Button
-        disabled={disabled}
-        icon="cross"
-        minimal
-        onClick={() => setFilter("")}
-      />
-    ),
-    [],
+    () =>
+      filter ? (
+        <Button icon="cross" minimal onClick={() => setFilter("")} />
+      ) : null,
+    [filter],
   );
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -211,6 +210,12 @@ function MultiSelectComponent({
     return onChange([]);
   };
 
+  const onOpen = useCallback((open: boolean) => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+    }
+  }, []);
+
   const checkOptionsAndValue = () => {
     const emptyFalseArr = [false];
     if (value.length === 0 || filteredOptions.length === 0)
@@ -218,10 +223,65 @@ function MultiSelectComponent({
     return filteredOptions.map((x) => value.some((y) => y.value === x.value));
   };
 
-  const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+  // SelectAll if all options are in Value
+  useEffect(() => {
+    if (
+      !isSelectAll &&
+      filteredOptions.length &&
+      value.length &&
+      !checkOptionsAndValue().includes(false)
+    ) {
+      setIsSelectAll(true);
+    }
+    if (isSelectAll && filteredOptions.length !== value.length) {
+      setIsSelectAll(false);
+    }
+  }, [filteredOptions, value]);
+
+  // Trigger onFilterChange once filter is Updated
+  useEffect(() => {
+    const timeOutId = setTimeout(
+      () => onFilterChange(filter),
+      DEBOUNCE_TIMEOUT,
+    );
+    return () => clearTimeout(timeOutId);
+  }, [filter]);
+
+  // Filter options based on serverSideFiltering
+  useEffect(
+    () => {
+      if (serverSideFiltering) {
+        return setFilteredOptions(options);
+      }
+      const filtered = options.filter((option) => {
+        return (
+          String(option.label)
+            .toLowerCase()
+            .indexOf(filter.toLowerCase()) >= 0 ||
+          String(option.value)
+            .toLowerCase()
+            .indexOf(filter.toLowerCase()) >= 0
+        );
+      });
+      setFilteredOptions(filtered);
+    },
+    serverSideFiltering ? [options] : [filter, options],
+  );
+  const memoDropDownWidth = useMemo(() => {
+    if (compactMode && labelRef.current) {
+      const labelWidth = labelRef.current.clientWidth;
+      const widthDiff = dropDownWidth - labelWidth;
+      return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
+    }
+    const parentWidth = width - WidgetContainerDiff;
+    return parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
+  }, [compactMode, dropDownWidth, width]);
+
+  const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setFilter(event.target.value);
-  };
+  }, []);
+
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
@@ -229,12 +289,13 @@ function MultiSelectComponent({
       <>
         {isFilterable ? (
           <InputGroup
-            autoFocus
+            inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
             placeholder="Filter..."
-            rightElement={clearButton}
+            // ref={inputRef}
+            rightElement={clearButton as JSX.Element}
             small
             type="text"
             value={filter}
@@ -261,6 +322,7 @@ function MultiSelectComponent({
       allowSelectAll,
       isFilterable,
       filter,
+      onQueryChange,
     ],
   );
 
@@ -272,16 +334,13 @@ function MultiSelectComponent({
       labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles
-        dropDownWidth={dropDownWidth}
-        id={widgetId}
-        parentWidth={width - WidgetContainerDiff}
-      />
+      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
       {labelText && (
         <TextLabelWrapper
           alignment={labelAlignment}
           compactMode={compactMode}
           position={labelPosition}
+          ref={labelRef}
           width={labelWidth}
         >
           {hasLabelEllipsis ? (
@@ -328,7 +387,7 @@ function MultiSelectComponent({
           // TODO: Make Autofocus a variable in the property pane
           // autoFocus
           className="rc-select"
-          defaultActiveFirstOption
+          defaultActiveFirstOption={false}
           disabled={disabled}
           dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
           dropdownRender={dropdownRender}
@@ -350,6 +409,7 @@ function MultiSelectComponent({
           mode="multiple"
           notFoundContent="No Results Found"
           onChange={onChange}
+          onDropdownVisibleChange={onOpen}
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}
           removeIcon={

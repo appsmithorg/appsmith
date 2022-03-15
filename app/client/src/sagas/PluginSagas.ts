@@ -37,6 +37,7 @@ import {
 function* fetchPluginsSaga() {
   try {
     const orgId = yield select(getCurrentOrgId);
+
     if (!orgId) {
       throw Error("Org id does not exist");
     }
@@ -180,6 +181,26 @@ function* getPluginFormConfig({ id }: GetPluginFormConfigParams) {
   yield call(checkAndGetPluginFormConfigsSaga, id);
 }
 
+function* getDefaultPluginsSaga() {
+  try {
+    const response = yield call(PluginsApi.fetchDefaultPlugins);
+    const isValid = yield validateResponse(response);
+    if (isValid) {
+      yield put({
+        type: ReduxActionTypes.GET_DEFAULT_PLUGINS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GET_DEFAULT_PLUGINS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 function* root() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_PLUGINS_REQUEST, fetchPluginsSaga),
@@ -190,6 +211,10 @@ function* root() {
     takeEvery(
       ReduxActionTypes.GET_PLUGIN_FORM_CONFIG_INIT,
       getPluginFormConfig,
+    ),
+    takeEvery(
+      ReduxActionTypes.GET_DEFAULT_PLUGINS_REQUEST,
+      getDefaultPluginsSaga,
     ),
   ]);
 }

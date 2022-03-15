@@ -18,7 +18,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 export const StyledFormGroup = styled.div`
-  width: 634px;
+  width: 40rem;
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   & span.bp3-popover-target {
     display: inline-block;
@@ -51,6 +51,11 @@ export const StyledSubtext = styled.p`
   color: ${Colors.GRAY};
 `;
 
+export const StyledAsterisk = styled.span`
+  color: ${Colors.ERROR_RED};
+  margin-left: 2px;
+`;
+
 export function FormGroup({ children, className, setting }: FieldHelperProps) {
   return (
     <StyledFormGroup
@@ -60,6 +65,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       <StyledLabel data-testid="admin-settings-form-group-label">
         {createMessage(() => setting.label || "")}
       </StyledLabel>
+      {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
       {setting.helpText && (
         <Tooltip content={createMessage(() => setting.helpText || "")}>
           <StyledIcon

@@ -4,6 +4,7 @@ import { watchActionSagas } from "./ActionSagas";
 import { watchJSActionSagas } from "./JSActionSagas";
 import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
+import templateSagas from "./TemplatesSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import applicationSagas from "./ApplicationSagas";
@@ -59,6 +60,7 @@ const sagas = [
   apiPaneSagas,
   jsPaneSagas,
   userSagas,
+  templateSagas,
   pluginSagas,
   orgSagas,
   importedCollectionsSagas,
