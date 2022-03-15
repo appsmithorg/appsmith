@@ -451,6 +451,8 @@ class MultiSelectWidget extends BaseWidget<
             : { label: o.label, value: o.value },
         )
       : [];
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
       <MultiSelectComponent
         allowSelectAll={this.props.allowSelectAll}
@@ -470,7 +472,7 @@ class MultiSelectWidget extends BaseWidget<
         }}
         filterText={this.props.filterText}
         isFilterable={this.props.isFilterable}
-        isValid={this.props.isValid}
+        isValid={!isInvalid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -490,10 +492,6 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DefaultValueType) => {
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-
     this.props.updateWidgetMetaProperty("selectedOptions", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -501,6 +499,9 @@ class MultiSelectWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   onFilterChange = (value: string) => {
@@ -521,10 +522,11 @@ class MultiSelectWidget extends BaseWidget<
     return "MULTI_SELECT_WIDGET_V2";
   }
 }
-
-export interface DropdownOption {
+export interface OptionValue {
   label: string;
   value: string;
+}
+export interface DropdownOption extends OptionValue {
   disabled?: boolean;
 }
 
@@ -536,7 +538,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
-  defaultOptionValue: string | string[];
+  defaultOptionValue: string | string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelValueType[];
@@ -547,6 +549,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   onFilterUpdate: string;
   allowSelectAll?: boolean;
   isFilterable: boolean;
+  isDirty?: boolean;
 }
 
 export default MultiSelectWidget;

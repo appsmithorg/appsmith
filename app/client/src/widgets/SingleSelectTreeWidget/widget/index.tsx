@@ -371,7 +371,8 @@ class SingleSelectTreeWidget extends BaseWidget<
       Number.isFinite(this.props.selectedOption)
         ? this.props.selectedOption
         : undefined;
-
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const filteredValue = this.filterValue(value);
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
@@ -393,7 +394,8 @@ class SingleSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
-        isValid={this.props.isValid}
+        isFilterable
+        isValid={!isInvalid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -419,6 +421,9 @@ class SingleSelectTreeWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   flat(array: DropdownOption[]) {
@@ -474,6 +479,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  isDirty?: boolean;
 }
 
 export default SingleSelectTreeWidget;

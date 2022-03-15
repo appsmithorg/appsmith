@@ -424,6 +424,7 @@ export const scrollbarWidth = () => {
 // To { isValid: false, settings.color: false}
 export const flattenObject = (data: Record<string, any>) => {
   const result: Record<string, any> = {};
+
   function recurse(cur: any, prop: any) {
     if (Object(cur) !== cur) {
       result[prop] = cur;
@@ -440,6 +441,7 @@ export const flattenObject = (data: Record<string, any>) => {
       if (isEmpty && prop) result[prop] = {};
     }
   }
+
   recurse(data, "");
   return result;
 };
@@ -492,10 +494,15 @@ export const stopClickEventPropagation = (
  * @param date 2021-09-08T14:14:12Z
  *
  */
-export const howMuchTimeBeforeText = (date: string) => {
+export const howMuchTimeBeforeText = (
+  date: string,
+  options: { lessThanAMinute: boolean } = { lessThanAMinute: false },
+) => {
   if (!date || !moment.isMoment(moment(date))) {
     return "";
   }
+
+  const { lessThanAMinute } = options;
 
   const now = moment();
   const checkDate = moment(date);
@@ -510,7 +517,10 @@ export const howMuchTimeBeforeText = (date: string) => {
   else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
   else if (hours > 0) return `${hours} hr${hours > 1 ? "s" : ""}`;
   else if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""}`;
-  else return `${seconds} sec${seconds > 1 ? "s" : ""}`;
+  else
+    return lessThanAMinute
+      ? "less than a minute"
+      : `${seconds} sec${seconds > 1 ? "s" : ""}`;
 };
 
 /**
@@ -536,17 +546,19 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+export const modText = () => (isMac() ? <span>&#8984;</span> : "Ctrl +");
+export const altText = () => (isMac() ? <span>&#8997;</span> : "Alt +");
+export const shiftText = () => (isMac() ? <span>&#8682;</span> : "Shift +");
 
-export const undoShortCut = () => <span>{modText()}+Z</span>;
+export const undoShortCut = () => <span>{modText()} Z</span>;
 
 export const redoShortCut = () =>
   isMac() ? (
     <span>
-      {modText()}+<span>&#8682;</span>+Z
+      {modText()} {shiftText()} Z
     </span>
   ) : (
-    <span>{modText()}+Y</span>
+    <span>{modText()} Y</span>
   );
 
 /**

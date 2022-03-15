@@ -17,7 +17,6 @@
     "removeWidget": ".t--delete-widget svg",
     "propertypaneText": ".t--propertypane .t--property-pane-view",
     "formButtonWidget": ".t--widget-formbuttonwidget",
-    "selectwidget": ".t--widget-selectwidget",
     "textWidget": ".t--draggable-textwidget",
     "tableWidget": ".t--draggable-tablewidget",
     "tableOnRowSelected": ".t--property-control-onrowselected",
@@ -176,5 +175,6 @@
     "borderColorPickerNew": ".t--property-control-bordercolor input",
     "selectedTextSize": ".t--property-control-textsize .bp3-popover-target .sub-text",
     "colorPickerV2Popover": ".t--colorpicker-v2-popover",
-    "colorPickerV2Color": ".t--colorpicker-v2-color"
+    "colorPickerV2Color": ".t--colorpicker-v2-color",
+    "modalCloseButton": ".t--draggable-iconbuttonwidget .bp3-button"
 }
