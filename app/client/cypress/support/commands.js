@@ -2251,7 +2251,7 @@ Cypress.Commands.add("ClickGotIt", () => {
 });
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
-  cy.get(".t--test-datasource").click();
+  cy.get(".t--test-datasource").click({ force: true });
   cy.wait("@testDatasource").should(
     "have.nested.property",
     "response.body.data.success",
@@ -2260,7 +2260,7 @@ Cypress.Commands.add("testDatasource", (expectedRes = true) => {
 });
 
 Cypress.Commands.add("saveDatasource", () => {
-  cy.get(".t--save-datasource").click();
+  cy.get(".t--save-datasource").click({ force: true });
   cy.wait("@saveDatasource")
     .then((xhr) => {
       cy.log(JSON.stringify(xhr.response.body));
