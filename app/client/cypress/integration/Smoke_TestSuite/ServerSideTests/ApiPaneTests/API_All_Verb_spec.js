@@ -4,7 +4,9 @@ import ApiEditor from "../../../../locators/ApiEditor";
 
 describe("API Panel Test Functionality", function() {
   afterEach(function() {
-    cy.get(ApiEditor.ApiActionMenu).click({ force: true });
+    cy.get(ApiEditor.ApiActionMenu)
+      .first()
+      .click({ force: true });
     cy.get(apiwidget.deleteAPI).click({ force: true });
     cy.get(apiwidget.deleteAPI)
       .contains("Are you sure?")

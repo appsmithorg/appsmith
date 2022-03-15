@@ -145,6 +145,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         },
         {
           confirmDelete: confirmDelete,
+          className: "t--apiFormDeleteBtn",
           value: "delete",
           onSelect: () => {
             confirmDelete

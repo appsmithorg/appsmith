@@ -2614,7 +2614,9 @@ Cypress.Commands.add("deleteDataSource", () => {
 });
 
 Cypress.Commands.add("deleteQueryUsingContext", () => {
-  cy.get(queryEditor.queryMoreAction).click();
+  cy.get(queryEditor.queryMoreAction)
+    .first()
+    .click();
   cy.get(queryEditor.deleteUsingContext).click();
   cy.get(queryEditor.deleteUsingContext)
     .contains("Are you sure?")

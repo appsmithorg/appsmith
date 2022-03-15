@@ -55,6 +55,7 @@ export function DataSourceContextMenu(props: {
         },
         {
           confirmDelete: confirmDelete,
+          className: "t--apiFormDeleteBtn",
           value: "delete",
           onSelect: () => {
             confirmDelete ? dispatchDelete() : setConfirmDelete(true);

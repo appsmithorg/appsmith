@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
-import {
-  StyledDropDownContainer,
-  StyledMenuItem,
-  StyledMenu,
-} from "components/propertyControls/StyledControls";
+import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
+import { StyledMenu } from "components/ads/TreeDropdown";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,
@@ -14,6 +11,7 @@ import {
   Popover,
   Classes,
   Position,
+  MenuItem,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "constants/DefaultTheme";
@@ -149,7 +147,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
     return (
-      <StyledMenuItem
+      <MenuItem
         active={isSelected}
         className={option.className || "single-select"}
         icon={option.icon}
@@ -172,7 +170,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         text={option.label}
       >
         {option.children && option.children.map(renderTreeOption)}
-      </StyledMenuItem>
+      </MenuItem>
     );
   }
 

@@ -58,7 +58,7 @@ export type TreeDropdownProps = {
   editorPageContextMenu?: boolean;
 };
 
-const StyledMenu = styled(Menu)`
+export const StyledMenu = styled(Menu)`
   max-height: ${(props) =>
     `calc(100vh - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight})`};
   overflow: auto;
