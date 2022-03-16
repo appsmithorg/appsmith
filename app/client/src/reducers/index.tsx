@@ -8,7 +8,6 @@ import { EditorReduxState } from "./uiReducers/editorReducer";
 import { ErrorReduxState } from "./uiReducers/errorReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
-import { TemplatesReduxState } from "./uiReducers/templateReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
@@ -78,7 +77,6 @@ export interface AppState {
     applications: ApplicationsReduxState;
     apiPane: ApiPaneReduxState;
     auth: AuthState;
-    templates: TemplatesReduxState;
     orgs: OrgReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;

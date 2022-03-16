@@ -43,7 +43,7 @@ export class AggregateHelper {
     }
 
     public NavigateToDSAdd() {
-        cy.get(locator._addNewDataSource).last().scrollIntoView()
+        cy.get(locator._addNewDataSource).last()
             .should("be.visible")
             .click({ force: true });
     }
@@ -71,7 +71,7 @@ export class AggregateHelper {
     }
 
     public SelectEntityByName(entityNameinLeftSidebar: string) {
-        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar), {timeout: 30000})
+        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
             .last()
             .click({ multiple: true })
         this.Sleep()
@@ -164,18 +164,10 @@ export class AggregateHelper {
             }).then(() => this.Sleep(timeout))
     }
 
-    public ValidateNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
+    public ValidateNetworkCallRespPost(aliasName: string, expectedRes = true) {
         cy.wait(aliasName).should(
             "have.nested.property",
             "response.body.data.isExecutionSuccess",
-            expectedRes,
-        )
-    }
-
-    public ValidateNetworkStatus(aliasName: string, expectedRes = 200) {
-        cy.wait(aliasName).should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
             expectedRes,
         )
     }
@@ -189,20 +181,11 @@ export class AggregateHelper {
     }
 
     public SelectPropertiesDropDown(endp: string, ddOption: string,) {
-        cy.xpath(locator._selectPropDropdown(endp))
+        cy.xpath(locator._selectDropdown(endp))
             .first()
             .scrollIntoView()
             .click()
         cy.get(locator._dropDownValue(ddOption)).click()
-    }
-
-    public SelectDropDown(endp: string, ddOption: string,) {
-        cy.xpath(locator._selectWidgetDropdown(endp))
-            .first()
-            .scrollIntoView()
-            .click()
-        cy.get(locator._dropDownValue(ddOption)).click({ force: true })
-        this.Sleep(2000)
     }
 
     public EnterActionValue(actionName: string, value: string, paste = true) {
@@ -291,8 +274,7 @@ export class AggregateHelper {
     }
 
     public GetObjectName() {
-        //cy.get(locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName")); or below syntax
-        return cy.get(locator._queryName).invoke("text");
+        cy.get(locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName"));
     }
 
     public Sleep(timeout = 1000) {
@@ -306,6 +288,7 @@ export class AggregateHelper {
         cy.get(locator._homePageAppCreateBtn)
             .should("be.visible")
             .should("be.enabled");
+        //cy.get(this._homePageAppCreateBtn);
     }
 
     public CreateNewApplication() {
@@ -380,9 +363,5 @@ export class AggregateHelper {
             .then(($text) => {
                 if ($text.text()) expect($text.text()).to.eq(currentValue);
             });
-    }
-
-    public ReadTableRowColumnData(rowNum: number, colNum: number) {
-        return cy.get(locator._tableRowColumn(rowNum, colNum)).invoke("text");
     }
 }

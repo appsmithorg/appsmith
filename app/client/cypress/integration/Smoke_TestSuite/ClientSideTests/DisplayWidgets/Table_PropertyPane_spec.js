@@ -126,12 +126,10 @@ describe("Table Widget property pane feature validation", function() {
   });
 
   it("Column Detail - Edit column name and validate test for computed value based on column type selected", function() {
-    cy.wait(1000);
     cy.makeColumnVisible("email");
     cy.makeColumnVisible("userName");
     cy.makeColumnVisible("productName");
     cy.makeColumnVisible("orderAmount");
-    cy.openPropertyPane("tablewidget");
 
     // Open column detail to be edited by draggable id
     cy.editColumn("id");
@@ -212,8 +210,8 @@ describe("Table Widget property pane feature validation", function() {
       cy.changeColumnType("URL");
       // "Image" to "url"
       cy.updateComputedValue(testdata.currentRowEmail);
-      cy.readTabledataPublish("1", "0", true).then((tabData2) => {
-        expect(tabData2).not.to.equal("lindsay.ferguson@reqres.in");
+      cy.readTabledataPublish("1", "0").then((tabData2) => {
+        expect(tabData2).to.not.equal("lindsay.ferguson@reqres.in");
         cy.log("computed value of URL is " + tabData2);
       });
     });
@@ -224,25 +222,19 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.centerAlign)
       .first()
       .click({ force: true });
-    cy.readTabledataValidateCSS("1", "0", "justify-content", "center", true);
+    cy.readTabledataValidateCSS("1", "0", "justify-content", "center");
 
     // Verifying Right Alignment
     cy.get(widgetsPage.rightAlign)
       .first()
       .click({ force: true });
-    cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end", true);
+    cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
 
     // Verifying Left Alignment
     cy.get(widgetsPage.leftAlign)
       .first()
       .click({ force: true });
-    cy.readTabledataValidateCSS(
-      "0",
-      "0",
-      "justify-content",
-      "flex-start",
-      true,
-    );
+    cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-start");
   });
 
   it("Test to validate text format", function() {
@@ -257,17 +249,17 @@ describe("Table Widget property pane feature validation", function() {
   it("Test to validate vertical allignment", function() {
     // Validate vertical alignemnt of Cell text to TOP
     cy.get(widgetsPage.verticalTop).click({ force: true });
-    cy.readTabledataValidateCSS("1", "0", "align-items", "flex-start", true);
+    cy.readTabledataValidateCSS("1", "0", "align-items", "flex-start");
     // Validate vertical alignemnt of Cell text to Center
     cy.get(widgetsPage.verticalCenter)
       .last()
       .click({ force: true });
-    cy.readTabledataValidateCSS("1", "0", "align-items", "center", true);
+    cy.readTabledataValidateCSS("1", "0", "align-items", "center");
     // Validate vertical alignemnt of Cell text to Bottom
     cy.get(widgetsPage.verticalBottom)
       .last()
       .click({ force: true });
-    cy.readTabledataValidateCSS("0", "0", "align-items", "flex-end", true);
+    cy.readTabledataValidateCSS("0", "0", "align-items", "flex-end");
   });
 
   it("Test to validate text color and text background", function() {
@@ -279,12 +271,12 @@ describe("Table Widget property pane feature validation", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)", true);
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
     // Changing text color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsColor).click();
     cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)", true);
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     // Changing Cell backgroud color to GREEN and validate
     cy.get(widgetsPage.backgroundColor)
       .first()
@@ -296,7 +288,6 @@ describe("Table Widget property pane feature validation", function() {
       "0",
       "background",
       "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
-      true,
     );
     // Changing Cell backgroud color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsBcgColor).click();
@@ -307,7 +298,6 @@ describe("Table Widget property pane feature validation", function() {
       "0",
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
-      true,
     );
     // close property pane
     cy.closePropertyPane();

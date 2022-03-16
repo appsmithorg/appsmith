@@ -455,7 +455,7 @@ public class ActionCollectionServiceImplTest {
                                     .collect(Collectors.toSet())
                                     .containsAll(Set.of("testActionId1", "testActionId3")));
                     Assert.assertEquals("testActionId2", actionCollectionDTO1.getArchivedActions().get(0).getId());
-                    Assert.assertTrue(archivedAfter.isBefore(actionCollectionDTO1.getArchivedActions().get(0).getDeletedAt()));
+                    Assert.assertTrue(archivedAfter.isBefore(actionCollectionDTO1.getArchivedActions().get(0).getArchivedAt()));
                 })
                 .verifyComplete();
     }
@@ -570,7 +570,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(actionCollection));
 
         Mockito
-                .when(actionCollectionRepository.archive(Mockito.any()))
+                .when(actionCollectionRepository.delete(Mockito.any()))
                 .thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");
@@ -603,11 +603,11 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(actionCollection));
 
         Mockito
-                .when(newActionService.archiveById(Mockito.any()))
+                .when(newActionService.delete(Mockito.any()))
                 .thenReturn(Mono.just(new NewAction()));
 
         Mockito
-                .when(actionCollectionRepository.archive(Mockito.any()))
+                .when(actionCollectionRepository.delete(Mockito.any()))
                 .thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");

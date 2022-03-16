@@ -43,5 +43,5 @@ public interface OrganizationServiceCE extends CrudService<Organization, String>
 
     Flux<Organization> getAll();
 
-    Mono<Organization> archiveById(String s);
+    Mono<Organization> delete(String s);
 }

@@ -185,7 +185,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     }
 
                     if (changesCopy.containsKey(APPSMITH_SIGNUP_DISABLED.name())) {
-                        commonConfig.setSignupDisabled(changesCopy.remove(APPSMITH_SIGNUP_DISABLED.name()));
+                        commonConfig.setSignupDisabled("true".equals(changesCopy.remove(APPSMITH_SIGNUP_DISABLED.name())));
                     }
 
                     if (changesCopy.containsKey(APPSMITH_SIGNUP_ALLOWED_DOMAINS.name())) {

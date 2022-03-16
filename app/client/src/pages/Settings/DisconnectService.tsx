@@ -47,7 +47,7 @@ export function DisconnectService(props: {
     <Container>
       <HeaderDanger>{createMessage(DANGER_ZONE)}</HeaderDanger>
       <Info>{props.subHeader}</Info>
-      <Callout title={props.warning} type="Warning" />
+      <Callout actionLabel="Learn More" title={props.warning} type="Warning" />
       <DisconnectButton
         onClick={props.disconnect}
         text="Disconnect"

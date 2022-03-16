@@ -5,7 +5,6 @@ import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
 // import { ReactComponent as ExpandMore } from "assets/icons/ads/expand-more.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
-import { ReactComponent as Fork2Icon } from "assets/icons/ads/fork-2.svg";
 import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
@@ -147,7 +146,6 @@ import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
 import FileListLineIcon from "remixicon-react/FileListLineIcon";
 import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
-import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -261,7 +259,6 @@ const ICON_LOOKUP = {
   "expand-more": <ExpandMore />,
   "eye-off": <EyeOff />,
   "eye-on": <EyeOn />,
-  "fork-2": <Fork2Icon />,
   "file-transfer": <FileTransfer />,
   "git-branch": <GitBranchLineIcon />,
   "git-commit": <GitCommit />,
@@ -295,7 +292,6 @@ const ICON_LOOKUP = {
   "trending-flat": <TrendingFlat />,
   "unread-pin": <UnreadPin />,
   "user-2": <UserV2Icon />,
-  "user-heart-line": <UserHeartLineIcon />,
   "view-all": <RightArrowIcon />,
   "view-less": <LeftArrowIcon />,
   "warning-line": <WarningLineIcon />,
@@ -335,7 +331,6 @@ const ICON_LOOKUP = {
   loader: <LoaderLineIcon />,
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
-  member: <UserHeartLineIcon />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
   pin: <Pin />,

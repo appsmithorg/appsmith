@@ -271,7 +271,6 @@ export default class DataTreeEvaluator {
         jsUpdates: {},
       };
     }
-    //find all differences which can lead to updating of dependency map
     const translatedDiffs = _.flatten(
       differences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
@@ -291,8 +290,6 @@ export default class DataTreeEvaluator {
       removedPaths,
     } = this.updateDependencyMap(translatedDiffs, localUnEvalTree);
     const updateDependenciesStop = performance.now();
-
-    this.applyDifferencesToEvalTree(differences);
 
     const calculateSortOrderStart = performance.now();
 
@@ -482,7 +479,7 @@ export default class DataTreeEvaluator {
         }),
       );
     });
-    dependencyMap = makeParentsDependOnChildren(dependencyMap, this.allKeys);
+    dependencyMap = makeParentsDependOnChildren(dependencyMap);
     return dependencyMap;
   }
 
@@ -1398,10 +1395,7 @@ export default class DataTreeEvaluator {
           ),
         );
       });
-      this.dependencyMap = makeParentsDependOnChildren(
-        this.dependencyMap,
-        this.allKeys,
-      );
+      this.dependencyMap = makeParentsDependOnChildren(this.dependencyMap);
     }
     const subDepCalcEnd = performance.now();
     const updateChangedDependenciesStart = performance.now();
@@ -1428,14 +1422,6 @@ export default class DataTreeEvaluator {
     return { dependenciesOfRemovedPaths, removedPaths };
   }
 
-  applyDifferencesToEvalTree(differences: Diff<any, any>[]) {
-    for (const d of differences) {
-      if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
-      // Apply the changes into the evalTree so that it gets the latest changes
-      applyChange(this.evalTree, undefined, d);
-    }
-  }
-
   calculateSubTreeSortOrder(
     differences: Diff<any, any>[],
     dependenciesOfRemovedPaths: Array<string>,
@@ -1443,8 +1429,12 @@ export default class DataTreeEvaluator {
     unEvalTree: DataTree,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
+
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
+      // Apply the changes into the evalTree so that it gets the latest changes
+      applyChange(this.evalTree, undefined, d);
+
       changePaths.add(convertPathToString(d.path));
       // If this is a property path change, simply add for evaluation and move on
       if (!isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {

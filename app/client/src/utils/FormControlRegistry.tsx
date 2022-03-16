@@ -45,6 +45,9 @@ import SortingControl, {
 import EntitySelectorControl, {
   EntitySelectorControlProps,
 } from "components/formControls/EntitySelectorControl";
+import ProjectionSelectorControl, {
+  ProjectionSelectorControlProps,
+} from "components/formControls/ProjectionSelectorControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -148,15 +151,10 @@ class FormControlRegistry {
       },
     });
     FormControlFactory.registerControlBuilder("PROJECTION", {
-      buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
-        return (
-          <DropDownControl
-            fetchOptionsCondtionally
-            isMultiSelect
-            isSearchable
-            {...controlProps}
-          />
-        );
+      buildPropertyControl(
+        controlProps: ProjectionSelectorControlProps,
+      ): JSX.Element {
+        return <ProjectionSelectorControl {...controlProps} />;
       },
     });
   }

@@ -16,6 +16,8 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MarketplaceService;
+import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewActionServiceImpl;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
@@ -59,9 +61,9 @@ import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class NewActionServiceCEImplTest {
-    
-    NewActionServiceCE newActionService;
+public class NewActionServiceImplTest {
+
+    NewActionService newActionService;
 
     @MockBean
     Scheduler scheduler;
@@ -109,7 +111,7 @@ public class NewActionServiceCEImplTest {
 
     @Before
     public void setup() {
-        newActionService = new NewActionServiceCEImpl(scheduler,
+        newActionService = new NewActionServiceImpl(scheduler,
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,

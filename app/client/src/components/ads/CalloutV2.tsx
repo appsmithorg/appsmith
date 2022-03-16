@@ -32,7 +32,6 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
     font-size: 12px;
     line-height: 16px;
   }
-  
   a {
     font-style: normal;
     font-weight: 600;
@@ -84,12 +83,10 @@ export function Callout(props: {
       )}
       <div>
         <h4>{props.title}</h4>
-        {props.actionLabel && (
-          <a {...linkProps}>
-            {props.actionLabel}&nbsp;&nbsp;
-            <Icon name="right-arrow" size={IconSize.LARGE} />
-          </a>
-        )}
+        <a {...linkProps}>
+          {props.actionLabel}&nbsp;&nbsp;
+          <Icon name="right-arrow" size={IconSize.LARGE} />
+        </a>
       </div>
     </Wrapper>
   );

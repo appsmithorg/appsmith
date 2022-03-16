@@ -1,0 +1,253 @@
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Method Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "method"
+        },
+        {
+          "label": "Method",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "GET_DOCUMENT",
+          "options": [
+            {
+              "label": "Get Single Document",
+              "value": "GET_DOCUMENT"
+            },
+            {
+              "label": "Get Documents in Collection",
+              "value": "GET_COLLECTION"
+            },
+            {
+              "label": "Set Document",
+              "value": "SET_DOCUMENT"
+            },
+            {
+              "label": "Create Document",
+              "value": "CREATE_DOCUMENT"
+            },
+            {
+              "label": "Add Document to Collection",
+              "value": "ADD_TO_COLLECTION"
+            },
+            {
+              "label": "Update Document",
+              "value": "UPDATE_DOCUMENT"
+            },
+            {
+              "label": "Delete Document",
+              "value": "DELETE_DOCUMENT"
+            }
+          ]
+        },
+        {
+          "label": "Collection/Document Path",
+          "configProperty": "actionConfiguration.path",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "Timestamp Value Path Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "timestampValuePath",
+          "hidden": true
+        },
+        {
+          "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value":  ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT"]
+          }
+        },
+        {
+          "label": "Delete Key Value Pair Path Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "deleteKeyValuePairPath",
+          "hidden": true
+        },
+        {
+          "label": "Delete Key Value Pair Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "[\"userKey.nestedNamekey\", \"cityKey.nestedPincodeKey\"]",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value":  ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT", "CREATE_DOCUMENT", "ADD_TO_COLLECTION", "SET_DOCUMENT"]
+          }
+        },
+        {
+          "label": "Order By Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "orderBy"
+        },
+        {
+          "label": "Order By (JSON array of field names to order by)",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "placeholderText": "[\"ascendingField\", \"-descendingField\", \"nestedObj.field\"]",
+          "initialValue": ""
+        },
+        {
+          "label": "Start After Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
+        },
+        {
+          "label": "Start After",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "End Before Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
+        },
+        {
+          "label": "End Before",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "Limit Documents Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
+        },
+        {
+          "label": "Limit Documents",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "initialValue": "10"
+        },
+        {
+          "label": "Where Conditions Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "whereConditionTuples"
+        },
+        {
+          "label": "Where Conditions",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+          "controlType": "ARRAY_FIELD",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "schema": [
+            {
+              "label": "Path",
+              "key": "path",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "key1/nestedKey2"
+            },
+            {
+              "label": "Operator",
+              "key": "operator",
+              "controlType": "DROP_DOWN",
+              "initialValue": "EQ",
+              "options": [
+                {
+                  "label": "<",
+                  "value": "LT"
+                },
+                {
+                  "label": "<=",
+                  "value": "LTE"
+                },
+                {
+                  "label": "==",
+                  "value": "EQ"
+                },
+                {
+                  "label": ">=",
+                  "value": "GTE"
+                },
+                {
+                  "label": ">",
+                  "value": "GT"
+                },
+                {
+                  "label": "array-contains",
+                  "value": "ARRAY_CONTAINS"
+                },
+                {
+                  "label": "in",
+                  "value": "IN"
+                },
+                {
+                  "label": "array-contains-any",
+                  "value": "ARRAY_CONTAINS_ANY"
+                }
+              ]
+            },
+            {
+              "label": "Value",
+              "key": "value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "value"
+            }
+          ]
+        },
+        {
+          "label": "Body",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value": ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT"]
+          }
+        }
+      ]
+    }
+  ]
+}
