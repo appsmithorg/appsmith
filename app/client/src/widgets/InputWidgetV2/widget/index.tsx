@@ -342,6 +342,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       inputText: "defaultText",
+      text: "defaultText",
     };
   }
 
