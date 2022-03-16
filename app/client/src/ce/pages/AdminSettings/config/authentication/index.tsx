@@ -85,6 +85,7 @@ const Google_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
@@ -93,6 +94,7 @@ const Google_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client Secret",
+      isRequired: true,
     },
     {
       id: "APPSMITH_SIGNUP_ALLOWED_DOMAINS",
@@ -130,6 +132,7 @@ const Github_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET",
@@ -138,6 +141,7 @@ const Github_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client Secret",
+      isRequired: true,
     },
   ],
 };
