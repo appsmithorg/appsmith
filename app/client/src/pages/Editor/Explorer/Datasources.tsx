@@ -108,7 +108,7 @@ const Datasources = React.memo(() => {
       searchKeyword={""}
       step={0}
     >
-      {appWideDS.length ? (
+      {datasourceElements.length ? (
         datasourceElements
       ) : (
         <EmptyComponent
@@ -117,7 +117,7 @@ const Datasources = React.memo(() => {
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
         />
       )}
-      {appWideDS.length > 0 && (
+      {datasourceElements.length > 0 && (
         <AddEntity
           action={addDatasource}
           entityId={pageId + "_datasources_add_new_datasource"}
