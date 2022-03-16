@@ -47,7 +47,7 @@ describe("Slug URLs", () => {
 
   it("Checks if page slug updates on the URL when page name changes", () => {
     cy.GlobalSearchEntity("Page1");
-    cy.RenameEntity("Page renamed", true);
+    cy.RenameEntity("Page renamed");
     cy.get("body").click(0, 0);
     cy.wait("@updatePage").should(
       "have.nested.property",

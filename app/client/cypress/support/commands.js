@@ -2935,6 +2935,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "api/v1/import/templateCollections").as(
     "getTemplateCollections",
   );
+  cy.route("PUT", "/api/v1/pages/*").as("updatePage");
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAPI");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
