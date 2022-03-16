@@ -646,7 +646,9 @@ export const getNewPositions = function*(
     newPastingPositionMap,
     reflowedMovementMap,
     canvasId,
-    bottomMostRow,
+    bottomMostRow:
+      (bottomMostRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+      gridProps.parentRowSpace,
   };
 };
 
