@@ -42,6 +42,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
@@ -73,6 +74,12 @@ import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 
 function* createApplication() {
+  // If we are starting onboarding from the editor wait for the editor to reset.
+  const isEditorInitialised = yield select(getIsEditorInitialized);
+  if (isEditorInitialised) {
+    yield take(ReduxActionTypes.RESET_EDITOR_SUCCESS);
+  }
+
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
   const currentUser = yield select(getCurrentUser);
   const currentOrganizationId = currentUser.currentOrganizationId;
