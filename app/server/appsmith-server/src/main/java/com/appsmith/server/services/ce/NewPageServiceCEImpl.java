@@ -582,8 +582,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, isViewMode, true);
         } else if(StringUtils.hasLength(pageId)) {
             return findRootApplicationIdFromNewPage(branchName, pageId)
-                    .flatMap(branchedApplicationId -> findApplicationPagesByApplicationIdViewMode(branchedApplicationId, isViewMode, true))
-                    .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
+                    .flatMap(rootApplicationId -> findApplicationPagesByApplicationIdViewModeAndBranch(rootApplicationId, branchName, isViewMode, true))
+                    ;
         } else {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
         }
