@@ -59,15 +59,5 @@ public class TextUtils {
         Set<String> parts = new HashSet<>(Arrays.asList(inputStringCsv.trim().split("(\\s*,\\s*)+")));
         parts.remove("");
         return parts;
-//        Set<String> stringSet = new HashSet<>();
-//        if(inputStringCsv != null) {
-//            String[] strings = inputStringCsv.split("(\\s*,\\s*)+");
-//            for(String str : strings) {
-//                if(str.length() > 0) {
-//                    stringSet.add(str.trim());
-//                }
-//            }
-//        }
-//        return stringSet;
     }
 }

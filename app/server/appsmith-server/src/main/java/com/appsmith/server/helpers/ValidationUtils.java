@@ -12,7 +12,7 @@ public final class ValidationUtils {
     private static final String EMAIL_PATTERN = "[\\w+\\-.%]+@[\\w\\-.]+\\.[A-Za-z]+";
 
     private static final Pattern EMAIL_CSV_PATTERN = Pattern.compile(
-            "^[\\s]*(" + EMAIL_PATTERN + "[\\s]*,[\\s]*)*(" + EMAIL_PATTERN + ")[\\s]*$"
+            "^\\s*(" + EMAIL_PATTERN + "\\s*,\\s*)*(" + EMAIL_PATTERN + ")\\s*$"
     );
 
     public static boolean validateEmail(String emailStr) {
