@@ -46,6 +46,7 @@ import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 
 import { reflow } from "reflow";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -405,29 +406,8 @@ export const getBoundaryWidgetsFromCopiedGroups = function(
     leftMostWidget,
     rightMostWidget,
     bottomMostWidget,
-    totalWidth: leftMostWidget.rightColumn - rightMostWidget.leftColumn,
-  };
-};
-
-const getBoundariesFromSelectedWidgets = function(
-  selectedWidgets: WidgetProps[],
-) {
-  const topMostWidget = selectedWidgets.sort((a, b) => a.topRow - b.topRow)[0];
-  const leftMostWidget = selectedWidgets.sort(
-    (a, b) => a.leftColumn - b.leftColumn,
-  )[0];
-  const rightMostWidget = selectedWidgets.sort(
-    (a, b) => b.rightColumn - a.rightColumn,
-  )[0];
-  const thickestWidget = selectedWidgets.sort(
-    (a, b) => b.bottomRow - b.topRow - a.topRow + a.bottomRow,
-  )[0];
-
-  return {
-    totalWidth: leftMostWidget.rightColumn - rightMostWidget.leftColumn,
-    maxThickness: thickestWidget.bottomRow - thickestWidget.topRow,
-    topMostHeight: topMostWidget.topRow,
-    selectedLeftMost: leftMostWidget.leftColumn,
+    totalWidth: rightMostWidget.rightColumn - leftMostWidget.leftColumn,
+    totalHeight: bottomMostWidget.bottomRow - topMostWidget.topRow,
   };
 };
 
@@ -552,17 +532,6 @@ function getSnappedGrid(canvasWidget: WidgetProps, canvasWidth: number) {
   };
 }
 
-function getContainerIdForCanvas(canvasId: string) {
-  if (canvasId === MAIN_CONTAINER_WIDGET_ID) return canvasId;
-
-  const selector = `#canvas-selection-${canvasId}`;
-  const canvasDOM = document.querySelector(selector);
-  if (!canvasDOM) return;
-  const containerDOM = canvasDOM.closest(".positioned-widget");
-
-  return containerDOM?.id;
-}
-
 function getCanvasIdForContainer(containerId: string) {
   const selector = `.positioned-widget.appsmith_widget_${containerId}`;
   const containerDOM = document.querySelector(selector);
@@ -575,6 +544,7 @@ function getCanvasIdForContainer(containerId: string) {
 export const getNewPositions = function*(
   copiedWidgetGroups: CopiedWidgetGroup[],
   mouseLocation: { top: number; left: number },
+  copiedTotalHeight: number,
   copiedTotalWidth: number,
   copiedMaxTop: number,
   copiedMaxLeft: number,
@@ -586,121 +556,68 @@ export const getNewPositions = function*(
   let containerWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
   let canvasId: string | undefined = MAIN_CONTAINER_WIDGET_ID;
 
-  if (
-    !(
-      selectedWidgets.length === 1 && checkIsDropTarget(selectedWidgets[0].type)
-    ) &&
-    selectedWidgetIDs.length > 0
-  ) {
-    const parentId = selectedWidgets[0].parentId || "";
-    const containerId = getContainerIdForCanvas(parentId);
-    if (!containerId) return {};
-
-    containerWidget = canvasWidgets[containerId];
-
-    const { snapGrid } = getGridParameters(containerWidget);
-
-    if (!snapGrid) return {};
-
-    const selectedWidgetsArray = selectedWidgets.length ? selectedWidgets : [];
-    const {
-      maxThickness,
-      selectedLeftMost,
-      topMostHeight: selectedTopMostHeight,
-      totalWidth,
-    } = getBoundariesFromSelectedWidgets(selectedWidgetsArray);
-
-    let leftOffSet = copiedMaxLeft - selectedLeftMost;
-    leftOffSet += (copiedTotalWidth - totalWidth) / 2;
-    const copiedSpaces = getCopiedSpaces(
-      copiedWidgetGroups,
-      copiedMaxTop,
-      selectedTopMostHeight,
-      leftOffSet,
-    );
-
-    const newPastingPositionMap = getNewCopiedSpacePositions(
-      copiedSpaces,
-      getOccupiedSpacesFromProps(selectedWidgetsArray),
-      maxThickness,
-    );
-
-    const gridProps = {
-      parentColumnSpace: snapGrid.snapColumnSpace,
-      parentRowSpace: snapGrid.snapRowSpace,
-      maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
-    };
-    const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
-    const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) ||
-      [];
-
-    const newPastePositions = getNewPastePositions(newPastingPositionMap);
-
-    const { movementMap: reflowedMovementMap } = reflow(
-      newPastePositions,
-      newPastePositions,
-      widgetSpaces,
-      ReflowDirection.BOTTOM,
-      gridProps,
-      true,
-      false,
-      {} as PrevReflowState,
-    );
-
-    return {
-      gridProps,
-      newPastingPositionMap,
-      reflowedMovementMap,
-      canvasId: parentId,
-    };
-  }
-
+  let {
+    mousePositions: pastingMousePositions,
+    snapGrid: pastingSnapGrid,
+  } = getGridParameters(containerWidget, mouseLocation);
   if (
     selectedWidgets.length === 1 &&
     checkIsDropTarget(selectedWidgets[0].type)
   ) {
-    containerWidget = canvasWidgets[selectedWidgetIDs[0]];
-    canvasId = getCanvasIdForContainer(containerWidget.widgetId);
+    const { mousePositions, snapGrid } = getGridParameters(
+      canvasWidgets[selectedWidgetIDs[0]],
+      mouseLocation,
+    );
+    if (mousePositions) {
+      pastingMousePositions = mousePositions;
+      pastingSnapGrid = snapGrid;
+      containerWidget = canvasWidgets[selectedWidgetIDs[0]];
+      canvasId = getCanvasIdForContainer(containerWidget.widgetId);
+    }
   }
 
-  const { mousePositions, snapGrid } = getGridParameters(
-    containerWidget,
-    mouseLocation,
-  );
-
-  if (!snapGrid || !canvasId || !mousePositions) return {};
+  if (!pastingSnapGrid || !canvasId || !pastingMousePositions) return {};
 
   const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(canvasId);
   const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
 
-  let topOffset = mousePositions.top;
-  const leftOffSet =
-    mousePositions.left + copiedTotalWidth > GridDefaults.DEFAULT_GRID_COLUMNS
-      ? GridDefaults.DEFAULT_GRID_COLUMNS - copiedTotalWidth
-      : mousePositions.left;
+  let topOffSet = pastingMousePositions.top - copiedTotalHeight / 2;
+  let leftOffSet = pastingMousePositions.left - copiedTotalWidth / 2;
 
   for (const widgetSpace of widgetSpaces) {
     if (
-      widgetSpace.top < mousePositions.top &&
-      widgetSpace.left < mousePositions.left &&
-      widgetSpace.bottom > mousePositions.top &&
-      widgetSpace.right > mousePositions.left
+      widgetSpace.top < pastingMousePositions.top &&
+      widgetSpace.left < pastingMousePositions.left &&
+      widgetSpace.bottom > pastingMousePositions.top &&
+      widgetSpace.right > pastingMousePositions.left
     ) {
-      topOffset = widgetSpace.bottom + 1;
+      topOffSet = widgetSpace.bottom + 1;
+      leftOffSet =
+        widgetSpace.left -
+        (copiedTotalWidth - (widgetSpace.right - widgetSpace.left)) / 2;
     }
   }
 
+  leftOffSet = Math.round(leftOffSet);
+  topOffSet = Math.round(topOffSet);
+
+  if (leftOffSet < 0) leftOffSet = 0;
+  if (topOffSet < 0) topOffSet = 0;
+  if (leftOffSet + copiedTotalWidth > GridDefaults.DEFAULT_GRID_COLUMNS)
+    leftOffSet = GridDefaults.DEFAULT_GRID_COLUMNS - copiedTotalWidth;
+
   const newPastingPositionMap = getCopiedSpacesMapForMousePointer(
     copiedWidgetGroups,
+    widgetSpaces,
     copiedMaxTop,
     copiedMaxLeft,
-    topOffset,
+    topOffSet,
     leftOffSet,
   );
 
   const gridProps = {
-    parentColumnSpace: snapGrid.snapColumnSpace,
-    parentRowSpace: snapGrid.snapRowSpace,
+    parentColumnSpace: pastingSnapGrid.snapColumnSpace,
+    parentRowSpace: pastingSnapGrid.snapRowSpace,
     maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
   };
 
@@ -717,13 +634,31 @@ export const getNewPositions = function*(
     {} as PrevReflowState,
   );
 
+  const bottomMostRow = getBottomRowAfterReflow(
+    reflowedMovementMap,
+    getBottomMostRow(newPastePositions),
+    widgetSpaces,
+    gridProps,
+  );
+
   return {
     gridProps,
     newPastingPositionMap,
     reflowedMovementMap,
     canvasId,
+    bottomMostRow,
   };
 };
+
+function getBottomMostRow(newPositions: OccupiedSpace[]): number {
+  return newPositions
+    .map((space) => space.bottom)
+    .reduce(
+      (prevBottomRow, currentBottomRow) =>
+        Math.max(prevBottomRow, currentBottomRow),
+      0,
+    );
+}
 
 function getNewPastePositions(newPastingPositionMap: SpaceMap) {
   const newPastePositions = [];
@@ -782,102 +717,52 @@ export function getReflowedPositions(
   return currentWidgets;
 }
 
-function getNewCopiedSpacePositions(
-  copiedSpaces: OccupiedSpace[],
-  selectedSpaces: OccupiedSpace[],
-  thickness: number,
-) {
-  let verticalOffset = thickness;
-
-  const newPastingPositionMap: SpaceMap = {};
-
-  for (let i = 0; i < copiedSpaces.length; i++) {
-    const copiedSpace = {
-      ...copiedSpaces[i],
-      top: copiedSpaces[i].top + verticalOffset,
-      bottom: copiedSpaces[i].bottom + verticalOffset,
-    };
-
-    for (let j = 0; j < selectedSpaces.length; j++) {
-      const selectedSpace = selectedSpaces[j];
-      if (areIntersecting(copiedSpace, selectedSpace)) {
-        verticalOffset += selectedSpace.bottom - copiedSpace.top;
-        i = 0;
-        j = 0;
-        break;
-      }
-    }
-  }
-
-  verticalOffset++;
-
-  for (const copiedSpace of copiedSpaces) {
-    newPastingPositionMap[copiedSpace.id] = {
-      ...copiedSpace,
-      top: copiedSpace.top + verticalOffset,
-      bottom: copiedSpace.bottom + verticalOffset,
-    };
-  }
-
-  return newPastingPositionMap;
-}
-
-function getOccupiedSpacesFromProps(widgets: WidgetProps[]): OccupiedSpace[] {
-  const occupiedSpaces = [];
-  for (const widget of widgets) {
-    const currentSpace = {
-      id: widget.widgetId,
-      top: widget.topRow,
-      left: widget.leftColumn,
-      bottom: widget.bottomRow,
-      right: widget.rightColumn,
-    } as OccupiedSpace;
-    occupiedSpaces.push(currentSpace);
-  }
-
-  return occupiedSpaces;
-}
-function getCopiedSpaces(
-  copiedWidgetGroups: CopiedWidgetGroup[],
-  copiedTopMostRow: number,
-  selectedTopMostRow: number,
-  leftOffset: number,
-): OccupiedSpace[] {
-  const copiedSpacePositions = [];
-  for (const copiedWidgetGroup of copiedWidgetGroups) {
-    const copiedWidget = copiedWidgetGroup.list[0];
-    const currentSpace = {
-      id: copiedWidgetGroup.widgetId,
-      top: copiedWidget.topRow - copiedTopMostRow + selectedTopMostRow,
-      left: copiedWidget.leftColumn - leftOffset,
-      bottom: copiedWidget.bottomRow - copiedTopMostRow + selectedTopMostRow,
-      right: copiedWidget.rightColumn - leftOffset,
-    } as OccupiedSpace;
-    copiedSpacePositions.push(currentSpace);
-  }
-
-  return copiedSpacePositions;
-}
-
 function getCopiedSpacesMapForMousePointer(
   copiedWidgetGroups: CopiedWidgetGroup[],
+  widgetSpaces: WidgetSpace[],
   copiedTopMostRow: number,
   copiedLeftMostRow: number,
   selectedTopMostRow: number,
   selectedLeftMostRow: number,
 ): SpaceMap {
-  const newPastingPositionMap: SpaceMap = {};
+  const pastingPositions: OccupiedSpace[] = [];
 
   for (const copiedWidgetGroup of copiedWidgetGroups) {
     const copiedWidget = copiedWidgetGroup.list[0];
 
-    newPastingPositionMap[copiedWidgetGroup.widgetId] = {
+    pastingPositions.push({
       id: copiedWidgetGroup.widgetId,
       top: copiedWidget.topRow - copiedTopMostRow + selectedTopMostRow,
       left: copiedWidget.leftColumn - copiedLeftMostRow + selectedLeftMostRow,
       bottom: copiedWidget.bottomRow - copiedTopMostRow + selectedTopMostRow,
       right: copiedWidget.rightColumn - copiedLeftMostRow + selectedLeftMostRow,
-    } as OccupiedSpace;
+    } as OccupiedSpace);
+  }
+
+  let pushRowsDown = 0;
+  for (const pastingPosition of pastingPositions) {
+    for (const widgetSpace of widgetSpaces) {
+      if (
+        areIntersecting(pastingPosition, widgetSpace) &&
+        pastingPosition.top > widgetSpace.top
+      ) {
+        pushRowsDown = Math.max(
+          pushRowsDown,
+          pastingPosition.top - widgetSpace.top,
+        );
+      }
+    }
+  }
+
+  if (pushRowsDown) pushRowsDown++;
+
+  const newPastingPositionMap: SpaceMap = {};
+  for (const pastingPosition of pastingPositions) {
+    newPastingPositionMap[pastingPosition.id] = {
+      ...pastingPosition,
+      top: pastingPosition.top + pushRowsDown,
+      bottom: pastingPosition.bottom + pushRowsDown,
+    };
   }
 
   return newPastingPositionMap;

@@ -48,7 +48,6 @@ import {
 } from "constants/WidgetConstants";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { generateReactKey } from "utils/generators";
-import { flashElementsById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
@@ -861,13 +860,16 @@ function* pasteWidgetSaga(
   const {
     leftMostWidget,
     topMostWidget,
+    totalHeight: copiedTotalHeight,
     totalWidth: copiedTotalWidth,
   } = getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
   const nextAvailableRow: number = nextAvailableRowInContainer(
     pastingIntoWidgetId,
     widgets,
   );
+
   const {
+    bottomMostRow,
     canvasId,
     gridProps,
     newPastingPositionMap,
@@ -876,6 +878,7 @@ function* pasteWidgetSaga(
     getNewPositions,
     copiedWidgetGroups,
     action.payload.mouseLocation,
+    copiedTotalHeight,
     copiedTotalWidth,
     topMostWidget.topRow,
     leftMostWidget.leftColumn,
@@ -1042,7 +1045,7 @@ function* pasteWidgetSaga(
               ...widgets,
               [pastingIntoWidgetId]: {
                 ...widgets[pastingIntoWidgetId],
-                bottomRow: parentBottomRow,
+                bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
               },
             };
@@ -1112,7 +1115,7 @@ function* pasteWidgetSaga(
 
   yield put(updateAndSaveLayout(reflowedWidgets));
 
-  flashElementsById(newlyCreatedWidgetIds, 100);
+  //flashElementsById(newlyCreatedWidgetIds, 100);
 
   yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
 }
