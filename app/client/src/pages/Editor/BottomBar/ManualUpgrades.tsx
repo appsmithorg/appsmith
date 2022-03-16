@@ -68,7 +68,7 @@ function ManualUpgrades() {
     applicationVersion < latestVersion ? (
       <div className="text-sm">
         {`${latestVersion - applicationVersion} pending update(s)`}
-        <ul>
+        <ul className="mt-1">
           {updates.slice(applicationVersion - 1).map((u) => (
             <li key={u.name}>{u.shortDesc}</li>
           ))}
