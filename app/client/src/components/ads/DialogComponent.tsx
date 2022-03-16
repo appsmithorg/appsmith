@@ -10,6 +10,7 @@ const StyledDialog = styled(Dialog)<{
   maxHeight?: string;
   maxWidth?: string;
   showHeaderUnderline?: boolean;
+  noModalBodyMarginTop?: boolean;
 }>`
   && {
     border-radius: 0;
@@ -77,7 +78,7 @@ const StyledDialog = styled(Dialog)<{
 
     & .${Classes.DIALOG_BODY} {
       margin: 0;
-      margin-top: 24px;
+      margin-top: ${(props) => (props.noModalBodyMarginTop ? "0px" : "24px")};
       overflow: auto;
     }
 
@@ -123,6 +124,7 @@ type DialogComponentProps = {
   canEscapeKeyClose?: boolean;
   className?: string;
   maxWidth?: string;
+  noModalBodyMarginTop?: boolean;
 };
 
 export function DialogComponent(props: DialogComponentProps) {
@@ -173,6 +175,7 @@ export function DialogComponent(props: DialogComponentProps) {
         isOpen={isOpen}
         maxHeight={props.maxHeight}
         maxWidth={props.maxWidth}
+        noModalBodyMarginTop={props.noModalBodyMarginTop}
         onClose={onClose}
         onOpening={props.onOpening}
         setMaxWidth={props.setMaxWidth}
