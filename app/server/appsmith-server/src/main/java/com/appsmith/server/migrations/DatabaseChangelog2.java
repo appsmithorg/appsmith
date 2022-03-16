@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -399,8 +400,11 @@ public class DatabaseChangelog2 {
             dynamicBindingPathList
                     .stream()
                     .forEach(dynamicBindingPath -> {
-                        if (dynamicBindingMapper.containsKey(dynamicBindingPath.getKey())) {
-                            dynamicBindingPath.setKey(dynamicBindingMapper.get(dynamicBindingPath.getKey()));
+                        final String currentBinding = dynamicBindingPath.getKey();
+                        final Optional<String> matchingBinding = dynamicBindingMapper.keySet().stream().filter(currentBinding::startsWith).findFirst();
+                        if (matchingBinding.isPresent()) {
+                            final String newBindingPrefix = dynamicBindingMapper.get(matchingBinding.get());
+                            dynamicBindingPath.setKey(currentBinding.replace(matchingBinding.get(), newBindingPrefix));
                         }
                     });
         }
@@ -550,8 +554,11 @@ public class DatabaseChangelog2 {
             dynamicBindingPathList
                     .stream()
                     .forEach(dynamicBindingPath -> {
-                        if (dynamicBindingMapper.containsKey(dynamicBindingPath.getKey())) {
-                            dynamicBindingPath.setKey(dynamicBindingMapper.get(dynamicBindingPath.getKey()));
+                        final String currentBinding = dynamicBindingPath.getKey();
+                        final Optional<String> matchingBinding = dynamicBindingMapper.keySet().stream().filter(currentBinding::startsWith).findFirst();
+                        if (matchingBinding.isPresent()) {
+                            final String newBindingPrefix = dynamicBindingMapper.get(matchingBinding.get());
+                            dynamicBindingPath.setKey(currentBinding.replace(matchingBinding.get(), newBindingPrefix));
                         }
                     });
         }
