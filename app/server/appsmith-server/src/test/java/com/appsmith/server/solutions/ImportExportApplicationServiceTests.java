@@ -544,6 +544,9 @@ public class ImportExportApplicationServiceTests {
                     assertThat(unpublishedAction.getPageId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
                     assertThat(unpublishedAction.getDatasource().getPluginId()).isEqualTo(installedPlugin.getPackageName());
 
+                    NewAction testAction1 = actionList.stream().filter(action -> action.getUnpublishedAction().getName().equals("testAction1")).findFirst().get();
+                    assertThat(testAction1.getId()).isEqualTo("Page1_testCollection1.testAction1");
+
                     assertThat(actionCollectionList.isEmpty()).isFalse();
                     assertThat(actionCollectionList).hasSize(1);
                     final ActionCollection actionCollection = actionCollectionList.get(0);
