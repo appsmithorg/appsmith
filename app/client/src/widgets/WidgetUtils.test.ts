@@ -4,6 +4,7 @@ import { escapeSpecialChars, isGradient } from "./WidgetUtils";
 import {
   getCustomTextColor,
   getCustomBackgroundColor,
+  getCustomBorderColor,
   getCustomHoverColor,
   getHoverColor,
 } from "./WidgetUtils";
@@ -38,13 +39,33 @@ describe("validate widget utils button style functions", () => {
   });
 
   // validate getCustomBackgroundColor function
-  it("getCustomBackgroundColor - validate empty or undefined background color", () => {
-    const expected = "none";
-    const result = getCustomBackgroundColor();
-    expect(result).toStrictEqual(expected);
+  it("getCustomBackgroundColor with an empty or an undefined button variant and background color", () => {
+    const inputs: any[][] = [
+      [undefined, undefined],
+      [undefined, ""],
+      ["", undefined],
+      ["", ""],
+    ];
+    const outputs = inputs.map((input) =>
+      getCustomBackgroundColor(input[0], input[1]),
+    );
+    const expected = ["none", "none", "none", "none"];
+    expect(outputs).toStrictEqual(expected);
   });
 
-  it("getCustomBackgroundColor - validate background color with primary button variant", () => {
+  it("getCustomBackgroundColor with secondary or tertiary button variant", () => {
+    const inputs: any[][] = [
+      [ButtonVariantTypes.SECONDARY, "#03b365"],
+      [ButtonVariantTypes.TERTIARY, "#03b365"],
+    ];
+    const outputs = inputs.map((input) =>
+      getCustomBackgroundColor(input[0], input[1]),
+    );
+    const expected = ["none", "none"];
+    expect(outputs).toStrictEqual(expected);
+  });
+
+  it("getCustomBackgroundColor with primary button variant, valid background color", () => {
     const backgroundColor = "#03b365";
     const expected = "#03b365";
     const result = getCustomBackgroundColor(
@@ -54,10 +75,77 @@ describe("validate widget utils button style functions", () => {
     expect(result).toStrictEqual(expected);
   });
 
-  it("getCustomBackgroundColor - validate background color with secondary button variant", () => {
-    const backgroundColor = "#03b365";
+  it("getCustomBackgroundColor with primary button variant, a valid graident", () => {
+    const backgroundColor = "linear-gradient(45deg, blue, red)";
+    const expected = backgroundColor;
+    const result = getCustomBackgroundColor(
+      ButtonVariantTypes.PRIMARY,
+      backgroundColor,
+    );
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("getCustomBackgroundColor with primary button variant, an invalid color and non-gradient", () => {
+    const backgroundColor = "not a color";
     const expected = "none";
     const result = getCustomBackgroundColor(
+      ButtonVariantTypes.PRIMARY,
+      backgroundColor,
+    );
+    expect(result).toStrictEqual(expected);
+  });
+
+  // validate getCustomBorderColor function
+  it("getCustomBorderColor with an empty or an undefined button variant and color", () => {
+    const inputs: any[][] = [
+      [undefined, undefined],
+      [undefined, ""],
+      ["", undefined],
+      ["", ""],
+    ];
+    const outputs = inputs.map((input) =>
+      getCustomBorderColor(input[0], input[1]),
+    );
+    const expected = ["none", "none", "none", "none"];
+    expect(outputs).toStrictEqual(expected);
+  });
+
+  it("getCustomBorderColor with primary or tertiary variant", () => {
+    const inputs: any[][] = [
+      [ButtonVariantTypes.PRIMARY, "#03b365"],
+      [ButtonVariantTypes.TERTIARY, "#03b365"],
+    ];
+    const outputs = inputs.map((input) =>
+      getCustomBorderColor(input[0], input[1]),
+    );
+    const expected = ["none", "none"];
+    expect(outputs).toStrictEqual(expected);
+  });
+
+  it("getCustomBorderColor with secondary button variant, a valid color", () => {
+    const backgroundColor = "#03b365";
+    const expected = backgroundColor;
+    const result = getCustomBorderColor(
+      ButtonVariantTypes.SECONDARY,
+      backgroundColor,
+    );
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("getCustomBorderColor with secondary button variant, a valid graident", () => {
+    const backgroundColor = "linear-gradient(45deg, blue, red)";
+    const expected = backgroundColor;
+    const result = getCustomBorderColor(
+      ButtonVariantTypes.SECONDARY,
+      backgroundColor,
+    );
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("getCustomBorderColor with secondary button variant, an invalid color and non-gradient", () => {
+    const backgroundColor = "not a color";
+    const expected = "none";
+    const result = getCustomBorderColor(
       ButtonVariantTypes.SECONDARY,
       backgroundColor,
     );
