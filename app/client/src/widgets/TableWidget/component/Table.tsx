@@ -317,6 +317,7 @@ export function Table(props: TableProps) {
                             isSortable={props.isSortable}
                             key={columnIndex}
                             sortTableColumn={props.sortTableColumn}
+                            width={props.width}
                           />
                         );
                       },
