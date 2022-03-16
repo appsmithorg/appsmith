@@ -48,6 +48,7 @@ describe("Image Widget Validation Image Urls", function() {
 
   it("Add new image and check image src", function() {
     cy.openPropertyPane("imagewidget");
+    cy.clearPropertyValue(0);
 
     cy.testCodeMirror(this.data.NewImage);
     // if imageError flag not reset properly, this test will fail.
