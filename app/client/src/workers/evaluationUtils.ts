@@ -544,8 +544,11 @@ export const addErrorToEntityProperty = (
   path: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
+    entityName
+  ];
   const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
-  if (propertyPath && !(propertyPath in logBlackList)) {
+  if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const existingErrors = _.get(
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
