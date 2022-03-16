@@ -537,13 +537,15 @@ jobs:
 
       - name: Load docker image
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
           mkdir fatcontainerlocal
           cd fatcontainerlocal          
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" fatcontainer
-          sudo echo  "APPSMITH_LICENSE_KEY=$secrets.APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
+          sudo echo  "APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
 
       - name: Use Node.js 14.15.4
         if: steps.run_result.outputs.run_result != 'success'
