@@ -134,6 +134,8 @@ const MAX_DATASOURCE_SUGGESTIONS = 3;
 export const useDatasourceSuggestions = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
   const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+  if (datasourcesUsedInApplication.length >= MAX_DATASOURCE_SUGGESTIONS)
+    return [];
   otherDatasourceInOrg.reverse();
   return otherDatasourceInOrg.slice(
     0,
