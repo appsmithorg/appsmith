@@ -663,7 +663,9 @@ export const getNewPositions = function*(
     );
 
     return {
-      bottomMostRow,
+      bottomMostRow:
+        (bottomMostRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+        gridProps.parentRowSpace,
       gridProps,
       newPastingPositionMap,
       reflowedMovementMap,
@@ -745,7 +747,9 @@ export const getNewPositions = function*(
   );
 
   return {
-    bottomMostRow,
+    bottomMostRow:
+      (bottomMostRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+      gridProps.parentRowSpace,
     gridProps,
     newPastingPositionMap,
     reflowedMovementMap,
