@@ -57,6 +57,7 @@ function BranchButton() {
   return (
     <Popover2
       content={<BranchList setIsPopupOpen={setIsOpen} />}
+      hasBackdrop
       isOpen={isOpen}
       minimal
       modifiers={{ offset: { enabled: true, options: { offset: [7, 10] } } }}
@@ -74,7 +75,7 @@ function BranchButton() {
         boundary="window"
         content={currentBranch || ""}
         disabled={!isEllipsisActive(labelTarget.current)}
-        hoverOpenDelay={1000}
+        hoverOpenDelay={1}
         position={Position.TOP_LEFT}
       >
         <ButtonContainer className="t--branch-button">
