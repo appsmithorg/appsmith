@@ -26,9 +26,11 @@ import { useLocalStorage } from "utils/hooks/localstorage";
 const updates = [
   {
     name: "Update URLs",
+    shortDesc:
+      "All URLs in your applications will update to a new readable format that includes the application and page names.",
     description: [
       "All URLs in your applications will update to a new readable format that includes the application and page names.",
-      'Existing references to <code style="background:#ebebeb;padding:2px 5px;border-radius:2px">appsmith.URL.fullpath</code> and <code style="background:#ebebeb;padding:2px 5px;border-radius:2px">appsmith.URL.pathname</code> properties will behave differently. <a>Learn more.</a>',
+      'Existing references to <code style="background:#ebebeb;padding:2px 5px;border-radius:2px">appsmith.URL.fullpath</code> and <code style="background:#ebebeb;padding:2px 5px;border-radius:2px">appsmith.URL.pathname</code> properties will behave differently.',
     ],
     version: ApplicationVersion.SLUG_URL,
   },
@@ -63,9 +65,18 @@ function ManualUpgrades() {
       : {};
 
   const tooltipContent =
-    applicationVersion < latestVersion
-      ? `${latestVersion - applicationVersion} pending update(s)`
-      : "No new updates";
+    applicationVersion < latestVersion ? (
+      <div className="text-sm">
+        {`${latestVersion - applicationVersion} pending update(s)`}
+        <ul>
+          {updates.slice(applicationVersion - 1).map((u) => (
+            <li key={u.name}>{u.shortDesc}</li>
+          ))}
+        </ul>
+      </div>
+    ) : (
+      "No new updates"
+    );
 
   return (
     <div className="t--upgrade relative">
