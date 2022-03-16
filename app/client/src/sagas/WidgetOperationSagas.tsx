@@ -48,7 +48,6 @@ import {
 } from "constants/WidgetConstants";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { generateReactKey } from "utils/generators";
-import { flashElementsById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
@@ -1114,8 +1113,7 @@ function* pasteWidgetSaga(
 
   yield put(updateAndSaveLayout(reflowedWidgets));
 
-  flashElementsById(newlyCreatedWidgetIds, 100);
-
+  //flashElementsById(newlyCreatedWidgetIds, 100);
   yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
 }
 
