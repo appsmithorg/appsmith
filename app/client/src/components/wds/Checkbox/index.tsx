@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Checkbox as BlueprintCheckbox } from "@blueprintjs/core";
 
 import { Colors } from "constants/Colors";
-import { lightenColor } from "widgets/WidgetUtils";
+import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 
 type StyledCheckboxProps = {
   checked?: boolean;
@@ -86,6 +86,12 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     // HOVER WHEN CHECKED
     &.bp3-control.bp3-checkbox:hover input:checked ~ .bp3-control-indicator {
       box-shadow: none;
+      background: ${darkenColor(backgroundColor)} !important;
+    }
+
+    // HOVER WHEN UNCHECKED
+    &.bp3-control.bp3-checkbox:hover :not(input:checked) ~ .bp3-control-indicator {
+      box-shadow: 0px 0px 0px 1px ${Colors.GREY_5};
     }
 
     // INDETERMINATE

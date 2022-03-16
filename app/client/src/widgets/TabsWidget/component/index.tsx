@@ -55,38 +55,10 @@ const scrollNavControlContainerBaseStyle = css`
   z-index: 2;
   background: white;
 
-  &::after,
-  &::before {
-    content: "";
-    display: block;
-    width: 50px;
-    height: 100%;
-    position: absolute;
-  }
-
-  &::before {
-    left: 0;
-    background: linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 1) 100%
-    );
-  }
-
-  &::after {
-    right: 0;
-    background: linear-gradient(
-      270deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 1) 100%
-    );
-  }
-
   button {
     z-index: 1;
     border-radius: 0px;
+    border-bottom: ${(props) => `1px solid ${props.theme.colors.bodyBG}`};
   }
 `;
 

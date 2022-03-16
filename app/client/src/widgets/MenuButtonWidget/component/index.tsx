@@ -52,6 +52,11 @@ const PopoverStyles = createGlobalStyle<{
     overflow: hidden;
   }
 
+  .menu-button-popover .${BClasses.MENU_ITEM} {
+    padding: 9px 12px;
+    border-radius: 0;
+  }
+
   & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
   }

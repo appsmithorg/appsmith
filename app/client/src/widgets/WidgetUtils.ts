@@ -215,7 +215,7 @@ export const getComplementaryGrayscaleColor = (color = "#fff", alpha = 1) => {
 };
 
 /**
- * lightens the color by given amount
+ * lightens the color
  *
  * @param borderRadius
  * @returns
@@ -226,6 +226,16 @@ export const lightenColor = (color = "#fff") => {
   const newColor = tinycolor(`hsl ${h} ${s} 0.93}`).toHex();
 
   return `#${newColor}`;
+};
+
+/**
+ * darken the color
+ *
+ * @param borderRadius
+ * @returns
+ */
+export const darkenColor = (color = "#fff", amount = 10) => {
+  return tinycolor(color).darken(amount);
 };
 
 /**
