@@ -10,6 +10,9 @@ export enum SettingTypes {
   GROUP = "GROUP",
   TEXT = "TEXT",
   PAGE = "PAGE",
+  UNEDITABLEFIELD = "UNEDITABLEFIELD",
+  ACCORDION = "ACCORDION",
+  TAGINPUT = "TAGINPUT",
 }
 
 export enum SettingSubtype {
@@ -44,12 +47,16 @@ export interface Setting {
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
+  calloutType?: "Info" | "Warning";
+  advanced?: Setting[];
+  isRequired?: boolean;
 }
 
 export interface Category {
   title: string;
   slug: string;
   subText?: string;
+  isConnected?: boolean;
   children?: Category[];
 }
 
@@ -65,6 +72,12 @@ export const SettingCategories = {
   GITHUB_AUTH: "github-auth",
 };
 
+export const SettingSubCategories = {
+  GOOGLE: "google signup",
+  GITHUB: "github signup",
+  FORMLOGIN: "form login",
+};
+
 export type AdminConfigType = {
   type: string;
   controlType: SettingTypes;
@@ -74,4 +87,5 @@ export type AdminConfigType = {
   component?: React.ElementType;
   children?: AdminConfigType[];
   canSave: boolean;
+  isConnected?: boolean;
 };

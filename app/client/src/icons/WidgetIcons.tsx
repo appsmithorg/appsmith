@@ -37,6 +37,7 @@ import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-butto
 import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
 import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
+import { ReactComponent as AudioIcon } from "assets/icons/widget/audio.svg";
 import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-group.svg";
 import { ReactComponent as ProgressBarIcon } from "assets/icons/widget/progressbar-icon.svg";
 import { ReactComponent as SwitchGroupIcon } from "assets/icons/widget/switch-group.svg";
@@ -214,12 +215,12 @@ export const WidgetIcons: {
       <MenuButtonIcon />
     </StyledIconWrapper>
   ),
-  TREE_SINGLE_SELECT_WIDGET: (props: IconProps) => (
+  SINGLE_SELECT_TREE_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <SingleTreeSelectIcon />
     </StyledIconWrapper>
   ),
-  TREE_MULTI_SELECT_WIDGET: (props: IconProps) => (
+  MULTI_SELECT_TREE_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <MultiTreeSelectIcon />
     </StyledIconWrapper>
@@ -242,6 +243,11 @@ export const WidgetIcons: {
   AUDIO_RECORDER_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <AudioRecorderIcon />
+    </StyledIconWrapper>
+  ),
+  AUDIO_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <AudioIcon />
     </StyledIconWrapper>
   ),
   BUTTON_GROUP_WIDGET: (props: IconProps) => (

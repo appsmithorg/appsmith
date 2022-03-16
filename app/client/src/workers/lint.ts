@@ -4,7 +4,7 @@ import {
   extraLibraries,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { JSHINT as jshint } from "jshint";
+import { JSHINT as jshint, LintError } from "jshint";
 import { isEmpty, keys, last } from "lodash";
 import {
   EvaluationScripts,
@@ -82,11 +82,12 @@ export const getLintingErrors = (
     mocha: false,
     // global values
     globals: globalData,
+    loopfunc: true,
   };
 
   jshint(script, options);
 
-  return jshint.errors.map((lintError) => {
+  return jshint.errors.filter(lintErrorFilters).map((lintError) => {
     const ch = lintError.character;
     return {
       errorType: PropertyEvaluationErrorType.LINT,
@@ -102,4 +103,13 @@ export const getLintingErrors = (
       ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
     };
   });
+};
+
+const lintErrorFilters = (lintError: LintError) => {
+  if (lintError.reason === "'currentRow' is not defined.") {
+    return false;
+  } else if (lintError.reason === "'currentItem' is not defined.") {
+    return false;
+  }
+  return true;
 };

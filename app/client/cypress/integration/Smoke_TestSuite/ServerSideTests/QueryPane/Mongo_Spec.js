@@ -3,8 +3,10 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
+import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
 
 let datasourceName;
+const agHelper = new AggregateHelper();
 
 describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
   beforeEach(() => {
@@ -207,13 +209,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.validateNSelectDropdown("Commands", "Find Document(s)");
-    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-      .find(explorer.collapse)
-      .first()
-      .click();
-    cy.xpath(queryLocators.listingAndReviewContext).click({ force: true });
+    agHelper.expandCollapseEntity(`${datasourceName}`);
+    cy.xpath(queryLocators.listingAndReviewContext)
+      .invoke("show")
+      .click({ force: true });
+
     cy.xpath("//div[text()='Find']")
       .click()
       .wait(100); //wait for Find form to open
@@ -280,8 +280,8 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
           .replace(/['"]+/g, ""),
       );
     });
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.actionContextMenuByEntityName("Query1");
-    cy.actionContextMenuByEntityName("Query2");
   });
 
   it("10. Delete the datasource after NewPage deletion is success", () => {
@@ -315,6 +315,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get(datasource.MongoDB).click({ force: true });
     cy.fillMongoDatasourceForm();
 
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo Documents ${uid}`;
       cy.renameDatasource(datasourceName);
@@ -356,11 +357,12 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.xpath(queryLocators.countText).should("have.text", "3 Records");
 
     cy.get("@dSName").then((dbName) => {
+      //cy.CheckAndUnfoldEntityItem("DATASOURCES");
       cy.actionContextMenuByEntityName(dbName, "Refresh");
-      cy.get(`.t--entity.datasource:contains(${dbName})`)
-        .find(explorer.collapse)
-        .first()
-        .click();
+      // cy.get(`.t--entity.datasource:contains(${dbName})`)
+      //   .find(explorer.collapse)
+      //   .first()
+      //   .click();
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("exist");
 
@@ -370,17 +372,16 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       cy.log("1st Response is :" + JSON.stringify(response.body));
-
       //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
     });
 
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedWidgetChart)
       .click()
       .wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       cy.log("2nd Response is :" + JSON.stringify(response.body));
-
       //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
     });
 
@@ -457,12 +458,14 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //cy.get(queryLocators.templateMenu).click();
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}');
     cy.runQuery();
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.get("@dSName").then((dbName) => {
       cy.actionContextMenuByEntityName(dbName, "Refresh");
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
 
     cy.deleteQueryUsingContext();
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.actionContextMenuByEntityName("Table1");
     cy.actionContextMenuByEntityName("Chart1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails

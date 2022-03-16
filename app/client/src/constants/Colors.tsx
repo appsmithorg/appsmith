@@ -1,5 +1,9 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
 export const Colors = {
+  EBONY_CLAY: "#2A2F3D",
+  EBONY_CLAY_2: "#22223B",
+  MOUNTAIN_MEADOW: "#27CA40",
+  PERSIMMON: "#FF6058",
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
@@ -13,6 +17,7 @@ export const Colors = {
   DARK_GRAY: "#A9A7A7",
   LIGHT_GREYISH_BLUE: "#B0BFCB",
   SUNGLOW: "#FFCB33",
+  SUNGLOW_2: "#FFC130",
   SOFT_ORANGE: "#f7c75b",
   BINDING_COLOR: "#ffcc99",
   BINDING_COLOR_LT: "#063289",
@@ -25,7 +30,7 @@ export const Colors = {
   DIESEL: "#0C0000",
   SHARK: "#21282C",
   SHARK2: "#232324",
-  MINE_SHAFT: "#262626",
+  _2: "#262626",
   DEEP_SPACE: "#272E32",
   OUTER_SPACE: "#363E44",
   TUNDORA: "#404040",
@@ -37,6 +42,7 @@ export const Colors = {
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
   MERCURY_1: "#E3E3E3",
+  MERCURY_2: "#E7E7E7",
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
@@ -153,6 +159,7 @@ export const Colors = {
 
   GREEN_SOLID: "#50AF6C",
   MIRAGE: "#182026",
+  MIRAGE_2: "#121826",
 
   GREEN_SOLID_HOVER: "#D5EFE3",
   GREEN_SOLID_LIGHT_HOVER: "#ECF9F3",
@@ -170,5 +177,6 @@ export const Colors = {
   SCORPION: "#575757",
 
   COD_GRAY: "#191919",
+  MINE_SHAFT_2: "#333333",
 };
 export type Color = typeof Colors[keyof typeof Colors];

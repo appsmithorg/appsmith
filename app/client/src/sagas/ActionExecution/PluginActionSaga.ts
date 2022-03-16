@@ -17,7 +17,6 @@ import ActionAPI, {
   ActionResponse,
   ExecuteActionRequest,
   PaginationField,
-  Property,
 } from "api/ActionAPI";
 import {
   getAction,
@@ -29,7 +28,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isString } from "lodash";
+import _, { get, isString, set } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -62,7 +61,7 @@ import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
 import { AppState } from "reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
-import { isBlobUrl, mapToPropList, parseBlobUrl } from "utils/AppsmithUtils";
+import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
 import {
@@ -99,6 +98,7 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
+import { isTrueObject } from "workers/evaluationUtils";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -209,6 +209,7 @@ function* readBlob(blobUrl: string): any {
  */
 function* evaluateActionParams(
   bindings: string[] | undefined,
+  formData: FormData,
   executionParams?: Record<string, any> | string,
 ) {
   if (_.isNil(bindings) || bindings.length === 0) return [];
@@ -220,18 +221,33 @@ function* evaluateActionParams(
     executionParams,
   );
 
-  // Convert to object and transform non string values
-  const actionParams: Record<string, string> = {};
+  // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
     let value = values[i];
+
+    if (isTrueObject(value)) {
+      const blobUrlPaths: string[] = [];
+      Object.keys(value).forEach((propertyName) => {
+        if (isBlobUrl(value[propertyName])) {
+          blobUrlPaths.push(propertyName);
+        }
+      });
+
+      for (const blobUrlPath of blobUrlPaths) {
+        const blobUrl = value[blobUrlPath] as string;
+        const resolvedBlobValue = yield call(readBlob, blobUrl);
+        set(value, blobUrlPath, resolvedBlobValue);
+      }
+    }
+
     if (typeof value === "object") value = JSON.stringify(value);
     if (isBlobUrl(value)) {
       value = yield call(readBlob, value);
     }
-    actionParams[key] = value;
+
+    formData.append(encodeURIComponent(key), value);
   }
-  return mapToPropList(actionParams);
 }
 
 export default function* executePluginActionTriggerSaga(
@@ -317,7 +333,7 @@ export default function* executePluginActionTriggerSaga(
       yield call(executeAppAction, {
         event: { type: eventType },
         dynamicString: onError,
-        responseData: [payload.body, params],
+        callbackData: [payload.body, params],
         ...triggerMeta,
       });
     } else {
@@ -345,7 +361,7 @@ export default function* executePluginActionTriggerSaga(
       yield call(executeAppAction, {
         event: { type: eventType },
         dynamicString: onSuccess,
-        responseData: [payload.body, params],
+        callbackData: [payload.body, params],
         ...triggerMeta,
       });
     }
@@ -524,7 +540,10 @@ function* runActionSaga(
 
     yield put({
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
-      payload: { error, id: reduxAction.payload.id },
+      payload: {
+        error: appsmithConsoleErrorMessageList[0],
+        id: reduxAction.payload.id,
+      },
     });
     return;
   }
@@ -732,18 +751,11 @@ function* executePluginActionSaga(
   );
   yield put(executePluginActionRequest({ id: actionId }));
 
-  const actionParams: Property[] = yield call(
-    evaluateActionParams,
-    pluginAction.jsonPathKeys,
-    params,
-  );
-
   const appMode = yield select(getAppMode);
   const timeout = yield select(getActionTimeout, actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
     actionId: actionId,
-    params: actionParams,
     viewMode: appMode === APP_MODE.PUBLISHED,
   };
 
@@ -751,8 +763,12 @@ function* executePluginActionSaga(
     executeActionRequest.paginationField = paginationField;
   }
 
+  const formData = new FormData();
+  formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
+  yield call(evaluateActionParams, pluginAction.jsonPathKeys, formData, params);
+
   const response: ActionExecutionResponse = yield ActionAPI.executeAction(
-    executeActionRequest,
+    formData,
     timeout,
   );
   PerformanceTracker.stopAsyncTracking(

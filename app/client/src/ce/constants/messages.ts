@@ -58,7 +58,7 @@ export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
 export const SIGNUP_PAGE_SUBTITLE = () => `Use your organization email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
-export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => ` Email`;
+export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
 export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
 export const SIGNUP_PAGE_NAME_INPUT_LABEL = () => `Name`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
@@ -557,7 +557,7 @@ export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
+  "Checkout branches, make commits, and deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
   `Create an empty git repository and paste the remote URL here.`;
@@ -565,6 +565,7 @@ export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 
+export const USE_DEFAULT_CONFIGURATION = () => "Use default configuration";
 export const AUTHOR_NAME = () => "Author name";
 export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
@@ -609,7 +610,9 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
-export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
+  "git://example.com:user/repo.git";
+export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
@@ -631,6 +634,11 @@ export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
   "You have uncommitted changes. Please commit before pulling the remote changes";
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit before proceeding to merge";
+
+export const DISCONNECT_SERVICE_SUBHEADER = () =>
+  "Changes to this section can disrupt user authentication. Proceed with caution.";
+export const DISCONNECT_SERVICE_WARNING = () =>
+  "will be removed as primary method of authentication";
 
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";
@@ -929,7 +937,7 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
-  "Are you sure you want to perform this action?";
+  `Are you sure you want to run `;
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
@@ -942,7 +950,7 @@ export const API_PANE_NO_BODY = () => "This request does not have a body";
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
-export const ADD_QUERY_JS_TOOLTIP = () => "Add a new Query, API or JS Object";
+export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -1032,4 +1040,53 @@ export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONTEXT_NO_PAGE = () => "No pages";
 
+// Entity explorer
+export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
+export const ADD_WIDGET_BUTTON = () => "ADD WIDGET";
+export const ADD_QUERY_JS_BUTTON = () => "ADD QUERY/JS";
+export const EMPTY_WIDGET_MAIN_TEXT = () => "No widget to display";
+export const EMPTY_WIDGET_BUTTON_TEXT = () => "NEW WIDGET";
+export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
+export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "NEW QUERY/JS";
+export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
+export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
+
+// Templates
+export const MORE = () => "MORE";
+export const SHOW_LESS = () => "SHOW LESS";
+export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
+export const SELECT_ORGANISATION = () => "Select Organization";
+export const FORK_TEMPLATE = () => "FORK TEMPLATE";
+export const TEMPLATES = () => "TEMPLATES";
+export const FORK_THIS_TEMPLATE = () => "Fork this template";
+export const COULDNT_FIND_TEMPLATE = () =>
+  "Couldn’t find what you are looking for?";
+export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
+  "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
+export const REQUEST_TEMPLATE = () => "Request for a template";
+export const SEARCH_TEMPLATES = () => "Search templates";
+export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
+export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
+  "You can browse, fork, and make them your own here";
+export const GO_BACK = () => "GO BACK";
+export const OVERVIEW = () => "Overview";
+export const FUNCTION = () => "Function";
+export const INDUSTRY = () => "Industry";
+export const DATASOURCES = () => "Datasources";
+export const NOTE = () => "Note:";
+export const NOTE_MESSAGE = () => "You can add your datasources as well";
+export const WIDGET_USED = () => "Widgets Used";
+export const SIMILAR_TEMPLATES = () => "Similar Templates";
+
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
+
+export const REDIRECT_URL_TOOLTIP = () =>
+  "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
+
+export const FORK_APP_MODAL_LOADING_TITLE = () =>
+  "Fetching organisations to fork to...";
+export const FORK_APP_MODAL_EMPTY_TITLE = () =>
+  "No organisation available to fork to";
+export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
+  "Choose where to fork the app";
+export const FORK = () => `FORK`;

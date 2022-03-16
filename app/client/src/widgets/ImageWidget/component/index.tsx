@@ -57,7 +57,7 @@ const ControlBtnWrapper = styled.div`
   background: white;
 `;
 
-const ControlBtn = styled.div`
+const ControlBtn = styled.a`
   height: 25px;
   width: 45px;
   color: white;
@@ -115,6 +115,17 @@ class ImageComponent extends React.Component<
       zoomingState: ZoomingState.MAX_ZOOMED_OUT,
     };
   }
+
+  componentDidUpdate = (prevProps: ImageComponentProps) => {
+    // reset the imageError flag when the defaultImageUrl or imageUrl changes
+    if (
+      (prevProps.imageUrl !== this.props.imageUrl ||
+        prevProps.defaultImageUrl !== this.props.defaultImageUrl) &&
+      this.state.imageError
+    ) {
+      this.setState({ imageError: false });
+    }
+  };
 
   render() {
     const { imageUrl, maxZoomLevel } = this.props;
@@ -242,6 +253,7 @@ class ImageComponent extends React.Component<
     } = this.props;
     const { showImageControl } = this.state;
     const showDownloadBtn = enableDownload && (!!imageUrl || !!defaultImageUrl);
+    const hrefUrl = imageUrl || defaultImageUrl;
 
     if (showImageControl && (enableRotation || showDownloadBtn)) {
       return (
@@ -290,7 +302,12 @@ class ImageComponent extends React.Component<
             </>
           )}
           {showDownloadBtn && (
-            <ControlBtn onClick={this.handleImageDownload}>
+            <ControlBtn
+              data-cy="t--image-download"
+              download
+              href={hrefUrl}
+              target="_blank"
+            >
               <div>
                 <svg fill="none" height="20" viewBox="0 0 20 20" width="20">
                   <path
@@ -314,43 +331,6 @@ class ImageComponent extends React.Component<
     const nextRotation = rotateRight ? imageRotation + 90 : imageRotation - 90;
 
     this.setState({ imageRotation: nextRotation % 360 });
-
-    if (!!e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  handleImageDownload = (e: any) => {
-    const { defaultImageUrl, imageUrl, widgetId } = this.props;
-    const fileName = `${widgetId}-download`;
-    const downloadUrl = imageUrl || defaultImageUrl;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", downloadUrl, true);
-    xhr.responseType = "blob";
-
-    xhr.onload = function() {
-      const urlCreator = window.URL || window.webkitURL;
-      const imageUrlObj = urlCreator.createObjectURL(this.response);
-      const tag = document.createElement("a");
-      tag.href = imageUrlObj;
-      tag.download = fileName;
-      document.body.appendChild(tag);
-      tag.click();
-      document.body.removeChild(tag);
-      window.URL.revokeObjectURL(imageUrlObj);
-    };
-    // if download fails open image in new tab
-    xhr.onerror = function() {
-      const tag = document.createElement("a");
-      tag.href = downloadUrl;
-      tag.target = "_blank";
-      document.body.appendChild(tag);
-      tag.click();
-      document.body.removeChild(tag);
-    };
-    xhr.send();
 
     if (!!e) {
       e.preventDefault();
