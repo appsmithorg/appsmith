@@ -206,7 +206,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("ListingAndReviews");
+    cy.actionContextMenuByEntityName(
+      "ListingAndReviews",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
