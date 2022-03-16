@@ -1123,7 +1123,7 @@ Cypress.Commands.add("MoveAPIToPage", (pageName) => {
   cy.get(apiwidget.moveTo).click({ force: true });
   cy.get(apiwidget.page)
     .contains(pageName)
-    .click();
+    .click({ force: true });
   cy.wait("@moveAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1138,7 +1138,7 @@ Cypress.Commands.add("copyEntityToPage", (pageName) => {
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.page)
     .contains(pageName)
-    .click();
+    .click({ force: true });
   cy.wait("@createNewApi").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1246,10 +1246,15 @@ Cypress.Commands.add("deleteEntity", () => {
   cy.get(apiwidget.deleteConfirm).click({ force: true });
 });
 
-Cypress.Commands.add("DeleteAPI", (apiname) => {
-  cy.get(ApiEditor.ApiActionMenu)
-    .first()
+Cypress.Commands.add("deleteEntityWithoutConfirmation", () => {
+  cy.xpath(apiwidget.popover)
+    .last()
     .click({ force: true });
+  cy.get(apiwidget.delete).click({ force: true });
+});
+
+Cypress.Commands.add("DeleteAPI", (apiname) => {
+  cy.get(ApiEditor.ApiActionMenu).click({ multiple: true });
   cy.get(apiwidget.deleteAPI)
     .first()
     .click({ force: true });
