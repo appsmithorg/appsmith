@@ -867,7 +867,9 @@ function* pasteWidgetSaga(
     pastingIntoWidgetId,
     widgets,
   );
+
   const {
+    bottomMostRow,
     canvasId,
     gridProps,
     newPastingPositionMap,
@@ -1042,7 +1044,7 @@ function* pasteWidgetSaga(
               ...widgets,
               [pastingIntoWidgetId]: {
                 ...widgets[pastingIntoWidgetId],
-                bottomRow: parentBottomRow,
+                bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
               },
             };

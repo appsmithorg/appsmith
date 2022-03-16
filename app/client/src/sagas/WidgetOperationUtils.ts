@@ -46,6 +46,7 @@ import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 
 import { reflow } from "reflow";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -405,7 +406,7 @@ export const getBoundaryWidgetsFromCopiedGroups = function(
     leftMostWidget,
     rightMostWidget,
     bottomMostWidget,
-    totalWidth: leftMostWidget.rightColumn - rightMostWidget.leftColumn,
+    totalWidth: rightMostWidget.rightColumn - leftMostWidget.leftColumn,
   };
 };
 
@@ -424,7 +425,7 @@ const getBoundariesFromSelectedWidgets = function(
   )[0];
 
   return {
-    totalWidth: leftMostWidget.rightColumn - rightMostWidget.leftColumn,
+    totalWidth: rightMostWidget.rightColumn - leftMostWidget.leftColumn,
     maxThickness: thickestWidget.bottomRow - thickestWidget.topRow,
     topMostHeight: topMostWidget.topRow,
     selectedLeftMost: leftMostWidget.leftColumn,
@@ -612,6 +613,13 @@ export const getNewPositions = function*(
 
     let leftOffSet = copiedMaxLeft - selectedLeftMost;
     leftOffSet += (copiedTotalWidth - totalWidth) / 2;
+
+    leftOffSet = Math.round(leftOffSet);
+
+    if (leftOffSet < 0) leftOffSet = 0;
+    if (leftOffSet + copiedTotalWidth > GridDefaults.DEFAULT_GRID_COLUMNS)
+      leftOffSet = GridDefaults.DEFAULT_GRID_COLUMNS - copiedTotalWidth;
+
     const copiedSpaces = getCopiedSpaces(
       copiedWidgetGroups,
       copiedMaxTop,
@@ -647,7 +655,15 @@ export const getNewPositions = function*(
       {} as PrevReflowState,
     );
 
+    const bottomMostRow = getBottomRowAfterReflow(
+      reflowedMovementMap,
+      getBottomMostRow(newPastePositions),
+      widgetSpaces,
+      gridProps,
+    );
+
     return {
+      bottomMostRow,
       gridProps,
       newPastingPositionMap,
       reflowedMovementMap,
@@ -674,10 +690,7 @@ export const getNewPositions = function*(
   const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
 
   let topOffset = mousePositions.top;
-  const leftOffSet =
-    mousePositions.left + copiedTotalWidth > GridDefaults.DEFAULT_GRID_COLUMNS
-      ? GridDefaults.DEFAULT_GRID_COLUMNS - copiedTotalWidth
-      : mousePositions.left;
+  let leftOffSet = mousePositions.left;
 
   for (const widgetSpace of widgetSpaces) {
     if (
@@ -687,8 +700,15 @@ export const getNewPositions = function*(
       widgetSpace.right > mousePositions.left
     ) {
       topOffset = widgetSpace.bottom + 1;
+      leftOffSet =
+        widgetSpace.left -
+        (copiedTotalWidth - (widgetSpace.right - widgetSpace.left)) / 2;
     }
   }
+  leftOffSet = Math.round(leftOffSet);
+  if (leftOffSet < 0) leftOffSet = 0;
+  if (leftOffSet + copiedTotalWidth > GridDefaults.DEFAULT_GRID_COLUMNS)
+    leftOffSet = GridDefaults.DEFAULT_GRID_COLUMNS - copiedTotalWidth;
 
   const newPastingPositionMap = getCopiedSpacesMapForMousePointer(
     copiedWidgetGroups,
@@ -717,13 +737,31 @@ export const getNewPositions = function*(
     {} as PrevReflowState,
   );
 
+  const bottomMostRow = getBottomRowAfterReflow(
+    reflowedMovementMap,
+    getBottomMostRow(newPastePositions),
+    widgetSpaces,
+    gridProps,
+  );
+
   return {
+    bottomMostRow,
     gridProps,
     newPastingPositionMap,
     reflowedMovementMap,
     canvasId,
   };
 };
+
+function getBottomMostRow(newPositions: OccupiedSpace[]): number {
+  return newPositions
+    .map((space) => space.bottom)
+    .reduce(
+      (prevBottomRow, currentBottomRow) =>
+        Math.max(prevBottomRow, currentBottomRow),
+      0,
+    );
+}
 
 function getNewPastePositions(newPastingPositionMap: SpaceMap) {
   const newPastePositions = [];
