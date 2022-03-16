@@ -23,6 +23,7 @@ let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
+import "./OIDCCommands";
 import { initLocalstorage } from "./commands";
 import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 
