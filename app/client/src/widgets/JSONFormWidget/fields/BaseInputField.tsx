@@ -78,8 +78,9 @@ const COMPONENT_DEFAULT_VALUES: BaseInputComponentProps = {
   label: "",
 };
 
+// REGEX origin https://github.com/manishsaraan/email-validator/blob/master/index.js
 export const EMAIL_REGEX = new RegExp(
-  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+  /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/,
 );
 
 export const parseRegex = (regex?: string) => {
