@@ -28,7 +28,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isString } from "lodash";
+import _, { get, isString, set } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -98,6 +98,7 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
+import { isTrueObject } from "workers/evaluationUtils";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -224,6 +225,22 @@ function* evaluateActionParams(
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
     let value = values[i];
+
+    if (isTrueObject(value)) {
+      const blobUrlPaths: string[] = [];
+      Object.keys(value).forEach((propertyName) => {
+        if (isBlobUrl(value[propertyName])) {
+          blobUrlPaths.push(propertyName);
+        }
+      });
+
+      for (const blobUrlPath of blobUrlPaths) {
+        const blobUrl = value[blobUrlPath] as string;
+        const resolvedBlobValue = yield call(readBlob, blobUrl);
+        set(value, blobUrlPath, resolvedBlobValue);
+      }
+    }
+
     if (typeof value === "object") value = JSON.stringify(value);
     if (isBlobUrl(value)) {
       value = yield call(readBlob, value);
