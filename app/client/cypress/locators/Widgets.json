@@ -99,7 +99,7 @@
     "boxShadow": ".t--property-control-boxshadow .bp3-button-group",
     "backgroundcolorPicker": ".t--property-control-backgroundcolour input",
     "backgroundcolorPickerNew": ".t--property-control-backgroundcolor input",
-    "greenColor": "//div[@color='#03b365']",
+    "greenColor": "div[color='#03B365']",
     "transparent": "//div[@color='transparent']",
     "yellowColor": "//div[@color='#FFC13D']",
     "blueColor": "//div[@color='#3366FF']",
@@ -172,5 +172,6 @@
     "cellBackground": ".t--property-control-cellbackgroundcolor",
     "cellBackgroundToggle": ".t--property-control-cellbackgroundcolor .t--js-toggle",
     "borderColorPickerNew": ".t--property-control-bordercolor input",
-    "selectedTextSize": ".t--property-control-textsize .bp3-popover-target .sub-text"
+    "selectedTextSize": ".t--property-control-textsize .bp3-popover-target .sub-text",
+    "modalCloseButton": ".t--draggable-iconbuttonwidget .bp3-button"
 }

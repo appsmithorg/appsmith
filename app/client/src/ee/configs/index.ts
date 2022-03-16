@@ -1,3 +1,4 @@
+export * from "ce/configs/index";
 import { AppsmithUIConfigs } from "./types";
 import {
   INJECTED_CONFIGS as CE_INJECTED_CONFIGS,

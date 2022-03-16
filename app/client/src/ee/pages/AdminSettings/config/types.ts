@@ -1,3 +1,4 @@
+export * from "ce/pages/AdminSettings/config/types";
 import {
   SettingCategories as CE_SettingCategories,
   SettingSubCategories as CE_SettingSubCategories,

@@ -11,10 +11,11 @@ describe("Binding the multiple input Widget", function() {
     cy.addDsl(dsl);
   });
 
-  it("Input widget test with default value from table widget", function() {
+  it("1. Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
     cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
 
+    cy.wait(2000);
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -22,7 +23,7 @@ describe("Binding the multiple input Widget", function() {
     );
   });
 
-  it("validation of data displayed in all widgets based on row selected", function() {
+  it("2. Validation of data displayed in all widgets based on row selected", function() {
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;

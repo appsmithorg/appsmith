@@ -97,6 +97,33 @@ export function OidcSettingsForm(
 
   const onSave = () => {
     if (saveAllowed(props.settings)) {
+      const scopeConfigSettings =
+          props.settingsConfig["APPSMITH_OAUTH2_OIDC_SCOPE"],
+        userAttriConfigSettings =
+          props.settingsConfig["APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE"],
+        scopeSettings = props.settings["APPSMITH_OAUTH2_OIDC_SCOPE"],
+        userAttriSettings =
+          props.settings["APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE"];
+
+      if (
+        !(
+          scopeConfigSettings?.toString().trim() ||
+          scopeSettings?.toString().trim()
+        ) ||
+        (typeof scopeSettings === "string" && !scopeSettings.trim())
+      ) {
+        props.settings["APPSMITH_OAUTH2_OIDC_SCOPE"] = "openid,profile,email";
+      }
+
+      if (
+        !(
+          userAttriConfigSettings?.toString().trim() ||
+          userAttriSettings?.toString().trim()
+        ) ||
+        (typeof userAttriSettings === "string" && !userAttriSettings.trim())
+      ) {
+        props.settings["APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE"] = "email";
+      }
       dispatch(saveSettings(props.settings));
     } else {
       saveBlocked();
@@ -109,26 +136,6 @@ export function OidcSettingsForm(
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
         props.settingsConfig[settingName] =
           props.settingsConfig[settingName].toString() == "true";
-
-        const scopeSettings =
-            props.settingsConfig["APPSMITH_OAUTH2_OIDC_SCOPE"],
-          oidcUsernameSettings =
-            props.settingsConfig["APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE"];
-
-        if (
-          typeof scopeSettings === "undefined" ||
-          (typeof scopeSettings === "string" && scopeSettings.trim() === "")
-        ) {
-          props.settingsConfig["APPSMITH_OAUTH2_OIDC_SCOPE"] = "openid,profile";
-        }
-
-        if (
-          typeof oidcUsernameSettings === "undefined" ||
-          oidcUsernameSettings === ""
-        ) {
-          props.settingsConfig["APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE"] =
-            "email";
-        }
       }
     });
     props.initialize(props.settingsConfig);
