@@ -16,7 +16,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
-import { getIsSafeRedirectURL, trimQueryString } from "utils/helpers";
+import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -39,6 +39,7 @@ export function SignupSuccess() {
   const redirectUsingQueryParam = useCallback(() => {
     if (redirectUrl) {
       try {
+        const redirectURLObject = new URL(redirectUrl);
         if (
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
@@ -48,12 +49,12 @@ export function SignupSuccess() {
             pageSlug: string;
             pageId: string;
             applicationId: string;
-          }>(window.location.pathname, {
+          }>(redirectURLObject.pathname, {
             path: [
-              trimQueryString(BUILDER_PATH),
-              trimQueryString(BUILDER_PATH_DEPRECATED),
-              trimQueryString(VIEWER_PATH),
-              trimQueryString(VIEWER_PATH_DEPRECATED),
+              BUILDER_PATH,
+              BUILDER_PATH_DEPRECATED,
+              VIEWER_PATH,
+              VIEWER_PATH_DEPRECATED,
             ],
             strict: false,
             exact: false,
