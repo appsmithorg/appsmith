@@ -5,7 +5,6 @@ import { MarkerProps } from "../constants";
 import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 interface MapComponentProps {
   apiKey: string;
@@ -51,8 +50,12 @@ const MapContainerWrapper = styled.div<{
   width: 100%;
   height: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  ${({ borderRadius }) =>
+    borderRadius >= "1.5rem"
+      ? `& div.gmnoprint:not([data-control-width]) {
+    margin-right: 10px !important;`
+      : ""}
 `;
 
 const StyledInput = styled.input`

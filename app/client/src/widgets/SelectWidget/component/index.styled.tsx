@@ -104,7 +104,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     height: 100%;
     align-items: center;
     justify-content: space-between;
-    box-shadow: none;
+    box-shadow: ${(props) => props.boxShadow} !important;
     background: white;
     min-height: 32px;
     padding-left: 12px;
@@ -179,7 +179,7 @@ export const DropdownStyles = createGlobalStyle<{
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-width-${id} {
-    min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    max-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
     & .${Classes.INPUT_GROUP} {
        width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
     }
@@ -188,7 +188,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-wrapper {
     width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-    border-radius: ${(props) => props.borderRadius} !important;
+    border-radius: ${({ borderRadius }) =>
+      borderRadius >= `1.5rem` ? `0.375rem` : borderRadius} !important;
     overflow: hidden;
     background: white;
     & .${Classes.INPUT_GROUP} {
