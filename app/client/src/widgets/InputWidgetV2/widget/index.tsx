@@ -43,7 +43,11 @@ export function defaultValueValidation(
   let parsed;
   switch (inputType) {
     case "NUMBER":
-      parsed = Number(value);
+      if (_.isNil(value)) {
+        parsed = null;
+      } else {
+        parsed = Number(value);
+      }
       let isValid, messages;
 
       if (_.isString(value) && value.trim() === "") {
@@ -52,14 +56,14 @@ export function defaultValueValidation(
          */
         isValid = true;
         messages = [EMPTY_ERROR_MESSAGE];
-        parsed = undefined;
+        parsed = null;
       } else if (!Number.isFinite(parsed)) {
         /*
          *  When parsed value is not a finite numer
          */
         isValid = false;
         messages = [NUMBER_ERROR_MESSAGE];
-        parsed = undefined;
+        parsed = null;
       } else {
         /*
          *  When parsed value is a Number
@@ -358,17 +362,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     super.handleKeyDown(e);
   };
 
-  componentDidMount = () => {
-    this.props.updateWidgetMetaProperty(
-      "text",
-      getParsedText(this.props.inputText, this.props.inputType),
-    );
-  };
-
   componentDidUpdate = (prevProps: InputWidgetProps) => {
-    /*
-     *  When inputText gets set to defaulText, update the text property
-     */
     if (
       prevProps.inputText !== this.props.inputText &&
       this.props.inputText !== toString(this.props.text)
@@ -413,7 +407,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   resetWidgetText = () => {
     this.props.updateWidgetMetaProperty("inputText", "");
-    this.props.updateWidgetMetaProperty("text", "");
+    this.props.updateWidgetMetaProperty(
+      "text",
+      getParsedText("", this.props.inputType),
+    );
   };
 
   getPageView() {
