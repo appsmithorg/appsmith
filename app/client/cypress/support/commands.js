@@ -938,10 +938,16 @@ Cypress.Commands.add(
     cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
+      .type("{end}{shift}{home}{backspace}", {
+        parseSpecialCharSequences: true,
+      })
       .type(hKey, { parseSpecialCharSequences: true });
     cy.get(apiwidget.headerValue)
       .first()
       .click({ force: true })
+      .type("{end}{shift}{home}{backspace}", {
+        parseSpecialCharSequences: true,
+      })
       .type(hValue, { parseSpecialCharSequences: true });
     cy.WaitAutoSave();
   },

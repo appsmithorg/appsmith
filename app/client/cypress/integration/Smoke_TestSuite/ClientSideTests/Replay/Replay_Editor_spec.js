@@ -66,7 +66,7 @@ describe("Undo/Redo functionality", function() {
     );
     cy.get(`${apiwidget.headerKey} .CodeMirror-placeholder`).should(
       "have.text",
-      "Key 1",
+      "Key 2",
     );
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
