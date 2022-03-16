@@ -165,7 +165,7 @@ public class DatabaseChangelog2 {
                     unpublishedFormData.put(k, Map.of(
                             "data", oldValue,
                             "componentData", oldValue,
-                            "viewType", "form"
+                            "viewType", "component"
                     ));
                 });
 
@@ -209,7 +209,7 @@ public class DatabaseChangelog2 {
                         publishedFormData.put(k, Map.of(
                                 "data", oldValue,
                                 "componentData", oldValue,
-                                "viewType", "form"
+                                "viewType", "component"
                         ));
                     });
 
@@ -286,7 +286,7 @@ public class DatabaseChangelog2 {
                 Map.of(
                         "data", value,
                         "componentData", value,
-                        "viewType", "form"
+                        "viewType", "component"
                 ));
     }
 
