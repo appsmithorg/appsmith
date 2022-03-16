@@ -2910,7 +2910,7 @@ export const theme: Theme = {
       marginLeft: 112,
     },
     search: {
-      height: 68,
+      height: 81,
       paddingTop: 30,
     },
     sidebar: 256,
@@ -3036,7 +3036,7 @@ export const theme: Theme = {
     width: 265,
   },
   onboarding: {
-    statusBarHeight: 83,
+    statusBarHeight: 92,
   },
   settings: {
     footerHeight: 84,

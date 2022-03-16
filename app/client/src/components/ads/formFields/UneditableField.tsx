@@ -21,7 +21,7 @@ const InputCopyWrapper = styled.div`
   align-items: center;
 
   svg {
-    margin-left: 10px;
+    margin-left: 12px;
     cursor: pointer;
   }
 `;
