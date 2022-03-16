@@ -928,12 +928,12 @@ public class ImportExportApplicationServiceTests {
                     Theme publishedTheme = tuple.getT3();
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
-                    assertThat(editTheme.getName()).isEqualTo("Custom edit theme");
+                    assertThat(editTheme.getDisplayName()).isEqualTo("Custom edit theme");
                     assertThat(editTheme.getOrganizationId()).isNull();
                     assertThat(editTheme.getApplicationId()).isNull();
 
                     assertThat(publishedTheme.isSystemTheme()).isFalse();
-                    assertThat(publishedTheme.getName()).isEqualTo("Custom published theme");
+                    assertThat(publishedTheme.getDisplayName()).isEqualTo("Custom published theme");
                     assertThat(publishedTheme.getOrganizationId()).isNullOrEmpty();
                     assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })

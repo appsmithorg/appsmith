@@ -229,6 +229,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     if(StringUtils.hasLength(targetThemeResource.getName())) {
                         currentTheme.setName(targetThemeResource.getName());
                     }
+
+                    if(StringUtils.hasLength(targetThemeResource.getDisplayName())) {
+                        currentTheme.setDisplayName(targetThemeResource.getDisplayName());
+                    } else {
+                        currentTheme.setDisplayName(currentTheme.getName());
+                    }
                     boolean newThemeCreated = false;
                     if (currentTheme.isSystemTheme()) {
                         // if this is a system theme, create a new one
@@ -284,10 +290,17 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                             application.getPolicies(), Application.class, Theme.class
                     ));
 
+                    // need to remove it when FE adapts displayName everywhere
                     if(StringUtils.hasLength(resource.getName())) {
                         theme.setName(resource.getName());
                     } else {
                         theme.setName(theme.getName() + " copy");
+                    }
+
+                    if(StringUtils.hasLength(resource.getDisplayName())) {
+                        theme.setDisplayName(resource.getDisplayName());
+                    } else {
+                        theme.setDisplayName(theme.getName());
                     }
                     return repository.save(theme);
                 });
@@ -353,6 +366,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     if(StringUtils.hasLength(themeDto.getName())) {
                         theme.setName(themeDto.getName());
                     }
+
+                    if(StringUtils.hasLength(themeDto.getDisplayName())) {
+                        theme.setDisplayName(themeDto.getDisplayName());
+                    }
                     return repository.save(theme);
                 });
     }
@@ -362,7 +379,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         if(theme == null) { // this application was exported without theme, assign the legacy theme to it
             return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
         } else if (theme.isSystemTheme()) {
-            return repository.getSystemThemeByName(theme.getName());
+            return repository.getSystemThemeByName(theme.getName())
+                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
         } else {
             theme.setApplicationId(null);
             theme.setOrganizationId(null);
