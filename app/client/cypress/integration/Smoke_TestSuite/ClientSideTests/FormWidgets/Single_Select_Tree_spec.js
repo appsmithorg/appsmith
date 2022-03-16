@@ -55,13 +55,20 @@ describe("Single Select Widget Functionality", function() {
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
-    cy.get(
-      `${formWidgetsPage.singleselecttreeWidget} ${formWidgetsPage.treeSelectInput}`,
-    )
-      .clear()
-      .type("BLUE{downArrow}{enter}");
+    cy.get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectFilterInput)
+      .click()
+      .type("light");
+    cy.treeSelectDropdown("Light Blue");
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
+    // Change defaultText
+    cy.openPropertyPane("singleselecttreewidget");
+    cy.updateCodeInput(".t--property-control-defaultvalue", "RED");
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 });
 afterEach(() => {

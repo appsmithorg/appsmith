@@ -63,6 +63,10 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.treeMultiSelectDropdown("Red");
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
+    // Reset isDirty by changing defaultValue
+    cy.testJsontext("defaultvalue", "BLUE\n");
+    // Check if isDirty is set to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 });
 afterEach(() => {

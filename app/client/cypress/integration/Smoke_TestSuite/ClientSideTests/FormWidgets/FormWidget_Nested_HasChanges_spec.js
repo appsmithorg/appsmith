@@ -6,7 +6,6 @@ describe("Form Widget", () => {
   });
 
   it("Check hasChanges meta property", () => {
-    cy.wait(2000);
     // Check if isDirty is false for the first time
     cy.contains(".t--widget-textwidget", "false").should("exist");
     // Interact with UI

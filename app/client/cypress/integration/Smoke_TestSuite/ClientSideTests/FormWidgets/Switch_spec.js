@@ -103,6 +103,13 @@ describe("Switch Widget Functionality", function() {
       .click();
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
+    // Change defaultSwitchState property
+    cy.openPropertyPane("switchwidget");
+    cy.get(".t--property-control-defaultselected label")
+      .last()
+      .click();
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 });
 afterEach(() => {

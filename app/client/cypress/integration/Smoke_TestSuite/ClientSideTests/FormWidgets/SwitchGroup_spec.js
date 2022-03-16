@@ -121,5 +121,13 @@ describe("Switch Group Widget Functionality", function() {
       .click();
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
+    // Change defaultSelectedValues
+    cy.openPropertyPane("switchgroupwidget");
+    cy.updateCodeInput(
+      ".t--property-control-defaultselectedvalues",
+      `[\n"GREEN"\n]`,
+    );
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 });

@@ -2,7 +2,14 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, isEqual, isString, isNumber, xorWith } from "lodash";
+import {
+  isArray,
+  isEqual,
+  isFinite,
+  isString,
+  isNumber,
+  xorWith,
+} from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -418,14 +425,29 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
+    // Check if defaultOptionValue is string
+    let isStringArray = false;
     if (
-      xorWith(
-        this.props.defaultOptionValue,
-        prevProps.defaultOptionValue,
-        isEqual,
-      ).length > 0 &&
-      this.props.isDirty
+      this.props.defaultOptionValue.some(
+        (value: any) => isString(value) || isFinite(value),
+      )
     ) {
+      isStringArray = true;
+    }
+
+    const hasChanges = isStringArray
+      ? xorWith(
+          this.props.defaultOptionValue as string[],
+          prevProps.defaultOptionValue as string[],
+          isEqual,
+        ).length > 0
+      : xorWith(
+          this.props.defaultOptionValue as OptionValue[],
+          prevProps.defaultOptionValue as OptionValue[],
+          isEqual,
+        ).length > 0;
+
+    if (hasChanges && this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
@@ -525,7 +547,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
-  defaultOptionValue: string | string[] | OptionValue[];
+  defaultOptionValue: string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelValueType[];
