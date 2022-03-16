@@ -33,16 +33,22 @@ function accessorValidation(
   const grandParentPath = propertyPathChunks.slice(0, -2).join(".");
   const schemaItemIdentifier = propertyPathChunks.slice(-2)[0]; // ['schema', '__root_field__', 'children', 'age', 'name'] -> age
   const schema = lodash.cloneDeep(lodash.get(props, grandParentPath));
-  const RESTRICTED_KEYS = ["__array_item__", "__root_schema__", "_id"];
+  const RESTRICTED_KEYS = ["__array_item__", "__root_schema__"];
+  const currentSchemaItem = lodash.cloneDeep(schema[schemaItemIdentifier]);
   // Remove the current edited schemaItem from schema so it doesn't
   // get picked in the existing keys list
   delete schema[schemaItemIdentifier];
+
+  // If the field is not _id (mongo id) then it shouldn't be allowed
+  if (currentSchemaItem.originalIdentifier !== "_id") {
+    RESTRICTED_KEYS.push("_id");
+  }
 
   if (value === "") {
     return {
       isValid: false,
       parsed: value,
-      messages: ["Accessor cannot be empty"],
+      messages: ["Property Name cannot be empty"],
     };
   }
 
@@ -56,7 +62,7 @@ function accessorValidation(
     return {
       isValid: false,
       parsed: "",
-      messages: ["Accessor with same name is already present."],
+      messages: ["Property name already in use."],
     };
   }
 
@@ -64,7 +70,7 @@ function accessorValidation(
     return {
       isValid: false,
       parsed: "",
-      messages: ["Accessor cannot be a restricted name"],
+      messages: ["This is a restricted Property Name"],
     };
   }
 
