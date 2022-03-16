@@ -1,5 +1,8 @@
 import React, { useCallback } from "react";
-import { useAppWideAndOtherDatasource } from "./hooks";
+import {
+  useAppWideAndOtherDatasource,
+  useDatasourceSuggestions,
+} from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 import { useSelector } from "store";
@@ -57,6 +60,7 @@ const Datasources = React.memo(() => {
     );
   }, [applicationId, pageId]);
   const activeDatasourceId = useDatasourceIdFromURL();
+  const datasourceSuggestions = useDatasourceSuggestions();
 
   const listDatasource = useCallback(() => {
     history.push(
@@ -66,7 +70,7 @@ const Datasources = React.memo(() => {
 
   const datasourceElements = React.useMemo(
     () =>
-      appWideDS.map((datasource: Datasource) => {
+      appWideDS.concat(datasourceSuggestions).map((datasource: Datasource) => {
         return (
           <ExplorerDatasourceEntity
             datasource={datasource}
