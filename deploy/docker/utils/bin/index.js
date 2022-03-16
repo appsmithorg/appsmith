@@ -5,6 +5,7 @@ const utils = require('./utils');
 const export_db = require('./export_db.js');
 const import_db = require('./import_db.js');
 const migrate = require('./migrate.js');
+const check_replica_set = require('./check_replica_set.js');
 
 const APPLICATION_CONFIG_PATH = '/appsmith-stacks/configuration/docker.env';
 
@@ -36,6 +37,11 @@ if ((yargs.argv._[0] === 'migrate' || yargs.argv._[0] === 'mi') && yargs.argv._[
 
   console.log('Start migrate instance');
   migrate.runMigrate(arrString[0], arrString[1]);
+  return;
+}
+
+if ((yargs.argv._[0] === 'check_replica_set' || yargs.argv._[0] === 'crs')) {
+  check_replica_set.exec();
   return;
 }
 

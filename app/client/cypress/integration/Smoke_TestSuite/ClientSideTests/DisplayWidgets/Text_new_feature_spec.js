@@ -74,7 +74,9 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(widgetsPage.textColor)
       .first()
       .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.get(widgetsPage.greenColor)
+      .last()
+      .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
@@ -89,8 +91,8 @@ describe("Text Widget color/font/alignment Functionality", function() {
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.xpath(widgetsPage.greenColor)
-      .first()
+    cy.get(widgetsPage.greenColor)
+      .last()
       .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
