@@ -272,6 +272,7 @@ export function Table(props: TableProps) {
                 updatePageNo={props.updatePageNo}
                 widgetId={props.widgetId}
                 widgetName={props.widgetName}
+                width={props.width}
               />
             </TableHeaderInnerWrapper>
           </Scrollbars>

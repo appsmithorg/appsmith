@@ -287,4 +287,6 @@ export const ConditionFunctions: {
 
 export enum TableWidth {
   Mobile = 576,
+  Small = 365,
+  Smaller = 288,
 }
