@@ -214,7 +214,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             <div>
               <StyledButton
                 category={Category.tertiary}
-                className="t--introduction-modal-build-button my-6"
+                className="t--introduction-modal-welcome-tour-button my-6"
                 onClick={() => triggerWelcomeTour(dispatch)}
                 size={Size.large}
                 tag="button"
