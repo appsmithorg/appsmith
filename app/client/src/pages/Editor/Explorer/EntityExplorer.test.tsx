@@ -8,6 +8,12 @@ import { MockPageDSL } from "test/testCommon";
 import Sidebar from "components/editorComponents/Sidebar";
 import { generateReactKey } from "utils/generators";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
+import store from "store";
+import Datasources from "./Datasources";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { mockDatasources } from "./mockTestData";
+import { updateCurrentPage } from "actions/pageActions";
+
 jest.useFakeTimers();
 describe("Entity Explorer tests", () => {
   it("Should render Widgets tree in entity explorer", () => {
@@ -208,5 +214,17 @@ describe("Entity Explorer tests", () => {
     active = component.container.querySelectorAll("div.widget > .active");
     expect(highlighted.length).toBe(1);
     expect(active.length).toBe(1);
+  });
+
+  it("checks datasources section in explorer", () => {
+    store.dispatch({
+      type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      payload: mockDatasources,
+    });
+    store.dispatch(updateCurrentPage("623188f81876bb1bcfab19fd"));
+    const component = render(<Datasources />);
+    expect(component.container.getElementsByClassName("t--entity").length).toBe(
+      5,
+    );
   });
 });
