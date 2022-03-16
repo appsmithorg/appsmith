@@ -1578,7 +1578,8 @@ export function getCalculatedDirection(
   prevSpacesMap: SpaceMap,
   passedDirection: ReflowDirection,
 ) {
-  if (passedDirection.indexOf("|") >= 0) return [passedDirection];
+  if (passedDirection.indexOf("|") >= 0 || !prevSpacesMap)
+    return [passedDirection];
   for (const key in newSpacePositionsMap) {
     if (newSpacePositionsMap[key] && prevSpacesMap[key]) {
       const { left: newLeft, top: newTop } = newSpacePositionsMap[key];

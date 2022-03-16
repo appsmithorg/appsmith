@@ -95,6 +95,8 @@ import {
   getParentWidgetIdForGrouping,
   isCopiedModalWidget,
   purgeOrphanedDynamicPaths,
+  getNewPositions,
+  getReflowedPositions,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -106,6 +108,7 @@ import { getReflow } from "selectors/widgetReflowSelectors";
 import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
+import { SpaceMap } from "reflow/reflowTypes";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -746,6 +749,7 @@ export function calculateNewWidgetPosition(
   parentId: string,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
   parentBottomRow?: number,
+  newPastingPositionMap?: SpaceMap,
   shouldPersistColumnPosition = false,
   isThereACollision = false,
   shouldGroup = false,
@@ -755,6 +759,20 @@ export function calculateNewWidgetPosition(
   leftColumn: number;
   rightColumn: number;
 } {
+  if (
+    !shouldGroup &&
+    newPastingPositionMap &&
+    newPastingPositionMap[widget.widgetId]
+  ) {
+    const newPastingPosition = newPastingPositionMap[widget.widgetId];
+    return {
+      topRow: newPastingPosition.top,
+      bottomRow: newPastingPosition.bottom,
+      leftColumn: newPastingPosition.left,
+      rightColumn: newPastingPosition.right,
+    };
+  }
+
   const nextAvailableRow = parentBottomRow
     ? parentBottomRow
     : nextAvailableRowInContainer(parentId, canvasWidgets);
@@ -781,7 +799,12 @@ export function calculateNewWidgetPosition(
 /**
  * this saga create a new widget from the copied one to store
  */
-function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
+function* pasteWidgetSaga(
+  action: ReduxAction<{
+    groupWidgets: boolean;
+    mouseLocation: { top: number; left: number };
+  }>,
+) {
   let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
   const shouldGroup: boolean = action.payload.groupWidgets;
 
@@ -835,13 +858,30 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   )
     return;
 
-  const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
-    copiedWidgetGroups,
-  );
+  const {
+    leftMostWidget,
+    topMostWidget,
+    totalWidth: copiedTotalWidth,
+  } = getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
   const nextAvailableRow: number = nextAvailableRowInContainer(
     pastingIntoWidgetId,
     widgets,
   );
+  const {
+    canvasId,
+    gridProps,
+    newPastingPositionMap,
+    reflowedMovementMap,
+  } = yield call(
+    getNewPositions,
+    copiedWidgetGroups,
+    action.payload.mouseLocation,
+    copiedTotalWidth,
+    topMostWidget.topRow,
+    leftMostWidget.leftColumn,
+  );
+
+  if (canvasId) pastingIntoWidgetId = canvasId;
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
@@ -882,6 +922,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           pastingIntoWidgetId,
           widgets,
           nextAvailableRow,
+          newPastingPositionMap,
           true,
           isThereACollision,
           shouldGroup,
@@ -1063,7 +1104,13 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
     ),
   );
 
-  yield put(updateAndSaveLayout(widgets));
+  const reflowedWidgets = getReflowedPositions(
+    widgets,
+    reflowedMovementMap,
+    gridProps,
+  );
+
+  yield put(updateAndSaveLayout(reflowedWidgets));
 
   flashElementsById(newlyCreatedWidgetIds, 100);
 
