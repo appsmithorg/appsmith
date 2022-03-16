@@ -11,7 +11,7 @@ const pageid = "MyPage";
 describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {
     cy.log("Login Successful");
-    //cy.reload(); // To remove the rename tooltip
+    cy.reload(); // To remove the rename tooltip
     cy.wait(40000);
     cy.get(explorer.addWidget).click();
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
@@ -46,8 +46,10 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
       .should("be.visible");
     cy.get(explorer.explorerSwitchId).click();
     cy.PublishtheApp();
-    cy.get(publish.backToEditor).click();
-    cy.selectEntityByName("WIDGETS");
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.get(`.t--entity-name:contains(FormTest)`).trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");

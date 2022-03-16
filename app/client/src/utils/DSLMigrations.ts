@@ -44,7 +44,10 @@ import {
   ButtonVariantTypes,
 } from "../components/constants";
 import { Colors } from "../constants/Colors";
-import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import {
+  migrateModalIconButtonWidget,
+  migrateResizableModalWidgetProperties,
+} from "./migrations/ModalWidget";
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
@@ -1058,6 +1061,10 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 52) {
+    currentDSL = migrateModalIconButtonWidget(currentDSL);
+  }
+
+  if (currentDSL.version === 53) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

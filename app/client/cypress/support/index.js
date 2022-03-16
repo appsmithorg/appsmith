@@ -93,6 +93,8 @@ beforeEach(function() {
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
+  //-- Delete local storage data of entity explorer
+  cy.DeleteEntityStateLocalStorage();
 });
 
 after(function() {

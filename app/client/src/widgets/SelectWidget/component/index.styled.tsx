@@ -153,6 +153,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     }
   }
   .${Classes.BUTTON_TEXT} {
+    word-break: break-word;
     text-overflow: ellipsis;
     text-align: left;
     overflow: hidden;
@@ -171,22 +172,21 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
   borderRadius: string;
   primaryColor?: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .select-popover-width-${id} {
-    max-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    width: ${dropDownWidth}px;
+
     & .${Classes.INPUT_GROUP} {
-       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+      width: ${dropDownWidth}px;
     }
   }
 `}
   .select-popover-wrapper {
-    width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: ${({ borderRadius }) =>
       borderRadius >= `1.5rem` ? `0.375rem` : borderRadius} !important;
@@ -194,7 +194,6 @@ ${({ dropDownWidth, id, parentWidth }) => `
     background: white;
     & .${Classes.INPUT_GROUP} {
       padding: 12px 12px 8px 12px;
-      min-width: 180px;
       & > .${Classes.ICON} {
         &:first-child {
           left: 12px;

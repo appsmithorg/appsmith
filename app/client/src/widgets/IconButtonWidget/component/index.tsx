@@ -5,7 +5,11 @@ import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  RenderMode,
+  RenderModes,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import _ from "lodash";
 import {
   ButtonBorderRadius,
@@ -21,6 +25,10 @@ import {
 
 type IconButtonContainerProps = {
   disabled?: boolean;
+  buttonColor?: string;
+  buttonVariant?: ButtonVariant;
+  hasOnClickAction?: boolean;
+  renderMode: RenderMode;
 };
 
 const IconButtonContainer = styled.div<IconButtonContainerProps>`
@@ -29,6 +37,41 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
   justify-content: center;
   width: 100%;
   height: 100%;
+
+  ${({ renderMode }) =>
+    renderMode === RenderModes.CANVAS &&
+    `
+  position: relative;
+  &:after {
+    content: "";
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+  }
+  
+  `}
+  
+  ${({ buttonColor, buttonVariant, hasOnClickAction, renderMode, theme }) => `
+
+  ${
+    hasOnClickAction && renderMode === RenderModes.CANVAS
+      ? `&:hover > button, &:active > button {
+      background: ${
+        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
+          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
+          : buttonVariant === ButtonVariantTypes.SECONDARY
+          ? theme.colors.button.primary.secondary.hoverColor
+          : buttonVariant === ButtonVariantTypes.TERTIARY
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
+      } !important;
+    }`
+      : ""
+  }  
+`}
+
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
 `;
 
@@ -147,6 +190,7 @@ export interface IconButtonComponentProps extends ComponentProps {
   isVisible: boolean;
   hasOnClickAction: boolean;
   onClick: () => void;
+  renderMode: RenderMode;
   height: number;
   width: number;
 }
@@ -161,6 +205,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     height,
     isDisabled,
     onClick,
+    renderMode,
     width,
   } = props;
 
@@ -178,18 +223,24 @@ function IconButtonComponent(props: IconButtonComponentProps) {
   }, [width, height]);
 
   return (
-    <IconButtonContainer disabled={isDisabled}>
+    <IconButtonContainer
+      buttonColor={buttonColor}
+      buttonVariant={buttonVariant}
+      disabled={isDisabled}
+      hasOnClickAction={hasOnClickAction}
+      onClick={onClick}
+      renderMode={renderMode}
+    >
       <StyledButton
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
+        buttonVariant={_.trim(buttonVariant)}
         dimension={dimension}
         disabled={isDisabled}
         hasOnClickAction={hasOnClickAction}
         icon={props.iconName}
         large
-        onClick={onClick}
       />
     </IconButtonContainer>
   );

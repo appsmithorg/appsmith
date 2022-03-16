@@ -133,8 +133,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 },
               },
             },
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Sets a Label Text",
@@ -428,10 +426,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
 
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-
     // Check if the value has changed. If no option
     // selected till now, there is a change
     if (this.props.selectedOptionValue) {
@@ -447,6 +441,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           type: EventType.ON_OPTION_CHANGE,
         },
       });
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
     }
   };
 
@@ -490,7 +487,7 @@ export interface SelectWidgetProps extends WidgetProps {
   label?: any;
   isRequired: boolean;
   isFilterable: boolean;
-  defaultValue: string;
+  defaultValue: string | { value: string; label: string };
   selectedOptionLabel: string;
   serverSideFiltering: boolean;
   onFilterUpdate: string;
