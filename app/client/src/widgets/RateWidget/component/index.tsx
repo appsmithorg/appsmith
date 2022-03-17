@@ -36,6 +36,10 @@ export const RateContainer = styled.div<RateContainerProps>`
     flex-wrap: wrap;
     height: 100%;
     align-items: center;
+
+    & > span {
+      height: 100%;
+    }
   }
 
   ${({ isDisabled }) => isDisabled && disable}
