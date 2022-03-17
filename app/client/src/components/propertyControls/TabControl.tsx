@@ -5,7 +5,9 @@ import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName, noop } from "utils/AppsmithUtils";
-import _, { orderBy } from "lodash";
+import orderBy from "lodash/orderBy";
+import isString from "lodash/isString";
+import isUndefined from "lodash/isUndefined";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
@@ -119,7 +121,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   ) {
     // Added a migration script for older tab data that was strings
     // deprecate after enough tabs have moved to the new format
-    if (_.isString(tabData)) {
+    if (isString(tabData)) {
       try {
         const parsedData: Array<{
           sid: string;
@@ -138,6 +140,20 @@ class TabControl extends BaseControl<ControlProps, State> {
     }
   }
 
+  getTabItems = () => {
+    const menuItems: Array<{
+      id: string;
+      label: string;
+      isVisible: boolean;
+    }> =
+      isString(this.props.propertyValue) ||
+      isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
+
+    return orderBy(menuItems, ["index"], ["asc"]);
+  };
+
   updateItems = (items: Array<Record<string, any>>) => {
     const tabsObj = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
@@ -150,10 +166,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   };
 
   onEdit = (index: number) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = Object.values(this.props.propertyValue);
+    const tabs = this.getTabItems();
     const tabToChange = tabs[index];
     this.props.openNextPanel({
       index,
@@ -161,14 +174,8 @@ class TabControl extends BaseControl<ControlProps, State> {
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
-  render() {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
 
+  render() {
     return (
       <TabsWrapper>
         <DroppableComponent
@@ -176,7 +183,7 @@ class TabControl extends BaseControl<ControlProps, State> {
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={orderBy(tabs, ["index"], ["asc"])}
+          items={this.getTabItems()}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
@@ -192,12 +199,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   }
 
   toggleVisibility = (index: number) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-      isVisible: boolean;
-      widgetId: string;
-    }> = this.props.propertyValue.slice();
+    const tabs = this.getTabItems();
     const isVisible = tabs[index].isVisible === true ? false : true;
     const updatedTabs = tabs.map((tab, tabIndex) => {
       if (index === tabIndex) {
@@ -212,7 +214,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const tabsArray: any = Object.values(this.props.propertyValue);
+    const tabsArray = this.getTabItems();
     const { id: itemId } = tabsArray[index];
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
@@ -222,7 +224,7 @@ class TabControl extends BaseControl<ControlProps, State> {
 
   addOption = () => {
     let tabs = this.props.propertyValue;
-    const tabsArray = Object.values(tabs);
+    const tabsArray = this.getTabItems();
     const newTabId = generateReactKey({ prefix: "tab" });
     const newTabLabel = getNextEntityName(
       "Tab ",
@@ -232,6 +234,7 @@ class TabControl extends BaseControl<ControlProps, State> {
       ...tabs,
       [newTabId]: {
         id: newTabId,
+        index: tabsArray.length,
         label: newTabLabel,
         widgetId: generateReactKey(),
         isVisible: true,
