@@ -333,7 +333,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
                                     }
 
-                                    final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getName();
+                                    final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
                                     actionIdToNameMap.put(newAction.getId(), updatedActionId);
                                     newAction.setId(updatedActionId);
                                 }
@@ -347,7 +347,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
 
                                     if (!actionIdToNameMap.containsValue(newAction.getId())) {
-                                        final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getName();
+                                        final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
                                         actionIdToNameMap.put(newAction.getId(), updatedActionId);
                                         newAction.setId(updatedActionId);
                                     }
@@ -733,7 +733,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             .then(applicationService.save(importedApplication));
                                 })
                 )
-                .flatMap(savedAPP -> importThemes(savedAPP, importedDoc))
+                .flatMap(savedApp -> importThemes(savedApp, importedDoc))
                 .flatMap(savedApp -> {
                     importedApplication.setId(savedApp.getId());
                     if (savedApp.getGitApplicationMetadata() != null) {
@@ -1146,7 +1146,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // If pageId is missing in the actionDTO create a fallback pageId
                     final String fallbackParentPageId = unpublishedAction.getPageId();
 
-                    if (unpublishedAction.getName() != null) {
+                    if (unpublishedAction.getValidName() != null) {
                         if (invisibleActionFieldsMap != null) {
                             unpublishedAction.setUserSetOnLoad(invisibleActionFieldsMap.get(newAction.getId()).getUnpublishedUserSetOnLoad());
                         }
@@ -1155,7 +1155,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         sanitizeDatasourceInActionDTO(unpublishedAction, datasourceMap, pluginMap, organizationId, false);
                     }
 
-                    if (publishedAction != null && publishedAction.getName() != null) {
+                    if (publishedAction != null && publishedAction.getValidName() != null) {
                         if (invisibleActionFieldsMap != null) {
                             publishedAction.setUserSetOnLoad(invisibleActionFieldsMap.get(newAction.getId()).getPublishedUserSetOnLoad());
                         }
@@ -1229,7 +1229,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     if (newAction.getUnpublishedAction() != null) {
                         ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                         actionIdMap.put(
-                                actionIdMap.get(unpublishedAction.getName() + unpublishedAction.getPageId()),
+                                actionIdMap.get(unpublishedAction.getValidName() + unpublishedAction.getPageId()),
                                 newAction.getId()
                         );
 
@@ -1242,7 +1242,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     if (newAction.getPublishedAction() != null) {
                         ActionDTO publishedAction = newAction.getPublishedAction();
                         actionIdMap.put(
-                                actionIdMap.get(publishedAction.getName() + publishedAction.getPageId()),
+                                actionIdMap.get(publishedAction.getValidName() + publishedAction.getPageId()),
                                 newAction.getId()
                         );
 
@@ -1492,7 +1492,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         if (parentPage == null) {
             return null;
         }
-        actionIdMap.put(action.getName() + parentPage.getId(), action.getId());
+        actionIdMap.put(action.getValidName() + parentPage.getId(), action.getId());
         action.setPageId(parentPage.getId());
 
         // Update defaultResources in actionDTO
