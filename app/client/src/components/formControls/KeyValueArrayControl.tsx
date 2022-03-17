@@ -118,7 +118,7 @@ function KeyValueRow(
                 name={keyTextFieldName}
                 props={{
                   dataType: getType(extraData[0]?.dataType),
-                  defaultValue: props.initialValue,
+                  defaultValue: extraData[0]?.initialValue,
                   keyFieldValidate,
                   placeholder: props.extraData
                     ? props.extraData[1]?.placeholderText
@@ -139,7 +139,7 @@ function KeyValueRow(
                     name={valueTextFieldName}
                     props={{
                       dataType: getType(extraData[1]?.dataType),
-                      defaultValue: props.initialValue,
+                      defaultValue: extraData[1]?.initialValue,
                       placeholder: props.extraData
                         ? props.extraData[1]?.placeholderText
                         : "",

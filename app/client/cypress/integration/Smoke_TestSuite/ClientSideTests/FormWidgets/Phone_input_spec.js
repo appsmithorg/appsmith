@@ -81,11 +81,6 @@ describe("Phone input widget - ", () => {
   });
 
   it("should check that widget input resets on submit", () => {
-    cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(
-      ".t--property-control-text",
-      `{{PhoneInput1.text}}:{{PhoneInput1.value}}`,
-    );
     cy.openPropertyPane(widgetName);
     cy.get(
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
@@ -95,12 +90,8 @@ describe("Phone input widget - ", () => {
 
     cy.get(widgetInput).clear();
     cy.wait(300);
-    cy.get(widgetInput).type("1234567890");
-    cy.wait(300);
-    cy.get(".t--widget-textwidget").should("contain", "1234567890:1234567890");
-    cy.get(widgetInput).type("{enter}");
+    cy.get(widgetInput).type("1234567890{enter}");
     cy.wait(300);
     cy.get(widgetInput).should("contain.value", "");
-    cy.get(".t--widget-textwidget").should("contain", ":undefined");
   });
 });
