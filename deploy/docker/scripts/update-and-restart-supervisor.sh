@@ -40,7 +40,7 @@ update_supervisord_mongodb_conf() {
 
 update_supervisord_redis_conf() {
   echo "Update supervisord Redis conf"
-  if [ $isUriLocal -eq 1 ]; then
+  if [ $isLocalRedis -eq 1 ]; then
     echo "disable Redis supervisord"
     rm -f redis.conf
   else
