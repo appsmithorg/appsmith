@@ -27,6 +27,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
+import { PluginType } from "entities/Action";
 const clone = require("rfdc/default");
 import { warn as logWarn } from "loglevel";
 
@@ -282,6 +283,16 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
     entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+  );
+}
+
+export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
+    "pluginType" in entity &&
+    entity.pluginType === PluginType.JS
   );
 }
 

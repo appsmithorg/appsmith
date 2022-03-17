@@ -19,6 +19,7 @@ describe("Form Widget with Input Functionality", function() {
     //Do Submission
     cy.get(widgetsPage.formButtonWidget)
       .contains("Submit")
+      .closest("div")
       .click();
 
     //Check if on submission if the notification toast appears with text containing input1: 0
