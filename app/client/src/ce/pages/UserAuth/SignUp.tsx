@@ -137,78 +137,82 @@ export function SignUp(props: SignUpFormProps) {
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
-      <SpacedSubmitForm
-        action={signupURL}
-        id="signup-form"
-        method="POST"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const formElement: HTMLFormElement = document.getElementById(
-            "signup-form",
-          ) as HTMLFormElement;
-          if (
-            googleRecaptchaSiteKey.enabled &&
-            recaptchaStatus === ScriptStatus.READY
-          ) {
-            window.grecaptcha
-              .execute(googleRecaptchaSiteKey.apiKey, {
-                action: "submit",
-              })
-              .then(function(token: any) {
-                formElement &&
-                  formElement.setAttribute(
-                    "action",
-                    `${signupURL}?recaptchaToken=${token}`,
-                  );
-                formElement && formElement.submit();
-              });
-          } else {
-            formElement && formElement.submit();
-          }
-          return false;
-        }}
-      >
-        <FormGroup
-          intent={error ? "danger" : "none"}
-          label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}
+      {!disableLoginForm && (
+        <SpacedSubmitForm
+          action={signupURL}
+          id="signup-form"
+          method="POST"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formElement: HTMLFormElement = document.getElementById(
+              "signup-form",
+            ) as HTMLFormElement;
+            if (
+              googleRecaptchaSiteKey.enabled &&
+              recaptchaStatus === ScriptStatus.READY
+            ) {
+              window.grecaptcha
+                .execute(googleRecaptchaSiteKey.apiKey, {
+                  action: "submit",
+                })
+                .then(function(token: any) {
+                  formElement &&
+                    formElement.setAttribute(
+                      "action",
+                      `${signupURL}?recaptchaToken=${token}`,
+                    );
+                  formElement && formElement.submit();
+                });
+            } else {
+              formElement && formElement.submit();
+            }
+            return false;
+          }}
         >
-          <FormTextField
-            autoFocus
-            name="email"
-            placeholder={createMessage(SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER)}
-            type="email"
-          />
-        </FormGroup>
-        <FormGroup
-          intent={error ? "danger" : "none"}
-          label={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_LABEL)}
-        >
-          <FormTextField
-            name="password"
-            placeholder={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER)}
-            type="password"
-          />
-        </FormGroup>
-        <FormActions>
-          <Button
-            disabled={pristine || !isFormValid}
-            fill
-            isLoading={submitting}
-            onClick={() => {
-              AnalyticsUtil.logEvent("SIGNUP_CLICK", {
-                signupMethod: "EMAIL",
-              });
-              PerformanceTracker.startTracking(
-                PerformanceTransactionName.SIGN_UP,
-              );
-            }}
-            size={Size.large}
-            tag="button"
-            text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
-            type="submit"
-          />
-        </FormActions>
-      </SpacedSubmitForm>
+          <FormGroup
+            intent={error ? "danger" : "none"}
+            label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}
+          >
+            <FormTextField
+              autoFocus
+              name="email"
+              placeholder={createMessage(SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER)}
+              type="email"
+            />
+          </FormGroup>
+          <FormGroup
+            intent={error ? "danger" : "none"}
+            label={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_LABEL)}
+          >
+            <FormTextField
+              name="password"
+              placeholder={createMessage(
+                SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER,
+              )}
+              type="password"
+            />
+          </FormGroup>
+          <FormActions>
+            <Button
+              disabled={pristine || !isFormValid}
+              fill
+              isLoading={submitting}
+              onClick={() => {
+                AnalyticsUtil.logEvent("SIGNUP_CLICK", {
+                  signupMethod: "EMAIL",
+                });
+                PerformanceTracker.startTracking(
+                  PerformanceTransactionName.SIGN_UP,
+                );
+              }}
+              size={Size.large}
+              tag="button"
+              text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
+              type="submit"
+            />
+          </FormActions>
+        </SpacedSubmitForm>
+      )}
     </>
   );
 }

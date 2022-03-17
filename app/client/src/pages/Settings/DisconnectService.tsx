@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Variant } from "components/ads/common";
 import Button from "components/ads/Button";
@@ -15,11 +15,17 @@ export const Container = styled.div`
 export const DisconnectButton = styled(Button)`
   display: inline-block;
   padding: 10px 20px;
+  min-width: 152px;
+  text-align: center;
   font-size: 13px;
   height: 38px;
   margin-top: 16px;
   background: ${Colors.CRIMSON};
   border: 2px solid ${Colors.CRIMSON};
+
+  &:hover {
+    border: 2px solid ${Colors.CRIMSON};
+  }
 `;
 
 export const Header = styled.h2`
@@ -43,14 +49,18 @@ export function DisconnectService(props: {
   subHeader: string;
   warning: string;
 }) {
+  const [warnDisconnectAuth, setWarnDisconnectAuth] = useState(false);
+
   return (
     <Container>
       <HeaderDanger>{createMessage(DANGER_ZONE)}</HeaderDanger>
       <Info>{props.subHeader}</Info>
       <Callout title={props.warning} type="Warning" />
       <DisconnectButton
-        onClick={props.disconnect}
-        text="Disconnect"
+        onClick={() =>
+          warnDisconnectAuth ? props.disconnect() : setWarnDisconnectAuth(true)
+        }
+        text={warnDisconnectAuth ? "Are you sure?" : "Disconnect"}
         variant={Variant.danger}
       />
     </Container>

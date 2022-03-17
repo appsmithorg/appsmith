@@ -39,9 +39,9 @@ export const StyledFormGroup = styled.div`
   }
 `;
 
-export const StyledLabel = styled.label`
+export const StyledLabel = styled.label<{ isLabel?: string }>`
   margin-bottom: ${(props) => props.theme.spaces[3]}px;
-  display: inline-block;
+  display: ${(props) => (props.isLabel ? `inline-block` : `none`)};
   ${(props) => getTypographyByKey(props, "h5")}
   color: ${(props) => props.theme.colors.textInput.normal.text};
 `;
@@ -62,7 +62,10 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       className={className}
       data-testid="admin-settings-form-group"
     >
-      <StyledLabel data-testid="admin-settings-form-group-label">
+      <StyledLabel
+        data-testid="admin-settings-form-group-label"
+        isLabel={setting.label || ""}
+      >
         {createMessage(() => setting.label || "")}
       </StyledLabel>
       {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
