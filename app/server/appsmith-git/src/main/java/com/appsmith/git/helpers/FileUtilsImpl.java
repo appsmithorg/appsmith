@@ -178,7 +178,9 @@ public class FileUtilsImpl implements FileInterface {
                         //  queryName => for app level queries, this is not implemented yet
                         String[] names = resource.getKey().split("_");
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
-                            final String queryName = names[0];
+                            // For actions, we are referring to validNames to maintain unique file names as just name
+                            // field don't guarantee unique constraint for actions within JSObject
+                            final String queryName = names[0].replace(".", "-");
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                             saveFile(

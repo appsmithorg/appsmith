@@ -110,11 +110,13 @@ public class GitFileUtils {
         resourceMap.clear();
 
         // Insert actions and also assign the keys which later will be used for saving the resource in actual filepath
-        // queryName_pageName => nomenclature for the keys
+        // For actions, we are referring to validNames to maintain unique file names as just name
+        // field don't guarantee unique constraint for actions within JSObject
+        // queryValidName_pageName => nomenclature for the keys
         applicationJson.getActionList().forEach(newAction -> {
             String prefix = newAction.getUnpublishedAction() != null ?
-                    newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
-                    : newAction.getPublishedAction().getName() + "_" + newAction.getPublishedAction().getPageId();
+                    newAction.getUnpublishedAction().getValidName() + "_" + newAction.getUnpublishedAction().getPageId()
+                    : newAction.getPublishedAction().getValidName() + "_" + newAction.getPublishedAction().getPageId();
             removeUnwantedFieldFromAction(newAction);
             resourceMap.put(prefix, newAction);
         });
