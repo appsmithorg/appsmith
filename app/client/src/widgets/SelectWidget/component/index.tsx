@@ -1,10 +1,15 @@
 import React, { useMemo } from "react";
+import _ from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Button, Classes } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
-import { IItemRendererProps } from "@blueprintjs/select";
+import {
+  IItemListRendererProps,
+  IItemRendererProps,
+} from "@blueprintjs/select";
 import { debounce, findIndex, isEmpty, isNil } from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
+import { FixedSizeList } from "react-window";
 import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import {
@@ -36,6 +41,7 @@ export const isEmptyOrNill = (value: any) => {
 };
 
 const DEBOUNCE_TIMEOUT = 800;
+const ITEM_SIZE = 40;
 
 interface SelectComponentState {
   activeItemIndex: number | undefined;
@@ -207,6 +213,49 @@ class SelectComponent extends React.Component<
       </a>
     </MenuItem>
   );
+  itemListRenderer = (
+    props: IItemListRendererProps<any>,
+  ): JSX.Element | null => {
+    if (!this.state.isOpen) return null;
+    let activeItemIndex = this.props.selectedIndex || null;
+    if (props.activeItem && activeItemIndex === null) {
+      activeItemIndex = props.filteredItems?.findIndex(
+        (item) => item.value === props.activeItem?.value,
+      );
+    }
+    if (!props.filteredItems || !props.filteredItems.length)
+      return this.noResultsUI;
+    return this.renderList(
+      props.filteredItems,
+      activeItemIndex,
+      props.renderItem,
+    );
+  };
+  renderList = (
+    items: DropdownOption[],
+    activeItemIndex: number | null,
+    renderItem: (item: any, index: number) => JSX.Element | null,
+  ): JSX.Element | null => {
+    const width: number = Math.floor(this.props.width);
+    const RowRenderer = (itemProps: any) => (
+      <div key={itemProps.index} style={itemProps.style}>
+        {renderItem(items[itemProps.index], itemProps.index)}
+      </div>
+    );
+    return (
+      <FixedSizeList
+        height={300}
+        initialScrollOffset={
+          _.isNumber(activeItemIndex) ? activeItemIndex * ITEM_SIZE : 0
+        }
+        itemCount={items.length}
+        itemSize={ITEM_SIZE}
+        width={width}
+      >
+        {RowRenderer}
+      </FixedSizeList>
+    );
+  };
 
   render() {
     const {
@@ -273,6 +322,7 @@ class SelectComponent extends React.Component<
                 ? this.itemListPredicate
                 : undefined
             }
+            itemListRenderer={this.itemListRenderer}
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
             noResults={this.noResultsUI}

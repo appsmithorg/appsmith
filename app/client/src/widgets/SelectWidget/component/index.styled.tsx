@@ -260,7 +260,7 @@ export const DropdownContainer = styled.div<{ compactMode: boolean }>`
   }
 `;
 
-export const MenuItem = styled.li`
+export const MenuItem = styled.div`
   & .menu-item-link {
     display: flex;
     flex-direction: row;
