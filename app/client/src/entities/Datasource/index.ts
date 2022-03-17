@@ -61,6 +61,7 @@ interface BaseDatasource {
   name: string;
   organizationId: string;
   isValid: boolean;
+  isConfigured?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (
@@ -81,16 +82,19 @@ export interface EmbeddedRestDatasource extends BaseDatasource {
   invalids: Array<string>;
   messages: Array<string>;
 }
+
+export interface DatasourceConfiguration {
+  url: string;
+  authentication?: DatasourceAuthentication;
+  properties?: Property[];
+  headers?: Property[];
+  queryParameters?: Property[];
+  databaseName?: string;
+}
+
 export interface Datasource extends BaseDatasource {
   id: string;
-  datasourceConfiguration: {
-    url: string;
-    authentication?: DatasourceAuthentication;
-    properties?: Property[];
-    headers?: Property[];
-    queryParameters?: Property[];
-    databaseName?: string;
-  };
+  datasourceConfiguration: DatasourceConfiguration;
   invalids?: string[];
   structure?: DatasourceStructure;
   messages?: string[];
