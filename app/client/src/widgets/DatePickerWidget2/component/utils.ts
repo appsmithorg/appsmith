@@ -1,4 +1,4 @@
-import moment from "moment-timezone";
+import moment from "moment";
 
 export const parseDate = (dateStr: string, dateFormat: string): Date => {
   const date = moment(dateStr, dateFormat);
