@@ -1,19 +1,15 @@
 {
+  "clientSchemaVersion": 1,
+  "serverSchemaVersion": 1,
   "exportedApplication": {
-    "userPermissions": [
-      "canComment:applications",
-      "manage:applications",
-      "export:applications",
-      "read:applications",
-      "publish:applications",
-      "makePublic:applications"
-    ],
-    "name": "2eacca10",
+    "name": "d85f5e74",
     "isPublic": false,
     "appIsExample": false,
     "unreadCommentThreads": 0,
-    "color": "#F1DEFF",
-    "icon": "cat",
+    "color": "#D9E7FF",
+    "icon": "cloud",
+    "slug": "d85f5e74",
+    "evaluationVersion": 2,
     "new": true
   },
   "datasourceList": [],
@@ -23,12 +19,13 @@
         "read:pages",
         "manage:pages"
       ],
-      "gitSyncId": "61602709ae8b022ed53c23c7_2021-10-08T11:10:01.203693Z",
+      "gitSyncId": "6200c8457d76221d03e360e0_6200c8457d76221d03e360e2",
       "unpublishedPage": {
         "name": "Page1",
+        "slug": "page1",
         "layouts": [
           {
-            "id": "61602709ae8b022ed53c23c8",
+            "id": "Page1",
             "userPermissions": [],
             "dsl": {
               "widgetName": "MainContainer",
@@ -147,7 +144,7 @@
                         {
                           "widgetName": "Chart1",
                           "rightColumn": 8,
-                          "allowHorizontalScroll": false,
+                          "allowScroll": false,
                           "widgetId": "hwi9cwhg43",
                           "topRow": 1,
                           "bottomRow": 9,
@@ -270,9 +267,10 @@
       },
       "publishedPage": {
         "name": "Page1",
+        "slug": "page1",
         "layouts": [
           {
-            "id": "61602709ae8b022ed53c23c8",
+            "id": "Page1",
             "userPermissions": [],
             "dsl": {
               "widgetName": "MainContainer",
@@ -308,6 +306,16 @@
   "actionList": [],
   "actionCollectionList": [],
   "decryptedFields": {},
+  "editModeTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
+  "publishedTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
   "publishedLayoutmongoEscapedWidgets": {},
   "unpublishedLayoutmongoEscapedWidgets": {}
 }

@@ -41,8 +41,9 @@ public class ApplicationTemplateControllerCE {
     }
 
     @PostMapping("{templateId}/import/{organizationId}")
-    public Mono<Application> importApplicationFromTemplate(@PathVariable String templateId,
+    public Mono<ResponseDTO<Application>> importApplicationFromTemplate(@PathVariable String templateId,
                                                            @PathVariable String organizationId) {
-        return applicationTemplateService.importApplicationFromTemplate(templateId, organizationId);
+        return applicationTemplateService.importApplicationFromTemplate(templateId, organizationId)
+                .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 }
