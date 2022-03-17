@@ -1062,6 +1062,7 @@ export const transformDSL = (
 
   if (currentDSL.version === 52) {
     currentDSL = migrateModalIconButtonWidget(currentDSL);
+    currentDSL.version = 53;
   }
 
   if (currentDSL.version === 53) {

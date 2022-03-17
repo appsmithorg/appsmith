@@ -1201,7 +1201,7 @@ describe("correctly migrate dsl", () => {
   });
 
   it("transformDSL for theming v1", () => {
-    const currentVersion = 52;
+    const currentVersion = 53;
     const nextVersion = LATEST_PAGE_VERSION;
     const currentDSL: ContainerWidgetProps<WidgetProps> = {
       backgroundColor: "none",

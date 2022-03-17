@@ -97,7 +97,7 @@ describe("validate widget utils button style functions", () => {
     expect(result2).toStrictEqual(expected2);
 
     // variant : SECONDARY
-    const expected3 = "#ffffff";
+    const expected3 = "#dcfeef";
     const result3 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.SECONDARY,
@@ -112,7 +112,7 @@ describe("validate widget utils button style functions", () => {
     expect(result4).toStrictEqual(expected4);
 
     // variant : TERTIARY
-    const expected5 = "#ffffff";
+    const expected5 = "#dcfeef";
     const result5 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.TERTIARY,
@@ -152,7 +152,7 @@ hello! how are you?
       "#b0b0b0",
       "#d6d4d4",
     ];
-    const lightColors = ["#a6a6a6", "#dcdcdc", "#e3e3e3", "#f0f0f0", "#bdbaba"];
+    const lightColors = ["#ededed", "#ededed", "#ededed", "#ededed", "#eeeded"];
 
     actualColors.forEach((color, idx) => {
       expect(lightenColor(color)).toEqual(lightColors[idx]);
