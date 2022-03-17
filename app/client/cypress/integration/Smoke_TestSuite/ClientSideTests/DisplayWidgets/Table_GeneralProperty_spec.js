@@ -246,7 +246,6 @@ describe("Table Widget property pane feature validation", function() {
       "1",
       "background-color",
       "rgb(3, 179, 101)",
-      true,
     );
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
@@ -266,7 +265,6 @@ describe("Table Widget property pane feature validation", function() {
       "1",
       "background-color",
       "rgb(128, 0, 128)",
-      true,
     );
     cy.get(publish.backToEditor).click();
   });
