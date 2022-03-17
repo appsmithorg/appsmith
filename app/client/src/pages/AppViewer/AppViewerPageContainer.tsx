@@ -81,7 +81,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
       );
     }
     const pageNotFound = (
-      <Centered>
+      <Centered isInheritedHeight>
         <NonIdealState
           description={appsmithEditorLink}
           icon={
@@ -96,7 +96,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
       </Centered>
     );
     const pageLoading = (
-      <Centered>
+      <Centered isInheritedHeight>
         <Spinner />
       </Centered>
     );
