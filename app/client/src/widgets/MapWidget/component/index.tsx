@@ -38,6 +38,11 @@ interface MapComponentProps {
   boxShadow?: string;
 }
 
+const MapContainerWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+`;
+
 const MapWrapper = styled.div<{
   borderRadius: string;
   boxShadow?: string;
@@ -49,13 +54,14 @@ const MapWrapper = styled.div<{
   border: ${({ boxShadow }) =>
     boxShadow === "none" ? `1px solid` : `0px solid`};
   border-color: ${Colors.GREY_3};
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   overflow: hidden;
-`;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 
-const MapContainerWrapper = styled.div`
-  width: 100%;
-  height: 100%;
+  ${({ borderRadius }) =>
+    borderRadius >= "1.5rem"
+      ? `& div.gmnoprint:not([data-control-width]) {
+    margin-right: 10px !important;`
+      : ""}
 `;
 
 const StyledInput = styled.input`

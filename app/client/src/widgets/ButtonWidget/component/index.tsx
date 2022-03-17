@@ -35,9 +35,7 @@ import {
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomHoverColor,
   getComplementaryGrayscaleColor,
-  getCustomTextColor,
   getCustomJustifyContent,
   getAlignText,
 } from "widgets/WidgetUtils";

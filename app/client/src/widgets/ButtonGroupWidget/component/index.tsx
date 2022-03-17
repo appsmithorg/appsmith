@@ -159,7 +159,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     ${buttonHoverActiveStyles}
   }
 
-  ${({ buttonColor, buttonVariant, iconAlign, isHorizontal, theme }) => `
+  ${({ buttonColor, buttonVariant, iconAlign, theme }) => `
     & {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"

@@ -267,7 +267,7 @@ cursor: not-allowed;
   background: #fff;
   width: 100%;
   border-radius: ${({ borderRadius }) =>
-    borderRadius === `1.5rem` ? `0.375rem` : borderRadius};
+    borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
   overflow: hidden;
   margin-top: 5px;
   background: white;

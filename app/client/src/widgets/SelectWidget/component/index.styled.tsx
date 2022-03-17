@@ -104,7 +104,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     height: 100%;
     align-items: center;
     justify-content: space-between;
-    box-shadow: none;
+    box-shadow: ${(props) => props.boxShadow} !important;
     background: white;
     min-height: 32px;
     padding-left: 12px;

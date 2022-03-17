@@ -239,7 +239,7 @@ ${({ dropDownWidth, id }) => `
   margin-top: 5px;
   background: white;
   border-radius: ${({ borderRadius }) =>
-    borderRadius === `1.5rem` ? `0.375rem` : borderRadius};
+    borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
   overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
   &&&& .${Classes.ALIGN_LEFT} {
