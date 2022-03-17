@@ -31,7 +31,7 @@ import {
   getCustomJustifyContent,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
-import { RenderMode } from "constants/WidgetConstants";
+import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 
@@ -80,9 +80,9 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
       : "none"} !important;
 `;
 
-const MenuButtonWrapper = styled.div`
+const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
   flex: 1 1 auto;
-
+  ${({ renderMode }) => renderMode === RenderModes.CANVAS && `height: 100%`};
   & > .${Classes.POPOVER2_TARGET} > button {
     width: 100%;
     height: 100%;
@@ -437,7 +437,10 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
             const id = uniqueId();
 
             return (
-              <MenuButtonWrapper key={button.id}>
+              <MenuButtonWrapper
+                key={button.id}
+                renderMode={this.props.renderMode}
+              >
                 <PopoverStyles
                   id={id}
                   menuDropDownWidth={menuDropDownWidth}

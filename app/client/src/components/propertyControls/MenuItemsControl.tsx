@@ -146,8 +146,20 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   deleteOption = (index: number) => {
     const menuItemsArray = this.getMenuItems();
     if (menuItemsArray.length === 1) return;
-    const itemId = menuItemsArray[index].id;
-    this.deleteProperties([`${this.props.propertyName}.${itemId}`]);
+    const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
+      return i !== index;
+    });
+    const updatedObj = updatedArray.reduce(
+      (obj: any, each: any, index: number) => {
+        obj[each.id] = {
+          ...each,
+          index,
+        };
+        return obj;
+      },
+      {},
+    );
+    this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
