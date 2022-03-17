@@ -1,16 +1,14 @@
-import React, { useMemo } from "react";
-import _ from "lodash";
+import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import { Button, Classes } from "@blueprintjs/core";
+import { Classes } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import {
   IItemListRendererProps,
   IItemRendererProps,
 } from "@blueprintjs/select";
-import { debounce, findIndex, isEmpty, isNil } from "lodash";
+import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { FixedSizeList } from "react-window";
-import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import {
   StyledLabel,
@@ -20,12 +18,10 @@ import {
   DropdownStyles,
   DropdownContainer,
   MenuItem,
-  StyledDiv,
 } from "./index.styled";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import Icon, { IconSize } from "components/ads/Icon";
-import { isString } from "../../../utils/helpers";
+import SelectButton from "./SelectButton";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -36,10 +32,6 @@ const FUSE_OPTIONS = {
   keys: ["label", "value"],
 };
 
-export const isEmptyOrNill = (value: any) => {
-  return isNil(value) || (isString(value) && value === "");
-};
-
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
 
@@ -47,52 +39,6 @@ interface SelectComponentState {
   activeItemIndex: number | undefined;
   query?: string;
   isOpen?: boolean;
-}
-
-interface SelectButtonProps {
-  disabled?: boolean;
-  displayText?: string;
-  handleCancelClick?: (event: React.MouseEvent<Element, MouseEvent>) => void;
-  togglePopoverVisibility: () => void;
-  value?: string;
-}
-
-function SelectButton(props: SelectButtonProps) {
-  const {
-    disabled,
-    displayText,
-    handleCancelClick,
-    togglePopoverVisibility,
-    value,
-  } = props;
-  return useMemo(
-    () => (
-      <Button
-        disabled={disabled}
-        onClick={togglePopoverVisibility}
-        rightIcon={
-          <StyledDiv>
-            {!isEmptyOrNill(value) ? (
-              <Icon
-                className="dropdown-icon cancel-icon"
-                fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-                name="cross"
-                onClick={handleCancelClick}
-                size={IconSize.XXS}
-              />
-            ) : null}
-            <Icon
-              className="dropdown-icon"
-              fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-              name="dropdown"
-            />
-          </StyledDiv>
-        }
-        text={displayText}
-      />
-    ),
-    [disabled, displayText, handleCancelClick, value],
-  );
 }
 
 class SelectComponent extends React.Component<
@@ -246,7 +192,7 @@ class SelectComponent extends React.Component<
       <FixedSizeList
         height={300}
         initialScrollOffset={
-          _.isNumber(activeItemIndex) ? activeItemIndex * ITEM_SIZE : 0
+          isNumber(activeItemIndex) ? activeItemIndex * ITEM_SIZE : 0
         }
         itemCount={items.length}
         itemSize={ITEM_SIZE}

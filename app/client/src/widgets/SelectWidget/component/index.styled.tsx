@@ -12,7 +12,7 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
-import { isEmptyOrNill } from ".";
+import { isEmptyOrNill } from "./SelectButton";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
