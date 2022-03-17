@@ -8,6 +8,7 @@ import {
   uniqueColumnAliasValidation,
   updateColumnAccessorHook,
 } from "../../propertyUtils";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export default {
   sectionName: "Column Control",
@@ -78,6 +79,7 @@ export default {
       propertyName: "alias",
       label: "Property name",
       controlType: "INPUT_TEXT",
+      customJSControl: "COMPUTE_VALUE_V2",
       updateHook: updateColumnAccessorHook,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
@@ -105,7 +107,12 @@ export default {
       validation: {
         type: ValidationTypes.FUNCTION,
         params: {
-          fn: uniqueColumnAliasValidation,
+          expected: {
+            type: "string",
+            example: "abc",
+            autocompleteDataType: AutocompleteDataType.STRING,
+          },
+          fnString: uniqueColumnAliasValidation.toString(),
         },
       },
     },
