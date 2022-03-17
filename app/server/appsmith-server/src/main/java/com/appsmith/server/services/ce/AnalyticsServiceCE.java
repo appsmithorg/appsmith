@@ -22,6 +22,8 @@ public interface AnalyticsServiceCE {
 
     <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties);
 
+    <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object);
+
     <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties);
 
     <T extends BaseDomain> Mono<T> sendCreateEvent(T object);
