@@ -16,7 +16,7 @@ import {
 } from "@appsmith/constants/messages";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import Icon, { IconSize } from "./Icon";
+import Icon, { IconName, IconSize } from "./Icon";
 import { error as logError } from "loglevel";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
@@ -43,6 +43,11 @@ export type FilePickerProps = {
   logoUploadError?: string;
   fileType: FileType;
   delayedUpload?: boolean;
+  uploadIcon?: IconName;
+  title?: string;
+  description?: string;
+  containerClickable?: boolean; // when cotainer is clicked, it'll be work as button
+  iconFillColor?: string;
 };
 
 export const ContainerDiv = styled.div<{

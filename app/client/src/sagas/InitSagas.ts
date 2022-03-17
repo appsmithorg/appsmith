@@ -9,7 +9,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   Page,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -80,7 +80,7 @@ import { viewerURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 
-function* failFastApiCalls(
+export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
   failureActions: string[],
@@ -127,7 +127,7 @@ function* initiateURLUpdate(
   appMode: APP_MODE,
   pageIdInUrl?: string,
 ) {
-  const currentApplication: CurrentApplicationData = yield select(
+  const currentApplication: ApplicationPayload = yield select(
     getCurrentApplication,
   );
   if (currentApplication.applicationVersion < ApplicationVersion.SLUG_URL)
@@ -293,7 +293,7 @@ function* initializeEditorSaga(
 
     yield call(initiateEditorApplicationAndPages, payload);
 
-    const { id: applicationId, name }: CurrentApplicationData = yield select(
+    const { id: applicationId, name }: ApplicationPayload = yield select(
       getCurrentApplication,
     );
 

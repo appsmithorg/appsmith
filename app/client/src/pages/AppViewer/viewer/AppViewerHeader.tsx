@@ -10,7 +10,7 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
@@ -128,7 +128,8 @@ const PrimaryLogoLink = styled(Link)`
 `;
 
 type AppViewerHeaderProps = {
-  currentApplicationDetails?: CurrentApplicationData;
+  url?: string;
+  currentApplicationDetails?: ApplicationPayload;
   pages: PageListPayload;
   currentOrgId: string;
   currentUser?: User;
@@ -138,7 +139,7 @@ type AppViewerHeaderProps = {
 function HtmlTitle({
   currentApplicationDetails,
 }: {
-  currentApplicationDetails?: CurrentApplicationData;
+  currentApplicationDetails?: ApplicationPayload;
 }) {
   if (!currentApplicationDetails?.name) return null;
   return (

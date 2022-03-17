@@ -55,7 +55,6 @@ export default function* navigateActionSaga(
       pageParams: params,
     });
     const appMode: APP_MODE = yield select(getAppMode);
-    // uses query BUILDER_PAGE_URL
     const path =
       appMode === APP_MODE.EDIT
         ? builderURL({

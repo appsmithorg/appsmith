@@ -79,6 +79,7 @@ import {
   executePageLoadActions,
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
+  setJSActionsToExecuteOnPageLoad,
 } from "actions/pluginActionActions";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
@@ -410,7 +411,18 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       }
       // Update actions
       if (actionUpdates && actionUpdates.length > 0) {
-        yield put(setActionsToExecuteOnPageLoad(actionUpdates));
+        const actions = actionUpdates.filter(
+          (d) => !d.hasOwnProperty("collectionId"),
+        );
+        if (actions && actions.length) {
+          yield put(setActionsToExecuteOnPageLoad(actions));
+        }
+        const jsActions = actionUpdates.filter((d) =>
+          d.hasOwnProperty("collectionId"),
+        );
+        if (jsActions && jsActions.length) {
+          yield put(setJSActionsToExecuteOnPageLoad(jsActions));
+        }
       }
       yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));

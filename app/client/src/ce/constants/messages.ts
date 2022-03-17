@@ -450,9 +450,45 @@ export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
+export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
+export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
+  "Will refresh data every time page is reloaded";
+export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
+  "Request confirmation before calling Function?";
+export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
+  "Ask confirmation from the user every time before refreshing data";
+export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
+  "Function Timeout (in milliseconds)";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
+export const IMPORT_APPLICATION_MODAL_LABEL = () =>
+  "Where would you like to import your application from?";
+export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
+export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
+export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
+  "Drag and drop your file or upload from your computer";
+export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
+  "Import an application from its git repository using its SSH URL";
+export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git Repository";
+export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
+  "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
+  "Reconnect missing datasource credentials";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
+  "Fill these with utmost care as the application will not behave normally otherwsie";
+export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
+  "These datasources were imported successfully!";
+export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
+  "Please fill up the missing datasources";
+export const ADD_MISSING_DATASOURCES = () => "Add missing Datasources";
+export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
+  "This action is irreversible.";
+export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
+  `You can always reconnect the datasources later but until then the application might be unuseable.`;
+export const SKIP_TO_APPLICATION = () => "Skip to Application";
+export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
+  "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
@@ -552,6 +588,7 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 
 export const GIT_CONNECTION = () => "Git Connection";
+export const GIT_IMPORT = () => "Git Import";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
@@ -620,6 +657,7 @@ export const PASTE_SSH_URL_INFO = () =>
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
+export const IMPORT_BTN_LABEL = () => "IMPORT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const NO_MERGE_CONFLICT = () =>
@@ -667,6 +705,7 @@ export const APPLICATION_NAME = () => "Application Name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
+export const IMPORTING_APP_FROM_GIT = () => "IMPORTING APPLICATION FROM GIT";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
