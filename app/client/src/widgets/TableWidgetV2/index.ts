@@ -4,20 +4,21 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { escapeString } from "./widget/utilities";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Table V2",
+  name: "Table",
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
     rows: 28,
     columns: 34,
     animateLoading: true,
-    defaultSelectedRowIndex: "0",
+    defaultSelectedRowIndex: 0,
     defaultSelectedRowIndices: [0],
     label: "Data",
-    widgetName: "Table_V2_",
+    widgetName: "Table",
     searchKey: "",
     textSize: "PARAGRAPH",
     horizontalAlignment: "LEFT",
@@ -61,8 +62,7 @@ export const CONFIG = {
         isCellVisible: true,
         isDerived: false,
         label: "step",
-        computedValue:
-          "{{Table1.processedTableData.map((currentRow) => ( currentRow.step))}}",
+        computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["step"]))}}`,
       },
       _3356042849650782: {
         index: 1,
@@ -80,8 +80,7 @@ export const CONFIG = {
         isCellVisible: true,
         isDerived: false,
         label: "task",
-        computedValue:
-          "{{Table1.processedTableData.map((currentRow) => ( currentRow.task))}}",
+        computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["task"]))}}`,
       },
       _2413015321063834: {
         index: 2,
@@ -99,8 +98,7 @@ export const CONFIG = {
         isCellVisible: true,
         isDerived: false,
         label: "status",
-        computedValue:
-          "{{Table1.processedTableData.map((currentRow) => ( currentRow.status))}}",
+        computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["status"]))}}`,
       },
       _7359744396795533: {
         index: 3,
@@ -121,8 +119,7 @@ export const CONFIG = {
         label: "action",
         onClick:
           "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
-        computedValue:
-          "{{Table1.processedTableData.map((currentRow) => ( currentRow.action))}}",
+        computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["action"]))}}`,
       },
     },
     tableData: [
@@ -167,7 +164,11 @@ export const CONFIG = {
               set(
                 primaryColumns,
                 `${columnId}.computedValue`,
-                `{{${widget.widgetName}.processedTableData.map((currentRow) => ( currentRow.${primaryColumns[columnId].alias}))}}`,
+                `{{${
+                  widget.widgetName
+                }.processedTableData.map((currentRow) => ( currentRow["${escapeString(
+                  primaryColumns[columnId].alias,
+                )}"]))}}`,
               );
               set(primaryColumns, `${columnId}.buttonColor`, Colors.GREEN);
               set(primaryColumns, `${columnId}.menuColor`, Colors.GREEN);

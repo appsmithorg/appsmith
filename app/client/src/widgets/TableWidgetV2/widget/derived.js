@@ -84,6 +84,10 @@ export default {
   },
   //
   getSelectedRows: (props, moment, _) => {
+    if (!props.multiRowSelection) {
+      return [];
+    }
+
     let indices = [];
 
     if (
