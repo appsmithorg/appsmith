@@ -101,6 +101,22 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
       selectedRows: [],
     },
   },
+  TABLE_WIDGET_V2: {
+    defaultProperties: {
+      searchText: "defaultSearchText",
+      selectedRowIndex: "defaultSelectedRow",
+      selectedRowIndices: "defaultSelectedRow",
+    },
+    derivedProperties: {
+      selectedRow: `{{ _.get(this.filteredTableData, this.selectedRowIndex, _.mapValues(this.filteredTableData[0], () => undefined)) }}`,
+      selectedRows: `{{ this.filteredTableData.filter((item, i) => selectedRowIndices.includes(i) }); }}`,
+    },
+    metaProperties: {
+      pageNo: 1,
+      selectedRow: {},
+      selectedRows: [],
+    },
+  },
   VIDEO_WIDGET: {
     defaultProperties: {},
     derivedProperties: {},

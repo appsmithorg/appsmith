@@ -1022,35 +1022,4 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: resultValue,
     };
   },
-  [ValidationTypes.JAVASCRIPT_IDENTIFIER]: (
-    config: ValidationConfig,
-    value: unknown,
-  ): ValidationResponse => {
-    const validJavascriptIdentifier = /^[\p{L}\p{Nl}$_][\p{L}\p{Nl}$\p{Mn}\p{Mc}\p{Nd}\p{Pc}]*$/u;
-    let isValid = false;
-    let parsed = value;
-    let message = "";
-
-    if (_.isNil(value) || value === "") {
-      isValid = false;
-      parsed = "";
-      message = "Accessor cannot be empty";
-    } else if (
-      typeof value === "string" &&
-      validJavascriptIdentifier.test(value)
-    ) {
-      isValid = true;
-      parsed = value;
-    } else {
-      isValid = false;
-      parsed = "";
-      message = "Accessor should be valid Javascript identifier";
-    }
-
-    return {
-      isValid,
-      parsed,
-      messages: [message],
-    };
-  },
 };
