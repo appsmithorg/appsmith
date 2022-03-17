@@ -954,6 +954,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .onErrorResume(error -> {
+                    log.error("Unable to import application with id: {}", importedApplication.getId(), error);
                     Mono<Application> deleteApplicationMono = Mono.just(importedApplication);
                     // Delete the application only for import via file and not for git connected application
                     if (StringUtils.isEmpty(applicationId) && !StringUtils.isEmpty(importedApplication.getId())) {

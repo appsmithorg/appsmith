@@ -360,6 +360,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                 Mono<Application> deleteApplicationMono = Mono.empty();
                                 if (StringUtils.hasLength(clonedApplicationId)) {
                                     // Delete the stale application
+                                    log.error("Unable to clone/fork application with id: {}", clonedApplicationId, error);
                                     deleteApplicationMono = applicationPageService.deleteApplication(clonedApplicationId);
                                 }
                                 return deleteApplicationMono.then(Mono.error(error));

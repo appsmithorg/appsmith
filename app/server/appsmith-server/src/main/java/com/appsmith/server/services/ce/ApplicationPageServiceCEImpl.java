@@ -742,6 +742,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .onErrorResume(error -> {
                     Mono<Application> deleteApplicationMono = Mono.empty();
                     if (StringUtils.hasLength(clonedApplicationId.get())) {
+                        log.error("Unable to clone application with id: {}", clonedApplicationId.get(), error);
                         // Delete the stale application
                         deleteApplicationMono = this.deleteApplication(clonedApplicationId.get());
                     }
