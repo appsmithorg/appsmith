@@ -88,6 +88,7 @@ import CheckLineIcon from "remixicon-react/CheckLineIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
+import CompassesLine from "remixicon-react/CompassesLineIcon";
 import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
 import Database2Line from "remixicon-react/Database2LineIcon";
@@ -248,6 +249,7 @@ const ICON_LOOKUP = {
   "close-modal": <CloseLineIcon />,
   "close-x": <CloseLineIcon />,
   "comment-context-menu": <CommentContextMenu />,
+  "compasses-line": <CompassesLine />,
   "context-menu": <ContextMenuIcon />,
   "database-2-line": <Database2Line />,
   "delete-blank": <DeleteBin7 />,

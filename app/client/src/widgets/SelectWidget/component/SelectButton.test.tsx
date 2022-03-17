@@ -7,7 +7,9 @@ const defaultProps: SelectButtonProps = {
   disabled: false,
   displayText: "0",
   handleCancelClick: jest.fn(),
+  spanRef: null,
   togglePopoverVisibility: jest.fn(),
+  tooltipText: "",
   value: "0",
 };
 

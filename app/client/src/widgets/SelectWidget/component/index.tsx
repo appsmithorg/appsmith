@@ -46,15 +46,19 @@ class SelectComponent extends React.Component<
   SelectComponentState
 > {
   listRef: any = React.createRef();
+  labelRef = React.createRef<HTMLDivElement>();
+  spanRef = React.createRef<HTMLSpanElement>();
+
   state = {
     // used to show focused item for keyboard up down key interection
-    activeItemIndex: 0,
+    activeItemIndex: -1,
     query: "",
     isOpen: false,
   };
+
   componentDidMount = () => {
     // set default selectedIndex as focused index
-    this.setState({ activeItemIndex: this.props.selectedIndex ?? 0 });
+    this.setState({ activeItemIndex: this.props.selectedIndex });
     this.setState({ query: this.props.filterText });
   };
 
@@ -209,6 +213,22 @@ class SelectComponent extends React.Component<
     );
   };
 
+  getDropdownWidth = () => {
+    const parentWidth = this.props.width - WidgetContainerDiff;
+    const dropDownWidth =
+      parentWidth > this.props.dropDownWidth
+        ? parentWidth
+        : this.props.dropDownWidth;
+    if (this.props.compactMode && this.labelRef.current) {
+      const labelWidth = this.labelRef.current.clientWidth;
+      const widthDiff = dropDownWidth - labelWidth;
+      return widthDiff > this.props.dropDownWidth
+        ? widthDiff
+        : this.props.dropDownWidth;
+    }
+    return dropDownWidth;
+  };
+
   render() {
     const {
       compactMode,
@@ -221,9 +241,15 @@ class SelectComponent extends React.Component<
       widgetId,
     } = this.props;
     // active focused item
-    const activeItem = !isEmpty(this.props.options)
-      ? this.props.options[this.state.activeItemIndex]
-      : undefined;
+    const activeItem = () => {
+      if (
+        this.state.activeItemIndex === -1 ||
+        isNil(this.state.activeItemIndex)
+      )
+        return undefined;
+      if (!isEmpty(this.props.options))
+        return this.props.options[this.state.activeItemIndex];
+    };
     // get selected option label from selectedIndex
     const selectedOption =
       !isEmpty(this.props.options) &&
@@ -237,15 +263,21 @@ class SelectComponent extends React.Component<
         ? selectedOption
         : this.props.placeholder || "-- Select --";
 
+    // Check if text overflows
+    const tooltipText: string =
+      this.spanRef.current?.parentElement &&
+      (this.spanRef.current.parentElement.offsetHeight <
+        this.spanRef.current.parentElement.scrollHeight ||
+        this.spanRef.current.parentElement.offsetWidth <
+          this.spanRef.current.parentElement.scrollWidth)
+        ? value
+        : "";
+
     return (
       <DropdownContainer compactMode={compactMode}>
-        <DropdownStyles
-          dropDownWidth={this.props.dropDownWidth}
-          id={widgetId}
-          parentWidth={this.props.width - WidgetContainerDiff}
-        />
+        <DropdownStyles dropDownWidth={this.getDropdownWidth()} id={widgetId} />
         {labelText && (
-          <TextLabelWrapper compactMode={compactMode}>
+          <TextLabelWrapper compactMode={compactMode} ref={this.labelRef}>
             <StyledLabel
               $compactMode={compactMode}
               $disabled={!!disabled}
@@ -263,7 +295,7 @@ class SelectComponent extends React.Component<
         )}
         <StyledControlGroup fill>
           <StyledSingleDropDown
-            activeItem={activeItem}
+            activeItem={activeItem()}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -287,6 +319,15 @@ class SelectComponent extends React.Component<
               minimal: true,
               usePortal: true,
               onClose: this.handleCloseList,
+              // onActiveItemChange is called twice abd puts the focus on the first item https://github.com/palantir/blueprint/issues/4192
+              onOpening: () => {
+                if (!this.props.selectedIndex) {
+                  return this.handleActiveItemChange(null);
+                }
+                return this.handleActiveItemChange(
+                  this.props.options[this.props.selectedIndex],
+                );
+              },
               modifiers: {
                 preventOverflow: {
                   enabled: false,
@@ -302,7 +343,9 @@ class SelectComponent extends React.Component<
               disabled={disabled}
               displayText={value}
               handleCancelClick={this.handleCancelClick}
+              spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
+              tooltipText={tooltipText}
               value={this.props.value}
             />
           </StyledSingleDropDown>

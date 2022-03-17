@@ -16,7 +16,7 @@ describe("Content Management System App", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create Get echo Api call", function() {
+  it("1.Create Get echo Api call", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("get_data");
     // creating get request using echo
@@ -33,7 +33,8 @@ describe("Content Management System App", function() {
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
   });
-  it("Create Post echo Api call", function() {
+
+  it("2. Create Post echo Api call", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("send_mail");
     cy.get(apiEditor.ApiVerb).click();
@@ -57,7 +58,7 @@ describe("Content Management System App", function() {
     cy.ResponseStatusCheck("201");
   });
 
-  it("Create Delete echo Api call", function() {
+  it("3. Create Delete echo Api call", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("delete_proposal");
     cy.get(apiEditor.ApiVerb).click();
@@ -77,12 +78,15 @@ describe("Content Management System App", function() {
     cy.SaveAndRunAPI();
     //cy.ResponseStatusCheck("200");
   });
-  it("Send mail and verify post request body", function() {
+
+  it("4. Send mail and verify post request body", function() {
     // navigating to canvas
     cy.xpath(appPage.pagebutton).click();
-    cy.xpath(appPage.submitButton).should("be.visible");
+    cy.get(appPage.submitButton).should("be.visible");
     cy.xpath("//div[text()='3']").click({ force: true });
-    cy.xpath(appPage.mailButton).click();
+    cy.get(appPage.mailButton)
+      .closest("div")
+      .click();
     // verifying the mail to send and asserting post call's response
     cy.xpath(appPage.sendMailText).should("be.visible");
     cy.xpath("//input[@value='Curt50@gmail.com']").should("be.visible");
@@ -90,8 +94,12 @@ describe("Content Management System App", function() {
     cy.xpath(appPage.contentField)
       .last()
       .type("Task completed", { force: true });
-    cy.xpath(appPage.confirmButton).click({ force: true });
-    cy.xpath(appPage.closeButton).click({ force: true });
+    cy.get(appPage.confirmButton)
+      .closest("div")
+      .click({ force: true });
+    cy.get(appPage.closeButton)
+      .closest("div")
+      .click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
     //cy.xpath(appPage.datasourcesbutton).click({ force: true });
     cy.xpath(appPage.postApi).click({ force: true });
@@ -100,15 +108,19 @@ describe("Content Management System App", function() {
     cy.ResponseCheck("Curt50@gmail.com");
   });
 
-  it("Delete proposal and verify delete request body", function() {
+  it("5. Delete proposal and verify delete request body", function() {
     // navigating back to canvas
     cy.xpath(appPage.pagebutton).click({ force: true });
-    cy.xpath(appPage.submitButton).should("be.visible");
+    cy.get(appPage.submitButton)
+      .closest("div")
+      .should("be.visible");
     cy.xpath("//span[text()='Dan.Wyman@hotmail.com']").click({ force: true });
     // deleting the proposal and asserting delete call's response
     cy.xpath(appPage.deleteButton).click({ force: true });
     cy.xpath(appPage.deleteTaskText).should("be.visible");
-    cy.xpath(appPage.confirmButton).click({ force: true });
+    cy.get(appPage.confirmButton)
+      .closest("div")
+      .click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
     //cy.xpath(appPage.datasourcesbutton).click({ force: true });
     cy.xpath(appPage.deleteApi).click({ force: true });

@@ -26,5 +26,5 @@ Please update your DNS records with your domain by the address. You can use foll
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 
-To expose your Appsmith service to be accessible from the Internet, please refer to our docs here https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#expose-appsmith
+To expose your Appsmith service to be accessible from the Internet, please refer to our docs here https://docs.appsmith.com/setup/kubernetes#expose-appsmith.
 {{- end }}

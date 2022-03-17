@@ -27,6 +27,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
+import { PluginType } from "entities/Action";
 const clone = require("rfdc/default");
 import { warn as logWarn } from "loglevel";
 
@@ -285,6 +286,16 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
+export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
+    "pluginType" in entity &&
+    entity.pluginType === PluginType.JS
+  );
+}
+
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
 export const removeFunctions = (value: any) => {
@@ -533,8 +544,11 @@ export const addErrorToEntityProperty = (
   path: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
+    entityName
+  ];
   const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
-  if (propertyPath && !(propertyPath in logBlackList)) {
+  if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const existingErrors = _.get(
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,

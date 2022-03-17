@@ -144,7 +144,7 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput
-          combo="alt + shift + n"
+          combo="mod + plus"
           global
           label="Create New"
           onKeyDown={(e) =>

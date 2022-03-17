@@ -436,7 +436,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Confirm");
+    cy.clickButton("Yes");
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -644,11 +644,13 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(1500); //wait for table to load!
 
     cy.get(commonlocators.TableRow).validateWidgetExists();
-    cy.get(".t--entity-name")
-      .contains("WIDGETS")
-      .click();
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.get("@entity").then((entityN) => {
+      cy.log(entityN);
+      cy.selectEntityByName(entityN);
+    });
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.actionContextMenuByEntityName("Table1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails
   });
@@ -658,7 +660,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Confirm");
+    cy.clickButton("Yes");
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

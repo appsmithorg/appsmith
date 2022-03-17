@@ -5,6 +5,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
@@ -52,6 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -389,6 +391,7 @@ public class ImportExportApplicationServiceTests {
         testApplication.setName("ApplicationWithActionCollectionAndDatasource");
         testApplication = applicationPageService.createApplication(testApplication, orgId).block();
 
+        assert testApplication != null;
         final String appName = testApplication.getName();
         final Mono<ApplicationJson> resultMono = Mono.zip(
                 Mono.just(testApplication),
@@ -429,6 +432,16 @@ public class ImportExportApplicationServiceTests {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasourceMap.get("DS2"));
 
+                    ActionDTO action2 = new ActionDTO();
+                    action2.setName("validAction2");
+                    action2.setPageId(testPage.getId());
+                    action2.setExecuteOnLoad(true);
+                    action2.setUserSetOnLoad(true);
+                    ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+                    actionConfiguration2.setHttpMethod(HttpMethod.GET);
+                    action2.setActionConfiguration(actionConfiguration2);
+                    action2.setDatasource(datasourceMap.get("DS2"));
+
                     ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
                     actionCollectionDTO1.setName("testCollection1");
                     actionCollectionDTO1.setPageId(testPage.getId());
@@ -444,8 +457,7 @@ public class ImportExportApplicationServiceTests {
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action))
-                            .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
-                            .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                            .then(layoutActionService.createSingleAction(action2))
                             .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -520,10 +532,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(defaultPage.getPolicies()).isEmpty();
 
                     assertThat(actionList.isEmpty()).isFalse();
-                    assertThat(actionList).hasSize(2);
-                    NewAction validAction = actionList.get(0).getPluginType().equals(PluginType.JS) ?
-                            actionList.get(1) :
-                            actionList.get(0);
+                    assertThat(actionList).hasSize(3);
+                    NewAction validAction = actionList.stream().filter(action -> action.getId().equals("Page1_validAction")).findFirst().get();
                     assertThat(validAction.getApplicationId()).isNull();
                     assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
@@ -533,6 +543,9 @@ public class ImportExportApplicationServiceTests {
                     ActionDTO unpublishedAction = validAction.getUnpublishedAction();
                     assertThat(unpublishedAction.getPageId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
                     assertThat(unpublishedAction.getDatasource().getPluginId()).isEqualTo(installedPlugin.getPackageName());
+
+                    NewAction testAction1 = actionList.stream().filter(action -> action.getUnpublishedAction().getName().equals("testAction1")).findFirst().get();
+                    assertThat(testAction1.getId()).isEqualTo("Page1_testCollection1.testAction1");
 
                     assertThat(actionCollectionList.isEmpty()).isFalse();
                     assertThat(actionCollectionList).hasSize(1);
@@ -559,6 +572,12 @@ public class ImportExportApplicationServiceTests {
                     DBAuth auth = (DBAuth) datasourceMap.get("DS2").getDatasourceConfiguration().getAuthentication();
                     assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());
                     assertThat(decryptedFields.getPassword()).isEqualTo("awesome-password");
+
+                    final Map<String, InvisibleActionFields> invisibleActionFields = applicationJson.getInvisibleActionFields();
+
+                    Assert.assertEquals(3, invisibleActionFields.size());
+                    NewAction validAction2 = actionList.stream().filter(action -> action.getId().equals("Page1_validAction2")).findFirst().get();
+                    Assert.assertEquals(true, invisibleActionFields.get(validAction2.getId()).getUnpublishedUserSetOnLoad());
 
                     assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
                     assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();

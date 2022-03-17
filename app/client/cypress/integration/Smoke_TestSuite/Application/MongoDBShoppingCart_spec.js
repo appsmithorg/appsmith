@@ -13,7 +13,7 @@ describe("Shopping cart App", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create MongoDB datasource and add Insert, Find, Update and Delete queries", function() {
+  it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
     cy.getPluginFormsAndCreateDatasource();
@@ -32,9 +32,9 @@ describe("Shopping cart App", function() {
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames");
-    cy.get(".CodeEditorTarget")
-      .eq(1)
-      .type("{}");
+    // cy.get(".CodeEditorTarget")
+    //   .eq(1)
+    //   .type("{}");
     cy.get(appPage.dropdownChevronLeft).click();
     // EditProducts query to update the cart
     cy.get(queryLocators.createQuery)
@@ -111,43 +111,55 @@ describe("Shopping cart App", function() {
     cy.get(appPage.dropdownChevronLeft).click();
     cy.get(appPage.dropdownChevronLeft).click();
   });
-  it("Perform CRUD operations and validate data", function() {
+
+  it("2. Perform CRUD operations and validate data", function() {
     // Adding the books to the Add cart form
     cy.xpath(appPage.bookname).type("Atomic habits");
     cy.xpath(appPage.bookgenre).type("Self help");
     cy.xpath(appPage.bookprice).type(200);
     cy.xpath(appPage.bookquantity).type(2);
-    cy.xpath(appPage.addtoCart)
-      .last()
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .eq(1)
       .click();
-    cy.wait(2000);
-    cy.xpath(appPage.bookname).type("A man called ove");
-    cy.xpath(appPage.bookgenre).type("Fiction");
-    cy.xpath(appPage.bookprice).type(100);
-    cy.xpath(appPage.bookquantity).type(1);
-    cy.xpath(appPage.addtoCart)
-      .last()
+    cy.assertPageSave();
+    cy.wait(8000);
+    cy.xpath(appPage.bookname)
+      .click()
+      .type("A man called ove");
+    cy.xpath(appPage.bookgenre)
+      .click()
+      .type("Fiction");
+    cy.xpath(appPage.bookprice)
+      .click()
+      .type(100);
+    cy.xpath(appPage.bookquantity)
+      .click()
+      .type(1);
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .eq(1)
       .click();
-    cy.wait(2000);
-    cy.xpath(appPage.addtoCart)
-      .first()
-      .click();
+    cy.assertPageSave();
+    cy.wait(8000);
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
       .within(() => {
-        cy.xpath(appPage.deletefromCart)
-          .first()
+        cy.get("span:contains('Delete')")
+          .closest("div")
+          .eq(0)
           .click();
         // validating that the book is deleted
-        cy.xpath(appPage.deletefromCart).should("have.length", 1);
+        cy.get("span:contains('Delete')").should("have.length", 1);
       });
     // Updating the book quantity from edit cart
     cy.xpath(appPage.editbookquantity)
       .clear()
       .type("3");
-    cy.xpath(appPage.addtoCart)
-      .first()
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .eq(0)
       .click();
     // validating updated value in the cart
     cy.get(".selected-row")

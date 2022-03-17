@@ -15,7 +15,9 @@ export interface SelectButtonProps {
   disabled?: boolean;
   displayText?: string;
   handleCancelClick?: (event: React.MouseEvent<Element, MouseEvent>) => void;
+  spanRef?: any;
   togglePopoverVisibility: () => void;
+  tooltipText?: string;
   value?: string;
 }
 
@@ -24,7 +26,9 @@ function SelectButton(props: SelectButtonProps) {
     disabled,
     displayText,
     handleCancelClick,
+    spanRef,
     togglePopoverVisibility,
+    tooltipText,
     value,
   } = props;
   return (
@@ -51,8 +55,11 @@ function SelectButton(props: SelectButtonProps) {
           />
         </StyledDiv>
       }
-      text={displayText}
-    />
+    >
+      <span ref={spanRef} title={tooltipText}>
+        {displayText}
+      </span>
+    </Button>
   );
 }
 
