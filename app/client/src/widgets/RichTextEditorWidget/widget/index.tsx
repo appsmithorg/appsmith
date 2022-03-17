@@ -205,9 +205,6 @@ class RichTextEditorWidget extends BaseWidget<
 
 export interface RichTextEditorWidgetProps extends WidgetProps {
   defaultText?: string;
-  defaultTextHtml?: string;
-  defaultTextMarkdown?: string;
-  isDefaultTextChanged: boolean;
   text: string;
   inputType: string;
   placeholder?: string;
