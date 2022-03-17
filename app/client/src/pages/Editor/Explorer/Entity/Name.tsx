@@ -22,24 +22,33 @@ const Container = styled.div`
     display: initial;
   }
   overflow: hidden;
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  & > * {
+    height: 100%;
+  }
 `;
 
 const Wrapper = styled.div`
   .${Classes.POPOVER_TARGET} {
     display: initial;
   }
+  display: flex;
+  align-items: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0 4px 0 0;
-  padding: 9px 0;
-  line-height: 13px;
+  padding: 0.5em 0;
   position: relative;
   font-weight: 500;
   font-size: 14px; //fallback if clamp is not supported by browser
   // eslint-disable-next-line prettier/prettier
   font-size: min(max(12px, 0.7vw + 0.2rem), 0.98rem);
   font-size: clamp(12px, 0.7vw + 0.2rem, 0.98rem);
+  height: 100%;
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }

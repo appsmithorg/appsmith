@@ -44,7 +44,6 @@ const ContextMenuWrapper = styled.div`
 `;
 
 const Wrapper = styled.div<{ active: boolean }>`
-  line-height: ${(props) => props.theme.lineHeights[2]}px;
   ${ContextMenuWrapper} {
     width: 0;
   }
@@ -86,9 +85,6 @@ export const EntityItem = styled.div<{
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
   background: ${(props) =>
     props.active ? Colors.GREY_2 : props.isSticky ? Colors.WHITE : "none"};
-  height: calc(1rem + 1.3vw);
-  max-height: 36px;
-  min-height: 32px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: 20px auto 1fr auto auto auto;
