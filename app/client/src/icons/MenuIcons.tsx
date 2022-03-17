@@ -23,7 +23,7 @@ import { ReactComponent as DataSourcesIconV2 } from "assets/icons/menu/datasourc
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 import { ReactComponent as JSIconV2 } from "assets/icons/menu/js-icon.svg";
 import { ReactComponent as QueryMain } from "assets/icons/menu/query-main.svg";
-import DefaultHomeIcon from "remixicon-react/Home4LineIcon";
+import DefaultHomeIcon from "remixicon-react/Home3LineIcon";
 import CurrentPageIcon from "remixicon-react/CheckLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import { Icon } from "@blueprintjs/core";

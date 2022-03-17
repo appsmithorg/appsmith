@@ -96,6 +96,14 @@ export function TemplatesTabItem(props: TemplatesTabItemProps) {
           content={<TemplateFeatureNotification />}
           enforceFocus={false}
           isOpen={!!showNotification}
+          modifiers={{
+            offset: {
+              enabled: true,
+              options: {
+                offset: [0, 0],
+              },
+            },
+          }}
           onClose={setNotificationSeenFlag}
           placement="bottom-start"
           portalClassName="templates-notification"

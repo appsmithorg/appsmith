@@ -7,10 +7,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 7,
+    rows: 4,
     columns: 20,
     placeholderText: "Select option",
-    labelText: "Label",
+    labelText: "",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
