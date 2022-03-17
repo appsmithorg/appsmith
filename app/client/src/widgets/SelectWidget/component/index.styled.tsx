@@ -110,6 +110,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     padding-left: 12px;
     padding: 0px 10px;
     border-radius: ${(props) => props.borderRadius} !important;
+    box-shadow: ${(props) => props.boxShadow} !important;
     border: 1px solid;
     border-color: ${(props) =>
       props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
@@ -188,7 +189,8 @@ ${({ dropDownWidth, id }) => `
 `}
   .select-popover-wrapper {
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-    border-radius: ${(props) => props.borderRadius} !important;
+    border-radius: ${({ borderRadius }) =>
+      borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
     overflow: hidden;
     background: white;
     & .${Classes.INPUT_GROUP} {

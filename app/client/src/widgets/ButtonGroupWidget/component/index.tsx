@@ -46,12 +46,9 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   justify-content: stretch;
   align-items: stretch;
   overflow: hidden;
-<<<<<<< HEAD
   cursor: not-allowed;
   gap: ${({ buttonVariant }) =>
     `${buttonVariant === ButtonVariantTypes.PRIMARY ? "1px" : "0px"}`};
-=======
->>>>>>> 24030f907b28c14220402acff8d1b672c83c3021
 
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
@@ -99,9 +96,7 @@ const PopoverStyles = createGlobalStyle<{
       box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
       margin-top: 8px !important;
       border-radius: ${({ borderRadius }) =>
-        borderRadius === `1.5rem` || borderRadius === "9999px"
-          ? `0.375rem`
-          : borderRadius};
+        borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
       box-shadow: none;
       overflow: hidden;
     }
@@ -195,6 +190,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
           : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
       } !important;
     }
+
 
     &:disabled {
       cursor: not-allowed;
@@ -407,7 +403,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   popoverClassName={`menu-button-popover menu-button-width-${id} button-group-menu-popover`}
                 >
                   <DragContainer
-                    buttonColor={button.buttonColor}
+                    buttonColor={button.buttonColor || this.props.primaryColor}
                     buttonVariant={buttonVariant}
                     disabled={isButtonDisabled}
                     renderMode={this.props.renderMode}
