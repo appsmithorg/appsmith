@@ -81,6 +81,8 @@ export interface DataTreeJSAction {
 
 export interface MetaArgs {
   arguments: Variable[];
+  isAsync: boolean;
+  confirmBeforeExecute: boolean;
 }
 /**
  *  Map of overriding property as key and overridden property as values

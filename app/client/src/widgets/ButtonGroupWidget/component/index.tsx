@@ -117,6 +117,7 @@ interface ButtonStyleProps {
   buttonColor?: string;
   iconAlign?: string;
   placement?: ButtonPlacement;
+  isLabel: boolean;
 }
 
 /*
@@ -158,6 +159,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     buttonVariant,
     iconAlign,
     isHorizontal,
+    isLabel,
     theme,
   }) => `
     & {
@@ -170,7 +172,13 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
       } !important;
       flex-direction : ${iconAlign === "right" ? "row-reverse" : "row"};
       .bp3-icon {
-        ${iconAlign === "right" ? "margin-left: 10px" : "margin-right: 10px"};
+        ${
+          isLabel
+            ? iconAlign === "right"
+              ? "margin-left: 10px"
+              : "margin-right: 10px"
+            : ""
+        };
       }
     }
 
@@ -255,10 +263,6 @@ const StyledButtonContent = styled.div<{
   justify-content: ${({ placement }) => getCustomJustifyContent(placement)};
   flex-direction: ${({ iconAlign }) =>
     iconAlign === Alignment.RIGHT ? "row-reverse" : "row"};
-  & .bp3-icon {
-    ${({ iconAlign }) =>
-      iconAlign === "right" ? "margin-left: 10px" : "margin-right: 10px"};
-  }
 `;
 
 export interface BaseStyleProps {
@@ -556,6 +560,7 @@ class ButtonGroupComponent extends React.Component<
                       disabled={isButtonDisabled}
                       iconAlign={button.iconAlign}
                       isHorizontal={isHorizontal}
+                      isLabel={!!button.label}
                       key={button.id}
                       ref={this.state.itemRefs[button.id]}
                     >
@@ -598,6 +603,7 @@ class ButtonGroupComponent extends React.Component<
                 disabled={isButtonDisabled}
                 iconAlign={button.iconAlign}
                 isHorizontal={isHorizontal}
+                isLabel={!!button.label}
                 onClick={() => this.onButtonClick(button.onClick)}
               >
                 <StyledButtonContent

@@ -264,11 +264,6 @@ class PhoneInputWidget extends BaseInputWidget<
     super.handleKeyDown(e);
   };
 
-  resetWidgetText = () => {
-    super.resetWidgetText();
-    this.props.updateWidgetMetaProperty("value", undefined);
-  };
-
   getPageView() {
     const value = this.props.text ?? "";
     const isInvalid =
