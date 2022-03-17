@@ -1,5 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import { ProgressType } from "./constants";
+import { Colors } from "constants/Colors";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,8 +11,15 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "Progress",
-    rows: 1,
-    columns: 3,
+    rows: 17,
+    columns: 28,
+    fillColor: Colors.GREEN,
+    isIndeterminate: true,
+    isResultShown: false,
+    isVisible: true,
+    steps: 1,
+    progressType: ProgressType.LINEAR,
+    value: 50,
     version: 1,
   },
   properties: {

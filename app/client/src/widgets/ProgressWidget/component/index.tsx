@@ -1,12 +1,16 @@
 import React from "react";
-import { ProgressVariantType } from "../constants";
+import { ProgressType, ProgressVariant } from "../constants";
 
 function ProgressComponent(props: ProgressComponentProps) {
   return <div>{props.variant}</div>;
 }
 
 export interface ProgressComponentProps {
-  variant: ProgressVariantType;
+  type: ProgressType;
+  variant: ProgressVariant;
+  value: number;
+  steps: number;
+  isResultShown: boolean;
 }
 
 export default ProgressComponent;
