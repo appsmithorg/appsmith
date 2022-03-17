@@ -329,7 +329,7 @@ describe("Drag and Drop widgets into Main container", () => {
         rightColumn: 15,
       },
       {
-        type: "TABLE_WIDGET",
+        type: "TABLE_WIDGET_V2",
         topRow: 15,
         bottomRow: 25,
         leftColumn: 5,
@@ -436,7 +436,7 @@ describe("Drag and Drop widgets into Main container", () => {
         rightColumn: 15,
       },
       {
-        type: "TABLE_WIDGET",
+        type: "TABLE_WIDGET_V2",
         topRow: 15,
         bottomRow: 25,
         leftColumn: 5,
