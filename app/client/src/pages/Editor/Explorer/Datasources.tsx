@@ -97,11 +97,10 @@ const Datasources = React.memo(() => {
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
       className={"datasources"}
-      entityId={pageId + "_datasources"}
+      entityId="datasources_section"
       icon={null}
       isDefaultExpanded={isDatasourcesOpen === null ? true : isDatasourcesOpen}
       isSticky
-      key={pageId + "_datasources"}
       name="DATASOURCES"
       onCreate={addDatasource}
       onToggle={onDatasourcesToggle}
@@ -120,7 +119,7 @@ const Datasources = React.memo(() => {
       {datasourceElements.length > 0 && (
         <AddEntity
           action={addDatasource}
-          entityId={pageId + "_datasources_add_new_datasource"}
+          entityId="add_new_datasource"
           icon={<Icon name="plus" />}
           name={createMessage(ADD_DATASOURCE_BUTTON)}
           step={1}
