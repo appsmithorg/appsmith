@@ -23,15 +23,15 @@ export class AggregateHelper {
                 cy.request(
                     "PUT",
                     "api/v1/layouts/" + layoutId + "/pages/" + pageid,
-                    dsl,
-                ).then((response) => {
-                    //cy.log("Pages resposne is : " + response.body);
-                    expect(response.status).equal(200);
+                    dsl
+                ).then((dslDumpResp) => {
+                    //cy.log("Pages resposne is : " + dslDumpResp.body);
+                    expect(dslDumpResp.status).equal(200);
                     cy.reload();
                 });
             });
         });
-        this.Sleep(2000)//settling time for dsl
+        this.Sleep(5000)//settling time for dsl
     }
 
     public NavigateToDSCreateNew() {
