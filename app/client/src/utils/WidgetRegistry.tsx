@@ -138,6 +138,9 @@ import TextWidget, { CONFIG as TEXT_WIDGET_CONFIG } from "widgets/TextWidget";
 import VideoWidget, {
   CONFIG as VIDEO_WIDGET_CONFIG,
 } from "widgets/VideoWidget";
+import ProgressWidget, {
+  CONFIG as PROGRESS_WIDGET_CONFIG,
+} from "widgets/ProgressWidget";
 import { registerWidget, WidgetConfiguration } from "./WidgetRegisterHelpers";
 
 export const ALL_WIDGETS_AND_CONFIG = [
@@ -192,6 +195,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [InputWidgetV2, INPUT_WIDGET_V2_CONFIG],
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
+  [ProgressWidget, PROGRESS_WIDGET_CONFIG],
   /*
    * If a newly added widget works well inside the list widget,
    * please add widget type in the List widget's allowed widget

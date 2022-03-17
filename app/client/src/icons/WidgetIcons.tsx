@@ -290,6 +290,11 @@ export const WidgetIcons: {
       <CircularProgressIcon />
     </StyledIconWrapper>
   ),
+  PROGRESS_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <ProgressBarIcon />
+    </StyledIconWrapper>
+  ),
 };
 
 export type WidgetIcon = typeof WidgetIcons[keyof typeof WidgetIcons];
