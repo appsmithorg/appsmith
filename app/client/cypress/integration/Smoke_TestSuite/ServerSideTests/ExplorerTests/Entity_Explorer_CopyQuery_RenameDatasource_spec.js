@@ -84,7 +84,7 @@ describe("Entity explorer tests related to copy query", function() {
   it("3. Delete query and rename datasource in explorer", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .click({ force: true });
     cy.wait(2000);
     cy.generateUUID().then((uid) => {
       updatedName = uid;
