@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -655,6 +656,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
+        AtomicReference<String> clonedApplicationId = new AtomicReference<>();
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .cache();
 
@@ -699,27 +701,29 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 return applicationService.createDefault(application1);
                             })
                             // Now fetch the pages of the source application, clone and add them to this new application
-                            .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
-                                    .flatMap(applicationPage -> {
-                                        String pageId = applicationPage.getId();
-                                        Boolean isDefault = applicationPage.getIsDefault();
-                                        return this.clonePageGivenApplicationId(pageId, savedApplication.getId())
-                                                .map(clonedPage -> {
-                                                    ApplicationPage newApplicationPage = new ApplicationPage();
-                                                    newApplicationPage.setId(clonedPage.getId());
-                                                    newApplicationPage.setIsDefault(isDefault);
-                                                    // Now set defaultPageId to current page itself
-                                                    newApplicationPage.setDefaultPageId(clonedPage.getId());
-                                                    return newApplicationPage;
-                                                });
-                                    })
-                                    .collectList()
-                                    // Set the cloned pages into the cloned application and save.
-                                    .flatMap(clonedPages -> {
-                                        savedApplication.setPages(clonedPages);
-                                        return applicationService.save(savedApplication);
-                                    })
-                            )
+                            .flatMap(savedApplication -> {
+                                clonedApplicationId.set(savedApplication.getId());
+                                return Flux.fromIterable(sourceApplication.getPages())
+                                        .flatMap(applicationPage -> {
+                                            String pageId = applicationPage.getId();
+                                            Boolean isDefault = applicationPage.getIsDefault();
+                                            return this.clonePageGivenApplicationId(pageId, savedApplication.getId())
+                                                    .map(clonedPage -> {
+                                                        ApplicationPage newApplicationPage = new ApplicationPage();
+                                                        newApplicationPage.setId(clonedPage.getId());
+                                                        newApplicationPage.setIsDefault(isDefault);
+                                                        // Now set defaultPageId to current page itself
+                                                        newApplicationPage.setDefaultPageId(clonedPage.getId());
+                                                        return newApplicationPage;
+                                                    });
+                                        })
+                                        .collectList()
+                                        // Set the cloned pages into the cloned application and save.
+                                        .flatMap(clonedPages -> {
+                                            savedApplication.setPages(clonedPages);
+                                            return applicationService.save(savedApplication);
+                                        });
+                            })
                             // duplicate the source application's themes if required i.e. if they were customized
                             .flatMap(application ->
                                     themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application)
@@ -734,6 +738,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 ).thenReturn(application);
                                             })
                             );
+                })
+                .onErrorResume(error -> {
+                    Mono<Application> deleteApplicationMono = Mono.empty();
+                    if (StringUtils.hasLength(clonedApplicationId.get())) {
+                        // Delete the stale application
+                        deleteApplicationMono = this.deleteApplication(clonedApplicationId.get());
+                    }
+                    return deleteApplicationMono.then(Mono.error(error));
                 });
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then

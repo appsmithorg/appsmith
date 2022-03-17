@@ -213,6 +213,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                     final NewPage newPage = tuple.getT1();
                     final boolean isDefault = tuple.getT2();
                     final String templatePageId = newPage.getId();
+                    final String clonedApplicationId = newPage.getApplicationId();
                     DefaultResources defaults = new DefaultResources();
                     defaults.setApplicationId(newPage.getApplicationId());
                     newPage.setDefaultResources(defaults);
@@ -354,6 +355,14 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                     .collectList()
                                                     .then(Mono.zip(Mono.just(actionIdsMap), Mono.just(collectionIdsMap)));
                                         });
+                            })
+                            .onErrorResume(error -> {
+                                Mono<Application> deleteApplicationMono = Mono.empty();
+                                if (StringUtils.hasLength(clonedApplicationId)) {
+                                    // Delete the stale application
+                                    deleteApplicationMono = applicationPageService.deleteApplication(clonedApplicationId);
+                                }
+                                return deleteApplicationMono.then(Mono.error(error));
                             });
                 })
                 .flatMap(tuple -> updateActionAndCollectionsIdsInClonedPages(clonedPages, tuple.getT1(), tuple.getT2()))

@@ -952,6 +952,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 processStopwatch.stopAndLogTimeInMillis();
                                 return application;
                             });
+                })
+                .onErrorResume(error -> {
+                    Mono<Application> deleteApplicationMono = Mono.just(importedApplication);
+                    // Delete the application only for import via file and not for git connected application
+                    if (StringUtils.isEmpty(applicationId) && !StringUtils.isEmpty(importedApplication.getId())) {
+                        deleteApplicationMono = applicationPageService.deleteApplication(importedApplication.getId());
+                    }
+                    return deleteApplicationMono
+                            .then(Mono.error(error));
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
