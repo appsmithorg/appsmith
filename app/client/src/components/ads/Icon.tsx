@@ -69,6 +69,8 @@ import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
+import { ReactComponent as HelpOutlineIcon } from "assets/icons/form/help-outline.svg";
+import { ReactComponent as HelpFillIcon } from "assets/icons/form/help-fill.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -111,7 +113,6 @@ import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GitCommit from "remixicon-react/GitCommitLineIcon";
 import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
-import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import LightbulbFlashLine from "remixicon-react/LightbulbFlashLineIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
 import KeyIcon from "remixicon-react/Key2LineIcon";
@@ -329,7 +330,8 @@ const ICON_LOOKUP = {
   gear: <GearIcon />,
   general: <GeneralIcon />,
   guide: <GuideIcon />,
-  help: <HelpIcon />,
+  help: <HelpFillIcon />,
+  "help-outline": <HelpOutlineIcon />,
   info: <InfoIcon />,
   key: <KeyIcon />,
   lightning: <LightningIcon />,

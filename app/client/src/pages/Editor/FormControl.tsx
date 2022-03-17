@@ -23,6 +23,19 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
+import Icon, { IconSize } from "components/ads/Icon";
+import styled from "styled-components";
+
+const StyledIcon = styled(Icon)`
+  margin-left: 4px;
+`;
+
+const FormConfigWrapper = styled.div<{ controlType: string }>`
+  margin-bottom: ${(props) =>
+    props.controlType === "SWITCH" || props.controlType === "CHECKBOX"
+      ? "0px;"
+      : "40px;"};
+`;
 interface FormControlProps {
   config: ControlProps;
   formName: string;
@@ -101,7 +114,7 @@ function FormConfig(props: FormConfigProps) {
   }
 
   return (
-    <div>
+    <FormConfigWrapper controlType={props.config.controlType}>
       <div
         style={{
           // TODO: replace condition with props.config.dataType === "TOGGLE"
@@ -129,7 +142,7 @@ function FormConfig(props: FormConfigProps) {
         config: props.config,
         configErrors: props.configErrors,
       })}
-    </div>
+    </FormConfigWrapper>
   );
 }
 
@@ -169,7 +182,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
             )}
             {tooltipText && (
               <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-                <FormIcons.HELP_ICON height={16} width={16} />
+                <StyledIcon name="help-outline" size={IconSize.XL} />
               </Tooltip>
             )}
           </p>
@@ -201,7 +214,7 @@ function renderFormConfigBottom(props: {
     <>
       {info && (
         <FormInputHelperText
-          addMarginTop={controlType === "CHECKBOX" ? "8px" : "2px"} // checkboxes need a higher margin top than others form control types
+          addMarginTop={controlType === "SWITCH" ? "2px" : "8px"} // Switch need a lower margin top than others form control types
         >
           {info}
         </FormInputHelperText>
