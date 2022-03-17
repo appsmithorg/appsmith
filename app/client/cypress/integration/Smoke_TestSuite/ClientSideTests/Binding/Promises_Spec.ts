@@ -137,22 +137,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       .should("contain.text", "Today's quote for You");
   });
 
-  //Skipping until this bug is closed!
-  it.skip("6. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
-    cy.fixture('promisesBtnDsl').then((val: any) => {
-      agHelper.AddDsl(val)
-    });
-    jsEditor.CreateJSObject(`const user = 'You';
-InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
-    });
-    agHelper.ClickButton('Submit')
-    cy.get(locator._toastMsg).should("have.length", 1).should("contain.text", "Today's quote for You");
-  });
-
-  it("7. Verify Promise.race via direct Promises", () => {
+  it("6. Verify Promise.race via direct Promises", () => {
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
     });
@@ -165,7 +150,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     cy.get(locator._toastMsg).should("have.length", 1).contains(/Melinda|Trump/g)
   })
 
-  it("8. Verify maintaining context via direct Promises", () => {
+  it("7. Verify maintaining context via direct Promises", () => {
     cy.fixture("promisesBtnListDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
@@ -218,7 +203,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
       .should("have.text", "Showing results for : fruits basket : the final");
   });
 
-  it("9: Verify Promise.all via direct Promises", () => {
+  it("8: Verify Promise.all via direct Promises", () => {
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
     });
@@ -239,7 +224,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     cy.get(locator._toastMsg).should("have.length", 1).should("have.text", "cat,dog,camel,rabbit,rat")
   });
 
-  it("10. Bug 10150: Verify Promise.all via JSObjects", () => {
+  it("9. Bug 10150: Verify Promise.all via JSObjects", () => {
     let date = new Date().toDateString();
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
@@ -262,13 +247,15 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       jsEditor.EnterJSContext('onclick', "{{storeValue('date', Date()).then(() => { showAlert(appsmith.store.date, 'success'); return " + jsObjName + ".myFun1()})}}", true, true);
     });
     agHelper.ClickButton('Submit')
-    cy.get(locator._toastMsg).should("have.length", 2)
+    agHelper.WaitUntilEleAppear(locator._toastMsg)
+    cy.get(locator._toastMsg).should("have.length", 3)
     cy.get(locator._toastMsg).eq(0).should('contain.text', date)
     cy.get(locator._toastMsg).eq(1).contains("Running all api's")
+    agHelper.WaitUntilEleAppear(locator._toastMsg)
     cy.get(locator._toastMsg).last().contains(/Wonderful|Please check/g)
   });
 
-  it("11. Verify Promises.any via direct JSObjects", () => {
+  it("10. Verify Promises.any via direct JSObjects", () => {
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)
     });
@@ -300,7 +287,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     cy.get(locator._toastMsg).last().contains('Resolved promise is:func3')
   });
 
-  it("12. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
+  it("11. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
     cy.fixture("promisesBtnDsl").then((dsl: any) => {
       agHelper.AddDsl(dsl);
     });
@@ -321,6 +308,21 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
 
     agHelper.NavigateBacktoEditor()
   })
+
+  //Skipping until this bug is closed!
+  it.skip("12. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
+    cy.fixture('promisesBtnDsl').then((val: any) => {
+      agHelper.AddDsl(val)
+    });
+    jsEditor.CreateJSObject(`const user = 'You';
+InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
+    agHelper.SelectEntityByName("Button1");
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
+    });
+    agHelper.ClickButton('Submit')
+    cy.get(locator._toastMsg).should("have.length", 1).should("contain.text", "Today's quote for You");
+  });
 
 })
 
