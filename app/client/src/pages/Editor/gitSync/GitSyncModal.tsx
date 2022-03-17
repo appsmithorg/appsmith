@@ -7,6 +7,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setOrgIdForImport } from "actions/applicationActions";
 import Menu from "./Menu";
 import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
@@ -18,7 +19,14 @@ import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
+import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+
+const StyledDialog = styled(Dialog)`
+  .bp3-dialog-body {
+    margin-top: 0px !important;
+  }
+`;
 
 const Container = styled.div`
   height: 600px;
@@ -27,6 +35,7 @@ const Container = styled.div`
   flex-direction: column;
   position: relative;
   overflow-y: hidden;
+  padding: 0px 8px 0px 8px;
 `;
 
 const BodyContainer = styled.div`
@@ -42,17 +51,8 @@ const CloseBtnContainer = styled.div`
   position: absolute;
   right: 0;
   top: 0;
-
   padding: ${(props) => props.theme.spaces[1]}px;
   border-radius: ${(props) => props.theme.radii[1]}px;
-`;
-
-const GitSyncTabsContainer = styled.div``;
-
-const StyledDialog = styled(Dialog)`
-  &.${Classes.GIT_SYNC_MODAL} .bp3-dialog-body {
-    margin-top: 0;
-  }
 `;
 
 const ComponentsByTab = {
@@ -66,7 +66,7 @@ const TabKeys: string[] = Object.values(GitSyncModalTab)
   .filter((value) => typeof value === "string")
   .map((value) => value as string);
 
-function GitSyncModal() {
+function GitSyncModal(props: { isImport?: boolean }) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
@@ -75,6 +75,7 @@ function GitSyncModal() {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
+    dispatch(setOrgIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const setActiveTabIndex = useCallback(
@@ -97,10 +98,17 @@ function GitSyncModal() {
   }, [isGitConnected]);
 
   let menuOptions = allMenuOptions;
-  if (!isGitConnected) {
-    menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
+  if (props.isImport) {
+    menuOptions = [
+      {
+        key: MENU_ITEM.GIT_CONNECTION,
+        title: createMessage(GIT_IMPORT),
+      },
+    ];
   } else {
-    menuOptions = allMenuOptions;
+    menuOptions = isGitConnected
+      ? allMenuOptions
+      : [MENU_ITEMS_MAP.GIT_CONNECTION];
   }
 
   useEffect(() => {
@@ -119,7 +127,7 @@ function GitSyncModal() {
   const BodyComponent = ComponentsByTab[activeMenuItemKey];
 
   return (
-    <GitSyncTabsContainer>
+    <>
       <StyledDialog
         canEscapeKeyClose
         canOutsideClickClose
@@ -127,7 +135,7 @@ function GitSyncModal() {
         isOpen={isModalOpen}
         maxWidth={"900px"}
         onClose={handleClose}
-        width={"550px"}
+        width={"535px"}
       >
         <Container>
           <MenuContainer>
@@ -149,7 +157,12 @@ function GitSyncModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent />
+            {activeTabIndex === GitSyncModalTab.GIT_CONNECTION && (
+              <BodyComponent isImport={props.isImport} />
+            )}
+            {activeTabIndex !== GitSyncModalTab.GIT_CONNECTION && (
+              <BodyComponent />
+            )}
           </BodyContainer>
           <CloseBtnContainer
             className="t--close-git-sync-modal"
@@ -164,7 +177,7 @@ function GitSyncModal() {
         </Container>
       </StyledDialog>
       <GitErrorPopup />
-    </GitSyncTabsContainer>
+    </>
   );
 }
 
