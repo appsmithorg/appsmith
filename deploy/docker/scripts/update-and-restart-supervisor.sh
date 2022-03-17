@@ -11,7 +11,7 @@ set -o allexport
 set +o allexport
 
 check_mongodb_uri() {
-  echo "Check mongodb uri host"
+  echo "Check MongoDB uri host"
   isLocalMongo=1
   if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
     echo "Use local MongoDB"
@@ -19,7 +19,7 @@ check_mongodb_uri() {
   fi
 }
 check_redis_uri() {
-  echo "Check redis uri host"
+  echo "Check Redis uri host"
   isLocalRedis=1
   if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
     echo "Use local Redis"
@@ -28,12 +28,12 @@ check_redis_uri() {
 }
 
 update_supervisord_mongodb_conf() {
-  echo "Update supervisord mongodb conf"
+  echo "Update supervisord MongoDB conf"
   if [ $isLocalMongo -eq 1 ]; then
-    echo "disable MongoDB supervisord"
+    echo "Disable MongoDB supervisord"
     rm -f mongodb.conf
   else
-    echo "enable MongoDB supervisord"
+    echo "Enable MongoDB supervisord"
     cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
   fi
 }
@@ -41,10 +41,10 @@ update_supervisord_mongodb_conf() {
 update_supervisord_redis_conf() {
   echo "Update supervisord Redis conf"
   if [ $isLocalRedis -eq 1 ]; then
-    echo "disable Redis supervisord"
+    echo "Disable Redis supervisord"
     rm -f redis.conf
   else
-    echo "enable Redis supervisord"
+    echo "Enable Redis supervisord"
     cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
   fi
 }
