@@ -211,7 +211,7 @@ export interface ColumnProperties {
   iconButtonStyle?: ButtonStyleType;
   isCellVisible?: boolean;
   isAscOrder?: boolean;
-  alias?: string;
+  alias: string;
 }
 
 export const ConditionFunctions: {
