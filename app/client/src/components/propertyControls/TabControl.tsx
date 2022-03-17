@@ -2,9 +2,8 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { getNextEntityName, noop } from "utils/AppsmithUtils";
+import { noop } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
@@ -220,28 +219,6 @@ class TabControl extends BaseControl<ControlProps, State> {
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
     );
-  };
-
-  addOption = () => {
-    let tabs = this.props.propertyValue;
-    const tabsArray = this.getTabItems();
-    const newTabId = generateReactKey({ prefix: "tab" });
-    const newTabLabel = getNextEntityName(
-      "Tab ",
-      tabsArray.map((tab: any) => tab.label),
-    );
-    tabs = {
-      ...tabs,
-      [newTabId]: {
-        id: newTabId,
-        index: tabsArray.length,
-        label: newTabLabel,
-        widgetId: generateReactKey(),
-        isVisible: true,
-      },
-    };
-
-    this.updateProperty(this.props.propertyName, tabs);
   };
 
   updateFocus = (index: number, isFocused: boolean) => {
