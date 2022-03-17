@@ -28,9 +28,17 @@ describe("Input widget V2 - ", () => {
     cy.get(widgetInput).type("test{enter}"); //Clicking enter submits the form here
     cy.wait(300);
     cy.get(widgetInput).should("contain.value", "");
+
+    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+
+    cy.get(widgetInput).clear();
+    cy.get(widgetInput).type("1.0010{enter}"); //Clicking enter submits the form here
+    cy.wait(300);
+    cy.get(widgetInput).should("contain.value", "");
   });
 
   it("3. Validate DataType - TEXT can be entered into Input widget", () => {
+    cy.selectDropdownValue(".t--property-control-datatype", "Text");
     [
       {
         input: "test",
@@ -372,6 +380,46 @@ describe("Input widget V2 - ", () => {
     cy.get(widgetInput).type("test{enter}");
     // Assert if the Text widget contains the whole value, test
     cy.get(".t--widget-textwidget").should("have.text", "test");
+  });
+
+  it("9. changing default text should change text", () => {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{Input1.text}}:{{Input1.value}}:{{Input1.isValid}}`,
+    );
+    cy.openPropertyPane(widgetName);
+    cy.updateCodeInput(".t--property-control-defaulttext", `test`);
+    // wait for evaluations
+    cy.wait(300);
+    cy.get(`.t--widget-${widgetName} input`).should("contain.value", "test");
+    cy.get(".t--widget-textwidget").should("contain", "test:test:true");
+
+    cy.updateCodeInput(".t--property-control-defaulttext", `anotherText`);
+    // wait for evaluations
+    cy.wait(300);
+    cy.get(`.t--widget-${widgetName} input`).should(
+      "contain.value",
+      "anotherText",
+    );
+    cy.get(".t--widget-textwidget").should(
+      "contain",
+      "anotherText:anotherText:true",
+    );
+
+    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+
+    cy.updateCodeInput(".t--property-control-defaulttext", `{{1}}`);
+    // wait for evaluations
+    cy.wait(300);
+    cy.get(`.t--widget-${widgetName} input`).should("contain.value", "1");
+    cy.get(".t--widget-textwidget").should("contain", "1:1:true");
+
+    cy.updateCodeInput(".t--property-control-defaulttext", `{{1.00010000}}`);
+    // wait for evaluations
+    cy.wait(300);
+    cy.get(`.t--widget-${widgetName} input`).should("contain.value", "1.0001");
+    cy.get(".t--widget-textwidget").should("contain", "1.0001:1.0001:true");
   });
 
   function enterAndTest(text, expected) {
