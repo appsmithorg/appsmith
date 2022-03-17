@@ -93,15 +93,17 @@ const MenuButtonWrapper = styled.div`
 `;
 
 const PopoverStyles = createGlobalStyle<{
+  minPopoverWidth: number;
   popoverTargetWidth?: number;
   id: string;
 }>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
-  ${({ id, popoverTargetWidth }) => `
+  ${({ id, minPopoverWidth, popoverTargetWidth }) => `
     .menu-button-width-${id} {
-       ${popoverTargetWidth && `width: ${popoverTargetWidth}px`};
+      ${popoverTargetWidth && `width: ${popoverTargetWidth}px`};
+      min-width: ${minPopoverWidth}px;
     }
   `}
 `;
@@ -488,7 +490,13 @@ class ButtonGroupComponent extends React.Component<
   };
 
   render = () => {
-    const { buttonVariant, groupButtons, isDisabled, orientation } = this.props;
+    const {
+      buttonVariant,
+      groupButtons,
+      isDisabled,
+      minPopoverWidth,
+      orientation,
+    } = this.props;
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -517,6 +525,7 @@ class ButtonGroupComponent extends React.Component<
               <MenuButtonWrapper key={button.id}>
                 <PopoverStyles
                   id={button.id}
+                  minPopoverWidth={minPopoverWidth}
                   popoverTargetWidth={this.state.itemWidths[button.id]}
                 />
                 <Popover2
@@ -654,6 +663,7 @@ export interface ButtonGroupComponentProps {
   orientation: string;
   renderMode: RenderMode;
   width: number;
+  minPopoverWidth: number;
 }
 
 export interface ButtonGroupComponentState {
