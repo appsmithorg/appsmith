@@ -8,10 +8,9 @@ describe("SSO with OIDC test functionality", function() {
   });
 
   it("1. Go to admin settings and enable OIDC", function() {
-    // cy.generateUUID().then((uid) => {
-    //    cy.Signup(`${uid}@appsmith.com`, uid);
-    //  });
-    //  cy.get('.t--how-appsmith-works-modal-close').click({force:true})
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.visit("/applications");
     cy.get(".t--profile-menu-icon").should("be.visible");
     cy.get(".t--profile-menu-icon").click();
     cy.get(".t--admin-settings-menu").should("be.visible");
