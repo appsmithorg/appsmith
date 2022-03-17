@@ -1864,9 +1864,9 @@ Cypress.Commands.add("Createpage", (pageName) => {
       cy.get(pages.editName).click({ force: true });
       cy.get(pages.editInput).type(pageName + "{enter}");
       pageidcopy = pageName;
-      cy.get(generatePage.buildFromScratchActionCard).click();
-      cy.get("#loading").should("not.exist");
     }
+    cy.get(generatePage.buildFromScratchActionCard).click();
+    cy.get("#loading").should("not.exist");
   });
 });
 
