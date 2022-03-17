@@ -45,6 +45,7 @@ class SelectComponent extends React.Component<
   SelectComponentProps,
   SelectComponentState
 > {
+  listRef: any = React.createRef();
   state = {
     // used to show focused item for keyboard up down key interection
     activeItemIndex: 0,
@@ -108,6 +109,7 @@ class SelectComponent extends React.Component<
   };
   onQueryChange = (filterValue: string) => {
     this.setState({ query: filterValue });
+    this.listRef?.current?.scrollTo(0);
     if (!this.props.serverSideFiltering) return;
     return this.serverSideSearch(filterValue);
   };
@@ -183,6 +185,11 @@ class SelectComponent extends React.Component<
     renderItem: (item: any, index: number) => JSX.Element | null,
   ): JSX.Element | null => {
     const width: number = Math.floor(this.props.width);
+    // Don't scroll if the list is filtered.
+    const scrollOffset: number =
+      !this.state.query && isNumber(activeItemIndex)
+        ? activeItemIndex * ITEM_SIZE
+        : 0;
     const RowRenderer = (itemProps: any) => (
       <div key={itemProps.index} style={itemProps.style}>
         {renderItem(items[itemProps.index], itemProps.index)}
@@ -191,11 +198,10 @@ class SelectComponent extends React.Component<
     return (
       <FixedSizeList
         height={300}
-        initialScrollOffset={
-          isNumber(activeItemIndex) ? activeItemIndex * ITEM_SIZE : 0
-        }
+        initialScrollOffset={scrollOffset}
         itemCount={items.length}
         itemSize={ITEM_SIZE}
+        ref={this.listRef}
         width={width}
       >
         {RowRenderer}
