@@ -23,12 +23,22 @@ export class JSEditor {
     agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 1000)
   }
 
-  public CreateJSObject(JSCode: string, paste = true) {
+  public CreateJSObject(JSCode: string, paste = true, completeReplace = false) {
     this.NavigateToJSEditor();
-    cy.get(locator._codeMirrorTextArea)
-      .first()
-      .focus()
-      .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
+
+    if (!completeReplace) {
+      cy.get(locator._codeMirrorTextArea)
+        .first()
+        .focus()
+        .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
+    }
+    else {
+      cy.get(locator._codeMirrorTextArea)
+        .first()
+        .focus()
+        .type("{uparrow}", { force: true })
+        .type("{ctrl}{shift}{downarrow}", { force: true });
+    }
 
     cy.get(locator._codeMirrorTextArea)
       .first()
