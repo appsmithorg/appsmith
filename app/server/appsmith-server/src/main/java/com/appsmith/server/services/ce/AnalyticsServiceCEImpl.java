@@ -151,6 +151,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         }).subscribeOn(Schedulers.boundedElastic()).subscribe();
     }
 
+    @Override
+    public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object) {
+        return sendObjectEvent(event, object, null);
+    }
+
     public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
         if (!isActive()) {
             return Mono.just(object);
