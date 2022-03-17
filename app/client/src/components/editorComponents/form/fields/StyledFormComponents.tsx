@@ -16,7 +16,7 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
   font-size: 12px;
   margin-left: 1px;
   margin-top: 5px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 `;
 
 const FormSubtitleText = styled.span<{ config?: ControlProps }>`
@@ -78,7 +78,7 @@ const FormInputSwitchToJsonButton = styled.button`
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #6a86ce;
-  margin: 0 0 8px 0;
+  margin: -6px 0 11px 0;
   border: none;
   padding-left: 0px;
   display: block;

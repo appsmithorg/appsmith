@@ -16,7 +16,19 @@ import {
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
 import { FormControlProps } from "./FormControl";
+import Icon, { IconSize } from "components/ads/Icon";
+import styled from "styled-components";
 
+const StyledIcon = styled(Icon)`
+  margin-left: 4px;
+`;
+
+const FormConfigWrapper = styled.div<{ controlType: string }>`
+  margin-bottom: ${(props) =>
+    props.controlType === "SWITCH" || props.controlType === "CHECKBOX"
+      ? "0px;"
+      : "40px;"};
+`;
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
   configErrors: EvaluationError[];
@@ -48,7 +60,7 @@ export default function FormConfig(props: FormConfigProps) {
   }
 
   return (
-    <div>
+    <FormConfigWrapper controlType={props.config.controlType}>
       <div
         style={{
           // TODO: replace condition with props.config.dataType === "TOGGLE"
@@ -76,7 +88,7 @@ export default function FormConfig(props: FormConfigProps) {
         config: props.config,
         configErrors: props.configErrors,
       })}
-    </div>
+    </FormConfigWrapper>
   );
 }
 function renderFormConfigTop(props: { config: ControlProps }) {
@@ -134,7 +146,7 @@ function renderFormConfigBottom(props: {
     <>
       {info && (
         <FormInputHelperText
-          addMarginTop={controlType === "CHECKBOX" ? "8px" : "2px"} // checkboxes need a higher margin top than others form control types
+          addMarginTop={controlType === "SWITCH" ? "2px" : "8px"} // Switch need a lower margin top than others form control types
         >
           {info}
         </FormInputHelperText>

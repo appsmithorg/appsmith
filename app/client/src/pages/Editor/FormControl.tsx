@@ -8,13 +8,13 @@ import {
 import { useSelector, shallowEqual } from "react-redux";
 import { getFormValues } from "redux-form";
 import FormControlFactory from "utils/FormControlFactory";
-
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
 import ToggleComponentToJson from "components/editorComponents/form/ToggleComponentToJson";
 import FormConfig from "./FormConfig";
+
 export interface FormControlProps {
   config: ControlProps;
   formName: string;
