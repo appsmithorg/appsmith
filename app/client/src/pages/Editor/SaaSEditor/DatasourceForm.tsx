@@ -10,7 +10,11 @@ import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { getDatasource, getPluginImages } from "selectors/entitiesSelector";
+import {
+  getDatasource,
+  getPluginImages,
+  getDatasourceFormButtonConfig,
+} from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   FormTitleContainer,
@@ -37,6 +41,7 @@ interface StateProps extends JSONtoFormProps {
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
+  datasourceButtonConfiguration: string[] | undefined;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -77,6 +82,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     const {
       applicationId,
       datasource,
+      datasourceButtonConfiguration,
       formData,
       match: {
         params: { datasourceId, pageId, pluginPackageName },
@@ -132,6 +138,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         {datasource && (
           <DatasourceAuth
             datasource={datasource}
+            datasourceButtonConfiguration={datasourceButtonConfiguration}
             formData={formData}
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
             isInvalid={this.validate()}
@@ -156,8 +163,15 @@ const mapStateToProps = (state: AppState, props: any) => {
     merge(initialValues, getConfigInitialValues(formConfig));
   }
   merge(initialValues, datasource);
+
+  const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
+    state,
+    formData?.pluginId,
+  );
+
   return {
     datasource,
+    datasourceButtonConfiguration,
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     formData: formData,

@@ -17,6 +17,7 @@ export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
+export type FormDatasourceButtonConfigs = Record<string, string[]>;
 
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>

@@ -27,6 +27,7 @@ import {
   PluginImage,
 } from "./JSONtoForm";
 import DatasourceAuth from "../../common/datasourceAuth";
+import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -42,6 +43,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   pluginType: string;
   messages?: Array<string>;
   datasource: Datasource;
+  datasourceButtonConfiguration: string[] | undefined;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -94,7 +96,14 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   }
 
   renderDataSourceConfigForm = (sections: any) => {
-    const { datasource, formData, messages, pluginType, viewMode } = this.props;
+    const {
+      datasource,
+      datasourceButtonConfiguration,
+      formData,
+      messages,
+      pluginType,
+      viewMode,
+    } = this.props;
 
     return (
       <form
@@ -158,6 +167,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         {datasource && (
           <DatasourceAuth
             datasource={datasource}
+            datasourceButtonConfiguration={datasourceButtonConfiguration}
             formData={formData}
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
             isInvalid={this.validate()}
@@ -176,9 +186,15 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const hintMessages = datasource && datasource.messages;
 
+  const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
+    state,
+    props?.formData?.pluginId,
+  );
+
   return {
     messages: hintMessages,
     datasource,
+    datasourceButtonConfiguration,
   };
 };
 
